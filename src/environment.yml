@@ -37,6 +37,5 @@ dependencies:
     - nltk
     - python-json-logger
     - regex
-    - pydantic 
-    - shapley==2.1.2
+    - pydantic
     - wandb
