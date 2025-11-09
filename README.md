@@ -8,7 +8,7 @@
 Each top-level folder represents a manuscript. Inside, the data is organized as follows:
 
 ###### 📁 `images/` Contains the original, high-resolution scanned images of manuscript pages.
-*   `[PAGE_ID].jpg`: The unmodified source image for a single page. (These are not provide with the dataset due to copyright, however they can be accessed online at the URLs provide)
+*   `[PAGE_ID].jpg`: Original images are not provided with the dataset due to copyright reasons, however they can be accessed online at the URLs provided
 
 ###### 📁 `page-xml-graph-groundtruth/` Contains ground truth annotations in the form of bounding polygons.
 *   `[PAGE_ID].xml`
@@ -35,4 +35,4 @@ Each top-level folder represents a manuscript. Inside, the data is organized as 
 
 
 ## Source code
-To be updated soon!
+To be updated soon!!
