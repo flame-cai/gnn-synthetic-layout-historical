@@ -14,3 +14,5 @@ Configure the parameters in `synthetic_data_gen/configs/synthetic.yaml` as neede
 ```bash
 python synthetic_data_gen/generate.py --dry-run --config synthetic_data_gen/configs/synthetic.yaml
 ```
+
+This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the generated synthetic data files in the graph based format.
