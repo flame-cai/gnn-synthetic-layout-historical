@@ -27,10 +27,17 @@ Contains pre-processed, model-ready data for training Graph Neural Networks.
 *   `[PAGE_ID]_labels_region.txt`: Ground truth labels for region classification. All points belonging to the same text-box share the same label
 *   `[PAGE_ID]_labels_textline.txt`: Ground truth labels.  All points belonging to the same text-line share the same label
 
-#### 📄 `index.csv`
+## To Flatten the Dataset
+```bash
+cd dataset
+python flatten.py
+```
+
+
+This will create a new folder `src/gnn_data/flattened_sanskrit_dataset/` with all the data files flattened into a single directory structure, with an `index.csv` file at the root level.
+
 This file acts as the master index for the entire dataset, providing metadata for each page.
 *   `short_id`: A unique, zero-padded 6-digit identifier for each page entry.
 *   `original_unique_id`: The primary file identifier (`[PAGE_ID]`) used across all subdirectories.
-*   `dataset`: The name of the parent dataset collection (e.g., `sanskrit-manuscripts`).
-*   `sub_manuscript_id`: The manuscript name a page belongs to (e.g., `ravisankrantivicharah`).
+*   `dataset`:  The manuscript name a page belongs to (e.g., `ravisankrantivicharah`).
 *   `layout`: A label indicating the complexity of the page layout (`simple` or `complex`).

@@ -75,6 +75,35 @@ def flatten_and_verify_directory(source_dir: str, dest_dir: str):
     index_data = []
     page_map = {}  # Maps original_unique_page_id -> short_id
     id_counter = 1
+    # --- Load layout info CSV (if present) ---
+    layout_map = {}
+    try:
+        # Look for layout_info.csv in source_dir first, then recursively if not found
+        layout_csv_path = os.path.join(source_dir, 'layout_info.csv')
+        if not os.path.isfile(layout_csv_path):
+            candidates = glob.glob(os.path.join(source_dir, '**', 'layout_info.csv'), recursive=True)
+            layout_csv_path = candidates[0] if candidates else None
+
+        if layout_csv_path and os.path.isfile(layout_csv_path):
+            try:
+                layout_df = pd.read_csv(layout_csv_path, usecols=['original_unique_id', 'layout'], dtype=str)
+                # Ensure keys are strings and strip whitespace
+                layout_df['original_unique_id'] = layout_df['original_unique_id'].astype(str).str.strip()
+                layout_df['layout'] = layout_df['layout'].astype(str).str.strip()
+                # If duplicates exist, keep the first and log a warning
+                dupes = layout_df['original_unique_id'].duplicated().sum()
+                if dupes:
+                    logging.warning(f"layout_info.csv contains {dupes} duplicate 'original_unique_id' entries; using the first occurrence for each key.")
+                layout_map = layout_df.drop_duplicates('original_unique_id').set_index('original_unique_id')['layout'].to_dict()
+                logging.info(f"Loaded layout_info.csv from '{layout_csv_path}' with {len(layout_map)} layout entries.")
+            except Exception as e:
+                logging.error(f"Failed to read layout_info.csv at '{layout_csv_path}': {e}")
+                layout_map = {}
+        else:
+            logging.warning("No layout_info.csv found under source_dir; layout values will be set to 'UNKNOWN'.")
+    except Exception as e:
+        logging.error(f"Unexpected error while locating/loading layout_info.csv: {e}")
+        layout_map = {}
 
     # --- 5. Walk Through the Source Directory to Find and Process Files ---
     logging.info("--- Phase 1: Scanning source files and copying to destination ---")
@@ -107,18 +136,30 @@ def flatten_and_verify_directory(source_dir: str, dest_dir: str):
                 logging.warning(f"Could not determine base name for '{filename}' in '{dirpath}'. Skipping.")
                 continue
 
+            # TODO Load csv file layout_info.csv, load the columns 'original_unique_id' and 'layout'
+            # for each page_name_base, see which row of 'original_unique_id' matches, and get the 'layout' value.
+            # when we create the index_data entry below, we need to add a 'layout' column with these values.
+            # also perform logging to help debug any issues.
+
             original_unique_page_id = f"{dataset}_{sub_manuscript}_{page_name_base}"
 
             # --- 7. Assign a New Short ID if this is the first time seeing this page ---
             if original_unique_page_id not in page_map:
                 short_id = f"{id_counter:06d}"
                 page_map[original_unique_page_id] = short_id
-                
+
+                # Lookup layout value for this original id
+                layout_value = layout_map.get(page_name_base)
+                if layout_value is None:
+                    logging.debug(f"No layout entry for '{original_unique_page_id}'; setting layout='UNKNOWN'.")
+                    layout_value = 'UNKNOWN'
+
                 index_data.append({
                     'short_id': short_id,
-                    'original_unique_id': original_unique_page_id,
+                    'original_unique_id': page_name_base,
                     'dataset': dataset,
-                    'sub_manuscript_id': sub_manuscript
+                    'sub_manuscript_id': sub_manuscript,
+                    'layout': layout_value
                 })
                 id_counter += 1
             
@@ -195,8 +236,12 @@ def flatten_and_verify_directory(source_dir: str, dest_dir: str):
 
     try:
         index_df = pd.DataFrame(index_data)
-        # cols = ['short_id', 'original_unique_id', 'dataset', 'sub_manuscript_id']
-        cols = ['short_id','dataset']
+        # Include layout and sub_manuscript_id in the final index
+        cols = ['short_id', 'original_unique_id', 'dataset', 'layout']
+        # Ensure any missing columns are handled gracefully
+        for c in cols:
+            if c not in index_df.columns:
+                index_df[c] = None
         index_df = index_df[cols]
         index_df.to_csv(os.path.join(dest_dir, "index.csv"), index=False)
         logging.info(f"index.csv file created successfully with {len(index_df)} unique page entries.")
