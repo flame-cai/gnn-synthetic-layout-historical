@@ -1,7 +1,5 @@
 
-## Dataset Overview
-
-Each top-level folder represents a manuscript. Inside, the data is organized as follows:
+## Each top-level folder represents a manuscript📜. Inside, the data is organized as follows:
 
 #### 📁 `images/` 
 Contains the original, high-resolution scanned images of manuscript pages.
