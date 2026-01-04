@@ -35,8 +35,8 @@ cd src
 python synthetic_data_gen/augment.py \
 --config synthetic_data_gen/configs/augment.yaml \
 --input_dir "gnn_data/flattened_sanskrit_data/gnn-dataset" \
---output_dir "gnn_data/augmented_sanskrit_dataset/" \
---val_output_dir "gnn_data/validation_sanskrit_dataset/"
+--output_dir "gnn_data/augmented_sanskrit_dataset/"
 ```
+This will create a new folder `src/gnn_data/augmented_sanskrit_dataset/` with three subfolders: `train`, `val` and `test`. `train` will contain the augmented training samples, while `val` and `test` will contain the original validation and test samples respectively.
 
 ## Training and Evaluation

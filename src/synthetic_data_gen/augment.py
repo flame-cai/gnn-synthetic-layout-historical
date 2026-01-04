@@ -185,8 +185,9 @@ def main():
     )
 
     parser.add_argument('--input_dir', type=str, help='Override the input directory from the config file.')
-    parser.add_argument('--output_dir', type=str, help='Override the output directory for training data from the config file.')
-    parser.add_argument('--val_output_dir', type=str, help='Override the output directory for validation data from the config file.')
+    ### CHANGE: Updated help text to reflect this is now the base directory
+    parser.add_argument('--output_dir', type=str, help='Override the base output directory for the split datasets.')
+    ### CHANGE: Removed --val_output_dir argument as requested
 
     args = parser.parse_args()
 
@@ -204,18 +205,18 @@ def main():
         return
 
     input_dir = Path(args.input_dir) if args.input_dir else Path(config.general.input_dir)
-    train_output_dir = Path(args.output_dir) if args.output_dir else Path(config.general.output_dir)
     
-    try:
-        val_output_dir_config = config.general.val_output_dir
-    except AttributeError:
-        logging.critical("Configuration error: `general.val_output_dir` is not defined in the YAML file.")
-        return
-        
-    val_output_dir = Path(args.val_output_dir) if args.val_output_dir else Path(val_output_dir_config)
+    ### CHANGE: Define base output directory and subdirectories for splits
+    base_output_dir = Path(args.output_dir) if args.output_dir else Path(config.general.output_dir)
+    
+    train_output_dir = base_output_dir / "train"
+    val_output_dir = base_output_dir / "val"
+    test_output_dir = base_output_dir / "test"
 
+    # Create all directories
     train_output_dir.mkdir(parents=True, exist_ok=True)
-    # val_output_dir.mkdir(parents=True, exist_ok=True)
+    val_output_dir.mkdir(parents=True, exist_ok=True)
+    test_output_dir.mkdir(parents=True, exist_ok=True)
 
     assert input_dir.is_dir(), f"Input directory not found: {input_dir}"
 
@@ -227,29 +228,44 @@ def main():
         logging.warning("No pages found. Exiting.")
         return
 
-    #Shuffle and split the data ---
-    logging.info("Shuffling and splitting dataset into 0.8 train and 0.2 validation...")
+    # --- Shuffle and Split (Train: 0.8, Val: 0.1, Test: 0.1) ---
+
     rng = np.random.default_rng(config.general.base_seed)
     shuffled_page_ids = np.array(page_ids, dtype=object)
     rng.shuffle(shuffled_page_ids)
 
-    split_index = int(len(shuffled_page_ids) * 1.0)
-    train_page_ids = shuffled_page_ids[:split_index]
-    val_page_ids = shuffled_page_ids[split_index:]
+    ### CHANGE: Logic for 3-way split
+    n_pages = len(shuffled_page_ids)
+    train_end = int(n_pages * 0.8)
+    val_end = int(n_pages * 0.9)  # 0.8 + 0.1
 
-    logging.info(f"Training set size: {len(train_page_ids)} pages.")
-    logging.info(f"Validation set size: {len(val_page_ids)} pages.")
-    logging.info(f"Processing {len(train_page_ids)} training samples for augmentation...")
+    train_page_ids = shuffled_page_ids[:train_end]
+    val_page_ids = shuffled_page_ids[train_end:val_end]
+    test_page_ids = shuffled_page_ids[val_end:]
 
-    # First, copy all original training files
+    logging.info(f"Training set size: {len(train_page_ids)} pages (80%).")
+    logging.info(f"Validation set size: {len(val_page_ids)} pages (10%).")
+    logging.info(f"Test set size: {len(test_page_ids)} pages (10%).")
+
+    # 1. Copy original training files
     for page_id in tqdm(train_page_ids, desc="Copying original training data"):
         copy_original_data(page_id, input_dir, train_output_dir)
 
-    # Second, create augmentation tasks
+    # 2. Copy original validation files
+    for page_id in tqdm(val_page_ids, desc="Copying validation data"):
+        copy_original_data(page_id, input_dir, val_output_dir)
+
+    ### CHANGE: Copy original test files
+    for page_id in tqdm(test_page_ids, desc="Copying test data"):
+        copy_original_data(page_id, input_dir, test_output_dir)
+
+    # 3. Create augmentation tasks (Train data only)
+    logging.info(f"Processing {len(train_page_ids)} training samples for augmentation...")
     tasks = []
     for page_index, page_id in enumerate(train_page_ids):
         for i in range(config.general.num_augmentations_per_sample):
             seed = config.general.base_seed + page_index * config.general.num_augmentations_per_sample + i
+            # Output goes specifically to train_output_dir
             tasks.append((page_id, page_index, i, seed, config, input_dir, train_output_dir))
 
     logging.info(f"Total augmentations to generate: {len(tasks)}")
@@ -275,6 +291,9 @@ def main():
     logging.info(f"Successfully generated: {len(tasks) - len(errors)} augmented samples.")
     if errors:
         logging.warning(f"Encountered {len(errors)} errors during augmentation. See logs for details.")
+
+if __name__ == "__main__":
+    main()
 
 if __name__ == "__main__":
     main()
