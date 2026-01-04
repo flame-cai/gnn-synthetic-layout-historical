@@ -44,7 +44,7 @@ python synthetic_data_gen/augment.py \
 This will create a new folder `src/gnn_data/augmented_sanskrit_dataset/` with three subfolders: `train`, `val` and `test`. `train` will contain the augmented training samples, while `val` and `test` will contain the original validation and test samples respectively.
 
 
-#### Preprocess Data for GNN Training
+#### Create Combined Dataset (Synthetic + Augmented Real Data)
 First, copy synthetic data, augmented sanskrit data (training set) into a single folder. For example, you can create a new folder `src/gnn_data/combined_data/` and copy the following into it:
 ```bash
 cd src
@@ -54,7 +54,11 @@ rsync -a gnn_data/augmented_sanskrit_dataset/train/ gnn_data/combined_data/
 echo "augmented real data + synthetic data prepared at: gnn_data/combined_data/"
 ```
 
-## Training and Evaluation
+Hence our training dataset will be at `src/gnn_data/combined_data/`
+validation dataset at `src/gnn_data/augmented_sanskrit_dataset/val/` 
+and test dataset at `src/gnn_data/augmented_sanskrit_dataset/test/` (unused as of now).
+
+## Graph Neural Network (GNN) Training
 #### Prepare Data for GNN Training
 First configure the data preprocessing parameters in `configs/gnn_preprocessing.yaml` as needed, then run:
 ```bash
@@ -78,5 +82,5 @@ python -m gnn_training.training.main_train_eval \
 --unique_folder_name "${UNIQUE_FOLDER_NAME}" \
 --gpu_id "${GPU_ID:-0}"
 ```
-This will create a new folder `src/gnn_training/runs/${UNIQUE_FOLDER_NAME}/`.
+This will create a new folder `src/gnn_training/training_runs/${UNIQUE_FOLDER_NAME}/`.
 
