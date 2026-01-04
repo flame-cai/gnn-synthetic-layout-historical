@@ -20,12 +20,23 @@ This script peforms domain randomization to generate synthetic layout data simul
 
 
 #### To Flatten Sanskrit Dataset
-The flattened sanskrit dataset is already provided in `src/gnn_data/flattened_sanskrit_dataset/` (without original images). However, if you wish to flatten the original hierarchical dataset again, with the original images and additional processing, you can run:
+The flattened sanskrit dataset is already provided in `src/gnn_data/flattened_sanskrit_data/` (without original images). However, if you wish to flatten the original hierarchical dataset again, with the original images and additional processing, you can run:
 
 ```bash
 cd dataset
 python flatten.py
 ```
-This will create a new folder `src/gnn_data/flattened_sanskrit_dataset/` with all the data files flattened into a single directory structure, with an `index.csv`.
+This will create a new folder `src/gnn_data/flattened_sanskrit_data/` with all the data files flattened into a single directory structure, with an `index.csv`.
+
+
+#### To Augment Sanskrit Dataset
+```bash
+cd src
+python synthetic_data_gen/augment.py 
+--config synthetic_data_gen/configs/synthetic.yaml 
+--input_dir "gnn_data/flattened_sanskrit_data" 
+--output_dir "gnn_data/augmented_sanskrit_dataset/" 
+--val_output_dir "gnn_data/validation_sanskrit_dataset/"
+```
 
 ## Training and Evaluation
