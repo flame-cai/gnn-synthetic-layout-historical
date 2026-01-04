@@ -1,10 +1,10 @@
 # --- General Generation Settings ---
 # python synthetic-data-gen/generate.py --dry-run --config synthetic-data-gen/configs/histdb_synthetic.yaml
 generation:
-  num_samples: 5 # set this less than 50 to enable dry run and visualize
+  num_samples: 5000 # set this less than 50 to enable dry run and visualize
   num_workers: -1 # -1 means use all available CPU cores
   base_seed: 42
-  output_dir: "./gnn_data/generated-synthetic-data"
+  output_dir: "./gnn_data/generated_synthetic_data"
 
 # --- Visualization Settings ---
 visualization:

@@ -10,6 +10,7 @@ conda activate gnn_layout
 #### Generate Synthetic Data
 Configure the parameters in `synthetic_data_gen/configs/synthetic.yaml` as needed, then run:
 ```bash
+cd src
 python synthetic_data_gen/generate.py --dry-run --config synthetic_data_gen/configs/synthetic.yaml
 ```
 
