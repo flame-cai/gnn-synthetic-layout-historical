@@ -7,7 +7,7 @@ conda activate gnn_layout
 ```
 
 ## Dataset Creation
-#### Generate Synthetic Data
+#### 🔵 Generate Synthetic Data
 Configure the parameters in `configs/synthetic.yaml` as needed, then run:
 ```bash
 cd src
@@ -21,7 +21,7 @@ This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the
 This script peforms domain randomization to generate synthetic layout data simulating complex layouts in the graph based formulation introduced in this project. Both the synthetic data and the real data use the same graph based format, making it easy to integrate synthetic data into training pipelines.
 
 
-#### To Flatten Sanskrit Dataset
+#### 🔵 To Flatten Sanskrit Dataset
 The flattened sanskrit dataset is already provided in `src/gnn_data/flattened_sanskrit_data/` (without original images). However, if you wish to flatten the original hierarchical dataset again, with the original images and new feature engineering, you can run:
 
 ```bash
@@ -32,7 +32,7 @@ python flatten.py
 This will create a new folder `src/gnn_data/flattened_sanskrit_data/` with all the data files flattened into a single directory structure, with an `index.csv`.
 
 
-#### To Augment Sanskrit Dataset
+#### 🔵 To Augment Sanskrit Dataset
 ```bash
 cd src
 
@@ -44,7 +44,7 @@ python synthetic_data_gen/augment.py \
 This will create a new folder `src/gnn_data/augmented_sanskrit_dataset/` with three subfolders: `train`, `val` and `test`. `train` will contain the augmented training samples, while `val` and `test` will contain the original validation and test samples respectively.
 
 
-#### Create Combined Dataset (Synthetic + Augmented Real Data)
+#### 🔵 Create Combined Dataset (Synthetic + Augmented Real Data)
 First, copy synthetic data, augmented sanskrit data (training set) into a single folder. For example, you can create a new folder `src/gnn_data/combined_data/` and copy the following into it:
 ```bash
 cd src
@@ -59,7 +59,7 @@ validation dataset at `src/gnn_data/augmented_sanskrit_dataset/val/`
 and test dataset at `src/gnn_data/augmented_sanskrit_dataset/test/` (unused as of now).
 
 ## Graph Neural Network (GNN) Training
-#### Prepare Data for GNN Training
+#### 🔵 Prepare Data for GNN Training
 First configure the data preprocessing parameters in `configs/gnn_preprocessing.yaml` as needed, then run:
 ```bash
 cd src
@@ -71,7 +71,7 @@ python gnn_training/gnn_data_preparation/main_create_dataset.py \
 ```
 This will create a new folder `src/gnn_data/processed_data_gnn/` with all the processed data files ready for GNN training (node features, edge features, labels etc.).
 
-#### Train GNN Model
+#### 🔵 Train GNN Model
 First configure the GNN training parameters in `configs/gnn_training.yaml` as needed, then run:
 ```bash
 
