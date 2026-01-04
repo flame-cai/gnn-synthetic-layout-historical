@@ -8,11 +8,12 @@ conda activate gnn_layout
 
 ## Dataset Creation
 #### Generate Synthetic Data
-Configure the parameters in `synthetic_data_gen/configs/synthetic.yaml` as needed, then run:
+Configure the parameters in `configs/synthetic.yaml` as needed, then run:
 ```bash
 cd src
 
-python synthetic_data_gen/generate.py --dry-run --config synthetic_data_gen/configs/synthetic.yaml
+python synthetic_data_gen/generate.py --dry-run --config configs/synthetic. yaml  # to visualize a few samples
+python synthetic_data_gen/generate.py --config configs/synthetic.yaml
 ```
 
 This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the generated synthetic data files in the graph based format.
@@ -36,7 +37,7 @@ This will create a new folder `src/gnn_data/flattened_sanskrit_data/` with all t
 cd src
 
 python synthetic_data_gen/augment.py \
---config synthetic_data_gen/configs/augment.yaml \
+--config configs/augment.yaml \
 --input_dir "gnn_data/flattened_sanskrit_data/gnn-dataset" \
 --output_dir "gnn_data/augmented_sanskrit_dataset/"
 ```
@@ -54,3 +55,28 @@ echo "augmented real data + synthetic data prepared at: gnn_data/combined_data/"
 ```
 
 ## Training and Evaluation
+#### Prepare Data for GNN Training
+First configure the data preprocessing parameters in `configs/gnn_preprocessing.yaml` as needed, then run:
+```bash
+cd src
+python gnn_training/gnn_data_preparation/main_create_dataset.py \
+--config configs/gnn_preprocessing.yaml \
+--train_data_dir gnn_data/combined_data/ \
+--val_test_data_dir gnn_data/augmented_sanskrit_dataset/val/ \
+--output_dir gnn_data/processed_data_gnn/
+```
+This will create a new folder `src/gnn_data/processed_data_gnn/` with all the processed data files ready for GNN training (node features, edge features, labels etc.).
+
+#### Train GNN Model
+First configure the GNN training parameters in `configs/gnn_training.yaml` as needed, then run:
+```bash
+
+UNIQUE_FOLDER_NAME="gnn_experiment_1"  # change this to a unique name for each experiment
+python -m gnn_training.training.main_train_eval \
+--config "configs/gnn_training.yaml" \
+--dataset_path "gnn_data/processed_data_gnn/" \
+--unique_folder_name "${UNIQUE_FOLDER_NAME}" \
+--gpu_id "${GPU_ID:-0}"
+```
+This will create a new folder `src/gnn_training/runs/${UNIQUE_FOLDER_NAME}/`.
+

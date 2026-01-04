@@ -1,0 +1,120 @@
+# ===================================================================
+#                Training & Evaluation Configuration
+# ===================================================================
+# --- General Settings ---
+project_name: "HistoricalLayoutAnalysis"
+# Path to the generated dataset folder (e.g., 'processed_data/manuscriptA-v1.0')
+# dataset_path: "synthetic-data-gen/manuscript-gnn-benchmark/processed_data/divahisdb-KNN-15-synth-real-aug" 
+# Directory to save run outputs (models, logs, plots)
+output_dir: "training_runs"
+# Use 'cuda' if available, otherwise 'cpu'
+device: "auto"
+random_seed: 43
+
+# --- Experiment Tracking ---
+# Use 'wandb' for online tracking, or 'none' for local-only
+tracking:
+  use_tracker: "none" # Options: "wandb", "none"
+  # Name for this specific run. Use {model_name} and {fold_idx} as placeholders.
+  run_name_template: "{model_name}-fold_{fold_idx}-{timestamp}"
+
+# --- Model Selection ---
+# List of models to train and evaluate.
+# GNN models must be defined in training.models.gnn_models
+# Sklearn models must be defined in training.models.sklearn_models
+models_to_run:
+  # - "GCN"
+  # - "GAT"
+  # - "MPNN"
+  # - "SGC"
+  - "SplineCNN" # Example of how to add more
+  # - "RandomForest"
+  # - "GradientBoosting"
+  # - "LogisticRegression"
+
+# --- Training Hyperparameters (for GNNs) ---
+training_params:
+  epochs: 3  #30
+  batch_size: 4 # Number of graphs per batch
+  learning_rate: 0.001
+  lr_warmup_epochs: 5 # Number of epochs for linear learning rate warmup. Set to 0 to disable.
+  optimizer: "Adam" # Options: "Adam", "SGD"
+  # Strategy to handle class imbalance
+  # Options: "weighted_loss", "focal_loss", "none"
+  imbalance_handler: "focal_loss" 
+  focal_loss_alpha: 0.90 # Used if imbalance_handler is 'focal_loss'
+  focal_loss_gamma: 2.0 # Used if imbalance_handler is 'focal_loss'
+    # --- Early Stopping Parameters (New) ---
+  early_stopping_patience: 30 # Number of epochs to wait for improvement before stopping
+  early_stopping_min_delta: 0.001 # Minimum change in the monitored metric to qualify as an improvement
+  early_stopping_mode: 'max' # 'min' for loss, 'max' for metrics (e.g., F1-score)
+
+# --- Evaluation Settings ---
+# Best model checkpoint is saved based on this metric on the validation set
+checkpoint_metric: val_textline_f1_score #"val_f1_score" 
+# List of metrics to compute and log
+# metrics_to_compute:
+#   - "accuracy"
+#   # - "precision"
+#   # - "recall"
+#   - "f1_score"
+#   - "simplified_ged" # Graph Edit Distance
+  # - "rand_index"  #too slow - we need to make this fast
+
+# --- Output & Visualization ---
+# Save the best model checkpoint for each fold
+save_checkpoints: True
+# Save detailed prediction CSV for the test set of the best model
+save_prediction_log: False
+# Generate and save qualitative visualization plots for a few test examples
+generate_visualizations: True
+num_visualizations: 10 # Number of pages to visualize per fold
+
+
+# ===================================================================
+#                Model-Specific Configurations
+# ===================================================================
+model_configs:
+  GCN:
+    type: "gnn"
+    hidden_channels: 128
+    num_layers: 2
+    dropout: 0.05
+  GAT:
+    type: "gnn"
+    hidden_channels: 32 # Note: hid_channels * heads = effective channels
+    num_layers: 2
+    heads: 8
+    dropout: 0.05
+  MPNN:
+    type: "gnn"
+    hidden_channels: 128
+    num_layers: 2
+    dropout: 0.05
+  SGC:
+    type: "gnn"
+    hidden_channels: 128 # SGC has no non-linearities in between
+    num_layers: 7      # This is the K (number of hops) in the SGC paper
+    dropout: 0.15      # Dropout for the final predictor MLP
+  SplineCNN:
+    type: "gnn"
+    hidden_channels: 128
+    num_layers: 2 # this was 7
+    dropout: 0.05  #this was 0.15
+    kernel_size: 3
+    spline_edge_dim: 5 # The target dimension for the edge feature pre-processor
+    
+  RandomForest:
+    type: "sklearn"
+    n_estimators: 100
+    max_depth: 20
+    n_jobs: -1
+  GradientBoosting:
+    type: "sklearn"
+    n_estimators: 150
+    learning_rate: 0.1
+    max_depth: 10
+  LogisticRegression:
+    type: "sklearn"
+    C: 1.0
+    max_iter: 1000

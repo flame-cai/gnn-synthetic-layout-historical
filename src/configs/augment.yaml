@@ -1,7 +1,7 @@
 # augmentation.yaml
 
 general:
-  num_augmentations_per_sample: 50
+  num_augmentations_per_sample: 5
   num_workers: -1 # Use all available CPU cores
   base_seed: 42
   visualize: false # Creates a PNG of some augmented samples
