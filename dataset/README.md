@@ -3,7 +3,7 @@
 
 #### 📁 `images/` 
 Contains the original, high-resolution scanned images of manuscript pages.
-*   `[PAGE_ID].jpg`: Original images are not provided with the dataset due to copyright reasons, however they can be accessed online at the URLs provided
+*   `[PAGE_ID].jpg`: Original images are not provided with the dataset due to copyright reasons, however they can be accessed online via the URLs provided in the `manuscript_urls.txt` file provided.
 
 #### 📁 `page-xml-graph-groundtruth/` 
 Contains ground truth annotations in the form of bounding polygons.
