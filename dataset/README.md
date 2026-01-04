@@ -6,11 +6,11 @@ Contains the original, high-resolution scanned images of manuscript pages.
 *   `[PAGE_ID].jpg`: Original images are not provided with the dataset due to copyright reasons, however they can be accessed online via the URLs provided in the `manuscript_urls.txt` file provided.
 
 #### 📁 `page-xml-graph-groundtruth/` 
-Contains ground truth annotations in the form of bounding polygons.
+Contains ground truth annotations in the form of bounding polygons in the standard PAGE XML format commonly used for historical document analysis.
 *   `[PAGE_ID].xml`
 
 #### 📁 `page-xml-rectangle/` 
-Contains non-overlapping ground truth annotations in the form of bounding polygons.
+Contains non-overlapping ground truth annotations in the form of bounding polygons. in the standard PAGE XML format commonly used for historical document analysis.
 *   `[PAGE_ID].xml`
 
 #### 📁 `heatmaps/` 
