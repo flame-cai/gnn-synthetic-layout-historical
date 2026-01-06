@@ -8,7 +8,7 @@
 
 *   **📁 Dataset:** 15 Sanskrit Manuscripts, 481 pages, with diverse layouts, annotated in graph based and PAGE-XML format
 *   **⚙️ Synthetic Data Generator:** Generate synthetic layout data simulating complex layouts in the graph based format
-*   **💻 Source Code:** Coming Soon!
+*   **💻 Source Code:** Run stand-alone inference, or train GNN from scratch
 
 
 ### **TODO List**
