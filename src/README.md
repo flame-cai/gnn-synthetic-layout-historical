@@ -1,4 +1,4 @@
-##  Stand-Alone GNN Inference
+##  Stand-alone Out-of-the-box Inference
 #### 🔵 Install Conda Environment
 ```bash
 cd src
