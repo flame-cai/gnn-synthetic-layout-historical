@@ -24,8 +24,8 @@ conda env create -f environment.yaml
 conda activate gnn_layout
 ```
 
-#### 🔵 To Flatten Sanskrit Dataset
-The flattened sanskrit dataset is already provided in `src/gnn_data/flattened_sanskrit_data/` (without original images). However, if you wish to flatten the original hierarchical dataset again, with the original images and new feature engineering, you can run:
+#### 🔵 To Flatten Sanskrit Dataset (optional)
+The flattened sanskrit dataset is already provided in `src/gnn_data/flattened_sanskrit_data/` (without original images). However, if you wish to flatten the original hierarchical dataset again (with the original images) with custom feature engineering, you can run:
 
 ```bash
 cd dataset
@@ -39,7 +39,7 @@ Configure the parameters in `configs/synthetic.yaml` as needed, then run:
 ```bash
 cd src
 
-python synthetic_data_gen/generate.py --dry-run --config configs/synthetic. yaml  # to visualize a few samples
+python synthetic_data_gen/generate.py --dry-run --config configs/synthetic.yaml  # to visualize a few samples
 python synthetic_data_gen/generate.py --config configs/synthetic.yaml
 ```
 
@@ -48,6 +48,7 @@ This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the
 This script peforms domain randomization to generate synthetic layout data simulating complex layouts in the graph based formulation introduced in this project. Both the synthetic data and the real data use the same graph based format, making it easy to integrate synthetic data into training pipelines.
 
 #### 🔵 To Augment Sanskrit Dataset
+Configure the parameters in `configs/augment.yaml` as needed, then run:
 ```bash
 cd src
 
@@ -63,7 +64,9 @@ This will create a new folder `src/gnn_data/augmented_sanskrit_dataset/` with th
 First, copy synthetic data, augmented sanskrit data (training set) into a single folder. For example, you can create a new folder `src/gnn_data/combined_data/` and copy the following into it:
 ```bash
 cd src
+
 mkdir -p gnn_data/combined_data/
+
 rsync -a gnn_data/generated_synthetic_data/ gnn_data/combined_data/
 rsync -a gnn_data/augmented_sanskrit_dataset/train/ gnn_data/combined_data/
 echo "augmented real data + synthetic data prepared at: gnn_data/combined_data/"
@@ -77,6 +80,7 @@ and test dataset at `src/gnn_data/augmented_sanskrit_dataset/test/` (unused as o
 First configure the data preprocessing parameters in `configs/gnn_preprocessing.yaml` as needed, then run:
 ```bash
 cd src
+
 python gnn_training/gnn_data_preparation/main_create_dataset.py \
 --config configs/gnn_preprocessing.yaml \
 --train_data_dir gnn_data/combined_data/ \
@@ -88,13 +92,13 @@ This will create a new folder `src/gnn_data/processed_data_gnn/` with all the pr
 #### 🔵 Train GNN Model
 First configure the GNN training parameters in `configs/gnn_training.yaml` as needed, then run:
 ```bash
+cd src
 
-UNIQUE_FOLDER_NAME="gnn_experiment_1"  # change this to a unique name for each experiment
 python -m gnn_training.training.main_train_eval \
 --config "configs/gnn_training.yaml" \
 --dataset_path "gnn_data/processed_data_gnn/" \
---unique_folder_name "${UNIQUE_FOLDER_NAME}" \
---gpu_id "${GPU_ID:-0}"
+--unique_folder_name "gnn_experiment_1" \
+--gpu_id 1
 ```
 This will create a new folder `src/gnn_training/training_runs/${UNIQUE_FOLDER_NAME}/`.
 

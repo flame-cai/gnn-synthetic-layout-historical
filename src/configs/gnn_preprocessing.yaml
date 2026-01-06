@@ -7,7 +7,7 @@ min_nodes_per_page: 10 # Skip pages with fewer nodes than this
 # --- MODIFIED: Data splitting configuration for a fixed split ---
 splitting:
   random_seed: 49 # Seed for shuffling the val/test data before splitting
-  val_ratio: 0.95 # 95% of val_test_data_dir goes to validation, 5% to test
+  val_ratio: 0.99 # 95% of val_test_data_dir goes to validation, 5% to test
 
 # ===================================================================
 #                Input Graph Construction
@@ -24,7 +24,7 @@ input_graph:
   # Options: "knn", "none" (future: "expander")
   connectivity:
     # strategies: ["knn"] # Example: using both strategies "knn", 
-    strategies: ["knn"] #angular_knn
+    strategies: ["angular_knn"] #angular_knn
 
     # Parameters for the knn strategy
     knn_params:
@@ -38,7 +38,7 @@ input_graph:
 
     angular_knn_params:
       k: 50 # K for angular KNN
-      sector_angle_degrees: 45 # Minimum angle between edges to consider them connected
+      sector_angle_degrees: 20 # Minimum angle between edges to consider them connected
 
 
   # --- Graph Structure ---

@@ -237,15 +237,15 @@ def main():
     ### CHANGE: Logic for 3-way split
     n_pages = len(shuffled_page_ids)
     train_end = int(n_pages * 0.8)
-    val_end = int(n_pages * 0.9)  # 0.8 + 0.1
+    val_end = int(n_pages * 0.99) 
 
     train_page_ids = shuffled_page_ids[:train_end]
     val_page_ids = shuffled_page_ids[train_end:val_end]
     test_page_ids = shuffled_page_ids[val_end:]
 
     logging.info(f"Training set size: {len(train_page_ids)} pages (80%).")
-    logging.info(f"Validation set size: {len(val_page_ids)} pages (10%).")
-    logging.info(f"Test set size: {len(test_page_ids)} pages (10%).")
+    logging.info(f"Validation set size: {len(val_page_ids)} pages (19%).")
+    logging.info(f"Test set size: {len(test_page_ids)} pages (1%).") # almost no test set as it is never used in this case.
 
     # 1. Copy original training files
     for page_id in tqdm(train_page_ids, desc="Copying original training data"):
