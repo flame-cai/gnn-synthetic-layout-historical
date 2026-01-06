@@ -6,3 +6,31 @@
 2026-01-06 13:13:53,495 - INFO - >>> SUCCESS: next(iter(val_loader)) worked perfectly before training. <<<
 2026-01-06 13:13:53,496 - INFO - --- Starting Training Loop ---
 2026-01-06 13:13:53,496 - INFO - --- Epoch 1/30 ---
+2026-01-06 13:23:17,579 - INFO - Textline Metrics | TP: 2020, FP: 339, FN: 581 | F1: 0.8145
+2026-01-06 13:23:17,580 - INFO - Epoch 1: Train Loss: 0.0097, Val Textline F1: 0.8145, LR: 0.000200
+2026-01-06 13:23:17,580 - INFO - The precision is: 0.814516129032258
+2026-01-06 13:23:17,627 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260106-131347/best_model.pt
+2026-01-06 13:23:17,627 - INFO - --- Epoch 2/30 ---
+2026-01-06 13:37:15,460 - INFO - Textline Metrics | TP: 2260, FP: 449, FN: 341 | F1: 0.8512
+2026-01-06 13:37:15,461 - INFO - Epoch 2: Train Loss: 0.0046, Val Textline F1: 0.8512, LR: 0.000400
+2026-01-06 13:37:15,461 - INFO - The precision is: 0.8512241054613937
+2026-01-06 13:37:15,461 - INFO - Validation metric improved (0.814516 --> 0.851224). Saving model ...
+2026-01-06 13:37:15,553 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260106-131347/best_model.pt
+2026-01-06 13:37:15,553 - INFO - --- Epoch 3/30 ---
+2026-01-06 13:44:10,464 - INFO - Textline Metrics | TP: 2317, FP: 551, FN: 284 | F1: 0.8473
+2026-01-06 13:44:10,464 - INFO - Epoch 3: Train Loss: 0.0041, Val Textline F1: 0.8473, LR: 0.000600
+2026-01-06 13:44:10,464 - INFO - The precision is: 0.8473212653135856
+2026-01-06 13:44:10,464 - INFO - EarlyStopping counter: 1 out of 20
+2026-01-06 13:44:10,464 - INFO - --- Epoch 4/30 ---
+2026-01-06 13:50:23,423 - INFO - Textline Metrics | TP: 2261, FP: 444, FN: 340 | F1: 0.8522
+2026-01-06 13:50:23,423 - INFO - Epoch 4: Train Loss: 0.0037, Val Textline F1: 0.8522, LR: 0.000800
+2026-01-06 13:50:23,423 - INFO - The precision is: 0.8522427440633245
+2026-01-06 13:50:23,423 - INFO - Validation metric improved (0.851224 --> 0.852243). Saving model ...
+2026-01-06 13:50:23,498 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260106-131347/best_model.pt
+2026-01-06 13:50:23,498 - INFO - --- Epoch 5/30 ---
+2026-01-06 13:56:37,506 - INFO - Textline Metrics | TP: 2312, FP: 383, FN: 289 | F1: 0.8731
+2026-01-06 13:56:37,506 - INFO - Epoch 5: Train Loss: 0.0035, Val Textline F1: 0.8731, LR: 0.001000
+2026-01-06 13:56:37,507 - INFO - The precision is: 0.8731117824773413
+2026-01-06 13:56:37,507 - INFO - Validation metric improved (0.852243 --> 0.873112). Saving model ...
+2026-01-06 13:56:37,581 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260106-131347/best_model.pt
+2026-01-06 13:56:37,581 - INFO - --- Epoch 6/30 ---

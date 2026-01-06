@@ -21,16 +21,13 @@ tracking:
 # --- Model Selection ---
 # List of models to train and evaluate.
 # GNN models must be defined in training.models.gnn_models
-# Sklearn models must be defined in training.models.sklearn_models
 models_to_run:
   # - "GCN"
   # - "GAT"
   # - "MPNN"
   # - "SGC"
-  - "SplineCNN" # Example of how to add more
-  # - "RandomForest"
-  # - "GradientBoosting"
-  # - "LogisticRegression"
+  - "SplineCNN" # SplineCNN performs best as of now
+
 
 # --- Training Hyperparameters (for GNNs) ---
 training_params:
@@ -52,14 +49,7 @@ training_params:
 # --- Evaluation Settings ---
 # Best model checkpoint is saved based on this metric on the validation set
 checkpoint_metric: val_textline_f1_score #"val_f1_score" 
-# List of metrics to compute and log
-# metrics_to_compute:
-#   - "accuracy"
-#   # - "precision"
-#   # - "recall"
-#   - "f1_score"
-#   - "simplified_ged" # Graph Edit Distance
-  # - "rand_index"  #too slow - we need to make this fast
+
 
 # --- Output & Visualization ---
 # Save the best model checkpoint for each fold

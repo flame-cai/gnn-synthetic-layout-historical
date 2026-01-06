@@ -11,7 +11,7 @@ cd src/gnn_inference
 python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 ```
 
-This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format and as individual line images.
+This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format, and as individual line images.
 
 
 
@@ -100,5 +100,5 @@ python -m gnn_training.training.main_train_eval \
 --unique_folder_name "gnn_experiment_1" \
 --gpu_id 1
 ```
-This will create a new folder `src/gnn_training/training_runs/${UNIQUE_FOLDER_NAME}/`.
+This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 
