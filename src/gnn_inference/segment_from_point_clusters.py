@@ -5,12 +5,11 @@ import cv2
 from sklearn.linear_model import RANSACRegressor
 from scipy.interpolate import UnivariateSpline
 import math
-import json
 import matplotlib
 matplotlib.use("Agg")  # Use non-GUI backend (fast)
 import matplotlib.pyplot as plt
 from skimage import io
-from scipy.ndimage import maximum_filter, label
+
 
 def loadImage(img_file):
     img = io.imread(img_file)           # RGB order
@@ -160,12 +159,6 @@ def analyze_and_clean_blob(blob, line_type, config):
     final_viz_img = component_viz_img[top:bottom, left:right]
 
     return cleaned_blob, final_viz_img, crop_coords
-
-# def gen_bounding_boxes(det, binarize_threshold):
-#     img = np.uint8(det)
-#     _, img1 = cv2.threshold(img, binarize_threshold, 255, cv2.THRESH_BINARY)
-#     contours, _ = cv2.findContours(img1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#     return [cv2.boundingRect(c) for c in contours]
 
 
 def gen_bounding_boxes(det, binarize_threshold):
@@ -353,44 +346,6 @@ def get_bboxes_for_lines(img, unique_labels, bounding_boxes, debug_mode=False, d
         
         line_bounding_boxes_data[l] = final_coords_for_line
         
-        # if not cleaned_blobs_for_line:
-        #     continue
-
-        # coords_with_label = [coords + [l] for coords in final_coords_for_line]
-        # transformed_coords = normalize_coordinates(transform_boxes_to_horizontal(coords_with_label, line_type, params))
-        
-        # min_x = min(b[0] for b in transformed_coords)
-        # max_x = max(b[0] + b[2] for b in transformed_coords)
-        # min_y = min(b[1] for b in transformed_coords)
-        # max_y = max(b[1] + b[3] for b in transformed_coords)
-        
-        # # --- START OF CHANGE: Use CONFIG values for the final canvas border ---
-        # # Use the static padding values from the main CONFIG for the final canvas.
-        # # This creates a consistent, generous border on the output images.
-        # final_canvas_pad_v = config.get('LINE_GEN_PAD_V', 15) # Default to 15 if not in config
-        # final_canvas_pad_h = config.get('LINE_GEN_PAD_H', 15) # Default to 15 if not in config
-
-        # canvas_h = max_y - min_y + (2 * final_canvas_pad_v)
-        # canvas_w = max_x - min_x + (2 * final_canvas_pad_h)
-        # new_img = np.ones((canvas_h, canvas_w), dtype=np.uint8) * config['PAGE_MEDIAN_COLOR']
-
-        # for blob, t_coords in zip(cleaned_blobs_for_line, transformed_coords):
-        #     if line_type == 'vertical':
-        #         blob = cv2.rotate(blob, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            
-        #     target_x = t_coords[0] - min_x + final_canvas_pad_h
-        #     target_y = t_coords[1] - min_y + final_canvas_pad_v
-        #     # --- END OF CHANGE ---
-            
-        #     h_b, w_b = blob.shape[:2]
-        #     h_n, w_n = new_img.shape[:2]
-
-        #     if target_y < h_n and target_x < w_n:
-        #         y_end = min(target_y + h_b, h_n)
-        #         x_end = min(target_x + w_b, w_n)
-        #         new_img[target_y:y_end, target_x:x_end] = blob[:y_end-target_y, :x_end-target_x]
-        
-        # line_images_data.append({'image': crop_img(new_img), 'label': l})
         
     return line_bounding_boxes_data
 
@@ -398,10 +353,10 @@ def get_bboxes_for_lines(img, unique_labels, bounding_boxes, debug_mode=False, d
 def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_mode=False, BINARIZE_THRESHOLD=0.30, BBOX_PAD_V=0.7, BBOX_PAD_H=0.5, CC_SIZE_THRESHOLD_RATIO=0.4, GNN_PRED_PATH=''):
     IMAGE_FILEPATH = os.path.join(BASE_PATH, "images", f"{page}.jpg")
     HEATMAP_FILEPATH = os.path.join(BASE_PATH, "heatmaps", f"{page}.jpg")
-    POINTS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-dataset-pred", f"{page}_inputs_unnormalized.txt")
-    LABELS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-dataset-pred", f"{page}_labels_textline.txt")
-    LINES_DIR = os.path.join(BASE_PATH, "lines", page)
-    DEBUG_DIR = os.path.join(BASE_PATH, "debug", page)
+    POINTS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-format", f"{page}_inputs_unnormalized.txt")
+    LABELS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-format", f"{page}_labels_textline.txt")
+    LINES_DIR = os.path.join(GNN_PRED_PATH, "image-format", page)
+    DEBUG_DIR = os.path.join(GNN_PRED_PATH, "debug", page)
     POLY_VISUALIZATIONS_DIR = os.path.join(DEBUG_DIR, "poly_visualizations")
 
     # The polygon directory is no longer needed as polygons are now saved in the XML

@@ -1,0 +1,60 @@
+2026-01-06 10:43:15,321 [INFO] --- Processing page: sample_1 ---
+2026-01-06 10:43:15,587 [INFO] Found 11 connected component(s) for 348 nodes
+2026-01-06 10:43:15,588 [INFO] Generating line images and polygon data for page sample_1...
+2026-01-06 10:43:15,833 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_1.xml
+2026-01-06 10:43:15,833 [INFO] --- Processing page: sample_2 ---
+2026-01-06 10:43:15,886 [INFO] Found 6 connected component(s) for 95 nodes
+2026-01-06 10:43:15,887 [INFO] Generating line images and polygon data for page sample_2...
+2026-01-06 10:43:16,881 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_2.xml
+2026-01-06 10:43:16,881 [INFO] --- Processing page: sample_3 ---
+2026-01-06 10:43:17,029 [INFO] Found 12 connected component(s) for 279 nodes
+2026-01-06 10:43:17,031 [INFO] Generating line images and polygon data for page sample_3...
+2026-01-06 10:43:18,936 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_3.xml
+2026-01-06 10:49:53,172 [INFO] --- Processing page: sample_1 ---
+2026-01-06 10:49:53,497 [INFO] Found 11 connected component(s) for 348 nodes
+2026-01-06 10:49:53,501 [INFO] Generating line images and polygon data for page sample_1...
+2026-01-06 10:49:53,748 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_1.xml
+2026-01-06 10:49:53,749 [INFO] --- Processing page: sample_2 ---
+2026-01-06 10:49:53,794 [INFO] Found 6 connected component(s) for 95 nodes
+2026-01-06 10:49:53,795 [INFO] Generating line images and polygon data for page sample_2...
+2026-01-06 10:49:54,599 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_2.xml
+2026-01-06 10:49:54,599 [INFO] --- Processing page: sample_3 ---
+2026-01-06 10:49:54,741 [INFO] Found 12 connected component(s) for 279 nodes
+2026-01-06 10:49:54,743 [INFO] Generating line images and polygon data for page sample_3...
+2026-01-06 10:49:56,471 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_3.xml
+2026-01-06 10:55:03,721 [INFO] --- Processing page: sample_1 ---
+2026-01-06 10:55:04,015 [INFO] Found 11 connected component(s) for 348 nodes
+2026-01-06 10:55:04,017 [INFO] Generating line images and polygon data for page sample_1...
+2026-01-06 10:55:04,268 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_1.xml
+2026-01-06 10:55:04,270 [INFO] --- Processing page: sample_2 ---
+2026-01-06 10:55:04,315 [INFO] Found 6 connected component(s) for 95 nodes
+2026-01-06 10:55:04,316 [INFO] Generating line images and polygon data for page sample_2...
+2026-01-06 10:55:05,281 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_2.xml
+2026-01-06 10:55:05,281 [INFO] --- Processing page: sample_3 ---
+2026-01-06 10:55:05,443 [INFO] Found 12 connected component(s) for 279 nodes
+2026-01-06 10:55:05,445 [INFO] Generating line images and polygon data for page sample_3...
+2026-01-06 10:55:07,213 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_3.xml
+2026-01-06 11:08:10,057 [INFO] --- Processing page: sample_1 ---
+2026-01-06 11:08:10,367 [INFO] Found 11 connected component(s) for 348 nodes
+2026-01-06 11:08:10,368 [INFO] Generating line images and polygon data for page sample_1...
+2026-01-06 11:08:10,686 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_1.xml
+2026-01-06 11:08:10,687 [INFO] --- Processing page: sample_2 ---
+2026-01-06 11:08:10,732 [INFO] Found 6 connected component(s) for 95 nodes
+2026-01-06 11:08:10,734 [INFO] Generating line images and polygon data for page sample_2...
+2026-01-06 11:08:11,539 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_2.xml
+2026-01-06 11:08:11,539 [INFO] --- Processing page: sample_3 ---
+2026-01-06 11:08:11,686 [INFO] Found 12 connected component(s) for 279 nodes
+2026-01-06 11:08:11,687 [INFO] Generating line images and polygon data for page sample_3...
+2026-01-06 11:08:13,362 [INFO] Saved PAGE XML with polygon predictions to: sample_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_3.xml
+2026-01-06 11:12:50,224 [INFO] --- Processing page: sample_1 ---
+2026-01-06 11:12:50,529 [INFO] Found 11 connected component(s) for 348 nodes
+2026-01-06 11:12:50,530 [INFO] Generating line images and polygon data for page sample_1...
+2026-01-06 11:12:50,769 [INFO] Saved PAGE XML with polygon predictions to: demo_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_1.xml
+2026-01-06 11:12:50,769 [INFO] --- Processing page: sample_2 ---
+2026-01-06 11:12:50,822 [INFO] Found 6 connected component(s) for 95 nodes
+2026-01-06 11:12:50,823 [INFO] Generating line images and polygon data for page sample_2...
+2026-01-06 11:12:51,682 [INFO] Saved PAGE XML with polygon predictions to: demo_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_2.xml
+2026-01-06 11:12:51,682 [INFO] --- Processing page: sample_3 ---
+2026-01-06 11:12:51,826 [INFO] Found 12 connected component(s) for 279 nodes
+2026-01-06 11:12:51,827 [INFO] Generating line images and polygon data for page sample_3...
+2026-01-06 11:12:53,616 [INFO] Saved PAGE XML with polygon predictions to: demo_manuscripts/sample_manuscript_1/segmented_lines/page-xml-format/sample_3.xml

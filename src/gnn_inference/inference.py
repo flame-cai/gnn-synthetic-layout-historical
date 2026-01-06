@@ -1,12 +1,11 @@
 import os
+import argparse
 import gc
 from PIL import Image
 import torch
 
-# Assuming images2points is defined elsewhere or imported
-# from your_module import images2points 
 from segmentation.segment_graph import images2points
-from inference_with_eval import run_inference_with_eval
+from gnn_inference import run_gnn_inference
 
 import sys
 # Get the directory where the current script is located (gnn_inference)
@@ -21,17 +20,11 @@ print(f"Added {parent_dir} to sys.path to allow imports from 'gnn_training'")
 
 
 
-def new_process_manuscript():
-    MANUSCRIPTS_PATH = "./input_manuscripts"
-    manuscript_name = "sample_manuscript_1"
-    
-    # Setup paths
-    folder_path = os.path.join(MANUSCRIPTS_PATH, manuscript_name)
-    source_images_path = os.path.join(folder_path, "images")
-    
+def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscript_1"):
+    source_images_path = os.path.join(manuscript_path, "images")
     # We will save processed (and potentially resized) images here
     # to avoid modifying source files while iterating over them.
-    resized_images_path = os.path.join(folder_path, "images_resized")
+    resized_images_path = os.path.join(manuscript_path, "images_resized")
 
     try:
         # Create the target folder
@@ -113,55 +106,20 @@ def new_process_manuscript():
     print("Processing complete.")
 
 
-# in inference_with_eval.py
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser(
-#         description="Run GNN pipeline for a full system-level evaluation.",
-#         formatter_class=argparse.ArgumentDefaultsHelpFormatter
-#     )
-#     parser.add_argument("--input_dir", type=str, required=True, help="Directory with _inputs_normalized.txt and _labels_textline.txt files.")
-#     parser.add_argument("--output_dir", type=str, required=True, help="Directory to save evaluation results, visualizations, and logs.")
-#     parser.add_argument("--model_checkpoint", type=str, required=True, help="Path to the trained .pt model checkpoint.")
-#     parser.add_argument("--dataset_config_path", type=str, required=True, help="Path to the dataset creation config YAML. MUST match the one used for training.")
-#     parser.add_argument("--visualize", action="store_true", help="Generate and save system-level evaluation visualizations.")
-#     parser.add_argument("--BINARIZE_THRESHOLD", type=float, default=130, help="Threshold for binarizing the heatmap.")
-#     parser.add_argument("--BBOX_PAD_V", type=float, default=0.7, help="Vertical padding for bounding boxes in line segmentation.")
-#     parser.add_argument("--BBOX_PAD_H", type=float, default=0.5, help="Horizontal padding for bounding boxes in line segmentation.")
-#     parser.add_argument("--CC_SIZE_THRESHOLD_RATIO", type=float, default=0.4, help="Connected component size threshold ratio for line segmentation.")
-    
-#     args = parser.parse_args()
-#     run_inference_with_eval(args)
 
 
-# args to pass:
-#   --input_dir "/home/kartik/gnn_layout_project/data_processing/split_dataset/${UNIQUE_FOLDER_NAME}/proposed-method/test/gnn-dataset" \
-#   --output_dir "${LATEST_MODEL_DIR}/${UNIQUE_FOLDER_NAME}" \
-#   --model_checkpoint "/home/kartik/gnn_layout_project/models/proposed_method/runs/${UNIQUE_FOLDER_NAME}/${MODEL_ID}/best_model.pt" \
-#   --dataset_config_path $CONFIG_PATH \
-#   --BINARIZE_THRESHOLD 0.5098 \
-#   --BBOX_PAD_V 0.7 \
-#   --BBOX_PAD_H 0.5 \
-#   --CC_SIZE_THRESHOLD_RATIO 0.4 \
-#   --visualize
-import argparse
 
-# 1. Initialize the parser
 
 if __name__ == "__main__":
     # 1. Parse standard CLI arguments4
     parser = argparse.ArgumentParser(description="GNN Layout Analysis Inference")
+    parser.add_argument("--manuscript_path", type=str, default="./input_manuscripts/sample_manuscript_1", help="Path to the manuscript directory")
     args = parser.parse_args()
-    
-    # 2. Run the manuscript processing (images -> resized -> points)
-    # This prepares the data needed for the inference step below
-    new_process_manuscript()
 
-    # 3. Override/Set specific parameters in the args object
-    # -- Paths --
-    args.input_dir = "./input_manuscripts/sample_manuscript_1/gnn-dataset"
-    args.output_dir = "./input_manuscripts/sample_manuscript_1/evaluation_results"
-    args.model_checkpoint = "/home/kartik/gnn_layout_analysis_publish/handwritten-sanskrit-layout-analysis-project/src/training_runs/gnn_experiment_1/SplineCNN-fold_0-20260104-132850/best_model.pt"
-    args.dataset_config_path = "/home/kartik/gnn_layout_analysis_publish/handwritten-sanskrit-layout-analysis-project/src/configs/gnn_preprocessing.yaml"
+    # the data preparation.yaml is tied to the model_checkpoint used.
+    args.model_checkpoint = "./pretrained_gnn/best_model.pt"
+    args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing.yaml"
+
     # -- Hyperparameters
     args.visualize = True
     args.BINARIZE_THRESHOLD = 0.5098
@@ -169,9 +127,8 @@ if __name__ == "__main__":
     args.BBOX_PAD_H = 0.5
     args.CC_SIZE_THRESHOLD_RATIO = 0.4
 
-    # 4. Run inference with the populated args object
-    print(f"Starting inference with model: {os.path.basename(args.model_checkpoint)}")
-    run_inference_with_eval(args)
+    process_new_manuscript(args.manuscript_path)
+    run_gnn_inference(args)
 
 
 
