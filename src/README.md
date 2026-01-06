@@ -8,7 +8,7 @@ conda activate gnn_layout
 
 ```bash
 cd src/gnn_inference
-python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_2/"
+python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 ```
 
 This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format and as individual line images.
