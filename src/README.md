@@ -1,12 +1,39 @@
-## Install Conda Environment
-
+##  Stand-Alone GNN Inference
+#### 🔵 Install Conda Environment
 ```bash
 cd src
 conda env create -f environment.yaml
 conda activate gnn_layout
 ```
 
-## Dataset Creation
+```bash
+cd src/gnn_inference
+python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_2/"
+```
+
+This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format and as individual line images.
+
+
+
+
+## Training
+#### 🔵 Install Conda Environment
+```bash
+cd src
+conda env create -f environment.yaml
+conda activate gnn_layout
+```
+
+#### 🔵 To Flatten Sanskrit Dataset
+The flattened sanskrit dataset is already provided in `src/gnn_data/flattened_sanskrit_data/` (without original images). However, if you wish to flatten the original hierarchical dataset again, with the original images and new feature engineering, you can run:
+
+```bash
+cd dataset
+
+python flatten.py
+```
+This will create a new folder `src/gnn_data/flattened_sanskrit_data/` with all the data files flattened into a single directory structure, with an `index.csv`.
+
 #### 🔵 Generate Synthetic Data
 Configure the parameters in `configs/synthetic.yaml` as needed, then run:
 ```bash
@@ -19,18 +46,6 @@ python synthetic_data_gen/generate.py --config configs/synthetic.yaml
 This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the generated synthetic data files in the graph based format.
 
 This script peforms domain randomization to generate synthetic layout data simulating complex layouts in the graph based formulation introduced in this project. Both the synthetic data and the real data use the same graph based format, making it easy to integrate synthetic data into training pipelines.
-
-
-#### 🔵 To Flatten Sanskrit Dataset
-The flattened sanskrit dataset is already provided in `src/gnn_data/flattened_sanskrit_data/` (without original images). However, if you wish to flatten the original hierarchical dataset again, with the original images and new feature engineering, you can run:
-
-```bash
-cd dataset
-
-python flatten.py
-```
-This will create a new folder `src/gnn_data/flattened_sanskrit_data/` with all the data files flattened into a single directory structure, with an `index.csv`.
-
 
 #### 🔵 To Augment Sanskrit Dataset
 ```bash
@@ -58,7 +73,6 @@ Hence our training dataset will be at `src/gnn_data/combined_data/`
 validation dataset at `src/gnn_data/augmented_sanskrit_dataset/val/` 
 and test dataset at `src/gnn_data/augmented_sanskrit_dataset/test/` (unused as of now).
 
-## Graph Neural Network (GNN) Training
 #### 🔵 Prepare Data for GNN Training
 First configure the data preprocessing parameters in `configs/gnn_preprocessing.yaml` as needed, then run:
 ```bash
@@ -84,11 +98,3 @@ python -m gnn_training.training.main_train_eval \
 ```
 This will create a new folder `src/gnn_training/training_runs/${UNIQUE_FOLDER_NAME}/`.
 
-#### 🔵 Stand-Alone GNN Inference
-
-```bash
-cd src/gnn_inference
-python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_2/"
-```
-
-This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format and as individual line images.
