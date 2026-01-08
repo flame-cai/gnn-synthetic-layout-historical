@@ -32,6 +32,9 @@ NOTE 2: The inference code resizes very large images to `2500` longest side for 
 ```target_longest_side = 2500```.
 However, this is also require adjusting the feature extraction parameter ``min_distance` in `src/gnn_inference/segmentation/segment_graph.py` accordingly.
 
+NOTE 3: This is primarily made for Handwritten Sanskrit Manuscripts in Devanagari script, however it will work reasonibly well on other scripts if they fit the following criteria: 
+1) [CRAFT](https://github.com/clovaai/CRAFT-pytorch) successfully detects the script characters
+2) Character spacing is less than Line spacing.
 
 ### Training
 #### 🔵 Install Conda Environment
