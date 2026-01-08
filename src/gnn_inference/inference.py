@@ -60,23 +60,38 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
             # Open the image from the folder
             with Image.open(file_path) as image:
                 
-                # --- MODIFICATION START ---
-                # Check if the image is too big (height or width > 3000 pixels)
                 width, height = image.size
                 
-                if width > 3000 or height > 3000:
-                    print(f"Image '{filename}' is too large ({width}x{height}). Downscaling by 50%.")
-                    new_width = width // 2
-                    new_height = height // 2
+                # 1. VALIDATION: Check if image is too small for CV tasks
+                # If both dimensions are smaller than 600, we reject the image.
+                if width < 600 and height < 600:
+                    raise ValueError(f"Image resolution too low ({width}x{height}). Both dimensions are < 600px.")
+
+                # 2. RESIZING: Downscale only if too large
+                target_longest_side = 2500
+                
+                # Check if the longest side exceeds the target
+                if max(width, height) > target_longest_side:
                     
-                    # Handle Resampling filter compatibility for older/newer PIL versions
+                    # Calculate scaling factor
+                    scale_factor = target_longest_side / max(width, height)
+                    
+                    # Calculate new dimensions
+                    new_width = int(width * scale_factor)
+                    new_height = int(height * scale_factor)
+                    
+                    # Handle Resampling filter compatibility
                     try:
                         resampling_filter = Image.Resampling.LANCZOS
                     except AttributeError:
                         resampling_filter = Image.LANCZOS
 
+                    print(f"Downscaling '{filename}': ({width}x{height}) -> ({new_width}x{new_height})")
                     image = image.resize((new_width, new_height), resampling_filter)
-                # --- MODIFICATION END ---
+                    
+                else:
+                    print(f"Image '{filename}' is within limits ({width}x{height}). Keeping original size.")
+                    
 
                 # Standardize Color Mode
                 if image.mode in ("RGBA", "P", "LA"):
@@ -86,12 +101,11 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
                 new_filename = f"{base_filename}.jpg"
                 save_path = os.path.join(resized_images_path, new_filename)
                 
-                # We copy/save distinct files even if not resized to ensure 
-                # images2points has a single complete directory to work with.
                 image.save(save_path, "JPEG")
                 print(f"Processed: {new_filename}")
 
         except Exception as img_err:
+            # This block catches the ValueError raised above and prints the message
             print(f"Failed to process image {filename}: {img_err}")
             continue
 
@@ -117,8 +131,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # the data preparation.yaml is tied to the model_checkpoint used.
-    args.model_checkpoint = "./pretrained_gnn/best_model.pt"
-    args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing.yaml"
+    args.model_checkpoint = "./pretrained_gnn/v2.pt"
+    args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
 
     # -- Hyperparameters
     args.visualize = True

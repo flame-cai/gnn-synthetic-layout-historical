@@ -520,5 +520,12 @@ def run_gnn_inference(args):
             )
             logging.info("Saved PAGE XML with polygon predictions to: %s", xml_path)
 
+        #copy files from images_resized to segmented_lines/images_resized
+        resized_images_src = Path(args.manuscript_path) / "images_resized"
+        resized_images_dst = Path(output_dir) / "images_resized"
+        resized_images_dst.mkdir(exist_ok=True)
+        for img_file in resized_images_src.glob("*.jpg"):
+            shutil.copy(img_file, resized_images_dst / img_file.name)
+
 
 

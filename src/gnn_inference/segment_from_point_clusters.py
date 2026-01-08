@@ -351,7 +351,7 @@ def get_bboxes_for_lines(img, unique_labels, bounding_boxes, debug_mode=False, d
 
 
 def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_mode=False, BINARIZE_THRESHOLD=0.30, BBOX_PAD_V=0.7, BBOX_PAD_H=0.5, CC_SIZE_THRESHOLD_RATIO=0.4, GNN_PRED_PATH=''):
-    IMAGE_FILEPATH = os.path.join(BASE_PATH, "images", f"{page}.jpg")
+    IMAGE_FILEPATH = os.path.join(BASE_PATH, "images_resized", f"{page}.jpg")
     HEATMAP_FILEPATH = os.path.join(BASE_PATH, "heatmaps", f"{page}.jpg")
     POINTS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-format", f"{page}_inputs_unnormalized.txt")
     LABELS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-format", f"{page}_labels_textline.txt")

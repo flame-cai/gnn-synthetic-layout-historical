@@ -144,7 +144,7 @@ def images2points(folder_path):
         assert region_score.shape == affinity_score.shape
         
         # 2. Convert heatmap to raw point coordinates (unnormalized)
-        raw_points = heatmap_to_pointcloud(region_score, min_peak_value=0.3, min_distance=10)
+        raw_points = heatmap_to_pointcloud(region_score, min_peak_value=0.4, min_distance=20)
         
         # --- NEW: Store the unnormalized points first ---
         unnormalized_points_list.append(raw_points)

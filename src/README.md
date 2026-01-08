@@ -13,7 +13,12 @@ python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 
 This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format, and as individual line images.
 
+NOTE 1: `sample_manuscript_1/` and `sample_manuscript_2` contain high resolution images and will work out of the box. However, `sample_manuscript_3/` contains lower resolution images - for whom the feature engineering parameters in `src/gnn_inference/segmentation/segment_graph.py` will need to be adjusted as follows:
+Please set `min_distance` to `10` in the following line as shown: `raw_points = heatmap_to_pointcloud(region_score, min_peak_value=0.4, min_distance=10)`
 
+NOTE 2: The inference code resizes very large images to `2500` longest side for processing to reduce the GPU memory requirements and to standardize the feature extraction process. If you wish to change this limit, you can do so in `src/gnn_inference/inference.py` at the following lines:
+```target_longest_side = 2500```.
+However, this is also require adjusting the feature extraction parameter ``min_distance` in `src/gnn_inference/segmentation/segment_graph.py` accordingly.
 
 
 ## Training

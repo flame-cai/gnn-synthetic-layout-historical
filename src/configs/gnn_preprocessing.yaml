@@ -69,7 +69,7 @@ features:
     one_hot_max_overlap: 10
 
   # --- Graph-level Features ---
-  use_page_aspect_ratio: True
+  use_page_aspect_ratio: True  # bug: not being used
 
 # ===================================================================
 #              Ground Truth Graph Construction
