@@ -309,7 +309,7 @@ const container = ref(null)
 const svgOverlayRef = ref(null)
 
 // --- State for region labeling ---
-const regionLabels = reactive({}) // Maps node index to a region label (0, 1, 2...)
+const textlineLabels = reactive({}) // Maps node index to a region label (0, 1, 2...)
 const textlines = ref({}) // Maps textline ID to a list of node indices
 const nodeToTextlineMap = ref({}) // Maps node index to its textline ID
 const hoveredTextlineId = ref(null)
@@ -394,7 +394,7 @@ const fetchPageData = async (manuscript, page) => {
   loading.value = true
   error.value = null
   modifications.value = []
-  Object.keys(regionLabels).forEach((key) => delete regionLabels[key])
+  Object.keys(textlineLabels).forEach((key) => delete textlineLabels[key])
 
   try {
     const response = await fetch(
@@ -415,10 +415,10 @@ const fetchPageData = async (manuscript, page) => {
         await saveGeneratedGraph(manuscript, page, graph.value)
       }
     }
-    if (data.region_labels) {
-      data.region_labels.forEach((label, index) => {
+    if (data.textline_labels) {
+      data.textline_labels.forEach((label, index) => {
         if (label !== -1) {
-          regionLabels[index] = label
+          textlineLabels[index] = label
         }
       })
     }
@@ -496,7 +496,7 @@ const getNodeColor = (nodeIndex) => {
     if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
       return '#ff4081' // Hot pink for hovered textline
     }
-    const label = regionLabels[nodeIndex]
+    const label = textlineLabels[nodeIndex]
     if (label !== undefined && label > -1) {
       return labelColors[label % labelColors.length]
     }
@@ -628,7 +628,7 @@ const labelTextline = () => {
   const nodesToLabel = textlines.value[hoveredTextlineId.value]
   if (nodesToLabel) {
     nodesToLabel.forEach((nodeIndex) => {
-      regionLabels[nodeIndex] = currentLabelIndex.value
+      textlineLabels[nodeIndex] = currentLabelIndex.value
     })
   }
 }
@@ -856,14 +856,14 @@ const saveGeneratedGraph = async (name, page, g) => {
 const saveModifications = async () => {
   const numNodes = workingGraph.nodes.length
   const labelsToSend = new Array(numNodes).fill(-1)
-  for (const nodeIndex in regionLabels) {
-    labelsToSend[nodeIndex] = regionLabels[nodeIndex]
+  for (const nodeIndex in textlineLabels) {
+    labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
   }
 
   const requestBody = {
     graph: workingGraph,
     modifications: modifications.value,
-    regionLabels: labelsToSend,
+    textlineLabels: labelsToSend,
   }
 
   if (annotationStore.modelName) {
@@ -1046,7 +1046,7 @@ watch(regionLabelingModeActive, (isLabeling) => {
     resetSelection()
 
     // Ensure the next label index is unique by checking existing labels
-    const existingLabels = Object.values(regionLabels)
+    const existingLabels = Object.values(textlineLabels)
     if (existingLabels.length > 0) {
       // Find the maximum label value currently in use and add 1
       const maxLabel = Math.max(...existingLabels)

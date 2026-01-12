@@ -87,9 +87,9 @@ def get_page_prediction(manuscript, page):
         
         # Load Image to send to frontend
         img_path = manuscript_path / "images_resized" / f"{page}.jpg"
-        if not img_path.exists():
-             # Fallback if original wasn't resized
-             img_path = manuscript_path / "images" / f"{page}.jpg"
+        # if not img_path.exists():
+        #      # Fallback if original wasn't resized
+        #      img_path = manuscript_path / "images" / f"{page}.jpg"
              
         with open(img_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
@@ -99,7 +99,7 @@ def get_page_prediction(manuscript, page):
             "dimensions": graph_data['dimensions'],
             "points": [[n['x'], n['y']] for n in graph_data['nodes']],
             "graph": graph_data,
-            "region_labels": graph_data['region_labels']
+            "textline_labels": graph_data['textline_labels']
         }
         return jsonify(response)
         
@@ -116,18 +116,18 @@ def save_correction(manuscript, page):
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     
     # Extract data from frontend
-    # The frontend sends 'regionLabels' (list of ints) and 'graph' (edges with labels)
-    region_labels = data.get('regionLabels')
+    # The frontend sends 'textlineLabels' (list of ints) and 'graph' (edges with labels)
+    textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph')
     
-    if not region_labels or not graph_data:
+    if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
 
     try:
         result = generate_xml_and_images_for_page(
             str(manuscript_path),
             page,
-            region_labels,
+            textline_labels,
             graph_data['edges'],
             { # Pass default hyperparameters or read from request
                 'BINARIZE_THRESHOLD': 0.5098,

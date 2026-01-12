@@ -16,7 +16,7 @@
         </button>
         <div class="toggle-container">
           <label>
-            <input type="checkbox" v-model="editModeActive" :disabled="isProcessingSave" />
+            <input type="checkbox" v-model="textlineModeActive" :disabled="isProcessingSave" />
             Edge Edit (W)
           </label>
         </div>
@@ -24,7 +24,7 @@
           <label>
             <input
               type="checkbox"
-              v-model="regionLabelingModeActive"
+              v-model="textboxModeActive"
               :disabled="isProcessingSave || !graphIsLoaded"
             />
             Region Labeling (R)
@@ -70,11 +70,11 @@
         <svg
           v-if="graphIsLoaded"
           class="graph-overlay"
-          :class="{ 'is-visible': editModeActive || regionLabelingModeActive }"
+          :class="{ 'is-visible': textlineModeActive || textboxModeActive }"
           :width="scaledWidth"
           :height="scaledHeight"
           :style="{ cursor: svgCursor }"
-          @click="editModeActive && onBackgroundClick($event)"
+          @click="textlineModeActive && onBackgroundClick($event)"
           @mousemove="handleSvgMouseMove"
           @mouseleave="handleSvgMouseLeave"
           ref="svgOverlayRef"
@@ -88,7 +88,7 @@
             :y2="scaleY(workingGraph.nodes[edge.target].y)"
             :stroke="getEdgeColor(edge)"
             :stroke-width="isEdgeSelected(edge) ? 3 : 2.5"
-            @click.stop="editModeActive && onEdgeClick(edge, $event)"
+            @click.stop="textlineModeActive && onEdgeClick(edge, $event)"
           />
 
           <circle
@@ -98,12 +98,12 @@
             :cy="scaleY(node.y)"
             :r="getNodeRadius(nodeIndex)"
             :fill="getNodeColor(nodeIndex)"
-            @click.stop="editModeActive && onNodeClick(nodeIndex, $event)"
+            @click.stop="textlineModeActive && onNodeClick(nodeIndex, $event)"
           />
 
           <line
             v-if="
-              editModeActive &&
+              textlineModeActive &&
               selectedNodes.length === 1 &&
               tempEndPoint &&
               !isAKeyPressed &&
@@ -125,25 +125,25 @@
     <div class="bottom-panel">
       <div class="panel-toggle-bar" @click="isControlsCollapsed = !isControlsCollapsed">
         <div class="edit-instructions">
-          <p v-if="isControlsCollapsed && regionLabelingModeActive">
+          <p v-if="isControlsCollapsed && textboxModeActive">
             Hold 'e' and hover over lines to label them. Release 'e' and press again for the next
             label. 's' to save.
           </p>
-          <p v-else-if="isControlsCollapsed && editModeActive">
+          <p v-else-if="isControlsCollapsed && textlineModeActive">
             Hold 'a' to connect, 'd' to delete. Press 's' to save & next. Toggle modes with 'w'/'r'.
           </p>
-          <p v-else-if="isControlsCollapsed && !editModeActive && !regionLabelingModeActive">
+          <p v-else-if="isControlsCollapsed && !textlineModeActive && !textboxModeActive">
             Press 'w' to edit edges, 'r' to label regions.
           </p>
-          <p v-else-if="regionLabelingModeActive">
+          <p v-else-if="textboxModeActive">
             Hold 'e' to label textlines with the current label. Release and press 'e' again to move
             to the next label.
           </p>
-          <p v-else-if="editModeActive && !isAKeyPressed && !isDKeyPressed">
+          <p v-else-if="textlineModeActive && !isAKeyPressed && !isDKeyPressed">
             Select nodes to manage edges, or use hotkeys.
           </p>
-          <p v-else-if="editModeActive && isAKeyPressed">Release 'A' to connect nodes.</p>
-          <p v-else-if="editModeActive && isDKeyPressed">Release 'D' to stop deleting.</p>
+          <p v-else-if="textlineModeActive && isAKeyPressed">Release 'A' to connect nodes.</p>
+          <p v-else-if="textlineModeActive && isDKeyPressed">Release 'D' to stop deleting.</p>
         </div>
         <button class="panel-toggle-btn">
           {{ isControlsCollapsed ? 'Show Controls' : 'Hide Controls' }}
@@ -151,7 +151,7 @@
       </div>
 
       <div v-show="!isControlsCollapsed" class="bottom-panel-content">
-        <div v-if="editModeActive && !isAKeyPressed && !isDKeyPressed" class="edit-controls">
+        <div v-if="textlineModeActive && !isAKeyPressed && !isDKeyPressed" class="edit-controls">
           <div class="edit-actions">
             <button @click="resetSelection">Cancel Selection</button>
             <button
@@ -170,7 +170,7 @@
         </div>
 
         <div
-          v-if="(editModeActive || regionLabelingModeActive) && graphIsLoaded"
+          v-if="(textlineModeActive || textboxModeActive) && graphIsLoaded"
           class="modifications-log-container"
         >
           <button @click="saveCurrentGraph" :disabled="loading || isProcessingSave">
@@ -235,8 +235,8 @@ const imageLoaded = ref(false)
 
 const isToolbarCollapsed = ref(true)
 const isControlsCollapsed = ref(true)
-const editModeActive = ref(false)
-const regionLabelingModeActive = ref(false)
+const textlineModeActive = ref(false)
+const textboxModeActive = ref(false)
 
 const dimensions = ref([0, 0])
 const points = ref([])
@@ -254,11 +254,11 @@ const container = ref(null)
 const svgOverlayRef = ref(null)
 
 // --- State for region labeling ---
-const regionLabels = reactive({}) // Maps node index to a region label (0, 1, 2...)
+const textlineLabels = reactive({}) // Maps node index to a region label (0, 1, 2...)
 const textlines = ref({}) // Maps textline ID to a list of node indices
 const nodeToTextlineMap = ref({}) // Maps node index to its textline ID
 const hoveredTextlineId = ref(null)
-const currentLabelIndex = ref(0) // The current label to apply (0, 1, 2, ...)
+const textboxLabels = ref(0) // The current label to apply (0, 1, 2, ...)
 const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] // Colors for different labels
 
 const scaleFactor = 1.0
@@ -279,25 +279,36 @@ const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
 
 const svgCursor = computed(() => {
-  if (regionLabelingModeActive.value) {
+  if (textboxModeActive.value) {
     if (isEKeyPressed.value) return 'crosshair'
     return 'pointer'
   }
-  if (!editModeActive.value) return 'default'
+  if (!textlineModeActive.value) return 'default'
   if (isAKeyPressed.value) return 'crosshair'
   if (isDKeyPressed.value) return 'not-allowed'
   return 'default'
 })
 
 const computeTextlines = () => {
-  if (!graphIsLoaded.value) return
+  if (!graphIsLoaded.value) {
+    // Safety: If graph isn't loaded, clear lines so we don't show stale data
+    textlines.value = {}
+    nodeToTextlineMap.value = {}
+    return
+  }
+
   const numNodes = workingGraph.nodes.length
   const adj = Array(numNodes)
     .fill(0)
     .map(() => [])
+
+  // FIX 1: Add bounds checking to prevent crashes on bad data
   for (const edge of workingGraph.edges) {
-    adj[edge.source].push(edge.target)
-    adj[edge.target].push(edge.source)
+    // Only add the edge if both source and target exist in our node list
+    if (adj[edge.source] && adj[edge.target]) {
+      adj[edge.source].push(edge.target)
+      adj[edge.target].push(edge.source)
+    }
   }
 
   const visited = new Array(numNodes).fill(false)
@@ -339,7 +350,7 @@ const fetchPageData = async (manuscript, page) => {
   loading.value = true
   error.value = null
   modifications.value = []
-  Object.keys(regionLabels).forEach((key) => delete regionLabels[key])
+  Object.keys(textlineLabels).forEach((key) => delete textlineLabels[key])
 
   try {
     const response = await fetch(
@@ -360,10 +371,10 @@ const fetchPageData = async (manuscript, page) => {
         await saveGeneratedGraph(manuscript, page, graph.value)
       }
     }
-    if (data.region_labels) {
-      data.region_labels.forEach((label, index) => {
+    if (data.textline_labels) {
+      data.textline_labels.forEach((label, index) => {
         if (label !== -1) {
-          regionLabels[index] = label
+          textlineLabels[index] = label
         }
       })
     }
@@ -419,7 +430,7 @@ const updateUniqueNodeEdgeCounts = () => {
 }
 
 watch(
-  () => workingGraph.edges,
+  [() => workingGraph.edges, () => workingGraph.nodes],
   () => {
     updateUniqueNodeEdgeCounts()
     computeTextlines()
@@ -437,11 +448,11 @@ const resetWorkingGraph = () => {
 const getNodeColor = (nodeIndex) => {
   const textlineId = nodeToTextlineMap.value[nodeIndex]
 
-  if (regionLabelingModeActive.value) {
+  if (textboxModeActive.value) {
     if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
       return '#ff4081' // Hot pink for hovered textline
     }
-    const label = regionLabels[nodeIndex]
+    const label = textlineLabels[nodeIndex]
     if (label !== undefined && label > -1) {
       return labelColors[label % labelColors.length]
     }
@@ -458,7 +469,7 @@ const getNodeColor = (nodeIndex) => {
   return '#cccccc'
 }
 const getNodeRadius = (nodeIndex) => {
-  if (regionLabelingModeActive.value) {
+  if (textboxModeActive.value) {
     const textlineId = nodeToTextlineMap.value[nodeIndex]
     if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
       return 7
@@ -486,7 +497,7 @@ const resetSelection = () => {
   tempEndPoint.value = null
 }
 const onNodeClick = (nodeIndex, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || regionLabelingModeActive.value) return
+  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
   event.stopPropagation()
   const existingIndex = selectedNodes.value.indexOf(nodeIndex)
   if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1)
@@ -496,7 +507,7 @@ const onNodeClick = (nodeIndex, event) => {
       : (selectedNodes.value = [nodeIndex])
 }
 const onEdgeClick = (edge, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || regionLabelingModeActive.value) return
+  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
   event.stopPropagation()
   selectedNodes.value = [edge.source, edge.target]
 }
@@ -510,7 +521,7 @@ const handleSvgMouseMove = (event) => {
   const mouseX = event.clientX - left
   const mouseY = event.clientY - top
 
-  if (regionLabelingModeActive.value) {
+  if (textboxModeActive.value) {
     let newHoveredTextlineId = null
 
     // 1. Check for node hover first (more precise)
@@ -556,7 +567,7 @@ const handleSvgMouseMove = (event) => {
     return
   }
 
-  if (!editModeActive.value) return
+  if (!textlineModeActive.value) return
   if (isDKeyPressed.value) handleEdgeHoverDelete(mouseX, mouseY)
   else if (isAKeyPressed.value) handleNodeHoverCollect(mouseX, mouseY)
   else if (selectedNodes.value.length === 1) tempEndPoint.value = { x: mouseX, y: mouseY }
@@ -573,7 +584,7 @@ const labelTextline = () => {
   const nodesToLabel = textlines.value[hoveredTextlineId.value]
   if (nodesToLabel) {
     nodesToLabel.forEach((nodeIndex) => {
-      regionLabels[nodeIndex] = currentLabelIndex.value
+      textlineLabels[nodeIndex] = textboxLabels.value
     })
   }
 }
@@ -584,7 +595,7 @@ const handleGlobalKeyDown = (e) => {
   // General hotkeys that work in multiple modes
   if (key === 's' && !e.repeat) {
     if (
-      (editModeActive.value || regionLabelingModeActive.value) &&
+      (textlineModeActive.value || textboxModeActive.value) &&
       !loading.value &&
       !isProcessingSave.value
     ) {
@@ -595,17 +606,17 @@ const handleGlobalKeyDown = (e) => {
   }
   if (key === 'w' && !e.repeat) {
     e.preventDefault()
-    editModeActive.value = !editModeActive.value
+    textlineModeActive.value = !textlineModeActive.value
     return
   }
   if (key === 'r' && !e.repeat) {
     e.preventDefault()
-    regionLabelingModeActive.value = !regionLabelingModeActive.value
+    textboxModeActive.value = !textboxModeActive.value
     return
   }
 
   // Region labeling specific hotkeys
-  if (regionLabelingModeActive.value && !e.repeat) {
+  if (textboxModeActive.value && !e.repeat) {
     if (key === 'e') {
       e.preventDefault()
       isEKeyPressed.value = true
@@ -614,7 +625,7 @@ const handleGlobalKeyDown = (e) => {
   }
 
   // Edge editing specific hotkeys
-  if (!editModeActive.value || e.repeat) return
+  if (!textlineModeActive.value || e.repeat) return
 
   if (key === 'd') {
     e.preventDefault()
@@ -632,12 +643,12 @@ const handleGlobalKeyDown = (e) => {
 const handleGlobalKeyUp = (e) => {
   const key = e.key.toLowerCase()
 
-  if (regionLabelingModeActive.value && key === 'e') {
+  if (textboxModeActive.value && key === 'e') {
     isEKeyPressed.value = false
-    currentLabelIndex.value++ // Increment label for the next group
+    textboxLabels.value++ // Increment label for the next group
   }
 
-  if (!editModeActive.value) return
+  if (!textlineModeActive.value) return
 
   if (key === 'd') isDKeyPressed.value = false
   if (key === 'a') {
@@ -801,14 +812,14 @@ const saveGeneratedGraph = async (name, page, g) => {
 const saveModifications = async () => {
   const numNodes = workingGraph.nodes.length
   const labelsToSend = new Array(numNodes).fill(-1)
-  for (const nodeIndex in regionLabels) {
-    labelsToSend[nodeIndex] = regionLabels[nodeIndex]
+  for (const nodeIndex in textlineLabels) {
+    labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
   }
 
   const requestBody = {
     graph: workingGraph,
     modifications: modifications.value,
-    regionLabels: labelsToSend,
+    textlineLabels: labelsToSend,
   }
 
   try {
@@ -965,8 +976,8 @@ watch(
   }
 )
 
-watch(editModeActive, (isEditing) => {
-  if (isEditing) regionLabelingModeActive.value = false
+watch(textlineModeActive, (isEditing) => {
+  if (isEditing) textboxModeActive.value = false
   if (!isEditing) {
     resetSelection()
     isAKeyPressed.value = false
@@ -975,22 +986,22 @@ watch(editModeActive, (isEditing) => {
   }
 })
 
-watch(regionLabelingModeActive, (isLabeling) => {
+watch(textboxModeActive, (isLabeling) => {
   if (isLabeling) {
     console.log('Entering Region Labeling mode.')
-    editModeActive.value = false
+    textlineModeActive.value = false
     resetSelection()
 
     // Ensure the next label index is unique by checking existing labels
-    const existingLabels = Object.values(regionLabels)
+    const existingLabels = Object.values(textlineLabels)
     if (existingLabels.length > 0) {
       // Find the maximum label value currently in use and add 1
       const maxLabel = Math.max(...existingLabels)
-      currentLabelIndex.value = maxLabel + 1
-      console.log(`Resuming labeling. Next available label index: ${currentLabelIndex.value}`)
+      textboxLabels.value = maxLabel + 1
+      console.log(`Resuming labeling. Next available label index: ${textboxLabels.value}`)
     } else {
       // No labels exist yet, start from 0
-      currentLabelIndex.value = 0
+      textboxLabels.value = 0
       console.log('No existing labels. Starting new labeling at index: 0')
     }
   } else {

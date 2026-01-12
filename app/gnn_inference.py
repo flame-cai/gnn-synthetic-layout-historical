@@ -1,4 +1,3 @@
-# gnn_inference.py
 import torch
 import numpy as np
 import yaml
@@ -6,32 +5,39 @@ import logging
 import shutil
 from pathlib import Path
 import torch.nn.functional as F
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import connected_components
+from torch_geometric.data import Data
+import cv2
+
+
+# gnn_inference.py
 import os
 from collections import defaultdict
-from segment_from_point_clusters import segmentLinesFromPointClusters
-from gnn_data_preparation.config_models import DatasetCreationConfig
-from gnn_data_preparation.graph_constructor import create_input_graph_edges
-from gnn_data_preparation.feature_engineering import get_node_features, get_edge_features
 from gnn_data_preparation.utils import setup_logging
 from torch_geometric.data import Data
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
 import xml.etree.ElementTree as ET
 
+from segment_from_point_clusters import segmentLinesFromPointClusters
+from gnn_data_preparation.config_models import DatasetCreationConfig
+from gnn_data_preparation.graph_constructor import create_input_graph_edges
+from gnn_data_preparation.feature_engineering import get_node_features, get_edge_features
 
-
-# Global model cache to avoid reloading on every request
+# Global Cache
 LOADED_MODEL = None
 LOADED_CONFIG = None
 DEVICE = None
 
-def get_device(device_config='auto'):
+def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def load_model_once(model_checkpoint_path, config_path):
     global LOADED_MODEL, LOADED_CONFIG, DEVICE
     if LOADED_MODEL is None:
         DEVICE = get_device()
+        print(f"Loading model from {model_checkpoint_path} on {DEVICE}...")
         checkpoint = torch.load(model_checkpoint_path, map_location=DEVICE, weights_only=False)
         LOADED_MODEL = checkpoint['model']
         LOADED_MODEL.to(DEVICE)
@@ -41,79 +47,100 @@ def load_model_once(model_checkpoint_path, config_path):
             LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
 
-def get_node_labels_from_edge_labels(edge_index, pred_edge_labels, num_nodes):
-
-    
-    if isinstance(edge_index, torch.Tensor): edge_index = edge_index.cpu().numpy()
-    if isinstance(pred_edge_labels, torch.Tensor): pred_edge_labels = pred_edge_labels.cpu().numpy()
-
-    edge_index = np.atleast_2d(edge_index)
-    if edge_index.shape[0] != 2: edge_index = edge_index.reshape(2, -1)
-    
-    mask = (pred_edge_labels == 1)
-    positive_edges = edge_index[:, mask]
-    
-    if positive_edges.size == 0: return np.arange(num_nodes)
-
-    pred_edges_undirected = {tuple(sorted(positive_edges[:, i])) for i in range(positive_edges.shape[1])}
-    if not pred_edges_undirected: return np.arange(num_nodes)
-
-    row, col = zip(*pred_edges_undirected)
-    adj = csr_matrix((np.ones(len(row)), (row, col)), shape=(num_nodes, num_nodes))
-    n_components, node_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
-    return node_labels
-
-# --- STAGE 1: Inference Only ---
+# --- STAGE 1: Inference / Loading ---
 def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_path):
     """
-    Runs Steps 1-4: Loads data, constructs graph, runs GNN.
-    Returns the graph data (Nodes + Edges) to the API. 
-    We do NOT calculate connected components here; the frontend visualizes edges directly.
+    Retrieves graph data for a page. 
+    Priority:
+    1. Check 'segmented_lines/gnn-format/' for saved manual corrections (_edges.txt).
+    2. If not found, run GNN inference from scratch using 'gnn-dataset/'.
     """
-    print("Running GNN prediction for page:", page_id)
-    model, d_config, device = load_model_once(model_path, config_path)
+    print(f"Fetching data for page: {page_id}")
     
-    input_dir = Path(manuscript_path) / "gnn-dataset"
-    file_path = input_dir / f"{page_id}_inputs_normalized.txt"
-    dims_path = input_dir / f"{page_id}_dims.txt"
+    # Define Directories
+    base_path = Path(manuscript_path)
+    raw_input_dir = base_path / "gnn-dataset"               # Folder A (Inputs)
+    history_dir = base_path / "segmented_lines" / "gnn-format" # Folder B (Saved Corrections)
+    
+    # 1. Load Essential Node Data (Always required)
+    file_path = raw_input_dir / f"{page_id}_inputs_normalized.txt"
+    dims_path = raw_input_dir / f"{page_id}_dims.txt"
     
     if not file_path.exists():
-        raise FileNotFoundError(f"Data for page {page_id} not found.")
+        raise FileNotFoundError(f"Raw data for page {page_id} not found in {raw_input_dir}")
 
     points_normalized = np.loadtxt(file_path)
-    if points_normalized.ndim == 1: points_normalized = points_normalized.reshape(1, -1)
+    if points_normalized.ndim == 1: 
+        points_normalized = points_normalized.reshape(1, -1)
     
-    # Load dimensions
     dims = np.loadtxt(dims_path)
-    # The image dimensions sent to frontend need to be doubled (width*2, height*2) 
-    # because the original heatmap processing (step 2) downsizes by 2.
     full_width = dims[0] * 2
     full_height = dims[1] * 2
     max_dimension = max(full_width, full_height)
     
-    # Construct Graph
+    nodes_payload = [
+        {
+            "x": float(p[0]) * max_dimension, 
+            "y": float(p[1]) * max_dimension, 
+            "s": float(p[2])
+        } 
+        for p in points_normalized
+    ]
+    
+    response = {
+        "nodes": nodes_payload,
+        "edges": [],
+        "textline_labels": [-1] * len(points_normalized),
+        "dimensions": [full_width, full_height]
+    }
+
+    # 2. Check for Saved Corrections
+    saved_edges_path = history_dir / f"{page_id}_edges.txt"
+    saved_labels_path = history_dir / f"{page_id}_labels_textline.txt"
+    
+    if saved_edges_path.exists():
+        print(f"Found saved corrections for {page_id}. Loading from disk...")
+        
+        saved_edges = []
+        try:
+            if saved_edges_path.stat().st_size > 0:
+                raw_edges = np.loadtxt(saved_edges_path, dtype=int, ndmin=2)
+                if raw_edges.ndim == 1 and raw_edges.size >= 2:
+                    raw_edges = raw_edges.reshape(1, -1)
+                
+                for row in raw_edges:
+                    if len(row) >= 2:
+                        saved_edges.append({
+                            "source": int(row[0]),
+                            "target": int(row[1]),
+                            "label": 1
+                        })
+        except Exception as e:
+            print(f"Warning: Error reading edges file: {e}. Returning empty edges.")
+            
+        response["edges"] = saved_edges
+        
+        if saved_labels_path.exists():
+            try:
+                labels = np.loadtxt(saved_labels_path, dtype=int)
+                if labels.size == len(points_normalized):
+                     response["textline_labels"] = labels.tolist()
+            except Exception:
+                pass 
+        
+        return response
+
+    # 3. No Saved State -> Run GNN Inference
+    print(f"No saved state found. Running GNN Inference...")
+    model, d_config, device = load_model_once(model_path, config_path)
+    
     page_dims_norm = {'width': 1.0, 'height': 1.0}
     input_graph_data = create_input_graph_edges(points_normalized, page_dims_norm, d_config.input_graph)
     input_edges_set = input_graph_data["edges"]
 
-    # Initialize empty response structure
-    # We initialize region_labels with -1 (Unlabeled)
-    # The frontend will simply show nodes as grey until the user interacts or edits edges.
-    initial_region_labels = [-1] * len(points_normalized)
-
-    # If no edges, return trivial result
     if not input_edges_set:
-        return {
-            "nodes": [
-                {"x": float(p[0]) * max_dimension, "y": float(p[1]) * max_dimension, "s": float(p[2])} 
-                for p in points_normalized
-            ],
-            "edges": [],
-            "region_labels": initial_region_labels,
-            "dimensions": [full_width, full_height]
-        }
+        return response
 
-    # Prepare PyG Data
     edge_index_undirected = torch.tensor(list(input_edges_set), dtype=torch.long).t().contiguous()
     if d_config.input_graph.directionality == "bidirectional":
         edge_index = torch.cat([edge_index_undirected, edge_index_undirected.flip(0)], dim=1)
@@ -125,111 +152,107 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
     
     data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_features).to(device)
 
-    # Inference
     threshold = 0.5
     with torch.no_grad():
         logits = model(data.x, data.edge_index, data.edge_attr)
         probs = F.softmax(logits, dim=1)
-        pos_probs = probs[:, 1]
-        pred_edge_labels = (pos_probs > threshold).cpu().numpy().astype(int)
+        pred_edge_labels = (probs[:, 1] > threshold).cpu().numpy()
 
-    # Reconstruct positive edges
     model_positive_edges = set()
     edge_index_cpu = data.edge_index.cpu().numpy()
+    
     for idx, is_pos in enumerate(pred_edge_labels):
         if is_pos:
             u, v = edge_index_cpu[:, idx]
             model_positive_edges.add(tuple(sorted((u, v))))
 
-    positive_edges_list = []
+    final_edges = []
     for u, v in input_edges_set:
         if tuple(sorted((u, v))) in model_positive_edges:
-            positive_edges_list.append({
-                "source": int(u), 
-                "target": int(v), 
-                "label": 1
-            })
+            final_edges.append({"source": int(u), "target": int(v), "label": 1})
 
-    # Format for Frontend
-    graph_response = {
-        "nodes": [
-            {
-                # Denormalize coordinates for pixels
-                "x": float(p[0]) * max_dimension, 
-                "y": float(p[1]) * max_dimension, 
-                "s": float(p[2])
-            } 
-            for p in points_normalized
-        ],
-        "edges": positive_edges_list, # <--- ONLY SEND POSITIVE EDGES
-        "region_labels": initial_region_labels,
-        "dimensions": [full_width, full_height]
-    }
-    
-    return graph_response
-    
-# --- STAGE 2: Generation ---
+    response["edges"] = final_edges
+    return response
+
+
+# --- STAGE 2: Generation / Saving ---
 def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict):
     """
-    Runs Step 5: Uses corrected graph to generate XML and line images.
-    
-    CHANGE: This now enforces STRUCTURAL LABELING. 
-    It ignores the 'node_labels' array (semantic regions) and calculates 
-    Line IDs purely based on the Connected Components of the 'graph_edges'.
+    Saves user corrections and regenerates XML.
+    Critical Fix: Accepts all edges in 'graph_edges' list as valid, ignoring specific label values 
+    to accommodate manually added edges (which might have label=0).
     """
-    input_dir = Path(manuscript_path) / "gnn-dataset"
-    output_dir = Path(manuscript_path) / "segmented_lines"
+    
+    base_path = Path(manuscript_path)
+    raw_input_dir = base_path / "gnn-dataset"
+    output_dir = base_path / "segmented_lines"
     gnn_format_dir = output_dir / "gnn-format"
     gnn_format_dir.mkdir(parents=True, exist_ok=True)
     
-    # 1. Reconstruct Adjacency Matrix from Frontend Edges
-    # We filter for label==1, assuming the frontend sends us the valid positive edges.
-    model_positive_edges = {tuple(sorted((e['source'], e['target']))) for e in graph_edges if e.get('label') == 1}
+    # ---------------------------------------------------------
+    # 1. Save Corrected Edges to .txt
+    # ---------------------------------------------------------
+    unique_edges = set()
     
-    # We need the number of nodes. We can infer it from the length of node_labels list 
-    # (even though we ignore the values, the length is correct).
+    # FIX: Iterate over all provided edges. 
+    # If it is in the list, it implies it exists in the graph.
+    # We strip 'label' checks or allow 0 and 1.
+    for e in graph_edges:
+        # Check source/target keys existence for safety
+        if 'source' in e and 'target' in e:
+            u, v = sorted((int(e['source']), int(e['target'])))
+            unique_edges.add((u, v))
+            
+    edges_save_path = gnn_format_dir / f"{page_id}_edges.txt"
+    if unique_edges:
+        np.savetxt(edges_save_path, list(unique_edges), fmt='%d')
+    else:
+        open(edges_save_path, 'w').close()
+        
+    print(f"Saved {len(unique_edges)} edges to {edges_save_path}")
+
+    # ---------------------------------------------------------
+    # 2. Copy Input Files (Redundancy for Segmentation Script)
+    # ---------------------------------------------------------
+    for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
+        src = raw_input_dir / f"{page_id}{suffix}"
+        dst = gnn_format_dir / f"{page_id}{suffix}"
+        if src.exists():
+            shutil.copy(src, dst)
+
+    # ---------------------------------------------------------
+    # 3. Calculate Structural Labels
+    # ---------------------------------------------------------
     num_nodes = len(node_labels)
     
-    # 2. Calculate Structural Labels (Connected Components)
-    from scipy.sparse import csr_matrix
-    from scipy.sparse.csgraph import connected_components
-    
-    if model_positive_edges:
-        row, col = zip(*model_positive_edges)
-        # Create symmetric adjacency for undirected graph
+    if unique_edges:
+        row, col = zip(*unique_edges)
         all_rows = list(row) + list(col)
         all_cols = list(col) + list(row)
         data = np.ones(len(all_rows))
         adj = csr_matrix((data, (all_rows, all_cols)), shape=(num_nodes, num_nodes))
     else:
-        # Handle case with no edges (all isolated nodes)
         adj = csr_matrix((num_nodes, num_nodes))
 
-    # This generates IDs: 0, 1, 2... for every distinct interconnected group (Line)
     n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
-        
-    # 3. Save these Structural Labels
-    # This overwrites the file, ensuring the next steps use the corrected structure.
-    np.savetxt(gnn_format_dir / f"{page_id}_labels_textline.txt", final_structural_labels, fmt='%d')
     
-    # Copy other required files
-    for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
-        src = input_dir / f"{page_id}{suffix}"
-        if src.exists():
-            shutil.copy(src, gnn_format_dir / src.name)
+    labels_save_path = gnn_format_dir / f"{page_id}_labels_textline.txt"
+    np.savetxt(labels_save_path, final_structural_labels, fmt='%d')
 
-    # Load unnormalized points for XML
-    unnorm_path = input_dir / f"{page_id}_inputs_unnormalized.txt"
+    # ---------------------------------------------------------
+    # 4. Run Segmentation & XML Generation
+    # ---------------------------------------------------------
+    unnorm_path = raw_input_dir / f"{page_id}_inputs_unnormalized.txt"
     points_unnormalized = np.loadtxt(unnorm_path)
-    if points_unnormalized.ndim == 1: points_unnormalized = points_unnormalized.reshape(1, -1)
+    if points_unnormalized.ndim == 1: 
+        points_unnormalized = points_unnormalized.reshape(1, -1)
     
-    dims_path = input_dir / f"{page_id}_dims.txt"
+    dims_path = raw_input_dir / f"{page_id}_dims.txt"
     dims = np.loadtxt(dims_path)
     page_dims = {'width': dims[0], 'height': dims[1]}
 
-    # Segmentation (uses the labels_textline.txt we just saved)
     polygons_data = segmentLinesFromPointClusters(
-        str(Path(input_dir).parent), 
+        str(output_dir.parent), 
         page_id, 
         BINARIZE_THRESHOLD=args_dict.get('BINARIZE_THRESHOLD', 0.5098), 
         BBOX_PAD_V=args_dict.get('BBOX_PAD_V', 0.7), 
@@ -238,7 +261,6 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         GNN_PRED_PATH=str(output_dir)
     )
 
-    # Generate XML
     xml_output_dir = output_dir / "page-xml-format"
     xml_output_dir.mkdir(exist_ok=True)
     
@@ -246,23 +268,23 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     
     create_page_xml(
         page_id,
-        model_positive_edges,
+        unique_edges,
         points_unnormalized,
         page_dims,
         xml_output_dir / f"{page_id}.xml",
-        final_structural_labels, # Use the calculated structural labels
-        polygons_data
+        final_structural_labels, 
+        polygons_data,
+        image_path=base_path / "images_resized" / f"{page_id}.jpg",
     )
 
-    # Copy resized image
-    resized_images_src = Path(manuscript_path) / "images_resized"
-    resized_images_dst = output_dir / "images_resized"
-    resized_images_dst.mkdir(exist_ok=True)
-    img_src = resized_images_src / f"{page_id}.jpg"
-    if img_src.exists():
-        shutil.copy(img_src, resized_images_dst / img_src.name)
+    resized_images_dst_dir = output_dir / "images_resized"
+    resized_images_dst_dir.mkdir(exist_ok=True)
+    src_img = base_path / "images_resized" / f"{page_id}.jpg"
+    if src_img.exists():
+        shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
 
     return {"status": "success", "lines": len(polygons_data)}
+
 
 
 # ===================================================================
@@ -520,6 +542,7 @@ def get_node_labels_from_edge_labels(edge_index, pred_edge_labels, num_nodes):
     return node_labels
 
 
+
 def create_page_xml(
     page_id,
     model_positive_edges,
@@ -529,11 +552,13 @@ def create_page_xml(
     pred_node_labels: np.ndarray,
     polygons_data: dict,
     use_best_fit_line: bool = False,
-    extend_percentage: float = 0.01
+    extend_percentage: float = 0.01,
+    image_path: Path = None, 
+    save_vis: bool = True
 ):
     """
-    Generates a PAGE XML file. For each connected component, it creates a <TextLine>
-    with a baseline and now also includes the <Coords> for the text line polygon.
+    Generates a PAGE XML file and optionally saves a visualization of the 
+    polygons and baselines overlayed on the image.
     """
     PAGE_XML_NAMESPACE = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
     ET.register_namespace('', PAGE_XML_NAMESPACE)
@@ -551,35 +576,63 @@ def create_page_xml(
     metadata = ET.SubElement(pc_gts, "Metadata")
     ET.SubElement(metadata, "Creator").text = "GNN-Prediction-Script"
 
+    # Define dimensions (Your logic uses *2 scaling for the XML)
+    final_w = int(page_dims['width'] * 2)
+    final_h = int(page_dims['height'] * 2)
+
     page = ET.SubElement(pc_gts, "Page", attrib={
         "imageFilename": f"{page_id}.jpg",
-        "imageWidth": str(int(page_dims['width']*2)),
-        "imageHeight": str(int(page_dims['height']*2))
+        "imageWidth": str(final_w),
+        "imageHeight": str(final_h)
     })
+
+    # --- VISUALIZATION SETUP ---
+    vis_img = None
+    if save_vis:
+        # Try to load original image to overlay
+        if image_path and image_path.exists():
+            vis_img = cv2.imread(str(image_path))
+            # Ensure visualization matches XML coordinate space
+            if vis_img is not None:
+                if vis_img.shape[0] != final_h or vis_img.shape[1] != final_w:
+                    vis_img = cv2.resize(vis_img, (final_w, final_h))
+        
+        # Fallback to black canvas if image not found or load failed
+        if vis_img is None:
+            vis_img = np.zeros((final_h, final_w, 3), dtype=np.uint8)
+    # ---------------------------
 
     min_x = np.min(points_unnormalized[:, 0])
     min_y = np.min(points_unnormalized[:, 1])
     max_x = np.max(points_unnormalized[:, 0])
     max_y = np.max(points_unnormalized[:, 1])
-    region_coords = f"{int(min_x*2)},{int(min_y*2)} {int(max_x*2)},{int(min_y*2)} {int(max_x*2)},{int(max_y*2)} {int(min_x*2)},{int(max_y*2)}"
+    
+    # Region logic (scaled by 2)
+    region_coords_str = f"{int(min_x*2)},{int(min_y*2)} {int(max_x*2)},{int(min_y*2)} {int(max_x*2)},{int(max_y*2)} {int(min_x*2)},{int(max_y*2)}"
 
     text_region = ET.SubElement(page, "TextRegion", id="region_1")
-    ET.SubElement(text_region, "Coords", points=region_coords)
+    ET.SubElement(text_region, "Coords", points=region_coords_str)
+
+    # Visualize Region Boundary (Yellow)
+    if save_vis and vis_img is not None:
+        pts = np.array([[int(min_x*2), int(min_y*2)], [int(max_x*2), int(min_y*2)], 
+                        [int(max_x*2), int(max_y*2)], [int(min_x*2), int(max_y*2)]], np.int32)
+        cv2.polylines(vis_img, [pts], isClosed=True, color=(0, 255, 255), thickness=3)
 
     for component in components:
         if not component: continue
         
-        # Get the points for the current component
         component_points = np.array([points_unnormalized[idx] for idx in component])
-        
         if len(component_points) < 1:
             continue
 
-        # Determine the label for this component to ensure consistent IDs
         line_label = pred_node_labels[component[0]]
-            
         text_line = ET.SubElement(text_region, "TextLine", id=f"line_{line_label + 1}")
         
+        # --- CALCULATE BASELINE ---
+        baseline_points_str = ""
+        baseline_vis_points = [] # To store points for visualization
+
         if use_best_fit_line:
             baseline_points_for_fitting = np.array(
                 [[p[0], p[1] + (p[2] / 2)] for p in component_points]
@@ -591,30 +644,67 @@ def create_page_xml(
             )
             if endpoints:
                 p1, p2 = endpoints
-                baseline_points_str = f"{int(p1[0] * 2)},{int(p1[1] * 2)} {int(p2[0] * 2)},{int(p2[1] * 2)}"
+                # XML points (scaled by 2)
+                x1, y1 = int(p1[0] * 2), int(p1[1] * 2)
+                x2, y2 = int(p2[0] * 2), int(p2[1] * 2)
+                baseline_points_str = f"{x1},{y1} {x2},{y2}"
+                baseline_vis_points = [[x1, y1], [x2, y2]]
             else:
                 continue
         else:
             path_indices = trace_component_with_backtracking(component, adj)
             if len(path_indices) < 1: continue
             ordered_points = [points_unnormalized[idx] for idx in path_indices]
+            
+            # Format for XML
             baseline_points_str = " ".join([f"{int(p[0]*2)},{int((p[1]+(p[2]/2))*2)}" for p in ordered_points])
+            
+            # Format for Visualizer
+            baseline_vis_points = [[int(p[0]*2), int((p[1]+(p[2]/2))*2)] for p in ordered_points]
 
         ET.SubElement(text_line, "Baseline", points=baseline_points_str)
         
-        # Add the corresponding polygon coordinates to the TextLine
+        # --- HANDLE POLYGON COORDS ---
+        polygon_vis_points = []
         if line_label in polygons_data:
             polygon_points = polygons_data[line_label]
-            coords_str = " ".join([f"{p[0]},{p[1]}" for p in polygon_points]) # we do not double the coords here, because we upscale the HEATMAP!
+            # XML expects string "x,y x,y ..."
+            coords_str = " ".join([f"{p[0]},{p[1]}" for p in polygon_points]) 
             ET.SubElement(text_line, "Coords", points=coords_str)
+            
+            # Store for visualization (already in correct scale per your comment)
+            polygon_vis_points = polygon_points
         else:
             logging.warning(f"Page {page_id}: No polygon data found for line label {line_label}, Coords tag will be omitted.")
 
+        # --- DRAW ON VISUALIZATION ---
+        if save_vis and vis_img is not None:
+            # 1. Draw Polygon (Green)
+            if len(polygon_vis_points) > 0:
+                poly_pts = np.array(polygon_vis_points, np.int32).reshape((-1, 1, 2))
+                cv2.polylines(vis_img, [poly_pts], isClosed=True, color=(0, 255, 0), thickness=2)
+                
+                # Draw ID at the start of the polygon
+                cv2.putText(vis_img, str(line_label + 1), tuple(poly_pts[0][0]), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+
+            # 2. Draw Baseline (Red)
+            if len(baseline_vis_points) > 0:
+                base_pts = np.array(baseline_vis_points, np.int32).reshape((-1, 1, 2))
+                cv2.polylines(vis_img, [base_pts], isClosed=False, color=(0, 0, 255), thickness=2)
+
+    # --- SAVE XML ---
     tree = ET.ElementTree(pc_gts)
     if hasattr(ET, 'indent'):
         ET.indent(tree, space="\t", level=0)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     tree.write(output_path, encoding='UTF-8', xml_declaration=True)
-# ==================================================================
+
+    # --- SAVE VISUALIZATION ---
+    if save_vis and vis_img is not None:
+        # Save alongside the XML with a _viz suffix
+        vis_output_path = output_path.parent / f"{output_path.stem}_viz.jpg"
+        cv2.imwrite(str(vis_output_path), vis_img)
+        print(f"Visualization saved to: {vis_output_path}")
 
