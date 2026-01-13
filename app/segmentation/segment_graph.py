@@ -11,6 +11,7 @@ from .craft import CRAFT, copyStateDict, detect
 from .utils import load_images_from_folder
 
 
+
 def heatmap_to_pointcloud(heatmap, min_peak_value=0.3, min_distance=5, max_growth_radius=50):
     """
     Convert a 2D heatmap to a point cloud (X, Y, Radius) by identifying local maxima

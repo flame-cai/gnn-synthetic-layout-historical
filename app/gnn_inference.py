@@ -48,6 +48,291 @@ def load_model_once(model_checkpoint_path, config_path):
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
 
 
+def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None, nodes=None):
+    """
+    Saves user corrections and regenerates XML.
+    Handles coordinate scaling: Frontend (Image Space) -> Storage (Heatmap Space).
+    """
+    base_path = Path(manuscript_path)
+    raw_input_dir = base_path / "gnn-dataset"
+    output_dir = base_path / "layout_analysis_output"
+    gnn_format_dir = output_dir / "gnn-format"
+    gnn_format_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 1. Load Heatmap Dimensions (Crucial for scaling)
+    raw_dims_path = raw_input_dir / f"{page_id}_dims.txt"
+    if not raw_dims_path.exists():
+        # Fallback for rare edge cases
+        raw_dims_path = gnn_format_dir / f"{page_id}_dims.txt"
+        
+    dims = np.loadtxt(raw_dims_path) 
+    heatmap_w, heatmap_h = dims[0], dims[1]
+    max_dim_heatmap = max(heatmap_w, heatmap_h)
+
+    points_unnormalized = []
+    points_normalized = []
+
+    if nodes is not None:
+        # --- SCALING FIX ---
+        # Frontend sends Image Space coordinates. Storage expects Heatmap Space.
+        # Image Space is 2x Heatmap Space.
+        scale_factor = 0.5 
+
+        for n in nodes:
+            # 1. Image Space
+            img_x, img_y, img_s = float(n['x']), float(n['y']), float(n['s'])
+            
+            # 2. Heatmap Space (Storage)
+            hm_x, hm_y, hm_s = img_x * scale_factor, img_y * scale_factor, img_s * scale_factor
+            
+            points_unnormalized.append([hm_x, hm_y, hm_s])
+            
+            # 3. Normalized (0-1) for GNN
+            norm_x, norm_y, norm_s = hm_x / max_dim_heatmap, hm_y / max_dim_heatmap, hm_s / max_dim_heatmap
+            points_normalized.append([norm_x, norm_y, norm_s])
+            
+        points_unnormalized = np.array(points_unnormalized)
+        points_normalized = np.array(points_normalized)
+        
+        # Save NEW node definitions
+        np.savetxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt", points_unnormalized, fmt='%f')
+        np.savetxt(gnn_format_dir / f"{page_id}_inputs_normalized.txt", points_normalized, fmt='%f')
+        # Always copy dims to history so it is self-contained
+        if raw_dims_path.exists():
+            shutil.copy(raw_dims_path, gnn_format_dir / f"{page_id}_dims.txt")
+        
+    else:
+        # --- HISTORY PROTECTION ---
+        # If frontend didn't send nodes (legacy call), rely on what's on disk.
+        # Check if we already have modified files; if not, copy from raw.
+        if not (gnn_format_dir / f"{page_id}_inputs_unnormalized.txt").exists():
+            for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
+                src = raw_input_dir / f"{page_id}{suffix}"
+                dst = gnn_format_dir / f"{page_id}{suffix}"
+                if src.exists(): shutil.copy(src, dst)
+        
+        points_unnormalized = np.loadtxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt")
+        if points_unnormalized.size == 0:
+            points_unnormalized = np.empty((0, 3))
+        elif points_unnormalized.ndim == 1: 
+            points_unnormalized = points_unnormalized.reshape(1, -1)
+
+
+    # 2. Save Corrected Edges
+    unique_edges = set()
+    num_nodes = len(points_unnormalized)
+    
+    for e in graph_edges:
+        if 'source' in e and 'target' in e:
+            u, v = sorted((int(e['source']), int(e['target'])))
+            if u < num_nodes and v < num_nodes:
+                unique_edges.add((u, v))
+            
+    edges_save_path = gnn_format_dir / f"{page_id}_edges.txt"
+    if unique_edges:
+        np.savetxt(edges_save_path, list(unique_edges), fmt='%d')
+    else:
+        open(edges_save_path, 'w').close()
+
+    # 3. Calculate Structural Labels
+    if unique_edges:
+        row, col = zip(*unique_edges)
+        data = np.ones(len(row) + len(col))
+        adj = csr_matrix((data, (list(row)+list(col), list(col)+list(row))), shape=(num_nodes, num_nodes))
+    else:
+        adj = csr_matrix((num_nodes, num_nodes))
+
+    n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
+    np.savetxt(gnn_format_dir / f"{page_id}_labels_textline.txt", final_structural_labels, fmt='%d')
+
+    # 4. Save Textbox Labels
+    final_textbox_labels = np.zeros(num_nodes, dtype=int)
+    if textbox_labels is not None:
+        if len(textbox_labels) == num_nodes:
+            final_textbox_labels = np.array(textbox_labels, dtype=int)
+            np.savetxt(gnn_format_dir / f"{page_id}_labels_textbox.txt", final_textbox_labels, fmt='%d')
+        else:
+             print(f"Warning: Textbox label count {len(textbox_labels)} != Node count {num_nodes}. Resetting.")
+             
+    # 5. Run Segmentation
+    polygons_data = segmentLinesFromPointClusters(
+        str(output_dir.parent), 
+        page_id, 
+        BINARIZE_THRESHOLD=args_dict.get('BINARIZE_THRESHOLD', 0.5098), 
+        BBOX_PAD_V=args_dict.get('BBOX_PAD_V', 0.7), 
+        BBOX_PAD_H=args_dict.get('BBOX_PAD_H', 0.5), 
+        CC_SIZE_THRESHOLD_RATIO=args_dict.get('CC_SIZE_THRESHOLD_RATIO', 0.4), 
+        GNN_PRED_PATH=str(output_dir)
+    )
+
+    xml_output_dir = output_dir / "page-xml-format"
+    xml_output_dir.mkdir(exist_ok=True)
+    
+    # 6. Generate XML
+    create_page_xml(
+        page_id,
+        unique_edges,
+        points_unnormalized,
+        {'width': heatmap_w, 'height': heatmap_h}, 
+        xml_output_dir / f"{page_id}.xml",
+        final_structural_labels, 
+        polygons_data,
+        textbox_labels=final_textbox_labels,
+        image_path=base_path / "images_resized" / f"{page_id}.jpg",
+    )
+
+    resized_images_dst_dir = output_dir / "images_resized"
+    resized_images_dst_dir.mkdir(exist_ok=True)
+    src_img = base_path / "images_resized" / f"{page_id}.jpg"
+    if src_img.exists():
+        shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
+
+    return {"status": "success", "lines": len(polygons_data)}
+
+def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_path):
+    print(f"Fetching data for page: {page_id}")
+    
+    base_path = Path(manuscript_path)
+    raw_input_dir = base_path / "gnn-dataset"               
+    history_dir = base_path / "layout_analysis_output" / "gnn-format" 
+    
+    # --- 1. Load Node Data (Prioritize Modified History) ---
+    modified_norm_path = history_dir / f"{page_id}_inputs_normalized.txt"
+    modified_dims_path = history_dir / f"{page_id}_dims.txt"
+    
+    if modified_norm_path.exists() and modified_dims_path.exists():
+        print(f"--> Loading USER-MODIFIED node definitions from {history_dir}")
+        file_path = modified_norm_path
+        dims_path = modified_dims_path
+    else:
+        print(f"--> Loading RAW CRAFT node definitions from {raw_input_dir}")
+        file_path = raw_input_dir / f"{page_id}_inputs_normalized.txt"
+        dims_path = raw_input_dir / f"{page_id}_dims.txt"
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Data for page {page_id} not found.")
+
+    # Handle empty files (if user deleted all nodes previously)
+    try:
+        points_normalized = np.loadtxt(file_path)
+    except UserWarning:
+        points_normalized = np.array([])
+
+    if points_normalized.size == 0:
+        points_normalized = np.empty((0, 3))
+    elif points_normalized.ndim == 1: 
+        points_normalized = points_normalized.reshape(1, -1)
+    
+    dims = np.loadtxt(dims_path)
+    full_width = dims[0] * 2
+    full_height = dims[1] * 2
+    max_dimension = max(full_width, full_height)
+    
+    nodes_payload = [
+        {
+            "x": float(p[0]) * max_dimension, 
+            "y": float(p[1]) * max_dimension, 
+            "s": float(p[2])
+        } 
+        for p in points_normalized
+    ]
+    
+    response = {
+        "nodes": nodes_payload,
+        "edges": [],
+        "textline_labels": [-1] * len(points_normalized),
+        "textbox_labels": [],
+        "dimensions": [full_width, full_height]
+    }
+
+    # --- 2. Check for Saved Topology (Edges/Labels) ---
+    saved_edges_path = history_dir / f"{page_id}_edges.txt"
+    saved_labels_path = history_dir / f"{page_id}_labels_textline.txt"
+    saved_textbox_path = history_dir / f"{page_id}_labels_textbox.txt"
+    
+    if saved_edges_path.exists():
+        print(f"Found saved edge topology...")
+        saved_edges = []
+        try:
+            if saved_edges_path.stat().st_size > 0:
+                raw_edges = np.loadtxt(saved_edges_path, dtype=int, ndmin=2)
+                if raw_edges.ndim == 1 and raw_edges.size >= 2:
+                    raw_edges = raw_edges.reshape(1, -1)
+                
+                for row in raw_edges:
+                    if len(row) >= 2:
+                        saved_edges.append({
+                            "source": int(row[0]),
+                            "target": int(row[1]),
+                            "label": 1
+                        })
+        except Exception as e:
+            print(f"Warning reading edges: {e}")
+            
+        response["edges"] = saved_edges
+        
+        if saved_labels_path.exists():
+            try:
+                labels = np.loadtxt(saved_labels_path, dtype=int)
+                if labels.size == len(points_normalized):
+                     response["textline_labels"] = labels.tolist()
+            except Exception: pass 
+        
+        if saved_textbox_path.exists():
+            try:
+                tb_labels = np.loadtxt(saved_textbox_path, dtype=int)
+                if tb_labels.size == len(points_normalized):
+                    response["textbox_labels"] = tb_labels.tolist()
+            except Exception: pass
+
+        return response
+
+    # --- 3. Run GNN (Only if no history exists) ---
+    if len(points_normalized) == 0:
+        return response
+
+    print(f"Running GNN Inference...")
+    model, d_config, device = load_model_once(model_path, config_path)
+    
+    page_dims_norm = {'width': 1.0, 'height': 1.0}
+    input_graph_data = create_input_graph_edges(points_normalized, page_dims_norm, d_config.input_graph)
+    input_edges_set = input_graph_data["edges"]
+
+    if not input_edges_set:
+        return response
+
+    edge_index_undirected = torch.tensor(list(input_edges_set), dtype=torch.long).t().contiguous()
+    if d_config.input_graph.directionality == "bidirectional":
+        edge_index = torch.cat([edge_index_undirected, edge_index_undirected.flip(0)], dim=1)
+    else:
+        edge_index = edge_index_undirected
+
+    node_features = get_node_features(points_normalized, input_graph_data["heuristic_degrees"], d_config.features)
+    edge_features = get_edge_features(edge_index, node_features, input_graph_data["heuristic_edge_counts"], d_config.features)
+    
+    data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_features).to(device)
+
+    threshold = 0.5
+    with torch.no_grad():
+        logits = model(data.x, data.edge_index, data.edge_attr)
+        probs = F.softmax(logits, dim=1)
+        pred_edge_labels = (probs[:, 1] > threshold).cpu().numpy()
+
+    model_positive_edges = set()
+    edge_index_cpu = data.edge_index.cpu().numpy()
+    
+    for idx, is_pos in enumerate(pred_edge_labels):
+        if is_pos:
+            u, v = edge_index_cpu[:, idx]
+            model_positive_edges.add(tuple(sorted((u, v))))
+
+    final_edges = []
+    for u, v in input_edges_set:
+        if tuple(sorted((u, v))) in model_positive_edges:
+            final_edges.append({"source": int(u), "target": int(v), "label": 1})
+
+    response["edges"] = final_edges
+    return response
 
 
 # ===================================================================
@@ -304,30 +589,38 @@ def get_node_labels_from_edge_labels(edge_index, pred_edge_labels, num_nodes):
     
     return node_labels
 
-
 def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_path):
-    """
-    Retrieves graph data for a page. 
-    Priority:
-    1. Check 'layout_analysis_output/gnn-format/' for saved manual corrections (_edges.txt).
-    2. If not found, run GNN inference from scratch using 'gnn-dataset/'.
-    """
     print(f"Fetching data for page: {page_id}")
     
-    # Define Directories
     base_path = Path(manuscript_path)
-    raw_input_dir = base_path / "gnn-dataset"               # Folder A (Inputs)
-    history_dir = base_path / "layout_analysis_output" / "gnn-format" # Folder B (Saved Corrections)
+    raw_input_dir = base_path / "gnn-dataset"               
+    history_dir = base_path / "layout_analysis_output" / "gnn-format" 
     
-    # 1. Load Essential Node Data (Always required)
-    file_path = raw_input_dir / f"{page_id}_inputs_normalized.txt"
-    dims_path = raw_input_dir / f"{page_id}_dims.txt"
+    # --- 1. Load Node Data (Prioritize Modified History) ---
+    modified_norm_path = history_dir / f"{page_id}_inputs_normalized.txt"
+    modified_dims_path = history_dir / f"{page_id}_dims.txt"
     
-    if not file_path.exists():
-        raise FileNotFoundError(f"Raw data for page {page_id} not found in {raw_input_dir}")
+    if modified_norm_path.exists() and modified_dims_path.exists():
+        print(f"--> Loading USER-MODIFIED node definitions from {history_dir}")
+        file_path = modified_norm_path
+        dims_path = modified_dims_path
+    else:
+        print(f"--> Loading RAW CRAFT node definitions from {raw_input_dir}")
+        file_path = raw_input_dir / f"{page_id}_inputs_normalized.txt"
+        dims_path = raw_input_dir / f"{page_id}_dims.txt"
 
-    points_normalized = np.loadtxt(file_path)
-    if points_normalized.ndim == 1: 
+    if not file_path.exists():
+        raise FileNotFoundError(f"Data for page {page_id} not found.")
+
+    # Handle empty files (if user deleted all nodes previously)
+    try:
+        points_normalized = np.loadtxt(file_path)
+    except UserWarning:
+        points_normalized = np.array([])
+
+    if points_normalized.size == 0:
+        points_normalized = np.empty((0, 3))
+    elif points_normalized.ndim == 1: 
         points_normalized = points_normalized.reshape(1, -1)
     
     dims = np.loadtxt(dims_path)
@@ -348,18 +641,17 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
         "nodes": nodes_payload,
         "edges": [],
         "textline_labels": [-1] * len(points_normalized),
-        "textbox_labels": [], # Added payload field
+        "textbox_labels": [],
         "dimensions": [full_width, full_height]
     }
 
-    # 2. Check for Saved Corrections
+    # --- 2. Check for Saved Topology (Edges/Labels) ---
     saved_edges_path = history_dir / f"{page_id}_edges.txt"
     saved_labels_path = history_dir / f"{page_id}_labels_textline.txt"
-    saved_textbox_path = history_dir / f"{page_id}_labels_textbox.txt" # NEW
+    saved_textbox_path = history_dir / f"{page_id}_labels_textbox.txt"
     
     if saved_edges_path.exists():
-        print(f"Found saved corrections for {page_id}. Loading from disk...")
-        
+        print(f"Found saved edge topology...")
         saved_edges = []
         try:
             if saved_edges_path.stat().st_size > 0:
@@ -375,7 +667,7 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
                             "label": 1
                         })
         except Exception as e:
-            print(f"Warning: Error reading edges file: {e}. Returning empty edges.")
+            print(f"Warning reading edges: {e}")
             
         response["edges"] = saved_edges
         
@@ -384,22 +676,22 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
                 labels = np.loadtxt(saved_labels_path, dtype=int)
                 if labels.size == len(points_normalized):
                      response["textline_labels"] = labels.tolist()
-            except Exception:
-                pass 
+            except Exception: pass 
         
-        # NEW: Load saved textbox labels
         if saved_textbox_path.exists():
             try:
                 tb_labels = np.loadtxt(saved_textbox_path, dtype=int)
                 if tb_labels.size == len(points_normalized):
                     response["textbox_labels"] = tb_labels.tolist()
-            except Exception:
-                pass
+            except Exception: pass
 
         return response
 
-    # 3. No Saved State -> Run GNN Inference
-    print(f"No saved state found. Running GNN Inference...")
+    # --- 3. Run GNN (Only if no history exists) ---
+    if len(points_normalized) == 0:
+        return response
+
+    print(f"Running GNN Inference...")
     model, d_config, device = load_model_once(model_path, config_path)
     
     page_dims_norm = {'width': 1.0, 'height': 1.0}
@@ -442,107 +734,7 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
     response["edges"] = final_edges
     return response
 
-def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None):
-    """
-    Saves user corrections and regenerates XML.
-    Modified to handle textbox grouping and saving.
-    """
-    
-    base_path = Path(manuscript_path)
-    raw_input_dir = base_path / "gnn-dataset"
-    output_dir = base_path / "layout_analysis_output"
-    gnn_format_dir = output_dir / "gnn-format"
-    gnn_format_dir.mkdir(parents=True, exist_ok=True)
-    
-    # 1. Save Corrected Edges to .txt
-    unique_edges = set()
-    for e in graph_edges:
-        if 'source' in e and 'target' in e:
-            u, v = sorted((int(e['source']), int(e['target'])))
-            unique_edges.add((u, v))
-            
-    edges_save_path = gnn_format_dir / f"{page_id}_edges.txt"
-    if unique_edges:
-        np.savetxt(edges_save_path, list(unique_edges), fmt='%d')
-    else:
-        open(edges_save_path, 'w').close()
 
-    # 2. Copy Input Files
-    for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
-        src = raw_input_dir / f"{page_id}{suffix}"
-        dst = gnn_format_dir / f"{page_id}{suffix}"
-        if src.exists():
-            shutil.copy(src, dst)
-
-    # 3. Calculate Structural Labels (Textline Labels)
-    num_nodes = len(node_labels)
-    if unique_edges:
-        row, col = zip(*unique_edges)
-        all_rows = list(row) + list(col)
-        all_cols = list(col) + list(row)
-        data = np.ones(len(all_rows))
-        adj = csr_matrix((data, (all_rows, all_cols)), shape=(num_nodes, num_nodes))
-    else:
-        adj = csr_matrix((num_nodes, num_nodes))
-
-    n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
-    
-    labels_save_path = gnn_format_dir / f"{page_id}_labels_textline.txt"
-    np.savetxt(labels_save_path, final_structural_labels, fmt='%d')
-    
-    # --- NEW: Save Textbox Labels if provided ---
-    final_textbox_labels = None
-    if textbox_labels is not None and len(textbox_labels) == num_nodes:
-        textbox_save_path = gnn_format_dir / f"{page_id}_labels_textbox.txt"
-        final_textbox_labels = np.array(textbox_labels, dtype=int)
-        np.savetxt(textbox_save_path, final_textbox_labels, fmt='%d')
-    else:
-        # If not provided, treat all as 0 (one big region)
-        final_textbox_labels = np.zeros(num_nodes, dtype=int)
-
-    # 4. Run Segmentation & XML Generation
-    unnorm_path = raw_input_dir / f"{page_id}_inputs_unnormalized.txt"
-    points_unnormalized = np.loadtxt(unnorm_path)
-    if points_unnormalized.ndim == 1: 
-        points_unnormalized = points_unnormalized.reshape(1, -1)
-    
-    dims_path = raw_input_dir / f"{page_id}_dims.txt"
-    dims = np.loadtxt(dims_path)
-    page_dims = {'width': dims[0], 'height': dims[1]}
-
-    polygons_data = segmentLinesFromPointClusters(
-        str(output_dir.parent), 
-        page_id, 
-        BINARIZE_THRESHOLD=args_dict.get('BINARIZE_THRESHOLD', 0.5098), 
-        BBOX_PAD_V=args_dict.get('BBOX_PAD_V', 0.7), 
-        BBOX_PAD_H=args_dict.get('BBOX_PAD_H', 0.5), 
-        CC_SIZE_THRESHOLD_RATIO=args_dict.get('CC_SIZE_THRESHOLD_RATIO', 0.4), 
-        GNN_PRED_PATH=str(output_dir)
-    )
-
-    xml_output_dir = output_dir / "page-xml-format"
-    xml_output_dir.mkdir(exist_ok=True)
-    
-    # Call the updated create_page_xml with textbox labels
-    create_page_xml(
-        page_id,
-        unique_edges,
-        points_unnormalized,
-        page_dims,
-        xml_output_dir / f"{page_id}.xml",
-        final_structural_labels, 
-        polygons_data,
-        textbox_labels=final_textbox_labels, # Pass textbox labels
-        image_path=base_path / "images_resized" / f"{page_id}.jpg",
-    )
-
-    resized_images_dst_dir = output_dir / "images_resized"
-    resized_images_dst_dir.mkdir(exist_ok=True)
-    src_img = base_path / "images_resized" / f"{page_id}.jpg"
-    if src_img.exists():
-        shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
-
-    return {"status": "success", "lines": len(polygons_data)}
 
 def create_page_xml(
     page_id,

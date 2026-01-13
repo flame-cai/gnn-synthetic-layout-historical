@@ -34,6 +34,16 @@
             Region Labeling (R)
           </label>
         </div>
+        <div class="toggle-container">
+          <label>
+            <input
+              type="checkbox"
+              v-model="nodeModeActive"
+              :disabled="isProcessingSave || !graphIsLoaded"
+            />
+            Node Mode (N)
+          </label>
+        </div>
       </div>
       <button @click="runHeuristic" :disabled="loading">Auto-Link (Heuristic)</button>
       <button class="panel-toggle-btn" @click="isToolbarCollapsed = !isToolbarCollapsed">
@@ -74,11 +84,13 @@
         <svg
           v-if="graphIsLoaded"
           class="graph-overlay"
-          :class="{ 'is-visible': textlineModeActive || textboxModeActive }"
           :width="scaledWidth"
           :height="scaledHeight"
+          :viewBox="`0 0 ${scaledWidth} ${scaledHeight}`"
+          :class="{ 'is-visible': textlineModeActive || textboxModeActive || nodeModeActive }"
           :style="{ cursor: svgCursor }"
-          @click="textlineModeActive && onBackgroundClick($event)"
+          @click="onBackgroundClick($event)"
+          @contextmenu.prevent 
           @mousemove="handleSvgMouseMove"
           @mouseleave="handleSvgMouseLeave"
           ref="svgOverlayRef"
@@ -102,7 +114,8 @@
             :cy="scaleY(node.y)"
             :r="getNodeRadius(nodeIndex)"
             :fill="getNodeColor(nodeIndex)"
-            @click.stop="textlineModeActive && onNodeClick(nodeIndex, $event)"
+            @click.stop="onNodeClick(nodeIndex, $event)"
+            @contextmenu.stop.prevent="onNodeRightClick(nodeIndex, $event)"
           />
 
           <line
@@ -227,6 +240,7 @@ const router = useRouter()
 // We determine if we are in specific router flow or the standalone app flow based on props
 const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
 
+const nodeModeActive = ref(false)
 const localManuscriptName = ref('')
 const localCurrentPage = ref('')
 const localPageList = ref([])
@@ -282,16 +296,85 @@ const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
 
+
+// --- NODE MANIPULATION LOGIC ---
+
+// Helper: Calculate average size for new nodes
+const getAverageNodeSize = () => {
+    if (!workingGraph.nodes || workingGraph.nodes.length === 0) return 10;
+    const sum = workingGraph.nodes.reduce((acc, n) => acc + (n.s || 10), 0);
+    return sum / workingGraph.nodes.length;
+}
+
+const addNode = (clientX, clientY) => {
+    if (!svgOverlayRef.value) return;
+    
+    // 1. Get SVG bounding box to calculate relative position
+    const rect = svgOverlayRef.value.getBoundingClientRect();
+    
+    // 2. Convert Screen Pixels -> SVG Pixels -> Image Coordinates
+    const x = (clientX - rect.left) / scaleFactor;
+    const y = (clientY - rect.top) / scaleFactor;
+    
+    // 3. Push Node
+    workingGraph.nodes.push({
+        x: x, 
+        y: y, 
+        s: getAverageNodeSize()
+    });
+    
+    modifications.value.push({ type: 'node_add' });
+}
+
+const deleteNode = (nodeIndex) => {
+    if (nodeIndex < 0 || nodeIndex >= workingGraph.nodes.length) return;
+    
+    // 1. Remove Node from Array
+    workingGraph.nodes.splice(nodeIndex, 1);
+    
+    // 2. Remove Edges connected to this node
+    workingGraph.edges = workingGraph.edges.filter(e => e.source !== nodeIndex && e.target !== nodeIndex);
+    
+    // 3. Shift Edge Indices: Any index > deletedIndex must decrement by 1
+    workingGraph.edges.forEach(e => {
+        if (e.source > nodeIndex) e.source--;
+        if (e.target > nodeIndex) e.target--;
+    });
+    
+    // 4. Shift Region Labels (Frontend 'textlineLabels' map)
+    const newLabels = {};
+    Object.keys(textlineLabels).forEach(key => {
+        const idx = parseInt(key);
+        if (idx < nodeIndex) {
+            newLabels[idx] = textlineLabels[idx];
+        } else if (idx > nodeIndex) {
+            newLabels[idx - 1] = textlineLabels[idx];
+        }
+        // If idx == nodeIndex, it is simply dropped
+    });
+    
+    // Replace labels object
+    for (const key in textlineLabels) delete textlineLabels[key];
+    Object.assign(textlineLabels, newLabels);
+    
+    // 5. Cleanup Selection
+    resetSelection();
+    modifications.value.push({ type: 'node_delete' });
+}
+
 const svgCursor = computed(() => {
   if (textboxModeActive.value) {
     if (isEKeyPressed.value) return 'crosshair'
     return 'pointer'
   }
   if (!textlineModeActive.value) return 'default'
+  if (nodeModeActive.value) return 'cell'; // Visual cue for Node Mode
   if (isAKeyPressed.value) return 'crosshair'
   if (isDKeyPressed.value) return 'not-allowed'
   return 'default'
 })
+
+
 
 const downloadResults = async () => {
     try {
@@ -542,24 +625,51 @@ const resetSelection = () => {
   selectedNodes.value = []
   tempEndPoint.value = null
 }
-const onNodeClick = (nodeIndex, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
-  event.stopPropagation()
-  const existingIndex = selectedNodes.value.indexOf(nodeIndex)
-  if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1)
-  else
-    selectedNodes.value.length < 2
-      ? selectedNodes.value.push(nodeIndex)
-      : (selectedNodes.value = [nodeIndex])
-}
+
 const onEdgeClick = (edge, event) => {
   if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
   event.stopPropagation()
   selectedNodes.value = [edge.source, edge.target]
 }
-const onBackgroundClick = () => {
-  if (!isAKeyPressed.value && !isDKeyPressed.value) resetSelection()
+
+// Events
+const onBackgroundClick = (event) => {
+    if (nodeModeActive.value) {
+        addNode(event.clientX, event.clientY);
+        return;
+    }
+    // Normal Edge Mode Deselection
+    if (!isAKeyPressed.value && !isDKeyPressed.value) resetSelection();
 }
+
+const onNodeClick = (nodeIndex, event) => {
+    // Stop propagation so we don't trigger background click
+    event.stopPropagation(); 
+    
+    if (nodeModeActive.value) {
+        // In Node Mode, Left Click on a node does nothing (or you could allow select)
+        // We prevent it from adding a node on top of another.
+        return;
+    }
+    
+    // ... Existing Edge Mode Selection Logic ...
+    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return;
+    const existingIndex = selectedNodes.value.indexOf(nodeIndex);
+    if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1);
+    else selectedNodes.value.length < 2 ? selectedNodes.value.push(nodeIndex) : (selectedNodes.value = [nodeIndex]);
+}
+
+const onNodeRightClick = (nodeIndex, event) => {
+    if (nodeModeActive.value) {
+        // Prevent browser context menu
+        event.preventDefault(); 
+        deleteNode(nodeIndex);
+    }
+    // If not in Node Mode, do nothing (allow normal context menu or ignore)
+}
+
+
+
 
 const handleSvgMouseMove = (event) => {
   if (!svgOverlayRef.value) return
@@ -635,14 +745,19 @@ const labelTextline = () => {
   }
 }
 
+
+// --- HOTKEY HANDLERS ---
+
+
 const handleGlobalKeyDown = (e) => {
   const key = e.key.toLowerCase()
 
-  // General hotkeys that work in multiple modes
+  // 1. Global: Save (S)
+  // Allowed in any active mode, as long as we aren't currently loading/saving
   if (key === 's' && !e.repeat) {
     if (
-      (textlineModeActive.value || textboxModeActive.value) &&
-      !loading.value &&
+      (textlineModeActive.value || textboxModeActive.value || nodeModeActive.value) && 
+      !loading.value && 
       !isProcessingSave.value
     ) {
       e.preventDefault()
@@ -650,57 +765,88 @@ const handleGlobalKeyDown = (e) => {
     }
     return
   }
+
+  // 2. Global: Mode Toggles (W, R, N)
+  
+  // Toggle Edge Edit (W)
   if (key === 'w' && !e.repeat) {
     e.preventDefault()
     textlineModeActive.value = !textlineModeActive.value
     return
   }
+
+  // Toggle Region Labeling (R)
   if (key === 'r' && !e.repeat) {
     e.preventDefault()
     textboxModeActive.value = !textboxModeActive.value
     return
   }
 
-  // Region labeling specific hotkeys
-  if (textboxModeActive.value && !e.repeat) {
-    if (key === 'e') {
-      e.preventDefault()
-      isEKeyPressed.value = true
-    }
+  // Toggle Node Mode (N) - Handles both Add (Left Click) and Delete (Right Click)
+  if (key === 'n' && !e.repeat) {
+    e.preventDefault()
+    nodeModeActive.value = !nodeModeActive.value
     return
   }
 
-  // Edge editing specific hotkeys
-  if (!textlineModeActive.value || e.repeat) return
+  // 3. Mode-Specific Actions (Hold Keys)
 
-  if (key === 'd') {
+  // Region Labeling: Hold 'E' to paint labels
+  if (textboxModeActive.value && key === 'e' && !e.repeat) {
     e.preventDefault()
-    isDKeyPressed.value = true
-    resetSelection()
+    isEKeyPressed.value = true
+    return
   }
-  if (key === 'a') {
-    e.preventDefault()
-    isAKeyPressed.value = true
-    hoveredNodesForMST.clear()
-    resetSelection()
+
+  // Edge Editing: Hold 'A' (Add/MST) or 'D' (Delete)
+  if (textlineModeActive.value && !e.repeat) {
+    if (key === 'd') {
+      e.preventDefault()
+      isDKeyPressed.value = true
+      resetSelection()
+    }
+    if (key === 'a') {
+      e.preventDefault()
+      isAKeyPressed.value = true
+      hoveredNodesForMST.clear()
+      resetSelection()
+    }
   }
 }
 
+
 const handleGlobalKeyUp = (e) => {
+  // Always define key at the top scope
   const key = e.key.toLowerCase()
 
+  // 1. Handle 'E' release (Region Labeling Mode)
+  // When 'E' is released, we stop painting and increment the label ID
+  // so the next group painted gets a new color/ID automatically.
   if (textboxModeActive.value && key === 'e') {
     isEKeyPressed.value = false
-    textboxLabels.value++ // Increment label for the next group
+    textboxLabels.value++ 
   }
 
-  if (!textlineModeActive.value) return
+  // 2. Handle 'A' and 'D' release (Edge Editing Mode)
+  if (textlineModeActive.value) {
+    // Stop Deleting Edges
+    if (key === 'd') {
+      isDKeyPressed.value = false
+    }
 
-  if (key === 'd') isDKeyPressed.value = false
-  if (key === 'a') {
-    isAKeyPressed.value = false
-    if (hoveredNodesForMST.size >= 2) addMSTEdges()
-    hoveredNodesForMST.clear()
+    // Stop Adding Edges / Trigger MST
+    if (key === 'a') {
+      isAKeyPressed.value = false
+      
+      // If the user hovered over 2+ nodes while holding 'A', 
+      // connect them now using the Minimum Spanning Tree logic.
+      if (hoveredNodesForMST.size >= 2) {
+        addMSTEdges()
+      }
+      
+      // Always clear the set after release
+      hoveredNodesForMST.clear()
+    }
   }
 }
 
@@ -855,23 +1001,29 @@ const saveGeneratedGraph = async (name, page, g) => {
   }
 }
 
+
 const saveModifications = async () => {
   const numNodes = workingGraph.nodes.length
-  const labelsToSend = new Array(numNodes).fill(-1)
+  
+  // Prepare Textbox Labels
+  const labelsToSend = new Array(numNodes).fill(0) 
   for (const nodeIndex in textlineLabels) {
-    labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
+    // Safety check for index
+    if (nodeIndex < numNodes) {
+        labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
+    }
   }
 
-  // FIXED: Send dummy array of correct length instead of empty list []
-  // The backend uses this length to initialize the adjacency matrix
+  // Dummy Textline Labels (Backend re-calculates, but needs correct length)
   const dummyTextlineLabels = new Array(numNodes).fill(-1);
 
   const requestBody = {
-    graph: workingGraph,
+    graph: workingGraph, // Contains the modified nodes list
     modifications: modifications.value,
     textlineLabels: dummyTextlineLabels, 
     textboxLabels: labelsToSend,
   }
+
 
   try {
     const res = await fetch(
@@ -894,7 +1046,6 @@ const saveModifications = async () => {
     throw err
   }
 }
-
 
 
 const saveCurrentGraph = async () => {
@@ -1020,6 +1171,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('keyup', handleGlobalKeyUp)
 })
 
+// --- WATCHERS ---
+
+// 1. Page Navigation (Keep existing logic)
 watch(
   () => props.pageName,
   (newPageName) => {
@@ -1030,9 +1184,14 @@ watch(
   }
 )
 
-watch(textlineModeActive, (isEditing) => {
-  if (isEditing) textboxModeActive.value = false
-  if (!isEditing) {
+// 2. Textline Mode (Edge Editing)
+watch(textlineModeActive, (val) => {
+  if (val) {
+    // Disable other modes
+    textboxModeActive.value = false
+    nodeModeActive.value = false
+  } else {
+    // Cleanup internal state when exiting
     resetSelection()
     isAKeyPressed.value = false
     isDKeyPressed.value = false
@@ -1040,28 +1199,40 @@ watch(textlineModeActive, (isEditing) => {
   }
 })
 
-watch(textboxModeActive, (isLabeling) => {
-  if (isLabeling) {
-    console.log('Entering Region Labeling mode.')
+// 3. Textbox Mode (Region Labeling)
+watch(textboxModeActive, (val) => {
+  if (val) {
+    // Disable other modes
     textlineModeActive.value = false
+    nodeModeActive.value = false
+    
+    // Initialize Labeling State
+    console.log('Entering Region Labeling mode.')
     resetSelection()
 
-    // Ensure the next label index is unique by checking existing labels
     const existingLabels = Object.values(textlineLabels)
     if (existingLabels.length > 0) {
-      // Find the maximum label value currently in use and add 1
       const maxLabel = Math.max(...existingLabels)
       textboxLabels.value = maxLabel + 1
-      console.log(`Resuming labeling. Next available label index: ${textboxLabels.value}`)
     } else {
-      // No labels exist yet, start from 0
       textboxLabels.value = 0
-      console.log('No existing labels. Starting new labeling at index: 0')
     }
   } else {
-    console.log('Exiting Region Labeling mode.')
+    // Cleanup
+    hoveredTextlineId.value = null
   }
-  hoveredTextlineId.value = null
+})
+
+// 4. Node Mode (Add/Delete Nodes)
+watch(nodeModeActive, (val) => {
+  if (val) {
+    // Disable other modes
+    textlineModeActive.value = false
+    textboxModeActive.value = false
+    
+    // Cleanup selection so we don't carry over selected nodes
+    resetSelection()
+  }
 })
 </script>
 

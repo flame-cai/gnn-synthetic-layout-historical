@@ -123,7 +123,8 @@ def save_correction(manuscript, page):
     # Extract data from frontend
     textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph')
-    textbox_labels = data.get('textboxLabels') # NEW: Extract textbox labels
+    textbox_labels = data.get('textboxLabels')
+    nodes_data = graph_data.get('nodes') # NEW: Extract nodes list
     
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -140,13 +141,16 @@ def save_correction(manuscript, page):
                 'BBOX_PAD_H': 0.5,
                 'CC_SIZE_THRESHOLD_RATIO': 0.4
             },
-            textbox_labels=textbox_labels # Pass to generator
+            textbox_labels=textbox_labels,
+            nodes=nodes_data # NEW: Pass nodes to backend
         )
         return jsonify(result)
     except Exception as e:
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):

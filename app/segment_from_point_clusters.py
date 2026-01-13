@@ -188,36 +188,138 @@ def gen_bounding_boxes(det, binarize_threshold):
 
 
 
+# def load_node_features_and_labels(points_file, labels_file):
+#     points = np.loadtxt(points_file, dtype=float, ndmin=2).astype(int)
+#     with open(labels_file, "r") as f: labels = [line.strip() for line in f]
+#     features, filtered_labels = [], []
+#     for point, label in zip(points, labels):
+#         if label.lower() != "none":
+#             features.append(point)
+#             filtered_labels.append(int(label))
+#     return np.array(features), np.array(filtered_labels)
 def load_node_features_and_labels(points_file, labels_file):
-    points = np.loadtxt(points_file, dtype=float, ndmin=2).astype(int)
-    with open(labels_file, "r") as f: labels = [line.strip() for line in f]
-    features, filtered_labels = [], []
-    for point, label in zip(points, labels):
-        if label.lower() != "none":
-            features.append(point)
-            filtered_labels.append(int(label))
-    return np.array(features), np.array(filtered_labels)
+    # RED TEAM FIX: Handle empty files gracefully
+    try:
+        points = np.loadtxt(points_file, dtype=float, ndmin=2)
+        if points.size == 0:
+            return np.array([]), np.array([])
+        
+        with open(labels_file, "r") as f: labels = [line.strip() for line in f]
+        
+        features, filtered_labels = [], []
+        # Handle case where labels file might be empty or mismatched
+        if len(labels) != len(points):
+             return np.array([]), np.array([])
+
+        for point, label in zip(points, labels):
+            if label.lower() != "none":
+                features.append(point)
+                filtered_labels.append(int(label))
+        return np.array(features), np.array(filtered_labels)
+    except Exception as e:
+        print(f"Warning loading features/labels: {e}")
+        return np.array([]), np.array([])
+
+
 
 def assign_labels_and_plot(bounding_boxes, points, labels, image, output_path):
-    # if len(image.shape) == 2: image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
     labeled_bboxes = []
+    
+    # Track which point indices have been assigned to a box to handle manually added nodes
+    matched_point_indices = set()
+    
+    # 1. Standard assignment: Box -> Points
     for x_min, y_min, w, h in bounding_boxes:
         x_max, y_max = x_min + w, y_min + h
-        pts = [(p[0], p[1], lab) for p, lab in zip(points, labels) if x_min <= p[0] <= x_max and y_min <= p[1] <= y_max]
-        if pts and len({lab for _, _, lab in pts}) == 1:
-            labeled_bboxes.append((x_min, y_min, w, h, pts[0][2]))
-        elif pts:
-            pts.sort(key=lambda p: p[1])
-            boundaries = [y_min] + [max(y_min, min(y_max, int((pts[i-1][1] + pts[i][1]) / 2))) for i in range(1, len(pts)) if pts[i][2] != pts[i-1][2]] + [y_max]
+        
+        # Identify points strictly inside this box
+        # We store (point_data, label, original_index)
+        pts_in_box = []
+        for i, (p, lab) in enumerate(zip(points, labels)):
+            if x_min <= p[0] <= x_max and y_min <= p[1] <= y_max:
+                pts_in_box.append((p, lab, i))
+        
+        if not pts_in_box:
+            continue
+            
+        # Check if all points inside share the same label
+        unique_labels = {item[1] for item in pts_in_box}
+        
+        if len(unique_labels) == 1:
+            # Simple case: One label for the whole box
+            seg_label = pts_in_box[0][1]
+            labeled_bboxes.append((x_min, y_min, w, h, seg_label))
+            
+            # Mark these points as matched
+            for _, _, idx in pts_in_box:
+                matched_point_indices.add(idx)
+                
+        else:
+            # Complex case: Multiple labels in one box (e.g., lines touching vertically)
+            # Sort points by Y coordinate
+            pts_in_box.sort(key=lambda item: item[0][1])
+            
+            # Define split boundaries based on midpoints between label changes
+            boundaries = [y_min]
+            for i in range(1, len(pts_in_box)):
+                curr_lab = pts_in_box[i][1]
+                prev_lab = pts_in_box[i-1][1]
+                if curr_lab != prev_lab:
+                    mid_y = int((pts_in_box[i][0][1] + pts_in_box[i-1][0][1]) / 2)
+                    boundaries.append(max(y_min, min(y_max, mid_y)))
+            boundaries.append(y_max)
+            
+            # Create sub-boxes
             for i in range(1, len(boundaries)):
                 top, bot = boundaries[i-1], boundaries[i]
-                seg_label = next((lab for _, py, lab in pts if top <= py <= bot), None)
-                if seg_label: labeled_bboxes.append((x_min, top, w, bot - top, seg_label))
-    # for x, y, w, h, label in labeled_bboxes:
-    #     cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    #     cv2.putText(image, str(label), (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    # cv2.imwrite(output_path, image)
-    # print(f"Annotated image saved as: {output_path}")
+                if bot <= top: continue
+                
+                # Determine label for this segment (use the first point falling in range)
+                seg_label = next((lab for p, lab, idx in pts_in_box if top <= p[1] <= bot), None)
+                
+                if seg_label is not None:
+                    labeled_bboxes.append((x_min, top, w, bot - top, seg_label))
+                    
+                    # Mark points in this segment as matched
+                    for p, lab, idx in pts_in_box:
+                        if top <= p[1] <= bot:
+                            matched_point_indices.add(idx)
+
+    # 2. Hacky Fix for Added Nodes: Create artificial boxes for unmatched points
+    # Calculate median box size to use as default for 'ghost' boxes
+    median_w = 40 # Reasonable default
+    median_h = 40
+    if bounding_boxes:
+        widths = [b[2] for b in bounding_boxes]
+        heights = [b[3] for b in bounding_boxes]
+        if widths: median_w = np.median(widths)
+        if heights: median_h = np.median(heights)
+        
+    img_h, img_w = image.shape[:2] if image is not None else (10000, 10000)
+
+    for i, (point, label) in enumerate(zip(points, labels)):
+        if i not in matched_point_indices:
+            # This point wasn't inside any CRAFT box (e.g., manual addition)
+            px, py = int(point[0]), int(point[1])
+            
+            # Use median dimensions centered on the point
+            w = int(median_w)
+            h = int(median_h)
+            
+            x = px - w // 2
+            y = py - h // 2
+            
+            # Clip to image boundaries
+            x = max(0, min(x, img_w - 1))
+            y = max(0, min(y, img_h - 1))
+            
+            # Ensure w, h fit within image
+            w = min(w, img_w - x)
+            h = min(h, img_h - y)
+            
+            if w > 0 and h > 0:
+                labeled_bboxes.append((x, y, w, h, label))
+
     return labeled_bboxes
 
 def detect_line_type(boxes):
