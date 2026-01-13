@@ -1,28 +1,33 @@
-As an expert in frontend development with javascript, vue.js please help me convert my fully autonomous python application into a semi-autonomous applications which allows humans to be in the loop.
+As an expert in web development with javascript, vue.js as frontend and python (pytorch, torch-geometric) as backend please help me make improvements to my python application which allows the user to perfrom semi-autonomous layout analysis of historical manuscript images using graph neural networks (GNNs). The problem formulation is as follows:
 
-At present the application uses a Graph Neural Network to segment text-line images from historical manuscript images in a fully automatic way as follows:
+Each character in the manuscript image is represented as a node in a graph. This is done using CRAFT, which detects character locations in the image by generating a heatmap of character locations. These character locations are used as node features (along with other features)
 
+The applications currently processes the heatmap to create a graph representation of the manuscript page, to perfrom the task of text-line segmentation. However, in the future we may want to extend this to other layout analysis tasks such as textbox segmentation, reading order detection etc.
+
+To perfrom text-line segmentation, the tool uses a GNN to label nodes (characters) belonging to the same text-line with the same label. The output of the GNN is then used to segment text-line images and create PAGE XML files for the manuscript page.
+The current pipeline is as follows:
 1) Resize the original images
-2) Convert the images to heatmaps
+2) Convert the images to heatmaps using CRAFT.
 3) Convert the heatmap into a GNN friendly format with nodes as character locations (x,y) and font_size.
-	Hence the gnn-dataset at his stage looks like: looks like:
-	
-	{page_id}_dims.txt containing:
+	Hence the gnn-dataset at his stage looks like:
+  {page_id}_dims.txt containing:
 	1250.0 642.0
-	
-	{page_id}_inputs_normalized.txt containing:
+
+
+	{page_id}_inputs_normalized.txt containing the normalized (x,y) coordinates of each character node and other features.
 	0.455200 0.158400 0.017600
 	0.592000 0.158400 0.011200
 	0.392800 0.159200 0.008800
 	0.430400 0.159200 0.010400
 	0.447200 0.159200 0.013600
 	
-	{page_id}_inputs_unnormalized.txt containing:
+	{page_id}_inputs_unnormalized.txt containing the unnormalized (x,y) coordinates of each character node and other features.
 	569.000000 198.000000 22.000000
 	740.000000 198.000000 14.000000
 	491.000000 199.000000 11.000000
 	538.000000 199.000000 13.000000
 	559.000000 199.000000 17.000000
+
 4) Then a GNN pipeline is used label points (nodes) belonging to the same text-line with the same label. Hence the GNN pipeline creates a {page_id}_labels_textline.txt file.
 
 	{page_id}_labels_textline.txt containing:
@@ -33,1583 +38,55 @@ At present the application uses a Graph Neural Network to segment text-line imag
 	0
 
 	In this example, all 5 points belong to the same line hence have the same label 0.
-5) In the last step, the predicted labels in gnn format are used to generate a PAGE XML file and segmented line images for that page.
+
+However a problem is that some times the predicted labels in {page_id}_labels_textline.txt are incorrect. Hence we need to perfom human supervision after step 4, such that a human a manually verify if the predictions are correct, and if they are not, the human should be able to correct them. This is where the frontend comes in, allowing the user to hover over characters (nodes) to add edges or delete edges between them - the goal being to ensure that all characters (nodes) belonging to the same text-line are connected together.
+
+The application frontend also allows to label textboxes, where hovering over text-lines marks them as belonging to the same textbox. (all text-lines belonging to the same textbox have same label). Hence all nodes (characters) belonging to text-lines in the same textbox should have the same textbox label.
+
+{page_id}_labels_textbox.txt containing:
+0
+0
+0
+0
+0
+
+The application currently does not generate {page_id}_labels_textbox.txt, but this is a planned feature.
 
 
-However a problem with this fully automatic pipelines is that some times the predicted labels in {page_id}_labels_textline.txt are incorrect. Hence we would like to have human supervision at that step, such that a human a manually verify if the predictions are correct, and if they are not, the human should be able to correct them.
-
-Hence, I want your help converting this fully automatic pipeline to an application with a fronted and backend, with the frontend being "in between" step 4 and step 5, allowing the user to verify and make corrections to the node labels before proceeding to segment line images and create PAGE XML files.
-
-Do not make unnecessary changes to the gnn inference pipeline. Please also update the readme.md to reflect these changes to help users understand how to install and use this new semi-autonomous application.
-
-Hence the user flow should be as follows:
-1) On the main page, the user uploads the manuscript images to be processed. The main page also allows the user to modify the default hyperparameters: min_distance=20 used in step 3 above for feature engineering, and the dimensions used to resize the original images in step 1 above (default longest side=2500).
+Hence the user flow is follows:
+1) On the main page, the user uploads the manuscript images to be processed. The main page also allows the user to modify the default dimensions used to resize the original images in step 1 above (default longest side=2500).
 2) After uploading, the backend processes the images till step 4 above, and then serves the frontend a page where the user can see the manuscript image overlayed with the detected character points (nodes) and edges between them. The frontend for page 1 should be displayed once the GNN inference (till step 4) is complete for that page, while the GNN inference for other pages can continue in the background. Handle this carefully to ensure smooth user experience.
-3) Using the frontend, the user can then verify if the node labels are correct. If they are not correct, the user can correct them manually. In the frontend the user can also optionally choose to use the heuristic algorithm (same as used in LayoutGraphGenerator.js) to automatically connect points of the same text-line together, and then the user can make minor corrections to that if needed. The heuristic algorithm does the same thing the GNN inference in the backend does, but is less accurate.
+3) Using the frontend, the user can then verify if the node labels are correct. If they are not correct, the user can correct them manually. In the frontend the user can also optionally choose to use the heuristic algorithm. The application also allows the user to label textboxes by hovering over text-lines to group them into textboxes is the textbox labelling mode.
 4) Then the user can click a "Save and Proceed" button, which saves the corrected node labels to {page_id}_labels_textline.txt and then the backend code proceeds to step 5 above, generating the PAGE XML files and segmented line images for that page. The frontend then displays the next page for verification, while the backend continues processing other pages in the background.
 5) This continues till all pages are processed.
 
-Please take care to ensure that the core GNN inference pipeline code is not changed unnecessarily, and that the new frontend and backend code is modular and cleanly integrated into the existing codebase.
-Think carefully about the best way to implement this new frontend and backend to achieve the above user flow. 
-IMPORTANT: Please rewrite entire files where required, or please tell me what to replace with what in which files to achieve this. 
+Please study the above problem formulation and the current codebase carefully, and understand the entire flow. Then, please help me make the following changes to the application:
 
-Please take inspiration from the below vue.js code and js code for building the frontend, but feel free to modify as needed to suit the new requirements.
+1) TODO: The frontend already allows textbox labelling, but the backend does not yet support saving textbox labels to {page_id}_labels_textbox.txt. Please add this functionality to the backend, ensuring that when the user clicks "Save and Proceed", the textbox labels are also saved correctly to {page_id}_labels_textbox.txt. Note that this is a nuanced change, as the textbox labels are at a higher level than text-line labels. So we will need to generate the PAGE XML files accordingly, ensuring that text-lines are grouped into textboxes correctly based on the textbox labels. Also right now the text-line reading order is determined using a simple top-to-bottom left-to-right heuristic. Please change this to ensure that this reading order is now applied inside each textbox, and the textboxes themselves are ordered top-to-bottom left-to-right. If the user has not labelled any textboxes, then all text-lines should be treated as belonging to a single textbox (as is the current behaviour).
 
-vue.js code:
+2) TODO: The main page should allow the user to tweak the hyperparameter min_distance=20, along with the image resize dimension (longest side=2500). Please ensure that these hyperparameters are used correctly in the backend processing pipeline.
 
-<template>
-  <div class="manuscript-viewer">
-    <!-- Top Toolbar: Collapsible -->
-    <div class="toolbar">
-      <h10>{{ manuscriptNameForDisplay }} - Page {{ currentPageForDisplay }}</h10>
-      <div v-show="!isToolbarCollapsed" class="toolbar-controls">
-        <button @click="previousPage" :disabled="loading || isProcessingSave || isFirstPage">
-          Previous
-        </button>
-        <button @click="nextPage" :disabled="loading || isProcessingSave || isLastPage">Next</button>
-        <button @click="saveAndGoNext" :disabled="loading || isProcessingSave">
-          Save & Next (S)
-        </button>
-        <button @click="goToIMG2TXTPage" :disabled="loading || isProcessingSave">
-          Annotate Text
-        </button>
-        <div class="toggle-container">
-          <label>
-            <input type="checkbox" v-model="editModeActive" :disabled="isProcessingSave" />
-            Edge Edit (W)
-          </label>
-        </div>
-        <div class="toggle-container">
-          <label>
-            <input
-              type="checkbox"
-              v-model="regionLabelingModeActive"
-              :disabled="isProcessingSave || !graphIsLoaded"
-            />
-            Region Labeling (R)
-          </label>
-        </div>
-      </div>
-      <button class="panel-toggle-btn" @click="isToolbarCollapsed = !isToolbarCollapsed">
-        {{ isToolbarCollapsed ? 'Show Toolbar' : 'Hide' }}
-      </button>
-    </div>
+3) TODO: Add a button "Export PAGE XMLs" on the annotation page, which allows the user to download all generated PAGE XML files, and segmented line images as a zip file. This should include all PAGE XML files and segmented line images generated _so far_ (including the current page), even if the user has not yet completed the annotation for all (later) pages.
 
-    <!-- Main Content: Visualization Area -->
-    <div class="visualization-container" ref="container">
-      <div v-if="isProcessingSave" class="processing-save-notice">
-        Saving graph and processing... Please wait.
-      </div>
-      <div v-if="error" class="error-message">
-        {{ error }}
-      </div>
-      <div v-if="loading" class="loading">Loading Page Data...</div>
-      <div
-        v-else
-        class="image-container"
-        :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
-      >
-        <img
-          v-if="imageData"
-          :src="`data:image/jpeg;base64,${imageData}`"
-          :width="scaledWidth"
-          :height="scaledHeight"
-          class="manuscript-image"
-          @load="imageLoaded = true"
-        />
-        <div
-          v-else
-          class="placeholder-image"
-          :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
-        >
-          No image available
-        </div>
 
-        <svg
-          v-if="graphIsLoaded"
-          class="graph-overlay"
-          :class="{ 'is-visible': editModeActive || regionLabelingModeActive }"
-          :width="scaledWidth"
-          :height="scaledHeight"
-          :style="{ cursor: svgCursor }"
-          @click="editModeActive && onBackgroundClick($event)"
-          @mousemove="handleSvgMouseMove"
-          @mouseleave="handleSvgMouseLeave"
-          ref="svgOverlayRef"
-        >
-          <line
-            v-for="(edge, index) in workingGraph.edges"
-            :key="`edge-${index}`"
-            :x1="scaleX(workingGraph.nodes[edge.source].x)"
-            :y1="scaleY(workingGraph.nodes[edge.source].y)"
-            :x2="scaleX(workingGraph.nodes[edge.target].x)"
-            :y2="scaleY(workingGraph.nodes[edge.target].y)"
-            :stroke="getEdgeColor(edge)"
-            :stroke-width="isEdgeSelected(edge) ? 3 : 2.5"
-            @click.stop="editModeActive && onEdgeClick(edge, $event)"
-          />
+Do not make unnecessary changes to the gnn inference pipeline. 
+IMPORTANT: Please rewrite entire files or entire functions. Or please tell me which part of the code to replace or change. Do not suggest partial code snippets that are hard to integrate. Ensure that the code is clean, modular and well documented. Follow best practices.
 
-          <circle
-            v-for="(node, nodeIndex) in workingGraph.nodes"
-            :key="`node-${nodeIndex}`"
-            :cx="scaleX(node.x)"
-            :cy="scaleY(node.y)"
-            :r="getNodeRadius(nodeIndex)"
-            :fill="getNodeColor(nodeIndex)"
-            @click.stop="editModeActive && onNodeClick(nodeIndex, $event)"
-          />
+Please find the code below:
 
-          <line
-            v-if="
-              editModeActive &&
-              selectedNodes.length === 1 &&
-              tempEndPoint &&
-              !isAKeyPressed &&
-              !isDKeyPressed
-            "
-            :x1="scaleX(workingGraph.nodes[selectedNodes[0]].x)"
-            :y1="scaleY(workingGraph.nodes[selectedNodes[0]].y)"
-            :x2="tempEndPoint.x"
-            :y2="tempEndPoint.y"
-            stroke="#ff9500"
-            stroke-width="2.5"
-            stroke-dasharray="5,5"
-          />
-        </svg>
-      </div>
-    </div>
 
-    <!-- Bottom Panel: Collapsible -->
-    <div class="bottom-panel">
-      <div class="panel-toggle-bar" @click="isControlsCollapsed = !isControlsCollapsed">
-        <div class="edit-instructions">
-          <p v-if="isControlsCollapsed && regionLabelingModeActive">
-            Hold 'e' and hover over lines to label them. Release 'e' and press again for the next
-            label. 's' to save.
-          </p>
-          <p v-else-if="isControlsCollapsed && editModeActive">
-            Hold 'a' to connect, 'd' to delete. Press 's' to save & next. Toggle modes with 'w'/'r'.
-          </p>
-          <p v-else-if="isControlsCollapsed && !editModeActive && !regionLabelingModeActive">
-            Press 'w' to edit edges, 'r' to label regions.
-          </p>
-          <p v-else-if="regionLabelingModeActive">
-            Hold 'e' to label textlines with the current label. Release and press 'e' again to move
-            to the next label.
-          </p>
-          <p v-else-if="editModeActive && !isAKeyPressed && !isDKeyPressed">
-            Select nodes to manage edges, or use hotkeys.
-          </p>
-          <p v-else-if="editModeActive && isAKeyPressed">Release 'A' to connect nodes.</p>
-          <p v-else-if="editModeActive && isDKeyPressed">Release 'D' to stop deleting.</p>
-        </div>
-        <button class="panel-toggle-btn">
-          {{ isControlsCollapsed ? 'Show Controls' : 'Hide Controls' }}
-        </button>
-      </div>
-
-      <div v-show="!isControlsCollapsed" class="bottom-panel-content">
-        <div v-if="editModeActive && !isAKeyPressed && !isDKeyPressed" class="edit-controls">
-          <div class="edit-actions">
-            <button @click="resetSelection">Cancel Selection</button>
-            <button
-              @click="addEdge"
-              :disabled="selectedNodes.length !== 2 || edgeExists(selectedNodes[0], selectedNodes[1])"
-            >
-              Add Edge
-            </button>
-            <button
-              @click="deleteEdge"
-              :disabled="selectedNodes.length !== 2 || !edgeExists(selectedNodes[0], selectedNodes[1])"
-            >
-              Delete Edge
-            </button>
-          </div>
-        </div>
-
-        <div
-          v-if="(editModeActive || regionLabelingModeActive) && graphIsLoaded"
-          class="modifications-log-container"
-        >
-          <button @click="saveCurrentGraph" :disabled="loading || isProcessingSave">
-            Save Graph & Labels
-          </button>
-          <div v-if="modifications.length > 0" class="modifications-details">
-            <h3>Modifications ({{ modifications.length }})</h3>
-            <button @click="resetModifications" :disabled="loading">Reset All Changes</button>
-            <ul>
-              <li
-                v-for="(mod, index) in modifications"
-                :key="index"
-                class="modification-item"
-              >
-                {{ mod.type === 'add' ? 'Added' : 'Removed' }} edge: {{ mod.source }} ↔
-                {{ mod.target }}
-                <button @click="undoModification(index)" class="undo-button">Undo</button>
-              </li>
-            </ul>
-          </div>
-          <p v-else-if="!loading">No edge modifications in this session.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { ref, onMounted, onBeforeUnmount, computed, watch, reactive } from 'vue'
-import { useAnnotationStore } from '@/stores/annotationStore'
-import { generateLayoutGraph } from './layout-analysis-utils/LayoutGraphGenerator.js'
-import { useRouter } from 'vue-router'
-
-const props = defineProps({
-  manuscriptName: {
-    type: String,
-    default: null,
-  },
-  pageName: {
-    type: String,
-    default: null,
-  },
-})
-
-const router = useRouter()
-const annotationStore = useAnnotationStore()
-
-const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
-
-const localManuscriptName = ref('')
-const localCurrentPage = ref('')
-const localPageList = ref([])
-
-const loading = ref(true)
-const isProcessingSave = ref(false)
-const error = ref(null)
-const imageData = ref('')
-const imageLoaded = ref(false)
-
-const isToolbarCollapsed = ref(true)
-const isControlsCollapsed = ref(true)
-const editModeActive = ref(false)
-const regionLabelingModeActive = ref(false)
-
-const dimensions = ref([0, 0])
-const points = ref([])
-const graph = ref({ nodes: [], edges: [] })
-const workingGraph = reactive({ nodes: [], edges: [] })
-const modifications = ref([])
-const nodeEdgeCounts = ref({})
-const selectedNodes = ref([])
-const tempEndPoint = ref(null)
-const isDKeyPressed = ref(false)
-const isAKeyPressed = ref(false)
-const isEKeyPressed = ref(false) // For holding E
-const hoveredNodesForMST = reactive(new Set())
-const container = ref(null)
-const svgOverlayRef = ref(null)
-
-// --- State for region labeling ---
-const textlineLabels = reactive({}) // Maps node index to a region label (0, 1, 2...)
-const textlines = ref({}) // Maps textline ID to a list of node indices
-const nodeToTextlineMap = ref({}) // Maps node index to its textline ID
-const hoveredTextlineId = ref(null)
-const currentLabelIndex = ref(0) // The current label to apply (0, 1, 2, ...)
-const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] // Colors for different labels
-
-const scaleFactor = 1.0
-const NODE_HOVER_RADIUS = 7
-const EDGE_HOVER_THRESHOLD = 5
-
-const manuscriptNameForDisplay = computed(() => localManuscriptName.value)
-const currentPageForDisplay = computed(() => localCurrentPage.value)
-const isFirstPage = computed(() => localPageList.value.indexOf(localCurrentPage.value) === 0)
-const isLastPage = computed(
-  () => localPageList.value.indexOf(localCurrentPage.value) === localPageList.value.length - 1
-)
-
-const scaledWidth = computed(() => Math.floor(dimensions.value[0] * scaleFactor))
-const scaledHeight = computed(() => Math.floor(dimensions.value[1] * scaleFactor))
-const scaleX = (x) => x * scaleFactor
-const scaleY = (y) => y * scaleFactor
-const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
-
-const svgCursor = computed(() => {
-  if (regionLabelingModeActive.value) {
-    if (isEKeyPressed.value) return 'crosshair'
-    return 'pointer'
-  }
-  if (!editModeActive.value) return 'default'
-  if (isAKeyPressed.value) return 'crosshair'
-  if (isDKeyPressed.value) return 'not-allowed'
-  return 'default'
-})
-
-const computeTextlines = () => {
-  if (!graphIsLoaded.value) return
-  const numNodes = workingGraph.nodes.length
-  const adj = Array(numNodes)
-    .fill(0)
-    .map(() => [])
-  for (const edge of workingGraph.edges) {
-    adj[edge.source].push(edge.target)
-    adj[edge.target].push(edge.source)
-  }
-
-  const visited = new Array(numNodes).fill(false)
-  const newTextlines = {}
-  const newNodeToTextlineMap = {}
-  let currentTextlineId = 0
-
-  for (let i = 0; i < numNodes; i++) {
-    if (!visited[i]) {
-      const component = []
-      const stack = [i]
-      visited[i] = true
-      while (stack.length > 0) {
-        const u = stack.pop()
-        component.push(u)
-        newNodeToTextlineMap[u] = currentTextlineId
-        for (const v of adj[u]) {
-          if (!visited[v]) {
-            visited[v] = true
-            stack.push(v)
-          }
-        }
-      }
-      newTextlines[currentTextlineId] = component
-      currentTextlineId++
-    }
-  }
-
-  textlines.value = newTextlines
-  nodeToTextlineMap.value = newNodeToTextlineMap
-}
-
-const fetchPageData = async (manuscript, page) => {
-  if (!manuscript || !page) {
-    error.value = 'Manuscript or page not specified.'
-    loading.value = false
-    return
-  }
-  loading.value = true
-  error.value = null
-  modifications.value = []
-  Object.keys(textlineLabels).forEach((key) => delete textlineLabels[key])
-
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/semi-segment/${manuscript}/${page}`
-    )
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch page data')
-    const data = await response.json()
-
-    dimensions.value = data.dimensions
-    imageData.value = data.image || ''
-    points.value = data.points.map((p) => ({ coordinates: [p[0], p[1]], segment: null }))
-
-    if (data.graph) {
-      graph.value = data.graph
-    } else if (data.points?.length > 0) {
-      graph.value = generateLayoutGraph(data.points)
-      if (!isEditModeFlow.value) {
-        await saveGeneratedGraph(manuscript, page, graph.value)
-      }
-    }
-    if (data.textline_labels) {
-      data.textline_labels.forEach((label, index) => {
-        if (label !== -1) {
-          textlineLabels[index] = label
-        }
-      })
-    }
-
-    resetWorkingGraph()
-  } catch (err) {
-    console.error('Error fetching page data:', err)
-    error.value = err.message
-  } finally {
-    loading.value = false
-  }
-}
-
-const fetchPageList = async (manuscript) => {
-  if (!manuscript) return
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/manuscript/${manuscript}/pages`
-    )
-    if (!response.ok) throw new Error('Failed to fetch page list')
-    localPageList.value = await response.json()
-  } catch (err) {
-    console.error('Failed to fetch page list:', err)
-    localPageList.value = []
-  }
-}
-
-const updateUniqueNodeEdgeCounts = () => {
-  const counts = {}
-  if (!workingGraph.nodes) return
-  workingGraph.nodes.forEach((_, index) => {
-    counts[index] = 0
-  })
-
-  if (!workingGraph.edges) {
-    nodeEdgeCounts.value = counts
-    return
-  }
-
-  const uniqueEdges = new Set()
-  for (const edge of workingGraph.edges) {
-    const key = `${Math.min(edge.source, edge.target)}-${Math.max(edge.source, edge.target)}`
-    uniqueEdges.add(key)
-  }
-
-  for (const key of uniqueEdges) {
-    const [source, target] = key.split('-').map(Number)
-    if (counts[source] !== undefined) counts[source]++
-    if (counts[target] !== undefined) counts[target]++
-  }
-
-  nodeEdgeCounts.value = counts
-}
-
-watch(
-  () => workingGraph.edges,
-  () => {
-    updateUniqueNodeEdgeCounts()
-    computeTextlines()
-  },
-  { deep: true, immediate: true }
-)
-
-const resetWorkingGraph = () => {
-  workingGraph.nodes = JSON.parse(JSON.stringify(graph.value.nodes || []))
-  workingGraph.edges = JSON.parse(JSON.stringify(graph.value.edges || []))
-  resetSelection()
-  computeTextlines()
-}
-
-const getNodeColor = (nodeIndex) => {
-  const textlineId = nodeToTextlineMap.value[nodeIndex]
-
-  if (regionLabelingModeActive.value) {
-    if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
-      return '#ff4081' // Hot pink for hovered textline
-    }
-    const label = textlineLabels[nodeIndex]
-    if (label !== undefined && label > -1) {
-      return labelColors[label % labelColors.length]
-    }
-    return '#9e9e9e' // Grey for unlabeled nodes in this mode
-  }
-
-  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#00bcd4'
-  if (isNodeSelected(nodeIndex)) return '#ff9500'
-
-  const edgeCount = nodeEdgeCounts.value[nodeIndex]
-  if (edgeCount < 2) return '#f44336'
-  if (edgeCount === 2) return '#4CAF50'
-  if (edgeCount > 2) return '#2196F3'
-  return '#cccccc'
-}
-const getNodeRadius = (nodeIndex) => {
-  if (regionLabelingModeActive.value) {
-    const textlineId = nodeToTextlineMap.value[nodeIndex]
-    if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
-      return 7
-    }
-    return 5
-  }
-
-  const edgeCount = nodeEdgeCounts.value[nodeIndex]
-  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return 7
-  if (isNodeSelected(nodeIndex)) return 6
-  return edgeCount < 2 ? 5 : 3
-}
-const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#ffffff')
-const isNodeSelected = (nodeIndex) => selectedNodes.value.includes(nodeIndex)
-const isEdgeSelected = (edge) => {
-  return (
-    selectedNodes.value.length === 2 &&
-    ((selectedNodes.value[0] === edge.source && selectedNodes.value[1] === edge.target) ||
-      (selectedNodes.value[0] === edge.target && selectedNodes.value[1] === edge.source))
-  )
-}
-
-const resetSelection = () => {
-  selectedNodes.value = []
-  tempEndPoint.value = null
-}
-const onNodeClick = (nodeIndex, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || regionLabelingModeActive.value) return
-  event.stopPropagation()
-  const existingIndex = selectedNodes.value.indexOf(nodeIndex)
-  if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1)
-  else
-    selectedNodes.value.length < 2
-      ? selectedNodes.value.push(nodeIndex)
-      : (selectedNodes.value = [nodeIndex])
-}
-const onEdgeClick = (edge, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || regionLabelingModeActive.value) return
-  event.stopPropagation()
-  selectedNodes.value = [edge.source, edge.target]
-}
-const onBackgroundClick = () => {
-  if (!isAKeyPressed.value && !isDKeyPressed.value) resetSelection()
-}
-
-const handleSvgMouseMove = (event) => {
-  if (!svgOverlayRef.value) return
-  const { left, top } = svgOverlayRef.value.getBoundingClientRect()
-  const mouseX = event.clientX - left
-  const mouseY = event.clientY - top
-
-  if (regionLabelingModeActive.value) {
-    let newHoveredTextlineId = null
-
-    // 1. Check for node hover first (more precise)
-    for (let i = 0; i < workingGraph.nodes.length; i++) {
-      const node = workingGraph.nodes[i]
-      if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < NODE_HOVER_RADIUS) {
-        newHoveredTextlineId = nodeToTextlineMap.value[i]
-        break // Exit loop once found
-      }
-    }
-
-    // 2. If no node hovered, check for edge hover
-    if (newHoveredTextlineId === null) {
-      for (const edge of workingGraph.edges) {
-        const n1 = workingGraph.nodes[edge.source]
-        const n2 = workingGraph.nodes[edge.target]
-        if (
-          n1 &&
-          n2 &&
-          distanceToLineSegment(
-            mouseX,
-            mouseY,
-            scaleX(n1.x),
-            scaleY(n1.y),
-            scaleX(n2.x),
-            scaleY(n2.y)
-          ) < EDGE_HOVER_THRESHOLD
-        ) {
-          // An edge connects two nodes of the same textline, so we can use either.
-          newHoveredTextlineId = nodeToTextlineMap.value[edge.source]
-          break // Exit loop once found
-        }
-      }
-    }
-
-    // 3. Update the hovered textline ID
-    hoveredTextlineId.value = newHoveredTextlineId
-
-    // 4. Apply label if key is pressed
-    if (hoveredTextlineId.value !== null && isEKeyPressed.value) {
-      labelTextline()
-    }
-    return
-  }
-
-  if (!editModeActive.value) return
-  if (isDKeyPressed.value) handleEdgeHoverDelete(mouseX, mouseY)
-  else if (isAKeyPressed.value) handleNodeHoverCollect(mouseX, mouseY)
-  else if (selectedNodes.value.length === 1) tempEndPoint.value = { x: mouseX, y: mouseY }
-  else tempEndPoint.value = null
-}
-
-const handleSvgMouseLeave = () => {
-  if (selectedNodes.value.length === 1) tempEndPoint.value = null
-  hoveredTextlineId.value = null
-}
-
-const labelTextline = () => {
-  if (hoveredTextlineId.value === null) return
-  const nodesToLabel = textlines.value[hoveredTextlineId.value]
-  if (nodesToLabel) {
-    nodesToLabel.forEach((nodeIndex) => {
-      textlineLabels[nodeIndex] = currentLabelIndex.value
-    })
-  }
-}
-
-const handleGlobalKeyDown = (e) => {
-  const key = e.key.toLowerCase()
-
-  // General hotkeys that work in multiple modes
-  if (key === 's' && !e.repeat) {
-    if (
-      (editModeActive.value || regionLabelingModeActive.value) &&
-      !loading.value &&
-      !isProcessingSave.value
-    ) {
-      e.preventDefault()
-      saveAndGoNext()
-    }
-    return
-  }
-  if (key === 'w' && !e.repeat) {
-    e.preventDefault()
-    editModeActive.value = !editModeActive.value
-    return
-  }
-  if (key === 'r' && !e.repeat) {
-    e.preventDefault()
-    regionLabelingModeActive.value = !regionLabelingModeActive.value
-    return
-  }
-
-  // Region labeling specific hotkeys
-  if (regionLabelingModeActive.value && !e.repeat) {
-    if (key === 'e') {
-      e.preventDefault()
-      isEKeyPressed.value = true
-    }
-    return
-  }
-
-  // Edge editing specific hotkeys
-  if (!editModeActive.value || e.repeat) return
-
-  if (key === 'd') {
-    e.preventDefault()
-    isDKeyPressed.value = true
-    resetSelection()
-  }
-  if (key === 'a') {
-    e.preventDefault()
-    isAKeyPressed.value = true
-    hoveredNodesForMST.clear()
-    resetSelection()
-  }
-}
-
-const handleGlobalKeyUp = (e) => {
-  const key = e.key.toLowerCase()
-
-  if (regionLabelingModeActive.value && key === 'e') {
-    isEKeyPressed.value = false
-    currentLabelIndex.value++ // Increment label for the next group
-  }
-
-  if (!editModeActive.value) return
-
-  if (key === 'd') isDKeyPressed.value = false
-  if (key === 'a') {
-    isAKeyPressed.value = false
-    if (hoveredNodesForMST.size >= 2) addMSTEdges()
-    hoveredNodesForMST.clear()
-  }
-}
-
-const edgeExists = (nodeA, nodeB) =>
-  workingGraph.edges.some(
-    (e) =>
-      (e.source === nodeA && e.target === nodeB) || (e.source === nodeB && e.target === nodeA)
-  )
-const addEdge = () => {
-  if (selectedNodes.value.length !== 2 || edgeExists(...selectedNodes.value)) return
-  const [source, target] = selectedNodes.value
-  const newEdge = { source, target, label: 0, modified: true }
-  workingGraph.edges.push(newEdge)
-  modifications.value.push({ type: 'add', source, target, label: 0 })
-  resetSelection()
-}
-const deleteEdge = () => {
-  if (selectedNodes.value.length !== 2) return
-  const [source, target] = selectedNodes.value
-  const edgeIndex = workingGraph.edges.findIndex(
-    (e) =>
-      (e.source === source && e.target === target) || (e.source === target && e.target === source)
-  )
-  if (edgeIndex === -1) return
-  const removedEdge = workingGraph.edges.splice(edgeIndex, 1)[0]
-  modifications.value.push({
-    type: 'delete',
-    source: removedEdge.source,
-    target: removedEdge.target,
-    label: removedEdge.label,
-  })
-  resetSelection()
-}
-const undoModification = (index) => {
-  const mod = modifications.value.splice(index, 1)[0]
-  if (mod.type === 'add') {
-    const edgeIndex = workingGraph.edges.findIndex(
-      (e) => e.source === mod.source && e.target === mod.target
-    )
-    if (edgeIndex !== -1) workingGraph.edges.splice(edgeIndex, 1)
-  } else if (mod.type === 'delete') {
-    workingGraph.edges.push({
-      source: mod.source,
-      target: mod.target,
-      label: mod.label,
-      modified: true,
-    })
-  }
-}
-const resetModifications = () => {
-  resetWorkingGraph()
-  modifications.value = []
-}
-
-const distanceToLineSegment = (px, py, x1, y1, x2, y2) =>
-  Math.hypot(
-    px -
-      (x1 +
-        Math.max(
-          0,
-          Math.min(
-            1,
-            ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) /
-              (Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) || 1)
-          )
-        ) *
-          (x2 - x1)),
-    py -
-      (y1 +
-        Math.max(
-          0,
-          Math.min(
-            1,
-            ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) /
-              (Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) || 1)
-          )
-        ) *
-          (y2 - y1))
-  )
-const handleEdgeHoverDelete = (mouseX, mouseY) => {
-  for (let i = workingGraph.edges.length - 1; i >= 0; i--) {
-    const edge = workingGraph.edges[i]
-    const n1 = workingGraph.nodes[edge.source],
-      n2 = workingGraph.nodes[edge.target]
-    if (
-      n1 &&
-      n2 &&
-      distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) <
-        EDGE_HOVER_THRESHOLD
-    ) {
-      const removed = workingGraph.edges.splice(i, 1)[0]
-      modifications.value.push({
-        type: 'delete',
-        source: removed.source,
-        target: removed.target,
-        label: removed.label,
-      })
-    }
-  }
-}
-const handleNodeHoverCollect = (mouseX, mouseY) => {
-  workingGraph.nodes.forEach((node, index) => {
-    if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < NODE_HOVER_RADIUS)
-      hoveredNodesForMST.add(index)
-  })
-}
-const calculateMST = (indices, nodes) => {
-  const points = indices.map((i) => ({ ...nodes[i], originalIndex: i }))
-  const edges = []
-  for (let i = 0; i < points.length; i++)
-    for (let j = i + 1; j < points.length; j++) {
-      edges.push({
-        source: points[i].originalIndex,
-        target: points[j].originalIndex,
-        weight: Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y),
-      })
-    }
-  edges.sort((a, b) => a.weight - b.weight)
-  const parent = {}
-  indices.forEach((i) => (parent[i] = i))
-  const find = (i) => (parent[i] === i ? i : (parent[i] = find(parent[i])))
-  const union = (i, j) => {
-    const rootI = find(i),
-      rootJ = find(j)
-    if (rootI !== rootJ) {
-      parent[rootJ] = rootI
-      return true
-    }
-    return false
-  }
-  return edges.filter((e) => union(e.source, e.target))
-}
-const addMSTEdges = () => {
-  calculateMST(Array.from(hoveredNodesForMST), workingGraph.nodes).forEach((edge) => {
-    if (!edgeExists(edge.source, edge.target)) {
-      const newEdge = { source: edge.source, target: edge.target, label: 0, modified: true }
-      workingGraph.edges.push(newEdge)
-      modifications.value.push({ type: 'add', ...newEdge })
-    }
-  })
-}
-
-const saveGeneratedGraph = async (name, page, g) => {
-  try {
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/save-graph/${name}/${page}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ graph: g }),
-    })
-  } catch (e) {
-    console.error('Error saving generated graph:', e)
-  }
-}
-
-const saveModifications = async () => {
-  const numNodes = workingGraph.nodes.length
-  const labelsToSend = new Array(numNodes).fill(-1)
-  for (const nodeIndex in textlineLabels) {
-    labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
-  }
-
-  const requestBody = {
-    graph: workingGraph,
-    modifications: modifications.value,
-    textlineLabels: labelsToSend,
-  }
-
-  if (annotationStore.modelName) {
-    requestBody.modelName = annotationStore.modelName
-  }
-
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/semi-segment/${localManuscriptName.value}/${localCurrentPage.value}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      }
-    )
-    if (!res.ok) throw new Error((await res.json()).error || 'Save failed')
-    const data = await res.json()
-    graph.value = JSON.parse(JSON.stringify(workingGraph))
-    modifications.value = []
-    if (!isEditModeFlow.value && data.lines) {
-      annotationStore.recognitions[localManuscriptName.value][localCurrentPage.value] = data.lines
-    }
-    error.value = null
-  } catch (err) {
-    error.value = err.message
-    throw err
-  }
-}
-
-const saveCurrentGraph = async () => {
-  if (isProcessingSave.value) return
-  isProcessingSave.value = true
-  try {
-    await saveModifications()
-    // alert('Graph and labels saved!')
-  } catch (err) {
-    alert(`Save failed: ${err.message}`)
-  } finally {
-    isProcessingSave.value = false
-  }
-}
-
-const confirmAndNavigate = async (navAction) => {
-  if (isProcessingSave.value) return
-  if (modifications.value.length > 0) {
-    if (confirm('You have unsaved changes. Do you want to save them before navigating?')) {
-      isProcessingSave.value = true
-      try {
-        await saveModifications()
-        navAction()
-      } catch (err) {
-        alert('Save failed, navigation cancelled.')
-      } finally {
-        isProcessingSave.value = false
-      }
-    } else {
-      modifications.value = []
-      navAction()
-    }
-  } else {
-    navAction()
-  }
-}
-
-const navigateToPage = (page) => {
-  if (isEditModeFlow.value) {
-    router.push({
-      name: 'edit-manuscript-layout',
-      params: { manuscriptName: localManuscriptName.value, pageName: page },
-    })
-  } else {
-    annotationStore.setCurrentPage(page)
-  }
-}
-
-const previousPage = () =>
-  confirmAndNavigate(() => {
-    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
-    if (currentIndex > 0) {
-      navigateToPage(localPageList.value[currentIndex - 1])
-    }
-  })
-
-const nextPage = () =>
-  confirmAndNavigate(() => {
-    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
-    if (currentIndex < localPageList.value.length - 1) {
-      navigateToPage(localPageList.value[currentIndex + 1])
-    }
-  })
-const goToIMG2TXTPage = () => {
-  if (isEditModeFlow.value) {
-    alert(
-      "Text annotation is part of the 'New Manuscript' flow. This action is disabled in edit mode."
-    )
-    return
-  }
-  confirmAndNavigate(() => router.push({ name: 'img-2-txt' }))
-}
-
-const saveAndGoNext = async () => {
-  if (loading.value || isProcessingSave.value) return
-  isProcessingSave.value = true
-  try {
-    await saveModifications()
-    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
-    if (currentIndex < localPageList.value.length - 1) {
-      navigateToPage(localPageList.value[currentIndex + 1])
-    } else {
-      alert('This was the Last page. Saved successfully!')
-    }
-  } catch (err) {
-    alert(`Save failed: ${err.message}`)
-  } finally {
-    isProcessingSave.value = false
-  }
-}
-
-onMounted(async () => {
-  if (isEditModeFlow.value) {
-    localManuscriptName.value = props.manuscriptName
-    localCurrentPage.value = props.pageName
-    await fetchPageList(props.manuscriptName)
-    await fetchPageData(props.manuscriptName, props.pageName)
-  } else {
-    localManuscriptName.value = Object.keys(annotationStore.recognitions)[0] || ''
-    localPageList.value = annotationStore.sortedPageIds
-    localCurrentPage.value = annotationStore.currentPage
-    if (localManuscriptName.value && localCurrentPage.value) {
-      await fetchPageData(localManuscriptName.value, localCurrentPage.value)
-    } else {
-      loading.value = false
-      error.value = "No manuscript data found. Please start from the 'New Manuscript' page."
-    }
-  }
-
-  window.addEventListener('keydown', handleGlobalKeyDown)
-  window.addEventListener('keyup', handleGlobalKeyUp)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleGlobalKeyDown)
-  window.removeEventListener('keyup', handleGlobalKeyUp)
-})
-
-watch(
-  () => annotationStore.currentPage,
-  (newPage) => {
-    if (!isEditModeFlow.value && newPage && newPage !== localCurrentPage.value) {
-      localCurrentPage.value = newPage
-      fetchPageData(localManuscriptName.value, newPage)
-    }
-  }
-)
-
-watch(
-  () => props.pageName,
-  (newPageName) => {
-    if (isEditModeFlow.value && newPageName && newPageName !== localCurrentPage.value) {
-      localCurrentPage.value = newPageName
-      fetchPageData(localManuscriptName.value, newPageName)
-    }
-  }
-)
-
-watch(editModeActive, (isEditing) => {
-  if (isEditing) regionLabelingModeActive.value = false
-  if (!isEditing) {
-    resetSelection()
-    isAKeyPressed.value = false
-    isDKeyPressed.value = false
-    hoveredNodesForMST.clear()
-  }
-})
-
-watch(regionLabelingModeActive, (isLabeling) => {
-  if (isLabeling) {
-    console.log('Entering Region Labeling mode.')
-    editModeActive.value = false
-    resetSelection()
-
-    // Ensure the next label index is unique by checking existing labels
-    const existingLabels = Object.values(textlineLabels)
-    if (existingLabels.length > 0) {
-      // Find the maximum label value currently in use and add 1
-      const maxLabel = Math.max(...existingLabels)
-      currentLabelIndex.value = maxLabel + 1
-      console.log(`Resuming labeling. Next available label index: ${currentLabelIndex.value}`)
-    } else {
-      // No labels exist yet, start from 0
-      currentLabelIndex.value = 0
-      console.log('No existing labels. Starting new labeling at index: 0')
-    }
-  } else {
-    console.log('Exiting Region Labeling mode.')
-  }
-  hoveredTextlineId.value = null
-})
-</script>
-<style scoped>
-.manuscript-viewer {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  background-color: #333;
-  color: #fff;
-}
-
-/* --- Toolbar --- */
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  background-color: #424242;
-  border-bottom: 1px solid #555;
-  flex-shrink: 0;
-  gap: 16px;
-}
-.toolbar-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.toggle-container {
-  display: flex;
-  align-items: center;
-  background-color: #3a3a3a;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-/* --- Main Visualization Area --- */
-.visualization-container {
-  position: relative;
-  overflow: auto;
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 1rem;
-}
-.image-container {
-  position: relative;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-}
-.manuscript-image {
-  display: block;
-  user-select: none;
-  opacity: 0.7;
-}
-.graph-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease-in-out;
-}
-.graph-overlay.is-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* --- Bottom Panel --- */
-.bottom-panel {
-  background-color: #4f4f4f;
-  border-top: 1px solid #555;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-.panel-toggle-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-.edit-instructions p {
-  margin: 0;
-  font-size: 0.9em;
-  color: #ccc;
-  font-style: italic;
-}
-.bottom-panel-content {
-  padding: 10px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.edit-controls,
-.modifications-log-container {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-}
-.edit-actions {
-  display: flex;
-  gap: 8px;
-}
-
-/* --- UI Elements & States --- */
-.panel-toggle-btn {
-  padding: 4px 10px;
-  font-size: 0.8em;
-  background-color: #616161;
-  border: 1px solid #757575;
-}
-.processing-save-notice,
-.loading,
-.error-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px 30px;
-  border-radius: 8px;
-  z-index: 10000;
-  text-align: center;
-}
-.processing-save-notice {
-  background-color: rgba(0, 0, 0, 0.8);
-}
-.error-message {
-  background-color: #c62828;
-}
-.loading {
-  font-size: 1.2rem;
-  color: #aaa;
-  background: none;
-}
-button {
-  padding: 6px 14px;
-  border-radius: 4px;
-  border: 1px solid #666;
-  background-color: #555;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-button:hover:not(:disabled) {
-  background-color: #6a6a6a;
-}
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* --- Modifications Log --- */
-.modifications-details {
-  flex-grow: 1;
-}
-.modifications-details h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1em;
-  color: #eee;
-}
-.modifications-details ul {
-  list-style-type: none;
-  padding: 0;
-  max-height: 120px;
-  overflow-y: auto;
-  border: 1px solid #666;
-  background-color: #3e3e3e;
-  border-radius: 3px;
-}
-.modification-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  border-bottom: 1px solid #555;
-  font-size: 0.9em;
-}
-.modification-item:last-child {
-  border-bottom: none;
-}
-.undo-button {
-  background-color: #6d6d3d;
-  border-color: #888855;
-}
-.undo-button:hover:not(:disabled) {
-  background-color: #7a7a4a;
-}
-</style>
-
-
-
-
-LayoutGraphGenerator.js: (this uses a heuristic algorithm to connect points of the same text-line together. This algorithm does the same thing the GNN would do, but in a faster, more lightweight manner.)
-
-// layoutGraphGenerator.js
-/**
- * Build a KD-Tree for fast neighbor lookup
- */
-class KDTree {
-  constructor(points) {
-    this.points = points;
-    this.tree = this.buildTree(points.map((p, i) => ({ point: p, index: i })), 0);
-  }
-
-  buildTree(points, depth) {
-    if (points.length === 0) return null;
-    if (points.length === 1) return points[0];
-
-    const k = 2; // 2D points
-    const axis = depth % k;
-    
-    points.sort((a, b) => a.point[axis] - b.point[axis]);
-    const median = Math.floor(points.length / 2);
-    
-    return {
-      point: points[median].point,
-      index: points[median].index,
-      left: this.buildTree(points.slice(0, median), depth + 1),
-      right: this.buildTree(points.slice(median + 1), depth + 1),
-      axis: axis
-    };
-  }
-
-  query(queryPoint, k) {
-    const best = [];
-    
-    const search = (node, depth) => {
-      if (!node) return;
-      
-      const distance = this.euclideanDistance(queryPoint, node.point);
-      
-      if (best.length < k) {
-        best.push({ distance, index: node.index });
-        best.sort((a, b) => a.distance - b.distance);
-      } else if (distance < best[best.length - 1].distance) {
-        best[best.length - 1] = { distance, index: node.index };
-        best.sort((a, b) => a.distance - b.distance);
-      }
-      
-      const axis = depth % 2;
-      const diff = queryPoint[axis] - node.point[axis];
-      
-      const closer = diff < 0 ? node.left : node.right;
-      const farther = diff < 0 ? node.right : node.left;
-      
-      search(closer, depth + 1);
-      
-      if (best.length < k || Math.abs(diff) < best[best.length - 1].distance) {
-        search(farther, depth + 1);
-      }
-    };
-    
-    search(this.tree, 0);
-    return best.map(b => b.index);
-  }
-
-  euclideanDistance(p1, p2) {
-    return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
-  }
-}
-
-/**
- * DBSCAN clustering implementation to identify majority cluster and outliers
- */
-function clusterWithSingleMajority(toCluster, eps = 10, minSamples = 2) {
-  if (toCluster.length === 0) return [];
-  
-  // DBSCAN implementation
-  const labels = dbscan(toCluster, eps, minSamples);
-  
-  // Count the occurrences of each label
-  const labelCounts = {};
-  labels.forEach(label => {
-    labelCounts[label] = (labelCounts[label] || 0) + 1;
-  });
-  
-  // Find the majority cluster label (excluding -1 outliers)
-  let majorityLabel = null;
-  let maxCount = 0;
-  
-  for (const [label, count] of Object.entries(labelCounts)) {
-    const labelNum = parseInt(label);
-    if (labelNum !== -1 && count > maxCount) {
-      majorityLabel = labelNum;
-      maxCount = count;
-    }
-  }
-  
-  // Create a new label array where the majority cluster is 0 and all others are -1
-  const newLabels = new Array(labels.length).fill(-1); // Initialize all as outliers
-  
-  if (majorityLabel !== null) {
-    for (let i = 0; i < labels.length; i++) {
-      if (labels[i] === majorityLabel) {
-        newLabels[i] = 0; // Assign 0 to the majority cluster
-      }
-    }
-  }
-  
-  return newLabels;
-}
-
-/**
- * DBSCAN clustering algorithm implementation
- */
-function dbscan(points, eps, minSamples) {
-  const labels = new Array(points.length).fill(-1); // -1 means unclassified
-  let clusterId = 0;
-  
-  for (let i = 0; i < points.length; i++) {
-    if (labels[i] !== -1) continue; // Already processed
-    
-    const neighbors = getNeighbors(points, i, eps);
-    
-    if (neighbors.length < minSamples) {
-      labels[i] = -1; // Mark as noise/outlier
-    } else {
-      // Start a new cluster
-      expandCluster(points, labels, i, neighbors, clusterId, eps, minSamples);
-      clusterId++;
-    }
-  }
-  
-  return labels;
-}
-
-/**
- * Get neighbors within eps distance
- */
-function getNeighbors(points, pointIndex, eps) {
-  const neighbors = [];
-  const point = points[pointIndex];
-  
-  for (let i = 0; i < points.length; i++) {
-    if (euclideanDistance(point, points[i]) <= eps) {
-      neighbors.push(i);
-    }
-  }
-  
-  return neighbors;
-}
-
-/**
- * Expand cluster by adding density-reachable points
- */
-function expandCluster(points, labels, pointIndex, neighbors, clusterId, eps, minSamples) {
-  labels[pointIndex] = clusterId;
-  
-  let i = 0;
-  while (i < neighbors.length) {
-    const neighborIndex = neighbors[i];
-    
-    if (labels[neighborIndex] === -1) {
-      labels[neighborIndex] = clusterId;
-      
-      const neighborNeighbors = getNeighbors(points, neighborIndex, eps);
-      if (neighborNeighbors.length >= minSamples) {
-        // Add new neighbors to the list (union operation)
-        for (const newNeighbor of neighborNeighbors) {
-          if (!neighbors.includes(newNeighbor)) {
-            neighbors.push(newNeighbor);
-          }
-        }
-      }
-    }
-    
-    i++;
-  }
-}
-
-function euclideanDistance(p1, p2) {
-  return Math.sqrt(p1.reduce((sum, val, i) => sum + (val - p2[i]) ** 2, 0));
-}
-
-/**
- * Generate a graph representation of text layout based on points.
- * This function implements the core layout analysis logic.
- */
-export function generateLayoutGraph(points) { // TODO ADD FEATURES
-  const NUM_NEIGHBOURS = 6;
-  const cos_similarity_less_than = -0.8;
-  
-  // Build a KD-tree for fast neighbor lookup
-  const tree = new KDTree(points);
-  const indices = points.map((point, i) => tree.query(point, NUM_NEIGHBOURS));
-  
-  // Store graph edges and their properties
-  const edges = [];
-  const edgeProperties = [];
-  
-  // Process nearest neighbors
-  for (let currentPointIndex = 0; currentPointIndex < indices.length; currentPointIndex++) {
-    const nbrIndices = indices[currentPointIndex];
-    const currentPoint = points[currentPointIndex];
-    
-    const normalizedPoints = nbrIndices.map(idx => [
-      points[idx][0] - currentPoint[0],
-      points[idx][1] - currentPoint[1]
-    ]);
-    
-    const scalingFactor = Math.max(...normalizedPoints.flat().map(Math.abs)) || 1;
-    const scaledPoints = normalizedPoints.map(np => [np[0] / scalingFactor, np[1] / scalingFactor]);
-    
-    // Create a list of relative neighbors with their global indices
-    const relativeNeighbours = nbrIndices.map((globalIdx, i) => ({
-      globalIdx,
-      scaledPoint: scaledPoints[i],
-      normalizedPoint: normalizedPoints[i]
-    }));
-    
-    const filteredNeighbours = [];
-    
-    for (let i = 0; i < relativeNeighbours.length; i++) {
-      for (let j = i + 1; j < relativeNeighbours.length; j++) {
-        const neighbor1 = relativeNeighbours[i];
-        const neighbor2 = relativeNeighbours[j];
-        
-        const norm1 = Math.sqrt(neighbor1.scaledPoint[0] ** 2 + neighbor1.scaledPoint[1] ** 2);
-        const norm2 = Math.sqrt(neighbor2.scaledPoint[0] ** 2 + neighbor2.scaledPoint[1] ** 2);
-        
-        let cosSimilarity = 0.0;
-        if (norm1 * norm2 !== 0) {
-          const dotProduct = neighbor1.scaledPoint[0] * neighbor2.scaledPoint[0] + 
-                           neighbor1.scaledPoint[1] * neighbor2.scaledPoint[1];
-          cosSimilarity = dotProduct / (norm1 * norm2);
-        }
-        
-        // Calculate non-normalized distances
-        const norm1Real = Math.sqrt(neighbor1.normalizedPoint[0] ** 2 + neighbor1.normalizedPoint[1] ** 2);
-        const norm2Real = Math.sqrt(neighbor2.normalizedPoint[0] ** 2 + neighbor2.normalizedPoint[1] ** 2);
-        const totalLength = norm1Real + norm2Real;
-        
-        // Select pairs with angles close to 180 degrees (opposite directions)
-        if (cosSimilarity < cos_similarity_less_than) {
-          filteredNeighbours.push({
-            neighbor1,
-            neighbor2,
-            totalLength,
-            cosSimilarity
-          });
-        }
-      }
-    }
-    
-    if (filteredNeighbours.length > 0) {
-      // Find the shortest total length pair
-      const shortestPair = filteredNeighbours.reduce((min, curr) => 
-        curr.totalLength < min.totalLength ? curr : min
-      );
-      
-      const { neighbor1: connection1, neighbor2: connection2, totalLength, cosSimilarity } = shortestPair;
-      
-      // Calculate angles with x-axis
-      const thetaA = Math.atan2(connection1.normalizedPoint[1], connection1.normalizedPoint[0]) * 180 / Math.PI;
-      const thetaB = Math.atan2(connection2.normalizedPoint[1], connection2.normalizedPoint[0]) * 180 / Math.PI;
-      
-      // Add edges to the graph
-      edges.push([currentPointIndex, connection1.globalIdx]);
-      edges.push([currentPointIndex, connection2.globalIdx]);
-      
-      // Calculate feature values for clustering
-      const yDiff1 = Math.abs(connection1.normalizedPoint[1]);
-      const yDiff2 = Math.abs(connection2.normalizedPoint[1]);
-      const avgYDiff = (yDiff1 + yDiff2) / 2;
-      
-      const xDiff1 = Math.abs(connection1.normalizedPoint[0]);
-      const xDiff2 = Math.abs(connection2.normalizedPoint[0]);
-      const avgXDiff = (xDiff1 + xDiff2) / 2;
-      
-      // Calculate aspect ratio (height/width)
-      const aspectRatio = avgYDiff / Math.max(avgXDiff, 0.001);
-      
-      // Calculate vertical alignment consistency
-      const vertConsistency = Math.abs(yDiff1 - yDiff2);
-      
-      // Store edge properties for clustering
-      edgeProperties.push([
-        totalLength,
-        Math.abs(thetaA + thetaB),
-        // aspectRatio,
-        // vertConsistency,
-        // avgYDiff
-      ]);
-    }
-  }
-  
-  // Cluster the edges based on their properties
-  const edgeLabels = clusterWithSingleMajority(edgeProperties);
-  
-  // Create a mask for edges that are not outliers (label != -1)
-  const nonOutlierMask = edgeLabels.map(label => label !== -1);
-  
-  // Prepare the final graph structure
-  const graphData = {
-    nodes: points.map((point, i) => ({
-      id: i,
-      x: parseFloat(point[0]),
-      y: parseFloat(point[1]),
-      s: parseFloat(point[2]),
-    })),
-    edges: []
-  };
-  
-  // Add edges with their labels, filtering out outliers
-  for (let i = 0; i < edges.length; i++) {
-    const edge = edges[i];
-    // Determine the corresponding edge label using division by 2 (each edge appears twice)
-    const labelIndex = Math.floor(i / 2);
-    const edgeLabel = edgeLabels[labelIndex];
-    
-    // Only add the edge if it is not an outlier
-    if (nonOutlierMask[labelIndex]) {
-      graphData.edges.push({
-        source: parseInt(edge[0]),
-        target: parseInt(edge[1]),
-        label: parseInt(edgeLabel)
-      });
-    }
-  }
-  
-  return graphData;
-}
-
-
-
-Here is the full code base as it is now:
 app
-Sat Jan 10 10:40:17 AM IST 2026
+Tue Jan 13 10:41:39 AM IST 2026
 
 # Complete Repository Structure:
 # (showing all directories and files with token counts)
-#/ (~14176 tokens)
+#/ (~16234 tokens)
+#  └── app.py (~1365 tokens)
 #  └── environment.yaml (~140 tokens)
-#  └── gnn_inference.py (~5920 tokens)
-#  └── inference.py (~1363 tokens)
-#  └── README.md (~577 tokens)
+#  └── gnn_inference.py (~7189 tokens)
+#  └── inference.py (~1225 tokens)
+#  └── README.md (~139 tokens)
 #  └── segment_from_point_clusters.py (~6176 tokens)
-#  /demo_manuscripts/ (~0 tokens)
-#    /demo_manuscripts/sample_manuscript_1/ (~0 tokens)
-#      /demo_manuscripts/sample_manuscript_1/images/ (~0 tokens)
-#    /demo_manuscripts/sample_manuscript_2/ (~0 tokens)
-#      /demo_manuscripts/sample_manuscript_2/images/ (~0 tokens)
-#    /demo_manuscripts/sample_manuscript_3/ (~0 tokens)
-#      /demo_manuscripts/sample_manuscript_3/images/ (~0 tokens)
-#    /demo_manuscripts/sample_manuscript_4/ (~0 tokens)
-#      /demo_manuscripts/sample_manuscript_4/images/ (~0 tokens)
 #  /gnn_data_preparation/ (~10001 tokens)
 #    └── config_models.py (~1087 tokens)
 #    └── dataset_generator.py (~1011 tokens)
@@ -1618,6 +95,42 @@ Sat Jan 10 10:40:17 AM IST 2026
 #    └── __init__.py (~0 tokens)
 #    └── main_create_dataset.py (~2553 tokens)
 #    └── utils.py (~231 tokens)
+#  /gnn_training/ (~0 tokens)
+#    /gnn_training/training/ (~12007 tokens)
+#      └── engine.py (~1872 tokens)
+#      └── __init__.py (~0 tokens)
+#      └── main_train_eval.py (~5147 tokens)
+#      └── metrics.py (~2267 tokens)
+#      └── utils.py (~1046 tokens)
+#      └── visualization.py (~1675 tokens)
+#      /gnn_training/training/models/ (~3321 tokens)
+#        └── gnn_models.py (~2990 tokens)
+#        └── __init__.py (~0 tokens)
+#        └── sklearn_models.py (~331 tokens)
+#  /input_manuscripts/ (~0 tokens)
+#  /my-app/ (~1021 tokens)
+#    └── .env (~10 tokens)
+#    └── env.d.ts (~9 tokens)
+#    └── .gitignore (~92 tokens)
+#    └── index.html (~82 tokens)
+#    └── package.json (~184 tokens)
+#    └── README.md (~341 tokens)
+#    └── tsconfig.app.json (~72 tokens)
+#    └── tsconfig.json (~34 tokens)
+#    └── tsconfig.node.json (~103 tokens)
+#    └── vite.config.ts (~94 tokens)
+#    /my-app/public/ (~0 tokens)
+#    /my-app/src/ (~937 tokens)
+#      └── App.vue (~884 tokens)
+#      └── main.ts (~53 tokens)
+#      /my-app/src/components/ (~8886 tokens)
+#        └── ManuscriptViewer.vue (~8886 tokens)
+#      /my-app/src/layout-analysis-utils/ (~2567 tokens)
+#        └── LayoutGraphGenerator.js (~2567 tokens)
+#      /my-app/src/router/ (~46 tokens)
+#        └── index.ts (~46 tokens)
+#      /my-app/src/stores/ (~76 tokens)
+#        └── counter.ts (~76 tokens)
 #  /pretrained_gnn/ (~960 tokens)
 #    └── gnn_preprocessing_v2.yaml (~960 tokens)
 #  /segmentation/ (~4979 tokens)
@@ -1628,6 +141,160 @@ Sat Jan 10 10:40:17 AM IST 2026
 #      └── README.md (~47 tokens)
 #
 ---
+---
+app.py
+---
+# app.py
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
+import os
+import shutil
+from pathlib import Path
+import base64
+import json
+
+# Import your existing pipelines
+from inference import process_new_manuscript
+from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
+from segmentation.utils import load_images_from_folder
+
+app = Flask(__name__)
+CORS(app)
+
+# Configuration
+UPLOAD_FOLDER = './input_manuscripts'
+MODEL_CHECKPOINT = "./pretrained_gnn/v2.pt"
+DATASET_CONFIG = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
+
+@app.route('/upload', methods=['POST'])
+def upload_manuscript():
+    """
+    Step 1 & 2: Upload images, resize (inference.py), Generate Heatmaps & GNN inputs.
+    """
+    manuscript_name = request.form.get('manuscriptName', 'default_manuscript')
+    longest_side = int(request.form.get('longestSide', 2500))
+    # Note: min_distance logic is embedded in segment_graph.py called by inference.py.
+    # To expose it dynamically, you might need to modify inference.py to accept it as an arg.
+    
+    manuscript_path = os.path.join(UPLOAD_FOLDER, manuscript_name)
+    images_path = os.path.join(manuscript_path, "images")
+    
+    if os.path.exists(manuscript_path):
+        shutil.rmtree(manuscript_path)
+    os.makedirs(images_path)
+
+    files = request.files.getlist('images')
+    if not files:
+        return jsonify({"error": "No files uploaded"}), 400
+
+    for file in files:
+        if file.filename:
+            file.save(os.path.join(images_path, file.filename))
+
+    try:
+        # Run Step 1-3: Resize and Generate Heatmaps/Points
+        # You need to modify inference.py process_new_manuscript to accept target_longest_side
+        # For now, we assume you modified it or we monkey-patch defaults
+        process_new_manuscript(manuscript_path) 
+        
+        # Get list of processed pages
+        processed_pages = []
+        for f in sorted(Path(manuscript_path).glob("gnn-dataset/*_dims.txt")):
+            processed_pages.append(f.name.replace("_dims.txt", ""))
+            
+        return jsonify({"message": "Processed successfully", "pages": processed_pages})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/manuscript/<name>/pages', methods=['GET'])
+def get_pages(name):
+    manuscript_path = Path(UPLOAD_FOLDER) / name / "gnn-dataset"
+    if not manuscript_path.exists():
+        return jsonify([]), 404
+    
+    pages = sorted([f.name.replace("_dims.txt", "") for f in manuscript_path.glob("*_dims.txt")])
+    return jsonify(pages)
+
+@app.route('/semi-segment/<manuscript>/<page>', methods=['GET'])
+def get_page_prediction(manuscript, page):
+    """
+    Step 4 Inference: Run GNN, get graph, return to frontend.
+    """
+    print("Received request for manuscript:", manuscript, "page:", page)
+    manuscript_path = Path(UPLOAD_FOLDER) / manuscript
+    try:
+        # Run GNN Inference
+        graph_data = run_gnn_prediction_for_page(
+            str(manuscript_path), 
+            page, 
+            MODEL_CHECKPOINT, 
+            DATASET_CONFIG
+        )
+        
+        # Load Image to send to frontend
+        img_path = manuscript_path / "images_resized" / f"{page}.jpg"
+        # if not img_path.exists():
+        #      # Fallback if original wasn't resized
+        #      img_path = manuscript_path / "images" / f"{page}.jpg"
+             
+        with open(img_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            
+        response = {
+            "image": encoded_string,
+            "dimensions": graph_data['dimensions'],
+            "points": [[n['x'], n['y']] for n in graph_data['nodes']],
+            "graph": graph_data,
+            "textline_labels": graph_data['textline_labels']
+        }
+        return jsonify(response)
+        
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
+def save_correction(manuscript, page):
+    """
+    Step 5: Receive corrected labels, Save, Generate XML/Lines.
+    """
+    data = request.json
+    manuscript_path = Path(UPLOAD_FOLDER) / manuscript
+    
+    # Extract data from frontend
+    # The frontend sends 'textlineLabels' (list of ints) and 'graph' (edges with labels)
+    textline_labels = data.get('textlineLabels')
+    graph_data = data.get('graph')
+    
+    if not textline_labels or not graph_data:
+        return jsonify({"error": "Missing labels or graph data"}), 400
+
+    try:
+        result = generate_xml_and_images_for_page(
+            str(manuscript_path),
+            page,
+            textline_labels,
+            graph_data['edges'],
+            { # Pass default hyperparameters or read from request
+                'BINARIZE_THRESHOLD': 0.5098,
+                'BBOX_PAD_V': 0.7,
+                'BBOX_PAD_H': 0.5,
+                'CC_SIZE_THRESHOLD_RATIO': 0.4
+            }
+        )
+        return jsonify(result)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
+def save_generated_graph(manuscript, page):
+    # Optional helper if you want to save the heuristic graph without generating XML immediately
+    return jsonify({"status": "ok"})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
 ---
 environment.yaml
 ---
@@ -2609,45 +1276,292 @@ def find_page_ids(data_dir: Path) -> List[str]:
 ---
 gnn_inference.py
 ---
-# inference_with_eval.py
-
-
 import torch
 import numpy as np
 import yaml
 import logging
+import shutil
 from pathlib import Path
+import torch.nn.functional as F
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
-import torch.nn.functional as F
+from torch_geometric.data import Data
+import cv2
 
 
-import matplotlib
-matplotlib.use('Agg')  # MUST be called before importing pyplot
-import shutil
+# gnn_inference.py
+import os
 from collections import defaultdict
+from gnn_data_preparation.utils import setup_logging
+from torch_geometric.data import Data
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import connected_components
 import xml.etree.ElementTree as ET
-from sklearn.linear_model import RANSACRegressor, HuberRegressor
+
 from segment_from_point_clusters import segmentLinesFromPointClusters
-
-
-
 from gnn_data_preparation.config_models import DatasetCreationConfig
 from gnn_data_preparation.graph_constructor import create_input_graph_edges
 from gnn_data_preparation.feature_engineering import get_node_features, get_edge_features
-from gnn_data_preparation.utils import setup_logging
-from torch_geometric.data import Data
 
+# Global Cache
+LOADED_MODEL = None
+LOADED_CONFIG = None
+DEVICE = None
 
+def get_device():
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def get_device(device_config: str) -> torch.device:
-    """Gets the torch device based on config and availability, and logs the choice."""
-    if device_config == 'auto':
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def load_model_once(model_checkpoint_path, config_path):
+    global LOADED_MODEL, LOADED_CONFIG, DEVICE
+    if LOADED_MODEL is None:
+        DEVICE = get_device()
+        print(f"Loading model from {model_checkpoint_path} on {DEVICE}...")
+        checkpoint = torch.load(model_checkpoint_path, map_location=DEVICE, weights_only=False)
+        LOADED_MODEL = checkpoint['model']
+        LOADED_MODEL.to(DEVICE)
+        LOADED_MODEL.eval()
+        
+        with open(config_path, 'r') as f:
+            LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
+    return LOADED_MODEL, LOADED_CONFIG, DEVICE
+
+# --- STAGE 1: Inference / Loading ---
+def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_path):
+    """
+    Retrieves graph data for a page. 
+    Priority:
+    1. Check 'layout_analysis_output/gnn-format/' for saved manual corrections (_edges.txt).
+    2. If not found, run GNN inference from scratch using 'gnn-dataset/'.
+    """
+    print(f"Fetching data for page: {page_id}")
+    
+    # Define Directories
+    base_path = Path(manuscript_path)
+    raw_input_dir = base_path / "gnn-dataset"               # Folder A (Inputs)
+    history_dir = base_path / "layout_analysis_output" / "gnn-format" # Folder B (Saved Corrections)
+    
+    # 1. Load Essential Node Data (Always required)
+    file_path = raw_input_dir / f"{page_id}_inputs_normalized.txt"
+    dims_path = raw_input_dir / f"{page_id}_dims.txt"
+    
+    if not file_path.exists():
+        raise FileNotFoundError(f"Raw data for page {page_id} not found in {raw_input_dir}")
+
+    points_normalized = np.loadtxt(file_path)
+    if points_normalized.ndim == 1: 
+        points_normalized = points_normalized.reshape(1, -1)
+    
+    dims = np.loadtxt(dims_path)
+    full_width = dims[0] * 2
+    full_height = dims[1] * 2
+    max_dimension = max(full_width, full_height)
+    
+    nodes_payload = [
+        {
+            "x": float(p[0]) * max_dimension, 
+            "y": float(p[1]) * max_dimension, 
+            "s": float(p[2])
+        } 
+        for p in points_normalized
+    ]
+    
+    response = {
+        "nodes": nodes_payload,
+        "edges": [],
+        "textline_labels": [-1] * len(points_normalized),
+        "dimensions": [full_width, full_height]
+    }
+
+    # 2. Check for Saved Corrections
+    saved_edges_path = history_dir / f"{page_id}_edges.txt"
+    saved_labels_path = history_dir / f"{page_id}_labels_textline.txt"
+    
+    if saved_edges_path.exists():
+        print(f"Found saved corrections for {page_id}. Loading from disk...")
+        
+        saved_edges = []
+        try:
+            if saved_edges_path.stat().st_size > 0:
+                raw_edges = np.loadtxt(saved_edges_path, dtype=int, ndmin=2)
+                if raw_edges.ndim == 1 and raw_edges.size >= 2:
+                    raw_edges = raw_edges.reshape(1, -1)
+                
+                for row in raw_edges:
+                    if len(row) >= 2:
+                        saved_edges.append({
+                            "source": int(row[0]),
+                            "target": int(row[1]),
+                            "label": 1
+                        })
+        except Exception as e:
+            print(f"Warning: Error reading edges file: {e}. Returning empty edges.")
+            
+        response["edges"] = saved_edges
+        
+        if saved_labels_path.exists():
+            try:
+                labels = np.loadtxt(saved_labels_path, dtype=int)
+                if labels.size == len(points_normalized):
+                     response["textline_labels"] = labels.tolist()
+            except Exception:
+                pass 
+        
+        return response
+
+    # 3. No Saved State -> Run GNN Inference
+    print(f"No saved state found. Running GNN Inference...")
+    model, d_config, device = load_model_once(model_path, config_path)
+    
+    page_dims_norm = {'width': 1.0, 'height': 1.0}
+    input_graph_data = create_input_graph_edges(points_normalized, page_dims_norm, d_config.input_graph)
+    input_edges_set = input_graph_data["edges"]
+
+    if not input_edges_set:
+        return response
+
+    edge_index_undirected = torch.tensor(list(input_edges_set), dtype=torch.long).t().contiguous()
+    if d_config.input_graph.directionality == "bidirectional":
+        edge_index = torch.cat([edge_index_undirected, edge_index_undirected.flip(0)], dim=1)
     else:
-        device = torch.device(device_config)
-    print(f"Using device: {device}") # This line confirms the choice in your logs
-    return device
+        edge_index = edge_index_undirected
+
+    node_features = get_node_features(points_normalized, input_graph_data["heuristic_degrees"], d_config.features)
+    edge_features = get_edge_features(edge_index, node_features, input_graph_data["heuristic_edge_counts"], d_config.features)
+    
+    data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_features).to(device)
+
+    threshold = 0.5
+    with torch.no_grad():
+        logits = model(data.x, data.edge_index, data.edge_attr)
+        probs = F.softmax(logits, dim=1)
+        pred_edge_labels = (probs[:, 1] > threshold).cpu().numpy()
+
+    model_positive_edges = set()
+    edge_index_cpu = data.edge_index.cpu().numpy()
+    
+    for idx, is_pos in enumerate(pred_edge_labels):
+        if is_pos:
+            u, v = edge_index_cpu[:, idx]
+            model_positive_edges.add(tuple(sorted((u, v))))
+
+    final_edges = []
+    for u, v in input_edges_set:
+        if tuple(sorted((u, v))) in model_positive_edges:
+            final_edges.append({"source": int(u), "target": int(v), "label": 1})
+
+    response["edges"] = final_edges
+    return response
+
+
+# --- STAGE 2: Generation / Saving ---
+def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict):
+    """
+    Saves user corrections and regenerates XML.
+    Critical Fix: Accepts all edges in 'graph_edges' list as valid, ignoring specific label values 
+    to accommodate manually added edges (which might have label=0).
+    """
+    
+    base_path = Path(manuscript_path)
+    raw_input_dir = base_path / "gnn-dataset"
+    output_dir = base_path / "layout_analysis_output"
+    gnn_format_dir = output_dir / "gnn-format"
+    gnn_format_dir.mkdir(parents=True, exist_ok=True)
+    
+    # ---------------------------------------------------------
+    # 1. Save Corrected Edges to .txt
+    # ---------------------------------------------------------
+    unique_edges = set()
+    
+    # FIX: Iterate over all provided edges. 
+    # If it is in the list, it implies it exists in the graph.
+    # We strip 'label' checks or allow 0 and 1.
+    for e in graph_edges:
+        # Check source/target keys existence for safety
+        if 'source' in e and 'target' in e:
+            u, v = sorted((int(e['source']), int(e['target'])))
+            unique_edges.add((u, v))
+            
+    edges_save_path = gnn_format_dir / f"{page_id}_edges.txt"
+    if unique_edges:
+        np.savetxt(edges_save_path, list(unique_edges), fmt='%d')
+    else:
+        open(edges_save_path, 'w').close()
+        
+    print(f"Saved {len(unique_edges)} edges to {edges_save_path}")
+
+    # ---------------------------------------------------------
+    # 2. Copy Input Files (Redundancy for Segmentation Script)
+    # ---------------------------------------------------------
+    for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
+        src = raw_input_dir / f"{page_id}{suffix}"
+        dst = gnn_format_dir / f"{page_id}{suffix}"
+        if src.exists():
+            shutil.copy(src, dst)
+
+    # ---------------------------------------------------------
+    # 3. Calculate Structural Labels
+    # ---------------------------------------------------------
+    num_nodes = len(node_labels)
+    
+    if unique_edges:
+        row, col = zip(*unique_edges)
+        all_rows = list(row) + list(col)
+        all_cols = list(col) + list(row)
+        data = np.ones(len(all_rows))
+        adj = csr_matrix((data, (all_rows, all_cols)), shape=(num_nodes, num_nodes))
+    else:
+        adj = csr_matrix((num_nodes, num_nodes))
+
+    n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
+    
+    labels_save_path = gnn_format_dir / f"{page_id}_labels_textline.txt"
+    np.savetxt(labels_save_path, final_structural_labels, fmt='%d')
+
+    # ---------------------------------------------------------
+    # 4. Run Segmentation & XML Generation
+    # ---------------------------------------------------------
+    unnorm_path = raw_input_dir / f"{page_id}_inputs_unnormalized.txt"
+    points_unnormalized = np.loadtxt(unnorm_path)
+    if points_unnormalized.ndim == 1: 
+        points_unnormalized = points_unnormalized.reshape(1, -1)
+    
+    dims_path = raw_input_dir / f"{page_id}_dims.txt"
+    dims = np.loadtxt(dims_path)
+    page_dims = {'width': dims[0], 'height': dims[1]}
+
+    polygons_data = segmentLinesFromPointClusters(
+        str(output_dir.parent), 
+        page_id, 
+        BINARIZE_THRESHOLD=args_dict.get('BINARIZE_THRESHOLD', 0.5098), 
+        BBOX_PAD_V=args_dict.get('BBOX_PAD_V', 0.7), 
+        BBOX_PAD_H=args_dict.get('BBOX_PAD_H', 0.5), 
+        CC_SIZE_THRESHOLD_RATIO=args_dict.get('CC_SIZE_THRESHOLD_RATIO', 0.4), 
+        GNN_PRED_PATH=str(output_dir)
+    )
+
+    xml_output_dir = output_dir / "page-xml-format"
+    xml_output_dir.mkdir(exist_ok=True)
+    
+    from gnn_inference import create_page_xml 
+    
+    create_page_xml(
+        page_id,
+        unique_edges,
+        points_unnormalized,
+        page_dims,
+        xml_output_dir / f"{page_id}.xml",
+        final_structural_labels, 
+        polygons_data,
+        image_path=base_path / "images_resized" / f"{page_id}.jpg",
+    )
+
+    resized_images_dst_dir = output_dir / "images_resized"
+    resized_images_dst_dir.mkdir(exist_ok=True)
+    src_img = base_path / "images_resized" / f"{page_id}.jpg"
+    if src_img.exists():
+        shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
+
+    return {"status": "success", "lines": len(polygons_data)}
 
 
 
@@ -2906,6 +1820,7 @@ def get_node_labels_from_edge_labels(edge_index, pred_edge_labels, num_nodes):
     return node_labels
 
 
+
 def create_page_xml(
     page_id,
     model_positive_edges,
@@ -2915,11 +1830,13 @@ def create_page_xml(
     pred_node_labels: np.ndarray,
     polygons_data: dict,
     use_best_fit_line: bool = False,
-    extend_percentage: float = 0.01
+    extend_percentage: float = 0.01,
+    image_path: Path = None, 
+    save_vis: bool = True
 ):
     """
-    Generates a PAGE XML file. For each connected component, it creates a <TextLine>
-    with a baseline and now also includes the <Coords> for the text line polygon.
+    Generates a PAGE XML file and optionally saves a visualization of the 
+    polygons and baselines overlayed on the image.
     """
     PAGE_XML_NAMESPACE = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
     ET.register_namespace('', PAGE_XML_NAMESPACE)
@@ -2937,35 +1854,63 @@ def create_page_xml(
     metadata = ET.SubElement(pc_gts, "Metadata")
     ET.SubElement(metadata, "Creator").text = "GNN-Prediction-Script"
 
+    # Define dimensions (Your logic uses *2 scaling for the XML)
+    final_w = int(page_dims['width'] * 2)
+    final_h = int(page_dims['height'] * 2)
+
     page = ET.SubElement(pc_gts, "Page", attrib={
         "imageFilename": f"{page_id}.jpg",
-        "imageWidth": str(int(page_dims['width']*2)),
-        "imageHeight": str(int(page_dims['height']*2))
+        "imageWidth": str(final_w),
+        "imageHeight": str(final_h)
     })
+
+    # --- VISUALIZATION SETUP ---
+    vis_img = None
+    if save_vis:
+        # Try to load original image to overlay
+        if image_path and image_path.exists():
+            vis_img = cv2.imread(str(image_path))
+            # Ensure visualization matches XML coordinate space
+            if vis_img is not None:
+                if vis_img.shape[0] != final_h or vis_img.shape[1] != final_w:
+                    vis_img = cv2.resize(vis_img, (final_w, final_h))
+        
+        # Fallback to black canvas if image not found or load failed
+        if vis_img is None:
+            vis_img = np.zeros((final_h, final_w, 3), dtype=np.uint8)
+    # ---------------------------
 
     min_x = np.min(points_unnormalized[:, 0])
     min_y = np.min(points_unnormalized[:, 1])
     max_x = np.max(points_unnormalized[:, 0])
     max_y = np.max(points_unnormalized[:, 1])
-    region_coords = f"{int(min_x*2)},{int(min_y*2)} {int(max_x*2)},{int(min_y*2)} {int(max_x*2)},{int(max_y*2)} {int(min_x*2)},{int(max_y*2)}"
+    
+    # Region logic (scaled by 2)
+    region_coords_str = f"{int(min_x*2)},{int(min_y*2)} {int(max_x*2)},{int(min_y*2)} {int(max_x*2)},{int(max_y*2)} {int(min_x*2)},{int(max_y*2)}"
 
     text_region = ET.SubElement(page, "TextRegion", id="region_1")
-    ET.SubElement(text_region, "Coords", points=region_coords)
+    ET.SubElement(text_region, "Coords", points=region_coords_str)
+
+    # Visualize Region Boundary (Yellow)
+    if save_vis and vis_img is not None:
+        pts = np.array([[int(min_x*2), int(min_y*2)], [int(max_x*2), int(min_y*2)], 
+                        [int(max_x*2), int(max_y*2)], [int(min_x*2), int(max_y*2)]], np.int32)
+        cv2.polylines(vis_img, [pts], isClosed=True, color=(0, 255, 255), thickness=3)
 
     for component in components:
         if not component: continue
         
-        # Get the points for the current component
         component_points = np.array([points_unnormalized[idx] for idx in component])
-        
         if len(component_points) < 1:
             continue
 
-        # Determine the label for this component to ensure consistent IDs
         line_label = pred_node_labels[component[0]]
-            
         text_line = ET.SubElement(text_region, "TextLine", id=f"line_{line_label + 1}")
         
+        # --- CALCULATE BASELINE ---
+        baseline_points_str = ""
+        baseline_vis_points = [] # To store points for visualization
+
         if use_best_fit_line:
             baseline_points_for_fitting = np.array(
                 [[p[0], p[1] + (p[2] / 2)] for p in component_points]
@@ -2977,174 +1922,1486 @@ def create_page_xml(
             )
             if endpoints:
                 p1, p2 = endpoints
-                baseline_points_str = f"{int(p1[0] * 2)},{int(p1[1] * 2)} {int(p2[0] * 2)},{int(p2[1] * 2)}"
+                # XML points (scaled by 2)
+                x1, y1 = int(p1[0] * 2), int(p1[1] * 2)
+                x2, y2 = int(p2[0] * 2), int(p2[1] * 2)
+                baseline_points_str = f"{x1},{y1} {x2},{y2}"
+                baseline_vis_points = [[x1, y1], [x2, y2]]
             else:
                 continue
         else:
             path_indices = trace_component_with_backtracking(component, adj)
             if len(path_indices) < 1: continue
             ordered_points = [points_unnormalized[idx] for idx in path_indices]
+            
+            # Format for XML
             baseline_points_str = " ".join([f"{int(p[0]*2)},{int((p[1]+(p[2]/2))*2)}" for p in ordered_points])
+            
+            # Format for Visualizer
+            baseline_vis_points = [[int(p[0]*2), int((p[1]+(p[2]/2))*2)] for p in ordered_points]
 
         ET.SubElement(text_line, "Baseline", points=baseline_points_str)
         
-        # Add the corresponding polygon coordinates to the TextLine
+        # --- HANDLE POLYGON COORDS ---
+        polygon_vis_points = []
         if line_label in polygons_data:
             polygon_points = polygons_data[line_label]
-            coords_str = " ".join([f"{p[0]},{p[1]}" for p in polygon_points]) # we do not double the coords here, because we upscale the HEATMAP!
+            # XML expects string "x,y x,y ..."
+            coords_str = " ".join([f"{p[0]},{p[1]}" for p in polygon_points]) 
             ET.SubElement(text_line, "Coords", points=coords_str)
+            
+            # Store for visualization (already in correct scale per your comment)
+            polygon_vis_points = polygon_points
         else:
             logging.warning(f"Page {page_id}: No polygon data found for line label {line_label}, Coords tag will be omitted.")
 
+        # --- DRAW ON VISUALIZATION ---
+        if save_vis and vis_img is not None:
+            # 1. Draw Polygon (Green)
+            if len(polygon_vis_points) > 0:
+                poly_pts = np.array(polygon_vis_points, np.int32).reshape((-1, 1, 2))
+                cv2.polylines(vis_img, [poly_pts], isClosed=True, color=(0, 255, 0), thickness=2)
+                
+                # Draw ID at the start of the polygon
+                cv2.putText(vis_img, str(line_label + 1), tuple(poly_pts[0][0]), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+
+            # 2. Draw Baseline (Red)
+            if len(baseline_vis_points) > 0:
+                base_pts = np.array(baseline_vis_points, np.int32).reshape((-1, 1, 2))
+                cv2.polylines(vis_img, [base_pts], isClosed=False, color=(0, 0, 255), thickness=2)
+
+    # --- SAVE XML ---
     tree = ET.ElementTree(pc_gts)
     if hasattr(ET, 'indent'):
         ET.indent(tree, space="\t", level=0)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     tree.write(output_path, encoding='UTF-8', xml_declaration=True)
-# ===================================================================
-#                       MAIN INFERENCE SCRIPT
-# ===================================================================
 
-def run_gnn_inference(args):
-    """Main function for system-level evaluation."""
-    # 2. Set other arguments
-    input_dir = f"{args.manuscript_path}/gnn-dataset"
-    output_dir = f"{args.manuscript_path}/segmented_lines"
+    # --- SAVE VISUALIZATION ---
+    if save_vis and vis_img is not None:
+        # Save alongside the XML with a _viz suffix
+        vis_output_path = output_path.parent / f"{output_path.stem}_viz.jpg"
+        cv2.imwrite(str(vis_output_path), vis_img)
+        print(f"Visualization saved to: {vis_output_path}")
 
-    setup_logging(Path(output_dir) / 'inference_with_eval.log')
-    device = get_device('auto')
 
-    with open(args.dataset_config_path, 'r') as f: 
-        d_config = DatasetCreationConfig(**yaml.safe_load(f))
-    checkpoint = torch.load(args.model_checkpoint, map_location=device, weights_only=False)
-    model = checkpoint['model']
-    model.to(device)
+---
+gnn_training/__init__.py
+---
+
+---
+gnn_training/training/engine.py
+---
+# training/engine.py
+import torch
+from torch_geometric.loader import DataLoader # Changed from torch.utils.data
+from tqdm import tqdm
+import numpy as np
+import pandas as pd # To handle results accumulation
+import logging # Import logging
+#from .metrics import calculate_single_graph_metrics # Import the new function
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from .metrics import calculate_single_graph_metrics, get_textlines_from_edges, calculate_textline_level_counts
+
+
+
+def train_one_epoch(model, dataloader: DataLoader, optimizer, loss_fn, device: torch.device):
+    """
+    Trains the model for one epoch in a memory-efficient manner.
+
+    This function is optimized to prevent out-of-memory errors by:
+    1. Calculating accuracy in a streaming fashion, batch by batch.
+    2. Only accumulating predictions and labels required for metrics like F1-score,
+       which cannot be calculated iteratively.
+    """
+    model.train()
+    
+    # Initialize accumulators for metrics
+    total_loss = 0
+    total_correct_preds = 0
+    total_edges = 0
+    
+    # Lists to store labels and predictions for metrics that require the full dataset (e.g., F1)
+    all_preds_list = []
+    all_labels_list = []
+
+    for batch in tqdm(dataloader, desc="Training"):
+        batch = batch.to(device)
+        optimizer.zero_grad()
+        
+        # Forward pass
+        logits = model(batch.x, batch.edge_index, batch.edge_attr)
+        loss = loss_fn(logits, batch.edge_y)
+        
+        # Backward pass and optimization
+        loss.backward()
+        optimizer.step()
+        
+        # --- Metrics Calculation (Batch-level) ---
+        
+        # Update total loss
+        total_loss += loss.item() * batch.num_graphs
+        
+        # Get predictions
+        preds = torch.argmax(logits, dim=1)
+        labels = batch.edge_y
+        
+        # Update streaming accuracy metrics
+        total_correct_preds += (preds == labels).sum().item()
+        total_edges += labels.numel() # Use numel() for total number of elements
+        
+        # Append tensors to lists for later concatenation.
+        # This is more memory-efficient than converting to numpy inside the loop.
+        all_preds_list.append(preds.cpu())
+        all_labels_list.append(labels.cpu())
+
+    # --- Aggregate Metrics (Epoch-level) ---
+    
+    # Concatenate all predictions and labels once after the loop
+    all_preds = torch.cat(all_preds_list).numpy()
+    all_labels = torch.cat(all_labels_list).numpy()
+    
+    # Calculate final metrics
+    avg_loss = total_loss / len(dataloader.dataset)
+    accuracy = total_correct_preds / total_edges
+    
+    # Calculate precision, recall, and F1-score
+    # These metrics require all data, hence the concatenation above.
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        all_labels, all_preds, average='macro', zero_division=0
+    )
+    
+    metrics = {
+        'loss': avg_loss,
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f1_score': f1
+    }
+    
+    return metrics
+
+
+@torch.no_grad()
+def evaluate(model, dataloader: DataLoader, loss_fn, device: torch.device):
+    """
+    Evaluates a GNN model, calculating both edge-level and object-level (textline) metrics.
+    """
     model.eval()
-
-
-    predictions_dataset_dir = Path(output_dir) / "gnn-format" # TODO use path to join
-    predictions_dataset_dir.mkdir(exist_ok=True)
-    xml_output_dir = Path(output_dir) / "page-xml-format" #fix syntax
-    xml_output_dir.mkdir(exist_ok=True)
-
-
     
-    input_files = sorted(list(Path(input_dir).glob('*_inputs_normalized.txt')))
-    
-    for file_path in input_files:
-        page_id = file_path.name.replace('_inputs_normalized.txt', '')
-        logging.info("--- Processing page: %s ---", page_id)
-        try:
-            points_normalized = np.loadtxt(file_path)
-            if points_normalized.ndim == 1: points_normalized = points_normalized.reshape(1, -1)
-            unnormalized_path = file_path.parent / f"{page_id}_inputs_unnormalized.txt"
-            dims_path = file_path.parent / f"{page_id}_dims.txt"
+    all_edge_preds, all_edge_labels = [], []
+    total_loss = 0
 
-            if not unnormalized_path.exists() or not dims_path.exists():
-                logging.warning("Skipping XML generation for page %s: Unnormalized or dims file not found.", page_id)
-                can_generate_xml = False
-            else:
-                points_unnormalized = np.loadtxt(unnormalized_path)
-                if points_unnormalized.ndim == 1: points_unnormalized = points_unnormalized.reshape(1, -1)
-                dims = np.loadtxt(dims_path)
-                page_dims = {'width': dims[0], 'height': dims[1]}
-                can_generate_xml = True
+    # --- START OF CHANGE: Add accumulators for our new object-level textline metric ---
+    total_textline_tp = 0
+    total_textline_fp = 0
+    total_textline_fn = 0
+    # --- END OF CHANGE ---
 
-        except Exception as e:
-            logging.error("Could not load data for page %s: %s", page_id, e); continue
-
-
-        page_dims_norm = {'width': 1.0, 'height': 1.0} # Use normalized dims for graph creation
-        input_graph_data = create_input_graph_edges(points_normalized, page_dims_norm, d_config.input_graph)
-        input_edges_set = input_graph_data["edges"]
-
-        if not input_edges_set:
-            logging.warning("Skipping page %s: No candidate edges generated by input graph constructor.", page_id)
-
-        else:
-            edge_index_undirected = torch.tensor(list(input_edges_set), dtype=torch.long).t().contiguous()
-            if d_config.input_graph.directionality == "bidirectional":
-                edge_index = torch.cat([edge_index_undirected, edge_index_undirected.flip(0)], dim=1)
-            else:
-                edge_index = edge_index_undirected
+    for batch in tqdm(dataloader, desc="Evaluating"):
+        batch = batch.to(device)
+        
+        logits = model(batch.x, batch.edge_index, batch.edge_attr)
+        loss = loss_fn(logits, batch.edge_y)
+        total_loss += loss.item() * batch.num_graphs
+        
+        batch_preds = torch.argmax(logits, dim=1)
+        
+        # Store all edge-level predictions and labels for overall metrics
+        all_edge_preds.append(batch_preds.cpu().numpy())
+        all_edge_labels.append(batch.edge_y.cpu().numpy())
+        
+        # --- START OF CHANGE: Calculate and accumulate textline metrics for each graph ---
+        # This logic is robust and relies on batch_size=1 for evaluation, which is standard practice.
+        if batch.num_graphs == 1:
+            # 1. Identify the ground-truth "objects" (text lines)
+            gt_lines = get_textlines_from_edges(batch.num_nodes, batch.edge_index, batch.edge_y)
             
-            node_features = get_node_features(points_normalized, input_graph_data["heuristic_degrees"], d_config.features)
-            edge_features = get_edge_features(edge_index, node_features, input_graph_data["heuristic_edge_counts"], d_config.features)
-            data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_features).to(device)
-
-            threshold = 0.5  # this can be adjusted to optimize precision/recall trade-off
-
-            with torch.no_grad():
-                logits = model(data.x, data.edge_index, data.edge_attr)  # [num_edges, num_classes]
-                probs = F.softmax(logits, dim=1)  # convert logits → probabilities
-                # Take probability of class 1 (positive edge)
-                pos_probs = probs[:, 1]
-                # Apply threshold
-                pred_edge_labels = (pos_probs > threshold).cpu().numpy().astype(int)
-
-            model_positive_edges = {
-                tuple(sorted(e)) 
-                for e in data.edge_index[:, pred_edge_labels == 1].cpu().numpy().T
-            }
-
-        # For Rand Index and XML, we need the final node clusters from the model's predictions
-        # This requires the edge_index tensor that was fed to the model
-        pred_edge_index_tensor = torch.tensor(list(input_edges_set), dtype=torch.long).t()
-        pred_node_labels_all_edges = torch.zeros(pred_edge_index_tensor.shape[1], dtype=torch.int32)
-        # Create a boolean mask to identify positive predictions
-        positive_edges_map = {edge: True for edge in model_positive_edges}
-        for i in range(pred_edge_index_tensor.shape[1]):
-            edge = tuple(sorted(pred_edge_index_tensor[:, i].tolist()))
-            if edge in positive_edges_map:
-                pred_node_labels_all_edges[i] = 1
-    
-        # convert binary edge classification predictions to node labels
-        pred_node_labels = get_node_labels_from_edge_labels(pred_edge_index_tensor, pred_node_labels_all_edges, len(points_normalized))
-
-        # Save predicted node labels, and input files
-        pred_labels_path = predictions_dataset_dir / f"{page_id}_labels_textline.txt"
-        np.savetxt(pred_labels_path, pred_node_labels, fmt='%d')
-        gnn_input_dir = file_path.parent
-        for associated_file in gnn_input_dir.glob(f"{page_id}_*"):
-            if associated_file.name == f"{page_id}_labels_textline.txt": continue
-            shutil.copy(associated_file, predictions_dataset_dir / associated_file.name)
-
-
-        # TODO: At this step, the image has been processed, heatmaps generated, GNN inference and predicted labels obtained and saved in gnn-format as {page_id}_labels_textline.txt. {page_id}_labels_textline.txt contains the predicted node labels for text lines, just that nodes (in file {page_id}_inputs_normalized.txt) belonging to the same text line have the same integer label. It is at this step that we want to (optionally) have a UI such that a human can correct the predicted node labels before proceeding to generate the PAGE XML files and segmented line images.
-
-
-
-        # Generate line images and polygon data first, now that the files are in place.
-        logging.info("Generating line images and polygon data for page %s...", page_id)
-        polygons_data = segmentLinesFromPointClusters(Path(input_dir).parent, page_id, BINARIZE_THRESHOLD=args.BINARIZE_THRESHOLD, BBOX_PAD_V=args.BBOX_PAD_V, BBOX_PAD_H=args.BBOX_PAD_H, CC_SIZE_THRESHOLD_RATIO=args.CC_SIZE_THRESHOLD_RATIO, GNN_PRED_PATH=output_dir)
-
-        # Generate the PAGE XML, now including the polygon data
-        if can_generate_xml:
-            xml_path = xml_output_dir / f"{page_id}.xml"
-            create_page_xml(
-                page_id,
-                model_positive_edges,
-                points_unnormalized,
-                page_dims,
-                xml_path,
-                pred_node_labels,   # Pass node labels for matching
-                polygons_data,      # Pass the generated polygon data
-                use_best_fit_line=False,
-                extend_percentage=0.01
+            # 2. Identify the predicted "objects" (text lines)
+            pred_lines = get_textlines_from_edges(batch.num_nodes, batch.edge_index, batch_preds)
+            
+            # 3. Compare them to get TP, FP, FN for this graph
+            tp, fp, fn = calculate_textline_level_counts(gt_lines, pred_lines, iou_threshold=0.5)
+            
+            # 4. Accumulate counts over the whole dataset
+            total_textline_tp += tp
+            total_textline_fp += fp
+            total_textline_fn += fn
+        else:
+            # Log a warning if batch size is not 1, as textline metric will be skipped.
+            logging.warning(
+                f"Batch size is {batch.num_graphs} during evaluation. "
+                "Textline F1-Score calculation is skipped for this batch. "
+                "Please use batch_size=1 for accurate validation metrics."
             )
-            logging.info("Saved PAGE XML with polygon predictions to: %s", xml_path)
+        # --- END OF CHANGE ---
 
-        #copy files from images_resized to segmented_lines/images_resized
-        resized_images_src = Path(args.manuscript_path) / "images_resized"
-        resized_images_dst = Path(output_dir) / "images_resized"
-        resized_images_dst.mkdir(exist_ok=True)
-        for img_file in resized_images_src.glob("*.jpg"):
-            shutil.copy(img_file, resized_images_dst / img_file.name)
+    # --- Aggregate Metrics ---
+
+    # 1. Aggregate edge-level metrics
+    all_edge_preds = np.concatenate(all_edge_preds)
+    all_edge_labels = np.concatenate(all_edge_labels)
+    
+    precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(
+        all_edge_labels, all_edge_preds, average='macro', zero_division=0
+    )
+
+    final_metrics = {
+        'loss': total_loss / len(dataloader.dataset),
+        'accuracy': accuracy_score(all_edge_labels, all_edge_preds),
+        'f1_score_macro': f1_macro # Keep your primary edge-level metric
+    }
+    
+    # --- START OF CHANGE: Calculate final Textline F1-Score and add to metrics dict ---
+    # Calculate precision and recall from the accumulated TP, FP, FN counts
+    precision_denom = total_textline_tp + total_textline_fp
+    recall_denom = total_textline_tp + total_textline_fn
+    
+    textline_precision = total_textline_tp / precision_denom if precision_denom > 0 else 0.0
+    textline_recall = total_textline_tp / recall_denom if recall_denom > 0 else 0.0
+    
+    # Calculate the final F1-Score
+    f1_denom = textline_precision + textline_recall
+    textline_f1 = 2 * (textline_precision * textline_recall) / f1_denom if f1_denom > 0 else 0.0
+
+    # Add the new, more meaningful metrics to the dictionary that gets logged and used for early stopping
+    final_metrics['textline_f1_score'] = textline_f1
+    final_metrics['textline_precision'] = textline_precision
+    final_metrics['textline_recall'] = textline_recall
+    
+    logging.info(f"Textline Metrics | TP: {total_textline_tp}, FP: {total_textline_fp}, FN: {total_textline_fn} | F1: {textline_f1:.4f}")
+    # --- END OF CHANGE ---
+
+    # Note: The logic for 'graph_metrics_list' from your original code was removed
+    # as it was not being populated. This new implementation is cleaner.
+
+    return final_metrics, all_edge_preds, all_edge_labels
+---
+gnn_training/training/__init__.py
+---
+
+---
+gnn_training/training/main_train_eval.py
+---
+# training/main_train_eval.py
+import yaml
+import logging
+from pathlib import Path
+import torch
+from torch.optim.lr_scheduler import LambdaLR
+from torch_geometric.loader import DataLoader
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import wandb
+import argparse
+
+# Local imports
+# from ..gnn_data_preparation.config_models import DatasetCreationConfig
+from ..gnn_data_preparation.dataset_generator import HistoricalLayoutGNNDataset
+from ..gnn_data_preparation.utils import setup_logging
+from .utils import set_seed, get_device, save_checkpoint, calculate_class_weights, create_prediction_log, FocalLoss
+from .models.gnn_models import get_gnn_model
+from .models.sklearn_models import get_sklearn_model
+from .engine import train_one_epoch, evaluate
+from .metrics import calculate_metrics
+from .visualization import visualize_graph_predictions
+
+logging.basicConfig(
+    filename="train.log",       # file to save logs
+    filemode="w",               # overwrite each run, use "a" to append
+    level=logging.INFO,         # minimum level to log
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+
+# --- EarlyStopping Class Definition ---
+class EarlyStopping:
+    """
+    Early stops the training if validation metric doesn't improve after a given patience.
+    """
+    def __init__(self, patience=7, verbose=False, delta=0, mode='max',
+                 checkpoint_path=None, save_checkpoint_fn=None, save_checkpoints_enabled=True):
+        """
+        Args:
+            patience (int): How many epochs to wait after last validation metric improvement.
+                            Default: 7
+            verbose (bool): If True, prints a message for each validation metric improvement.
+                            Default: False
+            delta (float): Minimum change in the monitored metric to qualify as an improvement.
+                            Default: 0
+            mode (str): One of {'min', 'max'}. In 'min' mode, training will stop when the quantity
+                        monitored has stopped decreasing; in 'max' mode it will stop when the
+                        quantity monitored has stopped increasing. Default: 'max'.
+            checkpoint_path (Path): Path where to save the best model checkpoint. Required if save_checkpoint_fn
+                                    is provided and save_checkpoints_enabled is True.
+            save_checkpoint_fn (callable): The function to call to save the checkpoint.
+                                          Expected signature: `func(model, optimizer, epoch, val_metrics, path)`.
+            save_checkpoints_enabled (bool): If False, the early stopper will not save any checkpoints,
+                                             but still track the best score and trigger early stopping.
+        """
+        self.patience = patience
+        self.verbose = verbose
+        self.counter = 0
+        self.best_score = None
+        self.early_stop = False
+        self.delta = delta
+        self.mode = mode
+        self.checkpoint_path = checkpoint_path
+        self.save_checkpoint_fn = save_checkpoint_fn
+        self.save_checkpoints_enabled = save_checkpoints_enabled
+
+        if self.mode == 'min':
+            self.val_score_multiplier = -1
+        elif self.mode == 'max':
+            self.val_score_multiplier = 1
+        else:
+            raise ValueError(f"Mode {self.mode} not supported. Must be 'min' or 'max'.")
+
+        if self.save_checkpoints_enabled and (not self.save_checkpoint_fn or not self.checkpoint_path):
+            logging.warning("EarlyStopping initialized with save_checkpoints_enabled=True, but save_checkpoint_fn or checkpoint_path is missing. Checkpoints will NOT be saved.")
+            self.save_checkpoints_enabled = False # Disable saving if arguments are incomplete
+
+    def __call__(self, current_metric_value, model, optimizer, epoch, val_metrics_dict_for_save):
+        """
+        Call this method after each validation epoch.
+        Args:
+            current_metric_value (float): The current value of the monitored metric (e.g., val_f1_score).
+            model: The model to save.
+            optimizer: The optimizer to save.
+            epoch: The current epoch number.
+            val_metrics_dict_for_save (dict): Full dictionary of validation metrics to save in checkpoint.
+                                              This will be passed to save_checkpoint_fn.
+        """
+        # Flip sign if 'max' mode to make it a minimization problem for consistent comparison
+        score = self.val_score_multiplier * current_metric_value 
+        logging.info(f'The precision is: {current_metric_value}')
+
+        if self.best_score is None:
+            self.best_score = score
+            self._save_checkpoint(model, optimizer, epoch, val_metrics_dict_for_save)
+        elif score < self.best_score + self.delta: 
+            self.counter += 1
+            if self.verbose:
+                logging.info(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+            if self.counter >= self.patience:
+                self.early_stop = True
+        else: # Improved
+            if self.verbose:
+                logging.info(f'Validation metric improved ({self.val_score_multiplier * self.best_score:.6f} --> {current_metric_value:.6f}). Saving model ...')
+            self.best_score = score
+            self._save_checkpoint(model, optimizer, epoch, val_metrics_dict_for_save)
+            self.counter = 0
+
+    def _save_checkpoint(self, model, optimizer, epoch, val_metrics_dict_for_save):
+        """Saves model when validation metric improves, if saving is enabled."""
+        if self.save_checkpoints_enabled:
+            self.save_checkpoint_fn(model, optimizer, epoch, val_metrics_dict_for_save, self.checkpoint_path)
+        elif self.verbose:
+            logging.debug("Skipping model save as save_checkpoints is disabled in config.")
+
+
+def run_gnn_fold(config, fold_dir, model_name, run_dir):
+    """Trains and evaluates a GNN model for a single fold."""
+    device = get_device(config['device'])
+    
+    # 1. Load Data
+    train_dataset = HistoricalLayoutGNNDataset(root=str(fold_dir / 'gnn' / 'train'))
+    val_dataset = HistoricalLayoutGNNDataset(root=str(fold_dir / 'gnn' / 'val'))
+    test_dataset = HistoricalLayoutGNNDataset(root=str(fold_dir / 'gnn' / 'test'))
+
+    
+    train_loader = DataLoader(train_dataset, batch_size=config['training_params']['batch_size'], shuffle=True,num_workers=2, pin_memory=False)
+    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=0, pin_memory=False)
+    test_loader = DataLoader(test_dataset, batch_size=config['training_params']['batch_size'], shuffle=False,num_workers=0, pin_memory=False)
+
+    # 2. Initialize Model, Optimizer, Loss
+    model = get_gnn_model(model_name, config, train_dataset[0]).to(device)
+    optimizer = getattr(torch.optim, config['training_params']['optimizer'])(model.parameters(), lr=config['training_params']['learning_rate'])
+    
+    # --- START OF CHANGE: Learning Rate Warmup Scheduler ---
+    warmup_epochs = config['training_params'].get('lr_warmup_epochs', 0)
+    scheduler = None
+    if warmup_epochs > 0:
+        def warmup_lambda(current_epoch):
+            if current_epoch < warmup_epochs:
+                # Linearly increase the learning rate multiplier from a small fraction to 1
+                return float(current_epoch + 1) / float(warmup_epochs)
+            else:
+                # After warmup, the multiplier is 1 (i.e., use the base_lr)
+                return 1.0
+        scheduler = LambdaLR(optimizer, lr_lambda=warmup_lambda)
+        logging.info(f"Using learning rate warmup for {warmup_epochs} epochs.")
+    # --- END OF CHANGE ---
+
+    if config['training_params']['imbalance_handler'] == 'weighted_loss':
+        weights = calculate_class_weights(train_dataset).to(device)
+        logging.info(f"Using weighted cross-entropy with weights: {weights}")
+        loss_fn = torch.nn.CrossEntropyLoss(weight=weights)
+    elif config['training_params']['imbalance_handler'] == 'focal_loss':
+        logging.info("Using Focal Loss")
+        loss_fn = FocalLoss(alpha=config['training_params']['focal_loss_alpha'], gamma=config['training_params']['focal_loss_gamma'])
+    else:
+        loss_fn = torch.nn.CrossEntropyLoss()
+        
+    # --- Early Stopping Setup ---
+    # Extract early stopping parameters from config, with sensible defaults
+    early_stopping_patience = config['training_params'].get('early_stopping_patience', 10)
+    early_stopping_min_delta = config['training_params'].get('early_stopping_min_delta', 0.0001)
+    early_stopping_mode = config['training_params'].get('early_stopping_mode', 'max') # 'max' for metrics like F1, 'min' for loss
+
+    # The metric to monitor for early stopping is the same as the checkpoint metric.
+    # We need to extract the raw metric name from the config, e.g., 'val_f1_score' -> 'f1_score'.
+    monitor_metric_key = config['checkpoint_metric'].replace('val_', '') 
+    
+    # Initialize EarlyStopping, passing the save_checkpoint function
+    early_stopper = EarlyStopping(
+        patience=early_stopping_patience,
+        verbose=True, # Set to True to see messages about improvements and counters
+        delta=early_stopping_min_delta,
+        mode=early_stopping_mode,
+        checkpoint_path=run_dir / 'best_model.pt',
+        save_checkpoint_fn=save_checkpoint, # Pass the existing save_checkpoint utility
+        save_checkpoints_enabled=config['save_checkpoints'] # Respect the global config for saving
+    )
+
+    logging.info("--- PRE-TRAINING LOADER TEST ---")
+    try:
+        # We will use the *exact same loader* that crashes later
+        test_batch = next(iter(val_loader)) 
+        logging.info(">>> SUCCESS: next(iter(val_loader)) worked perfectly before training. <<<")
+        # It's a good idea to reset the iterator, though it will be re-created in the evaluate function
+        val_loader_iterator = iter(val_loader)
+    except Exception as e:
+        logging.error(f"FATAL: val_loader crashed even BEFORE training. Error: {e}")
+
+    # Now, start your normal training loop
+    logging.info("--- Starting Training Loop ---")
+
+    # 3. Training Loop
+    for epoch in range(1, config['training_params']['epochs'] + 1):
+        logging.info(f"--- Epoch {epoch}/{config['training_params']['epochs']} ---")
+        train_metrics = train_one_epoch(model, train_loader, optimizer, loss_fn, device)
+        print(f"Epoch number {epoch}")
+        val_metrics, _, _ = evaluate(model, val_loader, loss_fn, device)
+        print("evaluation done")
+        log_metrics = {f"train_{k}": v for k, v in train_metrics.items()}
+        log_metrics.update({f"val_{k}": v for k, v in val_metrics.items()})
+        
+        # --- START OF CHANGE: Log LR and Step Scheduler ---
+        current_lr = optimizer.param_groups[0]['lr']
+        log_metrics['learning_rate'] = current_lr
+        
+        logging.info(f"Epoch {epoch}: Train Loss: {train_metrics['loss']:.4f}, Val Textline F1: {val_metrics['textline_f1_score']:.4f}, LR: {current_lr:.6f}")
+        
+        if scheduler:
+            scheduler.step()
+        # --- END OF CHANGE ---
+
+        if config['tracking']['use_tracker'] == 'wandb':
+            wandb.log(log_metrics, step=epoch)
+
+        # --- Early Stopping Check and Checkpoint Saving ---
+        current_metric_for_es = val_metrics[monitor_metric_key]
+        early_stopper(current_metric_for_es, model, optimizer, epoch, val_metrics)
+
+        if early_stopper.early_stop:
+            logging.info(f"Early stopping triggered at epoch {epoch} due to no improvement in '{monitor_metric_key}' for {early_stopping_patience} epochs.")
+            break # Exit the training loop
+    
+    # 4. Final Evaluation on Test Set
+    logging.info("--- Final Evaluation on Test Set ---")
+    checkpoint = torch.load(run_dir / 'best_model.pt', map_location=device)
+    model = checkpoint['model'] # <-- LOAD THE MODEL OBJECT (As requested)
+
+    # --- START OF CHANGE ---
+    # Load original textline labels into a dictionary keyed by page_id
+    # true_textline_labels_by_page = {}
+    # data_creation_config_path = Path(config['dataset_path']).parent.parent /'configs/1_dataset_creation_config.yaml'
+    # # This logic assumes the Phase 1 config is available to find the raw data dir
+    # # A more robust way would be to save this info in the dataset itself
+    # with open(data_creation_config_path, 'r') as f:
+    #     d_config_dict = yaml.safe_load(f)
+        
+    # raw_data_dir = Path(d_config_dict['input_data_dir'])
+    
+    # for data in test_dataset:
+    #     try:
+    #         label_path = raw_data_dir / f"{data.page_id}_labels_textline.txt"
+    #         true_textline_labels_by_page[data.page_id] = np.loadtxt(label_path, dtype=int)
+    #     except Exception as e:
+    #         logging.warning(f"Could not load textline labels for page {data.page_id}: {e}")
+            
+    test_metrics, test_preds, test_labels = evaluate(model, test_loader, loss_fn, device)
+
+    print("evaluate function run")
+
+    log_test_metrics = {f"test_{k}": v for k, v in test_metrics.items()}
+    logging.info(f"Test Metrics: {log_test_metrics}")
+    if config['tracking']['use_tracker'] == 'wandb':
+        wandb.log(log_test_metrics)
+
+    
+    
+    # 5. Save artifacts
+    if config['save_prediction_log']:
+        pred_df = create_prediction_log(test_dataset, test_preds, test_labels, model_name, fold_dir.name.split('_')[-1])
+        pred_df.to_csv(run_dir / 'test_predictions.csv', index=False)
+
+    if config['generate_visualizations']:
+        pred_idx = 0
+        for i, data in enumerate(test_dataset):
+            print(f"visualizing {i}")
+            if i >= config['num_visualizations']: break
+            num_edges = data.edge_index.shape[1]
+            page_preds = test_preds[pred_idx : pred_idx + num_edges]
+            viz_path = run_dir / 'visualizations' / f"page_{data.page_id}.png"
+            visualize_graph_predictions(data.cpu(), page_preds, viz_path)
+            pred_idx += num_edges
+            
+    return log_test_metrics
+
+def run_sklearn_fold(config, fold_dir, model_name, run_dir):
+    """Trains and evaluates a scikit-learn model for a single fold."""
+    # 1. Load Data
+    train_df = pd.read_csv(fold_dir / 'sklearn' / 'train.csv')
+    test_df = pd.read_csv(fold_dir / 'sklearn' / 'test.csv')
+
+    X_train = train_df.drop(columns=['label', 'page_id', 'source_node_id', 'target_node_id'])
+    y_train = train_df['label']
+    X_test = test_df.drop(columns=['label', 'page_id', 'source_node_id', 'target_node_id'])
+    y_test = test_df['label']
+
+    # 2. Train Model
+    model = get_sklearn_model(model_name, config)
+    logging.info(f"Training {model_name}...")
+    model.fit(X_train, y_train)
+
+    # 3. Evaluate
+    logging.info(f"Evaluating {model_name}...")
+    y_pred = model.predict(X_test)
+    metrics = calculate_metrics(y_test, y_pred) # Sklearn models don't have graph-level metrics here
+    log_metrics = {f"test_{k}": v for k, v in metrics.items()}
+    
+    logging.info(f"Test Metrics for {model_name}: {log_metrics}")
+    if config['tracking']['use_tracker'] == 'wandb':
+         wandb.log(log_metrics)
+         
+    return log_metrics
+
+
+def main():
+    """Main execution function to run model training and cross-validation."""
+    # --- NEW: Setup command-line argument parsing ---
+    parser = argparse.ArgumentParser(description="Run model training and cross-validation.")
+    parser.add_argument(
+        '--config',
+        type=str,
+        default='configs/2_training_config.yaml',
+        help='Path to the YAML configuration file for training.'
+    )
+    parser.add_argument('--dataset_path', type=str, help='Override the dataset path from the config file.')
+    parser.add_argument('--output_dir', type=str, help='Override the output directory from the config file.')
+    parser.add_argument('--unique_folder_name', type=str, help='name of the unique folder specifiying datasize and grouping for this run.')
+    parser.add_argument(
+        '--gpu_id',
+        type=int,
+        default=None,
+        help='Specific GPU index to use (e.g., 0, 1). If provided, overrides the device setting in the config file.'
+    )
+    args = parser.parse_args()
+
+    # Load configuration from the path specified in the arguments
+    config_path = Path(args.config)
+    if not config_path.exists():
+        logging.critical(f"Configuration file not found at {config_path}")
+        return
+        
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    set_seed(config['random_seed'])
+
+    # --- MODIFIED: Prioritize command-line arguments over config values ---
+    dataset_path = Path(args.dataset_path) if args.dataset_path else Path(config['dataset_path'])
+    output_dir = Path(args.output_dir) if args.output_dir else Path(config['output_dir'])
+    
+    # --- START OF CHANGE 2: Override config['device'] based on --gpu_id ---
+    if args.gpu_id is not None:
+        if args.gpu_id < torch.cuda.device_count():
+            # Set the device string to 'cuda:X'
+            config['device'] = f'cuda:{args.gpu_id}'
+            logging.info(f"Overriding device to: {config['device']} from command line argument --gpu_id.")
+        else:
+             logging.warning(f"GPU ID {args.gpu_id} requested, but only {torch.cuda.device_count()} available. Using config default or falling back.")
+             
+    # Ensure a sensible default if the config itself is missing the device key (optional, but good practice)
+    if 'device' not in config:
+        config['device'] = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+    # --- END OF CHANGE 2 ---
+
+
+    folds_dir = dataset_path / "folds"
+    if not folds_dir.exists():
+        logging.critical(f"Folds directory not found at {folds_dir}")
+        return
+        
+    all_results = []
+
+    for model_name in config['models_to_run']:
+        model_type = config['model_configs'][model_name]['type']
+        
+        for fold_dir in sorted(folds_dir.glob('fold_*')):
+            fold_idx = int(fold_dir.name.split('_')[-1])
+            logging.info(f"===== Starting Fold {fold_idx} for Model: {model_name} =====")
+            
+            # Setup run directory and logging, now using the potentially overridden output_dir
+            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            run_name = config['tracking']['run_name_template'].format(model_name=model_name, fold_idx=fold_idx, timestamp=timestamp)
+            run_dir = output_dir / args.unique_folder_name / run_name
+            run_dir.mkdir(parents=True, exist_ok=True)
+            setup_logging(run_dir / 'training.log')
+            
+            # Initialize tracker
+            if config['tracking']['use_tracker'] == 'wandb':
+                wandb.init(
+                    project=config['project_name'],
+                    name=run_name,
+                    config=config,
+                    reinit=True # Important for loops
+                )
+            
+            if model_type == 'gnn':
+                results = run_gnn_fold(config, fold_dir, model_name, run_dir)
+            elif model_type == 'sklearn':
+                results = run_sklearn_fold(config, fold_dir, model_name, run_dir)
+            else:
+                raise ValueError(f"Unknown model type {model_type}")
+            
+            results['model'] = model_name
+            results['fold'] = fold_idx
+            all_results.append(results)
+            
+            if config['tracking']['use_tracker'] == 'wandb':
+                wandb.finish()
+
+    # Aggregate and save final results, using the potentially overridden output_dir
+    results_df = pd.DataFrame(all_results)
+    agg_results = results_df.groupby('model').agg(['mean', 'std']).reset_index()
+    
+    logging.info("\n\n===== Aggregated Cross-Validation Results =====")
+    print(agg_results)
+    
+    # Ensure the base output directory exists before saving summary files
+    output_dir.mkdir(parents=True, exist_ok=True)
+    agg_results.to_csv(output_dir / 'aggregated_results.csv', index=False)
+    results_df.to_csv(output_dir / 'all_fold_results.csv', index=False)
+    
+if __name__ == "__main__":
+    main()
+---
+gnn_training/training/metrics.py
+---
+# training/metrics.py
+import torch
+import numpy as np
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import connected_components
+from scipy.special import comb
+from scipy.sparse import coo_matrix
+
+
+# (Your rand_index placeholder function)
+def rand_index(true_labels, pred_labels):
+    return 0.0
+
+def calculate_single_graph_metrics(y_true: np.ndarray, y_pred: np.ndarray, data, true_textline_labels_for_page=None):
+    """
+    Calculates a dictionary of metrics for a SINGLE graph.
+    
+    Args:
+        y_true: Ground truth binary labels for the graph's edges.
+        y_pred: Predicted binary labels for the graph's edges.
+        data: The PyG Data object for the single graph.
+        true_textline_labels_for_page: Ground truth textline labels for this page's nodes.
+    """
+    metrics = {}
+    
+    # --- Simplified GED Calculation for one graph ---
+    edge_index = data.edge_index.cpu().numpy()
+    
+    true_pos_mask = (y_true == 1)
+    pred_pos_mask = (y_pred == 1)
+    
+    gt_edges = set(map(tuple, edge_index[:, true_pos_mask].T))
+    pred_edges = set(map(tuple, edge_index[:, pred_pos_mask].T))
+    
+    gt_edges_undirected = {tuple(sorted(e)) for e in gt_edges}
+    pred_edges_undirected = {tuple(sorted(e)) for e in pred_edges}
+    
+    false_positives = len(pred_edges_undirected - gt_edges_undirected)
+    false_negatives = len(gt_edges_undirected - pred_edges_undirected)
+    metrics['simplified_ged'] = false_positives + false_negatives
+
+    # --- Rand Index Calculation for one graph ---
+    if true_textline_labels_for_page is not None:
+        if not pred_edges_undirected:
+            pred_clusters = np.arange(data.num_nodes)
+        else:
+            pred_adj = csr_matrix((np.ones(len(pred_edges_undirected)), 
+                                  list(zip(*pred_edges_undirected))),
+                                 shape=(data.num_nodes, data.num_nodes))
+            _, pred_clusters = connected_components(csgraph=pred_adj, directed=False, return_labels=True)
+        
+        metrics['rand_index'] = rand_index(true_textline_labels_for_page, pred_clusters)
+            
+    return metrics
+
+
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, data=None, true_textline_labels=None):
+    """
+    Calculates a dictionary of metrics for edge classification.
+    
+    Args:
+        y_true: Ground truth binary labels for edges.
+        y_pred: Predicted binary labels for edges.
+        data: The PyG Data object for graph-level metrics.
+        true_textline_labels: Ground truth textline labels for nodes (for Rand Index).
+    """
+    metrics = {}
+    
+    # Standard classification metrics
+    precision, recall, f1, _ = precision_recall_fscore_support(y_true, y_pred, average='binary', zero_division=0)
+    metrics['accuracy'] = accuracy_score(y_true, y_pred)
+    metrics['precision'] = precision
+    metrics['recall'] = recall
+    metrics['f1_score'] = f1
+    
+    # Graph-level metrics
+    if data is not None:
+        num_nodes = data.num_nodes
+        edge_index = data.edge_index.cpu().numpy()
+        
+        true_pos_mask = (y_true == 1)
+        pred_pos_mask = (y_pred == 1)
+        
+        gt_edges = set(map(tuple, edge_index[:, true_pos_mask].T))
+        pred_edges = set(map(tuple, edge_index[:, pred_pos_mask].T))
+        
+        gt_edges_undirected = {tuple(sorted(e)) for e in gt_edges}
+        pred_edges_undirected = {tuple(sorted(e)) for e in pred_edges}
+        
+        false_positives = len(pred_edges_undirected - gt_edges_undirected)
+        false_negatives = len(gt_edges_undirected - pred_edges_undirected)
+        metrics['simplified_ged'] = false_positives + false_negatives
+        
+        # Rand Index
+        if true_textline_labels is not None:
+            if not pred_edges_undirected:
+                # If no edges are predicted, every node is its own cluster.
+                pred_clusters = np.arange(num_nodes)
+            else:
+                pred_adj = csr_matrix((np.ones(len(pred_edges_undirected)), 
+                                      list(zip(*pred_edges_undirected))), # Using list() for robustness
+                                     shape=(num_nodes, num_nodes))
+                _, pred_clusters = connected_components(csgraph=pred_adj, directed=False, return_labels=True)
+            
+            metrics['rand_index'] = rand_index(true_textline_labels, pred_clusters)
+            
+    return metrics
 
 
 
 
+def get_textlines_from_edges(num_nodes, edge_index, edge_labels):
+    """
+    Identifies text lines as connected components from a given set of edges.
+    A text line is a set of node indices.
+
+    Args:
+        num_nodes (int): The total number of nodes in the graph.
+        edge_index (torch.Tensor or np.ndarray): The edge index tensor of shape [2, num_edges].
+        edge_labels (torch.Tensor or np.ndarray): The binary labels (0 or 1) for each edge.
+
+    Returns:
+        list[set[int]]: A list of sets, where each set contains the node indices of a text line.
+    """
+    # Ensure tensors are on the CPU and are numpy arrays for scipy
+    if isinstance(edge_index, torch.Tensor):
+        edge_index = edge_index.cpu().numpy()
+    if isinstance(edge_labels, torch.Tensor):
+        edge_labels = edge_labels.cpu().numpy()
+        
+    # Filter for edges that are predicted to be part of a text line (label == 1)
+    positive_edges = edge_index[:, edge_labels == 1]
+    
+    # If there are no positive edges, every node is its own isolated component (a line of one char)
+    if positive_edges.shape[1] == 0:
+        return [{i} for i in range(num_nodes)]
+
+    # Create a sparse adjacency matrix for efficient connected component analysis
+    adj_matrix = coo_matrix(
+        (np.ones(positive_edges.shape[1]), (positive_edges[0], positive_edges[1])),
+        shape=(num_nodes, num_nodes)
+    )
+    
+    # Find the connected components, which represent the predicted text lines
+    n_components, labels = connected_components(
+        csgraph=adj_matrix, directed=False, return_labels=True
+    )
+    
+    # Group nodes by their component ID to form the final text lines
+    components = [set() for _ in range(n_components)]
+    for node_idx, component_id in enumerate(labels):
+        components[component_id].add(node_idx)
+        
+    return [c for c in components if c] # Return only non-empty components
+
+def calculate_textline_level_counts(ground_truth_lines, predicted_lines, iou_threshold=0.5):
+    """
+    Calculates object-level TP, FP, and FN for text lines using node-based IoU matching.
+    This function implements the core logic of our mAP@0.5 equivalent.
+
+    Args:
+        ground_truth_lines (list[set[int]]): A list of ground-truth text lines.
+        predicted_lines (list[set[int]]): A list of predicted text lines.
+        iou_threshold (float): The IoU threshold to consider a match a True Positive.
+
+    Returns:
+        tuple[int, int, int]: The number of True Positives, False Positives, and False Negatives.
+    """
+    num_gt = len(ground_truth_lines)
+    num_pred = len(predicted_lines)
+
+    # Handle edge cases where one or both sets are empty
+    if num_gt == 0 and num_pred == 0: return 0, 0, 0
+    if num_pred == 0: return 0, 0, num_gt  # All ground truth lines were missed
+    if num_gt == 0: return 0, num_pred, 0 # All predicted lines are hallucinations
+
+    # Create an IoU matrix: rows are GT lines, columns are predicted lines
+    iou_matrix = np.zeros((num_gt, num_pred))
+    for i, gt_line in enumerate(ground_truth_lines):
+        for j, pred_line in enumerate(predicted_lines):
+            intersection = len(gt_line.intersection(pred_line))
+            union = len(gt_line.union(pred_line))
+            iou_matrix[i, j] = intersection / union if union > 0 else 0
+
+    # Greedily match predicted lines to ground truth lines based on highest IoU
+    # This ensures a one-to-one mapping for counting TP, FP, FN
+    matches = []
+    # Find all potential matches that are above the threshold
+    for i in range(num_gt):
+        for j in range(num_pred):
+            if iou_matrix[i, j] >= iou_threshold:
+                matches.append((iou_matrix[i, j], i, j))  # Store (iou, gt_idx, pred_idx)
+
+    # Sort matches by IoU score in descending order to prioritize the best matches
+    matches.sort(key=lambda x: x[0], reverse=True)
+    
+    matched_gt_indices = set()
+    matched_pred_indices = set()
+    
+    for _, gt_idx, pred_idx in matches:
+        # If this GT and this Pred haven't been matched yet, form a match
+        if gt_idx not in matched_gt_indices and pred_idx not in matched_pred_indices:
+            matched_gt_indices.add(gt_idx)
+            matched_pred_indices.add(pred_idx)
+            
+    tp = len(matched_gt_indices)
+    fp = num_pred - tp
+    fn = num_gt - tp
+    
+    return tp, fp, fn
+
+---
+gnn_training/training/models/gnn_models.py
+---
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch_geometric.nn import GCNConv, MessagePassing, SGConv, GATv2Conv, SplineConv
+
+class MLP(nn.Module):
+    """A simple Multi-Layer Perceptron for edge prediction."""
+    def __init__(self, in_channels, hidden_channels, out_channels, num_layers, dropout):
+        super().__init__()
+        self.layers = nn.ModuleList()
+        self.layers.append(nn.Linear(in_channels, hidden_channels))
+        for _ in range(num_layers - 2):
+            self.layers.append(nn.Linear(hidden_channels, hidden_channels))
+        self.layers.append(nn.Linear(hidden_channels, out_channels))
+        self.dropout = dropout
+
+    def forward(self, x):
+        for i, layer in enumerate(self.layers):
+            x = layer(x)
+            if i < len(self.layers) - 1:
+                x = F.relu(x)
+                x = F.dropout(x, p=self.dropout, training=self.training)
+        return x
+
+class EdgeClassifier(nn.Module):
+    """
+    A generic GNN-based edge classifier.
+    It takes a GNN backbone and uses its output to predict edge labels.
+    """
+    def __init__(self, backbone, in_channels, edge_feat_dim, hidden_channels, dropout):
+        super().__init__()
+        self.backbone = backbone
+        
+        # The MLP takes the concatenated features of two nodes and optional edge features
+        mlp_in_channels = 2 * hidden_channels + edge_feat_dim
+        self.predictor = MLP(mlp_in_channels, hidden_channels, 2, num_layers=3, dropout=dropout)
+
+    def forward(self, x, edge_index, edge_attr=None):
+        # 1. Get node embeddings from the GNN backbone
+        node_embeds = self.backbone(x, edge_index, edge_attr)
+
+        # 2. For each edge, concatenate the embeddings of its source and target nodes
+        source_embeds = node_embeds[edge_index[0]]
+        target_embeds = node_embeds[edge_index[1]]
+        
+        edge_representation = torch.cat([source_embeds, target_embeds], dim=1)
+        
+        # 3. (Optional) Concatenate edge features
+        if edge_attr is not None:
+            edge_representation = torch.cat([edge_representation, edge_attr], dim=1)
+
+        # 4. Predict edge logits
+        edge_logits = self.predictor(edge_representation)
+        return edge_logits
+
+# --- GNN Backbone Definitions ---
+
+class GCNBackbone(nn.Module):
+    def __init__(self, in_channels, hidden_channels, num_layers, dropout):
+        super().__init__()
+        self.convs = nn.ModuleList()
+        self.convs.append(GCNConv(in_channels, hidden_channels))
+        for _ in range(num_layers - 1):
+            self.convs.append(GCNConv(hidden_channels, hidden_channels))
+        self.dropout = dropout
+
+    def forward(self, x, edge_index, edge_attr=None): # edge_attr is unused by GCN
+        for conv in self.convs:
+            x = conv(x, edge_index)
+            x = F.relu(x)
+            x = F.dropout(x, p=self.dropout, training=self.training)
+        return x
+
+class GATBackbone(nn.Module):
+    def __init__(self, in_channels, hidden_channels, num_layers, heads, dropout):
+        super().__init__()
+        self.convs = nn.ModuleList()
+        # Edge attributes can be passed to GATv2Conv if needed, but it's not the standard implementation
+        self.convs.append(GATv2Conv(in_channels, hidden_channels, heads=heads, dropout=dropout))
+        for _ in range(num_layers - 1):
+            self.convs.append(GATv2Conv(hidden_channels * heads, hidden_channels, heads=heads, dropout=dropout))
+        self.dropout = dropout
+
+    def forward(self, x, edge_index, edge_attr=None):
+        for i, conv in enumerate(self.convs):
+            x = conv(x, edge_index)
+            if i < len(self.convs) -1:
+                x = F.elu(x)
+                x = F.dropout(x, p=self.dropout, training=self.training)
+        return x
+
+# --- START OF SGC MODIFICATION ---
+
+class SGCBackbone(nn.Module):
+    """
+    A Simple Graph Convolution backbone.
+    It consists of a single SGConv layer that propagates features K times.
+    """
+    def __init__(self, in_channels, hidden_channels, num_layers):
+        super().__init__()
+        # The 'num_layers' from config corresponds to the 'K' parameter in SGConv
+        self.conv = SGConv(in_channels, hidden_channels, K=num_layers, cached=False)
+
+    def forward(self, x, edge_index, edge_attr=None):
+        # SGConv does not use edge_attr or dropout between layers
+        return self.conv(x, edge_index)
+
+# --- END OF SGC MODIFICATION ---
+
+
+# --- START OF MPNN MODIFICATION ---
+
+class MPNNLayer(MessagePassing):
+    """
+    A single layer of the Message Passing Neural Network that uses edge attributes.
+    """
+    def __init__(self, in_channels, out_channels, edge_dim, dropout):
+        super().__init__(aggr='add') # "Add" aggregation.
+        # This network computes the message based on source, target, and edge features.
+        # Message = MLP(source_node || target_node || edge_feature)
+        self.message_net = nn.Sequential(
+            nn.Linear(2 * in_channels + edge_dim, out_channels),
+            nn.ReLU(),
+            nn.Dropout(dropout)
+        )
+        # This network updates the node features after aggregation.
+        self.update_net = nn.Sequential(
+            nn.Linear(in_channels + out_channels, out_channels),
+            nn.ReLU(),
+            nn.Dropout(dropout)
+        )
+
+    def forward(self, x, edge_index, edge_attr):
+        # x has shape [N, in_channels]
+        # edge_index has shape [2, E]
+        # edge_attr has shape [E, edge_dim]
+
+        # propagate() will call message() and update()
+        out = self.propagate(edge_index, x=x, edge_attr=edge_attr)
+        
+        # Update node features: MLP(old_node_features || aggregated_messages)
+        return self.update_net(torch.cat([x, out], dim=1))
+
+    def message(self, x_i, x_j, edge_attr):
+        # x_i: Source node features [E, in_channels]
+        # x_j: Target node features [E, in_channels]
+        # edge_attr: Edge features [E, edge_dim]
+        
+        # Concatenate features and pass through the message network
+        tmp = torch.cat([x_i, x_j, edge_attr], dim=1)
+        return self.message_net(tmp)
+
+
+class MPNNBackbone(nn.Module):
+    """
+    A multi-layer MPNN backbone that uses edge attributes.
+    """
+    def __init__(self, in_channels, hidden_channels, num_layers, dropout, edge_dim):
+        super().__init__()
+        self.layers = nn.ModuleList()
+        # First layer maps from input channels to hidden channels
+        self.layers.append(MPNNLayer(in_channels, hidden_channels, edge_dim, dropout))
+        # Subsequent layers map from hidden channels to hidden channels
+        for _ in range(num_layers - 1):
+            self.layers.append(MPNNLayer(hidden_channels, hidden_channels, edge_dim, dropout))
+
+    def forward(self, x, edge_index, edge_attr=None):
+        if edge_attr is None:
+            # Create a dummy tensor if edge attributes are missing
+            edge_attr = torch.zeros((edge_index.shape[1], 1), device=x.device)
+
+        for layer in self.layers:
+            x = layer(x, edge_index, edge_attr)
+        return x
+
+
+class SplineConvBackbone(nn.Module):
+    """
+    A multi-layer SplineConv backbone that uses edge attributes.
+    It includes a pre-processing step to reduce high-dimensional edge features.
+    """
+    def __init__(self, in_channels, hidden_channels, num_layers, dropout, edge_dim, kernel_size, spline_edge_dim=3):
+        super().__init__()
+        
+        self.edge_dim = edge_dim 
+        self.spline_edge_dim = spline_edge_dim
+        
+        if self.edge_dim == 0:
+            self.edge_preprocessor = None
+        else:
+            # self.edge_preprocessor = nn.Linear(self.edge_dim, self.spline_edge_dim)
+            # --- MODIFICATION START: Using an MLP instead of a single Linear layer ---
+            # Define an MLP with one hidden layer (e.g., of size 2 * spline_edge_dim)
+            mlp_hidden_dim = 2 * spline_edge_dim 
+            self.edge_preprocessor = nn.Sequential(
+                nn.Linear(self.edge_dim, mlp_hidden_dim),
+                nn.ReLU(),  # Add a non-linear activation function
+                # nn.Dropout(p=0.2), # Optional: Add dropout for regularization
+                nn.Linear(mlp_hidden_dim, self.spline_edge_dim)
+            )
+            # --- MODIFICATION END ---
+
+        self.convs = nn.ModuleList()
+        self.convs.append(SplineConv(in_channels, hidden_channels, dim=self.spline_edge_dim, kernel_size=kernel_size, aggr='sum'))
+        for _ in range(num_layers - 1):
+            self.convs.append(SplineConv(hidden_channels, hidden_channels, dim=self.spline_edge_dim, kernel_size=kernel_size, aggr='sum'))
+        self.dropout = dropout
+
+    def forward(self, x, edge_index, edge_attr=None):
+        if edge_attr is None:
+            processed_edge_attr = torch.zeros((edge_index.shape[1], self.spline_edge_dim), device=x.device)
+        else:
+            processed_edge_attr = self.edge_preprocessor(edge_attr)
+            
+            processed_edge_attr = torch.sigmoid(processed_edge_attr)
+  
+        
+        for i, conv in enumerate(self.convs):
+            x = conv(x, edge_index, processed_edge_attr)
+            if i < len(self.convs) - 1:
+                x = F.relu(x)
+                x = F.dropout(x, p=self.dropout, training=self.training)
+        return x
+
+
+# --- Model Factory ---
+def get_gnn_model(model_name: str, config: dict, data_sample) -> nn.Module:
+    """Factory function to create a GNN model for training."""
+    model_cfg = config['model_configs'][model_name]
+    
+    in_channels = data_sample.num_node_features
+    # This is the TRUE edge feature dimension from the data (can be 0)
+    edge_feat_dim = data_sample.num_edge_features if hasattr(data_sample, 'edge_attr') and data_sample.edge_attr is not None else 0
+    
+    if in_channels == 0:
+        raise ValueError("Input data has 0 node features.")
+        
+    if model_name == "GCN":
+        backbone = GCNBackbone(in_channels, model_cfg['hidden_channels'], model_cfg['num_layers'], model_cfg['dropout'])
+    elif model_name == "GAT":
+        backbone = GATBackbone(in_channels, model_cfg['hidden_channels'], model_cfg['num_layers'], model_cfg['heads'], model_cfg['dropout'])
+    elif model_name == "SGC":
+        backbone = SGCBackbone(in_channels, model_cfg['hidden_channels'], model_cfg['num_layers'])
+    
+    # --- SIMPLIFICATION STARTS HERE ---
+    elif model_name == "MPNN":
+        # Let MPNN handle the case where edge_feat_dim might be 0
+        backbone = MPNNBackbone(in_channels, model_cfg['hidden_channels'], model_cfg['num_layers'], model_cfg['dropout'], edge_dim=edge_feat_dim)
+    elif model_name == "SplineCNN":
+        # Pass the true edge_feat_dim. The backbone will handle the reduction.
+        # Also pass the new spline_edge_dim from the config if it exists.
+        spline_dim = model_cfg.get('spline_edge_dim', 3) # Default to 3 if not in config
+        backbone = SplineConvBackbone(in_channels, model_cfg['hidden_channels'], model_cfg['num_layers'], model_cfg['dropout'], edge_dim=edge_feat_dim, kernel_size=model_cfg['kernel_size'], spline_edge_dim=spline_dim)
+    # --- SIMPLIFICATION ENDS HERE ---
+    
+    else:
+        raise ValueError(f"Unknown GNN model: {model_name}")
+
+    # Determine the number of channels output by the backbone for the final predictor MLP
+    if model_name == "GAT":
+        final_hidden_channels = model_cfg['hidden_channels'] * model_cfg['heads']
+    else:
+        final_hidden_channels = model_cfg['hidden_channels']
+
+    # For the predictor, use the original edge_feat_dim, as it concatenates the original features
+    return EdgeClassifier(backbone, in_channels, edge_feat_dim, final_hidden_channels, model_cfg['dropout'])
+---
+gnn_training/training/models/__init__.py
+---
+
+---
+gnn_training/training/models/sklearn_models.py
+---
+# training/models/sklearn_models.py
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.base import BaseEstimator
+
+def get_sklearn_model(model_name: str, config: dict) -> BaseEstimator:
+    """Factory function to create a scikit-learn model."""
+    model_cfg = config['model_configs'][model_name]
+    
+    if model_name == "RandomForest":
+        return RandomForestClassifier(
+            n_estimators=model_cfg['n_estimators'],
+            max_depth=model_cfg['max_depth'],
+            random_state=config['random_seed'],
+            n_jobs=model_cfg['n_jobs']
+        )
+    elif model_name == "GradientBoosting":
+        return GradientBoostingClassifier(
+            n_estimators=model_cfg['n_estimators'],
+            learning_rate=model_cfg['learning_rate'],
+            max_depth=model_cfg['max_depth'],
+            random_state=config['random_seed']
+        )
+    elif model_name == "LogisticRegression":
+        return LogisticRegression(
+            C=model_cfg['C'],
+            max_iter=model_cfg['max_iter'],
+            random_state=config['random_seed'],
+            n_jobs=model_cfg.get('n_jobs', -1)
+        )
+    else:
+        raise ValueError(f"Unknown sklearn model: {model_name}")
+---
+gnn_training/training/utils.py
+---
+# training/utils.py
+import torch
+import random
+import numpy as np
+import os
+from pathlib import Path
+import logging
+import pandas as pd
+import torch.nn.functional as F
+
+def set_seed(seed: int):
+    """Sets the seed for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+def get_device(device_config: str) -> torch.device:
+    """Gets the torch device based on config and availability, and logs the choice."""
+    if device_config == 'auto':
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    else:
+        device = torch.device(device_config)
+    print(f"Using device: {device}") # This line confirms the choice in your logs
+    return device
+
+def save_checkpoint(model, optimizer, epoch, metrics, path: Path):
+    """Saves a model checkpoint."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save({
+        'epoch': epoch,
+        'model': model,
+        # 'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'metrics': metrics
+    }, path)
+    logging.info(f"Saved checkpoint to {path}")
+
+def calculate_class_weights(dataset) -> torch.Tensor:
+    """Calculates class weights for imbalanced datasets."""
+    all_labels = torch.cat([data.edge_y for data in dataset])
+    num_total = len(all_labels)
+    num_positives = all_labels.sum().item()
+    num_negatives = num_total - num_positives
+    
+    if num_positives == 0 or num_negatives == 0:
+        return torch.tensor([1.0, 1.0])
+        
+    # Weight for class 0 (negative) and class 1 (positive)
+    # weight = total_samples / (n_classes * n_samples_per_class)
+    weight_0 = num_total / (2 * num_negatives)
+    weight_1 = num_total / (2 * num_positives)
+    
+    return torch.tensor([weight_0, weight_1])
+
+def create_prediction_log(data_list, predictions, labels, model_name: str, fold_idx: int) -> pd.DataFrame:
+    """Creates a detailed CSV log of predictions for analysis."""
+    rows = []
+    current_edge_idx = 0
+    for data in data_list:
+        num_edges = data.edge_index.shape[1]
+        page_preds = predictions[current_edge_idx : current_edge_idx + num_edges]
+        page_labels = labels[current_edge_idx : current_edge_idx + num_edges]
+        
+        for i in range(num_edges):
+            u, v = data.edge_index[0, i].item(), data.edge_index[1, i].item()
+            row = {
+                'model': model_name,
+                'fold': fold_idx,
+                'page_id': data.page_id,
+                'source_node_id': u,
+                'target_node_id': v,
+                'prediction': page_preds[i],
+                'label': page_labels[i],
+            }
+            # Add node and edge features for context
+            for feat_idx in range(data.x.shape[1]):
+                row[f'source_node_feat_{feat_idx}'] = data.x[u, feat_idx].item()
+                row[f'target_node_feat_{feat_idx}'] = data.x[v, feat_idx].item()
+            if data.edge_attr is not None:
+                for feat_idx in range(data.edge_attr.shape[1]):
+                    row[f'edge_feat_{feat_idx}'] = data.edge_attr[i, feat_idx].item()
+            
+            rows.append(row)
+        
+        current_edge_idx += num_edges
+        
+    return pd.DataFrame(rows)
+
+class FocalLoss(torch.nn.Module):
+    def __init__(self, alpha=0.25, gamma=2.0, reduction='mean'):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.reduction = reduction
+
+    def forward(self, inputs, targets):
+        BCE_loss = F.cross_entropy(inputs, targets, reduction='none')
+        pt = torch.exp(-BCE_loss)
+        F_loss = self.alpha * (1-pt)**self.gamma * BCE_loss
+
+        if self.reduction == 'mean':
+            return torch.mean(F_loss)
+        elif self.reduction == 'sum':
+            return torch.sum(F_loss)
+        else:
+            return F_loss
+---
+gnn_training/training/visualization.py
+---
+# training/visualization.py
+import matplotlib.pyplot as plt
+import numpy as np
+from pathlib import Path
+from matplotlib.lines import Line2D # For manual legend
+
+def visualize_graph_predictions(data, predictions, output_path: Path):
+    """
+    Visualizes the ground truth vs. predicted graph for a single page.
+    - Faint Grey: All unique edges from the input graph.
+    - Green: True Positive edges
+    - Red: False Positive edges
+    - Orange Dashed: False Negative edges
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    pos = data.x[:, :2].cpu().numpy() # Node positions
+    
+    # Create copies to avoid modifying the original data object's tensors
+    edge_index = data.edge_index.cpu().numpy().copy()
+    y_true = data.edge_y.cpu().numpy().copy()
+    y_pred = predictions.copy()
+    
+    # --- START OF MINIMAL, ROBUST FIX ---
+
+    # We need a version of edge_index just for the background plot
+    edge_index_for_background = edge_index.copy()
+
+    # Gracefully check for bidirectionality to avoid double-plotting
+    is_bidirectional = False
+    num_edges = edge_index.shape[1]
+    if num_edges > 0 and num_edges % 2 == 0:
+        num_half_edges = num_edges // 2
+        first_half = edge_index[:, :num_half_edges]
+        second_half_flipped = np.flip(edge_index[:, num_half_edges:], axis=0)
+        if np.array_equal(first_half, second_half_flipped):
+            is_bidirectional = True
+
+    # If the graph is bidirectional, we only need to process the first half
+    # for plotting the colored (TP, FP, FN) edges.
+    if is_bidirectional:
+        num_undirected_edges = edge_index.shape[1] // 2
+        edge_index = edge_index[:, :num_undirected_edges]
+        y_true = y_true[:num_undirected_edges]
+        y_pred = y_pred[:num_undirected_edges]
+        
+        # Also trim the background graph to avoid double plotting it
+        edge_index_for_background = edge_index_for_background[:, :num_undirected_edges]
+    
+    # If the graph is unidirectional, the `if` block is skipped, and we use the full arrays.
+    
+    # --- END OF FIX ---
+
+    tp_mask = (y_true == 1) & (y_pred == 1)
+    fp_mask = (y_true == 0) & (y_pred == 1)
+    fn_mask = (y_true == 1) & (y_pred == 0)
+
+    plt.figure(figsize=(18, 14))
+    plt.scatter(pos[:, 0], -pos[:, 1], s=10, c='black', zorder=5) # Invert y-axis
+    plt.gca().set_aspect('equal', adjustable='box')
+
+
+    def draw_edges(edges, color, linestyle='-', linewidth=1.0, alpha=1.0, zorder=1):
+        # Your original, working draw_edges function
+        if edges.shape[1] == 0:
+            return
+        for u, v in edges.T:
+            plt.plot([pos[u, 0], pos[v, 0]], [-pos[u, 1], -pos[v, 1]], 
+                     color=color, linestyle=linestyle, linewidth=linewidth, alpha=alpha, zorder=zorder)
+    
+    # 1. Draw the background graph
+    draw_edges(edge_index_for_background, 'lightgrey', linewidth=0.5, zorder=1)
+    
+    # 2. Draw the categorized edges
+    if np.any(tp_mask):
+        draw_edges(edge_index[:, tp_mask], 'green', linewidth=1.5, zorder=3)
+    if np.any(fp_mask):
+        draw_edges(edge_index[:, fp_mask], 'red', linewidth=1.0, zorder=2)
+    if np.any(fn_mask):
+        draw_edges(edge_index[:, fn_mask], 'orange', linestyle='--', linewidth=1.5, zorder=4)
+
+    # 3. Create a manual legend
+    legend_elements = [
+        Line2D([0], [0], color='lightgrey', lw=1, label='Input Graph Edge'),
+        Line2D([0], [0], color='green', lw=2, label='Correctly Kept (TP)'),
+        Line2D([0], [0], color='red', lw=1.5, label='Incorrectly Kept (FP)'),
+        Line2D([0], [0], color='orange', lw=2, linestyle='--', label='Incorrectly Deleted (FN)'),
+        plt.scatter([], [], s=30, color='black', label='Character (Node)')
+    ]
+    plt.legend(handles=legend_elements, loc='upper right', fontsize='large')
+
+    plt.title(f"Prediction Visualization for Page: {data.page_id}", fontsize=16)
+    plt.xlabel("X coordinate")
+    plt.ylabel("Y coordinate")
+    plt.tight_layout(rect=[0, 0, 0.95, 1])
+    plt.savefig(output_path, bbox_inches='tight', dpi=150)
+    plt.close()
+
+
+def visualize_inference_predictions(data, predictions, output_path: Path):
+    """
+    Visualizes the model's predictions on new data where no ground truth is available.
+    - Faint Grey: All edges from the input graph.
+    - Blue: Edges the model predicted as "keep".
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    pos = data.x[:, :2].cpu().numpy()
+    edge_index = data.edge_index.cpu().numpy().copy()
+    y_pred = predictions.copy()
+    
+    # Gracefully handle uni- or bi-directional graphs to avoid double-plotting
+    is_bidirectional = False
+    num_edges = edge_index.shape[1]
+    if num_edges > 0 and num_edges % 2 == 0:
+        num_half_edges = num_edges // 2
+        if np.array_equal(edge_index[:, :num_half_edges], np.flip(edge_index[:, num_half_edges:], axis=0)):
+            is_bidirectional = True
+    
+    if is_bidirectional:
+        num_undirected_edges = edge_index.shape[1] // 2
+        edge_index = edge_index[:, :num_undirected_edges]
+        y_pred = y_pred[:num_undirected_edges]
+    
+    pred_pos_mask = (y_pred == 1)
+
+    plt.figure(figsize=(18, 14))
+    plt.scatter(pos[:, 0], -pos[:, 1], s=10, c='black', zorder=5)
+    plt.gca().set_aspect('equal', adjustable='box')
+
+    def draw_edges(edges, color, linestyle='-', linewidth=1.0, alpha=1.0, zorder=1):
+        if edges.shape[1] == 0:
+            return
+        for u, v in edges.T:
+            plt.plot([pos[u, 0], pos[v, 0]], [-pos[u, 1], -pos[v, 1]], 
+                     color=color, linestyle=linestyle, linewidth=linewidth, alpha=alpha, zorder=zorder)
+
+    # 1. Draw the full input graph
+    draw_edges(edge_index, 'lightgrey', linewidth=0.5, zorder=1)
+    
+    # 2. Draw the kept edges on top
+    if np.any(pred_pos_mask):
+        draw_edges(edge_index[:, pred_pos_mask], 'blue', linewidth=1.5, zorder=3)
+
+    # 3. Create a manual legend
+    legend_elements = [
+        Line2D([0], [0], color='lightgrey', lw=1, label='Input Graph Edge'),
+        Line2D([0], [0], color='blue', lw=2, label='Predicted "Keep" Edge'),
+        plt.scatter([], [], s=30, color='black', label='Character (Node)')
+    ]
+    plt.legend(handles=legend_elements, loc='upper right', fontsize='large')
+
+    plt.title(f"Inference Visualization for Page: {data.page_id}", fontsize=16)
+    plt.xlabel("X coordinate")
+    plt.ylabel("Y coordinate")
+    plt.tight_layout(rect=[0, 0, 0.95, 1])
+    plt.savefig(output_path, bbox_inches='tight', dpi=150)
+    plt.close()
+
+# --- END OF NEW FUNCTION ---
 ---
 inference.py
 ---
@@ -3155,22 +3412,11 @@ from PIL import Image
 import torch
 
 from segmentation.segment_graph import images2points
-from gnn_inference import run_gnn_inference
-
-import sys
-# Get the directory where the current script is located (gnn_inference)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# Get the parent directory (src)
-parent_dir = os.path.dirname(current_dir)
-# Add 'src' to the system path so Python can find 'gnn_training'
-if parent_dir not in sys.path:
-    sys.path.append(parent_dir)
-print(f"Added {parent_dir} to sys.path to allow imports from 'gnn_training'")
 
 
 
 
-def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscript_1"):
+def process_new_manuscript(manuscript_path, target_longest_side=2500):
     source_images_path = os.path.join(manuscript_path, "images")
     # We will save processed (and potentially resized) images here
     # to avoid modifying source files while iterating over them.
@@ -3217,8 +3463,6 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
                 if width < 600 and height < 600:
                     raise ValueError(f"Image resolution too low ({width}x{height}). Both dimensions are < 600px.")
 
-                # 2. RESIZING: Downscale only if too large
-                target_longest_side = 2500
                 
                 # Check if the longest side exceeds the target
                 if max(width, height) > target_longest_side:
@@ -3274,28 +3518,1943 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
 
 
 
-if __name__ == "__main__":
-    # 1. Parse standard CLI arguments4
-    parser = argparse.ArgumentParser(description="GNN Layout Analysis Inference")
-    parser.add_argument("--manuscript_path", type=str, default="./input_manuscripts/sample_manuscript_1", help="Path to the manuscript directory")
-    args = parser.parse_args()
+# if __name__ == "__main__":
+#     # 1. Parse standard CLI arguments4
+#     parser = argparse.ArgumentParser(description="GNN Layout Analysis Inference")
+#     parser.add_argument("--manuscript_path", type=str, default="./input_manuscripts/sample_manuscript_1", help="Path to the manuscript directory")
+#     args = parser.parse_args()
 
-    # the data preparation.yaml is tied to the model_checkpoint used.
-    args.model_checkpoint = "./pretrained_gnn/v2.pt"
-    args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
+#     # the data preparation.yaml is tied to the model_checkpoint used.
+#     args.model_checkpoint = "./pretrained_gnn/v2.pt"
+#     args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
 
-    # -- Hyperparameters
-    args.visualize = True
-    args.BINARIZE_THRESHOLD = 0.5098
-    args.BBOX_PAD_V = 0.7
-    args.BBOX_PAD_H = 0.5
-    args.CC_SIZE_THRESHOLD_RATIO = 0.4
+#     # -- Hyperparameters
+#     args.visualize = True
+#     args.BINARIZE_THRESHOLD = 0.5098
+#     args.BBOX_PAD_V = 0.7
+#     args.BBOX_PAD_H = 0.5
+#     args.CC_SIZE_THRESHOLD_RATIO = 0.4
 
-    process_new_manuscript(args.manuscript_path)
-    run_gnn_inference(args)
+#     process_new_manuscript(args.manuscript_path)
+#     run_gnn_inference(args)
 
 
 
+
+---
+my-app/.env
+---
+VITE_BACKEND_URL="http://localhost:5000"
+---
+my-app/env.d.ts
+---
+/// <reference types="vite/client" />
+
+---
+my-app/.gitignore
+---
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+---
+my-app/index.html
+---
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+
+---
+my-app/package.json
+---
+{
+  "name": "my-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build"
+  },
+  "dependencies": {
+    "pinia": "^3.0.4",
+    "vue": "^3.5.26",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@tsconfig/node24": "^24.0.3",
+    "@types/node": "^24.10.4",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/tsconfig": "^0.8.1",
+    "npm-run-all2": "^8.0.4",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.0",
+    "vite-plugin-vue-devtools": "^8.0.5",
+    "vue-tsc": "^3.2.2"
+  }
+}
+
+---
+my-app/README.md
+---
+# my-app
+
+This template should help get you started developing with Vue 3 in Vite.
+
+## Recommended IDE Setup
+
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+
+## Recommended Browser Setup
+
+- Chromium-based browsers (Chrome, Edge, Brave, etc.):
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
+- Firefox:
+  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+
+## Type Support for `.vue` Imports in TS
+
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+---
+my-app/src/App.vue
+---
+<template>
+  <div class="app-container">
+    <div v-if="!currentManuscript">
+      <!-- Upload Screen -->
+      <div class="upload-card">
+        <h1>Historical Manuscript Segmentation</h1>
+        <div class="form-group">
+          <label>Manuscript Name:</label>
+          <input v-model="formName" type="text" placeholder="e.g. manuscript_1" />
+        </div>
+        <div class="form-group">
+          <label>Resize Dimension (Longest Side):</label>
+          <input v-model.number="formLongestSide" type="number" />
+        </div>
+        <div class="form-group">
+          <label>Images:</label>
+          <input type="file" multiple @change="handleFileChange" accept="image/*" />
+        </div>
+        <button @click="upload" :disabled="uploading">
+          {{ uploading ? 'Processing (Step 1-3)...' : 'Start Processing' }}
+        </button>
+        <div v-if="uploadStatus" class="status">{{ uploadStatus }}</div>
+      </div>
+    </div>
+
+    <div v-else>
+      <!-- Main Workstation -->
+      <button class="back-btn" @click="currentManuscript = null">← Back to Upload</button>
+      <ManuscriptViewer 
+        :manuscriptName="currentManuscript" 
+        :pageName="currentPage"
+        @page-changed="handlePageChange"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import ManuscriptViewer from './components/ManuscriptViewer.vue'
+
+// Basic State
+const currentManuscript = ref(null)
+const currentPage = ref(null)
+const pageList = ref([])
+
+// Upload Form State
+const formName = ref('my_manuscript')
+const formLongestSide = ref(2500)
+const selectedFiles = ref([])
+const uploading = ref(false)
+const uploadStatus = ref('')
+
+const handleFileChange = (e) => {
+  selectedFiles.value = Array.from(e.target.files)
+}
+
+const upload = async () => {
+  if (selectedFiles.value.length === 0) return alert('Select files')
+  uploading.value = true
+  uploadStatus.value = 'Uploading and generating heatmaps/points. This may take a while...'
+
+  const formData = new FormData()
+  formData.append('manuscriptName', formName.value)
+  formData.append('longestSide', formLongestSide.value)
+  selectedFiles.value.forEach(file => formData.append('images', file))
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/upload`, {
+      method: 'POST',
+      body: formData
+    })
+    if(!res.ok) throw new Error('Upload failed')
+    const data = await res.json()
+    
+    // Success - Switch to viewer
+    pageList.value = data.pages
+    if (pageList.value.length > 0) {
+      currentManuscript.value = formName.value
+      currentPage.value = pageList.value[0]
+    } else {
+      uploadStatus.value = 'No pages processed.'
+    }
+  } catch (e) {
+    uploadStatus.value = 'Error: ' + e.message
+  } finally {
+    uploading.value = false
+  }
+}
+
+const handlePageChange = (newPage) => {
+  currentPage.value = newPage
+}
+</script>
+
+<style>
+body { margin: 0; font-family: sans-serif; background: #222; color: white; }
+.app-container { display: flex; flex-direction: column; height: 100vh; }
+.upload-card { max-width: 500px; margin: 100px auto; padding: 20px; background: #333; border-radius: 8px; }
+.form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+input { padding: 8px; background: #444; border: 1px solid #555; color: white; margin-top: 5px; }
+button { padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+button:disabled { background: #555; }
+.back-btn { position: absolute; top: 10px; left: 10px; z-index: 1000; background: #444; }
+</style>
+---
+my-app/src/components/ManuscriptViewer.vue
+---
+<template>
+  <div class="manuscript-viewer">
+    <!-- Top Toolbar: Collapsible -->
+    <div class="toolbar">
+      <h10>{{ manuscriptNameForDisplay }} - Page {{ currentPageForDisplay }}</h10>
+      <div v-show="!isToolbarCollapsed" class="toolbar-controls">
+        <button @click="previousPage" :disabled="loading || isProcessingSave || isFirstPage">
+          Previous
+        </button>
+        <button @click="nextPage" :disabled="loading || isProcessingSave || isLastPage">Next</button>
+        <button @click="saveAndGoNext" :disabled="loading || isProcessingSave">
+          Save & Next (S)
+        </button>
+        <button @click="goToIMG2TXTPage" :disabled="loading || isProcessingSave">
+          Annotate Text
+        </button>
+        <div class="toggle-container">
+          <label>
+            <input type="checkbox" v-model="textlineModeActive" :disabled="isProcessingSave" />
+            Edge Edit (W)
+          </label>
+        </div>
+        <div class="toggle-container">
+          <label>
+            <input
+              type="checkbox"
+              v-model="textboxModeActive"
+              :disabled="isProcessingSave || !graphIsLoaded"
+            />
+            Region Labeling (R)
+          </label>
+        </div>
+      </div>
+      <button @click="runHeuristic" :disabled="loading">Auto-Link (Heuristic)</button>
+      <button class="panel-toggle-btn" @click="isToolbarCollapsed = !isToolbarCollapsed">
+        {{ isToolbarCollapsed ? 'Show Toolbar' : 'Hide' }}
+      </button>
+    </div>
+
+    <!-- Main Content: Visualization Area -->
+    <div class="visualization-container" ref="container">
+      <div v-if="isProcessingSave" class="processing-save-notice">
+        Saving graph and processing... Please wait.
+      </div>
+      <div v-if="error" class="error-message">
+        {{ error }}
+      </div>
+      <div v-if="loading" class="loading">Loading Page Data...</div>
+      <div
+        v-else
+        class="image-container"
+        :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
+      >
+        <img
+          v-if="imageData"
+          :src="`data:image/jpeg;base64,${imageData}`"
+          :width="scaledWidth"
+          :height="scaledHeight"
+          class="manuscript-image"
+          @load="imageLoaded = true"
+        />
+        <div
+          v-else
+          class="placeholder-image"
+          :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
+        >
+          No image available
+        </div>
+
+        <svg
+          v-if="graphIsLoaded"
+          class="graph-overlay"
+          :class="{ 'is-visible': textlineModeActive || textboxModeActive }"
+          :width="scaledWidth"
+          :height="scaledHeight"
+          :style="{ cursor: svgCursor }"
+          @click="textlineModeActive && onBackgroundClick($event)"
+          @mousemove="handleSvgMouseMove"
+          @mouseleave="handleSvgMouseLeave"
+          ref="svgOverlayRef"
+        >
+          <line
+            v-for="(edge, index) in workingGraph.edges"
+            :key="`edge-${index}`"
+            :x1="scaleX(workingGraph.nodes[edge.source].x)"
+            :y1="scaleY(workingGraph.nodes[edge.source].y)"
+            :x2="scaleX(workingGraph.nodes[edge.target].x)"
+            :y2="scaleY(workingGraph.nodes[edge.target].y)"
+            :stroke="getEdgeColor(edge)"
+            :stroke-width="isEdgeSelected(edge) ? 3 : 2.5"
+            @click.stop="textlineModeActive && onEdgeClick(edge, $event)"
+          />
+
+          <circle
+            v-for="(node, nodeIndex) in workingGraph.nodes"
+            :key="`node-${nodeIndex}`"
+            :cx="scaleX(node.x)"
+            :cy="scaleY(node.y)"
+            :r="getNodeRadius(nodeIndex)"
+            :fill="getNodeColor(nodeIndex)"
+            @click.stop="textlineModeActive && onNodeClick(nodeIndex, $event)"
+          />
+
+          <line
+            v-if="
+              textlineModeActive &&
+              selectedNodes.length === 1 &&
+              tempEndPoint &&
+              !isAKeyPressed &&
+              !isDKeyPressed
+            "
+            :x1="scaleX(workingGraph.nodes[selectedNodes[0]].x)"
+            :y1="scaleY(workingGraph.nodes[selectedNodes[0]].y)"
+            :x2="tempEndPoint.x"
+            :y2="tempEndPoint.y"
+            stroke="#ff9500"
+            stroke-width="2.5"
+            stroke-dasharray="5,5"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Bottom Panel: Collapsible -->
+    <div class="bottom-panel">
+      <div class="panel-toggle-bar" @click="isControlsCollapsed = !isControlsCollapsed">
+        <div class="edit-instructions">
+          <p v-if="isControlsCollapsed && textboxModeActive">
+            Hold 'e' and hover over lines to label them. Release 'e' and press again for the next
+            label. 's' to save.
+          </p>
+          <p v-else-if="isControlsCollapsed && textlineModeActive">
+            Hold 'a' to connect, 'd' to delete. Press 's' to save & next. Toggle modes with 'w'/'r'.
+          </p>
+          <p v-else-if="isControlsCollapsed && !textlineModeActive && !textboxModeActive">
+            Press 'w' to edit edges, 'r' to label regions.
+          </p>
+          <p v-else-if="textboxModeActive">
+            Hold 'e' to label textlines with the current label. Release and press 'e' again to move
+            to the next label.
+          </p>
+          <p v-else-if="textlineModeActive && !isAKeyPressed && !isDKeyPressed">
+            Select nodes to manage edges, or use hotkeys.
+          </p>
+          <p v-else-if="textlineModeActive && isAKeyPressed">Release 'A' to connect nodes.</p>
+          <p v-else-if="textlineModeActive && isDKeyPressed">Release 'D' to stop deleting.</p>
+        </div>
+        <button class="panel-toggle-btn">
+          {{ isControlsCollapsed ? 'Show Controls' : 'Hide Controls' }}
+        </button>
+      </div>
+
+      <div v-show="!isControlsCollapsed" class="bottom-panel-content">
+        <div v-if="textlineModeActive && !isAKeyPressed && !isDKeyPressed" class="edit-controls">
+          <div class="edit-actions">
+            <button @click="resetSelection">Cancel Selection</button>
+            <button
+              @click="addEdge"
+              :disabled="selectedNodes.length !== 2 || edgeExists(selectedNodes[0], selectedNodes[1])"
+            >
+              Add Edge
+            </button>
+            <button
+              @click="deleteEdge"
+              :disabled="selectedNodes.length !== 2 || !edgeExists(selectedNodes[0], selectedNodes[1])"
+            >
+              Delete Edge
+            </button>
+          </div>
+        </div>
+
+        <div
+          v-if="(textlineModeActive || textboxModeActive) && graphIsLoaded"
+          class="modifications-log-container"
+        >
+          <button @click="saveCurrentGraph" :disabled="loading || isProcessingSave">
+            Save Graph & Labels
+          </button>
+          <div v-if="modifications.length > 0" class="modifications-details">
+            <h3>Modifications ({{ modifications.length }})</h3>
+            <button @click="resetModifications" :disabled="loading">Reset All Changes</button>
+            <ul>
+              <li
+                v-for="(mod, index) in modifications"
+                :key="index"
+                class="modification-item"
+              >
+                {{ mod.type === 'add' ? 'Added' : 'Removed' }} edge: {{ mod.source }} ↔
+                {{ mod.target }}
+                <button @click="undoModification(index)" class="undo-button">Undo</button>
+              </li>
+            </ul>
+          </div>
+          <p v-else-if="!loading">No edge modifications in this session.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+
+<script setup>
+import { ref, onMounted, onBeforeUnmount, computed, watch, reactive } from 'vue'
+import { generateLayoutGraph } from '../layout-analysis-utils/LayoutGraphGenerator.js'
+import { useRouter } from 'vue-router'
+
+const props = defineProps({
+  manuscriptName: {
+    type: String,
+    default: null,
+  },
+  pageName: {
+    type: String,
+    default: null,
+  },
+})
+
+// Define emits so we can tell the parent App when to change the page
+const emit = defineEmits(['page-changed'])
+
+const router = useRouter()
+
+// We determine if we are in specific router flow or the standalone app flow based on props
+const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
+
+const localManuscriptName = ref('')
+const localCurrentPage = ref('')
+const localPageList = ref([])
+
+const loading = ref(true)
+const isProcessingSave = ref(false)
+const error = ref(null)
+const imageData = ref('')
+const imageLoaded = ref(false)
+
+const isToolbarCollapsed = ref(true)
+const isControlsCollapsed = ref(true)
+const textlineModeActive = ref(false)
+const textboxModeActive = ref(false)
+
+const dimensions = ref([0, 0])
+const points = ref([])
+const graph = ref({ nodes: [], edges: [] })
+const workingGraph = reactive({ nodes: [], edges: [] })
+const modifications = ref([])
+const nodeEdgeCounts = ref({})
+const selectedNodes = ref([])
+const tempEndPoint = ref(null)
+const isDKeyPressed = ref(false)
+const isAKeyPressed = ref(false)
+const isEKeyPressed = ref(false) // For holding E
+const hoveredNodesForMST = reactive(new Set())
+const container = ref(null)
+const svgOverlayRef = ref(null)
+
+// --- State for region labeling ---
+const textlineLabels = reactive({}) // Maps node index to a region label (0, 1, 2...)
+const textlines = ref({}) // Maps textline ID to a list of node indices
+const nodeToTextlineMap = ref({}) // Maps node index to its textline ID
+const hoveredTextlineId = ref(null)
+const textboxLabels = ref(0) // The current label to apply (0, 1, 2, ...)
+const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] // Colors for different labels
+
+const scaleFactor = 0.7
+const NODE_HOVER_RADIUS = 7
+const EDGE_HOVER_THRESHOLD = 5
+
+const manuscriptNameForDisplay = computed(() => localManuscriptName.value)
+const currentPageForDisplay = computed(() => localCurrentPage.value)
+const isFirstPage = computed(() => localPageList.value.indexOf(localCurrentPage.value) === 0)
+const isLastPage = computed(
+  () => localPageList.value.indexOf(localCurrentPage.value) === localPageList.value.length - 1
+)
+
+const scaledWidth = computed(() => Math.floor(dimensions.value[0] * scaleFactor))
+const scaledHeight = computed(() => Math.floor(dimensions.value[1] * scaleFactor))
+const scaleX = (x) => x * scaleFactor
+const scaleY = (y) => y * scaleFactor
+const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
+
+const svgCursor = computed(() => {
+  if (textboxModeActive.value) {
+    if (isEKeyPressed.value) return 'crosshair'
+    return 'pointer'
+  }
+  if (!textlineModeActive.value) return 'default'
+  if (isAKeyPressed.value) return 'crosshair'
+  if (isDKeyPressed.value) return 'not-allowed'
+  return 'default'
+})
+
+const computeTextlines = () => {
+  if (!graphIsLoaded.value) {
+    // Safety: If graph isn't loaded, clear lines so we don't show stale data
+    textlines.value = {}
+    nodeToTextlineMap.value = {}
+    return
+  }
+
+  const numNodes = workingGraph.nodes.length
+  const adj = Array(numNodes)
+    .fill(0)
+    .map(() => [])
+
+  // FIX 1: Add bounds checking to prevent crashes on bad data
+  for (const edge of workingGraph.edges) {
+    // Only add the edge if both source and target exist in our node list
+    if (adj[edge.source] && adj[edge.target]) {
+      adj[edge.source].push(edge.target)
+      adj[edge.target].push(edge.source)
+    }
+  }
+
+  const visited = new Array(numNodes).fill(false)
+  const newTextlines = {}
+  const newNodeToTextlineMap = {}
+  let currentTextlineId = 0
+
+  for (let i = 0; i < numNodes; i++) {
+    if (!visited[i]) {
+      const component = []
+      const stack = [i]
+      visited[i] = true
+      while (stack.length > 0) {
+        const u = stack.pop()
+        component.push(u)
+        newNodeToTextlineMap[u] = currentTextlineId
+        for (const v of adj[u]) {
+          if (!visited[v]) {
+            visited[v] = true
+            stack.push(v)
+          }
+        }
+      }
+      newTextlines[currentTextlineId] = component
+      currentTextlineId++
+    }
+  }
+
+  textlines.value = newTextlines
+  nodeToTextlineMap.value = newNodeToTextlineMap
+}
+
+const fetchPageData = async (manuscript, page) => {
+  if (!manuscript || !page) {
+    error.value = 'Manuscript or page not specified.'
+    loading.value = false
+    return
+  }
+  loading.value = true
+  error.value = null
+  modifications.value = []
+  Object.keys(textlineLabels).forEach((key) => delete textlineLabels[key])
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/semi-segment/${manuscript}/${page}`
+    )
+    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch page data')
+    const data = await response.json()
+
+    dimensions.value = data.dimensions
+    imageData.value = data.image || ''
+    points.value = data.points.map((p) => ({ coordinates: [p[0], p[1]], segment: null }))
+
+    if (data.graph) {
+      graph.value = data.graph
+    } else if (data.points?.length > 0) {
+      graph.value = generateLayoutGraph(data.points)
+      if (!isEditModeFlow.value) {
+        await saveGeneratedGraph(manuscript, page, graph.value)
+      }
+    }
+    if (data.textline_labels) {
+      data.textline_labels.forEach((label, index) => {
+        if (label !== -1) {
+          textlineLabels[index] = label
+        }
+      })
+    }
+
+    resetWorkingGraph()
+  } catch (err) {
+    console.error('Error fetching page data:', err)
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+}
+
+const fetchPageList = async (manuscript) => {
+  if (!manuscript) return
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/manuscript/${manuscript}/pages`
+    )
+    if (!response.ok) throw new Error('Failed to fetch page list')
+    localPageList.value = await response.json()
+  } catch (err) {
+    console.error('Failed to fetch page list:', err)
+    localPageList.value = []
+  }
+}
+
+const updateUniqueNodeEdgeCounts = () => {
+  const counts = {}
+  if (!workingGraph.nodes) return
+  workingGraph.nodes.forEach((_, index) => {
+    counts[index] = 0
+  })
+
+  if (!workingGraph.edges) {
+    nodeEdgeCounts.value = counts
+    return
+  }
+
+  const uniqueEdges = new Set()
+  for (const edge of workingGraph.edges) {
+    const key = `${Math.min(edge.source, edge.target)}-${Math.max(edge.source, edge.target)}`
+    uniqueEdges.add(key)
+  }
+
+  for (const key of uniqueEdges) {
+    const [source, target] = key.split('-').map(Number)
+    if (counts[source] !== undefined) counts[source]++
+    if (counts[target] !== undefined) counts[target]++
+  }
+
+  nodeEdgeCounts.value = counts
+}
+
+watch(
+  [() => workingGraph.edges, () => workingGraph.nodes],
+  () => {
+    updateUniqueNodeEdgeCounts()
+    computeTextlines()
+  },
+  { deep: true, immediate: true }
+)
+
+const resetWorkingGraph = () => {
+  workingGraph.nodes = JSON.parse(JSON.stringify(graph.value.nodes || []))
+  workingGraph.edges = JSON.parse(JSON.stringify(graph.value.edges || []))
+  resetSelection()
+  computeTextlines()
+}
+
+const getNodeColor = (nodeIndex) => {
+  const textlineId = nodeToTextlineMap.value[nodeIndex]
+
+  if (textboxModeActive.value) {
+    if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
+      return '#ff4081' // Hot pink for hovered textline
+    }
+    const label = textlineLabels[nodeIndex]
+    if (label !== undefined && label > -1) {
+      return labelColors[label % labelColors.length]
+    }
+    return '#9e9e9e' // Grey for unlabeled nodes in this mode
+  }
+
+  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#00bcd4'
+  if (isNodeSelected(nodeIndex)) return '#ff9500'
+
+  const edgeCount = nodeEdgeCounts.value[nodeIndex]
+  if (edgeCount < 2) return '#f44336'
+  if (edgeCount === 2) return '#4CAF50'
+  if (edgeCount > 2) return '#2196F3'
+  return '#cccccc'
+}
+const getNodeRadius = (nodeIndex) => {
+  if (textboxModeActive.value) {
+    const textlineId = nodeToTextlineMap.value[nodeIndex]
+    if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
+      return 7
+    }
+    return 5
+  }
+
+  const edgeCount = nodeEdgeCounts.value[nodeIndex]
+  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return 7
+  if (isNodeSelected(nodeIndex)) return 6
+  return edgeCount < 2 ? 5 : 3
+}
+const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#ffffff')
+const isNodeSelected = (nodeIndex) => selectedNodes.value.includes(nodeIndex)
+const isEdgeSelected = (edge) => {
+  return (
+    selectedNodes.value.length === 2 &&
+    ((selectedNodes.value[0] === edge.source && selectedNodes.value[1] === edge.target) ||
+      (selectedNodes.value[0] === edge.target && selectedNodes.value[1] === edge.source))
+  )
+}
+
+const resetSelection = () => {
+  selectedNodes.value = []
+  tempEndPoint.value = null
+}
+const onNodeClick = (nodeIndex, event) => {
+  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
+  event.stopPropagation()
+  const existingIndex = selectedNodes.value.indexOf(nodeIndex)
+  if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1)
+  else
+    selectedNodes.value.length < 2
+      ? selectedNodes.value.push(nodeIndex)
+      : (selectedNodes.value = [nodeIndex])
+}
+const onEdgeClick = (edge, event) => {
+  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
+  event.stopPropagation()
+  selectedNodes.value = [edge.source, edge.target]
+}
+const onBackgroundClick = () => {
+  if (!isAKeyPressed.value && !isDKeyPressed.value) resetSelection()
+}
+
+const handleSvgMouseMove = (event) => {
+  if (!svgOverlayRef.value) return
+  const { left, top } = svgOverlayRef.value.getBoundingClientRect()
+  const mouseX = event.clientX - left
+  const mouseY = event.clientY - top
+
+  if (textboxModeActive.value) {
+    let newHoveredTextlineId = null
+
+    // 1. Check for node hover first (more precise)
+    for (let i = 0; i < workingGraph.nodes.length; i++) {
+      const node = workingGraph.nodes[i]
+      if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < NODE_HOVER_RADIUS) {
+        newHoveredTextlineId = nodeToTextlineMap.value[i]
+        break // Exit loop once found
+      }
+    }
+
+    // 2. If no node hovered, check for edge hover
+    if (newHoveredTextlineId === null) {
+      for (const edge of workingGraph.edges) {
+        const n1 = workingGraph.nodes[edge.source]
+        const n2 = workingGraph.nodes[edge.target]
+        if (
+          n1 &&
+          n2 &&
+          distanceToLineSegment(
+            mouseX,
+            mouseY,
+            scaleX(n1.x),
+            scaleY(n1.y),
+            scaleX(n2.x),
+            scaleY(n2.y)
+          ) < EDGE_HOVER_THRESHOLD
+        ) {
+          // An edge connects two nodes of the same textline, so we can use either.
+          newHoveredTextlineId = nodeToTextlineMap.value[edge.source]
+          break // Exit loop once found
+        }
+      }
+    }
+
+    // 3. Update the hovered textline ID
+    hoveredTextlineId.value = newHoveredTextlineId
+
+    // 4. Apply label if key is pressed
+    if (hoveredTextlineId.value !== null && isEKeyPressed.value) {
+      labelTextline()
+    }
+    return
+  }
+
+  if (!textlineModeActive.value) return
+  if (isDKeyPressed.value) handleEdgeHoverDelete(mouseX, mouseY)
+  else if (isAKeyPressed.value) handleNodeHoverCollect(mouseX, mouseY)
+  else if (selectedNodes.value.length === 1) tempEndPoint.value = { x: mouseX, y: mouseY }
+  else tempEndPoint.value = null
+}
+
+const handleSvgMouseLeave = () => {
+  if (selectedNodes.value.length === 1) tempEndPoint.value = null
+  hoveredTextlineId.value = null
+}
+
+const labelTextline = () => {
+  if (hoveredTextlineId.value === null) return
+  const nodesToLabel = textlines.value[hoveredTextlineId.value]
+  if (nodesToLabel) {
+    nodesToLabel.forEach((nodeIndex) => {
+      textlineLabels[nodeIndex] = textboxLabels.value
+    })
+  }
+}
+
+const handleGlobalKeyDown = (e) => {
+  const key = e.key.toLowerCase()
+
+  // General hotkeys that work in multiple modes
+  if (key === 's' && !e.repeat) {
+    if (
+      (textlineModeActive.value || textboxModeActive.value) &&
+      !loading.value &&
+      !isProcessingSave.value
+    ) {
+      e.preventDefault()
+      saveAndGoNext()
+    }
+    return
+  }
+  if (key === 'w' && !e.repeat) {
+    e.preventDefault()
+    textlineModeActive.value = !textlineModeActive.value
+    return
+  }
+  if (key === 'r' && !e.repeat) {
+    e.preventDefault()
+    textboxModeActive.value = !textboxModeActive.value
+    return
+  }
+
+  // Region labeling specific hotkeys
+  if (textboxModeActive.value && !e.repeat) {
+    if (key === 'e') {
+      e.preventDefault()
+      isEKeyPressed.value = true
+    }
+    return
+  }
+
+  // Edge editing specific hotkeys
+  if (!textlineModeActive.value || e.repeat) return
+
+  if (key === 'd') {
+    e.preventDefault()
+    isDKeyPressed.value = true
+    resetSelection()
+  }
+  if (key === 'a') {
+    e.preventDefault()
+    isAKeyPressed.value = true
+    hoveredNodesForMST.clear()
+    resetSelection()
+  }
+}
+
+const handleGlobalKeyUp = (e) => {
+  const key = e.key.toLowerCase()
+
+  if (textboxModeActive.value && key === 'e') {
+    isEKeyPressed.value = false
+    textboxLabels.value++ // Increment label for the next group
+  }
+
+  if (!textlineModeActive.value) return
+
+  if (key === 'd') isDKeyPressed.value = false
+  if (key === 'a') {
+    isAKeyPressed.value = false
+    if (hoveredNodesForMST.size >= 2) addMSTEdges()
+    hoveredNodesForMST.clear()
+  }
+}
+
+const edgeExists = (nodeA, nodeB) =>
+  workingGraph.edges.some(
+    (e) =>
+      (e.source === nodeA && e.target === nodeB) || (e.source === nodeB && e.target === nodeA)
+  )
+const addEdge = () => {
+  if (selectedNodes.value.length !== 2 || edgeExists(...selectedNodes.value)) return
+  const [source, target] = selectedNodes.value
+  const newEdge = { source, target, label: 0, modified: true }
+  workingGraph.edges.push(newEdge)
+  modifications.value.push({ type: 'add', source, target, label: 0 })
+  resetSelection()
+}
+const deleteEdge = () => {
+  if (selectedNodes.value.length !== 2) return
+  const [source, target] = selectedNodes.value
+  const edgeIndex = workingGraph.edges.findIndex(
+    (e) =>
+      (e.source === source && e.target === target) || (e.source === target && e.target === source)
+  )
+  if (edgeIndex === -1) return
+  const removedEdge = workingGraph.edges.splice(edgeIndex, 1)[0]
+  modifications.value.push({
+    type: 'delete',
+    source: removedEdge.source,
+    target: removedEdge.target,
+    label: removedEdge.label,
+  })
+  resetSelection()
+}
+const undoModification = (index) => {
+  const mod = modifications.value.splice(index, 1)[0]
+  if (mod.type === 'add') {
+    const edgeIndex = workingGraph.edges.findIndex(
+      (e) => e.source === mod.source && e.target === mod.target
+    )
+    if (edgeIndex !== -1) workingGraph.edges.splice(edgeIndex, 1)
+  } else if (mod.type === 'delete') {
+    workingGraph.edges.push({
+      source: mod.source,
+      target: mod.target,
+      label: mod.label,
+      modified: true,
+    })
+  }
+}
+const resetModifications = () => {
+  resetWorkingGraph()
+  modifications.value = []
+}
+
+const distanceToLineSegment = (px, py, x1, y1, x2, y2) =>
+  Math.hypot(
+    px -
+      (x1 +
+        Math.max(
+          0,
+          Math.min(
+            1,
+            ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) /
+              (Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) || 1)
+          )
+        ) *
+          (x2 - x1)),
+    py -
+      (y1 +
+        Math.max(
+          0,
+          Math.min(
+            1,
+            ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) /
+              (Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) || 1)
+          )
+        ) *
+          (y2 - y1))
+  )
+const handleEdgeHoverDelete = (mouseX, mouseY) => {
+  for (let i = workingGraph.edges.length - 1; i >= 0; i--) {
+    const edge = workingGraph.edges[i]
+    const n1 = workingGraph.nodes[edge.source],
+      n2 = workingGraph.nodes[edge.target]
+    if (
+      n1 &&
+      n2 &&
+      distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) <
+        EDGE_HOVER_THRESHOLD
+    ) {
+      const removed = workingGraph.edges.splice(i, 1)[0]
+      modifications.value.push({
+        type: 'delete',
+        source: removed.source,
+        target: removed.target,
+        label: removed.label,
+      })
+    }
+  }
+}
+const handleNodeHoverCollect = (mouseX, mouseY) => {
+  workingGraph.nodes.forEach((node, index) => {
+    if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < NODE_HOVER_RADIUS)
+      hoveredNodesForMST.add(index)
+  })
+}
+const calculateMST = (indices, nodes) => {
+  const points = indices.map((i) => ({ ...nodes[i], originalIndex: i }))
+  const edges = []
+  for (let i = 0; i < points.length; i++)
+    for (let j = i + 1; j < points.length; j++) {
+      edges.push({
+        source: points[i].originalIndex,
+        target: points[j].originalIndex,
+        weight: Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y),
+      })
+    }
+  edges.sort((a, b) => a.weight - b.weight)
+  const parent = {}
+  indices.forEach((i) => (parent[i] = i))
+  const find = (i) => (parent[i] === i ? i : (parent[i] = find(parent[i])))
+  const union = (i, j) => {
+    const rootI = find(i),
+      rootJ = find(j)
+    if (rootI !== rootJ) {
+      parent[rootJ] = rootI
+      return true
+    }
+    return false
+  }
+  return edges.filter((e) => union(e.source, e.target))
+}
+const addMSTEdges = () => {
+  calculateMST(Array.from(hoveredNodesForMST), workingGraph.nodes).forEach((edge) => {
+    if (!edgeExists(edge.source, edge.target)) {
+      const newEdge = { source: edge.source, target: edge.target, label: 0, modified: true }
+      workingGraph.edges.push(newEdge)
+      modifications.value.push({ type: 'add', ...newEdge })
+    }
+  })
+}
+
+const saveGeneratedGraph = async (name, page, g) => {
+  try {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/save-graph/${name}/${page}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ graph: g }),
+    })
+  } catch (e) {
+    console.error('Error saving generated graph:', e)
+  }
+}
+
+const saveModifications = async () => {
+  const numNodes = workingGraph.nodes.length
+  const labelsToSend = new Array(numNodes).fill(-1)
+  for (const nodeIndex in textlineLabels) {
+    labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
+  }
+
+  const requestBody = {
+    graph: workingGraph,
+    modifications: modifications.value,
+    textlineLabels: labelsToSend,
+  }
+
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/semi-segment/${localManuscriptName.value}/${localCurrentPage.value}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      }
+    )
+    if (!res.ok) throw new Error((await res.json()).error || 'Save failed')
+    
+    // Success handling
+    const data = await res.json()
+    graph.value = JSON.parse(JSON.stringify(workingGraph))
+    modifications.value = []
+    error.value = null
+  } catch (err) {
+    error.value = err.message
+    throw err
+  }
+}
+
+const saveCurrentGraph = async () => {
+  if (isProcessingSave.value) return
+  isProcessingSave.value = true
+  try {
+    await saveModifications()
+    // alert('Graph and labels saved!')
+  } catch (err) {
+    alert(`Save failed: ${err.message}`)
+  } finally {
+    isProcessingSave.value = false
+  }
+}
+
+const confirmAndNavigate = async (navAction) => {
+  if (isProcessingSave.value) return
+  if (modifications.value.length > 0) {
+    if (confirm('You have unsaved changes. Do you want to save them before navigating?')) {
+      isProcessingSave.value = true
+      try {
+        await saveModifications()
+        navAction()
+      } catch (err) {
+        alert('Save failed, navigation cancelled.')
+      } finally {
+        isProcessingSave.value = false
+      }
+    } else {
+      modifications.value = []
+      navAction()
+    }
+  } else {
+    navAction()
+  }
+}
+
+const navigateToPage = (page) => {
+  // If we are in the standalone/embedded flow, tell the parent to switch
+  emit('page-changed', page)
+}
+
+const previousPage = () =>
+  confirmAndNavigate(() => {
+    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
+    if (currentIndex > 0) {
+      navigateToPage(localPageList.value[currentIndex - 1])
+    }
+  })
+
+const nextPage = () =>
+  confirmAndNavigate(() => {
+    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
+    if (currentIndex < localPageList.value.length - 1) {
+      navigateToPage(localPageList.value[currentIndex + 1])
+    }
+  })
+const goToIMG2TXTPage = () => {
+  if (isEditModeFlow.value) {
+    alert(
+      "Text annotation is part of the 'New Manuscript' flow. This action is disabled in edit mode."
+    )
+    return
+  }
+  confirmAndNavigate(() => router.push({ name: 'img-2-txt' }))
+}
+
+const saveAndGoNext = async () => {
+  if (loading.value || isProcessingSave.value) return
+  isProcessingSave.value = true
+  try {
+    await saveModifications()
+    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
+    if (currentIndex < localPageList.value.length - 1) {
+      navigateToPage(localPageList.value[currentIndex + 1])
+    } else {
+      alert('This was the Last page. Saved successfully!')
+    }
+  } catch (err) {
+    alert(`Save failed: ${err.message}`)
+  } finally {
+    isProcessingSave.value = false
+  }
+}
+
+const runHeuristic = () => {
+  if(!points.value.length) return;
+  // Convert points format for LayoutGraphGenerator
+  // Expected: [[x,y,s], ...]
+  // We approximate size as 10 if not present, but usually 'points' has simple coords
+  const rawPoints = points.value.map(p => [p.coordinates[0], p.coordinates[1], 10]); 
+  
+  const heuristicGraph = generateLayoutGraph(rawPoints);
+  
+  // Update workingGraph
+  workingGraph.edges = heuristicGraph.edges.map(e => ({
+     source: e.source, 
+     target: e.target, 
+     label: e.label, 
+     modified: true 
+  }));
+  
+  modifications.value.push({ type: 'reset_heuristic' }); // Marker for tracking
+  computeTextlines();
+}
+
+onMounted(async () => {
+  // Always respect props first in this semi-autonomous mode
+  if (props.manuscriptName && props.pageName) {
+    localManuscriptName.value = props.manuscriptName
+    localCurrentPage.value = props.pageName
+    await fetchPageList(props.manuscriptName)
+    await fetchPageData(props.manuscriptName, props.pageName)
+  }
+
+  window.addEventListener('keydown', handleGlobalKeyDown)
+  window.addEventListener('keyup', handleGlobalKeyUp)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalKeyDown)
+  window.removeEventListener('keyup', handleGlobalKeyUp)
+})
+
+watch(
+  () => props.pageName,
+  (newPageName) => {
+    if (newPageName && newPageName !== localCurrentPage.value) {
+      localCurrentPage.value = newPageName
+      fetchPageData(localManuscriptName.value, newPageName)
+    }
+  }
+)
+
+watch(textlineModeActive, (isEditing) => {
+  if (isEditing) textboxModeActive.value = false
+  if (!isEditing) {
+    resetSelection()
+    isAKeyPressed.value = false
+    isDKeyPressed.value = false
+    hoveredNodesForMST.clear()
+  }
+})
+
+watch(textboxModeActive, (isLabeling) => {
+  if (isLabeling) {
+    console.log('Entering Region Labeling mode.')
+    textlineModeActive.value = false
+    resetSelection()
+
+    // Ensure the next label index is unique by checking existing labels
+    const existingLabels = Object.values(textlineLabels)
+    if (existingLabels.length > 0) {
+      // Find the maximum label value currently in use and add 1
+      const maxLabel = Math.max(...existingLabels)
+      textboxLabels.value = maxLabel + 1
+      console.log(`Resuming labeling. Next available label index: ${textboxLabels.value}`)
+    } else {
+      // No labels exist yet, start from 0
+      textboxLabels.value = 0
+      console.log('No existing labels. Starting new labeling at index: 0')
+    }
+  } else {
+    console.log('Exiting Region Labeling mode.')
+  }
+  hoveredTextlineId.value = null
+})
+</script>
+
+
+
+
+
+<style scoped>
+.manuscript-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #333;
+  color: #fff;
+}
+
+/* --- Toolbar --- */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #424242;
+  border-bottom: 1px solid #555;
+  flex-shrink: 0;
+  gap: 16px;
+}
+.toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.toggle-container {
+  display: flex;
+  align-items: center;
+  background-color: #3a3a3a;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* --- Main Visualization Area --- */
+.visualization-container {
+  position: relative;
+  overflow: auto;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem;
+}
+.image-container {
+  position: relative;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+.manuscript-image {
+  display: block;
+  user-select: none;
+  opacity: 0.7;
+}
+.graph-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+}
+.graph-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* --- Bottom Panel --- */
+.bottom-panel {
+  background-color: #4f4f4f;
+  border-top: 1px solid #555;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+.panel-toggle-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.edit-instructions p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #ccc;
+  font-style: italic;
+}
+.bottom-panel-content {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.edit-controls,
+.modifications-log-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* --- UI Elements & States --- */
+.panel-toggle-btn {
+  padding: 4px 10px;
+  font-size: 0.8em;
+  background-color: #616161;
+  border: 1px solid #757575;
+}
+.processing-save-notice,
+.loading,
+.error-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px 30px;
+  border-radius: 8px;
+  z-index: 10000;
+  text-align: center;
+}
+.processing-save-notice {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+.error-message {
+  background-color: #c62828;
+}
+.loading {
+  font-size: 1.2rem;
+  color: #aaa;
+  background: none;
+}
+button {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid #666;
+  background-color: #555;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+button:hover:not(:disabled) {
+  background-color: #6a6a6a;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Modifications Log --- */
+.modifications-details {
+  flex-grow: 1;
+}
+.modifications-details h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1em;
+  color: #eee;
+}
+.modifications-details ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 120px;
+  overflow-y: auto;
+  border: 1px solid #666;
+  background-color: #3e3e3e;
+  border-radius: 3px;
+}
+.modification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #555;
+  font-size: 0.9em;
+}
+.modification-item:last-child {
+  border-bottom: none;
+}
+.undo-button {
+  background-color: #6d6d3d;
+  border-color: #888855;
+}
+.undo-button:hover:not(:disabled) {
+  background-color: #7a7a4a;
+}
+</style>
+---
+my-app/src/layout-analysis-utils/LayoutGraphGenerator.js
+---
+/**
+ * Build a KD-Tree for fast neighbor lookup
+ */
+class KDTree {
+  constructor(points) {
+    this.points = points;
+    this.tree = this.buildTree(points.map((p, i) => ({ point: p, index: i })), 0);
+  }
+
+  buildTree(points, depth) {
+    if (points.length === 0) return null;
+    if (points.length === 1) return points[0];
+
+    const k = 2; // 2D points
+    const axis = depth % k;
+    
+    points.sort((a, b) => a.point[axis] - b.point[axis]);
+    const median = Math.floor(points.length / 2);
+    
+    return {
+      point: points[median].point,
+      index: points[median].index,
+      left: this.buildTree(points.slice(0, median), depth + 1),
+      right: this.buildTree(points.slice(median + 1), depth + 1),
+      axis: axis
+    };
+  }
+
+  query(queryPoint, k) {
+    const best = [];
+    
+    const search = (node, depth) => {
+      if (!node) return;
+      
+      const distance = this.euclideanDistance(queryPoint, node.point);
+      
+      if (best.length < k) {
+        best.push({ distance, index: node.index });
+        best.sort((a, b) => a.distance - b.distance);
+      } else if (distance < best[best.length - 1].distance) {
+        best[best.length - 1] = { distance, index: node.index };
+        best.sort((a, b) => a.distance - b.distance);
+      }
+      
+      const axis = depth % 2;
+      const diff = queryPoint[axis] - node.point[axis];
+      
+      const closer = diff < 0 ? node.left : node.right;
+      const farther = diff < 0 ? node.right : node.left;
+      
+      search(closer, depth + 1);
+      
+      if (best.length < k || Math.abs(diff) < best[best.length - 1].distance) {
+        search(farther, depth + 1);
+      }
+    };
+    
+    search(this.tree, 0);
+    return best.map(b => b.index);
+  }
+
+  euclideanDistance(p1, p2) {
+    return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
+  }
+}
+
+/**
+ * DBSCAN clustering implementation to identify majority cluster and outliers
+ */
+function clusterWithSingleMajority(toCluster, eps = 10, minSamples = 2) {
+  if (toCluster.length === 0) return [];
+  
+  // DBSCAN implementation
+  const labels = dbscan(toCluster, eps, minSamples);
+  
+  // Count the occurrences of each label
+  const labelCounts = {};
+  labels.forEach(label => {
+    labelCounts[label] = (labelCounts[label] || 0) + 1;
+  });
+  
+  // Find the majority cluster label (excluding -1 outliers)
+  let majorityLabel = null;
+  let maxCount = 0;
+  
+  for (const [label, count] of Object.entries(labelCounts)) {
+    const labelNum = parseInt(label);
+    if (labelNum !== -1 && count > maxCount) {
+      majorityLabel = labelNum;
+      maxCount = count;
+    }
+  }
+  
+  // Create a new label array where the majority cluster is 0 and all others are -1
+  const newLabels = new Array(labels.length).fill(-1); // Initialize all as outliers
+  
+  if (majorityLabel !== null) {
+    for (let i = 0; i < labels.length; i++) {
+      if (labels[i] === majorityLabel) {
+        newLabels[i] = 0; // Assign 0 to the majority cluster
+      }
+    }
+  }
+  
+  return newLabels;
+}
+
+/**
+ * DBSCAN clustering algorithm implementation
+ */
+function dbscan(points, eps, minSamples) {
+  const labels = new Array(points.length).fill(-1); // -1 means unclassified
+  let clusterId = 0;
+  
+  for (let i = 0; i < points.length; i++) {
+    if (labels[i] !== -1) continue; // Already processed
+    
+    const neighbors = getNeighbors(points, i, eps);
+    
+    if (neighbors.length < minSamples) {
+      labels[i] = -1; // Mark as noise/outlier
+    } else {
+      // Start a new cluster
+      expandCluster(points, labels, i, neighbors, clusterId, eps, minSamples);
+      clusterId++;
+    }
+  }
+  
+  return labels;
+}
+
+/**
+ * Get neighbors within eps distance
+ */
+function getNeighbors(points, pointIndex, eps) {
+  const neighbors = [];
+  const point = points[pointIndex];
+  
+  for (let i = 0; i < points.length; i++) {
+    if (euclideanDistance(point, points[i]) <= eps) {
+      neighbors.push(i);
+    }
+  }
+  
+  return neighbors;
+}
+
+/**
+ * Expand cluster by adding density-reachable points
+ */
+function expandCluster(points, labels, pointIndex, neighbors, clusterId, eps, minSamples) {
+  labels[pointIndex] = clusterId;
+  
+  let i = 0;
+  while (i < neighbors.length) {
+    const neighborIndex = neighbors[i];
+    
+    if (labels[neighborIndex] === -1) {
+      labels[neighborIndex] = clusterId;
+      
+      const neighborNeighbors = getNeighbors(points, neighborIndex, eps);
+      if (neighborNeighbors.length >= minSamples) {
+        // Add new neighbors to the list (union operation)
+        for (const newNeighbor of neighborNeighbors) {
+          if (!neighbors.includes(newNeighbor)) {
+            neighbors.push(newNeighbor);
+          }
+        }
+      }
+    }
+    
+    i++;
+  }
+}
+
+function euclideanDistance(p1, p2) {
+  return Math.sqrt(p1.reduce((sum, val, i) => sum + (val - p2[i]) ** 2, 0));
+}
+
+/**
+ * Generate a graph representation of text layout based on points.
+ * This function implements the core layout analysis logic.
+ */
+export function generateLayoutGraph(points) { // TODO ADD FEATURES
+  const NUM_NEIGHBOURS = 6;
+  const cos_similarity_less_than = -0.8;
+  
+  // Build a KD-tree for fast neighbor lookup
+  const tree = new KDTree(points);
+  const indices = points.map((point, i) => tree.query(point, NUM_NEIGHBOURS));
+  
+  // Store graph edges and their properties
+  const edges = [];
+  const edgeProperties = [];
+  
+  // Process nearest neighbors
+  for (let currentPointIndex = 0; currentPointIndex < indices.length; currentPointIndex++) {
+    const nbrIndices = indices[currentPointIndex];
+    const currentPoint = points[currentPointIndex];
+    
+    const normalizedPoints = nbrIndices.map(idx => [
+      points[idx][0] - currentPoint[0],
+      points[idx][1] - currentPoint[1]
+    ]);
+    
+    const scalingFactor = Math.max(...normalizedPoints.flat().map(Math.abs)) || 1;
+    const scaledPoints = normalizedPoints.map(np => [np[0] / scalingFactor, np[1] / scalingFactor]);
+    
+    // Create a list of relative neighbors with their global indices
+    const relativeNeighbours = nbrIndices.map((globalIdx, i) => ({
+      globalIdx,
+      scaledPoint: scaledPoints[i],
+      normalizedPoint: normalizedPoints[i]
+    }));
+    
+    const filteredNeighbours = [];
+    
+    for (let i = 0; i < relativeNeighbours.length; i++) {
+      for (let j = i + 1; j < relativeNeighbours.length; j++) {
+        const neighbor1 = relativeNeighbours[i];
+        const neighbor2 = relativeNeighbours[j];
+        
+        const norm1 = Math.sqrt(neighbor1.scaledPoint[0] ** 2 + neighbor1.scaledPoint[1] ** 2);
+        const norm2 = Math.sqrt(neighbor2.scaledPoint[0] ** 2 + neighbor2.scaledPoint[1] ** 2);
+        
+        let cosSimilarity = 0.0;
+        if (norm1 * norm2 !== 0) {
+          const dotProduct = neighbor1.scaledPoint[0] * neighbor2.scaledPoint[0] + 
+                           neighbor1.scaledPoint[1] * neighbor2.scaledPoint[1];
+          cosSimilarity = dotProduct / (norm1 * norm2);
+        }
+        
+        // Calculate non-normalized distances
+        const norm1Real = Math.sqrt(neighbor1.normalizedPoint[0] ** 2 + neighbor1.normalizedPoint[1] ** 2);
+        const norm2Real = Math.sqrt(neighbor2.normalizedPoint[0] ** 2 + neighbor2.normalizedPoint[1] ** 2);
+        const totalLength = norm1Real + norm2Real;
+        
+        // Select pairs with angles close to 180 degrees (opposite directions)
+        if (cosSimilarity < cos_similarity_less_than) {
+          filteredNeighbours.push({
+            neighbor1,
+            neighbor2,
+            totalLength,
+            cosSimilarity
+          });
+        }
+      }
+    }
+    
+    if (filteredNeighbours.length > 0) {
+      // Find the shortest total length pair
+      const shortestPair = filteredNeighbours.reduce((min, curr) => 
+        curr.totalLength < min.totalLength ? curr : min
+      );
+      
+      const { neighbor1: connection1, neighbor2: connection2, totalLength, cosSimilarity } = shortestPair;
+      
+      // Calculate angles with x-axis
+      const thetaA = Math.atan2(connection1.normalizedPoint[1], connection1.normalizedPoint[0]) * 180 / Math.PI;
+      const thetaB = Math.atan2(connection2.normalizedPoint[1], connection2.normalizedPoint[0]) * 180 / Math.PI;
+      
+      // Add edges to the graph
+      edges.push([currentPointIndex, connection1.globalIdx]);
+      edges.push([currentPointIndex, connection2.globalIdx]);
+      
+      // Calculate feature values for clustering
+      const yDiff1 = Math.abs(connection1.normalizedPoint[1]);
+      const yDiff2 = Math.abs(connection2.normalizedPoint[1]);
+      const avgYDiff = (yDiff1 + yDiff2) / 2;
+      
+      const xDiff1 = Math.abs(connection1.normalizedPoint[0]);
+      const xDiff2 = Math.abs(connection2.normalizedPoint[0]);
+      const avgXDiff = (xDiff1 + xDiff2) / 2;
+      
+      // Calculate aspect ratio (height/width)
+      const aspectRatio = avgYDiff / Math.max(avgXDiff, 0.001);
+      
+      // Calculate vertical alignment consistency
+      const vertConsistency = Math.abs(yDiff1 - yDiff2);
+      
+      // Store edge properties for clustering
+      edgeProperties.push([
+        totalLength,
+        Math.abs(thetaA + thetaB),
+        // aspectRatio,
+        // vertConsistency,
+        // avgYDiff
+      ]);
+    }
+  }
+  
+  // Cluster the edges based on their properties
+  const edgeLabels = clusterWithSingleMajority(edgeProperties);
+  
+  // Create a mask for edges that are not outliers (label != -1)
+  const nonOutlierMask = edgeLabels.map(label => label !== -1);
+  
+  // Prepare the final graph structure
+  const graphData = {
+    nodes: points.map((point, i) => ({
+      id: i,
+      x: parseFloat(point[0]),
+      y: parseFloat(point[1]),
+      s: parseFloat(point[2]),
+    })),
+    edges: []
+  };
+  
+  // Add edges with their labels, filtering out outliers
+  for (let i = 0; i < edges.length; i++) {
+    const edge = edges[i];
+    // Determine the corresponding edge label using division by 2 (each edge appears twice)
+    const labelIndex = Math.floor(i / 2);
+    const edgeLabel = edgeLabels[labelIndex];
+    
+    // Only add the edge if it is not an outlier
+    if (nonOutlierMask[labelIndex]) {
+      graphData.edges.push({
+        source: parseInt(edge[0]),
+        target: parseInt(edge[1]),
+        label: parseInt(edgeLabel)
+      });
+    }
+  }
+  
+  return graphData;
+}
+---
+my-app/src/main.ts
+---
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+
+app.mount('#app')
+
+---
+my-app/src/router/index.ts
+---
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [],
+})
+
+export default router
+
+---
+my-app/src/stores/counter.ts
+---
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+
+export const useCounterStore = defineStore('counter', () => {
+  const count = ref(0)
+  const doubleCount = computed(() => count.value * 2)
+  function increment() {
+    count.value++
+  }
+
+  return { count, doubleCount, increment }
+})
+
+---
+my-app/tsconfig.app.json
+---
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+
+---
+my-app/tsconfig.json
+---
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+
+---
+my-app/tsconfig.node.json
+---
+{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "cypress.config.*",
+    "nightwatch.conf.*",
+    "playwright.config.*",
+    "eslint.config.*"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"]
+  }
+}
+
+---
+my-app/vite.config.ts
+---
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+    vueDevTools(),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    },
+  },
+})
 
 ---
 pretrained_gnn/gnn_preprocessing_v2.yaml
@@ -3401,51 +5560,33 @@ sklearn_format:
 ---
 README.md
 ---
-# Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data
+## **Semi-Autonomous Mode (Human-in-the-Loop)**
+
+To run the application with a user interface for verification and correction:
 
 
-**Version:** 2.0
-**Last Updated:** Jan 8, 2026
+#### 1 Install Conda Environment
+    ```bash
+    cd app
+    conda env create -f environment.yaml
+    conda activate gnn_layout
+    ```
 
-## **Project Components**
-*   **💻 [Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-stand-alone-out-of-the-box-inference):** Run stand-alone inference
+#### 2 Start Backend Server
+    ```bash
+    cd app
+    conda activate gnn_layout
+    python app.py
+    ```
+    The server runs on `http://localhost:5000`.
 
-## **How to Use**
-###  Stand-alone Out-of-the-box Inference
-#### 🔵 Install Conda Environment
-```bash
-cd src
-conda env create -f environment.yaml
-conda activate gnn_layout
-```
-
-```bash
-cd src/gnn_inference
-python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
-```
-
-This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format, and as individual line images.
-
-> **NOTE 1:**  
-> This project is made for Handwritten Sanskrit Manuscripts in Devanagari script, however it will work reasonibly well on other scripts if they fit the following criteria:
-> 1) [CRAFT](https://github.com/clovaai/CRAFT-pytorch) successfully detects the script characters  
-> 2) Character spacing is less than Line spacing.
-
-> **NOTE 2:**  
-> `sample_manuscript_1/` and `sample_manuscript_2` contain high resolution images and will work out of the box. However, `sample_manuscript_3/` contains lower resolution images - for whom the feature engineering parameter `min_distance` in `src/gnn_inference/segmentation/segment_graph.py` will need to be adjusted as follows:  
->  
-> `raw_points = heatmap_to_pointcloud(region_score, min_peak_value=0.4, min_distance=10)`
-
-> **NOTE 3:**  
-> The inference code resizes very large images to `2500` longest side for processing to reduce the GPU memory requirements and to standardize the feature extraction process. If you wish to change this limit, you can do so in `src/gnn_inference/inference.py` at the following lines:
-> ```python
-> target_longest_side = 2500
-> ```
-> However, this is also require adjusting the feature extraction parameter `min_distance` in `src/gnn_inference/segmentation/segment_graph.py` accordingly.
-
-
-## Acknowledgements
-We would like to thank Petar Veličković, Oliver Hellwig, Dhavel Patel for their extermely valuable inputs and discussions.
+#### 3 Start Frontend
+    ```bash
+    cd app/my-app
+    npm install
+    npm run dev
+    ```
+    Access the UI at `http://localhost:5173`.
 
 ---
 segmentation/craft.py
@@ -4501,3 +6642,4 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
     print(f"Successfully generated {len(line_polygons_data)} line images and polygon data.")
     return line_polygons_data
 ---
+

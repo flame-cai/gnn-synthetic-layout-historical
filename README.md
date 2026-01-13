@@ -25,7 +25,7 @@ cd src/gnn_inference
 python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 ```
 
-This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/segmented_lines/` in PAGE_XML format, GNN format, and as individual line images.
+This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/layout_analysis_output/` in PAGE_XML format, GNN format, and as individual line images.
 
 > **NOTE 1:**  
 > This project is made for Handwritten Sanskrit Manuscripts in Devanagari script, however it will work reasonibly well on other scripts if they fit the following criteria:

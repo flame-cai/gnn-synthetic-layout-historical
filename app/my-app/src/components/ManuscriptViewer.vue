@@ -261,7 +261,7 @@ const hoveredTextlineId = ref(null)
 const textboxLabels = ref(0) // The current label to apply (0, 1, 2, ...)
 const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] // Colors for different labels
 
-const scaleFactor = 1.0
+const scaleFactor = 0.7
 const NODE_HOVER_RADIUS = 7
 const EDGE_HOVER_THRESHOLD = 5
 

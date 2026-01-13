@@ -52,7 +52,7 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
     """
     Retrieves graph data for a page. 
     Priority:
-    1. Check 'segmented_lines/gnn-format/' for saved manual corrections (_edges.txt).
+    1. Check 'layout_analysis_output/gnn-format/' for saved manual corrections (_edges.txt).
     2. If not found, run GNN inference from scratch using 'gnn-dataset/'.
     """
     print(f"Fetching data for page: {page_id}")
@@ -60,7 +60,7 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
     # Define Directories
     base_path = Path(manuscript_path)
     raw_input_dir = base_path / "gnn-dataset"               # Folder A (Inputs)
-    history_dir = base_path / "segmented_lines" / "gnn-format" # Folder B (Saved Corrections)
+    history_dir = base_path / "layout_analysis_output" / "gnn-format" # Folder B (Saved Corrections)
     
     # 1. Load Essential Node Data (Always required)
     file_path = raw_input_dir / f"{page_id}_inputs_normalized.txt"
@@ -185,7 +185,7 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     
     base_path = Path(manuscript_path)
     raw_input_dir = base_path / "gnn-dataset"
-    output_dir = base_path / "segmented_lines"
+    output_dir = base_path / "layout_analysis_output"
     gnn_format_dir = output_dir / "gnn-format"
     gnn_format_dir.mkdir(parents=True, exist_ok=True)
     

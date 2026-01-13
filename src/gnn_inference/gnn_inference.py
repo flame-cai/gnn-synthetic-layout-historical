@@ -399,7 +399,7 @@ def run_gnn_inference(args):
     """Main function for system-level evaluation."""
     # 2. Set other arguments
     input_dir = f"{args.manuscript_path}/gnn-dataset"
-    output_dir = f"{args.manuscript_path}/segmented_lines"
+    output_dir = f"{args.manuscript_path}/layout_analysis_output"
 
     setup_logging(Path(output_dir) / 'inference_with_eval.log')
     device = get_device('auto')
@@ -524,7 +524,7 @@ def run_gnn_inference(args):
             )
             logging.info("Saved PAGE XML with polygon predictions to: %s", xml_path)
 
-        #copy files from images_resized to segmented_lines/images_resized
+        #copy files from images_resized to layout_analysis_output/images_resized
         resized_images_src = Path(args.manuscript_path) / "images_resized"
         resized_images_dst = Path(output_dir) / "images_resized"
         resized_images_dst.mkdir(exist_ok=True)
