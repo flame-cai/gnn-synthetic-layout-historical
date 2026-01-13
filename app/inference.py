@@ -8,8 +8,7 @@ from segmentation.segment_graph import images2points
 
 
 
-
-def process_new_manuscript(manuscript_path, target_longest_side=2500):
+def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distance=20):
     source_images_path = os.path.join(manuscript_path, "images")
     # We will save processed (and potentially resized) images here
     # to avoid modifying source files while iterating over them.
@@ -98,14 +97,14 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500):
 
     # Point the inference function to the new resized/processed folder
     print("Running images2points on processed folder...")
-    images2points(resized_images_path) 
+    # --- MODIFIED: Pass min_distance ---
+    images2points(resized_images_path, min_distance=min_distance) 
     
     # Cleanup resources
     torch.cuda.empty_cache()
     gc.collect()
 
     print("Processing complete.")
-
 
 
 

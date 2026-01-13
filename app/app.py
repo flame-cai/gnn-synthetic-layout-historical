@@ -6,6 +6,8 @@ import shutil
 from pathlib import Path
 import base64
 import json
+import zipfile
+import io
 
 # Import your existing pipelines
 from inference import process_new_manuscript
@@ -27,8 +29,8 @@ def upload_manuscript():
     """
     manuscript_name = request.form.get('manuscriptName', 'default_manuscript')
     longest_side = int(request.form.get('longestSide', 2500))
-    # Note: min_distance logic is embedded in segment_graph.py called by inference.py.
-    # To expose it dynamically, you might need to modify inference.py to accept it as an arg.
+    # --- MODIFIED: Parse min_distance ---
+    min_distance = int(request.form.get('minDistance', 20)) 
     
     manuscript_path = os.path.join(UPLOAD_FOLDER, manuscript_name)
     images_path = os.path.join(manuscript_path, "images")
@@ -47,9 +49,8 @@ def upload_manuscript():
 
     try:
         # Run Step 1-3: Resize and Generate Heatmaps/Points
-        # You need to modify inference.py process_new_manuscript to accept target_longest_side
-        # For now, we assume you modified it or we monkey-patch defaults
-        process_new_manuscript(manuscript_path) 
+        # --- MODIFIED: Pass min_distance ---
+        process_new_manuscript(manuscript_path, target_longest_side=longest_side, min_distance=min_distance) 
         
         # Get list of processed pages
         processed_pages = []
@@ -58,6 +59,8 @@ def upload_manuscript():
             
         return jsonify({"message": "Processed successfully", "pages": processed_pages})
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @app.route('/manuscript/<name>/pages', methods=['GET'])
@@ -87,10 +90,10 @@ def get_page_prediction(manuscript, page):
         
         # Load Image to send to frontend
         img_path = manuscript_path / "images_resized" / f"{page}.jpg"
-        # if not img_path.exists():
-        #      # Fallback if original wasn't resized
-        #      img_path = manuscript_path / "images" / f"{page}.jpg"
-             
+        
+        if not img_path.exists():
+            return jsonify({"error": "Image not found"}), 404
+
         with open(img_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
             
@@ -99,12 +102,14 @@ def get_page_prediction(manuscript, page):
             "dimensions": graph_data['dimensions'],
             "points": [[n['x'], n['y']] for n in graph_data['nodes']],
             "graph": graph_data,
-            "textline_labels": graph_data['textline_labels']
+            "textline_labels": graph_data.get('textline_labels', []),
+            "textbox_labels": graph_data.get('textbox_labels', []) # Return textbox labels if they exist
         }
         return jsonify(response)
         
     except Exception as e:
-        print(e)
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
@@ -116,9 +121,9 @@ def save_correction(manuscript, page):
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     
     # Extract data from frontend
-    # The frontend sends 'textlineLabels' (list of ints) and 'graph' (edges with labels)
     textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph')
+    textbox_labels = data.get('textboxLabels') # NEW: Extract textbox labels
     
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -129,12 +134,13 @@ def save_correction(manuscript, page):
             page,
             textline_labels,
             graph_data['edges'],
-            { # Pass default hyperparameters or read from request
+            { 
                 'BINARIZE_THRESHOLD': 0.5098,
                 'BBOX_PAD_V': 0.7,
                 'BBOX_PAD_H': 0.5,
                 'CC_SIZE_THRESHOLD_RATIO': 0.4
-            }
+            },
+            textbox_labels=textbox_labels # Pass to generator
         )
         return jsonify(result)
     except Exception as e:
@@ -144,8 +150,45 @@ def save_correction(manuscript, page):
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):
-    # Optional helper if you want to save the heuristic graph without generating XML immediately
     return jsonify({"status": "ok"})
+
+# --- NEW: Endpoint to download results ---
+@app.route('/download-results/<manuscript>', methods=['GET'])
+def download_results(manuscript):
+    manuscript_path = Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output"
+    
+    if not manuscript_path.exists():
+         return jsonify({"error": "No output found for this manuscript"}), 404
+         
+    # Directories to zip
+    xml_dir = manuscript_path / "page-xml-format"
+    img_dir = manuscript_path / "image-format"
+    
+    memory_file = io.BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        # Add XMLs
+        if xml_dir.exists():
+            for root, dirs, files in os.walk(xml_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.join('page-xml-format', os.path.relpath(file_path, xml_dir))
+                    zf.write(file_path, arcname)
+                    
+        # Add Line Images
+        if img_dir.exists():
+            for root, dirs, files in os.walk(img_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.join('image-format', os.path.relpath(file_path, img_dir))
+                    zf.write(file_path, arcname)
+
+    memory_file.seek(0)
+    return send_file(
+        memory_file, 
+        mimetype='application/zip', 
+        as_attachment=True, 
+        download_name=f'{manuscript}_results.zip'
+    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

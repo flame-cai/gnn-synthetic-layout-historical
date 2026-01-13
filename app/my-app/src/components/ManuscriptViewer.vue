@@ -11,9 +11,13 @@
         <button @click="saveAndGoNext" :disabled="loading || isProcessingSave">
           Save & Next (S)
         </button>
-        <button @click="goToIMG2TXTPage" :disabled="loading || isProcessingSave">
-          Annotate Text
+        <button @click="downloadResults" :disabled="loading || isProcessingSave">
+          Download PAGE XMLs
         </button>
+
+        <!-- <button @click="goToIMG2TXTPage" :disabled="loading || isProcessingSave">
+          Annotate Text
+        </button> -->
         <div class="toggle-container">
           <label>
             <input type="checkbox" v-model="textlineModeActive" :disabled="isProcessingSave" />
@@ -289,6 +293,28 @@ const svgCursor = computed(() => {
   return 'default'
 })
 
+const downloadResults = async () => {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download-results/${localManuscriptName.value}`, {
+            method: 'GET',
+        });
+        
+        if (!response.ok) throw new Error('Download failed');
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${localManuscriptName.value}_results.zip`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (e) {
+        alert("Error downloading results: " + e.message);
+    }
+}
+
 const computeTextlines = () => {
   if (!graphIsLoaded.value) {
     // Safety: If graph isn't loaded, clear lines so we don't show stale data
@@ -377,6 +403,26 @@ const fetchPageData = async (manuscript, page) => {
           textlineLabels[index] = label
         }
       })
+    }
+
+    if (data.textbox_labels && data.textbox_labels.length > 0) {
+      // We need a local map for textbox labels similar to textlineLabels?
+      // Actually, the UI logic uses `nodeToTextlineMap` to group nodes, 
+      // but `textboxLabels` is the value assigned to that group.
+      // The current UI logic for applying labels: 
+      // `labelTextline` sets `textlineLabels[nodeIndex] = textboxLabels.value`.
+      // Wait, the variable `textlineLabels` in frontend actually stores the Region/Textbox ID.
+      // The `nodeToTextlineMap` stores the structural Line ID (connected components).
+      
+      // So we just populate `textlineLabels` with the data from backend.
+      // The backend returns `textbox_labels` which corresponds to `textlineLabels` in frontend state.
+       data.textbox_labels.forEach((label, index) => {
+           textlineLabels[index] = label
+       })
+       
+       // Update the counter to ensure new labels don't conflict
+       const maxLabel = Math.max(...data.textbox_labels);
+       textboxLabels.value = maxLabel + 1; 
     }
 
     resetWorkingGraph()
@@ -816,10 +862,15 @@ const saveModifications = async () => {
     labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
   }
 
+  // FIXED: Send dummy array of correct length instead of empty list []
+  // The backend uses this length to initialize the adjacency matrix
+  const dummyTextlineLabels = new Array(numNodes).fill(-1);
+
   const requestBody = {
     graph: workingGraph,
     modifications: modifications.value,
-    textlineLabels: labelsToSend,
+    textlineLabels: dummyTextlineLabels, 
+    textboxLabels: labelsToSend,
   }
 
   try {
@@ -843,6 +894,8 @@ const saveModifications = async () => {
     throw err
   }
 }
+
+
 
 const saveCurrentGraph = async () => {
   if (isProcessingSave.value) return
@@ -899,6 +952,7 @@ const nextPage = () =>
       navigateToPage(localPageList.value[currentIndex + 1])
     }
   })
+
 const goToIMG2TXTPage = () => {
   if (isEditModeFlow.value) {
     alert(

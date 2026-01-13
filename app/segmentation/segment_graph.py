@@ -107,9 +107,7 @@ def heatmap_to_pointcloud(heatmap, min_peak_value=0.3, min_distance=5, max_growt
 
 
 
-
-
-def images2points(folder_path):
+def images2points(folder_path, min_distance=20):
     print(folder_path)
     # how to get manuscript path from folder path - get parent directory
     m_path = os.path.dirname(folder_path)
@@ -144,7 +142,8 @@ def images2points(folder_path):
         assert region_score.shape == affinity_score.shape
         
         # 2. Convert heatmap to raw point coordinates (unnormalized)
-        raw_points = heatmap_to_pointcloud(region_score, min_peak_value=0.4, min_distance=20)
+        # --- MODIFIED: Use the passed min_distance parameter ---
+        raw_points = heatmap_to_pointcloud(region_score, min_peak_value=0.4, min_distance=min_distance)
         
         # --- NEW: Store the unnormalized points first ---
         unnormalized_points_list.append(raw_points)
@@ -201,6 +200,4 @@ def images2points(folder_path):
     torch.cuda.empty_cache()
 
     print(f"Finished processing. All data saved to: {base_data_dir}")
-    
-
 

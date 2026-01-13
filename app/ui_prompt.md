@@ -70,7 +70,7 @@ Please study the above problem formulation and the current codebase carefully, a
 
 
 Do not make unnecessary changes to the gnn inference pipeline. 
-IMPORTANT: Please rewrite entire files or entire functions. Or please tell me which part of the code to replace or change. Do not suggest partial code snippets that are hard to integrate. Ensure that the code is clean, modular and well documented. Follow best practices.
+IMPORTANT: Please make precise changes, and only tell me which functions or code blocks to replace/add/delete. Only make necessary changes. Ensure that the code is clean, modular and well documented. Follow best practices.
 
 Please find the code below:
 

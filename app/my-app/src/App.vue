@@ -12,6 +12,12 @@
           <label>Resize Dimension (Longest Side):</label>
           <input v-model.number="formLongestSide" type="number" />
         </div>
+        <!-- NEW FIELD -->
+        <div class="form-group">
+          <label>Min Distance (Peak Detection):</label>
+          <input v-model.number="formMinDistance" type="number" title="Distance between char centers" />
+        </div>
+        <!-- END NEW FIELD -->
         <div class="form-group">
           <label>Images:</label>
           <input type="file" multiple @change="handleFileChange" accept="image/*" />
@@ -47,6 +53,7 @@ const pageList = ref([])
 // Upload Form State
 const formName = ref('my_manuscript')
 const formLongestSide = ref(2500)
+const formMinDistance = ref(20) // NEW STATE
 const selectedFiles = ref([])
 const uploading = ref(false)
 const uploadStatus = ref('')
@@ -63,6 +70,7 @@ const upload = async () => {
   const formData = new FormData()
   formData.append('manuscriptName', formName.value)
   formData.append('longestSide', formLongestSide.value)
+  formData.append('minDistance', formMinDistance.value) // NEW
   selectedFiles.value.forEach(file => formData.append('images', file))
 
   try {
