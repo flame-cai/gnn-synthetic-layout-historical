@@ -8,7 +8,9 @@
 
 *   **📁 [Dataset](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main/dataset):** 15 Sanskrit Manuscripts, 481 pages, with diverse layouts, annotated in graph based and PAGE-XML format
 *   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
-*   **💻 [Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-stand-alone-out-of-the-box-inference):** Run stand-alone inference
+_________
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main/app):** Segment text-lines from complex layouts using Graph Neural Networks, and then make corrections to the output if required by adding or deleting edges, or by add or deleting nodes.
+*   **💻 [Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-stand-alone-out-of-the-box-inference):** Run fully automatic stand-alone inference
 *   **🧠 [GNN Training Pipeline](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#training):** Generate synthetic data, augment real data, train a GNN 
 
 ## **How to Use**

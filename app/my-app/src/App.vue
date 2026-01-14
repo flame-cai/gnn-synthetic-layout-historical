@@ -31,11 +31,12 @@
 
     <div v-else>
       <!-- Main Workstation -->
-      <button class="back-btn" @click="currentManuscript = null">← Back to Upload</button>
+      <!-- REMOVED: The floating .back-btn is gone. We handle it via the event below -->
       <ManuscriptViewer 
         :manuscriptName="currentManuscript" 
         :pageName="currentPage"
         @page-changed="handlePageChange"
+        @back="currentManuscript = null" 
       />
     </div>
   </div>
@@ -109,5 +110,4 @@ body { margin: 0; font-family: sans-serif; background: #222; color: white; }
 input { padding: 8px; background: #444; border: 1px solid #555; color: white; margin-top: 5px; }
 button { padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; }
 button:disabled { background: #555; }
-.back-btn { position: absolute; top: 10px; left: 10px; z-index: 1000; background: #444; }
 </style>
