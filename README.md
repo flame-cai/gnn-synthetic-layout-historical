@@ -36,7 +36,15 @@ Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
     The server runs on `http://localhost:5000`.
 
 #### 3 Start Frontend
-First install npm from [Node.js official website](https://nodejs.org/en/download/). Then run:
+First install npm from [Node.js official website](https://nodejs.org/en/download/). 
+
+Create a .env file in `src/app/my-app/` with the following content:
+
+    ```env
+    VITE_BACKEND_URL="http://localhost:5000"
+    ```
+
+Then run:
 
     ```bash
     cd app/my-app

@@ -4,3 +4,16 @@
 **/processed_data_gnn/
 **/training_runs/
 **/__pycache__/
+
+
+# Vue app (app/my-app)
+app/my-app/node_modules/
+app/my-app/dist/
+app/my-app/.vite/
+
+# Env files
+app/my-app/.env
+app/my-app/.env.*
+
+# Logs
+app/my-app/npm-debug.log*
