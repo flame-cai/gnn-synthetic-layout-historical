@@ -5,15 +5,15 @@
 **Last Updated:** Jan 14, 2026
 
 ## **Project Components**
-*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-semi-autonomous-mode):** Segment text-lines from complex layouts using Graph Neural Networks, and then make corrections to the output if required by adding or deleting edges, or by add or deleting nodes.
-*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-stand-alone-out-of-the-box-inference):** Run fully automatic stand-alone inference
-*   **🧠 [GNN Training Pipeline](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#training):** Generate synthetic data, augment real data, preprocess data, train various GNN archtectures (GCN, GAT, MPNN..)
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, and then make corrections to the output if required by adding or deleting edges, or by add or deleting nodes.
+*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference
+*   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Generate synthetic data, augment real data, preprocess data, train various GNN archtectures (GCN, GAT, MPNN..)
 _________
 *   **📁 [Dataset](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main/dataset):** 15 Sanskrit Manuscripts, 481 pages, with diverse layouts, annotated in graph based and PAGE-XML format
 *   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
 
 
-## **Semi-Autonomous Mode**
+## **Semi-Automatic Annotation Tool**
 This mode allows users to manually correct and refine the GNN-predicted layouts using an intuitive web-based interface. Users can adjust text-line connections, label text boxes, and modify node placements to ensure high-quality layout annotations.
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
 
@@ -46,7 +46,7 @@ First install npm from [Node.js official website](https://nodejs.org/en/download
 
 
 
-##  **Stand-alone Out-of-the-box Inference**
+##  **Automatic Out-of-the-box Inference**
 This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/layout_analysis_output/` in PAGE_XML format, GNN format, and as individual line images.
 
 #### 🔵 Install Conda Environment
@@ -83,7 +83,7 @@ python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 
 
 
-## **Training Recipe**
+## **GNN Training Recipe**
 #### 🔵 Install Conda Environment
 ```bash
 cd src
