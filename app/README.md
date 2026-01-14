@@ -1,8 +1,9 @@
 ## **Semi-Autonomous Mode (Human-in-the-Loop)**
+This mode allows users to manually correct and refine the GNN-predicted layouts using an intuitive web-based interface. Users can adjust text-line connections, label text boxes, and modify node placements to ensure high-quality layout annotations.
+![GNN Layout UI Demo](./tutorial.gif)
 
-To run the application with a user interface for verification and correction:
 
-
+## Installation and Setup Instructions
 #### 1 Install Conda Environment
     ```bash
     cd app
