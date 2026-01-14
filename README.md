@@ -5,9 +5,9 @@
 **Last Updated:** Jan 14, 2026
 
 ## **Project Components**
-*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, and then make corrections to the output if required by adding or deleting edges, or by add or deleting nodes.
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at charcater level, text-line level and text-box level.
 *   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference
-*   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Generate synthetic data, augment real data, preprocess data, train various GNN archtectures (GCN, GAT, MPNN..)
+*   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
 _________
 *   **📁 [Dataset](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main/dataset):** 15 Sanskrit Manuscripts, 481 pages, with diverse layouts, annotated in graph based and PAGE-XML format
 *   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
@@ -20,6 +20,7 @@ This mode allows users to manually correct and refine the GNN-predicted layouts 
 ### Setup Instructions
 #### 1 Install Conda Environment
 Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
+
     ```bash
     cd app
     conda env create -f environment.yaml
@@ -47,7 +48,7 @@ First install npm from [Node.js official website](https://nodejs.org/en/download
 
 
 ##  **Automatic Out-of-the-box Inference**
-This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/layout_analysis_output/` in PAGE_XML format, GNN format, and as individual line images.
+Run the entire layout analysis pipeline in fully automatic mode on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images.
 
 #### 🔵 Install Conda Environment
 ```bash
@@ -60,6 +61,8 @@ conda activate gnn_layout
 cd src/gnn_inference
 python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 ```
+
+This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/layout_analysis_output/` in PAGE_XML format, GNN format, and as individual line images.
 
 > **NOTE 1:**  
 > This project is made for Handwritten Sanskrit Manuscripts in Devanagari script, however it will work reasonibly well on other scripts if they fit the following criteria:
@@ -84,6 +87,9 @@ python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 
 
 ## **GNN Training Recipe**
+The following instructions will help you configure parameters to generate synthetic layout data, augment the Sanskrit dataset, prepare data for GNN training, and train a custom GNN architectures to perfrom text-line segmentation, which is formulated as an edge classification task.
+
+
 #### 🔵 Install Conda Environment
 ```bash
 cd src
@@ -102,7 +108,7 @@ python flatten.py
 This will create a new folder `src/gnn_data/flattened_sanskrit_data/` with all the data files flattened into a single directory structure, with an `index.csv`.
 
 #### 🔵 Generate Synthetic Data
-Configure the parameters in `configs/synthetic.yaml` as needed, then run:
+Configure the parameters in `src/configs/synthetic.yaml` as needed, then run:
 ```bash
 cd src
 
@@ -115,7 +121,7 @@ This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the
 This script peforms domain randomization to generate synthetic layout data simulating complex layouts in the graph based formulation introduced in this project. Both the synthetic data and the real data use the same graph based format, making it easy to integrate synthetic data into training pipelines.
 
 #### 🔵 To Augment Sanskrit Dataset
-Configure the parameters in `configs/augment.yaml` as needed, then run:
+Configure the parameters in `src/configs/augment.yaml` as needed, then run:
 ```bash
 cd src
 
