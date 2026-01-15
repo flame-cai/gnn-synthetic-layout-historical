@@ -6,8 +6,8 @@
 
 ## **Project Components**
 *   **🚀 [Installation setup](https://github.com/flame-cai/gnn-synthetic-layout-historical#installation-setup)** Clone repository and install conda environment
-*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at charcater level, text-line level and text-box level.
-*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using CRAFT + GNNs
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at character level, text-line level and text-box level.
+*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
 *   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
 _________
 *   **📁 [Dataset](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main/dataset#each-top-level-folder-represents-a-manuscript-inside-the-data-is-organized-as-follows):** 15 Sanskrit Manuscripts, 481 pages, with diverse layouts, annotated in graph based and PAGE-XML format
@@ -31,7 +31,16 @@ conda activate gnn_layout
 
 
 ## **Semi Automatic Annotation Tool**
-This mode allows users to manually correct and refine the GNN-predicted layouts using an intuitive web-based interface. Users can adjust text-line connections, label text boxes, and modify node placements to ensure high-quality layout annotations.
+Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
+Automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes.
+Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming, requiring manual correction of predicted bounding polygons or polylines.
+
+This semi-automatic annotation tool presented in this work natively supports graph-based labelling, treating character locations as nodes, with characters of the same text-lines being connected together.
+This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and makes layout annotation and _layout post-correction_ less time consuming, allowing the user to simply hover over edges while pressing the key 'd' to delete them, and to hover over nodes while pressing the key 'a' to connect them. The tool also supports adding/deleting nodes, and labelling at the text-box level. (See GIF below).
+
+
+It took ~12 hours by 1 annotator to label all 481 pages of the dataset presented using a previous version of the tool. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool.
+
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
 
 ### Setup Instructions
