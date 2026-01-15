@@ -36,10 +36,10 @@ Automatically segmented text-lines using deep learning methods are often incorre
 Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming, requiring manual correction of predicted bounding polygons or polylines.
 
 This semi-automatic annotation tool presented in this work natively supports graph-based labelling, treating character locations as nodes, with characters of the same text-lines being connected together.
-This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and makes layout annotation and _layout post-correction_ less time consuming, allowing the user to simply hover over edges while pressing the key 'd' to delete them, and to hover over nodes while pressing the key 'a' to connect them. The tool also supports adding/deleting nodes, and labelling at the text-box level. (See GIF below).
+This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level`. (See GIF below).
 
 
-It took ~12 hours by 1 annotator to label all 481 pages of the dataset presented using a previous version of the tool. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool.
+It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset presented using a previous version of the tool. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool, especially on Sanskrit manuscripts with complex layouts.
 
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
 
