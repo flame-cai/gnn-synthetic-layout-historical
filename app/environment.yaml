@@ -1,0 +1,43 @@
+name: gnn_layout
+
+channels:
+  - conda-forge
+  - pytorch
+  - pyg
+  - nvidia
+  - defaults
+
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - scikit-image
+  - matplotlib
+  - pytorch
+  - torchvision
+  - pytorch-cuda=12.1 
+  - pyg
+  - flask
+  - flask-cors
+  - flask-sqlalchemy
+  - werkzeug
+  - pillow
+  - opencv
+  - python-dotenv
+  - packaging
+  - six
+  - natsort
+  - pyyaml
+  - conda-forge::pytorch_spline_conv
+  - pip:
+    - shapely
+    - lmdb
+    - nltk
+    - python-json-logger
+    - regex
+    - pydantic
+    - wandb
+    

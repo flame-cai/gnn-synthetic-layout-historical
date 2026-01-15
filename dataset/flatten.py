@@ -136,11 +136,6 @@ def flatten_and_verify_directory(source_dir: str, dest_dir: str):
                 logging.warning(f"Could not determine base name for '{filename}' in '{dirpath}'. Skipping.")
                 continue
 
-            # TODO Load csv file layout_info.csv, load the columns 'original_unique_id' and 'layout'
-            # for each page_name_base, see which row of 'original_unique_id' matches, and get the 'layout' value.
-            # when we create the index_data entry below, we need to add a 'layout' column with these values.
-            # also perform logging to help debug any issues.
-
             original_unique_page_id = f"{dataset}_{sub_manuscript}_{page_name_base}"
 
             # --- 7. Assign a New Short ID if this is the first time seeing this page ---

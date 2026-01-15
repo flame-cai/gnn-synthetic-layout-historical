@@ -5,6 +5,7 @@
 **/training_runs/
 **/__pycache__/
 
+
 # Vue app (app/my-app)
 app/my-app/node_modules/
 app/my-app/dist/

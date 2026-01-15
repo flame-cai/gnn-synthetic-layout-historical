@@ -399,7 +399,7 @@ def run_gnn_inference(args):
     """Main function for system-level evaluation."""
     # 2. Set other arguments
     input_dir = f"{args.manuscript_path}/gnn-dataset"
-    output_dir = f"{args.manuscript_path}/segmented_lines"
+    output_dir = f"{args.manuscript_path}/layout_analysis_output"
 
     setup_logging(Path(output_dir) / 'inference_with_eval.log')
     device = get_device('auto')
@@ -500,6 +500,10 @@ def run_gnn_inference(args):
             shutil.copy(associated_file, predictions_dataset_dir / associated_file.name)
 
 
+        # TODO: At this step, the image has been processed, heatmaps generated, GNN inference and predicted labels obtained and saved in gnn-format as {page_id}_labels_textline.txt. {page_id}_labels_textline.txt contains the predicted node labels for text lines, just that nodes (in file {page_id}_inputs_normalized.txt) belonging to the same text line have the same integer label. It is at this step that we want to (optionally) have a UI such that a human can correct the predicted node labels before proceeding to generate the PAGE XML files and segmented line images.
+
+
+
         # Generate line images and polygon data first, now that the files are in place.
         logging.info("Generating line images and polygon data for page %s...", page_id)
         polygons_data = segmentLinesFromPointClusters(Path(input_dir).parent, page_id, BINARIZE_THRESHOLD=args.BINARIZE_THRESHOLD, BBOX_PAD_V=args.BBOX_PAD_V, BBOX_PAD_H=args.BBOX_PAD_H, CC_SIZE_THRESHOLD_RATIO=args.CC_SIZE_THRESHOLD_RATIO, GNN_PRED_PATH=output_dir)
@@ -520,7 +524,7 @@ def run_gnn_inference(args):
             )
             logging.info("Saved PAGE XML with polygon predictions to: %s", xml_path)
 
-        #copy files from images_resized to segmented_lines/images_resized
+        #copy files from images_resized to layout_analysis_output/images_resized
         resized_images_src = Path(args.manuscript_path) / "images_resized"
         resized_images_dst = Path(output_dir) / "images_resized"
         resized_images_dst.mkdir(exist_ok=True)
