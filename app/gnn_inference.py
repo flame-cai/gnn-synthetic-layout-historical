@@ -189,150 +189,7 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
 
     return {"status": "success", "lines": len(polygons_data)}
 
-def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_path):
-    print(f"Fetching data for page: {page_id}")
-    
-    base_path = Path(manuscript_path)
-    raw_input_dir = base_path / "gnn-dataset"               
-    history_dir = base_path / "layout_analysis_output" / "gnn-format" 
-    
-    # --- 1. Load Node Data (Prioritize Modified History) ---
-    modified_norm_path = history_dir / f"{page_id}_inputs_normalized.txt"
-    modified_dims_path = history_dir / f"{page_id}_dims.txt"
-    
-    if modified_norm_path.exists() and modified_dims_path.exists():
-        print(f"--> Loading USER-MODIFIED node definitions from {history_dir}")
-        file_path = modified_norm_path
-        dims_path = modified_dims_path
-    else:
-        print(f"--> Loading RAW CRAFT node definitions from {raw_input_dir}")
-        file_path = raw_input_dir / f"{page_id}_inputs_normalized.txt"
-        dims_path = raw_input_dir / f"{page_id}_dims.txt"
 
-    if not file_path.exists():
-        raise FileNotFoundError(f"Data for page {page_id} not found.")
-
-    # Handle empty files (if user deleted all nodes previously)
-    try:
-        points_normalized = np.loadtxt(file_path)
-    except UserWarning:
-        points_normalized = np.array([])
-
-    if points_normalized.size == 0:
-        points_normalized = np.empty((0, 3))
-    elif points_normalized.ndim == 1: 
-        points_normalized = points_normalized.reshape(1, -1)
-    
-    dims = np.loadtxt(dims_path)
-    full_width = dims[0] * 2
-    full_height = dims[1] * 2
-    max_dimension = max(full_width, full_height)
-    
-    nodes_payload = [
-        {
-            "x": float(p[0]) * max_dimension, 
-            "y": float(p[1]) * max_dimension, 
-            "s": float(p[2])
-        } 
-        for p in points_normalized
-    ]
-    
-    response = {
-        "nodes": nodes_payload,
-        "edges": [],
-        "textline_labels": [-1] * len(points_normalized),
-        "textbox_labels": [],
-        "dimensions": [full_width, full_height]
-    }
-
-    # --- 2. Check for Saved Topology (Edges/Labels) ---
-    saved_edges_path = history_dir / f"{page_id}_edges.txt"
-    saved_labels_path = history_dir / f"{page_id}_labels_textline.txt"
-    saved_textbox_path = history_dir / f"{page_id}_labels_textbox.txt"
-    
-    if saved_edges_path.exists():
-        print(f"Found saved edge topology...")
-        saved_edges = []
-        try:
-            if saved_edges_path.stat().st_size > 0:
-                raw_edges = np.loadtxt(saved_edges_path, dtype=int, ndmin=2)
-                if raw_edges.ndim == 1 and raw_edges.size >= 2:
-                    raw_edges = raw_edges.reshape(1, -1)
-                
-                for row in raw_edges:
-                    if len(row) >= 2:
-                        saved_edges.append({
-                            "source": int(row[0]),
-                            "target": int(row[1]),
-                            "label": 1
-                        })
-        except Exception as e:
-            print(f"Warning reading edges: {e}")
-            
-        response["edges"] = saved_edges
-        
-        if saved_labels_path.exists():
-            try:
-                labels = np.loadtxt(saved_labels_path, dtype=int)
-                if labels.size == len(points_normalized):
-                     response["textline_labels"] = labels.tolist()
-            except Exception: pass 
-        
-        if saved_textbox_path.exists():
-            try:
-                tb_labels = np.loadtxt(saved_textbox_path, dtype=int)
-                if tb_labels.size == len(points_normalized):
-                    response["textbox_labels"] = tb_labels.tolist()
-            except Exception: pass
-
-        return response
-
-    # --- 3. Run GNN (Only if no history exists) ---
-    if len(points_normalized) == 0:
-        return response
-
-    print(f"Running GNN Inference...")
-    model, d_config, device = load_model_once(model_path, config_path)
-    
-    page_dims_norm = {'width': 1.0, 'height': 1.0}
-    input_graph_data = create_input_graph_edges(points_normalized, page_dims_norm, d_config.input_graph)
-    input_edges_set = input_graph_data["edges"]
-
-    if not input_edges_set:
-        return response
-
-    edge_index_undirected = torch.tensor(list(input_edges_set), dtype=torch.long).t().contiguous()
-    if d_config.input_graph.directionality == "bidirectional":
-        edge_index = torch.cat([edge_index_undirected, edge_index_undirected.flip(0)], dim=1)
-    else:
-        edge_index = edge_index_undirected
-
-    node_features = get_node_features(points_normalized, input_graph_data["heuristic_degrees"], d_config.features)
-    edge_features = get_edge_features(edge_index, node_features, input_graph_data["heuristic_edge_counts"], d_config.features)
-    
-    data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_features).to(device)
-
-    threshold = 0.5
-    with torch.no_grad():
-        logits = model(data.x, data.edge_index, data.edge_attr)
-        probs = F.softmax(logits, dim=1)
-        pred_edge_labels = (probs[:, 1] > threshold).cpu().numpy()
-
-    model_positive_edges = set()
-    edge_index_cpu = data.edge_index.cpu().numpy()
-    
-    for idx, is_pos in enumerate(pred_edge_labels):
-        if is_pos:
-            u, v = edge_index_cpu[:, idx]
-            model_positive_edges.add(tuple(sorted((u, v))))
-
-    final_edges = []
-    for u, v in input_edges_set:
-        if tuple(sorted((u, v))) in model_positive_edges:
-            final_edges.append({"source": int(u), "target": int(v), "label": 1})
-
-    response["edges"] = final_edges
-    return response
 
 
 # ===================================================================
@@ -839,17 +696,41 @@ def create_page_xml(
     # Let's use strict Y for region sorting for now.
     region_centroids.sort(key=lambda r: (r['cy'], r['cx']))
 
-    # -- Construct XML Hierarchy --
+# -- Construct XML Hierarchy --
     for r_idx, region_info in enumerate(region_centroids):
         tb_id = region_info['id']
         comps = regions[tb_id]
         
-        # Calculate Region Bounding Box (for Coords)
-        all_nodes = [n for comp in comps for n in comp]
-        min_x = min(points_unnormalized[n][0] * 2 for n in all_nodes)
-        min_y = min(points_unnormalized[n][1] * 2 for n in all_nodes)
-        max_x = max(points_unnormalized[n][0] * 2 for n in all_nodes)
-        max_y = max(points_unnormalized[n][1] * 2 for n in all_nodes)
+        # --- FIXED AREA CALCULATION ---
+        # Instead of using node centers, we collect all coordinate points 
+        # from the polygons of the lines assigned to this region.
+        region_xs = []
+        region_ys = []
+        
+        for comp in comps:
+            # Get the line label (cluster ID) to retrieve the specific polygon
+            line_label = pred_node_labels[comp[0]]
+            
+            if line_label in polygons_data and len(polygons_data[line_label]) > 0:
+                # Use the polygon points (assuming they are already in the target 2x scale 
+                # consistent with their usage later in the script)
+                poly_pts = polygons_data[line_label]
+                for p in poly_pts:
+                    region_xs.append(p[0])
+                    region_ys.append(p[1])
+            else:
+                # Fallback: If no polygon exists, use the node centers (scaled by 2)
+                # This prevents a crash if segmentation data is missing for a line
+                for n in comp:
+                    region_xs.append(points_unnormalized[n][0] * 2)
+                    region_ys.append(points_unnormalized[n][1] * 2)
+        
+        if not region_xs: 
+            continue # Skip empty regions
+
+        min_x, max_x = min(region_xs), max(region_xs)
+        min_y, max_y = min(region_ys), max(region_ys)
+        # ------------------------------
         
         region_elem = ET.SubElement(page, "TextRegion", id=f"region_{r_idx}", custom=f"textbox_label_{tb_id}")
         region_coords_str = f"{int(min_x)},{int(min_y)} {int(max_x)},{int(min_y)} {int(max_x)},{int(max_y)} {int(min_x)},{int(max_y)}"
