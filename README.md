@@ -5,7 +5,7 @@
 **Last Updated:** Jan 15, 2026
 
 ## **Project Components**
-*   **🚀 [Installation setup]()** Installation instructions.
+*   **🚀 [Installation setup](https://github.com/flame-cai/gnn-synthetic-layout-historical#installation-setup)** Clone repository and install conda environment
 *   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at charcater level, text-line level and text-box level.
 *   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using CRAFT + GNNs
 *   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
@@ -47,7 +47,7 @@ The server runs on `http://localhost:5000`.
 #### 2 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
-Create a .env file in `src/app/my-app/` with the following content:
+Create a .env file in `app/my-app/` with the following content:
 
 ```env
 VITE_BACKEND_URL="http://localhost:5000"
@@ -162,7 +162,7 @@ validation dataset at `src/gnn_data/augmented_sanskrit_dataset/val/`
 and test dataset at `src/gnn_data/augmented_sanskrit_dataset/test/` (unused as of now).
 
 #### 🔵 Prepare Data for GNN Training
-First configure the data preprocessing parameters in `configs/gnn_preprocessing.yaml` as needed, then run:
+First configure the data preprocessing parameters in `src/configs/gnn_preprocessing.yaml` as needed, then run:
 ```bash
 cd src
 
@@ -175,7 +175,7 @@ python gnn_training/gnn_data_preparation/main_create_dataset.py \
 This will create a new folder `src/gnn_data/processed_data_gnn/` with all the processed data files ready for GNN training (node features, edge features, labels etc.).
 
 #### 🔵 Train GNN Model
-First configure the GNN training parameters in `configs/gnn_training.yaml` as needed, then run:
+First configure the GNN training parameters in `src/configs/gnn_training.yaml` as needed, then run:
 ```bash
 cd src
 
