@@ -5,6 +5,7 @@
 **Last Updated:** Jan 15, 2026
 
 ## **Project Components**
+*   **🚀 [Installation setup]()** Installation instructions.
 *   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at charcater level, text-line level and text-box level.
 *   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using CRAFT + GNNs
 *   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
@@ -13,21 +14,28 @@ _________
 *   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
 
 
+## **Installation Setup**
+Clone the repository:
+```bash
+git clone https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+```
+
+#### Install Conda Environment
+Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
+
+```bash
+cd gnn-synthetic-layout-historical 
+conda env create -f environment.yaml
+conda activate gnn_layout
+```
+
+
 ## **Semi Automatic Annotation Tool**
 This mode allows users to manually correct and refine the GNN-predicted layouts using an intuitive web-based interface. Users can adjust text-line connections, label text boxes, and modify node placements to ensure high-quality layout annotations.
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
 
 ### Setup Instructions
-#### 1 Install Conda Environment
-Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
-
-```bash
-cd app
-conda env create -f environment.yaml
-conda activate gnn_layout
-```
-
-#### 2 Start Backend Server
+#### 1 Start Backend Server
 ```bash
 cd app
 conda activate gnn_layout
@@ -36,7 +44,7 @@ python app.py
 
 The server runs on `http://localhost:5000`.
 
-#### 3 Start Frontend
+#### 2 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
 Create a .env file in `src/app/my-app/` with the following content:
@@ -59,15 +67,10 @@ Access the UI at `http://localhost:5173`.
 ##  **Automatic Out of the Box Inference**
 Run the entire layout analysis pipeline in fully automatic mode on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images.
 
-#### 🔵 Install Conda Environment
-```bash
-cd src
-conda env create -f environment.yaml
-conda activate gnn_layout
-```
 #### 🔵 Run Inference (fully automatic)
 ```bash
 cd src/gnn_inference
+conda activate gnn_layout
 python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 ```
 
@@ -99,10 +102,10 @@ This will process all the manuscript images in sample_manuscript_1 and save the 
 The following instructions will help you configure parameters to generate synthetic layout data, augment the Sanskrit dataset, prepare data for GNN training, and train a custom GNN architectures to perfrom text-line segmentation, which is formulated as an edge classification task.
 
 
-#### 🔵 Install Conda Environment
+#### 🔵 Activate Conda Environment
+Activate the conda environment if not already done:
 ```bash
 cd src
-conda env create -f environment.yaml
 conda activate gnn_layout
 ```
 
