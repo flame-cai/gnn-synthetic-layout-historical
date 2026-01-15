@@ -7,17 +7,6 @@ import torch
 from segmentation.segment_graph import images2points
 from gnn_inference import run_gnn_inference
 
-import sys
-# Get the directory where the current script is located (gnn_inference)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# Get the parent directory (src)
-parent_dir = os.path.dirname(current_dir)
-# Add 'src' to the system path so Python can find 'gnn_training'
-if parent_dir not in sys.path:
-    sys.path.append(parent_dir)
-print(f"Added {parent_dir} to sys.path to allow imports from 'gnn_training'")
-
-
 
 
 def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscript_1"):

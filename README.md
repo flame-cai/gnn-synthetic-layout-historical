@@ -2,11 +2,11 @@
 
 
 **Version:** 3.0
-**Last Updated:** Jan 14, 2026
+**Last Updated:** Jan 15, 2026
 
 ## **Project Components**
 *   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at charcater level, text-line level and text-box level.
-*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference
+*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using CRAFT + GNNs
 *   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
 _________
 *   **📁 [Dataset](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main/dataset):** 15 Sanskrit Manuscripts, 481 pages, with diverse layouts, annotated in graph based and PAGE-XML format
@@ -33,6 +33,7 @@ Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
     conda activate gnn_layout
     python app.py
     ```
+    
     The server runs on `http://localhost:5000`.
 
 #### 3 Start Frontend
@@ -187,8 +188,3 @@ This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`
 ## Acknowledgements
 We would like to thank Petar Veličković, Oliver Hellwig, Dhavel Patel for their extermely valuable inputs and discussions.
 
-
-## **TODO List**
-*   [x] Generete larger and diverse synthetic layout dataset
-*   [x] Perform multi-task GNN training: Text Box detection, reading order prediction along with line segmentation
-*   [x] Integrate GNN model into the manuscript layout analysis tool. Link: [Manuscript Annotation Tool](https://github.com/flame-cai/win64-local-ocr-tool/tree/GNN-DEV-MAIN). 
