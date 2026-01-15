@@ -21,38 +21,38 @@ This mode allows users to manually correct and refine the GNN-predicted layouts 
 #### 1 Install Conda Environment
 Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
 
-    ```bash
-    cd app
-    conda env create -f environment.yaml
-    conda activate gnn_layout
-    ```
+```bash
+cd app
+conda env create -f environment.yaml
+conda activate gnn_layout
+```
 
 #### 2 Start Backend Server
-    ```bash
-    cd app
-    conda activate gnn_layout
-    python app.py
-    ```
+```bash
+cd app
+conda activate gnn_layout
+python app.py
+```
 
-    The server runs on `http://localhost:5000`.
+The server runs on `http://localhost:5000`.
 
 #### 3 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
 Create a .env file in `src/app/my-app/` with the following content:
 
-    ```env
-    VITE_BACKEND_URL="http://localhost:5000"
-    ```
+```env
+VITE_BACKEND_URL="http://localhost:5000"
+```
 
 Then run:
 
-    ```bash
-    cd app/my-app
-    npm install
-    npm run dev
-    ```
-    Access the UI at `http://localhost:5173`.
+```bash
+cd app/my-app
+npm install
+npm run dev
+```
+Access the UI at `http://localhost:5173`.
 
 
 
