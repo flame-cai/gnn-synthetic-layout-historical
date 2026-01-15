@@ -13,7 +13,7 @@ _________
 *   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
 
 
-## **Semi-Automatic Annotation Tool**
+## **Semi Automatic Annotation Tool**
 This mode allows users to manually correct and refine the GNN-predicted layouts using an intuitive web-based interface. Users can adjust text-line connections, label text boxes, and modify node placements to ensure high-quality layout annotations.
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
 
@@ -33,7 +33,7 @@ Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
     conda activate gnn_layout
     python app.py
     ```
-    
+
     The server runs on `http://localhost:5000`.
 
 #### 3 Start Frontend
@@ -56,7 +56,7 @@ Then run:
 
 
 
-##  **Automatic Out-of-the-box Inference**
+##  **Automatic Out of the Box Inference**
 Run the entire layout analysis pipeline in fully automatic mode on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images.
 
 #### 🔵 Install Conda Environment
