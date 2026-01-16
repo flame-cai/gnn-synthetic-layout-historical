@@ -4,16 +4,21 @@
 **Version:** 3.0
 **Last Updated:** Jan 15, 2026
 
+This repository contains a public implementation of the Graph based text-line segmentation method proposed in the paper "Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data". This work has been developed by the original authors from Centre for inter-disciplinary Artificial Intelligence (CAI) at FLAME University.
+
+In this work we formulate the text-line segmentation task as an edge classification problem for graph neural networks, representing each character as a node in the graph, with edges connecting characters of the same text-line. 
+
+
 ## **Project Components**
-*   **🚀 [Installation setup](https://github.com/flame-cai/gnn-synthetic-layout-historical#installation-setup)** Clone repository and install conda environment
-*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at character level, text-line level and text-box level.
+*   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at `character level`, `text-line level` and `text-box level`.
 *   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
 *   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
 *   **📁 [Dataset](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main/dataset#each-top-level-folder-represents-a-manuscript-inside-the-data-is-organized-as-follows):** 15 Sanskrit Manuscripts, 481 pages, with diverse layouts, annotated in graph based and PAGE-XML format
 *   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
 
 
-## **Installation Setup**
+## **Getting Started**
 Clone the repository:
 ```bash
 git clone https://github.com/flame-cai/gnn-synthetic-layout-historical.git
@@ -107,7 +112,7 @@ This will process all the manuscript images in sample_manuscript_1 and save the 
 
 
 ## **GNN Training Recipe**
-The following instructions will help you configure parameters to generate synthetic layout data, augment the Sanskrit dataset, prepare data for GNN training, and train a custom GNN architectures to perfrom text-line segmentation, which is formulated as an edge classification task.
+The following instructions will help you configure parameters to generate synthetic layout data, augment the Sanskrit dataset, prepare data for GNN training, and train custom GNN architectures to perform text-line segmentation, which is formulated as an edge classification task.
 
 
 #### 🔵 Activate Conda Environment
