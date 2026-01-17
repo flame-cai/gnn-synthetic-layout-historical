@@ -451,19 +451,15 @@ def get_bboxes_for_lines(img, unique_labels, bounding_boxes, debug_mode=False, d
         
     return line_bounding_boxes_data
 
-
 def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_mode=False, BINARIZE_THRESHOLD=0.30, BBOX_PAD_V=0.7, BBOX_PAD_H=0.5, CC_SIZE_THRESHOLD_RATIO=0.4, GNN_PRED_PATH=''):
     IMAGE_FILEPATH = os.path.join(BASE_PATH, "images_resized", f"{page}.jpg")
     HEATMAP_FILEPATH = os.path.join(BASE_PATH, "heatmaps", f"{page}.jpg")
     POINTS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-format", f"{page}_inputs_unnormalized.txt")
     LABELS_FILEPATH = os.path.join(GNN_PRED_PATH, "gnn-format", f"{page}_labels_textline.txt")
-    LINES_DIR = os.path.join(GNN_PRED_PATH, "image-format", page)
+    
+    # NOTE: We no longer create LINES_DIR here for saving. We just need debug dir if active.
     DEBUG_DIR = os.path.join(GNN_PRED_PATH, "debug", page)
     POLY_VISUALIZATIONS_DIR = os.path.join(DEBUG_DIR, "poly_visualizations")
-
-    # The polygon directory is no longer needed as polygons are now saved in the XML
-    if os.path.exists(LINES_DIR): shutil.rmtree(LINES_DIR)
-    os.makedirs(LINES_DIR)
 
     image = loadImage(IMAGE_FILEPATH)
     det = loadImage(HEATMAP_FILEPATH)
@@ -487,9 +483,8 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
         'BINARIZE_THRESHOLD': BINARIZE_THRESHOLD,
         'CC_SIZE_THRESHOLD_RATIO': CC_SIZE_THRESHOLD_RATIO,
         'PAGE_MEDIAN_COLOR': int(np.median(processing_image))
-        # Padding ratios for initial cleaning crop
-        ,'BBOX_PAD_V': BBOX_PAD_V # 70% vertical padding for horizontal lines
-        ,'BBOX_PAD_H': BBOX_PAD_H # 50% horizontal
+        ,'BBOX_PAD_V': BBOX_PAD_V 
+        ,'BBOX_PAD_H': BBOX_PAD_H 
     }
 
     bounding_boxes = gen_bounding_boxes(det_resized, CONFIG['BINARIZE_THRESHOLD'])
@@ -498,14 +493,12 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
 
     unique_labels = sorted(list(set(b[4] for b in labeled_bboxes)))
 
-    # debug_info = None
     debug_info = {"DEBUG_DIR": DEBUG_DIR, "det_resized": det_resized, "CONFIG": CONFIG}
     if upscale_heatmap and debug_mode:
         print("Debug mode is ON.")
         if os.path.exists(DEBUG_DIR): shutil.rmtree(DEBUG_DIR)
         os.makedirs(DEBUG_DIR)
         os.makedirs(POLY_VISUALIZATIONS_DIR)
-        # debug_info = {"DEBUG_DIR": DEBUG_DIR, "det_resized": det_resized, "CONFIG": CONFIG}
 
     line_bounding_boxes_data = get_bboxes_for_lines(processing_image, unique_labels, labeled_bboxes,
                                                     debug_mode=(upscale_heatmap and debug_mode), debug_info=debug_info)
@@ -513,7 +506,7 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
     poly_viz_page_img = image.copy()
     colors = [plt.cm.get_cmap('hsv', len(unique_labels) + 1)(i) for i in range(len(unique_labels))]
     label_to_color_idx = {label: i for i, label in enumerate(unique_labels)}
-    line_polygons_data = {}  # To store polygon data for returning
+    line_polygons_data = {}  # To store polygon data AND image data
 
     for line_label, cleaned_boxes in line_bounding_boxes_data.items():
         if not cleaned_boxes: continue
@@ -521,10 +514,10 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
         mask = np.zeros((h_img, w_img), dtype=np.uint8)
         for (x, y, w, h) in cleaned_boxes:
             cv2.rectangle(mask, (x, y), (x + w, y + h), 255, -1)
-            # save the mask for debugging if needed
         
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
+        # ... [Logic for merging split contours remains exactly the same] ...
         if len(contours) > 1:
             avg_line_height = np.mean([box[3] for box in cleaned_boxes])
             box_groups = [[] for _ in contours]
@@ -579,21 +572,17 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
                     connected_groups.append(unconnected_groups.pop(group_to_add_index))
 
                 contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # ... [End logic for merging split contours] ...
 
         if contours:
             polygon = max(contours, key=cv2.contourArea)
-            line_filename_base = f"line{line_label+1:03d}"
             
-            # Instead of saving to JSON, store the polygon points in the dictionary
-            polygon_points_xy = [point[0].tolist() for point in polygon]
-            line_polygons_data[line_label] = polygon_points_xy
-
             if upscale_heatmap and debug_mode:
                 color_idx = label_to_color_idx.get(line_label, 0)
                 color = tuple(c * 255 for c in colors[color_idx][:3])
                 cv2.drawContours(poly_viz_page_img, [polygon], -1, color, 2)
             
-            # Save the cropped polygon area as the line image (this functionality remains)
+            # Generate the image content
             x, y, w, h = cv2.boundingRect(polygon)
             cropped_line_image = processing_image[y:y+h, x:x+w]
             new_img = np.ones(cropped_line_image.shape, dtype=np.uint8) * CONFIG['PAGE_MEDIAN_COLOR']
@@ -601,12 +590,19 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
             polygon_shifted = polygon - [x, y]
             cv2.drawContours(mask_polygon, [polygon_shifted], -1, 255, -1)
             new_img[mask_polygon == 255] = cropped_line_image[mask_polygon == 255]
-            cv2.imwrite(os.path.join(LINES_DIR, f"{line_filename_base}.jpg"), new_img)
+            
+            # --- MODIFIED: Return Image Data instead of Saving ---
+            polygon_points_xy = [point[0].tolist() for point in polygon]
+            
+            line_polygons_data[line_label] = {
+                "points": polygon_points_xy,
+                "image": new_img
+            }
 
     if upscale_heatmap and debug_mode:
         viz_path = os.path.join(POLY_VISUALIZATIONS_DIR, f"{page}_all_polygons.jpg")
         cv2.imwrite(viz_path, poly_viz_page_img)
         print(f"Polygon visualization saved to {viz_path}")
 
-    print(f"Successfully generated {len(line_polygons_data)} line images and polygon data.")
+    print(f"Successfully generated data for {len(line_polygons_data)} lines.")
     return line_polygons_data

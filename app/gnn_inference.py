@@ -47,7 +47,6 @@ def load_model_once(model_checkpoint_path, config_path):
             LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
 
-
 def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None, nodes=None):
     """
     Saves user corrections and regenerates XML.
@@ -59,12 +58,11 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     gnn_format_dir = output_dir / "gnn-format"
     gnn_format_dir.mkdir(parents=True, exist_ok=True)
     
-    # 1. Load Heatmap Dimensions (Crucial for scaling)
+    # ... [Loading Heatmap Dimensions and Scaling Logic remains exactly the same] ...
+    # ... (lines 66-136 in original code) ...
     raw_dims_path = raw_input_dir / f"{page_id}_dims.txt"
     if not raw_dims_path.exists():
-        # Fallback for rare edge cases
         raw_dims_path = gnn_format_dir / f"{page_id}_dims.txt"
-        
     dims = np.loadtxt(raw_dims_path) 
     heatmap_w, heatmap_h = dims[0], dims[1]
     max_dim_heatmap = max(heatmap_w, heatmap_h)
@@ -73,55 +71,34 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     points_normalized = []
 
     if nodes is not None:
-        # --- SCALING FIX ---
-        # Frontend sends Image Space coordinates. Storage expects Heatmap Space.
-        # Image Space is 2x Heatmap Space.
         scale_factor = 0.5 
-
         for n in nodes:
-            # 1. Image Space
             img_x, img_y, img_s = float(n['x']), float(n['y']), float(n['s'])
-            
-            # 2. Heatmap Space (Storage)
             hm_x, hm_y, hm_s = img_x * scale_factor, img_y * scale_factor, img_s * scale_factor
-            
             points_unnormalized.append([hm_x, hm_y, hm_s])
-            
-            # 3. Normalized (0-1) for GNN
             norm_x, norm_y, norm_s = hm_x / max_dim_heatmap, hm_y / max_dim_heatmap, hm_s / max_dim_heatmap
             points_normalized.append([norm_x, norm_y, norm_s])
             
         points_unnormalized = np.array(points_unnormalized)
         points_normalized = np.array(points_normalized)
-        
-        # Save NEW node definitions
         np.savetxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt", points_unnormalized, fmt='%f')
         np.savetxt(gnn_format_dir / f"{page_id}_inputs_normalized.txt", points_normalized, fmt='%f')
-        # Always copy dims to history so it is self-contained
         if raw_dims_path.exists():
             shutil.copy(raw_dims_path, gnn_format_dir / f"{page_id}_dims.txt")
-        
     else:
-        # --- HISTORY PROTECTION ---
-        # If frontend didn't send nodes (legacy call), rely on what's on disk.
-        # Check if we already have modified files; if not, copy from raw.
         if not (gnn_format_dir / f"{page_id}_inputs_unnormalized.txt").exists():
             for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
                 src = raw_input_dir / f"{page_id}{suffix}"
                 dst = gnn_format_dir / f"{page_id}{suffix}"
                 if src.exists(): shutil.copy(src, dst)
-        
         points_unnormalized = np.loadtxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt")
         if points_unnormalized.size == 0:
             points_unnormalized = np.empty((0, 3))
         elif points_unnormalized.ndim == 1: 
             points_unnormalized = points_unnormalized.reshape(1, -1)
 
-
-    # 2. Save Corrected Edges
     unique_edges = set()
     num_nodes = len(points_unnormalized)
-    
     for e in graph_edges:
         if 'source' in e and 'target' in e:
             u, v = sorted((int(e['source']), int(e['target'])))
@@ -134,7 +111,6 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     else:
         open(edges_save_path, 'w').close()
 
-    # 3. Calculate Structural Labels
     if unique_edges:
         row, col = zip(*unique_edges)
         data = np.ones(len(row) + len(col))
@@ -145,7 +121,6 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
     np.savetxt(gnn_format_dir / f"{page_id}_labels_textline.txt", final_structural_labels, fmt='%d')
 
-    # 4. Save Textbox Labels
     final_textbox_labels = np.zeros(num_nodes, dtype=int)
     if textbox_labels is not None:
         if len(textbox_labels) == num_nodes:
@@ -154,7 +129,7 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         else:
              print(f"Warning: Textbox label count {len(textbox_labels)} != Node count {num_nodes}. Resetting.")
              
-    # 5. Run Segmentation
+    # 5. Run Segmentation (Now returns data with images, does not save to disk)
     polygons_data = segmentLinesFromPointClusters(
         str(output_dir.parent), 
         page_id, 
@@ -168,7 +143,13 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     xml_output_dir = output_dir / "page-xml-format"
     xml_output_dir.mkdir(exist_ok=True)
     
-    # 6. Generate XML
+    # --- NEW: Prepare Images Directory ---
+    images_output_dir = output_dir / "image-format" / page_id
+    if images_output_dir.exists():
+        shutil.rmtree(images_output_dir)
+    images_output_dir.mkdir(parents=True, exist_ok=True)
+
+    # 6. Generate XML AND Save Images
     create_page_xml(
         page_id,
         unique_edges,
@@ -179,6 +160,7 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         polygons_data,
         textbox_labels=final_textbox_labels,
         image_path=base_path / "images_resized" / f"{page_id}.jpg",
+        images_output_dir=images_output_dir  # Pass the directory
     )
 
     resized_images_dst_dir = output_dir / "images_resized"
@@ -187,8 +169,12 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     if src_img.exists():
         shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
 
-    return {"status": "success", "lines": len(polygons_data)}
+    line_count = len(polygons_data) # 1. Capture count first
+    del polygons_data
+    import gc
+    gc.collect()
 
+    return {"status": "success", "lines": line_count}
 
 
 
@@ -592,7 +578,6 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
     return response
 
 
-
 def create_page_xml(
     page_id,
     model_positive_edges,
@@ -605,10 +590,12 @@ def create_page_xml(
     use_best_fit_line: bool = False,
     extend_percentage: float = 0.01,
     image_path: Path = None, 
-    save_vis: bool = True
+    save_vis: bool = True,
+    images_output_dir: Path = None # New Argument
 ):
     """
     Generates a PAGE XML file with reading order and textregions (textboxes).
+    Also saves line images organized by textbox folder.
     """
     PAGE_XML_NAMESPACE = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
     ET.register_namespace('', PAGE_XML_NAMESPACE)
@@ -625,25 +612,20 @@ def create_page_xml(
     components = find_connected_components(model_positive_edges, num_nodes)
     
     # -- Data Structure Preparation --
-    # Group components (lines) by their Textbox Label
-    # Map: textbox_id -> list of component indices
     regions = defaultdict(list)
     
     for i, component in enumerate(components):
         if not component: continue
         
-        # Determine Textbox Label for this line
-        # We take the majority label of nodes in the component
         comp_tb_labels = []
         if textbox_labels is not None:
              for node_idx in component:
                  comp_tb_labels.append(textbox_labels[node_idx])
         
         if comp_tb_labels:
-            # majority vote
             tb_id = np.bincount(comp_tb_labels).argmax()
         else:
-            tb_id = 0 # Default region
+            tb_id = 0 
             
         regions[tb_id].append(component)
 
@@ -673,16 +655,12 @@ def create_page_xml(
         if vis_img is None:
             vis_img = np.zeros((final_h, final_w, 3), dtype=np.uint8)
 
-    # -- Sorting Logic Helper --
     def get_centroid(comp_nodes):
-        # Scale coords by 2 to match XML space
         xs = [points_unnormalized[n][0] * 2 for n in comp_nodes]
         ys = [points_unnormalized[n][1] * 2 for n in comp_nodes]
         return np.mean(xs), np.mean(ys)
 
-    # 1. Sort Regions (Textboxes)
-    # We sort regions based on the centroid of all lines within them.
-    # Reading order: Top-to-Bottom, then Left-to-Right.
+    # 1. Sort Regions
     region_centroids = []
     for tb_id, comps in regions.items():
         all_nodes = [n for comp in comps for n in comp]
@@ -690,59 +668,66 @@ def create_page_xml(
         cx, cy = get_centroid(all_nodes)
         region_centroids.append({'id': tb_id, 'cx': cx, 'cy': cy})
     
-    # Sort primarily by Y, secondarily by X (with some tolerance for Y lines)
-    # A simple approach: Y + (X * small_factor) usually works for mostly vertical layouts, 
-    # but for standard reading order we often want strict Top-Down.
-    # Let's use strict Y for region sorting for now.
     region_centroids.sort(key=lambda r: (r['cy'], r['cx']))
 
-# -- Construct XML Hierarchy --
+    # -- Construct XML Hierarchy --
     for r_idx, region_info in enumerate(region_centroids):
         tb_id = region_info['id']
         comps = regions[tb_id]
         
+        # --- NEW: Create Directory for this Textbox ---
+        current_tb_dir = None
+        if images_output_dir:
+            current_tb_dir = images_output_dir / f"textbox_label_{tb_id}"
+            current_tb_dir.mkdir(exist_ok=True)
+        # ---------------------------------------------
+
         # --- FIXED AREA CALCULATION ---
-        # Instead of using node centers, we collect all coordinate points 
-        # from the polygons of the lines assigned to this region.
         region_xs = []
         region_ys = []
         
         for comp in comps:
-            # Get the line label (cluster ID) to retrieve the specific polygon
             line_label = pred_node_labels[comp[0]]
             
-            if line_label in polygons_data and len(polygons_data[line_label]) > 0:
-                # Use the polygon points (assuming they are already in the target 2x scale 
-                # consistent with their usage later in the script)
-                poly_pts = polygons_data[line_label]
-                for p in poly_pts:
-                    region_xs.append(p[0])
-                    region_ys.append(p[1])
+            # --- MODIFIED: Access Logic for new Polygons Data Structure ---
+            if line_label in polygons_data:
+                # === RED TEAM FIX START ===
+                # We need to extract the raw list of points from the new dictionary structure
+                data_obj = polygons_data[line_label]
+                poly_pts = []
+                
+                # Check: Is this the new format (Dict) or old format (List)?
+                if isinstance(data_obj, dict) and 'points' in data_obj:
+                    poly_pts = data_obj['points'] # Extract the list
+                else:
+                    poly_pts = data_obj # Fallback for safety
+                # === RED TEAM FIX END ===
+                
+                if len(poly_pts) > 0:
+                    for p in poly_pts:
+                        region_xs.append(p[0])
+                        region_ys.append(p[1])
             else:
-                # Fallback: If no polygon exists, use the node centers (scaled by 2)
-                # This prevents a crash if segmentation data is missing for a line
+                # Fallback: If no polygon exists, use node centers
                 for n in comp:
                     region_xs.append(points_unnormalized[n][0] * 2)
                     region_ys.append(points_unnormalized[n][1] * 2)
         
         if not region_xs: 
-            continue # Skip empty regions
+            continue 
 
         min_x, max_x = min(region_xs), max(region_xs)
         min_y, max_y = min(region_ys), max(region_ys)
-        # ------------------------------
         
         region_elem = ET.SubElement(page, "TextRegion", id=f"region_{r_idx}", custom=f"textbox_label_{tb_id}")
         region_coords_str = f"{int(min_x)},{int(min_y)} {int(max_x)},{int(min_y)} {int(max_x)},{int(max_y)} {int(min_x)},{int(max_y)}"
         ET.SubElement(region_elem, "Coords", points=region_coords_str)
 
-        # Visualize Region (Yellow)
         if save_vis and vis_img is not None:
             cv2.rectangle(vis_img, (int(min_x), int(min_y)), (int(max_x), int(max_y)), (0, 255, 255), 2)
             cv2.putText(vis_img, f"R{r_idx}", (int(min_x), int(min_y)-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
         # 2. Sort Lines within Region
-        # Standard reading order: Top-to-Bottom
         comp_centroids = []
         for comp in comps:
             cx, cy = get_centroid(comp)
@@ -752,7 +737,7 @@ def create_page_xml(
 
         for l_idx, line_info in enumerate(comp_centroids):
             component = line_info['comp']
-            line_label = pred_node_labels[component[0]] # Original cluster ID
+            line_label = pred_node_labels[component[0]] 
             
             text_line = ET.SubElement(region_elem, "TextLine", id=f"region_{r_idx}_line_{l_idx}")
             
@@ -763,25 +748,36 @@ def create_page_xml(
             path_indices = trace_component_with_backtracking(component, adj)
             if len(path_indices) >= 1:
                 ordered_points = [points_unnormalized[idx] for idx in path_indices]
-                # Scale by 2 and shift Y to center of char (y + s/2)
                 baseline_vis = [[int(p[0]*2), int((p[1]+(p[2]/2))*2)] for p in ordered_points]
                 baseline_points_str = " ".join([f"{p[0]},{p[1]}" for p in baseline_vis])
             
             ET.SubElement(text_line, "Baseline", points=baseline_points_str)
 
-            # --- Polygon Coords ---
+            # --- Polygon Coords AND Image Saving ---
             polygon_vis = []
             if line_label in polygons_data:
-                polygon_points = polygons_data[line_label] # already scaled in segment script? NO, usually 1x
-                # segmentLinesFromPointClusters output is usually based on 'image' size.
-                # Since points_unnormalized are 1x, and XML is 2x, check segment script.
-                # segment script resizes heatmaps up. Assuming polygons match final_w/final_h space.
-                # If polygons_data are from 1x coords, we need to scale. 
-                # segmentLinesFromPointClusters uses upscale_heatmap=True -> matches original image size (2x of heatmap dims)
-                # So polygon_points should be in 2x scale already.
-                coords_str = " ".join([f"{p[0]},{p[1]}" for p in polygon_points])
-                ET.SubElement(text_line, "Coords", points=coords_str)
-                polygon_vis = polygon_points
+                data = polygons_data[line_label]
+                polygon_points = []
+                
+                # Check format and extract Image/Points
+                if isinstance(data, dict):
+                    polygon_points = data.get('points', [])
+                    line_img = data.get('image', None)
+                    
+                    # --- NEW: Save Image to Textbox Folder ---
+                    if current_tb_dir is not None and line_img is not None:
+                        # e.g., line_005.jpg
+                        # Note: line_label is an integer, typically 0-indexed relative to graph
+                        img_save_path = current_tb_dir / f"line_{line_label}.jpg"
+                        cv2.imwrite(str(img_save_path), line_img)
+                    # ------------------------------------------
+                else:
+                    polygon_points = data # Old format fallback
+                
+                if polygon_points:
+                    coords_str = " ".join([f"{p[0]},{p[1]}" for p in polygon_points])
+                    ET.SubElement(text_line, "Coords", points=coords_str)
+                    polygon_vis = polygon_points
 
             # Visualize Line
             if save_vis and vis_img is not None:
