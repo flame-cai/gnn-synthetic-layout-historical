@@ -1,5 +1,5 @@
 As an expert in Gemini API application layer, prompt engineering, software development, front-end sofware development, please assist me in making precise improvements to the below code.
-This code is part of a larger system which performs layout analysis on manuscript images using a Graph Neural Network (GNN). The layout analysis problem is formulated in a graph based manner, where characters are treated as nodes and characters of the same text lines are connected with edges. Thus nodes containing the same textline have the same text line label. The user can also label nodes with textbox labels, marking nodes of each text box with the same integer label. Once labelled (using gnn + manual corrections), the system generates PAGE XML files containing text regions and text lines, along with visualizations. The system also saves textline images, for each textbox.
+This code is part of a larger system which performs layout analysis on manuscript images using a Graph Neural Network (GNN). The layout analysis problem is formulated in a graph based manner, where characters are treated as nodes and characters of the same text lines are connected with edges. Thus nodes containing the same textline have the same text line label. The user can also label nodes with textbox labels, marking nodes of each text box with the same integer label. Once labelled (using gnn layout inference + manual corrections), the system generates PAGE XML files containing text regions and text lines, along with visualizations. The system also saves textline images, for each textbox.
 
 What the code currently lacks is that the PAGE-XML files which get generated do not actually contain the text. In other words, the 
 
@@ -21,7 +21,7 @@ I primarily want your help in filling this missing gap. To this I want you to us
 
 please prompt engineer an apt prompt for this task, using which Gemini will give transcribed text from textlines in a robust parsable manner, without consuming too many tokens. Once Gemini recognizes the text, we need to update the PAGE-XML files accordingly for that page.
 
-To do this we need to make changes to the workflow of the tool:
+To do this please first understand the expected workflow of the tool and what this new change ADDS:
 - the user uploads a manuscript
 - the manuscript is processed and layout inference is made by the GNN pipeline. 
 - then the user makes manual corrections in the Node Mode (N), Edge Edit (W), and Region Labeling (R) mode. The user then saves the page, creating a PAGE-XML file for that page, along with textline images for each textbox of that page.
@@ -39,6 +39,8 @@ To do this we need to make changes to the workflow of the tool:
 PLease think carefully about how to organize this. Note that the "Recogntion Mode" is an ADDITION to existing workflow. It does not change the existing workflow. Hence please ensure this.
 
 Please think carefully understand the flow of the code and implement precise changes to achieve this. Do not change any other functionality. If you think you need extra information, please ask before proceeding.
+
+Please write robust code, with assert statements where required, and with good logging for easy debugging.
 
 Please study the code below:
 
