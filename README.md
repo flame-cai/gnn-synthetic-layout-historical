@@ -201,6 +201,3 @@ python -m gnn_training.training.main_train_eval \
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 
 
-## Acknowledgements
-We would like to thank Petar Veličković, Oliver Hellwig, Dhavel Patel for their extermely valuable inputs and discussions.
-
