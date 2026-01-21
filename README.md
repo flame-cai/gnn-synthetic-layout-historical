@@ -2,10 +2,9 @@
 
 
 **Version:** 3.0
-**Last Updated:** Jan 15, 2026
+**Last Updated:** Jan 21, 2026
 
-This repository contains a public implementation of the Graph based text-line segmentation method proposed in the paper "Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data". This work has been developed by the original authors from Centre for inter-disciplinary Artificial Intelligence (CAI) at FLAME University:
-[Kartik Chincholikar ](https://kartikchincholikar.github.io/), [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubdomain=in), [Mihir Hasabnis](https://www.linkedin.com/in/mihir-hasabnis-4078a01b/)
+This repository contains a public implementation of the Graph based text-line segmentation method proposed in the paper "Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data". 
 
 In this work we formulate the text-line segmentation task as an edge classification problem for graph neural networks, representing each character as a node in the graph, with edges connecting characters of the same text-line. 
 
