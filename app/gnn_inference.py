@@ -47,7 +47,7 @@ def load_model_once(model_checkpoint_path, config_path):
             LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
 
-def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None, nodes=None):
+def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None, nodes=None, text_content=None):
     """
     Saves user corrections and regenerates XML.
     Handles coordinate scaling: Frontend (Image Space) -> Storage (Heatmap Space).
@@ -160,7 +160,8 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         polygons_data,
         textbox_labels=final_textbox_labels,
         image_path=base_path / "images_resized" / f"{page_id}.jpg",
-        images_output_dir=images_output_dir  # Pass the directory
+        images_output_dir=images_output_dir,
+        text_content=text_content # <--- PASS THIS DOWN
     )
 
     resized_images_dst_dir = output_dir / "images_resized"
@@ -591,7 +592,8 @@ def create_page_xml(
     extend_percentage: float = 0.01,
     image_path: Path = None, 
     save_vis: bool = True,
-    images_output_dir: Path = None # New Argument
+    images_output_dir: Path = None,
+    text_content: dict = None # <--- NEW ARGUMENT
 ):
     """
     Generates a PAGE XML file with reading order and textregions (textboxes).
@@ -740,6 +742,11 @@ def create_page_xml(
             line_label = pred_node_labels[component[0]] 
             
             text_line = ET.SubElement(region_elem, "TextLine", id=f"region_{r_idx}_line_{l_idx}")
+
+            if text_content and str(line_label) in text_content:
+                text_equiv = ET.SubElement(text_line, "TextEquiv")
+                unicode_elem = ET.SubElement(text_equiv, "Unicode")
+                unicode_elem.text = text_content[str(line_label)]
             
             # --- Baseline Calculation ---
             baseline_points_str = ""

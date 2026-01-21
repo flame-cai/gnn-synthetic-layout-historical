@@ -8,6 +8,9 @@ import base64
 import json
 import zipfile
 import io
+import google.generativeai as genai # NEW IMPORT
+import glob # NEW IMPORT
+from PIL import Image
 
 # Import your existing pipelines
 from inference import process_new_manuscript
@@ -112,19 +115,17 @@ def get_page_prediction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+# 1. Update save_correction to receive text content
 @app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
 def save_correction(manuscript, page):
-    """
-    Step 5: Receive corrected labels, Save, Generate XML/Lines.
-    """
     data = request.json
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     
-    # Extract data from frontend
     textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph')
     textbox_labels = data.get('textboxLabels')
-    nodes_data = graph_data.get('nodes') # NEW: Extract nodes list
+    nodes_data = graph_data.get('nodes')
+    text_content = data.get('textContent') # <--- NEW: Get text from frontend
     
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -142,13 +143,108 @@ def save_correction(manuscript, page):
                 'CC_SIZE_THRESHOLD_RATIO': 0.4
             },
             textbox_labels=textbox_labels,
-            nodes=nodes_data # NEW: Pass nodes to backend
+            nodes=nodes_data,
+            text_content=text_content # <--- PASS TO LOGIC
         )
         return jsonify(result)
     except Exception as e:
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+# 2. Add Recognition Endpoint
+@app.route('/recognize-text', methods=['POST'])
+def recognize_text():
+    data = request.json
+    manuscript = data.get('manuscript')
+    page = data.get('page')
+    api_key = data.get('apiKey')
+    
+    if not api_key:
+        return jsonify({"error": "API Key required"}), 400
+
+    manuscript_path = Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output"
+    img_dir = manuscript_path / "image-format" / page
+    
+    if not img_dir.exists():
+        return jsonify({"error": "No line images found. Please save the layout first."}), 404
+
+    # Configure Gemini
+    genai.configure(api_key=api_key)
+    
+    # We use Flash for speed and cost. 
+    model = genai.GenerativeModel('gemini-2.5-flash')
+    
+    results = {}
+    
+    # Iterate through textbox folders to maintain logical grouping
+    textbox_folders = sorted(list(img_dir.glob("textbox_label_*")))
+    
+    for tb_folder in textbox_folders:
+        image_files = sorted(list(tb_folder.glob("*.jpg")))
+        if not image_files:
+            continue
+            
+        # We process one textbox at a time to give the model context 
+        # but separate lines to ensure robust parsing.
+        
+        # Prepare inputs: List of [Image, Prompt, Image, Prompt...] is token heavy.
+        # Efficient approach: List of [Image1, Image2, ... , Text Prompt]
+        
+        inputs = []
+        file_map = [] # To map index back to filename/line_id
+        
+        for img_path in image_files:
+            try:
+                # Extract line ID from filename "line_{id}.jpg"
+                line_id = img_path.stem.split('_')[1]
+                
+                # Load image for Gemini
+                pil_img = Image.open(img_path)
+                inputs.append(pil_img)
+                file_map.append(line_id)
+            except Exception as e:
+                print(f"Skipping bad image {img_path}: {e}")
+
+        if not inputs:
+            continue
+
+        # PROMPT ENGINEERING
+        # 1. Role: Paleographer.
+        # 2. Task: Transcribe.
+        # 3. Output Format: Strict JSON. 
+        # We ask for a list corresponding to the provided images in order.
+        
+        prompt = (
+            "You are an expert Sanskrit paleographer. "
+            "Transcribe the handwritten text in the provided textline images exactly as it appears. "
+            "The images are provided in reading order (line by line). "
+            "Return a raw JSON object (no markdown formatting) where keys are the indices (0, 1, 2...) "
+            "corresponding to the order of images passed, and values are the transcriptions. "
+            "Example: {\"0\": \"The first line text\", \"1\": \"The second line text\"}"
+        )
+        inputs.append(prompt)
+
+        try:
+            response = model.generate_content(inputs, generation_config={"response_mime_type": "application/json"})
+            text_response = response.text
+            
+            # Parse JSON
+            import json
+            batch_result = json.loads(text_response)
+            
+            # Map back to line IDs
+            for idx_str, text in batch_result.items():
+                idx = int(idx_str)
+                if idx < len(file_map):
+                    real_line_id = file_map[idx]
+                    results[real_line_id] = text
+                    
+        except Exception as e:
+            print(f"Gemini Error for {tb_folder}: {e}")
+            # Continue to next textbox even if one fails
+            
+    return jsonify({"transcriptions": results})
 
 
 

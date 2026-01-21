@@ -64,6 +64,7 @@
           No image available
         </div>
 
+        <!-- SVG Graph Layer -->
         <svg
           v-if="graphIsLoaded"
           class="graph-overlay"
@@ -118,6 +119,42 @@
             stroke-dasharray="5,5"
           />
         </svg>
+
+        <!-- Recognition Input Overlay Layer -->
+        <div
+            v-if="recognitionModeActive && graphIsLoaded"
+            class="input-overlay-container"
+            :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
+        >
+            <div
+                v-for="(nodeIndices, lineId) in textlines"
+                :key="`input-${lineId}`"
+                class="line-input-wrapper"
+                :style="getLineInputStyle(nodeIndices)"
+            >
+                <!-- Editable Input -->
+                <input 
+                    v-if="focusedLineId === lineId"
+                    ref="activeInput"
+                    v-model="localTextContent[lineId]" 
+                    class="line-input active"
+                    @blur="focusedLineId = null"
+                    @keydown.tab.prevent="focusNextLine(lineId)"
+                    placeholder="Transcribe..." 
+                />
+                <!-- Read-only Display (Click to Edit) -->
+                <div 
+                    v-else 
+                    class="line-input-display"
+                    @click="activateInput(lineId)"
+                    :class="{ 'has-text': !!localTextContent[lineId] }"
+                    :title="localTextContent[lineId] || 'Click to transcribe'"
+                >
+                    {{ localTextContent[lineId] || '' }}
+                </div>
+            </div>
+        </div>
+
       </div>
     </div>
 
@@ -128,7 +165,7 @@
       <div class="mode-tabs">
          <button 
            class="mode-tab" 
-           :class="{ active: !textlineModeActive && !textboxModeActive && !nodeModeActive }"
+           :class="{ active: !textlineModeActive && !textboxModeActive && !nodeModeActive && !recognitionModeActive }"
            @click="setMode('view')"
            :disabled="isProcessingSave">
            View Mode
@@ -154,6 +191,14 @@
            :disabled="isProcessingSave || !graphIsLoaded">
            Region Labeling (R)
          </button>
+         <!-- NEW RECOGNITION TAB -->
+         <button 
+           class="mode-tab" 
+           :class="{ active: recognitionModeActive }"
+           @click="setMode('recognition')"
+           :disabled="isProcessingSave || !graphIsLoaded">
+           Recognize (T)
+         </button>
 
          
          <!-- Spacer to push toggle button to right -->
@@ -167,17 +212,10 @@
       </div>
 
       <!-- Help & Actions Content Area (Collapsible) -->
-      <!-- Help & Actions Content Area (Collapsible) -->
       <div class="help-content-area" v-show="!isPanelCollapsed">
         
         <!-- Section: View Mode (Default) -->
-        <div v-if="!textlineModeActive && !textboxModeActive && !nodeModeActive" class="help-section">
-          <!-- Keeping placeholder for View Mode since no video was provided -->
-          <!-- <div class="media-container">
-            <div class="webm-placeholder">
-              <span>View Mode</span>
-            </div>
-          </div> -->
+        <div v-if="!textlineModeActive && !textboxModeActive && !nodeModeActive && !recognitionModeActive" class="help-section">
           <div class="instructions-container">
             <h3>View Mode</h3>
             <p>Pan and zoom to inspect the manuscript. No edits can be made in this mode. Select a mode above or use hotkeys to start annotating.</p>
@@ -187,7 +225,6 @@
         <!-- Section: Edge Edit Mode -->
         <div v-if="textlineModeActive" class="help-section">
           <div class="media-container">
-            <!-- UPDATED VIDEO TAG -->
             <video :src="edgeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
           </div>
           <div class="instructions-container">
@@ -197,19 +234,12 @@
               <li><strong>Delete:</strong> Hold <code>'d'</code> and hover over edges to delete them.</li>
               <li><strong>Save:</strong> Press <code>'s'</code> to save changes and move to the next page.</li>
             </ul>
-            
-            <!-- <div v-if="!isAKeyPressed && !isDKeyPressed" class="context-actions">
-               <button @click="resetSelection" :disabled="selectedNodes.length === 0">Cancel Selection</button>
-               <button class="primary-action" @click="addEdge" :disabled="selectedNodes.length !== 2 || edgeExists(selectedNodes[0], selectedNodes[1])">Add Edge</button>
-               <button class="danger-action" @click="deleteEdge" :disabled="selectedNodes.length !== 2 || !edgeExists(selectedNodes[0], selectedNodes[1])">Delete Edge</button>
-            </div> -->
           </div>
         </div>
 
         <!-- Section: Region Labeling Mode -->
         <div v-if="textboxModeActive" class="help-section">
            <div class="media-container">
-            <!-- UPDATED VIDEO TAG -->
             <video :src="regionWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
           </div>
           <div class="instructions-container">
@@ -218,16 +248,12 @@
               Hold <code>'e'</code> and hover over lines to label them as being in the same text-box. 
               Release <code>'e'</code> and press it again to label a new text-box.
             </p>
-            <!-- <div class="modifications-log-container">
-               <button @click="saveCurrentGraph" :disabled="loading || isProcessingSave">Save Graph & Labels</button>
-            </div> -->
           </div>
         </div>
 
         <!-- Section: Node Mode -->
         <div v-if="nodeModeActive" class="help-section">
            <div class="media-container">
-            <!-- UPDATED VIDEO TAG -->
             <video :src="nodeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
           </div>
           <div class="instructions-container">
@@ -237,6 +263,30 @@
               <li><strong>Delete Node:</strong> Right-click on an existing node to remove it (and its connections).</li>
             </ul>
           </div>
+        </div>
+
+        <!-- Section: Recognition Mode (NEW) -->
+        <div v-if="recognitionModeActive" class="help-section">
+           <div class="media-container">
+             <div class="webm-placeholder">
+              <span>Recognition Mode</span>
+            </div>
+           </div>
+           <div class="instructions-container">
+             <h3>Recognition Mode</h3>
+             <p>Use Gemini AI to transcribe text lines automatically, then correct them manually.</p>
+             <div class="form-group-inline">
+                <input v-model="geminiKey" type="password" placeholder="Enter Gemini API Key" class="api-input" />
+                <button class="action-btn primary" @click="triggerRecognition" :disabled="isRecognizing || !geminiKey">
+                    {{ isRecognizing ? 'Recognizing...' : 'Auto-Recognize' }}
+                </button>
+             </div>
+             <ul>
+               <li><strong>Edit:</strong> Click any text line box on the image to type.</li>
+               <li><strong>Navigate:</strong> Press <code>Tab</code> to jump to the next line.</li>
+               <li><strong>Save:</strong> Press <code>'s'</code> to save the text into the PAGE-XML.</li>
+             </ul>
+           </div>
         </div>
         
         <!-- Shared: Modification Log -->
@@ -260,7 +310,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, watch, reactive } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch, reactive, nextTick } from 'vue'
 import { generateLayoutGraph } from '../layout-analysis-utils/LayoutGraphGenerator.js'
 import { useRouter } from 'vue-router'
 import edgeWebm from '../tutorial/_edge.webm'
@@ -284,18 +334,23 @@ const setMode = (mode) => {
     textlineModeActive.value = false
     textboxModeActive.value = false
     nodeModeActive.value = false
+    recognitionModeActive.value = false
   } else if (mode === 'edge') {
     textlineModeActive.value = true
   } else if (mode === 'region') {
     textboxModeActive.value = true
   } else if (mode === 'node') {
     nodeModeActive.value = true
+  } else if (mode === 'recognition') {
+    // Enable recognition mode
+    textlineModeActive.value = false
+    textboxModeActive.value = false
+    nodeModeActive.value = false
+    recognitionModeActive.value = true
+    initializeTextContent()
   }
-  // Optional: Auto-expand panel when switching modes so user sees instructions
   isPanelCollapsed.value = false
 }
-
-// ... (Keep all existing Refs, Computed properties, and Functions exactly as they are below) ...
 
 const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
 
@@ -312,6 +367,12 @@ const imageLoaded = ref(false)
 
 const textlineModeActive = ref(false)
 const textboxModeActive = ref(false)
+// NEW: Recognition Mode State
+const recognitionModeActive = ref(false)
+const geminiKey = ref(localStorage.getItem('gemini_key') || '')
+const isRecognizing = ref(false)
+const localTextContent = reactive({}) // Map: lineId -> string
+const focusedLineId = ref(null)
 
 const dimensions = ref([0, 0])
 const points = ref([])
@@ -353,7 +414,99 @@ const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
 
-// --- NODE MANIPULATION LOGIC (Keep existing) ---
+// --- RECOGNITION MODE UTILS ---
+
+// Initialize map keys based on current textlines structure
+const initializeTextContent = () => {
+    Object.keys(textlines.value).forEach(id => {
+        if(!(id in localTextContent)) {
+            localTextContent[id] = ""
+        }
+    })
+}
+
+// Calculate position for input overlay
+const getLineInputStyle = (nodeIndices) => {
+    if(!nodeIndices || nodeIndices.length === 0) return { display: 'none' };
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    nodeIndices.forEach(idx => {
+        const n = workingGraph.nodes[idx];
+        if (!n) return;
+        if(n.x < minX) minX = n.x;
+        if(n.y < minY) minY = n.y;
+        if(n.x > maxX) maxX = n.x;
+        if(n.y > maxY) maxY = n.y;
+    });
+
+    if (minX === Infinity) return { display: 'none' };
+
+    const pad = 5;
+    const width = (maxX - minX) + (pad * 2);
+    const height = (maxY - minY) + (pad * 2); 
+    
+    return {
+        left: `${scaleX(minX - pad)}px`,
+        top: `${scaleY(maxY - pad)}px`,
+        width: `${scaleX(width)}px`,
+        height: `${scaleY(height)}px`, 
+        position: 'absolute'
+    }
+}
+
+// Trigger Gemini API
+const triggerRecognition = async () => {
+    if(!geminiKey.value) return alert("Please enter an API Key");
+    localStorage.setItem('gemini_key', geminiKey.value);
+    
+    isRecognizing.value = true;
+    try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recognize-text`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                manuscript: localManuscriptName.value,
+                page: localCurrentPage.value,
+                apiKey: geminiKey.value
+            })
+        });
+        
+        const data = await res.json();
+        if(data.error) throw new Error(data.error);
+        
+        // Update local state with recognized text
+        if(data.transcriptions) {
+            Object.entries(data.transcriptions).forEach(([id, text]) => {
+                localTextContent[id] = text;
+            });
+        }
+    } catch(e) {
+        alert("Recognition failed: " + e.message);
+    } finally {
+        isRecognizing.value = false;
+    }
+}
+
+const activateInput = (lineId) => {
+    focusedLineId.value = lineId;
+    nextTick(() => {
+        const el = document.querySelector('.line-input.active');
+        if(el) el.focus();
+    });
+}
+
+const focusNextLine = (currentId) => {
+    const ids = Object.keys(textlines.value).map(Number).sort((a,b) => a - b); 
+    const currIdx = ids.indexOf(parseInt(currentId));
+    if(currIdx !== -1 && currIdx < ids.length - 1) {
+        activateInput(ids[currIdx + 1]);
+    }
+}
+
+
+// --- EXISTING GRAPH LOGIC ---
+
 const getAverageNodeSize = () => {
     if (!workingGraph.nodes || workingGraph.nodes.length === 0) return 10;
     const sum = workingGraph.nodes.reduce((acc, n) => acc + (n.s || 10), 0);
@@ -397,7 +550,7 @@ const svgCursor = computed(() => {
     if (isEKeyPressed.value) return 'crosshair'
     return 'pointer'
   }
-  if (!textlineModeActive.value) return 'default'
+  if (!textlineModeActive.value && !recognitionModeActive.value && !nodeModeActive.value) return 'default'
   if (nodeModeActive.value) return 'cell'; 
   if (isAKeyPressed.value) return 'crosshair'
   if (isDKeyPressed.value) return 'not-allowed'
@@ -476,6 +629,9 @@ const fetchPageData = async (manuscript, page) => {
   error.value = null
   modifications.value = []
   Object.keys(textlineLabels).forEach((key) => delete textlineLabels[key])
+  
+  // Reset text content on page load
+  Object.keys(localTextContent).forEach(key => delete localTextContent[key])
 
   try {
     const response = await fetch(
@@ -615,7 +771,7 @@ const resetSelection = () => {
 }
 
 const onEdgeClick = (edge, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
+  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value || recognitionModeActive.value) return
   event.stopPropagation()
   selectedNodes.value = [edge.source, edge.target]
 }
@@ -631,7 +787,7 @@ const onBackgroundClick = (event) => {
 const onNodeClick = (nodeIndex, event) => {
     event.stopPropagation(); 
     if (nodeModeActive.value) return;
-    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return;
+    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value || recognitionModeActive.value) return;
     const existingIndex = selectedNodes.value.indexOf(nodeIndex);
     if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1);
     else selectedNodes.value.length < 2 ? selectedNodes.value.push(nodeIndex) : (selectedNodes.value = [nodeIndex]);
@@ -701,7 +857,7 @@ const labelTextline = () => {
 const handleGlobalKeyDown = (e) => {
   const key = e.key.toLowerCase()
   if (key === 's' && !e.repeat) {
-    if ((textlineModeActive.value || textboxModeActive.value || nodeModeActive.value) && !loading.value && !isProcessingSave.value) {
+    if ((textlineModeActive.value || textboxModeActive.value || nodeModeActive.value || recognitionModeActive.value) && !loading.value && !isProcessingSave.value) {
       e.preventDefault()
       saveAndGoNext()
     }
@@ -709,17 +865,22 @@ const handleGlobalKeyDown = (e) => {
   }
   if (key === 'w' && !e.repeat) {
     e.preventDefault()
-    textlineModeActive.value = !textlineModeActive.value
+    setMode('edge')
     return
   }
   if (key === 'r' && !e.repeat) {
     e.preventDefault()
-    textboxModeActive.value = !textboxModeActive.value
+    setMode('region')
     return
   }
   if (key === 'n' && !e.repeat) {
     e.preventDefault()
-    nodeModeActive.value = !nodeModeActive.value
+    setMode('node')
+    return
+  }
+  if (key === 't' && !e.repeat) { // T for Text recognition
+    e.preventDefault()
+    setMode('recognition')
     return
   }
   if (textboxModeActive.value && key === 'e' && !e.repeat) {
@@ -898,6 +1059,7 @@ const saveModifications = async () => {
     modifications: modifications.value,
     textlineLabels: dummyTextlineLabels, 
     textboxLabels: labelsToSend,
+    textContent: localTextContent // Send recognized/edited text to backend
   }
   try {
     const res = await fetch(
@@ -933,8 +1095,10 @@ const saveCurrentGraph = async () => {
 
 const confirmAndNavigate = async (navAction) => {
   if (isProcessingSave.value) return
-  if (modifications.value.length > 0) {
-    if (confirm('You have unsaved changes. Do you want to save them before navigating?')) {
+  if (modifications.value.length > 0 || (recognitionModeActive.value && Object.keys(localTextContent).some(k => localTextContent[k]))) {
+    // Note: Checking for text changes specifically is complex without dirty tracking, 
+    // but saving harmlessly re-writes XML.
+    if (confirm('Do you want to save changes before navigating?')) {
       isProcessingSave.value = true
       try {
         await saveModifications()
@@ -1035,6 +1199,7 @@ watch(textlineModeActive, (val) => {
   if (val) {
     textboxModeActive.value = false
     nodeModeActive.value = false
+    recognitionModeActive.value = false
   } else {
     resetSelection()
     isAKeyPressed.value = false
@@ -1047,6 +1212,7 @@ watch(textboxModeActive, (val) => {
   if (val) {
     textlineModeActive.value = false
     nodeModeActive.value = false
+    recognitionModeActive.value = false
     resetSelection()
     const existingLabels = Object.values(textlineLabels)
     if (existingLabels.length > 0) {
@@ -1064,8 +1230,18 @@ watch(nodeModeActive, (val) => {
   if (val) {
     textlineModeActive.value = false
     textboxModeActive.value = false
+    recognitionModeActive.value = false
     resetSelection()
   }
+})
+
+watch(recognitionModeActive, (val) => {
+    if(val) {
+        textlineModeActive.value = false
+        textboxModeActive.value = false
+        nodeModeActive.value = false
+        resetSelection()
+    }
 })
 </script>
 
@@ -1223,6 +1399,57 @@ button:disabled {
   pointer-events: auto;
 }
 
+/* Input Overlay */
+.input-overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none; 
+    z-index: 50;
+}
+
+.line-input-wrapper {
+    pointer-events: auto; 
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.line-input {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border: 1px solid #4CAF50;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+
+.line-input-display {
+    width: 100%;
+    height: 100%;
+    cursor: text;
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+.line-input-display:hover {
+    background: rgba(255,255,255,0.1);
+}
+.line-input-display.has-text {
+    color: #fff;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+
 /* Loading/Error States */
 .processing-save-notice,
 .loading,
@@ -1242,7 +1469,6 @@ button:disabled {
 .loading { font-size: 1.2rem; color: #aaa; background: rgba(0,0,0,0.5); }
 
 
-/* --- BOTTOM RAIL --- */
 /* --- BOTTOM RAIL --- */
 .bottom-panel {
   background-color: #2c2c2c;
@@ -1429,6 +1655,20 @@ code {
 .danger-action {
   background-color: #f44336;
   border-color: #d32f2f;
+}
+
+/* API Input & Inline Form */
+.form-group-inline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.api-input {
+    background: #444;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 5px 10px;
+    flex-grow: 1;
 }
 
 /* Log Sidebar */
