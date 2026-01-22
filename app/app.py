@@ -16,6 +16,7 @@ from PIL import Image
 from inference import process_new_manuscript
 from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
 from segmentation.utils import load_images_from_folder
+import xml.etree.ElementTree as ET # Ensure this is imported
 
 app = Flask(__name__)
 CORS(app)
@@ -152,7 +153,6 @@ def save_correction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# 2. Add Recognition Endpoint
 @app.route('/recognize-text', methods=['POST'])
 def recognize_text():
     data = request.json
@@ -163,88 +163,137 @@ def recognize_text():
     if not api_key:
         return jsonify({"error": "API Key required"}), 400
 
-    manuscript_path = Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output"
-    img_dir = manuscript_path / "image-format" / page
+    # Paths
+    base_path = Path(UPLOAD_FOLDER) / manuscript
+    xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    # Use the resized image used for display/inference
+    img_path = base_path / "images_resized" / f"{page}.jpg"
     
-    if not img_dir.exists():
-        return jsonify({"error": "No line images found. Please save the layout first."}), 404
+    if not xml_path.exists() or not img_path.exists():
+        return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
 
-    # Configure Gemini
-    genai.configure(api_key=api_key)
+    # 1. Load Image to get dimensions for normalization
+    try:
+        pil_img = Image.open(img_path)
+        img_w, img_h = pil_img.size
+    except Exception as e:
+        return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
+
+    # 2. Parse XML to extract Line Coordinates
+    # Namespace handling is required for PAGE XML
+    ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
     
-    # We use Flash for speed and cost. 
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    
-    results = {}
-    
-    # Iterate through textbox folders to maintain logical grouping
-    textbox_folders = sorted(list(img_dir.glob("textbox_label_*")))
-    
-    for tb_folder in textbox_folders:
-        image_files = sorted(list(tb_folder.glob("*.jpg")))
-        if not image_files:
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse XML: {str(e)}"}), 500
+
+    # Data structure to hold regions: { line_id_int: [ymin, xmin, ymax, xmax] }
+    regions_to_process = {}
+
+    # Find all TextLines
+    # We look for the 'custom' attribute we added in gnn_inference.py
+    for textline in root.findall(".//p:TextLine", ns):
+        custom_attr = textline.get('custom', '')
+        
+        # Extract the integer ID (format: "structure_line_id_{int}")
+        if 'structure_line_id_' not in custom_attr:
             continue
             
-        # We process one textbox at a time to give the model context 
-        # but separate lines to ensure robust parsing.
-        
-        # Prepare inputs: List of [Image, Prompt, Image, Prompt...] is token heavy.
-        # Efficient approach: List of [Image1, Image2, ... , Text Prompt]
-        
-        inputs = []
-        file_map = [] # To map index back to filename/line_id
-        
-        for img_path in image_files:
-            try:
-                # Extract line ID from filename "line_{id}.jpg"
-                line_id = img_path.stem.split('_')[1]
-                
-                # Load image for Gemini
-                pil_img = Image.open(img_path)
-                inputs.append(pil_img)
-                file_map.append(line_id)
-            except Exception as e:
-                print(f"Skipping bad image {img_path}: {e}")
-
-        if not inputs:
-            continue
-
-        # PROMPT ENGINEERING
-        # 1. Role: Paleographer.
-        # 2. Task: Transcribe.
-        # 3. Output Format: Strict JSON. 
-        # We ask for a list corresponding to the provided images in order.
-        
-        prompt = (
-            "You are an expert Sanskrit paleographer. "
-            "Transcribe the handwritten text in the provided textline images exactly as it appears. "
-            "The images are provided in reading order (line by line). "
-            "Return a raw JSON object (no markdown formatting) where keys are the indices (0, 1, 2...) "
-            "corresponding to the order of images passed, and values are the transcriptions. "
-            "Example: {\"0\": \"The first line text\", \"1\": \"The second line text\"}"
-        )
-        inputs.append(prompt)
-
         try:
-            response = model.generate_content(inputs, generation_config={"response_mime_type": "application/json"})
-            text_response = response.text
+            line_id = int(custom_attr.split('structure_line_id_')[1])
+        except ValueError:
+            continue
+
+        # Get Coords
+        coords_elem = textline.find('p:Coords', ns)
+        if coords_elem is None:
+            continue
             
-            # Parse JSON
-            import json
-            batch_result = json.loads(text_response)
+        points_str = coords_elem.get('points', '')
+        if not points_str:
+            continue
+
+        # Parse "x,y x,y ..." into list of tuples
+        try:
+            points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+        except ValueError:
+            continue
             
-            # Map back to line IDs
-            for idx_str, text in batch_result.items():
-                idx = int(idx_str)
-                if idx < len(file_map):
-                    real_line_id = file_map[idx]
-                    results[real_line_id] = text
-                    
-        except Exception as e:
-            print(f"Gemini Error for {tb_folder}: {e}")
-            # Continue to next textbox even if one fails
+        if not points:
+            continue
+
+        # 3. Calculate Bounding Box & Normalize to 0-1000
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+        
+        min_x, max_x = max(0, min(xs)), min(img_w, max(xs))
+        min_y, max_y = max(0, min(ys)), min(img_h, max(ys))
+
+        # Normalize logic: (val / dimension) * 1000, clipped to 0-1000
+        n_ymin = int((min_y / img_h) * 1000)
+        n_xmin = int((min_x / img_w) * 1000)
+        n_ymax = int((max_y / img_h) * 1000)
+        n_xmax = int((max_x / img_w) * 1000)
+
+        # Clamp values
+        n_ymin = max(0, min(1000, n_ymin))
+        n_xmin = max(0, min(1000, n_xmin))
+        n_ymax = max(0, min(1000, n_ymax))
+        n_xmax = max(0, min(1000, n_xmax))
+
+        # Store as [ymin, xmin, ymax, xmax]
+        regions_to_process[line_id] = [n_ymin, n_xmin, n_ymax, n_xmax]
+
+    if not regions_to_process:
+         return jsonify({"transcriptions": {}})
+
+    # 4. Construct Gemini Prompt
+    genai.configure(api_key=api_key)
+    # Using 1.5 Flash as it is optimized for high-volume multimodal tasks
+    model = genai.GenerativeModel('gemini-1.5-flash') 
+
+    # We batch all lines into one request context
+    prompt_text = (
+        "You are an expert OCR engine capable of spatial reasoning. "
+        "I provide an image of a manuscript and a list of regions to transcribe.\n\n"
+        "**Task**:\n"
+        "1. Look at the specific regions defined by the bounding boxes below.\n"
+        "2. The bounding boxes are in [ymin, xmin, ymax, xmax] format on a 0-1000 scale.\n"
+        "3. Transcribe the handwritten text inside each region exactly.\n"
+        "4. Return a raw JSON object where keys are the Region IDs provided and values are the transcriptions.\n\n"
+        "**Regions**:\n"
+    )
+
+    for lid, bbox in regions_to_process.items():
+        prompt_text += f"- Region ID '{lid}': {bbox}\n"
+
+    prompt_text += "\n\n**Output JSON**:"
+
+    try:
+        # Pass Image + Prompt
+        response = model.generate_content(
+            [pil_img, prompt_text], 
+            generation_config={"response_mime_type": "application/json"}
+        )
+        
+        text_response = response.text
+        
+        # Parse JSON
+        import json
+        result_json = json.loads(text_response)
+        
+        # Ensure keys match format expected by frontend (strings of ints)
+        final_results = {}
+        for k, v in result_json.items():
+            final_results[str(k)] = v
             
-    return jsonify({"transcriptions": results})
+        return jsonify({"transcriptions": final_results})
+
+    except Exception as e:
+        print(f"Gemini Spatial Error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 
@@ -292,3 +341,6 @@ def download_results(manuscript):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+# ssh -N -L 5001:localhost:5000 kartik@192.168.8.12

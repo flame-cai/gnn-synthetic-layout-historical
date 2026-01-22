@@ -741,7 +741,13 @@ def create_page_xml(
             component = line_info['comp']
             line_label = pred_node_labels[component[0]] 
             
-            text_line = ET.SubElement(region_elem, "TextLine", id=f"region_{r_idx}_line_{l_idx}")
+            # --- MODIFIED: Add 'custom' attribute to store the integer ID ---
+            text_line = ET.SubElement(
+                region_elem, 
+                "TextLine", 
+                id=f"region_{r_idx}_line_{l_idx}",
+                custom=f"structure_line_id_{line_label}" # <--- CRITICAL ADDITION
+            )
 
             if text_content and str(line_label) in text_content:
                 text_equiv = ET.SubElement(text_line, "TextEquiv")
