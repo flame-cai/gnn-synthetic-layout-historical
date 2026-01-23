@@ -455,9 +455,11 @@ const getLineInputStyle = (nodeIndices) => {
     }
 }
 
-// Trigger Gemini API
+
 const triggerRecognition = async () => {
     if(!geminiKey.value) return alert("Please enter an API Key");
+    
+    // Save key for convenience
     localStorage.setItem('gemini_key', geminiKey.value);
     
     isRecognizing.value = true;
@@ -473,15 +475,29 @@ const triggerRecognition = async () => {
         });
         
         const data = await res.json();
-        if(data.error) throw new Error(data.error);
         
-        // Update local state with recognized text
-        if(data.transcriptions) {
+        if (!res.ok) {
+            throw new Error(data.error || "Unknown server error");
+        }
+        
+        if (data.transcriptions) {
+            let count = 0;
+            // The backend now guarantees a clean dictionary: { "0": "text", "1": "text" }
             Object.entries(data.transcriptions).forEach(([id, text]) => {
-                localTextContent[id] = text;
+                // Only update if we got actual text back
+                if (text !== null && text !== undefined) {
+                    localTextContent[id] = text;
+                    count++;
+                }
             });
+            
+            // Optional: Provide feedback
+            if (count === 0) {
+                alert("Gemini finished but returned no text. Check if the image is clear.");
+            }
         }
     } catch(e) {
+        console.error(e);
         alert("Recognition failed: " + e.message);
     } finally {
         isRecognizing.value = false;

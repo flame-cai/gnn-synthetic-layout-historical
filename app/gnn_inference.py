@@ -749,10 +749,15 @@ def create_page_xml(
                 custom=f"structure_line_id_{line_label}" # <--- CRITICAL ADDITION
             )
 
+            # === VERIFY THIS BLOCK EXISTS ===
             if text_content and str(line_label) in text_content:
-                text_equiv = ET.SubElement(text_line, "TextEquiv")
-                unicode_elem = ET.SubElement(text_equiv, "Unicode")
-                unicode_elem.text = text_content[str(line_label)]
+                rec_text = text_content[str(line_label)]
+                # Ensure we don't write "None" or null
+                if rec_text: 
+                    text_equiv = ET.SubElement(text_line, "TextEquiv")
+                    unicode_elem = ET.SubElement(text_equiv, "Unicode")
+                    unicode_elem.text = str(rec_text)
+            # ================================
             
             # --- Baseline Calculation ---
             baseline_points_str = ""

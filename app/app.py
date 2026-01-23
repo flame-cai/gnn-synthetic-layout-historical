@@ -155,6 +155,12 @@ def save_correction(manuscript, page):
 
 @app.route('/recognize-text', methods=['POST'])
 def recognize_text():
+    """
+    Refined based on Google AI docs:
+    1. Uses gemini-1.5-flash (optimized for multimodal speed/cost).
+    2. Uses native JSON Mode for robust output.
+    3. Normalizes coordinates to 0-1000 (Gemini native scale).
+    """
     data = request.json
     manuscript = data.get('manuscript')
     page = data.get('page')
@@ -163,138 +169,142 @@ def recognize_text():
     if not api_key:
         return jsonify({"error": "API Key required"}), 400
 
-    # Paths
+    # 1. Setup Paths
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
-    # Use the resized image used for display/inference
     img_path = base_path / "images_resized" / f"{page}.jpg"
     
     if not xml_path.exists() or not img_path.exists():
         return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
 
-    # 1. Load Image to get dimensions for normalization
+    # 2. Load Image & Dimensions
     try:
         pil_img = Image.open(img_path)
         img_w, img_h = pil_img.size
     except Exception as e:
         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
 
-    # 2. Parse XML to extract Line Coordinates
-    # Namespace handling is required for PAGE XML
-    ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+    # 3. Parse XML & Prepare Regions
+    # We map "structure_line_id" -> [ymin, xmin, ymax, xmax]
+    regions_to_process = []
     
+    ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
     try:
         tree = ET.parse(xml_path)
         root = tree.getroot()
+        
+        for textline in root.findall(".//p:TextLine", ns):
+            custom_attr = textline.get('custom', '')
+            
+            # Extract ID
+            if 'structure_line_id_' not in custom_attr:
+                continue
+            try:
+                line_id = str(custom_attr.split('structure_line_id_')[1])
+            except IndexError:
+                continue
+
+            # Extract Coords
+            coords_elem = textline.find('p:Coords', ns)
+            if coords_elem is None: continue
+            points_str = coords_elem.get('points', '')
+            if not points_str: continue
+
+            try:
+                points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+            except ValueError: continue
+            
+            if not points: continue
+
+            # Convert Polygon -> Bounding Box
+            xs = [p[0] for p in points]
+            ys = [p[1] for p in points]
+            
+            # Normalize to 0-1000 (Gemini Native Scale)
+            # Formula: int(val / dimension * 1000)
+            n_ymin = int((min(ys) / img_h) * 1000)
+            n_xmin = int((min(xs) / img_w) * 1000)
+            n_ymax = int((max(ys) / img_h) * 1000)
+            n_xmax = int((max(xs) / img_w) * 1000)
+
+            # Clamp & Sort (Safety)
+            n_ymin, n_ymax = sorted([max(0, min(1000, n_ymin)), max(0, min(1000, n_ymax))])
+            n_xmin, n_xmax = sorted([max(0, min(1000, n_xmin)), max(0, min(1000, n_xmax))])
+
+            regions_to_process.append({
+                "id": line_id,
+                "box_2d": [n_ymin, n_xmin, n_ymax, n_xmax]
+            })
+
     except Exception as e:
-        return jsonify({"error": f"Failed to parse XML: {str(e)}"}), 500
-
-    # Data structure to hold regions: { line_id_int: [ymin, xmin, ymax, xmax] }
-    regions_to_process = {}
-
-    # Find all TextLines
-    # We look for the 'custom' attribute we added in gnn_inference.py
-    for textline in root.findall(".//p:TextLine", ns):
-        custom_attr = textline.get('custom', '')
-        
-        # Extract the integer ID (format: "structure_line_id_{int}")
-        if 'structure_line_id_' not in custom_attr:
-            continue
-            
-        try:
-            line_id = int(custom_attr.split('structure_line_id_')[1])
-        except ValueError:
-            continue
-
-        # Get Coords
-        coords_elem = textline.find('p:Coords', ns)
-        if coords_elem is None:
-            continue
-            
-        points_str = coords_elem.get('points', '')
-        if not points_str:
-            continue
-
-        # Parse "x,y x,y ..." into list of tuples
-        try:
-            points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-        except ValueError:
-            continue
-            
-        if not points:
-            continue
-
-        # 3. Calculate Bounding Box & Normalize to 0-1000
-        xs = [p[0] for p in points]
-        ys = [p[1] for p in points]
-        
-        min_x, max_x = max(0, min(xs)), min(img_w, max(xs))
-        min_y, max_y = max(0, min(ys)), min(img_h, max(ys))
-
-        # Normalize logic: (val / dimension) * 1000, clipped to 0-1000
-        n_ymin = int((min_y / img_h) * 1000)
-        n_xmin = int((min_x / img_w) * 1000)
-        n_ymax = int((max_y / img_h) * 1000)
-        n_xmax = int((max_x / img_w) * 1000)
-
-        # Clamp values
-        n_ymin = max(0, min(1000, n_ymin))
-        n_xmin = max(0, min(1000, n_xmin))
-        n_ymax = max(0, min(1000, n_ymax))
-        n_xmax = max(0, min(1000, n_xmax))
-
-        # Store as [ymin, xmin, ymax, xmax]
-        regions_to_process[line_id] = [n_ymin, n_xmin, n_ymax, n_xmax]
+        return jsonify({"error": f"XML Parsing Error: {str(e)}"}), 500
 
     if not regions_to_process:
          return jsonify({"transcriptions": {}})
 
-    # 4. Construct Gemini Prompt
-    genai.configure(api_key=api_key)
-    # Using 1.5 Flash as it is optimized for high-volume multimodal tasks
-    model = genai.GenerativeModel('gemini-2.5-flash') 
-
-    # We batch all lines into one request context
+    # 4. Construct Prompt
+    # We ask for a list of objects, which is more robust for JSON mode than dynamic keys.
     prompt_text = (
-        "You are an expert OCR engine capable of spatial reasoning. "
-        "I provide an image of a Sanskrit historical manuscript and a list of regions to transcribe.\n\n"
-        "**Task**:\n"
-        "1. Look at the specific regions defined by the bounding boxes below.\n"
-        "2. The bounding boxes are in [ymin, xmin, ymax, xmax] format on a 0-1000 scale.\n"
-        "3. Transcribe the handwritten text inside each region exactly.\n"
-        "4. Return a raw JSON object where keys are the Region IDs provided and values are the transcriptions.\n\n"
-        "**Regions**:\n"
+        "You are an expert paleographer analyzing a historical manuscript.\n"
+        "Your task is to transcribe the handwritten text found inside specific bounding boxes.\n\n"
+        "INPUT CONTEXT:\n"
+        "The coordinates are in the format [ymin, xmin, ymax, xmax] on a scale of 0 to 1000.\n\n"
+        "REGIONS TO TRANSCRIBE:\n"
+    )
+    
+    for item in regions_to_process:
+        prompt_text += f"- Region ID '{item['id']}' at Box: {item['box_2d']}\n"
+
+    prompt_text += (
+        "\nOUTPUT INSTRUCTIONS:\n"
+        "1. Return a JSON List of objects.\n"
+        "2. Each object must have two keys: 'id' (string) and 'text' (string).\n"
+        "3. Do not modify the Region ID.\n"
+        "4. If the text is illegible, set 'text' to an empty string.\n"
     )
 
-    for lid, bbox in regions_to_process.items():
-        prompt_text += f"- Region ID '{lid}': {bbox}\n"
-
-    prompt_text += "\n\n**Output JSON**:"
-
+    # 5. Call Gemini API
     try:
-        # Pass Image + Prompt
+        genai.configure(api_key=api_key)
+        
+        # Use 1.5-flash (Best for OCR speed/cost)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+
         response = model.generate_content(
-            [pil_img, prompt_text], 
-            generation_config={"response_mime_type": "application/json"}
+            [pil_img, prompt_text],
+            generation_config={
+                "response_mime_type": "application/json",
+                # We expect a structure like: [{"id": "1", "text": "abc"}, ...]
+            }
         )
         
-        text_response = response.text
+        # 6. Process Response
+        # Because we used response_mime_type, .text is guaranteed to be JSON (no markdown backticks)
+        raw_result = json.loads(response.text)
         
-        # Parse JSON
-        import json
-        result_json = json.loads(text_response)
-        
-        # Ensure keys match format expected by frontend (strings of ints)
-        final_results = {}
-        for k, v in result_json.items():
-            final_results[str(k)] = v
-            
-        return jsonify({"transcriptions": final_results})
+        # Convert List back to Map for Frontend: { "1": "abc", "2": "def" }
+        # Handle cases where Gemini might wrap the list in a root key like {"result": [...]}
+        result_list = []
+        if isinstance(raw_result, list):
+            result_list = raw_result
+        elif isinstance(raw_result, dict):
+            # Try to find the first list value
+            for val in raw_result.values():
+                if isinstance(val, list):
+                    result_list = val
+                    break
+
+        final_map = {}
+        for item in result_list:
+            if 'id' in item and 'text' in item:
+                final_map[str(item['id'])] = item['text']
+
+        return jsonify({"transcriptions": final_map})
 
     except Exception as e:
-        print(f"Gemini Spatial Error: {e}")
+        print(f"Gemini Error: {e}")
+        # Detailed error for debugging
         return jsonify({"error": str(e)}), 500
-
 
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
