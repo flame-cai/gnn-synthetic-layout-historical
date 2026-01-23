@@ -1,125 +1,37 @@
-As an expert in Gemini API application layer, prompt engineering, software development, front-end sofware development, please assist me in making precise improvements to the below code.
-This code is part of a larger system which performs layout analysis on manuscript images using a Graph Neural Network (GNN). The layout analysis problem is formulated in a graph based manner, where characters are treated as nodes and characters of the same text lines are connected with edges. Thus nodes containing the same textline have the same text line label. The user can also label nodes with textbox labels, marking nodes of each text box with the same integer label. Once labelled (using gnn layout inference + manual corrections), the system generates PAGE XML files containing text regions and text lines, along with visualizations. The system also saves textline images, for each textbox.
+As an expert in Gemini API Applications (specializing in OCR of historical documents with complex layouts), prompt engineering, software development, front-end sofware development, please assist me in making precise improvements to the below code.
 
-What the code currently lacks is that the PAGE-XML files which get generated do not actually contain the text. In other words, the 
+This code is part of a larger system which performs layout analysis on manuscript images using a Graph Neural Network (GNN). The layout analysis problem is formulated in a graph based manner, where characters are treated as nodes and characters of the same text lines are connected with edges. Thus nodes containing the same textline have the same text line label. The user can also label nodes with textbox labels, marking nodes of each text box with the same integer label. Once labelled (using gnn layout inference + manual corrections), the system generates PAGE XML files containing textbox and text line bounding polygons, along with visualizations. The system also saves textline images, for each textbox.
 
-    <TextEquiv> 
-        <Unicode>The PAGE Format</Unicode> 
-    </TextEquiv> 
+TODO:
+After detecting bounding polygons using the graph neural network, we use Gemini API to recognize text context from each textline in the recognition mode.
+I want your help in refining how we are currently using the external Visual Grounding provided by the PAGE-XML bounding polygons, to get Gemini to recognize the text. I want you to "align" the bounding polygons tokens, to pay attention to the respective visual tokens of the image, in a way Gemini has been natively trained to do. Please think carefully about this "alignment".
+DO NOT START CODING YET. Instead, first please understand the problem statement as ask me if you need any clarifications.
 
-part is missing from the below sample PAGE-XML snippet.
-
+Essentially, we want to improve the Recognition performance of Gemini and update the PAGE-XML files with the text recognize:
 <TextRegion id="r0" type="heading"> 
     <Coords points="25,30 25,55 235,55 235,30"/> 
     <TextEquiv> 
-        <Unicode>The PAGE Format</Unicode> 
+        <Unicode>RECOGNIZED TEXT HERE</Unicode> 
     </TextEquiv> 
 </TextRegion> 
 
-
-I primarily want your help in filling this missing gap. To this I want you to use Gemini API to recognize text context from each textline (which get's saved), from each textbox on a line by line basis.
-
-please prompt engineer an apt prompt for this task, using which Gemini will give transcribed text from textlines in a robust parsable manner, without consuming too many tokens. Once Gemini recognizes the text, we need to update the PAGE-XML files accordingly for that page.
-
-To do this please first understand the expected workflow of the tool and what this new change ADDS:
+Understand the workflow of the tool in more detail:
 - the user uploads a manuscript
 - the manuscript is processed and layout inference is made by the GNN pipeline. 
 - then the user makes manual corrections in the Node Mode (N), Edge Edit (W), and Region Labeling (R) mode. The user then saves the page, creating a PAGE-XML file for that page, along with textline images for each textbox of that page.
-- everything upto this point we want to keep unchanged. However we now want to implement a new "recognition mode", which will be done once the layout analysis of the page is done and saved. text-recognition from text-lines will happen in this new mode called "Recognition mode" a single page at a time, with user's supervision and post-correction.
-- in the recognition mode, the user should be able to enter their Gemini API key from the frontend.
-- the recognition mode, will will only be updating the PAGE-XML files which has been saved previously with recognised text (transcribed text). To do this we will make use of the saved textline images, for each textbox, for that page.
-- the user click on "Recognize" button.Then an API call to Gemini will be made from the front end itself, with the right prompt.
-- once the recognized text from each line is parsed from Gemini output, we need to display it an Text input / input field. Each textline will have it's own input field, and it will be populated with the recognized text by Gemini. We want to display the input fields of the textline on the manuscript image itself, at the locations of the textlines. If the user click on a textline, the respective text input field will be displayed below that line. Pressing "Tab" will take the user to the next line in that textbox. Only one input field of textline will be visible at one time. Please think carefully when implementing this UI (image scaling, image aspect ratio, textline length, height, and location). Note that we want the text input fields for each textline to contain the respective recognized text by gemini for that line.
+- Next, In the "recognition mode", once the layout analysis of the page is done and saved, we perform text-recognition from text-lines a single page at a time, with user's supervision.
+- in the recognition mode, the user enters their Gemini API key from the frontend.
+- the user click on "Recognize" button. Then an API call to Gemini happens using the prompt, which also contains the page image, and Bounding boxes (simplified and normalized versions of the respective bounding polygons of each line. TODO We want to make this better "aligned". Please use Gemini 2.5 flash documentation specific to OCR of complex layouts)
+- once the recognized text from each line is parsed from Gemini output, we  display it an Text input / input field. Each textline has it's own input field, and it is populated with the recognized text by Gemini. We display the input fields of the textline on the manuscript image itself, at the locations of the textlines. 
 - the user makes manual corrections if necessary in the input fields, and then saves the page again. This saving in the Recognition mode, will simply and only update the PAGE-XML files to now contain:
     <TextEquiv>
         <Unicode>the recognized text<Unicode/>
     </TextEquiv>
 
-
-PLease think carefully about how to organize this. Note that the "Recogntion Mode" is an ADDITION to existing workflow. It does not change the existing workflow. Hence please ensure this.
-
 Please think carefully understand the flow of the code and implement precise changes to achieve this. Do not change any other functionality. If you think you need extra information, please ask before proceeding.
+DO NOT START CODING YET. Instead, first please understand the problem statement as ask me if you need any clarifications.
 
-Please write robust code, with assert statements where required, and with good logging for easy debugging.
-
-Please study the code below:
-
-# Complete Repository Structure:
-# (showing all directories and files with token counts)
-#/ (~81310 tokens)
-#  └── app.py (~1739 tokens)
-#  └── gnn_inference.py (~8272 tokens)
-#  └── inference.py (~1246 tokens)
-#  └── README.md (~0 tokens)
-#  └── segment_from_point_clusters.py (~6978 tokens)
-#  └── ui_prompt.md (~63075 tokens)
-#  /gnn_data_preparation/ (~10001 tokens)
-#    └── config_models.py (~1087 tokens)
-#    └── dataset_generator.py (~1011 tokens)
-#    └── feature_engineering.py (~856 tokens)
-#    └── graph_constructor.py (~4263 tokens)
-#    └── __init__.py (~0 tokens)
-#    └── main_create_dataset.py (~2553 tokens)
-#    └── utils.py (~231 tokens)
-#  /gnn_training/ (~0 tokens)
-#    /gnn_training/training/ (~12007 tokens)
-#      └── engine.py (~1872 tokens)
-#      └── __init__.py (~0 tokens)
-#      └── main_train_eval.py (~5147 tokens)
-#      └── metrics.py (~2267 tokens)
-#      └── utils.py (~1046 tokens)
-#      └── visualization.py (~1675 tokens)
-#      /gnn_training/training/models/ (~3321 tokens)
-#        └── gnn_models.py (~2990 tokens)
-#        └── __init__.py (~0 tokens)
-#        └── sklearn_models.py (~331 tokens)
-#  /input_manuscripts/ (~0 tokens)
-#    /input_manuscripts/my_manuscript/ (~0 tokens)
-#      /input_manuscripts/my_manuscript/gnn-dataset/ (~10242 tokens)
-#        └── d_dims.txt (~3 tokens)
-#        └── d_inputs_normalized.txt (~4671 tokens)
-#        └── d_inputs_unnormalized.txt (~5568 tokens)
-#      /input_manuscripts/my_manuscript/heatmaps/ (~0 tokens)
-#      /input_manuscripts/my_manuscript/images/ (~0 tokens)
-#      /input_manuscripts/my_manuscript/images_resized/ (~0 tokens)
-#  /my-app/ (~27662 tokens)
-#    └── .env (~10 tokens)
-#    └── env.d.ts (~9 tokens)
-#    └── .gitignore (~92 tokens)
-#    └── index.html (~82 tokens)
-#    └── package.json (~184 tokens)
-#    └── package-lock.json (~26641 tokens)
-#    └── README.md (~341 tokens)
-#    └── tsconfig.app.json (~72 tokens)
-#    └── tsconfig.json (~34 tokens)
-#    └── tsconfig.node.json (~103 tokens)
-#    └── vite.config.ts (~94 tokens)
-#    /my-app/public/ (~0 tokens)
-#    /my-app/src/ (~1017 tokens)
-#      └── App.vue (~964 tokens)
-#      └── main.ts (~53 tokens)
-#      /my-app/src/components/ (~11075 tokens)
-#        └── ManuscriptViewer.vue (~11075 tokens)
-#      /my-app/src/layout-analysis-utils/ (~2567 tokens)
-#        └── LayoutGraphGenerator.js (~2567 tokens)
-#      /my-app/src/router/ (~46 tokens)
-#        └── index.ts (~46 tokens)
-#      /my-app/src/stores/ (~76 tokens)
-#        └── counter.ts (~76 tokens)
-#      /my-app/src/tutorial/ (~0 tokens)
-#    /my-app/.vite/ (~0 tokens)
-#      /my-app/.vite/deps/ (~41 tokens)
-#        └── _metadata.json (~36 tokens)
-#        └── package.json (~5 tokens)
-#  /pretrained_gnn/ (~960 tokens)
-#    └── gnn_preprocessing_v2.yaml (~960 tokens)
-#  /segmentation/ (~5001 tokens)
-#    └── craft.py (~2654 tokens)
-#    └── segment_graph.py (~2040 tokens)
-#    └── utils.py (~307 tokens)
-#    /segmentation/pretrained_unet_craft/ (~47 tokens)
-#      └── README.md (~47 tokens)
-
+Please study the code below.
 
 ManuscriptViewer.vue
 <template>
@@ -188,6 +100,7 @@ ManuscriptViewer.vue
           No image available
         </div>
 
+        <!-- SVG Graph Layer -->
         <svg
           v-if="graphIsLoaded"
           class="graph-overlay"
@@ -242,6 +155,42 @@ ManuscriptViewer.vue
             stroke-dasharray="5,5"
           />
         </svg>
+
+        <!-- Recognition Input Overlay Layer -->
+        <div
+            v-if="recognitionModeActive && graphIsLoaded"
+            class="input-overlay-container"
+            :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
+        >
+            <div
+                v-for="(nodeIndices, lineId) in textlines"
+                :key="`input-${lineId}`"
+                class="line-input-wrapper"
+                :style="getLineInputStyle(nodeIndices)"
+            >
+                <!-- Editable Input -->
+                <input 
+                    v-if="focusedLineId === lineId"
+                    ref="activeInput"
+                    v-model="localTextContent[lineId]" 
+                    class="line-input active"
+                    @blur="focusedLineId = null"
+                    @keydown.tab.prevent="focusNextLine(lineId)"
+                    placeholder="Transcribe..." 
+                />
+                <!-- Read-only Display (Click to Edit) -->
+                <div 
+                    v-else 
+                    class="line-input-display"
+                    @click="activateInput(lineId)"
+                    :class="{ 'has-text': !!localTextContent[lineId] }"
+                    :title="localTextContent[lineId] || 'Click to transcribe'"
+                >
+                    {{ localTextContent[lineId] || '' }}
+                </div>
+            </div>
+        </div>
+
       </div>
     </div>
 
@@ -252,7 +201,7 @@ ManuscriptViewer.vue
       <div class="mode-tabs">
          <button 
            class="mode-tab" 
-           :class="{ active: !textlineModeActive && !textboxModeActive && !nodeModeActive }"
+           :class="{ active: !textlineModeActive && !textboxModeActive && !nodeModeActive && !recognitionModeActive }"
            @click="setMode('view')"
            :disabled="isProcessingSave">
            View Mode
@@ -278,6 +227,14 @@ ManuscriptViewer.vue
            :disabled="isProcessingSave || !graphIsLoaded">
            Region Labeling (R)
          </button>
+         <!-- NEW RECOGNITION TAB -->
+         <button 
+           class="mode-tab" 
+           :class="{ active: recognitionModeActive }"
+           @click="setMode('recognition')"
+           :disabled="isProcessingSave || !graphIsLoaded">
+           Recognize (T)
+         </button>
 
          
          <!-- Spacer to push toggle button to right -->
@@ -291,17 +248,10 @@ ManuscriptViewer.vue
       </div>
 
       <!-- Help & Actions Content Area (Collapsible) -->
-      <!-- Help & Actions Content Area (Collapsible) -->
       <div class="help-content-area" v-show="!isPanelCollapsed">
         
         <!-- Section: View Mode (Default) -->
-        <div v-if="!textlineModeActive && !textboxModeActive && !nodeModeActive" class="help-section">
-          <!-- Keeping placeholder for View Mode since no video was provided -->
-          <!-- <div class="media-container">
-            <div class="webm-placeholder">
-              <span>View Mode</span>
-            </div>
-          </div> -->
+        <div v-if="!textlineModeActive && !textboxModeActive && !nodeModeActive && !recognitionModeActive" class="help-section">
           <div class="instructions-container">
             <h3>View Mode</h3>
             <p>Pan and zoom to inspect the manuscript. No edits can be made in this mode. Select a mode above or use hotkeys to start annotating.</p>
@@ -311,7 +261,6 @@ ManuscriptViewer.vue
         <!-- Section: Edge Edit Mode -->
         <div v-if="textlineModeActive" class="help-section">
           <div class="media-container">
-            <!-- UPDATED VIDEO TAG -->
             <video :src="edgeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
           </div>
           <div class="instructions-container">
@@ -321,19 +270,12 @@ ManuscriptViewer.vue
               <li><strong>Delete:</strong> Hold <code>'d'</code> and hover over edges to delete them.</li>
               <li><strong>Save:</strong> Press <code>'s'</code> to save changes and move to the next page.</li>
             </ul>
-            
-            <!-- <div v-if="!isAKeyPressed && !isDKeyPressed" class="context-actions">
-               <button @click="resetSelection" :disabled="selectedNodes.length === 0">Cancel Selection</button>
-               <button class="primary-action" @click="addEdge" :disabled="selectedNodes.length !== 2 || edgeExists(selectedNodes[0], selectedNodes[1])">Add Edge</button>
-               <button class="danger-action" @click="deleteEdge" :disabled="selectedNodes.length !== 2 || !edgeExists(selectedNodes[0], selectedNodes[1])">Delete Edge</button>
-            </div> -->
           </div>
         </div>
 
         <!-- Section: Region Labeling Mode -->
         <div v-if="textboxModeActive" class="help-section">
            <div class="media-container">
-            <!-- UPDATED VIDEO TAG -->
             <video :src="regionWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
           </div>
           <div class="instructions-container">
@@ -342,16 +284,12 @@ ManuscriptViewer.vue
               Hold <code>'e'</code> and hover over lines to label them as being in the same text-box. 
               Release <code>'e'</code> and press it again to label a new text-box.
             </p>
-            <!-- <div class="modifications-log-container">
-               <button @click="saveCurrentGraph" :disabled="loading || isProcessingSave">Save Graph & Labels</button>
-            </div> -->
           </div>
         </div>
 
         <!-- Section: Node Mode -->
         <div v-if="nodeModeActive" class="help-section">
            <div class="media-container">
-            <!-- UPDATED VIDEO TAG -->
             <video :src="nodeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
           </div>
           <div class="instructions-container">
@@ -361,6 +299,30 @@ ManuscriptViewer.vue
               <li><strong>Delete Node:</strong> Right-click on an existing node to remove it (and its connections).</li>
             </ul>
           </div>
+        </div>
+
+        <!-- Section: Recognition Mode (NEW) -->
+        <div v-if="recognitionModeActive" class="help-section">
+           <div class="media-container">
+             <div class="webm-placeholder">
+              <span>Recognition Mode</span>
+            </div>
+           </div>
+           <div class="instructions-container">
+             <h3>Recognition Mode</h3>
+             <p>Use Gemini AI to transcribe text lines automatically, then correct them manually.</p>
+             <div class="form-group-inline">
+                <input v-model="geminiKey" type="password" placeholder="Enter Gemini API Key" class="api-input" />
+                <button class="action-btn primary" @click="triggerRecognition" :disabled="isRecognizing || !geminiKey">
+                    {{ isRecognizing ? 'Recognizing...' : 'Auto-Recognize' }}
+                </button>
+             </div>
+             <ul>
+               <li><strong>Edit:</strong> Click any text line box on the image to type.</li>
+               <li><strong>Navigate:</strong> Press <code>Tab</code> to jump to the next line.</li>
+               <li><strong>Save:</strong> Press <code>'s'</code> to save the text into the PAGE-XML.</li>
+             </ul>
+           </div>
         </div>
         
         <!-- Shared: Modification Log -->
@@ -384,7 +346,7 @@ ManuscriptViewer.vue
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, watch, reactive } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch, reactive, nextTick } from 'vue'
 import { generateLayoutGraph } from '../layout-analysis-utils/LayoutGraphGenerator.js'
 import { useRouter } from 'vue-router'
 import edgeWebm from '../tutorial/_edge.webm'
@@ -408,18 +370,23 @@ const setMode = (mode) => {
     textlineModeActive.value = false
     textboxModeActive.value = false
     nodeModeActive.value = false
+    recognitionModeActive.value = false
   } else if (mode === 'edge') {
     textlineModeActive.value = true
   } else if (mode === 'region') {
     textboxModeActive.value = true
   } else if (mode === 'node') {
     nodeModeActive.value = true
+  } else if (mode === 'recognition') {
+    // Enable recognition mode
+    textlineModeActive.value = false
+    textboxModeActive.value = false
+    nodeModeActive.value = false
+    recognitionModeActive.value = true
+    initializeTextContent()
   }
-  // Optional: Auto-expand panel when switching modes so user sees instructions
   isPanelCollapsed.value = false
 }
-
-// ... (Keep all existing Refs, Computed properties, and Functions exactly as they are below) ...
 
 const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
 
@@ -436,6 +403,12 @@ const imageLoaded = ref(false)
 
 const textlineModeActive = ref(false)
 const textboxModeActive = ref(false)
+// NEW: Recognition Mode State
+const recognitionModeActive = ref(false)
+const geminiKey = ref(localStorage.getItem('gemini_key') || '')
+const isRecognizing = ref(false)
+const localTextContent = reactive({}) // Map: lineId -> string
+const focusedLineId = ref(null)
 
 const dimensions = ref([0, 0])
 const points = ref([])
@@ -477,7 +450,99 @@ const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
 
-// --- NODE MANIPULATION LOGIC (Keep existing) ---
+// --- RECOGNITION MODE UTILS ---
+
+// Initialize map keys based on current textlines structure
+const initializeTextContent = () => {
+    Object.keys(textlines.value).forEach(id => {
+        if(!(id in localTextContent)) {
+            localTextContent[id] = ""
+        }
+    })
+}
+
+// Calculate position for input overlay
+const getLineInputStyle = (nodeIndices) => {
+    if(!nodeIndices || nodeIndices.length === 0) return { display: 'none' };
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    nodeIndices.forEach(idx => {
+        const n = workingGraph.nodes[idx];
+        if (!n) return;
+        if(n.x < minX) minX = n.x;
+        if(n.y < minY) minY = n.y;
+        if(n.x > maxX) maxX = n.x;
+        if(n.y > maxY) maxY = n.y;
+    });
+
+    if (minX === Infinity) return { display: 'none' };
+
+    const pad = 5;
+    const width = (maxX - minX) + (pad * 2);
+    const height = (maxY - minY) + (pad * 2); 
+    
+    return {
+        left: `${scaleX(minX - pad)}px`,
+        top: `${scaleY(maxY - pad)}px`,
+        width: `${scaleX(width)}px`,
+        height: `${scaleY(height)}px`, 
+        position: 'absolute'
+    }
+}
+
+// Trigger Gemini API
+const triggerRecognition = async () => {
+    if(!geminiKey.value) return alert("Please enter an API Key");
+    localStorage.setItem('gemini_key', geminiKey.value);
+    
+    isRecognizing.value = true;
+    try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recognize-text`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                manuscript: localManuscriptName.value,
+                page: localCurrentPage.value,
+                apiKey: geminiKey.value
+            })
+        });
+        
+        const data = await res.json();
+        if(data.error) throw new Error(data.error);
+        
+        // Update local state with recognized text
+        if(data.transcriptions) {
+            Object.entries(data.transcriptions).forEach(([id, text]) => {
+                localTextContent[id] = text;
+            });
+        }
+    } catch(e) {
+        alert("Recognition failed: " + e.message);
+    } finally {
+        isRecognizing.value = false;
+    }
+}
+
+const activateInput = (lineId) => {
+    focusedLineId.value = lineId;
+    nextTick(() => {
+        const el = document.querySelector('.line-input.active');
+        if(el) el.focus();
+    });
+}
+
+const focusNextLine = (currentId) => {
+    const ids = Object.keys(textlines.value).map(Number).sort((a,b) => a - b); 
+    const currIdx = ids.indexOf(parseInt(currentId));
+    if(currIdx !== -1 && currIdx < ids.length - 1) {
+        activateInput(ids[currIdx + 1]);
+    }
+}
+
+
+// --- EXISTING GRAPH LOGIC ---
+
 const getAverageNodeSize = () => {
     if (!workingGraph.nodes || workingGraph.nodes.length === 0) return 10;
     const sum = workingGraph.nodes.reduce((acc, n) => acc + (n.s || 10), 0);
@@ -521,7 +586,7 @@ const svgCursor = computed(() => {
     if (isEKeyPressed.value) return 'crosshair'
     return 'pointer'
   }
-  if (!textlineModeActive.value) return 'default'
+  if (!textlineModeActive.value && !recognitionModeActive.value && !nodeModeActive.value) return 'default'
   if (nodeModeActive.value) return 'cell'; 
   if (isAKeyPressed.value) return 'crosshair'
   if (isDKeyPressed.value) return 'not-allowed'
@@ -600,6 +665,9 @@ const fetchPageData = async (manuscript, page) => {
   error.value = null
   modifications.value = []
   Object.keys(textlineLabels).forEach((key) => delete textlineLabels[key])
+  
+  // Reset text content on page load
+  Object.keys(localTextContent).forEach(key => delete localTextContent[key])
 
   try {
     const response = await fetch(
@@ -739,7 +807,7 @@ const resetSelection = () => {
 }
 
 const onEdgeClick = (edge, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return
+  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value || recognitionModeActive.value) return
   event.stopPropagation()
   selectedNodes.value = [edge.source, edge.target]
 }
@@ -755,7 +823,7 @@ const onBackgroundClick = (event) => {
 const onNodeClick = (nodeIndex, event) => {
     event.stopPropagation(); 
     if (nodeModeActive.value) return;
-    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return;
+    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value || recognitionModeActive.value) return;
     const existingIndex = selectedNodes.value.indexOf(nodeIndex);
     if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1);
     else selectedNodes.value.length < 2 ? selectedNodes.value.push(nodeIndex) : (selectedNodes.value = [nodeIndex]);
@@ -825,7 +893,7 @@ const labelTextline = () => {
 const handleGlobalKeyDown = (e) => {
   const key = e.key.toLowerCase()
   if (key === 's' && !e.repeat) {
-    if ((textlineModeActive.value || textboxModeActive.value || nodeModeActive.value) && !loading.value && !isProcessingSave.value) {
+    if ((textlineModeActive.value || textboxModeActive.value || nodeModeActive.value || recognitionModeActive.value) && !loading.value && !isProcessingSave.value) {
       e.preventDefault()
       saveAndGoNext()
     }
@@ -833,17 +901,22 @@ const handleGlobalKeyDown = (e) => {
   }
   if (key === 'w' && !e.repeat) {
     e.preventDefault()
-    textlineModeActive.value = !textlineModeActive.value
+    setMode('edge')
     return
   }
   if (key === 'r' && !e.repeat) {
     e.preventDefault()
-    textboxModeActive.value = !textboxModeActive.value
+    setMode('region')
     return
   }
   if (key === 'n' && !e.repeat) {
     e.preventDefault()
-    nodeModeActive.value = !nodeModeActive.value
+    setMode('node')
+    return
+  }
+  if (key === 't' && !e.repeat) { // T for Text recognition
+    e.preventDefault()
+    setMode('recognition')
     return
   }
   if (textboxModeActive.value && key === 'e' && !e.repeat) {
@@ -1022,6 +1095,7 @@ const saveModifications = async () => {
     modifications: modifications.value,
     textlineLabels: dummyTextlineLabels, 
     textboxLabels: labelsToSend,
+    textContent: localTextContent // Send recognized/edited text to backend
   }
   try {
     const res = await fetch(
@@ -1057,8 +1131,10 @@ const saveCurrentGraph = async () => {
 
 const confirmAndNavigate = async (navAction) => {
   if (isProcessingSave.value) return
-  if (modifications.value.length > 0) {
-    if (confirm('You have unsaved changes. Do you want to save them before navigating?')) {
+  if (modifications.value.length > 0 || (recognitionModeActive.value && Object.keys(localTextContent).some(k => localTextContent[k]))) {
+    // Note: Checking for text changes specifically is complex without dirty tracking, 
+    // but saving harmlessly re-writes XML.
+    if (confirm('Do you want to save changes before navigating?')) {
       isProcessingSave.value = true
       try {
         await saveModifications()
@@ -1159,6 +1235,7 @@ watch(textlineModeActive, (val) => {
   if (val) {
     textboxModeActive.value = false
     nodeModeActive.value = false
+    recognitionModeActive.value = false
   } else {
     resetSelection()
     isAKeyPressed.value = false
@@ -1171,6 +1248,7 @@ watch(textboxModeActive, (val) => {
   if (val) {
     textlineModeActive.value = false
     nodeModeActive.value = false
+    recognitionModeActive.value = false
     resetSelection()
     const existingLabels = Object.values(textlineLabels)
     if (existingLabels.length > 0) {
@@ -1188,8 +1266,18 @@ watch(nodeModeActive, (val) => {
   if (val) {
     textlineModeActive.value = false
     textboxModeActive.value = false
+    recognitionModeActive.value = false
     resetSelection()
   }
+})
+
+watch(recognitionModeActive, (val) => {
+    if(val) {
+        textlineModeActive.value = false
+        textboxModeActive.value = false
+        nodeModeActive.value = false
+        resetSelection()
+    }
 })
 </script>
 
@@ -1347,6 +1435,57 @@ button:disabled {
   pointer-events: auto;
 }
 
+/* Input Overlay */
+.input-overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none; 
+    z-index: 50;
+}
+
+.line-input-wrapper {
+    pointer-events: auto; 
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.line-input {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border: 1px solid #4CAF50;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+
+.line-input-display {
+    width: 100%;
+    height: 100%;
+    cursor: text;
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+}
+.line-input-display:hover {
+    background: rgba(255,255,255,0.1);
+}
+.line-input-display.has-text {
+    color: #fff;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+
 /* Loading/Error States */
 .processing-save-notice,
 .loading,
@@ -1366,7 +1505,6 @@ button:disabled {
 .loading { font-size: 1.2rem; color: #aaa; background: rgba(0,0,0,0.5); }
 
 
-/* --- BOTTOM RAIL --- */
 /* --- BOTTOM RAIL --- */
 .bottom-panel {
   background-color: #2c2c2c;
@@ -1555,6 +1693,20 @@ code {
   border-color: #d32f2f;
 }
 
+/* API Input & Inline Form */
+.form-group-inline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.api-input {
+    background: #444;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 5px 10px;
+    flex-grow: 1;
+}
+
 /* Log Sidebar */
 .log-sidebar {
   width: 200px;
@@ -1608,129 +1760,7 @@ code {
 </style>
 
 
-
-
-
-
-
-
-
-# app.vue
-<template>
-  <div class="app-container">
-    <div v-if="!currentManuscript">
-      <!-- Upload Screen -->
-      <div class="upload-card">
-        <h1>Historical Manuscript Segmentation</h1>
-        <div class="form-group">
-          <label>Manuscript Name:</label>
-          <input v-model="formName" type="text" placeholder="e.g. manuscript_1" />
-        </div>
-        <div class="form-group">
-          <label>Resize Dimension (Longest Side):</label>
-          <input v-model.number="formLongestSide" type="number" />
-        </div>
-        <!-- NEW FIELD -->
-        <div class="form-group">
-          <label>Min Distance (Peak Detection):</label>
-          <input v-model.number="formMinDistance" type="number" title="Distance between char centers" />
-        </div>
-        <!-- END NEW FIELD -->
-        <div class="form-group">
-          <label>Images:</label>
-          <input type="file" multiple @change="handleFileChange" accept="image/*" />
-        </div>
-        <button @click="upload" :disabled="uploading">
-          {{ uploading ? 'Processing (Step 1-3)...' : 'Start Processing' }}
-        </button>
-        <div v-if="uploadStatus" class="status">{{ uploadStatus }}</div>
-      </div>
-    </div>
-
-    <div v-else>
-      <!-- Main Workstation -->
-      <!-- REMOVED: The floating .back-btn is gone. We handle it via the event below -->
-      <ManuscriptViewer 
-        :manuscriptName="currentManuscript" 
-        :pageName="currentPage"
-        @page-changed="handlePageChange"
-        @back="currentManuscript = null" 
-      />
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { ref } from 'vue'
-import ManuscriptViewer from './components/ManuscriptViewer.vue'
-
-// Basic State
-const currentManuscript = ref(null)
-const currentPage = ref(null)
-const pageList = ref([])
-
-// Upload Form State
-const formName = ref('my_manuscript')
-const formLongestSide = ref(2500)
-const formMinDistance = ref(20) // NEW STATE
-const selectedFiles = ref([])
-const uploading = ref(false)
-const uploadStatus = ref('')
-
-const handleFileChange = (e) => {
-  selectedFiles.value = Array.from(e.target.files)
-}
-
-const upload = async () => {
-  if (selectedFiles.value.length === 0) return alert('Select files')
-  uploading.value = true
-  uploadStatus.value = 'Uploading and generating heatmaps/points. This may take a while...'
-
-  const formData = new FormData()
-  formData.append('manuscriptName', formName.value)
-  formData.append('longestSide', formLongestSide.value)
-  formData.append('minDistance', formMinDistance.value) // NEW
-  selectedFiles.value.forEach(file => formData.append('images', file))
-
-  try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/upload`, {
-      method: 'POST',
-      body: formData
-    })
-    if(!res.ok) throw new Error('Upload failed')
-    const data = await res.json()
-    
-    // Success - Switch to viewer
-    pageList.value = data.pages
-    if (pageList.value.length > 0) {
-      currentManuscript.value = formName.value
-      currentPage.value = pageList.value[0]
-    } else {
-      uploadStatus.value = 'No pages processed.'
-    }
-  } catch (e) {
-    uploadStatus.value = 'Error: ' + e.message
-  } finally {
-    uploading.value = false
-  }
-}
-
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-}
-</script>
-
-<style>
-body { margin: 0; font-family: sans-serif; background: #222; color: white; }
-.app-container { display: flex; flex-direction: column; height: 100vh; }
-.upload-card { max-width: 500px; margin: 100px auto; padding: 20px; background: #333; border-radius: 8px; }
-.form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-input { padding: 8px; background: #444; border: 1px solid #555; color: white; margin-top: 5px; }
-button { padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; }
-button:disabled { background: #555; }
-</style>
-
-
+app.py
 # app.py
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
@@ -1741,11 +1771,15 @@ import base64
 import json
 import zipfile
 import io
+import google.generativeai as genai # NEW IMPORT
+import glob # NEW IMPORT
+from PIL import Image
 
 # Import your existing pipelines
 from inference import process_new_manuscript
 from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
 from segmentation.utils import load_images_from_folder
+import xml.etree.ElementTree as ET # Ensure this is imported
 
 app = Flask(__name__)
 CORS(app)
@@ -1845,19 +1879,17 @@ def get_page_prediction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+# 1. Update save_correction to receive text content
 @app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
 def save_correction(manuscript, page):
-    """
-    Step 5: Receive corrected labels, Save, Generate XML/Lines.
-    """
     data = request.json
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     
-    # Extract data from frontend
     textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph')
     textbox_labels = data.get('textboxLabels')
-    nodes_data = graph_data.get('nodes') # NEW: Extract nodes list
+    nodes_data = graph_data.get('nodes')
+    text_content = data.get('textContent') # <--- NEW: Get text from frontend
     
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -1875,12 +1907,155 @@ def save_correction(manuscript, page):
                 'CC_SIZE_THRESHOLD_RATIO': 0.4
             },
             textbox_labels=textbox_labels,
-            nodes=nodes_data # NEW: Pass nodes to backend
+            nodes=nodes_data,
+            text_content=text_content # <--- PASS TO LOGIC
         )
         return jsonify(result)
     except Exception as e:
         import traceback
         traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/recognize-text', methods=['POST'])
+def recognize_text():
+    data = request.json
+    manuscript = data.get('manuscript')
+    page = data.get('page')
+    api_key = data.get('apiKey')
+    
+    if not api_key:
+        return jsonify({"error": "API Key required"}), 400
+
+    # Paths
+    base_path = Path(UPLOAD_FOLDER) / manuscript
+    xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    # Use the resized image used for display/inference
+    img_path = base_path / "images_resized" / f"{page}.jpg"
+    
+    if not xml_path.exists() or not img_path.exists():
+        return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
+
+    # 1. Load Image to get dimensions for normalization
+    try:
+        pil_img = Image.open(img_path)
+        img_w, img_h = pil_img.size
+    except Exception as e:
+        return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
+
+    # 2. Parse XML to extract Line Coordinates
+    # Namespace handling is required for PAGE XML
+    ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+    
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse XML: {str(e)}"}), 500
+
+    # Data structure to hold regions: { line_id_int: [ymin, xmin, ymax, xmax] }
+    regions_to_process = {}
+
+    # Find all TextLines
+    # We look for the 'custom' attribute we added in gnn_inference.py
+    for textline in root.findall(".//p:TextLine", ns):
+        custom_attr = textline.get('custom', '')
+        
+        # Extract the integer ID (format: "structure_line_id_{int}")
+        if 'structure_line_id_' not in custom_attr:
+            continue
+            
+        try:
+            line_id = int(custom_attr.split('structure_line_id_')[1])
+        except ValueError:
+            continue
+
+        # Get Coords
+        coords_elem = textline.find('p:Coords', ns)
+        if coords_elem is None:
+            continue
+            
+        points_str = coords_elem.get('points', '')
+        if not points_str:
+            continue
+
+        # Parse "x,y x,y ..." into list of tuples
+        try:
+            points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+        except ValueError:
+            continue
+            
+        if not points:
+            continue
+
+        # 3. Calculate Bounding Box & Normalize to 0-1000
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+        
+        min_x, max_x = max(0, min(xs)), min(img_w, max(xs))
+        min_y, max_y = max(0, min(ys)), min(img_h, max(ys))
+
+        # Normalize logic: (val / dimension) * 1000, clipped to 0-1000
+        n_ymin = int((min_y / img_h) * 1000)
+        n_xmin = int((min_x / img_w) * 1000)
+        n_ymax = int((max_y / img_h) * 1000)
+        n_xmax = int((max_x / img_w) * 1000)
+
+        # Clamp values
+        n_ymin = max(0, min(1000, n_ymin))
+        n_xmin = max(0, min(1000, n_xmin))
+        n_ymax = max(0, min(1000, n_ymax))
+        n_xmax = max(0, min(1000, n_xmax))
+
+        # Store as [ymin, xmin, ymax, xmax]
+        regions_to_process[line_id] = [n_ymin, n_xmin, n_ymax, n_xmax]
+
+    if not regions_to_process:
+         return jsonify({"transcriptions": {}})
+
+    # 4. Construct Gemini Prompt
+    genai.configure(api_key=api_key)
+    # Using 1.5 Flash as it is optimized for high-volume multimodal tasks
+    model = genai.GenerativeModel('gemini-2.5-flash') 
+
+    # We batch all lines into one request context
+    prompt_text = (
+        "You are an expert OCR engine capable of spatial reasoning. "
+        "I provide an image of a Sanskrit historical manuscript and a list of regions to transcribe.\n\n"
+        "**Task**:\n"
+        "1. Look at the specific regions defined by the bounding boxes below.\n"
+        "2. The bounding boxes are in [ymin, xmin, ymax, xmax] format on a 0-1000 scale.\n"
+        "3. Transcribe the handwritten text inside each region exactly.\n"
+        "4. Return a raw JSON object where keys are the Region IDs provided and values are the transcriptions.\n\n"
+        "**Regions**:\n"
+    )
+
+    for lid, bbox in regions_to_process.items():
+        prompt_text += f"- Region ID '{lid}': {bbox}\n"
+
+    prompt_text += "\n\n**Output JSON**:"
+
+    try:
+        # Pass Image + Prompt
+        response = model.generate_content(
+            [pil_img, prompt_text], 
+            generation_config={"response_mime_type": "application/json"}
+        )
+        
+        text_response = response.text
+        
+        # Parse JSON
+        import json
+        result_json = json.loads(text_response)
+        
+        # Ensure keys match format expected by frontend (strings of ints)
+        final_results = {}
+        for k, v in result_json.items():
+            final_results[str(k)] = v
+            
+        return jsonify({"transcriptions": final_results})
+
+    except Exception as e:
+        print(f"Gemini Spatial Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -1930,150 +2105,11 @@ def download_results(manuscript):
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
 
+# backend
+# ssh -N -L 5001:localhost:5000 kartik@192.168.8.12
 
-
-# inference.py
-
-import os
-import argparse
-import gc
-from PIL import Image
-import torch
-
-from segmentation.segment_graph import images2points
-from gnn_inference import run_gnn_inference
-
-
-
-def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscript_1"):
-    source_images_path = os.path.join(manuscript_path, "images")
-    # We will save processed (and potentially resized) images here
-    # to avoid modifying source files while iterating over them.
-    resized_images_path = os.path.join(manuscript_path, "images_resized")
-
-    try:
-        # Create the target folder
-        os.makedirs(resized_images_path, exist_ok=True)
-        
-        # Verify source exists
-        if not os.path.exists(source_images_path):
-            print(f"Error: Source directory {source_images_path} not found.")
-            return
-
-    except Exception as e:
-        print(f"An error occurred setting up directories: {e}")
-        return
-
-    # Valid image extensions to look for
-    valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', '.webp'}
-
-    # Get list of files in the directory
-    files = [f for f in os.listdir(source_images_path) if os.path.isfile(os.path.join(source_images_path, f))]
-
-    print(f"Found {len(files)} files in {source_images_path}...")
-
-    for filename in files:
-        # Skip non-image files based on extension
-        ext = os.path.splitext(filename)[1].lower()
-        if ext not in valid_extensions:
-            continue
-
-        base_filename = os.path.splitext(filename)[0]
-        file_path = os.path.join(source_images_path, filename)
-
-        try:
-            # Open the image from the folder
-            with Image.open(file_path) as image:
-                
-                width, height = image.size
-                
-                # 1. VALIDATION: Check if image is too small for CV tasks
-                # If both dimensions are smaller than 600, we reject the image.
-                if width < 600 and height < 600:
-                    raise ValueError(f"Image resolution too low ({width}x{height}). Both dimensions are < 600px.")
-
-                # 2. RESIZING: Downscale only if too large
-                target_longest_side = 2500
-                
-                # Check if the longest side exceeds the target
-                if max(width, height) > target_longest_side:
-                    
-                    # Calculate scaling factor
-                    scale_factor = target_longest_side / max(width, height)
-                    
-                    # Calculate new dimensions
-                    new_width = int(width * scale_factor)
-                    new_height = int(height * scale_factor)
-                    
-                    # Handle Resampling filter compatibility
-                    try:
-                        resampling_filter = Image.Resampling.LANCZOS
-                    except AttributeError:
-                        resampling_filter = Image.LANCZOS
-
-                    print(f"Downscaling '{filename}': ({width}x{height}) -> ({new_width}x{new_height})")
-                    image = image.resize((new_width, new_height), resampling_filter)
-                    
-                else:
-                    print(f"Image '{filename}' is within limits ({width}x{height}). Keeping original size.")
-                    
-
-                # Standardize Color Mode
-                if image.mode in ("RGBA", "P", "LA"):
-                    image = image.convert("RGB")
-
-                # Save processed image to the NEW folder
-                new_filename = f"{base_filename}.jpg"
-                save_path = os.path.join(resized_images_path, new_filename)
-                
-                image.save(save_path, "JPEG")
-                print(f"Processed: {new_filename}")
-
-        except Exception as img_err:
-            # This block catches the ValueError raised above and prints the message
-            print(f"Failed to process image {filename}: {img_err}")
-            continue
-
-    # Point the inference function to the new resized/processed folder
-    print("Running images2points on processed folder...")
-    images2points(resized_images_path) 
-    
-    # Cleanup resources
-    torch.cuda.empty_cache()
-    gc.collect()
-
-    print("Processing complete.")
-
-
-
-
-
-
-if __name__ == "__main__":
-    # 1. Parse standard CLI arguments4
-    parser = argparse.ArgumentParser(description="GNN Layout Analysis Inference")
-    parser.add_argument("--manuscript_path", type=str, default="./input_manuscripts/sample_manuscript_1", help="Path to the manuscript directory")
-    args = parser.parse_args()
-
-    # the data preparation.yaml is tied to the model_checkpoint used.
-    args.model_checkpoint = "./pretrained_gnn/v2.pt"
-    args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
-
-    # -- Hyperparameters
-    args.visualize = True
-    args.BINARIZE_THRESHOLD = 0.5098
-    args.BBOX_PAD_V = 0.7
-    args.BBOX_PAD_H = 0.5
-    args.CC_SIZE_THRESHOLD_RATIO = 0.4
-
-    process_new_manuscript(args.manuscript_path)
-    run_gnn_inference(args)
-
-
-
-
-
-# gnn_inference.py
+# frontend
+# ssh -L 8000:localhost:5173 kartik@192.168.8.12
 
 import torch
 import numpy as np
@@ -2124,7 +2160,7 @@ def load_model_once(model_checkpoint_path, config_path):
             LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
 
-def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None, nodes=None):
+def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None, nodes=None, text_content=None):
     """
     Saves user corrections and regenerates XML.
     Handles coordinate scaling: Frontend (Image Space) -> Storage (Heatmap Space).
@@ -2237,7 +2273,8 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         polygons_data,
         textbox_labels=final_textbox_labels,
         image_path=base_path / "images_resized" / f"{page_id}.jpg",
-        images_output_dir=images_output_dir  # Pass the directory
+        images_output_dir=images_output_dir,
+        text_content=text_content # <--- PASS THIS DOWN
     )
 
     resized_images_dst_dir = output_dir / "images_resized"
@@ -2668,7 +2705,8 @@ def create_page_xml(
     extend_percentage: float = 0.01,
     image_path: Path = None, 
     save_vis: bool = True,
-    images_output_dir: Path = None # New Argument
+    images_output_dir: Path = None,
+    text_content: dict = None # <--- NEW ARGUMENT
 ):
     """
     Generates a PAGE XML file with reading order and textregions (textboxes).
@@ -2816,7 +2854,18 @@ def create_page_xml(
             component = line_info['comp']
             line_label = pred_node_labels[component[0]] 
             
-            text_line = ET.SubElement(region_elem, "TextLine", id=f"region_{r_idx}_line_{l_idx}")
+            # --- MODIFIED: Add 'custom' attribute to store the integer ID ---
+            text_line = ET.SubElement(
+                region_elem, 
+                "TextLine", 
+                id=f"region_{r_idx}_line_{l_idx}",
+                custom=f"structure_line_id_{line_label}" # <--- CRITICAL ADDITION
+            )
+
+            if text_content and str(line_label) in text_content:
+                text_equiv = ET.SubElement(text_line, "TextEquiv")
+                unicode_elem = ET.SubElement(text_equiv, "Unicode")
+                unicode_elem.text = text_content[str(line_label)]
             
             # --- Baseline Calculation ---
             baseline_points_str = ""
