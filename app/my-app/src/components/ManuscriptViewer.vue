@@ -67,7 +67,8 @@
         <!-- SVG Graph Layer (Visible in Graph Modes) -->
         <svg
           v-if="graphIsLoaded && !recognitionModeActive"
-          class="graph-overlay is-visible"
+          class="graph-overlay"
+          :class="{ 'is-visible': textlineModeActive || textboxModeActive || nodeModeActive }"
           :width="scaledWidth"
           :height="scaledHeight"
           :viewBox="`0 0 ${scaledWidth} ${scaledHeight}`"
@@ -333,33 +334,33 @@ const isPanelCollapsed = ref(false)
 const activeInput = ref(null) // DOM Ref for input
 
 const setMode = (mode) => {
-  if (mode === 'view') {
-    textlineModeActive.value = false
-    textboxModeActive.value = false
-    nodeModeActive.value = false
-    recognitionModeActive.value = false
-  } else if (mode === 'edge') {
+  // 1. Reset ALL modes to false immediately
+  textlineModeActive.value = false
+  textboxModeActive.value = false
+  nodeModeActive.value = false
+  recognitionModeActive.value = false
+  
+  // 2. Activate the specific mode
+  if (mode === 'edge') {
     textlineModeActive.value = true
   } else if (mode === 'region') {
     textboxModeActive.value = true
   } else if (mode === 'node') {
     nodeModeActive.value = true
   } else if (mode === 'recognition') {
-    textlineModeActive.value = false
-    textboxModeActive.value = false
-    nodeModeActive.value = false
     recognitionModeActive.value = true
     
-    // Sort lines by position for Tab navigation
+    // Recognition specific init
     sortLinesTopToBottom()
-    
-    // Auto-focus first line if none selected
     if(sortedLineIds.value.length > 0 && !focusedLineId.value) {
         activateInput(sortedLineIds.value[0])
     }
   }
+  // If mode === 'view', everything stays false, which is correct.
+  
   isPanelCollapsed.value = false
 }
+
 
 const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
 
@@ -1035,8 +1036,49 @@ const handleNodeHoverCollect = (mouseX, mouseY) => {
       hoveredNodesForMST.add(index)
   })
 }
+
+
+const calculateMST = (indices, nodes) => {
+  const points = indices.map((i) => ({ ...nodes[i], originalIndex: i }))
+  const edges = []
+  // Create complete graph between selected points
+  for (let i = 0; i < points.length; i++)
+    for (let j = i + 1; j < points.length; j++) {
+      edges.push({
+        source: points[i].originalIndex,
+        target: points[j].originalIndex,
+        weight: Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y),
+      })
+    }
+  // Sort by weight
+  edges.sort((a, b) => a.weight - b.weight)
+  
+  // Kruskal's Algorithm
+  const parent = {}
+  indices.forEach((i) => (parent[i] = i))
+  const find = (i) => (parent[i] === i ? i : (parent[i] = find(parent[i])))
+  const union = (i, j) => {
+    const rootI = find(i), rootJ = find(j)
+    if (rootI !== rootJ) {
+      parent[rootJ] = rootI
+      return true
+    }
+    return false
+  }
+  return edges.filter((e) => union(e.source, e.target))
+}
+
 const addMSTEdges = () => {
-    // Basic MST logic omitted for brevity, assuming existing imported or helper function
+  // Calculate MST based on hovered nodes
+  const newEdges = calculateMST(Array.from(hoveredNodesForMST), workingGraph.nodes)
+  
+  newEdges.forEach((edge) => {
+    if (!edgeExists(edge.source, edge.target)) {
+      const newEdge = { source: edge.source, target: edge.target, label: 0, modified: true }
+      workingGraph.edges.push(newEdge)
+      modifications.value.push({ type: 'add', ...newEdge })
+    }
+  })
 }
 
 const saveGeneratedGraph = async (name, page, g) => {

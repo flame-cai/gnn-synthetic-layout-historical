@@ -1,0 +1,18 @@
+2026-01-25 12:10:53,089 - INFO - Loading Ground Truth from ground_truth.json...
+2026-01-25 12:10:53,089 - INFO - Found 10 XML files in ./page_xml_format
+2026-01-25 12:10:53,090 - INFO - Page 2 | CER: 0.3401 | Pred Len: 780 | GT Len: 835
+2026-01-25 12:10:53,091 - INFO - Page 3 | CER: 0.3481 | Pred Len: 744 | GT Len: 859
+2026-01-25 12:10:53,092 - INFO - Page 4 | CER: 0.2975 | Pred Len: 794 | GT Len: 837
+2026-01-25 12:10:53,092 - INFO - Page 5 | CER: 0.2586 | Pred Len: 727 | GT Len: 812
+2026-01-25 12:10:53,093 - INFO - Page 6 | CER: 0.3600 | Pred Len: 793 | GT Len: 850
+2026-01-25 12:10:53,093 - INFO - Page 7 | CER: 0.2783 | Pred Len: 742 | GT Len: 805
+2026-01-25 12:10:53,094 - INFO - Page 8 | CER: 0.2421 | Pred Len: 793 | GT Len: 851
+2026-01-25 12:10:53,095 - INFO - Page 9 | CER: 0.3717 | Pred Len: 793 | GT Len: 826
+2026-01-25 12:10:53,096 - INFO - Page 10 | CER: 0.5067 | Pred Len: 945 | GT Len: 902
+2026-01-25 12:10:53,096 - INFO - Page 11 | CER: 0.2500 | Pred Len: 817 | GT Len: 860
+2026-01-25 12:10:53,096 - INFO - ----------------------------------------
+2026-01-25 12:10:53,096 - INFO - Evaluation Complete.
+2026-01-25 12:10:53,096 - INFO - Total Pages Evaluated: 10
+2026-01-25 12:10:53,096 - INFO - Average CER: 0.3253
+2026-01-25 12:10:53,096 - INFO - ----------------------------------------
+2026-01-25 12:10:53,097 - INFO - Results saved to structure_results.json

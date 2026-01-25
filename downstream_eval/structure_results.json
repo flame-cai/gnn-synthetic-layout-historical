@@ -1,0 +1,88 @@
+{
+    "summary": {
+        "total_pages": 10,
+        "average_cer": 0.32529622629334953
+    },
+    "details": [
+        {
+            "page_number": 2,
+            "filename": "3976_0002.xml",
+            "cer": 0.3401197604790419,
+            "ground_truth_len": 835,
+            "prediction_len": 780,
+            "prediction_snippet": "ॐ॥श्रीगणेशायनमः॥प्रज्ञादात्रीहृदानेविबुधसमुदस्यमान..."
+        },
+        {
+            "page_number": 3,
+            "filename": "3976_0003.xml",
+            "cer": 0.3480791618160652,
+            "ground_truth_len": 859,
+            "prediction_len": 744,
+            "prediction_snippet": "रूवानुगृहीतोत्त्वामिशामिकुधभास्करयौ।यांकथांरचयत्कृ..."
+        },
+        {
+            "page_number": 4,
+            "filename": "3976_0004.xml",
+            "cer": 0.2974910394265233,
+            "ground_truth_len": 837,
+            "prediction_len": 794,
+            "prediction_snippet": "धातूर्नावियोगे॥तच्यैहिनवैय्यधिकरम्वेनान्चयः॥कार्यय..."
+        },
+        {
+            "page_number": 5,
+            "filename": "3976_0005.xml",
+            "cer": 0.25862068965517243,
+            "ground_truth_len": 812,
+            "prediction_len": 727,
+            "prediction_snippet": "वानोंचपरार्थत्वादिदंसंबंधःसमह्यादितिन्यायेनसमन्वयो..."
+        },
+        {
+            "page_number": 6,
+            "filename": "3976_0006.xml",
+            "cer": 0.36,
+            "ground_truth_len": 850,
+            "prediction_len": 793,
+            "prediction_snippet": "निष्कासेनतुपैश्यावभ्यथैंतीसादौवैवेपिभावनशेषेदानिश्..."
+        },
+        {
+            "page_number": 7,
+            "filename": "3976_0007.xml",
+            "cer": 0.2782608695652174,
+            "ground_truth_len": 805,
+            "prediction_len": 742,
+            "prediction_snippet": "पातन्यायेनसर्वेषीयगपदेवक्रियासंबधाभ्युपगमादितितिरा..."
+        },
+        {
+            "page_number": 8,
+            "filename": "3976_0008.xml",
+            "cer": 0.24206815511163338,
+            "ground_truth_len": 851,
+            "prediction_len": 793,
+            "prediction_snippet": "कें।धात्वर्थोपपदार्थयोस्तुकल्पकल्याण्यउतोपदार्थस्य..."
+        },
+        {
+            "page_number": 9,
+            "filename": "3976_0009.xml",
+            "cer": 0.37167070217917675,
+            "ground_truth_len": 826,
+            "prediction_len": 793,
+            "prediction_snippet": "मसंबधस्पप्राथमिकबोधएषविषयतापेक्शाकिंचससदशसंख्नायाय..."
+        },
+        {
+            "page_number": 10,
+            "filename": "3976_0010.xml",
+            "cer": 0.5066518847006651,
+            "ground_truth_len": 902,
+            "prediction_len": 945,
+            "prediction_snippet": "पातकीर्योकायास्तंडुलजारनायात्रोणःसमूतकरणाश्रुतस्या..."
+        },
+        {
+            "page_number": 11,
+            "filename": "3976_0011.xml",
+            "cer": 0.25,
+            "ground_truth_len": 860,
+            "prediction_len": 817,
+            "prediction_snippet": "नधात्वर्थस्यैवकनपालनेनफलस्थैर्यभावयोलरीकारात॥यागाम..."
+        }
+    ]
+}
