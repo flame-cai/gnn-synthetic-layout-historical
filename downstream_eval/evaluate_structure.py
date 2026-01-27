@@ -131,7 +131,7 @@ def main():
     parser.add_argument('--output', type=str, default='xml_evaluation_results.json', help='Output JSON file')
     
     args = parser.parse_args()
-
+    
     # 1. Load Ground Truth
     logger.info(f"Loading Ground Truth from {args.ground_truth}...")
     if not os.path.exists(args.ground_truth):
@@ -149,6 +149,7 @@ def main():
 
     results = []
     cer_scores = []
+    predicted_gt_format = []
 
     for xml_file in xml_files:
         page_num = extract_page_number(xml_file)
@@ -164,6 +165,13 @@ def main():
         # Parse XML
         pred_text = parse_page_xml(xml_file)
         gt_text = gt_map[page_num]
+
+        # Save prediction in ground-truth format
+        predicted_gt_format.append({
+            "page_number": page_num,
+            "content": pred_text
+        })
+
 
         # Calculate Metric (CER)
         if not gt_text:
@@ -213,6 +221,15 @@ def main():
         json.dump(output_data, f, indent=4, ensure_ascii=False)
     
     logger.info(f"Results saved to {args.output}")
+
+    # 5. Save Predictions in Ground-Truth Format
+    pred_output_path = os.path.splitext(args.output)[0] + "_predictions_gt_format.json"
+
+    with open(pred_output_path, 'w', encoding='utf-8') as f:
+        json.dump(predicted_gt_format, f, indent=4, ensure_ascii=False)
+
+    logger.info(f"Predictions (GT format) saved to {pred_output_path}")
+
 
 if __name__ == "__main__":
     main()

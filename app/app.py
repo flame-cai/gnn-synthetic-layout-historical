@@ -214,6 +214,127 @@ def save_correction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+# @app.route('/recognize-text', methods=['POST'])
+# def recognize_text():
+#     data = request.json
+#     manuscript = data.get('manuscript')
+#     page = data.get('page')
+#     api_key = data.get('apiKey')
+    
+#     if not api_key:
+#         return jsonify({"error": "API Key required"}), 400
+
+#     base_path = Path(UPLOAD_FOLDER) / manuscript
+#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+#     img_path = base_path / "images_resized" / f"{page}.jpg"
+    
+#     if not xml_path.exists() or not img_path.exists():
+#         return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
+
+#     try:
+#         pil_img = Image.open(img_path)
+#         img_w, img_h = pil_img.size
+#     except Exception as e:
+#         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
+
+#     regions_to_process = []
+#     ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+#     try:
+#         tree = ET.parse(xml_path)
+#         root = tree.getroot()
+        
+#         for textline in root.findall(".//p:TextLine", ns):
+#             custom_attr = textline.get('custom', '')
+#             if 'structure_line_id_' not in custom_attr:
+#                 continue
+#             try:
+#                 line_id = str(custom_attr.split('structure_line_id_')[1])
+#             except IndexError:
+#                 continue
+
+#             coords_elem = textline.find('p:Coords', ns)
+#             if coords_elem is None: continue
+#             points_str = coords_elem.get('points', '')
+#             if not points_str: continue
+
+#             try:
+#                 points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+#             except ValueError: continue
+            
+#             if not points: continue
+
+#             xs = [p[0] for p in points]
+#             ys = [p[1] for p in points]
+            
+#             # Normalize 0-1000
+#             n_ymin = int((min(ys) / img_h) * 1000)
+#             n_xmin = int((min(xs) / img_w) * 1000)
+#             n_ymax = int((max(ys) / img_h) * 1000)
+#             n_xmax = int((max(xs) / img_w) * 1000)
+
+#             n_ymin, n_ymax = sorted([max(0, min(1000, n_ymin)), max(0, min(1000, n_ymax))])
+#             n_xmin, n_xmax = sorted([max(0, min(1000, n_xmin)), max(0, min(1000, n_xmax))])
+
+#             regions_to_process.append({
+#                 "id": line_id,
+#                 "box_2d": [n_ymin, n_xmin, n_ymax, n_xmax]
+#             })
+
+#     except Exception as e:
+#         return jsonify({"error": f"XML Parsing Error: {str(e)}"}), 500
+
+#     if not regions_to_process:
+#          return jsonify({"transcriptions": {}})
+
+#     prompt_text = (
+#         "You are an expert paleographer analyzing a historical Sanskrit manuscript.\n"
+#         "Your task is to transcribe the handwritten text found inside specific bounding boxes.\n\n"
+#         "INPUT CONTEXT:\n"
+#         "The coordinates are in the format [ymin, xmin, ymax, xmax] on a scale of 0 to 1000.\n\n"
+#         "REGIONS TO TRANSCRIBE:\n"
+#     )
+#     for item in regions_to_process:
+#         prompt_text += f"- Region ID '{item['id']}' at Box: {item['box_2d']}\n"
+
+#     prompt_text += (
+#         "\nOUTPUT INSTRUCTIONS:\n"
+#         "1. Return a JSON List of objects.\n"
+#         "2. Each object must have two keys: 'id' (string) and 'text' (string).\n"
+#         "3. Do not modify the Region ID.\n"
+#         "4. If the text is illegible, set 'text' to an empty string.\n"
+#     )
+
+#     try:
+#         genai.configure(api_key=api_key)
+#         model = genai.GenerativeModel('gemini-2.5-flash')
+#         response = model.generate_content(
+#             [pil_img, prompt_text],
+#             generation_config={"response_mime_type": "application/json"}
+#         )
+        
+#         raw_result = json.loads(response.text)
+#         result_list = []
+#         if isinstance(raw_result, list):
+#             result_list = raw_result
+#         elif isinstance(raw_result, dict):
+#             for val in raw_result.values():
+#                 if isinstance(val, list):
+#                     result_list = val
+#                     break
+
+#         final_map = {}
+#         for item in result_list:
+#             if 'id' in item and 'text' in item:
+#                 final_map[str(item['id'])] = item['text']
+
+#         return jsonify({"transcriptions": final_map})
+
+#     except Exception as e:
+#         print(f"Gemini Error: {e}")
+#         return jsonify({"error": str(e)}), 500
+
+
+
 @app.route('/recognize-text', methods=['POST'])
 def recognize_text():
     data = request.json
@@ -238,11 +359,19 @@ def recognize_text():
         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
 
     regions_to_process = []
+    # Standard PAGE-XML namespace
     ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+    
     try:
         tree = ET.parse(xml_path)
         root = tree.getroot()
         
+        # Helper to normalize pixel coords to 0-1000 scale
+        def normalize(x, y):
+            n_y = int((y / img_h) * 1000)
+            n_x = int((x / img_w) * 1000)
+            return max(0, min(1000, n_y)), max(0, min(1000, n_x))
+
         for textline in root.findall(".//p:TextLine", ns):
             custom_attr = textline.get('custom', '')
             if 'structure_line_id_' not in custom_attr:
@@ -252,32 +381,68 @@ def recognize_text():
             except IndexError:
                 continue
 
-            coords_elem = textline.find('p:Coords', ns)
-            if coords_elem is None: continue
-            points_str = coords_elem.get('points', '')
-            if not points_str: continue
-
-            try:
-                points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-            except ValueError: continue
+            # --- STRATEGY: PREFER BASELINE, FALLBACK TO COORDS ---
             
-            if not points: continue
+            trace_points = [] # We want [Start(x,y), Mid(x,y), End(x,y)]
 
-            xs = [p[0] for p in points]
-            ys = [p[1] for p in points]
-            
-            # Normalize 0-1000
-            n_ymin = int((min(ys) / img_h) * 1000)
-            n_xmin = int((min(xs) / img_w) * 1000)
-            n_ymax = int((max(ys) / img_h) * 1000)
-            n_xmax = int((max(xs) / img_w) * 1000)
+            # 1. Try extracting Baseline
+            baseline_elem = textline.find('p:Baseline', ns)
+            if baseline_elem is not None:
+                points_str = baseline_elem.get('points', '')
+                if points_str:
+                    try:
+                        # Parse "x,y x,y" string into list of lists
+                        pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+                        # Sort left-to-right
+                        pts.sort(key=lambda k: k[0])
+                        
+                        if len(pts) >= 2:
+                            # Pick Start, Middle, End to capture the curve
+                            p_start = pts[0]
+                            p_mid = pts[len(pts) // 2]
+                            p_end = pts[-1]
+                            trace_points = [p_start, p_mid, p_end]
+                    except ValueError:
+                        pass # Parsing failed, fall through to Coords
 
-            n_ymin, n_ymax = sorted([max(0, min(1000, n_ymin)), max(0, min(1000, n_ymax))])
-            n_xmin, n_xmax = sorted([max(0, min(1000, n_xmin)), max(0, min(1000, n_xmax))])
+            # 2. Fallback: Calculate "Spine" from Polygon Coords if Baseline failed
+            if not trace_points:
+                coords_elem = textline.find('p:Coords', ns)
+                if coords_elem is not None:
+                    points_str = coords_elem.get('points', '')
+                    if points_str:
+                        try:
+                            pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+                            if pts:
+                                # Get simple center-line logic
+                                xs = [p[0] for p in pts]
+                                ys = [p[1] for p in pts]
+                                # Sort points by X to find left/right extremities
+                                sorted_pts = sorted(zip(xs, ys), key=lambda k: k[0])
+                                
+                                p_start = [sorted_pts[0][0], sorted_pts[0][1]]
+                                p_end = [sorted_pts[-1][0], sorted_pts[-1][1]]
+                                # Geometric centroid for the middle
+                                p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
+                                
+                                trace_points = [p_start, p_mid, p_end]
+                        except ValueError:
+                            continue
+
+            if not trace_points:
+                continue
+
+            # 3. Format for Gemini [y1, x1, y2, x2, y3, x3] (Normalized)
+            # Note: Gemini vision usually expects [y, x] order
+            gemini_trace = []
+            for px, py in trace_points:
+                ny, nx = normalize(px, py)
+                gemini_trace.extend([ny, nx])
 
             regions_to_process.append({
                 "id": line_id,
-                "box_2d": [n_ymin, n_xmin, n_ymax, n_xmax]
+                "trace": gemini_trace,
+                "sort_y": trace_points[0][1] # Keep raw Y for sorting
             })
 
     except Exception as e:
@@ -286,41 +451,57 @@ def recognize_text():
     if not regions_to_process:
          return jsonify({"transcriptions": {}})
 
-    prompt_text = (
-        "You are an expert paleographer analyzing a historical manuscript.\n"
-        "Your task is to transcribe the handwritten text found inside specific bounding boxes.\n\n"
-        "INPUT CONTEXT:\n"
-        "The coordinates are in the format [ymin, xmin, ymax, xmax] on a scale of 0 to 1000.\n\n"
-        "REGIONS TO TRANSCRIBE:\n"
-    )
-    for item in regions_to_process:
-        prompt_text += f"- Region ID '{item['id']}' at Box: {item['box_2d']}\n"
+    # --- IMPORTANT: Sort Top-to-Bottom ---
+    # This helps the model track its position on the page naturally
+    regions_to_process.sort(key=lambda k: k['sort_y'])
 
-    prompt_text += (
-        "\nOUTPUT INSTRUCTIONS:\n"
-        "1. Return a JSON List of objects.\n"
-        "2. Each object must have two keys: 'id' (string) and 'text' (string).\n"
-        "3. Do not modify the Region ID.\n"
-        "4. If the text is illegible, set 'text' to an empty string.\n"
+    # Build Prompt
+    prompt_text = (
+        "You are an expert paleographer analyzing a Sanskrit manuscript.\n"
+        "I will provide a list of Region IDs and a 'Path Trace' for each line.\n"
+        "The trace format is [y_start, x_start, y_mid, x_mid, y_end, x_end] on a 0-1000 scale.\n"
+        "This trace runs along the baseline of the text.\n\n"
+        "INSTRUCTIONS:\n"
+        "1. Visualize the curve defined by the 3 coordinate points (Start -> Mid -> End).\n"
+        "2. Transcribe the handwritten Devanagari text that sits on this curve.\n"
+        "3. Ignore text from lines above or below this specific path.\n"
+        "4. Output a JSON array of objects with 'id' and 'text'.\n\n"
+        "REGIONS:\n"
     )
+
+    for item in regions_to_process:
+        prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
 
     try:
         genai.configure(api_key=api_key)
+        
+        # Use Pro model (Flash 1.5 is okay, but Pro is better for coordinate precision)
+        # Note: 'gemini-2.5-flash' does not exist yet. Using stable 1.5-pro.
         model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        generation_config = {
+            "temperature": 0.2,
+            "response_mime_type": "application/json",
+            "response_schema": {
+                "type": "ARRAY",
+                "items": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "id": {"type": "STRING"},
+                        "text": {"type": "STRING"}
+                    },
+                    "required": ["id", "text"]
+                }
+            }
+        }
+
         response = model.generate_content(
             [pil_img, prompt_text],
-            generation_config={"response_mime_type": "application/json"}
+            generation_config=generation_config
         )
         
-        raw_result = json.loads(response.text)
-        result_list = []
-        if isinstance(raw_result, list):
-            result_list = raw_result
-        elif isinstance(raw_result, dict):
-            for val in raw_result.values():
-                if isinstance(val, list):
-                    result_list = val
-                    break
+        # Response schema guarantees a list of objects
+        result_list = json.loads(response.text)
 
         final_map = {}
         for item in result_list:

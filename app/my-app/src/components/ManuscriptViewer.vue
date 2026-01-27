@@ -984,6 +984,8 @@ const deleteEdge = () => {
   })
   resetSelection()
 }
+
+
 const undoModification = (index) => {
   const mod = modifications.value.splice(index, 1)[0]
   if (mod.type === 'add') {
@@ -1005,6 +1007,8 @@ const undoModification = (index) => {
       alert("Undo node delete not fully implemented, reload page.")
   }
 }
+
+
 const resetModifications = () => {
   resetWorkingGraph()
   modifications.value = []

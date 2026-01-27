@@ -62,7 +62,7 @@ def perform_ocr_with_gemini(image_path: str, model) -> str:
         
         # Specialized prompt for strict transcription
         prompt = (
-            "You are an expert Sanskrit transcriber. "
+            "You are an expert paleographer analyzing a historical Sanskrit manuscript. "
             "Please transcribe the Sanskrit text from this image exactly as it appears. "
             "1. Output ONLY the Sanskrit text. "
             "2. Do not include page numbers, headers, translations, or explanations. "

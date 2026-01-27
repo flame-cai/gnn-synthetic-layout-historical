@@ -1,0 +1,408 @@
+{
+    "summary": {
+        "total_pages": 50,
+        "average_cer": 0.28791101797158364
+    },
+    "details": [
+        {
+            "page_number": 2,
+            "filename": "3976_0002.xml",
+            "cer": 0.29101796407185626,
+            "ground_truth_len": 835,
+            "prediction_len": 767,
+            "prediction_snippet": "॥श्रीगणेशायनमः॥प्रज्ञादासीदानेविबुधसमुदयस्तूयमानाय..."
+        },
+        {
+            "page_number": 3,
+            "filename": "3976_0003.xml",
+            "cer": 0.2479627473806752,
+            "ground_truth_len": 859,
+            "prediction_len": 778,
+            "prediction_snippet": "रुषानुग्रहीतोस्वामिशाक्तिबुधभास्कररायो।यांकथांरचयत..."
+        },
+        {
+            "page_number": 4,
+            "filename": "3976_0004.xml",
+            "cer": 0.30824372759856633,
+            "ground_truth_len": 837,
+            "prediction_len": 760,
+            "prediction_snippet": "धातूनाचियोगे।तत्रहिनवैयधिकरण्येनान्वयःकरप्राप्तयोः..."
+        },
+        {
+            "page_number": 5,
+            "filename": "3976_0005.xml",
+            "cer": 0.25738916256157635,
+            "ground_truth_len": 812,
+            "prediction_len": 744,
+            "prediction_snippet": "यानांचपरार्थत्वादसंबधःसमत्वादितिन्यायेनसमन्चयायोगा..."
+        },
+        {
+            "page_number": 6,
+            "filename": "3976_0006.xml",
+            "cer": 0.2917647058823529,
+            "ground_truth_len": 850,
+            "prediction_len": 764,
+            "prediction_snippet": "निष्कासेनतुवैष्णवभ्यंयंतीसादोवेदिभावानाशेदाभोपिकरक..."
+        },
+        {
+            "page_number": 7,
+            "filename": "3976_0007.xml",
+            "cer": 0.2236024844720497,
+            "ground_truth_len": 805,
+            "prediction_len": 745,
+            "prediction_snippet": "पोतन्यायेनसर्वेषांयुगपदेवक्रियासंबंधाभ्युपगमादितिर..."
+        },
+        {
+            "page_number": 8,
+            "filename": "3976_0008.xml",
+            "cer": 0.19153936545240893,
+            "ground_truth_len": 851,
+            "prediction_len": 778,
+            "prediction_snippet": "किंधात्वर्थोयपपदार्थयोस्तुल्यकल्पोन्यउपपदार्थस्यैव..."
+        },
+        {
+            "page_number": 9,
+            "filename": "3976_0009.xml",
+            "cer": 0.2566585956416465,
+            "ground_truth_len": 826,
+            "prediction_len": 771,
+            "prediction_snippet": "मसंबंधस्यप्राथमिकबोधएवविषयत्वापत्तेश्चाकिंचससदृशसं..."
+        },
+        {
+            "page_number": 10,
+            "filename": "3976_0010.xml",
+            "cer": 0.28713968957871394,
+            "ground_truth_len": 902,
+            "prediction_len": 822,
+            "prediction_snippet": "१पातकर्पिकायास्तंडुलारनायात्रोपःसन्तत्करणश्रुतस्या..."
+        },
+        {
+            "page_number": 11,
+            "filename": "3976_0011.xml",
+            "cer": 0.17906976744186046,
+            "ground_truth_len": 860,
+            "prediction_len": 813,
+            "prediction_snippet": "नधात्वर्थस्यैवकनपात्वेनफलस्यैवाव्यलोरीकारात्॥यागाव..."
+        },
+        {
+            "page_number": 12,
+            "filename": "3976_0012.xml",
+            "cer": 0.2563559322033898,
+            "ground_truth_len": 944,
+            "prediction_len": 895,
+            "prediction_snippet": "काकांक्षयोस्त्योस्तदाकांसयाक्रिययैवान्वयइतिस्पष्टम..."
+        },
+        {
+            "page_number": 13,
+            "filename": "3976_0013.xml",
+            "cer": 0.2937062937062937,
+            "ground_truth_len": 858,
+            "prediction_len": 817,
+            "prediction_snippet": "विरोधश्रुत्यापिकासेनेनचकारेणकरपायोःसमुच्चयउक्तइतित..."
+        },
+        {
+            "page_number": 14,
+            "filename": "3976_0014.xml",
+            "cer": 0.272305909617613,
+            "ground_truth_len": 863,
+            "prediction_len": 807,
+            "prediction_snippet": "यागत्वप्रकारकसदृशव्यक्तिविशेषाकबोधजनकत्वस्वीकारेतु..."
+        },
+        {
+            "page_number": 15,
+            "filename": "3976_0015.xml",
+            "cer": 0.2878787878787879,
+            "ground_truth_len": 858,
+            "prediction_len": 786,
+            "prediction_snippet": "स्थापिप्रसययवादनैनेदपिकस्यानिएकथमयथागुणविधौधात्वर्..."
+        },
+        {
+            "page_number": 16,
+            "filename": "3976_0016.xml",
+            "cer": 0.27703398558187436,
+            "ground_truth_len": 971,
+            "prediction_len": 883,
+            "prediction_snippet": "पदिकार्यस्यविभक्तयैद्वौनभावनायामन्वयस्यनिरुपसर्गत्..."
+        },
+        {
+            "page_number": 17,
+            "filename": "3976_0017.xml",
+            "cer": 0.3235294117647059,
+            "ground_truth_len": 884,
+            "prediction_len": 823,
+            "prediction_snippet": "तवलोरीकादेकःसन्नचोसतिवाक्येपरिच्छेदकसंस्थानभ्रमात्..."
+        },
+        {
+            "page_number": 18,
+            "filename": "3976_0018.xml",
+            "cer": 0.2676470588235294,
+            "ground_truth_len": 1020,
+            "prediction_len": 950,
+            "prediction_snippet": "प्रेनरानुसृजंतीतिश्रुतेपर्यग्निकृतत्वाव्यनतदतीगरीत..."
+        },
+        {
+            "page_number": 19,
+            "filename": "3976_0019.xml",
+            "cer": 0.2490234375,
+            "ground_truth_len": 1024,
+            "prediction_len": 909,
+            "prediction_snippet": "म्यौःबाईहिदरपार्थुरम्यौवाधीयानीद्वादशाहिकजलस्तोअसा..."
+        },
+        {
+            "page_number": 20,
+            "filename": "3976_0020.xml",
+            "cer": 0.23921568627450981,
+            "ground_truth_len": 1020,
+            "prediction_len": 984,
+            "prediction_snippet": "रयाभाकासेंवधमादायेोपपन्नायद्यपिसाक्षादेवसंबंधःतथाप..."
+        },
+        {
+            "page_number": 21,
+            "filename": "3976_0021.xml",
+            "cer": 0.27379553466509987,
+            "ground_truth_len": 851,
+            "prediction_len": 817,
+            "prediction_snippet": "मक्तसिध्येत्।इयमेववच्यैःससमर्थेत्।तृतीयार्थकरपालेप..."
+        },
+        {
+            "page_number": 22,
+            "filename": "3976_0022.xml",
+            "cer": 0.29,
+            "ground_truth_len": 1000,
+            "prediction_len": 972,
+            "prediction_snippet": "पदविधिरित्याचक्षते।तदपिनासमासत्तितैकदेशोयस्यांनाद्..."
+        },
+        {
+            "page_number": 23,
+            "filename": "3976_0023.xml",
+            "cer": 0.354806739345887,
+            "ground_truth_len": 1009,
+            "prediction_len": 818,
+            "prediction_snippet": "दुहितृदिसनयोःपद्योर्युसंबंधिनीदुहितेसेकार्थप्रतिपा..."
+        },
+        {
+            "page_number": 24,
+            "filename": "3976_0024.xml",
+            "cer": 0.2702702702702703,
+            "ground_truth_len": 1073,
+            "prediction_len": 981,
+            "prediction_snippet": "यस्ममुच्योनिरसनीयः।सचन्याय्यःसुबतदवतिंडतेपितुल्यः।..."
+        },
+        {
+            "page_number": 25,
+            "filename": "3976_0025.xml",
+            "cer": 0.30140597539543057,
+            "ground_truth_len": 1138,
+            "prediction_len": 1009,
+            "prediction_snippet": "यःपौरुषेयत्वात्प्रमाणमस्यनयतियत्तुनतोधात्वर्थावरोध..."
+        },
+        {
+            "page_number": 26,
+            "filename": "3976_0026.xml",
+            "cer": 0.2729145211122554,
+            "ground_truth_len": 971,
+            "prediction_len": 892,
+            "prediction_snippet": "तत्विशेषितत्वेनोपस्थितेपिनीलत्वाददीनात्॥कांतिकांक्..."
+        },
+        {
+            "page_number": 27,
+            "filename": "3976_0027.xml",
+            "cer": 0.2510460251046025,
+            "ground_truth_len": 956,
+            "prediction_len": 912,
+            "prediction_snippet": "पिनाच्यत्तासंबंधेनतद्तिलक्षणाप्यामर्थलक्षणयास्तुल्..."
+        },
+        {
+            "page_number": 28,
+            "filename": "3976_0028.xml",
+            "cer": 0.26004464285714285,
+            "ground_truth_len": 896,
+            "prediction_len": 837,
+            "prediction_snippet": "१४ग्यतानवशादुरीकार्यात्तच्चनामशब्देपिबुल्ब्यनामधेय..."
+        },
+        {
+            "page_number": 29,
+            "filename": "3976_0029.xml",
+            "cer": 0.24663677130044842,
+            "ground_truth_len": 892,
+            "prediction_len": 860,
+            "prediction_snippet": "यागव्यक्तीनामनेकेवेनशब्देनरादिसंज्ञेसदप्रतियोगियाव..."
+        },
+        {
+            "page_number": 30,
+            "filename": "3976_0030.xml",
+            "cer": 0.25590955806783144,
+            "ground_truth_len": 973,
+            "prediction_len": 912,
+            "prediction_snippet": "त्रप्रत्यासभेदेनस्कृतिदर्शनात्यत्रबाधवरकल्पायीसरस्..."
+        },
+        {
+            "page_number": 31,
+            "filename": "3976_0031.xml",
+            "cer": 0.29162656400384984,
+            "ground_truth_len": 1039,
+            "prediction_len": 944,
+            "prediction_snippet": "गंगासूर्वतिङउपदक्षानेनवाक्यत।अस्तिमेवंतीपरःप्रथमपु..."
+        },
+        {
+            "page_number": 32,
+            "filename": "3976_0032.xml",
+            "cer": 0.32492725509214354,
+            "ground_truth_len": 1031,
+            "prediction_len": 922,
+            "prediction_snippet": "श्यविधेययसावव्यवहाररूपर्वतोवन्हिमानूतयोसोसोसोमियाद..."
+        },
+        {
+            "page_number": 33,
+            "filename": "3976_0033.xml",
+            "cer": 0.2935222672064777,
+            "ground_truth_len": 988,
+            "prediction_len": 892,
+            "prediction_snippet": "दुस्यकेषुवाक्येषुअध्याहारस्यावश्यकतायासममेप्रभावलि..."
+        },
+        {
+            "page_number": 34,
+            "filename": "3976_0034.xml",
+            "cer": 0.41500586166471276,
+            "ground_truth_len": 853,
+            "prediction_len": 624,
+            "prediction_snippet": "र्वथैस्नेहः।लाकनायोक्तसर्वैनधालर्थरूपगुणादुसभ्रहोस..."
+        },
+        {
+            "page_number": 35,
+            "filename": "3976_0035.xml",
+            "cer": 0.24676616915422886,
+            "ground_truth_len": 1005,
+            "prediction_len": 956,
+            "prediction_snippet": "मवतोनान्वयःसंसवतीतिविपरीतमेतत्॥यद्यपिविरोधाभास्यान..."
+        },
+        {
+            "page_number": 36,
+            "filename": "3976_0036.xml",
+            "cer": 0.3025291828793774,
+            "ground_truth_len": 1028,
+            "prediction_len": 933,
+            "prediction_snippet": "किंचकरपालेब्रीहीणांव्याप्यवृत्तित्वंनीहीव्याप्यसम्..."
+        },
+        {
+            "page_number": 37,
+            "filename": "3976_0037.xml",
+            "cer": 0.29743164871582434,
+            "ground_truth_len": 1207,
+            "prediction_len": 1125,
+            "prediction_snippet": "भिस्साख्याःप्रत्ययाभवंतीत्यर्थः।सिध्यसेवेतिकिमवधौ।..."
+        },
+        {
+            "page_number": 38,
+            "filename": "3976_0038.xml",
+            "cer": 0.423828125,
+            "ground_truth_len": 1024,
+            "prediction_len": 1141,
+            "prediction_snippet": "भाववतीतस्मात्सोमळतेतरभेदेनास्त्यन्योन्यमिति।यदिसोम..."
+        },
+        {
+            "page_number": 39,
+            "filename": "3976_0039.xml",
+            "cer": 0.3310613437195716,
+            "ground_truth_len": 1027,
+            "prediction_len": 920,
+            "prediction_snippet": "रूपालेजीहियैंवलावछिन्नप्रतियोगिताकभेदवदृतिलेसतियाव..."
+        },
+        {
+            "page_number": 40,
+            "filename": "3976_0040.xml",
+            "cer": 0.3173996175908222,
+            "ground_truth_len": 1046,
+            "prediction_len": 969,
+            "prediction_snippet": "क्यतावच्छेदककोटावप्रवेशाभिनेपेक्षाधानत्वतीयार्थेति..."
+        },
+        {
+            "page_number": 41,
+            "filename": "3976_0041.xml",
+            "cer": 0.44057193923145666,
+            "ground_truth_len": 1119,
+            "prediction_len": 843,
+            "prediction_snippet": "तथाचमिभावकायोर्नैचीवृथाधेनिनिततोऽभेदेकार्यकारणाभाव..."
+        },
+        {
+            "page_number": 42,
+            "filename": "3976_0042.xml",
+            "cer": 0.3902932254802831,
+            "ground_truth_len": 989,
+            "prediction_len": 811,
+            "prediction_snippet": "तक्त।पदनिष्पादकोविधिरेवार्थःप्रोरोगवत्तुसमर्थपदार्..."
+        },
+        {
+            "page_number": 43,
+            "filename": "3976_0043.xml",
+            "cer": 0.315042573320719,
+            "ground_truth_len": 1057,
+            "prediction_len": 1025,
+            "prediction_snippet": "मिश्रयोरेति।तस्मात्समर्थपरिभाषाबलेनैताविसाध्यनुकास..."
+        },
+        {
+            "page_number": 44,
+            "filename": "3976_0044.xml",
+            "cer": 0.3256743256743257,
+            "ground_truth_len": 1001,
+            "prediction_len": 911,
+            "prediction_snippet": "कस्याचावाक्येनवार्तिकोरुदुकताबीजस्याभावेनवाक्येदाप..."
+        },
+        {
+            "page_number": 45,
+            "filename": "3976_0045.xml",
+            "cer": 0.27644710578842313,
+            "ground_truth_len": 1002,
+            "prediction_len": 939,
+            "prediction_snippet": "हेतुलेइतिसूत्राकरपोनोताइरूपन्यायहेतुलस्यविशेषणातास..."
+        },
+        {
+            "page_number": 46,
+            "filename": "3976_0046.xml",
+            "cer": 0.2806484295845998,
+            "ground_truth_len": 987,
+            "prediction_len": 964,
+            "prediction_snippet": "सिंवादानातथा(हा)अस्तिस्र्यएवाचोनामाही)नःविभ्यजिद्र..."
+        },
+        {
+            "page_number": 47,
+            "filename": "3976_0047.xml",
+            "cer": 0.3106535362578335,
+            "ground_truth_len": 1117,
+            "prediction_len": 1057,
+            "prediction_snippet": "पांपक्षाणामेकोदेयाद्वादशदीनामपिनसमुचेयापतिः।नचदशभि..."
+        },
+        {
+            "page_number": 48,
+            "filename": "3976_0048.xml",
+            "cer": 0.2096627164995442,
+            "ground_truth_len": 1097,
+            "prediction_len": 1037,
+            "prediction_snippet": "सवांतरी\"यावलोकीका(नित्माननाबोधकपदसमूहोवावाक्यमितित..."
+        },
+        {
+            "page_number": 49,
+            "filename": "3976_0049.xml",
+            "cer": 0.23943661971830985,
+            "ground_truth_len": 1065,
+            "prediction_len": 1046,
+            "prediction_snippet": "नार्थकबोधजनकत्वीर्थयोःसाम्यंयस्यसविषयकबोधेमुख्यविश..."
+        },
+        {
+            "page_number": 50,
+            "filename": "3976_0050.xml",
+            "cer": 0.26715462031107046,
+            "ground_truth_len": 1093,
+            "prediction_len": 1004,
+            "prediction_snippet": "कारकान्तरकमींतरप्रतियोगिकसंबंधविधानायसंवसयाहुतिःभा..."
+        },
+        {
+            "page_number": 51,
+            "filename": "3976_0051.xml",
+            "cer": 0.3179530201342282,
+            "ground_truth_len": 1192,
+            "prediction_len": 1079,
+            "prediction_snippet": "तिशोमस्यैवबहुफलानामुद्देश्यत्वेनतत्रापिनक्षतिः॥सर्..."
+        }
+    ]
+}
