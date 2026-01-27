@@ -1,4 +1,5 @@
 # app.py
+import threading  # <--- CRITICAL IMPORT
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
@@ -13,6 +14,7 @@ import glob
 from PIL import Image
 import xml.etree.ElementTree as ET
 import numpy as np
+from os.path import isdir, join
 
 # Import your existing pipelines
 from inference import process_new_manuscript
@@ -178,41 +180,41 @@ def get_page_prediction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-@app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
-def save_correction(manuscript, page):
-    data = request.json
-    manuscript_path = Path(UPLOAD_FOLDER) / manuscript
+# @app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
+# def save_correction(manuscript, page):
+#     data = request.json
+#     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     
-    textline_labels = data.get('textlineLabels')
-    graph_data = data.get('graph')
-    textbox_labels = data.get('textboxLabels')
-    nodes_data = graph_data.get('nodes')
-    text_content = data.get('textContent') 
+#     textline_labels = data.get('textlineLabels')
+#     graph_data = data.get('graph')
+#     textbox_labels = data.get('textboxLabels')
+#     nodes_data = graph_data.get('nodes')
+#     text_content = data.get('textContent') 
     
-    if not textline_labels or not graph_data:
-        return jsonify({"error": "Missing labels or graph data"}), 400
+#     if not textline_labels or not graph_data:
+#         return jsonify({"error": "Missing labels or graph data"}), 400
 
-    try:
-        result = generate_xml_and_images_for_page(
-            str(manuscript_path),
-            page,
-            textline_labels,
-            graph_data['edges'],
-            { 
-                'BINARIZE_THRESHOLD': 0.5098,
-                'BBOX_PAD_V': 0.7,
-                'BBOX_PAD_H': 0.5,
-                'CC_SIZE_THRESHOLD_RATIO': 0.4
-            },
-            textbox_labels=textbox_labels,
-            nodes=nodes_data,
-            text_content=text_content
-        )
-        return jsonify(result)
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+#     try:
+#         result = generate_xml_and_images_for_page(
+#             str(manuscript_path),
+#             page,
+#             textline_labels,
+#             graph_data['edges'],
+#             { 
+#                 'BINARIZE_THRESHOLD': 0.5098,
+#                 'BBOX_PAD_V': 0.7,
+#                 'BBOX_PAD_H': 0.5,
+#                 'CC_SIZE_THRESHOLD_RATIO': 0.4
+#             },
+#             textbox_labels=textbox_labels,
+#             nodes=nodes_data,
+#             text_content=text_content
+#         )
+#         return jsonify(result)
+#     except Exception as e:
+#         import traceback
+#         traceback.print_exc()
+#         return jsonify({"error": str(e)}), 500
 
 # @app.route('/recognize-text', methods=['POST'])
 # def recognize_text():
@@ -335,6 +337,421 @@ def save_correction(manuscript, page):
 
 
 
+# @app.route('/recognize-text', methods=['POST'])
+# def recognize_text():
+#     data = request.json
+#     manuscript = data.get('manuscript')
+#     page = data.get('page')
+#     api_key = data.get('apiKey')
+    
+#     if not api_key:
+#         return jsonify({"error": "API Key required"}), 400
+
+#     base_path = Path(UPLOAD_FOLDER) / manuscript
+#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+#     img_path = base_path / "images_resized" / f"{page}.jpg"
+    
+#     if not xml_path.exists() or not img_path.exists():
+#         return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
+
+#     try:
+#         pil_img = Image.open(img_path)
+#         img_w, img_h = pil_img.size
+#     except Exception as e:
+#         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
+
+#     regions_to_process = []
+#     # Standard PAGE-XML namespace
+#     ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+    
+#     try:
+#         tree = ET.parse(xml_path)
+#         root = tree.getroot()
+        
+#         # Helper to normalize pixel coords to 0-1000 scale
+#         def normalize(x, y):
+#             n_y = int((y / img_h) * 1000)
+#             n_x = int((x / img_w) * 1000)
+#             return max(0, min(1000, n_y)), max(0, min(1000, n_x))
+
+#         for textline in root.findall(".//p:TextLine", ns):
+#             custom_attr = textline.get('custom', '')
+#             if 'structure_line_id_' not in custom_attr:
+#                 continue
+#             try:
+#                 line_id = str(custom_attr.split('structure_line_id_')[1])
+#             except IndexError:
+#                 continue
+
+#             # --- STRATEGY: PREFER BASELINE, FALLBACK TO COORDS ---
+            
+#             trace_points = [] # We want [Start(x,y), Mid(x,y), End(x,y)]
+
+#             # 1. Try extracting Baseline
+#             baseline_elem = textline.find('p:Baseline', ns)
+#             if baseline_elem is not None:
+#                 points_str = baseline_elem.get('points', '')
+#                 if points_str:
+#                     try:
+#                         # Parse "x,y x,y" string into list of lists
+#                         pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+#                         # Sort left-to-right
+#                         pts.sort(key=lambda k: k[0])
+                        
+#                         if len(pts) >= 2:
+#                             # Pick Start, Middle, End to capture the curve
+#                             p_start = pts[0]
+#                             p_mid = pts[len(pts) // 2]
+#                             p_end = pts[-1]
+#                             trace_points = [p_start, p_mid, p_end]
+#                     except ValueError:
+#                         pass # Parsing failed, fall through to Coords
+
+#             # 2. Fallback: Calculate "Spine" from Polygon Coords if Baseline failed
+#             if not trace_points:
+#                 coords_elem = textline.find('p:Coords', ns)
+#                 if coords_elem is not None:
+#                     points_str = coords_elem.get('points', '')
+#                     if points_str:
+#                         try:
+#                             pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+#                             if pts:
+#                                 # Get simple center-line logic
+#                                 xs = [p[0] for p in pts]
+#                                 ys = [p[1] for p in pts]
+#                                 # Sort points by X to find left/right extremities
+#                                 sorted_pts = sorted(zip(xs, ys), key=lambda k: k[0])
+                                
+#                                 p_start = [sorted_pts[0][0], sorted_pts[0][1]]
+#                                 p_end = [sorted_pts[-1][0], sorted_pts[-1][1]]
+#                                 # Geometric centroid for the middle
+#                                 p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
+                                
+#                                 trace_points = [p_start, p_mid, p_end]
+#                         except ValueError:
+#                             continue
+
+#             if not trace_points:
+#                 continue
+
+#             # 3. Format for Gemini [y1, x1, y2, x2, y3, x3] (Normalized)
+#             # Note: Gemini vision usually expects [y, x] order
+#             gemini_trace = []
+#             for px, py in trace_points:
+#                 ny, nx = normalize(px, py)
+#                 gemini_trace.extend([ny, nx])
+
+#             regions_to_process.append({
+#                 "id": line_id,
+#                 "trace": gemini_trace,
+#                 "sort_y": trace_points[0][1] # Keep raw Y for sorting
+#             })
+
+#     except Exception as e:
+#         return jsonify({"error": f"XML Parsing Error: {str(e)}"}), 500
+
+#     if not regions_to_process:
+#          return jsonify({"transcriptions": {}})
+
+#     # --- IMPORTANT: Sort Top-to-Bottom ---
+#     # This helps the model track its position on the page naturally
+#     regions_to_process.sort(key=lambda k: k['sort_y'])
+
+#     # Build Prompt
+#     prompt_text = (
+#         "You are an expert paleographer analyzing a Sanskrit manuscript.\n"
+#         "I will provide a list of Region IDs and a 'Path Trace' for each line.\n"
+#         "The trace format is [y_start, x_start, y_mid, x_mid, y_end, x_end] on a 0-1000 scale.\n"
+#         "This trace runs along the baseline of the text.\n\n"
+#         "INSTRUCTIONS:\n"
+#         "1. Visualize the curve defined by the 3 coordinate points (Start -> Mid -> End).\n"
+#         "2. Transcribe the handwritten Devanagari text that sits on this curve.\n"
+#         "3. Ignore text from lines above or below this specific path.\n"
+#         "4. Output a JSON array of objects with 'id' and 'text'.\n\n"
+#         "REGIONS:\n"
+#     )
+
+#     for item in regions_to_process:
+#         prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
+
+#     try:
+#         genai.configure(api_key=api_key)
+        
+#         # Use Pro model (Flash 1.5 is okay, but Pro is better for coordinate precision)
+#         # Note: 'gemini-2.5-flash' does not exist yet. Using stable 1.5-pro.
+#         model = genai.GenerativeModel('gemini-2.5-flash')
+        
+#         generation_config = {
+#             "temperature": 0.2,
+#             "response_mime_type": "application/json",
+#             "response_schema": {
+#                 "type": "ARRAY",
+#                 "items": {
+#                     "type": "OBJECT",
+#                     "properties": {
+#                         "id": {"type": "STRING"},
+#                         "text": {"type": "STRING"}
+#                     },
+#                     "required": ["id", "text"]
+#                 }
+#             }
+#         }
+
+#         response = model.generate_content(
+#             [pil_img, prompt_text],
+#             generation_config=generation_config
+#         )
+        
+#         # Response schema guarantees a list of objects
+#         result_list = json.loads(response.text)
+
+#         final_map = {}
+#         for item in result_list:
+#             if 'id' in item and 'text' in item:
+#                 final_map[str(item['id'])] = item['text']
+
+#         return jsonify({"transcriptions": final_map})
+
+#     except Exception as e:
+#         print(f"Gemini Error: {e}")
+#         return jsonify({"error": str(e)}), 500
+
+
+# ----------------------------------------------------------------
+# NEW HELPER: Internal function to run Gemini logic (Refactored)
+# ----------------------------------------------------------------
+def _run_gemini_recognition_internal(manuscript, page, api_key):
+    """
+    Internal helper to run recognition on a specific page.
+    Reads the existing XML, runs Gemini, updates the XML with text, and returns the text dict.
+    """
+    base_path = Path(UPLOAD_FOLDER) / manuscript
+    xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    img_path = base_path / "images_resized" / f"{page}.jpg"
+
+    if not xml_path.exists() or not img_path.exists():
+        print(f"Skipping recognition for {page}: XML or Image missing.")
+        return {}
+
+    try:
+        pil_img = Image.open(img_path)
+        img_w, img_h = pil_img.size
+        
+        # Standard PAGE-XML namespace
+        ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+        ET.register_namespace('', ns['p']) # Register to avoid ns0 prefixes
+        
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        
+        regions_to_process = []
+
+        # Helper to normalize pixel coords to 0-1000 scale
+        def normalize(x, y):
+            n_y = int((y / img_h) * 1000)
+            n_x = int((x / img_w) * 1000)
+            return max(0, min(1000, n_y)), max(0, min(1000, n_x))
+
+        # 1. Extract Trace data for Gemini
+        for textline in root.findall(".//p:TextLine", ns):
+            custom_attr = textline.get('custom', '')
+            if 'structure_line_id_' not in custom_attr: continue
+            
+            line_id = str(custom_attr.split('structure_line_id_')[1])
+            
+            trace_points = []
+            
+            # Prefer Baseline
+            baseline_elem = textline.find('p:Baseline', ns)
+            if baseline_elem is not None:
+                points_str = baseline_elem.get('points', '')
+                if points_str:
+                    try:
+                        pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+                        pts.sort(key=lambda k: k[0])
+                        if len(pts) >= 2:
+                            trace_points = [pts[0], pts[len(pts) // 2], pts[-1]]
+                    except ValueError: pass
+
+            # Fallback Coords
+            if not trace_points:
+                coords_elem = textline.find('p:Coords', ns)
+                if coords_elem is not None:
+                    points_str = coords_elem.get('points', '')
+                    if points_str:
+                        try:
+                            pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+                            if pts:
+                                xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+                                sorted_pts = sorted(zip(xs, ys), key=lambda k: k[0])
+                                trace_points = [
+                                    [sorted_pts[0][0], sorted_pts[0][1]], 
+                                    [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))], 
+                                    [sorted_pts[-1][0], sorted_pts[-1][1]]
+                                ]
+                        except ValueError: continue
+
+            if trace_points:
+                gemini_trace = []
+                for px, py in trace_points:
+                    ny, nx = normalize(px, py)
+                    gemini_trace.extend([ny, nx])
+                
+                regions_to_process.append({
+                    "id": line_id,
+                    "trace": gemini_trace,
+                    "sort_y": trace_points[0][1]
+                })
+
+        if not regions_to_process:
+            return {}
+
+        regions_to_process.sort(key=lambda k: k['sort_y'])
+
+        # 2. Build Prompt
+        prompt_text = (
+            "You are an expert paleographer transcribing a Sanskrit manuscript.\n"
+            "I will provide a list of Region IDs and a 'Path Trace' for each text-line.\n"
+            "The trace format is [y_start, x_start, y_mid, x_mid, y_end, x_end] on a 0-1000 scale.\n"
+            "Precisely transcribe the handwritten Devanagari text that sits on this curve.\n"
+            "Ignore text from lines above or below this specific path.\n"
+            "Output a JSON array of objects with 'id' and 'text'.\n\n"
+            "REGIONS:\n"
+        )
+        for item in regions_to_process:
+            prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
+
+        # 3. Call API
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash') # Using stable pro model
+        
+        response = model.generate_content(
+            [pil_img, prompt_text],
+            generation_config={"response_mime_type": "application/json"}
+        )
+        
+        try:
+            result_list = json.loads(response.text)
+        except:
+            # Fallback if model returns list wrapped in dict or markdown
+            cleaned_text = response.text.replace("```json", "").replace("```", "")
+            result_list = json.loads(cleaned_text)
+
+        if isinstance(result_list, dict) and "transcriptions" in result_list:
+            result_list = result_list["transcriptions"] # Handle variance
+
+        final_map = {}
+        for item in result_list:
+            if 'id' in item and 'text' in item:
+                final_map[str(item['id'])] = item['text']
+
+        # 4. Update XML with Results immediately
+        if final_map:
+            changed = False
+            for textline in root.findall(".//p:TextLine", ns):
+                custom_attr = textline.get('custom', '')
+                if 'structure_line_id_' in custom_attr:
+                    lid = str(custom_attr.split('structure_line_id_')[1])
+                    if lid in final_map and final_map[lid]:
+                        # Check/Create TextEquiv/Unicode
+                        te = textline.find("p:TextEquiv", ns)
+                        if te is None:
+                            te = ET.SubElement(textline, "TextEquiv")
+                        uni = te.find("p:Unicode", ns)
+                        if uni is None:
+                            uni = ET.SubElement(te, "Unicode")
+                        
+                        uni.text = final_map[lid]
+                        changed = True
+            
+            if changed:
+                tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
+                print(f"Auto-recognition updated XML for {page}")
+
+        return final_map
+
+    except Exception as e:
+        print(f"Internal Recognition Error: {e}")
+        return {}
+
+
+@app.route('/existing-manuscripts', methods=['GET'])
+def list_existing_manuscripts():
+    if not os.path.exists(UPLOAD_FOLDER):
+        return jsonify([])
+    
+    manuscripts = [
+        d for d in os.listdir(UPLOAD_FOLDER) 
+        if isdir(join(UPLOAD_FOLDER, d)) and not d.startswith('.')
+    ]
+    return jsonify(sorted(manuscripts))
+
+
+@app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
+def save_correction(manuscript, page):
+    data = request.json
+    manuscript_path = Path(UPLOAD_FOLDER) / manuscript
+    
+    textline_labels = data.get('textlineLabels')
+    graph_data = data.get('graph')
+    textbox_labels = data.get('textboxLabels')
+    nodes_data = graph_data.get('nodes')
+    text_content = data.get('textContent') 
+    
+    # Flags for background processing
+    run_recognition = data.get('runRecognition', False)
+    api_key = data.get('apiKey', None)
+
+    if not textline_labels or not graph_data:
+        return jsonify({"error": "Missing labels or graph data"}), 400
+
+    try:
+        # 1. SAVE LAYOUT (Synchronous)
+        # We must wait for this to finish so the XML/Images exist for the thread to read.
+        # This is usually very fast (<200ms).
+        result = generate_xml_and_images_for_page(
+            str(manuscript_path),
+            page,
+            textline_labels,
+            graph_data['edges'],
+            { 
+                'BINARIZE_THRESHOLD': 0.5098,
+                'BBOX_PAD_V': 0.7,
+                'BBOX_PAD_H': 0.5,
+                'CC_SIZE_THRESHOLD_RATIO': 0.4
+            },
+            textbox_labels=textbox_labels,
+            nodes=nodes_data,
+            text_content=text_content 
+        )
+
+        # 2. TRIGGER RECOGNITION (Asynchronous)
+        if run_recognition and api_key:
+            
+            # Wrapper to log start/finish in backend console
+            def background_task(m, p, k):
+                _run_gemini_recognition_internal(m, p, k)
+
+            # Spawn the thread
+            # daemon=True ensures the thread doesn't block server shutdown
+            thread = threading.Thread(target=background_task, args=(manuscript, page, api_key), daemon=True)
+            thread.start()
+            
+            # Let the frontend know we started it, but don't wait for the result
+            result['autoRecognitionStatus'] = "processing_in_background"
+
+        # Return immediately to unblock the UI
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+# ----------------------------------------------------------------
+# MODIFIED: Existing Recognize Endpoint (Wrapper)
+# ----------------------------------------------------------------
 @app.route('/recognize-text', methods=['POST'])
 def recognize_text():
     data = request.json
@@ -345,178 +762,17 @@ def recognize_text():
     if not api_key:
         return jsonify({"error": "API Key required"}), 400
 
-    base_path = Path(UPLOAD_FOLDER) / manuscript
-    xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
-    img_path = base_path / "images_resized" / f"{page}.jpg"
+    # Use the shared internal function
+    transcriptions = _run_gemini_recognition_internal(manuscript, page, api_key)
     
-    if not xml_path.exists() or not img_path.exists():
-        return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
-
-    try:
-        pil_img = Image.open(img_path)
-        img_w, img_h = pil_img.size
-    except Exception as e:
-        return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
-
-    regions_to_process = []
-    # Standard PAGE-XML namespace
-    ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
-    
-    try:
-        tree = ET.parse(xml_path)
-        root = tree.getroot()
-        
-        # Helper to normalize pixel coords to 0-1000 scale
-        def normalize(x, y):
-            n_y = int((y / img_h) * 1000)
-            n_x = int((x / img_w) * 1000)
-            return max(0, min(1000, n_y)), max(0, min(1000, n_x))
-
-        for textline in root.findall(".//p:TextLine", ns):
-            custom_attr = textline.get('custom', '')
-            if 'structure_line_id_' not in custom_attr:
-                continue
-            try:
-                line_id = str(custom_attr.split('structure_line_id_')[1])
-            except IndexError:
-                continue
-
-            # --- STRATEGY: PREFER BASELINE, FALLBACK TO COORDS ---
-            
-            trace_points = [] # We want [Start(x,y), Mid(x,y), End(x,y)]
-
-            # 1. Try extracting Baseline
-            baseline_elem = textline.find('p:Baseline', ns)
-            if baseline_elem is not None:
-                points_str = baseline_elem.get('points', '')
-                if points_str:
-                    try:
-                        # Parse "x,y x,y" string into list of lists
-                        pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-                        # Sort left-to-right
-                        pts.sort(key=lambda k: k[0])
-                        
-                        if len(pts) >= 2:
-                            # Pick Start, Middle, End to capture the curve
-                            p_start = pts[0]
-                            p_mid = pts[len(pts) // 2]
-                            p_end = pts[-1]
-                            trace_points = [p_start, p_mid, p_end]
-                    except ValueError:
-                        pass # Parsing failed, fall through to Coords
-
-            # 2. Fallback: Calculate "Spine" from Polygon Coords if Baseline failed
-            if not trace_points:
-                coords_elem = textline.find('p:Coords', ns)
-                if coords_elem is not None:
-                    points_str = coords_elem.get('points', '')
-                    if points_str:
-                        try:
-                            pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-                            if pts:
-                                # Get simple center-line logic
-                                xs = [p[0] for p in pts]
-                                ys = [p[1] for p in pts]
-                                # Sort points by X to find left/right extremities
-                                sorted_pts = sorted(zip(xs, ys), key=lambda k: k[0])
-                                
-                                p_start = [sorted_pts[0][0], sorted_pts[0][1]]
-                                p_end = [sorted_pts[-1][0], sorted_pts[-1][1]]
-                                # Geometric centroid for the middle
-                                p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
-                                
-                                trace_points = [p_start, p_mid, p_end]
-                        except ValueError:
-                            continue
-
-            if not trace_points:
-                continue
-
-            # 3. Format for Gemini [y1, x1, y2, x2, y3, x3] (Normalized)
-            # Note: Gemini vision usually expects [y, x] order
-            gemini_trace = []
-            for px, py in trace_points:
-                ny, nx = normalize(px, py)
-                gemini_trace.extend([ny, nx])
-
-            regions_to_process.append({
-                "id": line_id,
-                "trace": gemini_trace,
-                "sort_y": trace_points[0][1] # Keep raw Y for sorting
-            })
-
-    except Exception as e:
-        return jsonify({"error": f"XML Parsing Error: {str(e)}"}), 500
-
-    if not regions_to_process:
-         return jsonify({"transcriptions": {}})
-
-    # --- IMPORTANT: Sort Top-to-Bottom ---
-    # This helps the model track its position on the page naturally
-    regions_to_process.sort(key=lambda k: k['sort_y'])
-
-    # Build Prompt
-    prompt_text = (
-        "You are an expert paleographer analyzing a Sanskrit manuscript.\n"
-        "I will provide a list of Region IDs and a 'Path Trace' for each line.\n"
-        "The trace format is [y_start, x_start, y_mid, x_mid, y_end, x_end] on a 0-1000 scale.\n"
-        "This trace runs along the baseline of the text.\n\n"
-        "INSTRUCTIONS:\n"
-        "1. Visualize the curve defined by the 3 coordinate points (Start -> Mid -> End).\n"
-        "2. Transcribe the handwritten Devanagari text that sits on this curve.\n"
-        "3. Ignore text from lines above or below this specific path.\n"
-        "4. Output a JSON array of objects with 'id' and 'text'.\n\n"
-        "REGIONS:\n"
-    )
-
-    for item in regions_to_process:
-        prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
-
-    try:
-        genai.configure(api_key=api_key)
-        
-        # Use Pro model (Flash 1.5 is okay, but Pro is better for coordinate precision)
-        # Note: 'gemini-2.5-flash' does not exist yet. Using stable 1.5-pro.
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
-        generation_config = {
-            "temperature": 0.2,
-            "response_mime_type": "application/json",
-            "response_schema": {
-                "type": "ARRAY",
-                "items": {
-                    "type": "OBJECT",
-                    "properties": {
-                        "id": {"type": "STRING"},
-                        "text": {"type": "STRING"}
-                    },
-                    "required": ["id", "text"]
-                }
-            }
-        }
-
-        response = model.generate_content(
-            [pil_img, prompt_text],
-            generation_config=generation_config
-        )
-        
-        # Response schema guarantees a list of objects
-        result_list = json.loads(response.text)
-
-        final_map = {}
-        for item in result_list:
-            if 'id' in item and 'text' in item:
-                final_map[str(item['id'])] = item['text']
-
-        return jsonify({"transcriptions": final_map})
-
-    except Exception as e:
-        print(f"Gemini Error: {e}")
-        return jsonify({"error": str(e)}), 500
+    return jsonify({"transcriptions": transcriptions})
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):
     return jsonify({"status": "ok"})
+
+
+
 
 @app.route('/download-results/<manuscript>', methods=['GET'])
 def download_results(manuscript):
@@ -548,6 +804,8 @@ def download_results(manuscript):
         as_attachment=True, 
         download_name=f'{manuscript}_results.zip'
     )
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)  

@@ -8,6 +8,22 @@
         <span class="page-title">{{ manuscriptNameForDisplay }} <span class="divider">/</span> Page {{ currentPageForDisplay }}</span>
       </div>
 
+      <!-- NEW: Auto-Recognition Controls in Center/Right -->
+      <div class="top-bar-center" style="display:flex; align-items:center; gap: 10px; margin-left: 20px;">
+          <input 
+            v-model="geminiKey" 
+            type="password" 
+            placeholder="Gemini API Key" 
+            class="api-input-small"
+            @change="saveKeyToStorage"
+          />
+          <label class="toggle-switch">
+             <input type="checkbox" v-model="autoRecogEnabled">
+             <span class="slider"></span>
+          </label>
+          <span style="font-size: 0.8rem; color: #ccc;">Auto-Recognize on Save</span>
+      </div>
+
       <div class="top-bar-right">
         <div class="action-group">
            <button class="nav-btn" @click="previousPage" :disabled="loading || isProcessingSave || isFirstPage">
@@ -22,7 +38,7 @@
 
         <div class="action-group">
            <button class="action-btn primary" @click="saveAndGoNext" :disabled="loading || isProcessingSave">
-            Save & Next (S)
+            {{ autoRecogEnabled ? 'Save, Recog & Next (S)' : 'Save & Next (S)' }}
           </button>
           <button class="action-btn" @click="downloadResults" :disabled="loading || isProcessingSave">
             Download PAGE-XMLs
@@ -36,15 +52,22 @@
 
     <!-- MAIN CONTENT: Visualization Area -->
     <div class="visualization-container" ref="container">
+      
+      <!-- 1. Unified Overlay for Saving OR Mode Switching -->
       <div v-if="isProcessingSave" class="processing-save-notice">
-        Saving graph and processing... Please wait.
+        Processing... Please wait.
       </div>
+
       <div v-if="error" class="error-message">
         {{ error }}
       </div>
+
+      <!-- 2. Loading Indicator (Only for initial page load) -->
       <div v-if="loading" class="loading">Loading Page Data...</div>
+
+      <!-- 3. Image Container: Changed v-else to v-show to prevent DOM destruction -->
       <div
-        v-else
+        v-show="!loading && imageData" 
         class="image-container"
         :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
       >
@@ -207,10 +230,11 @@
            Region Labeling (R)
          </button>
          <!-- NEW RECOGNITION TAB -->
+
          <button 
            class="mode-tab" 
            :class="{ active: recognitionModeActive }"
-           @click="setMode('recognition')"
+           @click="requestSwitchToRecognition" 
            :disabled="isProcessingSave">
            Recognize (T)
          </button>
@@ -314,12 +338,15 @@
 </template>
 
 <script setup>
+  
 import { ref, onMounted, onBeforeUnmount, computed, watch, reactive, nextTick } from 'vue'
 import { generateLayoutGraph } from '../layout-analysis-utils/LayoutGraphGenerator.js'
 import { useRouter } from 'vue-router'
 import edgeWebm from '../tutorial/_edge.webm'
 import regionWebm from '../tutorial/_textbox.webm'
 import nodeWebm from '../tutorial/_node.webm'
+
+
 
 const props = defineProps({
   manuscriptName: { type: String, default: null },
@@ -409,6 +436,11 @@ const localTextContent = reactive({}) // Map: lineId -> string
 const pagePolygons = ref({}) // Map: lineId -> [[x,y],...]
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
+const autoRecogEnabled = ref(false)
+
+const saveKeyToStorage = () => {
+    localStorage.setItem('gemini_key', geminiKey.value)
+}
 
 const scaleFactor = 0.7
 const NODE_HOVER_RADIUS = 7
@@ -704,14 +736,19 @@ const computeTextlines = () => {
   nodeToTextlineMap.value = newNodeToTextlineMap
 }
 
-const fetchPageData = async (manuscript, page) => {
+const fetchPageData = async (manuscript, page, isRefresh = false) => {
   if (!manuscript || !page) return;
   
-  loading.value = true
+  // Only trigger full loading state if this is a NEW page load
+  if (!isRefresh) {
+      loading.value = true;
+      imageData.value = ''; // Only clear image if changing pages
+  }
+
   error.value = null
   modifications.value = []
   
-  // Clear State
+  // Clear Data States (Keep these to ensure fresh data)
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
   Object.keys(localTextContent).forEach(k => delete localTextContent[k])
   pagePolygons.value = {}
@@ -725,7 +762,9 @@ const fetchPageData = async (manuscript, page) => {
     const data = await response.json()
 
     dimensions.value = data.dimensions
-    imageData.value = data.image || ''
+    
+    // Update image only if we need to (or if it wasn't there)
+    if (data.image) imageData.value = data.image;
     points.value = data.points.map((p) => ({ coordinates: [p[0], p[1]], segment: null }))
 
     if (data.graph) {
@@ -745,7 +784,9 @@ const fetchPageData = async (manuscript, page) => {
     
     // Process new Polygon/Text data from backend
     if (data.polygons) pagePolygons.value = data.polygons;
-    if (data.textContent) Object.assign(localTextContent, data.textContent);
+    if (data.textContent) {
+        Object.assign(localTextContent, data.textContent);
+    }
 
     resetWorkingGraph()
     sortLinesTopToBottom()
@@ -922,6 +963,9 @@ const labelTextline = () => {
 }
 
 const handleGlobalKeyDown = (e) => {
+  const tagName = e.target.tagName.toLowerCase();
+  if (tagName === 'input' || tagName === 'textarea') return; 
+
   const key = e.key.toLowerCase()
   if (key === 's' && !e.repeat) {
     e.preventDefault()
@@ -931,7 +975,7 @@ const handleGlobalKeyDown = (e) => {
   if (key === 'w' && !e.repeat) { e.preventDefault(); setMode('edge'); return }
   if (key === 'r' && !e.repeat) { e.preventDefault(); setMode('region'); return }
   if (key === 'n' && !e.repeat) { e.preventDefault(); setMode('node'); return }
-  if (key === 't' && !e.repeat) { e.preventDefault(); setMode('recognition'); return }
+  if (key === 't' && !e.repeat) { e.preventDefault(); requestSwitchToRecognition(); return }
   if (textboxModeActive.value && key === 'e' && !e.repeat) { e.preventDefault(); isEKeyPressed.value = true; return }
   
   if (textlineModeActive.value && !e.repeat) {
@@ -1107,7 +1151,9 @@ const saveModifications = async () => {
     modifications: modifications.value,
     textlineLabels: dummyTextlineLabels, 
     textboxLabels: labelsToSend,
-    textContent: localTextContent // Send recognized/edited text to backend
+    textContent: localTextContent,
+    runRecognition: autoRecogEnabled.value,
+    apiKey: geminiKey.value
   }
   try {
     const res = await fetch(
@@ -1119,6 +1165,19 @@ const saveModifications = async () => {
       }
     )
     if (!res.ok) throw new Error((await res.json()).error || 'Save failed')
+
+    // Check if auto-recognition returned new text
+    const data = await res.json()
+    if (data.recognizedText) {
+        Object.assign(localTextContent, data.recognizedText)
+    }
+
+    if (data.recognizedText) { 
+    // This will simply be undefined in the async version, which is correct.
+    // The UI won't update text immediately, but the user is navigating away anyway.
+    Object.assign(localTextContent, data.recognizedText) 
+    }
+
     modifications.value = []
     error.value = null
   } catch (err) {
@@ -1126,6 +1185,47 @@ const saveModifications = async () => {
     throw err
   }
 }
+
+
+// ManuscriptViewer.vue
+
+const requestSwitchToRecognition = async () => {
+    if (recognitionModeActive.value) return;
+
+    // 1. Show the unified "Processing..." overlay
+    isProcessingSave.value = true;
+
+    try {
+        // Scenario A: Unsaved Changes - Save first
+        if (modifications.value.length > 0) {
+            // Optional: You can keep the confirm here if you want, 
+            // or perform auto-save since the user explicitly clicked the tool.
+            // For smoothness, we'll assume auto-save or prompt. 
+            // If you want the prompt back:
+            if (!confirm("Save changes and switch to Recognition Mode?")) {
+                isProcessingSave.value = false;
+                return;
+            }
+
+            await saveModifications(); 
+        }
+
+        // Scenario B: Load Data (Silent Refresh)
+        // Pass 'true' for isRefresh to avoid the "Loading..." spinner 
+        // and avoid clearing the image
+        await fetchPageData(localManuscriptName.value, localCurrentPage.value, true);
+        
+        // Switch Mode
+        setMode('recognition');
+
+    } catch (e) {
+        alert("Error switching mode: " + e.message);
+    } finally {
+        // 2. Hide the overlay only when EVERYTHING is done
+        isProcessingSave.value = false;
+    }
+}
+
 
 const confirmAndNavigate = async (navAction) => {
   if (isProcessingSave.value) return
@@ -1325,4 +1425,25 @@ code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px
 .log-list li { padding: 6px 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; color: #aaa; }
 .undo-icon { background: none; color: #777; font-size: 1.1rem; }
 .undo-icon:hover { color: #fff; }
+
+.api-input-small {
+    background: #444; border: 1px solid #555; color: #fff; padding: 4px 8px; 
+    border-radius: 4px; font-size: 0.8rem; width: 120px;
+}
+.toggle-switch {
+  position: relative; display: inline-block; width: 34px; height: 20px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc; transition: .4s; border-radius: 34px;
+}
+.slider:before {
+  position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+  background-color: white; transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: #4CAF50; }
+input:checked + .slider:before { transform: translateX(14px); }
+
+
 </style>

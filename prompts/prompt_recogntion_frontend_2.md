@@ -1,25 +1,27 @@
-As an expert software development, specializing front-end sofware development using .vue, please assist me in making precise improvements to the below code.
+As an expert software development, specializing front-end sofware development using .vue, and backend developend using python. Please assist me in making precise improvements to data annotation tool below, which helps historians digitize historical manuscripts.
 
 This code is part of a larger system which performs layout analysis on manuscript images using a Graph Neural Network (GNN). The layout analysis problem is formulated in a graph based manner, where characters are treated as nodes and characters of the same text lines are connected with edges. Thus nodes containing the same textline have the same text line label. The user can also label nodes with textbox labels, marking nodes of each text box with the same integer label. Once labelled (using gnn layout inference + manual corrections), the system generates PAGE XML files containing textbox and text line bounding polygons, along with visualizations. The system also saves textline images, for each textbox.
-After detecting bounding polygons using the graph neural network, we use Gemini API to recognize text context from each textline in the "Recognition Mode".
+After performing the layout analysis semi-automatically using the graph neural network, we use Gemini API to recognize text context from each textline in the "Recognition Mode".
 
-I want your help in updating the User interface and User Experience, more specifically making adjustments to the the various "modes" of annotations, and loading manuscripts which have been worked on and saved in a previous session. More precisely we want to make the following changes: 
+I want your help in updating the User Experience, Interface, more specifically making adjustments to the workflow of the tool regarding the various "modes" of annotations, and also regarding loading manuscripts which have been worked on and saved in a previous session. More precisely we want to make the following changes: 
 
 
 1) right now, when typing in the text input field in the recognition mode sometimes causes the bug. I cannot type hotkeys such as "s" or "n". So please disable hotkeys when any text input field is selected.
 
 
-
 2) right now, to recognize the text content from the manuscript, i first need to save the manuscript which will create graph based data and PAGE-XML files (without the text). Then in the recognition mode, I enter API key, and Gemini recognizes the text and populates the relevant text in the PAGE-XML files, and then I save it again. This is workflow is a bit tedious. Instead we want to do the following: 
 - In the main top panel, near the save and next button, we should allow the user to enter their API key, and toggle auto-recognition model ON or OFF. Turning the auto-recogntion mode ON, will not require the user to go the recognition mode to recognize the text using Gemini. Instead, saving the page in any other mode, will automatically make the API call to Gemini in the backend, while the frontend will go to next page. So in the backend, we will save PAGE-XML file without text, and if auto-recognition mode is ON, we will use update this PAGE-XML automatically with the text in the backend. Please understand this carefully before making the changes.
+The intention behind doing this is that we want the user to turn on the auto-recogntion mode, first annotate the layout elements of all the manuscript page (while the text will get recognized in the background in the backend), and then come back, open the recognition mode, and make manually verifications and corrections to the recognized text. 
+- Everytime the user attempts to switch to the recognition mode from the layout annotation modes, we want to prompt the user to confirm if the layout annotation is complete, and they want to save PAGE-XML file (without text), and then go to the recogntion stage where the saved PAGE-XML will be immediately loaded. This is important as once we have recognized the text, we cannot go back to the layout annotation stage as that would complicate things a lot.  
+
 
 3) right now the tool does not allow the user to load previously worked on manuscript. We need to implement this functionality carefully, taking into account the different types of annotations and other miscellenious data saved in graph based .txt format and the PAGE-XML format. 
 
-Please first understand the code below, play a red team application tester and think carefully to write robust code, with good logging for easy debugging, with assert statements where required.
+Please first understand the code below, think carefully about the changes to make, play a red team application tester, and write robust code, with good logging for easy debugging, with assert statements where required.
 Do not make unnecessary changes to other parts of the code, make precise changes.
 
 
-#ManuscriptViewer.vue
+# ManuscriptViewer.vue
 <template>
   <div class="manuscript-viewer">
     
@@ -49,7 +51,7 @@ Do not make unnecessary changes to other parts of the code, make precise changes
           <button class="action-btn" @click="downloadResults" :disabled="loading || isProcessingSave">
             Download PAGE-XMLs
           </button>
-          <button class="action-btn" @click="runHeuristic" :disabled="loading">
+          <button class="action-btn" @click="runHeuristic" :disabled="loading || recognitionModeActive">
             Auto-Link
           </button>
         </div>
@@ -86,14 +88,14 @@ Do not make unnecessary changes to other parts of the code, make precise changes
           No image available
         </div>
 
-        <!-- SVG Graph Layer -->
+        <!-- SVG Graph Layer (Visible in Graph Modes) -->
         <svg
-          v-if="graphIsLoaded"
+          v-if="graphIsLoaded && !recognitionModeActive"
           class="graph-overlay"
+          :class="{ 'is-visible': textlineModeActive || textboxModeActive || nodeModeActive }"
           :width="scaledWidth"
           :height="scaledHeight"
           :viewBox="`0 0 ${scaledWidth} ${scaledHeight}`"
-          :class="{ 'is-visible': textlineModeActive || textboxModeActive || nodeModeActive }"
           :style="{ cursor: svgCursor }"
           @click="onBackgroundClick($event)"
           @contextmenu.prevent 
@@ -142,39 +144,54 @@ Do not make unnecessary changes to other parts of the code, make precise changes
           />
         </svg>
 
-        <!-- Recognition Input Overlay Layer -->
-        <div
-            v-if="recognitionModeActive && graphIsLoaded"
-            class="input-overlay-container"
-            :style="{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }"
+        <!-- SVG Polygon Layer (Visible in Recognition Mode) -->
+        <svg
+          v-if="recognitionModeActive"
+          class="graph-overlay is-visible"
+          :width="scaledWidth"
+          :height="scaledHeight"
+          :viewBox="`0 0 ${scaledWidth} ${scaledHeight}`"
+          @click.stop
         >
-            <div
-                v-for="(nodeIndices, lineId) in textlines"
-                :key="`input-${lineId}`"
-                class="line-input-wrapper"
-                :style="getLineInputStyle(nodeIndices)"
-            >
-                <!-- Editable Input -->
-                <input 
-                    v-if="focusedLineId === lineId"
-                    ref="activeInput"
-                    v-model="localTextContent[lineId]" 
-                    class="line-input active"
-                    @blur="focusedLineId = null"
-                    @keydown.tab.prevent="focusNextLine(lineId)"
-                    placeholder="Transcribe..." 
-                />
-                <!-- Read-only Display (Click to Edit) -->
-                <div 
-                    v-else 
-                    class="line-input-display"
-                    @click="activateInput(lineId)"
-                    :class="{ 'has-text': !!localTextContent[lineId] }"
-                    :title="localTextContent[lineId] || 'Click to transcribe'"
-                >
-                    {{ localTextContent[lineId] || '' }}
-                </div>
-            </div>
+          <!-- Draw inactive polygons faintly so user knows where lines are -->
+          <polygon
+            v-for="(points, lineId) in pagePolygons"
+            :key="`poly-bg-${lineId}`"
+            :points="pointsToSvgString(points)"
+            fill="transparent"
+            stroke="rgba(255, 255, 255, 0.2)"
+            stroke-width="1"
+            class="polygon-inactive"
+            @click="activateInput(lineId)"
+          />
+
+          <!-- Draw Active Polygon Highlighted -->
+          <polygon
+            v-if="focusedLineId && pagePolygons[focusedLineId]"
+            :points="pointsToSvgString(pagePolygons[focusedLineId])"
+            fill="rgba(0, 255, 255, 0.1)"
+            stroke="#00e5ff"
+            stroke-width="2"
+            class="polygon-active"
+          />
+        </svg>
+
+        <!-- Recognition Input Overlay Layer (Single Floating Input) -->
+        <div
+            v-if="recognitionModeActive && focusedLineId && pagePolygons[focusedLineId]"
+            class="input-floater"
+            :style="getActiveInputStyle()"
+        >
+            <input 
+                ref="activeInput"
+                v-model="localTextContent[focusedLineId]" 
+                class="line-input active"
+                @blur="handleInputBlur"
+                @keydown.tab.prevent="focusNextLine(false)"
+                @keydown.shift.tab.prevent="focusNextLine(true)"
+                placeholder="Type text here..."
+                :style="{ fontSize: getDynamicFontSize() }"
+            />
         </div>
 
       </div>
@@ -218,33 +235,28 @@ Do not make unnecessary changes to other parts of the code, make precise changes
            class="mode-tab" 
            :class="{ active: recognitionModeActive }"
            @click="setMode('recognition')"
-           :disabled="isProcessingSave || !graphIsLoaded">
+           :disabled="isProcessingSave">
            Recognize (T)
          </button>
 
-         
-         <!-- Spacer to push toggle button to right -->
          <div class="tab-spacer"></div>
 
-         <!-- Toggle Collapse Button -->
          <button class="panel-toggle-btn" @click="isPanelCollapsed = !isPanelCollapsed" title="Toggle Help Panel">
             <span v-if="isPanelCollapsed">▲ Show Help</span>
             <span v-else>▼ Hide</span>
          </button>
       </div>
 
-      <!-- Help & Actions Content Area (Collapsible) -->
+      <!-- Help & Actions Content Area -->
       <div class="help-content-area" v-show="!isPanelCollapsed">
         
-        <!-- Section: View Mode (Default) -->
         <div v-if="!textlineModeActive && !textboxModeActive && !nodeModeActive && !recognitionModeActive" class="help-section">
           <div class="instructions-container">
             <h3>View Mode</h3>
-            <p>Pan and zoom to inspect the manuscript. No edits can be made in this mode. Select a mode above or use hotkeys to start annotating.</p>
+            <p>Pan and zoom to inspect the manuscript. Select a mode above or use hotkeys to start annotating.</p>
           </div>
         </div>
 
-        <!-- Section: Edge Edit Mode -->
         <div v-if="textlineModeActive" class="help-section">
           <div class="media-container">
             <video :src="edgeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
@@ -252,14 +264,12 @@ Do not make unnecessary changes to other parts of the code, make precise changes
           <div class="instructions-container">
             <h3>Text-Line Mode</h3>
             <ul>
-              <li><strong>Connect:</strong> Hold <code>'a'</code> and hover over nodes to connect them.</li>
-              <li><strong>Delete:</strong> Hold <code>'d'</code> and hover over edges to delete them.</li>
-              <li><strong>Save:</strong> Press <code>'s'</code> to save changes and move to the next page.</li>
+              <li><strong>Connect:</strong> Hold <code>'a'</code> and hover over nodes to connect.</li>
+              <li><strong>Delete:</strong> Hold <code>'d'</code> and hover over edges to delete.</li>
             </ul>
           </div>
         </div>
 
-        <!-- Section: Region Labeling Mode -->
         <div v-if="textboxModeActive" class="help-section">
            <div class="media-container">
             <video :src="regionWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
@@ -267,13 +277,11 @@ Do not make unnecessary changes to other parts of the code, make precise changes
           <div class="instructions-container">
             <h3>Text-Box Mode</h3>
             <p>
-              Hold <code>'e'</code> and hover over lines to label them as being in the same text-box. 
-              Release <code>'e'</code> and press it again to label a new text-box.
+              Hold <code>'e'</code> and hover over lines to label them. Release and press again for new box.
             </p>
           </div>
         </div>
 
-        <!-- Section: Node Mode -->
         <div v-if="nodeModeActive" class="help-section">
            <div class="media-container">
             <video :src="nodeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
@@ -281,13 +289,12 @@ Do not make unnecessary changes to other parts of the code, make precise changes
           <div class="instructions-container">
             <h3>Node Mode</h3>
             <ul>
-              <li><strong>Add Node:</strong> Left-click anywhere on the image to add a new node.</li>
-              <li><strong>Delete Node:</strong> Right-click on an existing node to remove it (and its connections).</li>
+              <li><strong>Add/Delete:</strong> Left-click to add, Right-click to remove nodes.</li>
             </ul>
           </div>
         </div>
 
-        <!-- Section: Recognition Mode (NEW) -->
+        <!-- RECOGNITION MODE HELP -->
         <div v-if="recognitionModeActive" class="help-section">
            <div class="media-container">
              <div class="webm-placeholder">
@@ -296,22 +303,21 @@ Do not make unnecessary changes to other parts of the code, make precise changes
            </div>
            <div class="instructions-container">
              <h3>Recognition Mode</h3>
-             <p>Use Gemini AI to transcribe text lines automatically, then correct them manually.</p>
+             <p>Transcribe line-by-line using Gemini AI.</p>
              <div class="form-group-inline">
                 <input v-model="geminiKey" type="password" placeholder="Enter Gemini API Key" class="api-input" />
                 <button class="action-btn primary" @click="triggerRecognition" :disabled="isRecognizing || !geminiKey">
-                    {{ isRecognizing ? 'Recognizing...' : 'Auto-Recognize' }}
+                    {{ isRecognizing ? 'Processing...' : 'Auto-Recognize' }}
                 </button>
              </div>
              <ul>
-               <li><strong>Edit:</strong> Click any text line box on the image to type.</li>
-               <li><strong>Navigate:</strong> Press <code>Tab</code> to jump to the next line.</li>
-               <li><strong>Save:</strong> Press <code>'s'</code> to save the text into the PAGE-XML.</li>
+               <li><strong>Navigate:</strong> Press <code>Tab</code> to move to the next line automatically.</li>
+               <li><strong>Edit:</strong> Type in the box below the highlighted line.</li>
+               <li><strong>Focus:</strong> Click any faint box to jump to that line.</li>
              </ul>
            </div>
         </div>
         
-        <!-- Shared: Modification Log -->
         <div v-if="modifications.length > 0" class="log-sidebar">
             <div class="log-header">
               <span>Changes: {{ modifications.length }}</span>
@@ -319,7 +325,7 @@ Do not make unnecessary changes to other parts of the code, make precise changes
             </div>
             <ul class="log-list">
               <li v-for="(mod, index) in modifications.slice().reverse()" :key="index">
-                <small>{{ mod.type === 'add' ? 'Added' : 'Removed' }} edge</small>
+                <small>{{ mod.type }}</small>
                 <button @click="undoModification(modifications.length - 1 - index)" class="undo-icon">↺</button>
               </li>
             </ul>
@@ -349,53 +355,54 @@ const router = useRouter()
 
 // UI State
 const isPanelCollapsed = ref(false)
+const activeInput = ref(null) // DOM Ref for input
 
-// --- Helper for Mode Switching via Buttons ---
 const setMode = (mode) => {
-  if (mode === 'view') {
-    textlineModeActive.value = false
-    textboxModeActive.value = false
-    nodeModeActive.value = false
-    recognitionModeActive.value = false
-  } else if (mode === 'edge') {
+  // 1. Reset ALL modes to false immediately
+  textlineModeActive.value = false
+  textboxModeActive.value = false
+  nodeModeActive.value = false
+  recognitionModeActive.value = false
+  
+  // 2. Activate the specific mode
+  if (mode === 'edge') {
     textlineModeActive.value = true
   } else if (mode === 'region') {
     textboxModeActive.value = true
   } else if (mode === 'node') {
     nodeModeActive.value = true
   } else if (mode === 'recognition') {
-    // Enable recognition mode
-    textlineModeActive.value = false
-    textboxModeActive.value = false
-    nodeModeActive.value = false
     recognitionModeActive.value = true
-    initializeTextContent()
+    
+    // Recognition specific init
+    sortLinesTopToBottom()
+    if(sortedLineIds.value.length > 0 && !focusedLineId.value) {
+        activateInput(sortedLineIds.value[0])
+    }
   }
+  // If mode === 'view', everything stays false, which is correct.
+  
   isPanelCollapsed.value = false
 }
 
+
 const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
 
+// --- DATA ---
 const nodeModeActive = ref(false)
 const localManuscriptName = ref('')
 const localCurrentPage = ref('')
 const localPageList = ref([])
-
 const loading = ref(true)
 const isProcessingSave = ref(false)
 const error = ref(null)
 const imageData = ref('')
 const imageLoaded = ref(false)
-
 const textlineModeActive = ref(false)
 const textboxModeActive = ref(false)
-// NEW: Recognition Mode State
 const recognitionModeActive = ref(false)
-const geminiKey = ref(localStorage.getItem('gemini_key') || '')
-const isRecognizing = ref(false)
-const localTextContent = reactive({}) // Map: lineId -> string
-const focusedLineId = ref(null)
 
+// Graph Data
 const dimensions = ref([0, 0])
 const points = ref([])
 const graph = ref({ nodes: [], edges: [] })
@@ -411,13 +418,21 @@ const hoveredNodesForMST = reactive(new Set())
 const container = ref(null)
 const svgOverlayRef = ref(null)
 
-// --- State for region labeling ---
+// Labeling Data
 const textlineLabels = reactive({}) 
 const textlines = ref({}) 
 const nodeToTextlineMap = ref({}) 
 const hoveredTextlineId = ref(null)
 const textboxLabels = ref(0) 
 const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] 
+
+// Recognition Data
+const geminiKey = ref(localStorage.getItem('gemini_key') || '')
+const isRecognizing = ref(false)
+const localTextContent = reactive({}) // Map: lineId -> string
+const pagePolygons = ref({}) // Map: lineId -> [[x,y],...]
+const focusedLineId = ref(null)
+const sortedLineIds = ref([])
 
 const scaleFactor = 0.7
 const NODE_HOVER_RADIUS = 7
@@ -426,9 +441,7 @@ const EDGE_HOVER_THRESHOLD = 5
 const manuscriptNameForDisplay = computed(() => localManuscriptName.value)
 const currentPageForDisplay = computed(() => localCurrentPage.value)
 const isFirstPage = computed(() => localPageList.value.indexOf(localCurrentPage.value) === 0)
-const isLastPage = computed(
-  () => localPageList.value.indexOf(localCurrentPage.value) === localPageList.value.length - 1
-)
+const isLastPage = computed(() => localPageList.value.indexOf(localCurrentPage.value) === localPageList.value.length - 1)
 
 const scaledWidth = computed(() => Math.floor(dimensions.value[0] * scaleFactor))
 const scaledHeight = computed(() => Math.floor(dimensions.value[1] * scaleFactor))
@@ -436,52 +449,135 @@ const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
 
-// --- RECOGNITION MODE UTILS ---
 
-// Initialize map keys based on current textlines structure
-const initializeTextContent = () => {
-    Object.keys(textlines.value).forEach(id => {
-        if(!(id in localTextContent)) {
-            localTextContent[id] = ""
-        }
-    })
+// --- RECOGNITION MODE LOGIC ---
+
+// Helper: Convert polygon point list to SVG string
+const pointsToSvgString = (pts) => {
+    if(!pts) return "";
+    return pts.map(p => `${scaleX(p[0])},${scaleY(p[1])}`).join(" ");
 }
 
-// Calculate position for input overlay
-const getLineInputStyle = (nodeIndices) => {
-    if(!nodeIndices || nodeIndices.length === 0) return { display: 'none' };
-
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+// Helper: Sort lines Top -> Bottom for navigation
+const sortLinesTopToBottom = () => {
+    const ids = Object.keys(pagePolygons.value);
+    if(ids.length === 0) {
+        sortedLineIds.value = [];
+        return;
+    }
     
-    nodeIndices.forEach(idx => {
-        const n = workingGraph.nodes[idx];
-        if (!n) return;
-        if(n.x < minX) minX = n.x;
-        if(n.y < minY) minY = n.y;
-        if(n.x > maxX) maxX = n.x;
-        if(n.y > maxY) maxY = n.y;
+    // Compute simple centroid Y for sorting
+    const stats = ids.map(id => {
+        const pts = pagePolygons.value[id];
+        const ys = pts.map(p => p[1]);
+        const xs = pts.map(p => p[0]);
+        return {
+            id,
+            minY: Math.min(...ys),
+            minX: Math.min(...xs)
+        }
     });
+    
+    // Sort primarily by Y, secondarily by X
+    stats.sort((a,b) => {
+        const diffY = a.minY - b.minY;
+        if(Math.abs(diffY) > 20) return diffY; // Threshold for same-line detection
+        return a.minX - b.minX;
+    });
+    
+    sortedLineIds.value = stats.map(s => s.id);
+}
 
-    if (minX === Infinity) return { display: 'none' };
-
-    const pad = 5;
-    const width = (maxX - minX) + (pad * 2);
-    const height = (maxY - minY) + (pad * 2); 
+// Calculate style for the floating input
+const getActiveInputStyle = () => {
+    if(!focusedLineId.value || !pagePolygons.value[focusedLineId.value]) return { display: 'none' };
+    
+    const pts = pagePolygons.value[focusedLineId.value];
+    const xs = pts.map(p => p[0]);
+    const ys = pts.map(p => p[1]);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const maxY = Math.max(...ys); // Position below bottom edge
+    
+    const width = (maxX - minX);
     
     return {
-        left: `${scaleX(minX - pad)}px`,
-        top: `${scaleY(maxY - pad)}px`,
+        position: 'absolute',
+        top: `${scaleY(maxY) + 5}px`, // 5px buffer
+        left: `${scaleX(minX)}px`,
         width: `${scaleX(width)}px`,
-        height: `${scaleY(height)}px`, 
-        position: 'absolute'
+        height: 'auto',
+        zIndex: 100
     }
 }
 
+// Dynamic Font Size Calculation
+const getDynamicFontSize = () => {
+    if(!focusedLineId.value) return '16px';
+    
+    const text = localTextContent[focusedLineId.value] || "";
+    const charCount = Math.max(text.length, 10); // avoid div by zero
+    
+    const pts = pagePolygons.value[focusedLineId.value];
+    if(!pts) return '16px';
+    
+    const xs = pts.map(p => p[0]);
+    const width = (Math.max(...xs) - Math.min(...xs)) * scaleFactor;
+    
+    // Heuristic: Width / Chars gives px per char. Font size is roughly 1.6x char width for monospace, 
+    // but for variable width font, let's try a factor.
+    let calcSize = (width / charCount) * 1.8;
+    
+    // Clamp values
+    calcSize = Math.max(14, Math.min(calcSize, 40));
+    
+    return `${calcSize}px`;
+}
+
+const activateInput = (lineId) => {
+    focusedLineId.value = lineId;
+    nextTick(() => {
+        if(activeInput.value) {
+            activeInput.value.focus();
+        }
+    });
+}
+
+const handleInputBlur = () => {
+    // Optional: Only clear focus if user clicks completely outside?
+    // For now, we keep the variable set so the polygon stays highlighted, 
+    // unless the user clicks another polygon.
+    // Setting focusedLineId = null here makes the box disappear on click-away, which is cleaner.
+    setTimeout(() => {
+       // Check if focus moved to another input or button, if not, clear.
+       if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+       focusedLineId.value = null; 
+    }, 200);
+}
+
+const focusNextLine = (reverse = false) => {
+    if(sortedLineIds.value.length === 0) return;
+    
+    let currentIdx = sortedLineIds.value.indexOf(focusedLineId.value);
+    
+    let nextIdx;
+    if (currentIdx === -1) {
+        nextIdx = 0;
+    } else {
+        if(reverse) {
+             nextIdx = currentIdx - 1;
+             if(nextIdx < 0) nextIdx = sortedLineIds.value.length - 1;
+        } else {
+             nextIdx = currentIdx + 1;
+             if(nextIdx >= sortedLineIds.value.length) nextIdx = 0; // Loop or stop? Loop is nice.
+        }
+    }
+    
+    activateInput(sortedLineIds.value[nextIdx]);
+}
 
 const triggerRecognition = async () => {
     if(!geminiKey.value) return alert("Please enter an API Key");
-    
-    // Save key for convenience
     localStorage.setItem('gemini_key', geminiKey.value);
     
     isRecognizing.value = true;
@@ -498,24 +594,21 @@ const triggerRecognition = async () => {
         
         const data = await res.json();
         
-        if (!res.ok) {
-            throw new Error(data.error || "Unknown server error");
-        }
+        if (!res.ok) throw new Error(data.error || "Unknown server error");
         
         if (data.transcriptions) {
             let count = 0;
-            // The backend now guarantees a clean dictionary: { "0": "text", "1": "text" }
             Object.entries(data.transcriptions).forEach(([id, text]) => {
-                // Only update if we got actual text back
-                if (text !== null && text !== undefined) {
+                if (text) {
                     localTextContent[id] = text;
                     count++;
                 }
             });
-            
-            // Optional: Provide feedback
-            if (count === 0) {
-                alert("Gemini finished but returned no text. Check if the image is clear.");
+            if (count > 0 && sortedLineIds.value.length > 0) {
+                // Start review process at top
+                activateInput(sortedLineIds.value[0]);
+            } else if (count === 0) {
+                alert("Gemini finished but returned no text.");
             }
         }
     } catch(e) {
@@ -523,22 +616,6 @@ const triggerRecognition = async () => {
         alert("Recognition failed: " + e.message);
     } finally {
         isRecognizing.value = false;
-    }
-}
-
-const activateInput = (lineId) => {
-    focusedLineId.value = lineId;
-    nextTick(() => {
-        const el = document.querySelector('.line-input.active');
-        if(el) el.focus();
-    });
-}
-
-const focusNextLine = (currentId) => {
-    const ids = Object.keys(textlines.value).map(Number).sort((a,b) => a - b); 
-    const currIdx = ids.indexOf(parseInt(currentId));
-    if(currIdx !== -1 && currIdx < ids.length - 1) {
-        activateInput(ids[currIdx + 1]);
     }
 }
 
@@ -584,11 +661,8 @@ const deleteNode = (nodeIndex) => {
 }
 
 const svgCursor = computed(() => {
-  if (textboxModeActive.value) {
-    if (isEKeyPressed.value) return 'crosshair'
-    return 'pointer'
-  }
-  if (!textlineModeActive.value && !recognitionModeActive.value && !nodeModeActive.value) return 'default'
+  if (textboxModeActive.value) return isEKeyPressed.value ? 'crosshair' : 'pointer'
+  if (!textlineModeActive.value && !nodeModeActive.value) return 'default'
   if (nodeModeActive.value) return 'cell'; 
   if (isAKeyPressed.value) return 'crosshair'
   if (isDKeyPressed.value) return 'not-allowed'
@@ -597,9 +671,7 @@ const svgCursor = computed(() => {
 
 const downloadResults = async () => {
     try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download-results/${localManuscriptName.value}`, {
-            method: 'GET',
-        });
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download-results/${localManuscriptName.value}`);
         if (!response.ok) throw new Error('Download failed');
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -608,7 +680,6 @@ const downloadResults = async () => {
         a.download = `${localManuscriptName.value}_results.zip`;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
     } catch (e) {
         alert("Error downloading results: " + e.message);
@@ -658,18 +729,17 @@ const computeTextlines = () => {
 }
 
 const fetchPageData = async (manuscript, page) => {
-  if (!manuscript || !page) {
-    error.value = 'Manuscript or page not specified.'
-    loading.value = false
-    return
-  }
+  if (!manuscript || !page) return;
+  
   loading.value = true
   error.value = null
   modifications.value = []
-  Object.keys(textlineLabels).forEach((key) => delete textlineLabels[key])
   
-  // Reset text content on page load
-  Object.keys(localTextContent).forEach(key => delete localTextContent[key])
+  // Clear State
+  Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
+  Object.keys(localTextContent).forEach(k => delete localTextContent[k])
+  pagePolygons.value = {}
+  sortedLineIds.value = []
 
   try {
     const response = await fetch(
@@ -686,25 +756,25 @@ const fetchPageData = async (manuscript, page) => {
       graph.value = data.graph
     } else if (data.points?.length > 0) {
       graph.value = generateLayoutGraph(data.points)
-      if (!isEditModeFlow.value) {
-        await saveGeneratedGraph(manuscript, page, graph.value)
-      }
+      if (!isEditModeFlow.value) await saveGeneratedGraph(manuscript, page, graph.value)
     }
+    
     if (data.textline_labels) {
-      data.textline_labels.forEach((label, index) => {
-        if (label !== -1) textlineLabels[index] = label
-      })
+      data.textline_labels.forEach((label, index) => { if (label !== -1) textlineLabels[index] = label })
     }
-    if (data.textbox_labels && data.textbox_labels.length > 0) {
-       data.textbox_labels.forEach((label, index) => {
-           textlineLabels[index] = label
-       })
-       const maxLabel = Math.max(...data.textbox_labels);
-       textboxLabels.value = maxLabel + 1; 
+    if (data.textbox_labels?.length > 0) {
+       data.textbox_labels.forEach((label, index) => { textlineLabels[index] = label })
+       textboxLabels.value = Math.max(...data.textbox_labels) + 1; 
     }
+    
+    // Process new Polygon/Text data from backend
+    if (data.polygons) pagePolygons.value = data.polygons;
+    if (data.textContent) Object.assign(localTextContent, data.textContent);
+
     resetWorkingGraph()
+    sortLinesTopToBottom()
   } catch (err) {
-    console.error('Error fetching page data:', err)
+    console.error(err)
     error.value = err.message
   } finally {
     loading.value = false
@@ -714,13 +784,10 @@ const fetchPageData = async (manuscript, page) => {
 const fetchPageList = async (manuscript) => {
   if (!manuscript) return
   try {
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/manuscript/${manuscript}/pages`
-    )
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/manuscript/${manuscript}/pages`)
     if (!response.ok) throw new Error('Failed to fetch page list')
     localPageList.value = await response.json()
   } catch (err) {
-    console.error('Failed to fetch page list:', err)
     localPageList.value = []
   }
 }
@@ -759,48 +826,36 @@ const resetWorkingGraph = () => {
   computeTextlines()
 }
 
+// Colors & Styling
 const getNodeColor = (nodeIndex) => {
-  const textlineId = nodeToTextlineMap.value[nodeIndex]
   if (textboxModeActive.value) {
-    if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
-      return '#ff4081' 
-    }
+    const textlineId = nodeToTextlineMap.value[nodeIndex]
+    if (hoveredTextlineId.value === textlineId) return '#ff4081' 
     const label = textlineLabels[nodeIndex]
-    if (label !== undefined && label > -1) {
-      return labelColors[label % labelColors.length]
-    }
-    return '#9e9e9e' 
+    return (label !== undefined && label > -1) ? labelColors[label % labelColors.length] : '#9e9e9e' 
   }
   if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#00bcd4'
   if (isNodeSelected(nodeIndex)) return '#ff9500'
   const edgeCount = nodeEdgeCounts.value[nodeIndex]
   if (edgeCount < 2) return '#f44336'
   if (edgeCount === 2) return '#4CAF50'
-  if (edgeCount > 2) return '#2196F3'
-  return '#cccccc'
+  return '#2196F3'
 }
 
 const getNodeRadius = (nodeIndex) => {
   if (textboxModeActive.value) {
-    const textlineId = nodeToTextlineMap.value[nodeIndex]
-    if (hoveredTextlineId.value !== null && hoveredTextlineId.value === textlineId) {
-      return 7
-    }
-    return 5
+    return (hoveredTextlineId.value === nodeToTextlineMap.value[nodeIndex]) ? 7 : 5
   }
-  const edgeCount = nodeEdgeCounts.value[nodeIndex]
   if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return 7
   if (isNodeSelected(nodeIndex)) return 6
-  return edgeCount < 2 ? 5 : 3
+  return nodeEdgeCounts.value[nodeIndex] < 2 ? 5 : 3
 }
 const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#ffffff')
 const isNodeSelected = (nodeIndex) => selectedNodes.value.includes(nodeIndex)
 const isEdgeSelected = (edge) => {
-  return (
-    selectedNodes.value.length === 2 &&
+  return selectedNodes.value.length === 2 &&
     ((selectedNodes.value[0] === edge.source && selectedNodes.value[1] === edge.target) ||
       (selectedNodes.value[0] === edge.target && selectedNodes.value[1] === edge.source))
-  )
 }
 
 const resetSelection = () => {
@@ -815,6 +870,7 @@ const onEdgeClick = (edge, event) => {
 }
 
 const onBackgroundClick = (event) => {
+    if (recognitionModeActive.value) return; // Handled by polygons
     if (nodeModeActive.value) {
         addNode(event.clientX, event.clientY);
         return;
@@ -824,8 +880,8 @@ const onBackgroundClick = (event) => {
 
 const onNodeClick = (nodeIndex, event) => {
     event.stopPropagation(); 
-    if (nodeModeActive.value) return;
-    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value || recognitionModeActive.value) return;
+    if (nodeModeActive.value || recognitionModeActive.value) return;
+    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return;
     const existingIndex = selectedNodes.value.indexOf(nodeIndex);
     if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1);
     else selectedNodes.value.length < 2 ? selectedNodes.value.push(nodeIndex) : (selectedNodes.value = [nodeIndex]);
@@ -845,6 +901,7 @@ const handleSvgMouseMove = (event) => {
   const mouseY = event.clientY - top
 
   if (textboxModeActive.value) {
+    // Hover logic for regions
     let newHoveredTextlineId = null
     for (let i = 0; i < workingGraph.nodes.length; i++) {
       const node = workingGraph.nodes[i]
@@ -853,20 +910,18 @@ const handleSvgMouseMove = (event) => {
         break 
       }
     }
+    // Check Edges if node not found
     if (newHoveredTextlineId === null) {
-      for (const edge of workingGraph.edges) {
-        const n1 = workingGraph.nodes[edge.source]
-        const n2 = workingGraph.nodes[edge.target]
-        if (n1 && n2 && distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) < EDGE_HOVER_THRESHOLD) {
-          newHoveredTextlineId = nodeToTextlineMap.value[edge.source]
-          break 
+        for(const edge of workingGraph.edges) {
+             const n1 = workingGraph.nodes[edge.source], n2 = workingGraph.nodes[edge.target];
+             if(n1 && n2 && distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) < EDGE_HOVER_THRESHOLD) {
+                 newHoveredTextlineId = nodeToTextlineMap.value[edge.source];
+                 break;
+             }
         }
-      }
     }
     hoveredTextlineId.value = newHoveredTextlineId
-    if (hoveredTextlineId.value !== null && isEKeyPressed.value) {
-      labelTextline()
-    }
+    if (hoveredTextlineId.value !== null && isEKeyPressed.value) labelTextline()
     return
   }
 
@@ -886,58 +941,26 @@ const labelTextline = () => {
   if (hoveredTextlineId.value === null) return
   const nodesToLabel = textlines.value[hoveredTextlineId.value]
   if (nodesToLabel) {
-    nodesToLabel.forEach((nodeIndex) => {
-      textlineLabels[nodeIndex] = textboxLabels.value
-    })
+    nodesToLabel.forEach((nodeIndex) => { textlineLabels[nodeIndex] = textboxLabels.value })
   }
 }
 
 const handleGlobalKeyDown = (e) => {
   const key = e.key.toLowerCase()
   if (key === 's' && !e.repeat) {
-    if ((textlineModeActive.value || textboxModeActive.value || nodeModeActive.value || recognitionModeActive.value) && !loading.value && !isProcessingSave.value) {
-      e.preventDefault()
-      saveAndGoNext()
-    }
-    return
-  }
-  if (key === 'w' && !e.repeat) {
     e.preventDefault()
-    setMode('edge')
+    saveAndGoNext()
     return
   }
-  if (key === 'r' && !e.repeat) {
-    e.preventDefault()
-    setMode('region')
-    return
-  }
-  if (key === 'n' && !e.repeat) {
-    e.preventDefault()
-    setMode('node')
-    return
-  }
-  if (key === 't' && !e.repeat) { // T for Text recognition
-    e.preventDefault()
-    setMode('recognition')
-    return
-  }
-  if (textboxModeActive.value && key === 'e' && !e.repeat) {
-    e.preventDefault()
-    isEKeyPressed.value = true
-    return
-  }
+  if (key === 'w' && !e.repeat) { e.preventDefault(); setMode('edge'); return }
+  if (key === 'r' && !e.repeat) { e.preventDefault(); setMode('region'); return }
+  if (key === 'n' && !e.repeat) { e.preventDefault(); setMode('node'); return }
+  if (key === 't' && !e.repeat) { e.preventDefault(); setMode('recognition'); return }
+  if (textboxModeActive.value && key === 'e' && !e.repeat) { e.preventDefault(); isEKeyPressed.value = true; return }
+  
   if (textlineModeActive.value && !e.repeat) {
-    if (key === 'd') {
-      e.preventDefault()
-      isDKeyPressed.value = true
-      resetSelection()
-    }
-    if (key === 'a') {
-      e.preventDefault()
-      isAKeyPressed.value = true
-      hoveredNodesForMST.clear()
-      resetSelection()
-    }
+    if (key === 'd') { e.preventDefault(); isDKeyPressed.value = true; resetSelection(); }
+    if (key === 'a') { e.preventDefault(); isAKeyPressed.value = true; hoveredNodesForMST.clear(); resetSelection(); }
   }
 }
 
@@ -948,14 +971,10 @@ const handleGlobalKeyUp = (e) => {
     textboxLabels.value++ 
   }
   if (textlineModeActive.value) {
-    if (key === 'd') {
-      isDKeyPressed.value = false
-    }
+    if (key === 'd') isDKeyPressed.value = false
     if (key === 'a') {
       isAKeyPressed.value = false
-      if (hoveredNodesForMST.size >= 2) {
-        addMSTEdges()
-      }
+      if (hoveredNodesForMST.size >= 2) addMSTEdges()
       hoveredNodesForMST.clear()
     }
   }
@@ -989,6 +1008,8 @@ const deleteEdge = () => {
   })
   resetSelection()
 }
+
+
 const undoModification = (index) => {
   const mod = modifications.value.splice(index, 1)[0]
   if (mod.type === 'add') {
@@ -1003,8 +1024,15 @@ const undoModification = (index) => {
       label: mod.label,
       modified: true,
     })
+  } else if (mod.type === 'node_add') {
+      workingGraph.nodes.pop();
+  } else if (mod.type === 'node_delete') {
+      // Complex undo for node delete omitted for brevity
+      alert("Undo node delete not fully implemented, reload page.")
   }
 }
+
+
 const resetModifications = () => {
   resetWorkingGraph()
   modifications.value = []
@@ -1036,9 +1064,12 @@ const handleNodeHoverCollect = (mouseX, mouseY) => {
       hoveredNodesForMST.add(index)
   })
 }
+
+
 const calculateMST = (indices, nodes) => {
   const points = indices.map((i) => ({ ...nodes[i], originalIndex: i }))
   const edges = []
+  // Create complete graph between selected points
   for (let i = 0; i < points.length; i++)
     for (let j = i + 1; j < points.length; j++) {
       edges.push({
@@ -1047,7 +1078,10 @@ const calculateMST = (indices, nodes) => {
         weight: Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y),
       })
     }
+  // Sort by weight
   edges.sort((a, b) => a.weight - b.weight)
+  
+  // Kruskal's Algorithm
   const parent = {}
   indices.forEach((i) => (parent[i] = i))
   const find = (i) => (parent[i] === i ? i : (parent[i] = find(parent[i])))
@@ -1061,8 +1095,12 @@ const calculateMST = (indices, nodes) => {
   }
   return edges.filter((e) => union(e.source, e.target))
 }
+
 const addMSTEdges = () => {
-  calculateMST(Array.from(hoveredNodesForMST), workingGraph.nodes).forEach((edge) => {
+  // Calculate MST based on hovered nodes
+  const newEdges = calculateMST(Array.from(hoveredNodesForMST), workingGraph.nodes)
+  
+  newEdges.forEach((edge) => {
     if (!edgeExists(edge.source, edge.target)) {
       const newEdge = { source: edge.source, target: edge.target, label: 0, modified: true }
       workingGraph.edges.push(newEdge)
@@ -1078,18 +1116,14 @@ const saveGeneratedGraph = async (name, page, g) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ graph: g }),
     })
-  } catch (e) {
-    console.error('Error saving generated graph:', e)
-  }
+  } catch (e) { console.error(e) }
 }
 
 const saveModifications = async () => {
   const numNodes = workingGraph.nodes.length
   const labelsToSend = new Array(numNodes).fill(0) 
   for (const nodeIndex in textlineLabels) {
-    if (nodeIndex < numNodes) {
-        labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
-    }
+    if (nodeIndex < numNodes) labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
   }
   const dummyTextlineLabels = new Array(numNodes).fill(-1);
   const requestBody = {
@@ -1109,8 +1143,6 @@ const saveModifications = async () => {
       }
     )
     if (!res.ok) throw new Error((await res.json()).error || 'Save failed')
-    const data = await res.json()
-    graph.value = JSON.parse(JSON.stringify(workingGraph))
     modifications.value = []
     error.value = null
   } catch (err) {
@@ -1119,23 +1151,9 @@ const saveModifications = async () => {
   }
 }
 
-const saveCurrentGraph = async () => {
-  if (isProcessingSave.value) return
-  isProcessingSave.value = true
-  try {
-    await saveModifications()
-  } catch (err) {
-    alert(`Save failed: ${err.message}`)
-  } finally {
-    isProcessingSave.value = false
-  }
-}
-
 const confirmAndNavigate = async (navAction) => {
   if (isProcessingSave.value) return
-  if (modifications.value.length > 0 || (recognitionModeActive.value && Object.keys(localTextContent).some(k => localTextContent[k]))) {
-    // Note: Checking for text changes specifically is complex without dirty tracking, 
-    // but saving harmlessly re-writes XML.
+  if (modifications.value.length > 0 || (recognitionModeActive.value && Object.keys(localTextContent).length > 0)) {
     if (confirm('Do you want to save changes before navigating?')) {
       isProcessingSave.value = true
       try {
@@ -1155,54 +1173,33 @@ const confirmAndNavigate = async (navAction) => {
   }
 }
 
-const navigateToPage = (page) => {
-  emit('page-changed', page)
-}
-
-const previousPage = () =>
-  confirmAndNavigate(() => {
-    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
-    if (currentIndex > 0) {
-      navigateToPage(localPageList.value[currentIndex - 1])
-    }
-  })
-
-const nextPage = () =>
-  confirmAndNavigate(() => {
-    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
-    if (currentIndex < localPageList.value.length - 1) {
-      navigateToPage(localPageList.value[currentIndex + 1])
-    }
-  })
+const navigateToPage = (page) => emit('page-changed', page)
+const previousPage = () => confirmAndNavigate(() => {
+    const idx = localPageList.value.indexOf(localCurrentPage.value)
+    if (idx > 0) navigateToPage(localPageList.value[idx - 1])
+})
+const nextPage = () => confirmAndNavigate(() => {
+    const idx = localPageList.value.indexOf(localCurrentPage.value)
+    if (idx < localPageList.value.length - 1) navigateToPage(localPageList.value[idx + 1])
+})
 
 const saveAndGoNext = async () => {
   if (loading.value || isProcessingSave.value) return
   isProcessingSave.value = true
   try {
     await saveModifications()
-    const currentIndex = localPageList.value.indexOf(localCurrentPage.value)
-    if (currentIndex < localPageList.value.length - 1) {
-      navigateToPage(localPageList.value[currentIndex + 1])
-    } else {
-      alert('This was the Last page. Saved successfully!')
-    }
-  } catch (err) {
-    alert(`Save failed: ${err.message}`)
-  } finally {
-    isProcessingSave.value = false
-  }
+    const idx = localPageList.value.indexOf(localCurrentPage.value)
+    if (idx < localPageList.value.length - 1) navigateToPage(localPageList.value[idx + 1])
+    else alert('Last page saved!')
+  } catch (err) { alert(`Save failed: ${err.message}`) } 
+  finally { isProcessingSave.value = false }
 }
 
 const runHeuristic = () => {
   if(!points.value.length) return;
   const rawPoints = points.value.map(p => [p.coordinates[0], p.coordinates[1], 10]); 
   const heuristicGraph = generateLayoutGraph(rawPoints);
-  workingGraph.edges = heuristicGraph.edges.map(e => ({
-     source: e.source, 
-     target: e.target, 
-     label: e.label, 
-     modified: true 
-  }));
+  workingGraph.edges = heuristicGraph.edges.map(e => ({ source: e.source, target: e.target, label: e.label, modified: true }));
   modifications.value.push({ type: 'reset_heuristic' }); 
   computeTextlines();
 }
@@ -1223,542 +1220,135 @@ onBeforeUnmount(() => {
   window.removeEventListener('keyup', handleGlobalKeyUp)
 })
 
-watch(
-  () => props.pageName,
-  (newPageName) => {
+watch(() => props.pageName, (newPageName) => {
     if (newPageName && newPageName !== localCurrentPage.value) {
       localCurrentPage.value = newPageName
       fetchPageData(localManuscriptName.value, newPageName)
     }
-  }
-)
-
-watch(textlineModeActive, (val) => {
-  if (val) {
-    textboxModeActive.value = false
-    nodeModeActive.value = false
-    recognitionModeActive.value = false
-  } else {
-    resetSelection()
-    isAKeyPressed.value = false
-    isDKeyPressed.value = false
-    hoveredNodesForMST.clear()
-  }
-})
-
-watch(textboxModeActive, (val) => {
-  if (val) {
-    textlineModeActive.value = false
-    nodeModeActive.value = false
-    recognitionModeActive.value = false
-    resetSelection()
-    const existingLabels = Object.values(textlineLabels)
-    if (existingLabels.length > 0) {
-      const maxLabel = Math.max(...existingLabels)
-      textboxLabels.value = maxLabel + 1
-    } else {
-      textboxLabels.value = 0
-    }
-  } else {
-    hoveredTextlineId.value = null
-  }
-})
-
-watch(nodeModeActive, (val) => {
-  if (val) {
-    textlineModeActive.value = false
-    textboxModeActive.value = false
-    recognitionModeActive.value = false
-    resetSelection()
-  }
 })
 
 watch(recognitionModeActive, (val) => {
     if(val) {
-        textlineModeActive.value = false
-        textboxModeActive.value = false
-        nodeModeActive.value = false
-        resetSelection()
+        textlineModeActive.value = false; textboxModeActive.value = false; nodeModeActive.value = false;
+        resetSelection();
     }
 })
 </script>
 
 <style scoped>
+/* Basic Layout */
 .manuscript-viewer {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  background-color: #1e1e1e; /* Darker overall background */
-  color: #e0e0e0;
-  font-family: 'Roboto', sans-serif;
+  display: flex; flex-direction: column; height: 100vh; width: 100%;
+  background-color: #1e1e1e; color: #e0e0e0; font-family: 'Roboto', sans-serif; overflow: hidden;
 }
 
-/* --- TOP RAIL --- */
+/* Top Bar */
 .top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 16px;
-  height: 60px;
-  background-color: #2c2c2c;
-  border-bottom: 1px solid #3d3d3d;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  flex-shrink: 0;
-  z-index: 10;
+  display: flex; justify-content: space-between; align-items: center; padding: 0 16px;
+  height: 60px; background-color: #2c2c2c; border-bottom: 1px solid #3d3d3d; flex-shrink: 0; z-index: 10;
 }
+.top-bar-left, .top-bar-right, .action-group { display: flex; align-items: center; gap: 16px; }
+.page-title { font-size: 1.1rem; color: #fff; white-space: nowrap; }
+.separator { width: 1px; height: 24px; background-color: #555; margin: 0 4px; }
+button { border: none; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: all 0.2s; }
+.nav-btn { background: transparent; color: #aaa; padding: 8px 12px; display: flex; align-items: center; }
+.nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: #fff; }
+.action-btn { background: #424242; color: #fff; padding: 8px 16px; border: 1px solid #555; }
+.action-btn.primary { background-color: #4CAF50; border-color: #43a047; }
+.action-btn:hover:not(:disabled) { background-color: #505050; }
+.action-btn.primary:hover:not(:disabled) { background-color: #5cb860; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.top-bar-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.top-bar-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;        /* Takes available space to the left of the actions */
-  min-width: 0;   /* Essential for text truncation to work in flexbox */
-  margin-right: 20px; /* Safety spacing from the right side controls */
-}
-
-.page-title {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #fff;
-  white-space: nowrap;     /* Keeps text on one line */
-  overflow: hidden;        /* Hides overflow */
-  text-overflow: ellipsis; /* Adds '...' if the name is too long */
-}
-.page-title .divider {
-  color: #777;
-  margin: 0 8px;
-}
-
-.action-group {
-  display: flex;
-  gap: 8px;
-}
-
-.separator {
-  width: 1px;
-  height: 24px;
-  background-color: #555;
-  margin: 0 4px;
-}
-
-/* Button Styling */
-button {
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.nav-btn {
-  background-color: transparent;
-  color: #aaa;
-  padding: 8px 12px;
-  flex-shrink: 0; /* Prevents the button from shrinking */
-  display: flex;  /* Ensures internal icon/text alignment */
-  align-items: center;
-}
-.nav-btn:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-.nav-btn.secondary {
-  border: 1px solid #555;
-}
-
-.action-btn {
-  background-color: #424242;
-  color: #fff;
-  padding: 8px 16px;
-  border: 1px solid #555;
-}
-.action-btn:hover:not(:disabled) {
-  background-color: #505050;
-}
-.action-btn.primary {
-  background-color: #4CAF50; /* Green Save Button */
-  border-color: #43a047;
-  font-weight: 500;
-}
-.action-btn.primary:hover:not(:disabled) {
-  background-color: #5cb860;
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* --- MAIN VIEW --- */
+/* Main Visualization */
 .visualization-container {
-  position: relative;
-  overflow: auto;
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 2rem;
-  background-color: #121212;
+  position: relative; overflow: auto; flex-grow: 1; display: flex;
+  justify-content: center; align-items: flex-start; padding: 2rem; background-color: #121212;
 }
-.image-container {
-  position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-}
-.manuscript-image {
-  display: block;
-  user-select: none;
-  opacity: 0.7;
-}
-.placeholder-image {
-  background-color: #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #777;
-}
-.graph-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease-in-out;
-}
-.graph-overlay.is-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
+.image-container { position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+.manuscript-image { display: block; user-select: none; opacity: 0.7; }
+.graph-overlay { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.graph-overlay.is-visible { opacity: 1; pointer-events: auto; }
 
-/* Input Overlay */
-.input-overlay-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none; 
-    z-index: 50;
+/* Input Floater (NEW) */
+.input-floater {
+    z-index: 100;
 }
-
-.line-input-wrapper {
-    pointer-events: auto; 
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px dashed rgba(255, 255, 255, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .line-input {
     width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     color: #fff;
-    border: 1px solid #4CAF50;
-    padding: 2px 5px;
-    font-size: 12px;
+    border: 1px solid #00e5ff; /* Cyan focus color */
+    padding: 8px 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border-radius: 4px;
+    font-family: monospace;
+    outline: none;
+    transition: font-size 0.2s;
 }
 
-.line-input-display {
-    width: 100%;
-    height: 100%;
-    cursor: text;
-    color: rgba(255,255,255,0.5);
-    font-size: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 2px;
-    display: flex;
-    align-items: center;
+/* Polygons */
+.polygon-inactive {
+    cursor: pointer;
+    pointer-events: auto;
+    transition: stroke 0.2s;
 }
-.line-input-display:hover {
-    background: rgba(255,255,255,0.1);
+.polygon-inactive:hover {
+    stroke: rgba(255,255,255,0.6);
+    stroke-width: 2;
 }
-.line-input-display.has-text {
-    color: #fff;
-    font-weight: bold;
-    background: rgba(0, 0, 0, 0.5);
+.polygon-active {
+    pointer-events: none; /* Let clicks pass through to input if overlapping? or keep blocking? */
+    animation: pulse-border 2s infinite;
 }
 
+@keyframes pulse-border {
+    0% { stroke-opacity: 1; }
+    50% { stroke-opacity: 0.6; }
+    100% { stroke-opacity: 1; }
+}
 
-/* Loading/Error States */
-.processing-save-notice,
-.loading,
-.error-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px 30px;
-  border-radius: 8px;
-  z-index: 10000;
-  text-align: center;
+/* Loading/Error */
+.processing-save-notice, .loading, .error-message {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  padding: 20px 30px; border-radius: 8px; z-index: 10000; text-align: center;
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
-.processing-save-notice { background-color: rgba(33, 33, 33, 0.95); border: 1px solid #444; color: #fff; }
-.error-message { background-color: #c62828; color: white; }
+.processing-save-notice { background: rgba(33,33,33,0.95); border: 1px solid #444; color: #fff; }
+.error-message { background: #c62828; color: white; }
 .loading { font-size: 1.2rem; color: #aaa; background: rgba(0,0,0,0.5); }
 
-
-/* --- BOTTOM RAIL --- */
+/* Bottom Rail */
 .bottom-panel {
-  background-color: #2c2c2c;
-  border-top: 1px solid #3d3d3d;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  
-  /* FIXED HEIGHT for smoothness */
-  height: 280px; 
-  transition: height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother bezier curve */
-  
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
-  overflow: hidden; /* Prevents scrollbars appearing during transition */
-  will-change: height; /* Optimization for animation performance */
+  background-color: #2c2c2c; border-top: 1px solid #3d3d3d; flex-shrink: 0; display: flex; flex-direction: column;
+  height: 280px; transition: height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+.bottom-panel.is-collapsed { height: 45px; }
+.mode-tabs { display: flex; background: #212121; height: 45px; flex-shrink: 0; }
+.mode-tab { flex: 1; border-bottom: 3px solid transparent; color: #888; text-transform: uppercase; display: flex; align-items: center; justify-content: center; background: transparent; }
+.mode-tab:hover:not(:disabled) { background: #2a2a2a; color: #bbb; }
+.mode-tab.active { background: #2c2c2c; color: #448aff; border-bottom-color: #448aff; font-weight: 500; }
+.tab-spacer { flex-grow: 1; background: #212121; }
+.panel-toggle-btn { background: #333; color: #aaa; border-left: 1px solid #444; padding: 0 16px; min-width: 100px; }
 
-.bottom-panel.is-collapsed {
-  height: 45px; /* Exact height of the tab bar */
-}
+/* Help Area */
+.help-content-area { padding: 16px 24px; display: flex; gap: 24px; height: 100%; overflow: hidden; }
+.help-section { display: flex; gap: 24px; flex-grow: 1; height: 100%; }
+.media-container { width: 200px; height: 200px; background: #000; border: 1px solid #444; flex-shrink: 0; }
+.tutorial-video { width: 100%; height: 100%; object-fit: contain; }
+.instructions-container { flex-grow: 1; max-width: 600px; overflow-y: auto; color: #ccc; }
+.instructions-container h3 { color: #fff; margin-top: 0; }
+code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+.form-group-inline { display: flex; gap: 10px; margin-bottom: 10px; }
+.api-input { background: #444; border: 1px solid #555; color: #fff; padding: 5px 10px; flex-grow: 1; }
+.webm-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #777; background: #3a3a3a; }
 
-/* Mode Tabs */
-.mode-tabs {
-  display: flex;
-  background-color: #212121;
-  height: 45px;
-  flex-shrink: 0; /* Prevents tabs from shrinking if panel acts up */
-  align-items: stretch;
-}
-
-.mode-tab {
-  flex: 1;
-  padding: 0 12px;
-  background: transparent;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: #888;
-  border-radius: 0;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.mode-tab:hover:not(:disabled) {
-  background-color: #2a2a2a;
-  color: #bbb;
-}
-.mode-tab.active {
-  background-color: #2c2c2c;
-  color: #448aff;
-  border-bottom-color: #448aff;
-  font-weight: 500;
-}
-
-.tab-spacer {
-  flex-grow: 1;
-  background-color: #212121;
-}
-
-.panel-toggle-btn {
-  background-color: #333;
-  color: #aaa;
-  border: none;
-  border-left: 1px solid #444;
-  padding: 0 16px;
-  font-size: 0.8rem;
-  border-radius: 0;
-  min-width: 100px;
-}
-.panel-toggle-btn:hover {
-  background-color: #444;
-  color: #fff;
-}
-
-
-/* Help Content */
-.help-content-area {
-  padding: 16px 24px;
-  display: flex;
-  flex-grow: 1;
-  gap: 24px;
-  height: 100%; /* Fill remaining space */
-  overflow: hidden; 
-}
-
-.help-section {
-  display: flex;
-  gap: 24px;
-  flex-grow: 1;
-  align-items: flex-start;
-  height: 100%;
-}
-
-.media-container {
-  /* CHANGED: Square dimensions */
-  width: 200px;
-  height: 200px;
-  
-  flex-shrink: 0;
-  background-color: #000;
-  border-radius: 6px;
-  border: 1px solid #444;
-  overflow: hidden;
-}
-
-.tutorial-video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Keeps aspect ratio inside the fixed box */
-  display: block;
-}
-
-.webm-placeholder {
-  width: 100%;
-  height: 100%;
-  background-color: #3a3a3a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #777;
-  font-size: 0.8rem;
-}
-
-.instructions-container {
-  flex-grow: 1;
-  max-width: 600px;
-  overflow-y: auto; /* Allows text to scroll if it exceeds fixed height */
-  height: 100%;
-  padding-right: 10px; /* Space for scrollbar */
-}
-
-/* Scrollbar styling for instructions */
-.instructions-container::-webkit-scrollbar {
-  width: 6px;
-}
-.instructions-container::-webkit-scrollbar-track {
-  background: #2c2c2c;
-}
-.instructions-container::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 3px;
-}
-
-.instructions-container h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  color: #fff;
-}
-.instructions-container p {
-  color: #ccc;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin-bottom: 12px;
-}
-.instructions-container ul {
-  padding-left: 20px;
-  color: #ccc;
-  font-size: 0.95rem;
-  margin-bottom: 16px;
-}
-.instructions-container li {
-  margin-bottom: 6px;
-}
-code {
-  background-color: #424242;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-family: monospace;
-  color: #ffb74d;
-}
-
-/* Context Buttons */
-.context-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-.primary-action {
-  background-color: #2196F3;
-  border-color: #1976D2;
-}
-.danger-action {
-  background-color: #f44336;
-  border-color: #d32f2f;
-}
-
-/* API Input & Inline Form */
-.form-group-inline {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.api-input {
-    background: #444;
-    border: 1px solid #555;
-    color: #fff;
-    padding: 5px 10px;
-    flex-grow: 1;
-}
-
-/* Log Sidebar */
-.log-sidebar {
-  width: 200px;
-  background-color: #222;
-  border: 1px solid #444;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-.log-header {
-  padding: 8px 10px;
-  background-color: #333;
-  border-bottom: 1px solid #444;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-}
-.text-btn {
-  background: none;
-  border: none;
-  color: #f44336;
-  padding: 0;
-  font-size: 0.8rem;
-}
-.log-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  overflow-y: auto;
-  max-height: 120px;
-}
-.log-list li {
-  padding: 6px 10px;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #aaa;
-}
-.undo-icon {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 1.1rem;
-  color: #777;
-}
+/* Sidebar Log */
+.log-sidebar { width: 200px; background: #222; border: 1px solid #444; display: flex; flex-direction: column; }
+.log-header { padding: 8px 10px; background: #333; border-bottom: 1px solid #444; display: flex; justify-content: space-between; }
+.log-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; max-height: 120px; }
+.log-list li { padding: 6px 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; color: #aaa; }
+.undo-icon { background: none; color: #777; font-size: 1.1rem; }
 .undo-icon:hover { color: #fff; }
-
 </style>
 
 
@@ -1773,15 +1363,16 @@ import base64
 import json
 import zipfile
 import io
-import google.generativeai as genai # NEW IMPORT
-import glob # NEW IMPORT
+import google.generativeai as genai
+import glob
 from PIL import Image
+import xml.etree.ElementTree as ET
+import numpy as np
 
 # Import your existing pipelines
 from inference import process_new_manuscript
 from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
 from segmentation.utils import load_images_from_folder
-import xml.etree.ElementTree as ET # Ensure this is imported
 
 app = Flask(__name__)
 CORS(app)
@@ -1791,14 +1382,72 @@ UPLOAD_FOLDER = './input_manuscripts'
 MODEL_CHECKPOINT = "./pretrained_gnn/v2.pt"
 DATASET_CONFIG = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
 
+def parse_page_xml_polygons(xml_path):
+    """
+    Parses PAGE-XML to extract polygon coordinates for each textline.
+    Returns: Dict { structure_line_id: [[x,y], [x,y], ...] }
+    """
+    polygons = {}
+    if not os.path.exists(xml_path):
+        return polygons
+
+    try:
+        ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+
+        for textline in root.findall(".//p:TextLine", ns):
+            custom_attr = textline.get('custom', '')
+            if 'structure_line_id_' not in custom_attr:
+                continue
+            
+            try:
+                line_id = str(custom_attr.split('structure_line_id_')[1])
+            except IndexError:
+                continue
+
+            coords_elem = textline.find('p:Coords', ns)
+            if coords_elem is not None:
+                points_str = coords_elem.get('points', '')
+                if points_str:
+                    # Convert "x,y x,y" -> [[x,y], [x,y]]
+                    points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+                    polygons[line_id] = points
+                    
+            # Also try to grab existing text if any
+            text_equiv = textline.find('p:TextEquiv/p:Unicode', ns)
+            # We can optionally return this, but the main logic relies on the separate dict
+            
+    except Exception as e:
+        print(f"Error parsing XML polygons: {e}")
+        
+    return polygons
+
+def get_existing_text_content(xml_path):
+    """Parses PAGE-XML to extract existing Unicode text content."""
+    text_content = {}
+    if not os.path.exists(xml_path):
+        return text_content
+        
+    try:
+        ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        for textline in root.findall(".//p:TextLine", ns):
+            custom_attr = textline.get('custom', '')
+            if 'structure_line_id_' in custom_attr:
+                line_id = str(custom_attr.split('structure_line_id_')[1])
+                text_equiv = textline.find('p:TextEquiv/p:Unicode', ns)
+                if text_equiv is not None and text_equiv.text:
+                    text_content[line_id] = text_equiv.text
+    except Exception:
+        pass
+    return text_content
+
 @app.route('/upload', methods=['POST'])
 def upload_manuscript():
-    """
-    Step 1 & 2: Upload images, resize (inference.py), Generate Heatmaps & GNN inputs.
-    """
     manuscript_name = request.form.get('manuscriptName', 'default_manuscript')
     longest_side = int(request.form.get('longestSide', 2500))
-    # --- MODIFIED: Parse min_distance ---
     min_distance = int(request.form.get('minDistance', 20)) 
     
     manuscript_path = os.path.join(UPLOAD_FOLDER, manuscript_name)
@@ -1817,11 +1466,7 @@ def upload_manuscript():
             file.save(os.path.join(images_path, file.filename))
 
     try:
-        # Run Step 1-3: Resize and Generate Heatmaps/Points
-        # --- MODIFIED: Pass min_distance ---
         process_new_manuscript(manuscript_path, target_longest_side=longest_side, min_distance=min_distance) 
-        
-        # Get list of processed pages
         processed_pages = []
         for f in sorted(Path(manuscript_path).glob("gnn-dataset/*_dims.txt")):
             processed_pages.append(f.name.replace("_dims.txt", ""))
@@ -1837,19 +1482,15 @@ def get_pages(name):
     manuscript_path = Path(UPLOAD_FOLDER) / name / "gnn-dataset"
     if not manuscript_path.exists():
         return jsonify([]), 404
-    
     pages = sorted([f.name.replace("_dims.txt", "") for f in manuscript_path.glob("*_dims.txt")])
     return jsonify(pages)
 
 @app.route('/semi-segment/<manuscript>/<page>', methods=['GET'])
 def get_page_prediction(manuscript, page):
-    """
-    Step 4 Inference: Run GNN, get graph, return to frontend.
-    """
     print("Received request for manuscript:", manuscript, "page:", page)
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     try:
-        # Run GNN Inference
+        # 1. Run GNN Inference / Get Graph Data
         graph_data = run_gnn_prediction_for_page(
             str(manuscript_path), 
             page, 
@@ -1857,22 +1498,33 @@ def get_page_prediction(manuscript, page):
             DATASET_CONFIG
         )
         
-        # Load Image to send to frontend
+        # 2. Get Image
         img_path = manuscript_path / "images_resized" / f"{page}.jpg"
-        
         if not img_path.exists():
             return jsonify({"error": "Image not found"}), 404
 
         with open(img_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            
+
+        # 3. Check for Existing XML to get Polygons & Text
+        # This is critical for the Recognition Mode UI
+        xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+        polygons = {}
+        existing_text = {}
+        
+        if xml_path.exists():
+            polygons = parse_page_xml_polygons(str(xml_path))
+            existing_text = get_existing_text_content(str(xml_path))
+
         response = {
             "image": encoded_string,
             "dimensions": graph_data['dimensions'],
             "points": [[n['x'], n['y']] for n in graph_data['nodes']],
             "graph": graph_data,
             "textline_labels": graph_data.get('textline_labels', []),
-            "textbox_labels": graph_data.get('textbox_labels', []) # Return textbox labels if they exist
+            "textbox_labels": graph_data.get('textbox_labels', []),
+            "polygons": polygons,   # <--- NEW: Send specific polygons
+            "textContent": existing_text # <--- NEW: Send existing text
         }
         return jsonify(response)
         
@@ -1881,7 +1533,6 @@ def get_page_prediction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# 1. Update save_correction to receive text content
 @app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
 def save_correction(manuscript, page):
     data = request.json
@@ -1891,7 +1542,7 @@ def save_correction(manuscript, page):
     graph_data = data.get('graph')
     textbox_labels = data.get('textboxLabels')
     nodes_data = graph_data.get('nodes')
-    text_content = data.get('textContent') # <--- NEW: Get text from frontend
+    text_content = data.get('textContent') 
     
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -1910,7 +1561,7 @@ def save_correction(manuscript, page):
             },
             textbox_labels=textbox_labels,
             nodes=nodes_data,
-            text_content=text_content # <--- PASS TO LOGIC
+            text_content=text_content
         )
         return jsonify(result)
     except Exception as e:
@@ -1918,14 +1569,129 @@ def save_correction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+# @app.route('/recognize-text', methods=['POST'])
+# def recognize_text():
+#     data = request.json
+#     manuscript = data.get('manuscript')
+#     page = data.get('page')
+#     api_key = data.get('apiKey')
+    
+#     if not api_key:
+#         return jsonify({"error": "API Key required"}), 400
+
+#     base_path = Path(UPLOAD_FOLDER) / manuscript
+#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+#     img_path = base_path / "images_resized" / f"{page}.jpg"
+    
+#     if not xml_path.exists() or not img_path.exists():
+#         return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
+
+#     try:
+#         pil_img = Image.open(img_path)
+#         img_w, img_h = pil_img.size
+#     except Exception as e:
+#         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
+
+#     regions_to_process = []
+#     ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+#     try:
+#         tree = ET.parse(xml_path)
+#         root = tree.getroot()
+        
+#         for textline in root.findall(".//p:TextLine", ns):
+#             custom_attr = textline.get('custom', '')
+#             if 'structure_line_id_' not in custom_attr:
+#                 continue
+#             try:
+#                 line_id = str(custom_attr.split('structure_line_id_')[1])
+#             except IndexError:
+#                 continue
+
+#             coords_elem = textline.find('p:Coords', ns)
+#             if coords_elem is None: continue
+#             points_str = coords_elem.get('points', '')
+#             if not points_str: continue
+
+#             try:
+#                 points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+#             except ValueError: continue
+            
+#             if not points: continue
+
+#             xs = [p[0] for p in points]
+#             ys = [p[1] for p in points]
+            
+#             # Normalize 0-1000
+#             n_ymin = int((min(ys) / img_h) * 1000)
+#             n_xmin = int((min(xs) / img_w) * 1000)
+#             n_ymax = int((max(ys) / img_h) * 1000)
+#             n_xmax = int((max(xs) / img_w) * 1000)
+
+#             n_ymin, n_ymax = sorted([max(0, min(1000, n_ymin)), max(0, min(1000, n_ymax))])
+#             n_xmin, n_xmax = sorted([max(0, min(1000, n_xmin)), max(0, min(1000, n_xmax))])
+
+#             regions_to_process.append({
+#                 "id": line_id,
+#                 "box_2d": [n_ymin, n_xmin, n_ymax, n_xmax]
+#             })
+
+#     except Exception as e:
+#         return jsonify({"error": f"XML Parsing Error: {str(e)}"}), 500
+
+#     if not regions_to_process:
+#          return jsonify({"transcriptions": {}})
+
+#     prompt_text = (
+#         "You are an expert paleographer analyzing a historical Sanskrit manuscript.\n"
+#         "Your task is to transcribe the handwritten text found inside specific bounding boxes.\n\n"
+#         "INPUT CONTEXT:\n"
+#         "The coordinates are in the format [ymin, xmin, ymax, xmax] on a scale of 0 to 1000.\n\n"
+#         "REGIONS TO TRANSCRIBE:\n"
+#     )
+#     for item in regions_to_process:
+#         prompt_text += f"- Region ID '{item['id']}' at Box: {item['box_2d']}\n"
+
+#     prompt_text += (
+#         "\nOUTPUT INSTRUCTIONS:\n"
+#         "1. Return a JSON List of objects.\n"
+#         "2. Each object must have two keys: 'id' (string) and 'text' (string).\n"
+#         "3. Do not modify the Region ID.\n"
+#         "4. If the text is illegible, set 'text' to an empty string.\n"
+#     )
+
+#     try:
+#         genai.configure(api_key=api_key)
+#         model = genai.GenerativeModel('gemini-2.5-flash')
+#         response = model.generate_content(
+#             [pil_img, prompt_text],
+#             generation_config={"response_mime_type": "application/json"}
+#         )
+        
+#         raw_result = json.loads(response.text)
+#         result_list = []
+#         if isinstance(raw_result, list):
+#             result_list = raw_result
+#         elif isinstance(raw_result, dict):
+#             for val in raw_result.values():
+#                 if isinstance(val, list):
+#                     result_list = val
+#                     break
+
+#         final_map = {}
+#         for item in result_list:
+#             if 'id' in item and 'text' in item:
+#                 final_map[str(item['id'])] = item['text']
+
+#         return jsonify({"transcriptions": final_map})
+
+#     except Exception as e:
+#         print(f"Gemini Error: {e}")
+#         return jsonify({"error": str(e)}), 500
+
+
+
 @app.route('/recognize-text', methods=['POST'])
 def recognize_text():
-    """
-    Refined based on Google AI docs:
-    1. Uses gemini-1.5-flash (optimized for multimodal speed/cost).
-    2. Uses native JSON Mode for robust output.
-    3. Normalizes coordinates to 0-1000 (Gemini native scale).
-    """
     data = request.json
     manuscript = data.get('manuscript')
     page = data.get('page')
@@ -1934,7 +1700,6 @@ def recognize_text():
     if not api_key:
         return jsonify({"error": "API Key required"}), 400
 
-    # 1. Setup Paths
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     img_path = base_path / "images_resized" / f"{page}.jpg"
@@ -1942,26 +1707,28 @@ def recognize_text():
     if not xml_path.exists() or not img_path.exists():
         return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
 
-    # 2. Load Image & Dimensions
     try:
         pil_img = Image.open(img_path)
         img_w, img_h = pil_img.size
     except Exception as e:
         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
 
-    # 3. Parse XML & Prepare Regions
-    # We map "structure_line_id" -> [ymin, xmin, ymax, xmax]
     regions_to_process = []
-    
+    # Standard PAGE-XML namespace
     ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+    
     try:
         tree = ET.parse(xml_path)
         root = tree.getroot()
         
+        # Helper to normalize pixel coords to 0-1000 scale
+        def normalize(x, y):
+            n_y = int((y / img_h) * 1000)
+            n_x = int((x / img_w) * 1000)
+            return max(0, min(1000, n_y)), max(0, min(1000, n_x))
+
         for textline in root.findall(".//p:TextLine", ns):
             custom_attr = textline.get('custom', '')
-            
-            # Extract ID
             if 'structure_line_id_' not in custom_attr:
                 continue
             try:
@@ -1969,36 +1736,68 @@ def recognize_text():
             except IndexError:
                 continue
 
-            # Extract Coords
-            coords_elem = textline.find('p:Coords', ns)
-            if coords_elem is None: continue
-            points_str = coords_elem.get('points', '')
-            if not points_str: continue
-
-            try:
-                points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-            except ValueError: continue
+            # --- STRATEGY: PREFER BASELINE, FALLBACK TO COORDS ---
             
-            if not points: continue
+            trace_points = [] # We want [Start(x,y), Mid(x,y), End(x,y)]
 
-            # Convert Polygon -> Bounding Box
-            xs = [p[0] for p in points]
-            ys = [p[1] for p in points]
-            
-            # Normalize to 0-1000 (Gemini Native Scale)
-            # Formula: int(val / dimension * 1000)
-            n_ymin = int((min(ys) / img_h) * 1000)
-            n_xmin = int((min(xs) / img_w) * 1000)
-            n_ymax = int((max(ys) / img_h) * 1000)
-            n_xmax = int((max(xs) / img_w) * 1000)
+            # 1. Try extracting Baseline
+            baseline_elem = textline.find('p:Baseline', ns)
+            if baseline_elem is not None:
+                points_str = baseline_elem.get('points', '')
+                if points_str:
+                    try:
+                        # Parse "x,y x,y" string into list of lists
+                        pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+                        # Sort left-to-right
+                        pts.sort(key=lambda k: k[0])
+                        
+                        if len(pts) >= 2:
+                            # Pick Start, Middle, End to capture the curve
+                            p_start = pts[0]
+                            p_mid = pts[len(pts) // 2]
+                            p_end = pts[-1]
+                            trace_points = [p_start, p_mid, p_end]
+                    except ValueError:
+                        pass # Parsing failed, fall through to Coords
 
-            # Clamp & Sort (Safety)
-            n_ymin, n_ymax = sorted([max(0, min(1000, n_ymin)), max(0, min(1000, n_ymax))])
-            n_xmin, n_xmax = sorted([max(0, min(1000, n_xmin)), max(0, min(1000, n_xmax))])
+            # 2. Fallback: Calculate "Spine" from Polygon Coords if Baseline failed
+            if not trace_points:
+                coords_elem = textline.find('p:Coords', ns)
+                if coords_elem is not None:
+                    points_str = coords_elem.get('points', '')
+                    if points_str:
+                        try:
+                            pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
+                            if pts:
+                                # Get simple center-line logic
+                                xs = [p[0] for p in pts]
+                                ys = [p[1] for p in pts]
+                                # Sort points by X to find left/right extremities
+                                sorted_pts = sorted(zip(xs, ys), key=lambda k: k[0])
+                                
+                                p_start = [sorted_pts[0][0], sorted_pts[0][1]]
+                                p_end = [sorted_pts[-1][0], sorted_pts[-1][1]]
+                                # Geometric centroid for the middle
+                                p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
+                                
+                                trace_points = [p_start, p_mid, p_end]
+                        except ValueError:
+                            continue
+
+            if not trace_points:
+                continue
+
+            # 3. Format for Gemini [y1, x1, y2, x2, y3, x3] (Normalized)
+            # Note: Gemini vision usually expects [y, x] order
+            gemini_trace = []
+            for px, py in trace_points:
+                ny, nx = normalize(px, py)
+                gemini_trace.extend([ny, nx])
 
             regions_to_process.append({
                 "id": line_id,
-                "box_2d": [n_ymin, n_xmin, n_ymax, n_xmax]
+                "trace": gemini_trace,
+                "sort_y": trace_points[0][1] # Keep raw Y for sorting
             })
 
     except Exception as e:
@@ -2007,57 +1806,57 @@ def recognize_text():
     if not regions_to_process:
          return jsonify({"transcriptions": {}})
 
-    # 4. Construct Prompt
-    # We ask for a list of objects, which is more robust for JSON mode than dynamic keys.
+    # --- IMPORTANT: Sort Top-to-Bottom ---
+    # This helps the model track its position on the page naturally
+    regions_to_process.sort(key=lambda k: k['sort_y'])
+
+    # Build Prompt
     prompt_text = (
-        "You are an expert paleographer analyzing a historical manuscript.\n"
-        "Your task is to transcribe the handwritten text found inside specific bounding boxes.\n\n"
-        "INPUT CONTEXT:\n"
-        "The coordinates are in the format [ymin, xmin, ymax, xmax] on a scale of 0 to 1000.\n\n"
-        "REGIONS TO TRANSCRIBE:\n"
+        "You are an expert paleographer analyzing a Sanskrit manuscript.\n"
+        "I will provide a list of Region IDs and a 'Path Trace' for each line.\n"
+        "The trace format is [y_start, x_start, y_mid, x_mid, y_end, x_end] on a 0-1000 scale.\n"
+        "This trace runs along the baseline of the text.\n\n"
+        "INSTRUCTIONS:\n"
+        "1. Visualize the curve defined by the 3 coordinate points (Start -> Mid -> End).\n"
+        "2. Transcribe the handwritten Devanagari text that sits on this curve.\n"
+        "3. Ignore text from lines above or below this specific path.\n"
+        "4. Output a JSON array of objects with 'id' and 'text'.\n\n"
+        "REGIONS:\n"
     )
-    
+
     for item in regions_to_process:
-        prompt_text += f"- Region ID '{item['id']}' at Box: {item['box_2d']}\n"
+        prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
 
-    prompt_text += (
-        "\nOUTPUT INSTRUCTIONS:\n"
-        "1. Return a JSON List of objects.\n"
-        "2. Each object must have two keys: 'id' (string) and 'text' (string).\n"
-        "3. Do not modify the Region ID.\n"
-        "4. If the text is illegible, set 'text' to an empty string.\n"
-    )
-
-    # 5. Call Gemini API
     try:
         genai.configure(api_key=api_key)
         
-        # Use 1.5-flash (Best for OCR speed/cost)
+        # Use Pro model (Flash 1.5 is okay, but Pro is better for coordinate precision)
+        # Note: 'gemini-2.5-flash' does not exist yet. Using stable 1.5-pro.
         model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        generation_config = {
+            "temperature": 0.2,
+            "response_mime_type": "application/json",
+            "response_schema": {
+                "type": "ARRAY",
+                "items": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "id": {"type": "STRING"},
+                        "text": {"type": "STRING"}
+                    },
+                    "required": ["id", "text"]
+                }
+            }
+        }
 
         response = model.generate_content(
             [pil_img, prompt_text],
-            generation_config={
-                "response_mime_type": "application/json",
-                # We expect a structure like: [{"id": "1", "text": "abc"}, ...]
-            }
+            generation_config=generation_config
         )
         
-        # 6. Process Response
-        # Because we used response_mime_type, .text is guaranteed to be JSON (no markdown backticks)
-        raw_result = json.loads(response.text)
-        
-        # Convert List back to Map for Frontend: { "1": "abc", "2": "def" }
-        # Handle cases where Gemini might wrap the list in a root key like {"result": [...]}
-        result_list = []
-        if isinstance(raw_result, list):
-            result_list = raw_result
-        elif isinstance(raw_result, dict):
-            # Try to find the first list value
-            for val in raw_result.values():
-                if isinstance(val, list):
-                    result_list = val
-                    break
+        # Response schema guarantees a list of objects
+        result_list = json.loads(response.text)
 
         final_map = {}
         for item in result_list:
@@ -2068,37 +1867,28 @@ def recognize_text():
 
     except Exception as e:
         print(f"Gemini Error: {e}")
-        # Detailed error for debugging
         return jsonify({"error": str(e)}), 500
-
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):
     return jsonify({"status": "ok"})
 
-# --- NEW: Endpoint to download results ---
 @app.route('/download-results/<manuscript>', methods=['GET'])
 def download_results(manuscript):
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output"
-    
     if not manuscript_path.exists():
          return jsonify({"error": "No output found for this manuscript"}), 404
-         
-    # Directories to zip
     xml_dir = manuscript_path / "page-xml-format"
     img_dir = manuscript_path / "image-format"
     
     memory_file = io.BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
-        # Add XMLs
         if xml_dir.exists():
             for root, dirs, files in os.walk(xml_dir):
                 for file in files:
                     file_path = os.path.join(root, file)
                     arcname = os.path.join('page-xml-format', os.path.relpath(file_path, xml_dir))
                     zf.write(file_path, arcname)
-                    
-        # Add Line Images
         if img_dir.exists():
             for root, dirs, files in os.walk(img_dir):
                 for file in files:
@@ -2115,154 +1905,123 @@ def download_results(manuscript):
     )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
-
-# backend
-# ssh -N -L 5001:localhost:5000 kartik@192.168.8.12
-
-# frontend
-# ssh -L 8000:localhost:5173 kartik@192.168.8.12
+    app.run(host='0.0.0.0', port=5000, debug=True)  
 
 
+# App.vue
+<template>
+  <div class="app-container">
+    <div v-if="!currentManuscript">
+      <!-- Upload Screen -->
+      <div class="upload-card">
+        <h1>Historical Manuscript Segmentation</h1>
+        <div class="form-group">
+          <label>Manuscript Name:</label>
+          <input v-model="formName" type="text" placeholder="e.g. manuscript_1" />
+        </div>
+        <div class="form-group">
+          <label>Resize Dimension (Longest Side):</label>
+          <input v-model.number="formLongestSide" type="number" />
+        </div>
+        <!-- NEW FIELD -->
+        <div class="form-group">
+          <label>Min Distance (Peak Detection):</label>
+          <input v-model.number="formMinDistance" type="number" title="Distance between char centers" />
+        </div>
+        <!-- END NEW FIELD -->
+        <div class="form-group">
+          <label>Images:</label>
+          <input type="file" multiple @change="handleFileChange" accept="image/*" />
+        </div>
+        <button @click="upload" :disabled="uploading">
+          {{ uploading ? 'Processing (Step 1-3)...' : 'Start Processing' }}
+        </button>
+        <div v-if="uploadStatus" class="status">{{ uploadStatus }}</div>
+      </div>
+    </div>
 
+    <div v-else>
+      <!-- Main Workstation -->
+      <!-- REMOVED: The floating .back-btn is gone. We handle it via the event below -->
+      <ManuscriptViewer 
+        :manuscriptName="currentManuscript" 
+        :pageName="currentPage"
+        @page-changed="handlePageChange"
+        @back="currentManuscript = null" 
+      />
+    </div>
+  </div>
+</template>
 
-# inference.py
+<script setup>
+import { ref } from 'vue'
+import ManuscriptViewer from './components/ManuscriptViewer.vue'
 
-import os
-import argparse
-import gc
-from PIL import Image
-import torch
+// Basic State
+const currentManuscript = ref(null)
+const currentPage = ref(null)
+const pageList = ref([])
 
-from segmentation.segment_graph import images2points
-from gnn_inference import run_gnn_inference
+// Upload Form State
+const formName = ref('my_manuscript')
+const formLongestSide = ref(2500)
+const formMinDistance = ref(20) // NEW STATE
+const selectedFiles = ref([])
+const uploading = ref(false)
+const uploadStatus = ref('')
 
+const handleFileChange = (e) => {
+  selectedFiles.value = Array.from(e.target.files)
+}
 
+const upload = async () => {
+  if (selectedFiles.value.length === 0) return alert('Select files')
+  uploading.value = true
+  uploadStatus.value = 'Uploading and generating heatmaps/points. This may take a while...'
 
-def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscript_1"):
-    source_images_path = os.path.join(manuscript_path, "images")
-    # We will save processed (and potentially resized) images here
-    # to avoid modifying source files while iterating over them.
-    resized_images_path = os.path.join(manuscript_path, "images_resized")
+  const formData = new FormData()
+  formData.append('manuscriptName', formName.value)
+  formData.append('longestSide', formLongestSide.value)
+  formData.append('minDistance', formMinDistance.value) // NEW
+  selectedFiles.value.forEach(file => formData.append('images', file))
 
-    try:
-        # Create the target folder
-        os.makedirs(resized_images_path, exist_ok=True)
-        
-        # Verify source exists
-        if not os.path.exists(source_images_path):
-            print(f"Error: Source directory {source_images_path} not found.")
-            return
-
-    except Exception as e:
-        print(f"An error occurred setting up directories: {e}")
-        return
-
-    # Valid image extensions to look for
-    valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', '.webp'}
-
-    # Get list of files in the directory
-    files = [f for f in os.listdir(source_images_path) if os.path.isfile(os.path.join(source_images_path, f))]
-
-    print(f"Found {len(files)} files in {source_images_path}...")
-
-    for filename in files:
-        # Skip non-image files based on extension
-        ext = os.path.splitext(filename)[1].lower()
-        if ext not in valid_extensions:
-            continue
-
-        base_filename = os.path.splitext(filename)[0]
-        file_path = os.path.join(source_images_path, filename)
-
-        try:
-            # Open the image from the folder
-            with Image.open(file_path) as image:
-                
-                width, height = image.size
-                
-                # 1. VALIDATION: Check if image is too small for CV tasks
-                # If both dimensions are smaller than 600, we reject the image.
-                if width < 600 and height < 600:
-                    raise ValueError(f"Image resolution too low ({width}x{height}). Both dimensions are < 600px.")
-
-                # 2. RESIZING: Downscale only if too large
-                target_longest_side = 2500
-                
-                # Check if the longest side exceeds the target
-                if max(width, height) > target_longest_side:
-                    
-                    # Calculate scaling factor
-                    scale_factor = target_longest_side / max(width, height)
-                    
-                    # Calculate new dimensions
-                    new_width = int(width * scale_factor)
-                    new_height = int(height * scale_factor)
-                    
-                    # Handle Resampling filter compatibility
-                    try:
-                        resampling_filter = Image.Resampling.LANCZOS
-                    except AttributeError:
-                        resampling_filter = Image.LANCZOS
-
-                    print(f"Downscaling '{filename}': ({width}x{height}) -> ({new_width}x{new_height})")
-                    image = image.resize((new_width, new_height), resampling_filter)
-                    
-                else:
-                    print(f"Image '{filename}' is within limits ({width}x{height}). Keeping original size.")
-                    
-
-                # Standardize Color Mode
-                if image.mode in ("RGBA", "P", "LA"):
-                    image = image.convert("RGB")
-
-                # Save processed image to the NEW folder
-                new_filename = f"{base_filename}.jpg"
-                save_path = os.path.join(resized_images_path, new_filename)
-                
-                image.save(save_path, "JPEG")
-                print(f"Processed: {new_filename}")
-
-        except Exception as img_err:
-            # This block catches the ValueError raised above and prints the message
-            print(f"Failed to process image {filename}: {img_err}")
-            continue
-
-    # Point the inference function to the new resized/processed folder
-    print("Running images2points on processed folder...")
-    images2points(resized_images_path) 
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/upload`, {
+      method: 'POST',
+      body: formData
+    })
+    if(!res.ok) throw new Error('Upload failed')
+    const data = await res.json()
     
-    # Cleanup resources
-    torch.cuda.empty_cache()
-    gc.collect()
+    // Success - Switch to viewer
+    pageList.value = data.pages
+    if (pageList.value.length > 0) {
+      currentManuscript.value = formName.value
+      currentPage.value = pageList.value[0]
+    } else {
+      uploadStatus.value = 'No pages processed.'
+    }
+  } catch (e) {
+    uploadStatus.value = 'Error: ' + e.message
+  } finally {
+    uploading.value = false
+  }
+}
 
-    print("Processing complete.")
+const handlePageChange = (newPage) => {
+  currentPage.value = newPage
+}
+</script>
 
-
-
-
-
-
-if __name__ == "__main__":
-    # 1. Parse standard CLI arguments4
-    parser = argparse.ArgumentParser(description="GNN Layout Analysis Inference")
-    parser.add_argument("--manuscript_path", type=str, default="./input_manuscripts/sample_manuscript_1", help="Path to the manuscript directory")
-    args = parser.parse_args()
-
-    # the data preparation.yaml is tied to the model_checkpoint used.
-    args.model_checkpoint = "./pretrained_gnn/v2.pt"
-    args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
-
-    # -- Hyperparameters
-    args.visualize = True
-    args.BINARIZE_THRESHOLD = 0.5098
-    args.BBOX_PAD_V = 0.7
-    args.BBOX_PAD_H = 0.5
-    args.CC_SIZE_THRESHOLD_RATIO = 0.4
-
-    process_new_manuscript(args.manuscript_path)
-    run_gnn_inference(args)
-
+<style>
+body { margin: 0; font-family: sans-serif; background: #222; color: white; }
+.app-container { display: flex; flex-direction: column; height: 100vh; }
+.upload-card { max-width: 500px; margin: 100px auto; padding: 20px; background: #333; border-radius: 8px; }
+.form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+input { padding: 8px; background: #444; border: 1px solid #555; color: white; margin-top: 5px; }
+button { padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+button:disabled { background: #555; }
+</style>
 
 
 # gnn_inference.py
@@ -3085,3 +2844,144 @@ def create_page_xml(
     if save_vis and vis_img is not None:
         vis_output_path = output_path.parent / f"{output_path.stem}_viz.jpg"
         cv2.imwrite(str(vis_output_path), vis_img)
+
+
+# inference.py
+import os
+import argparse
+import gc
+from PIL import Image
+import torch
+
+from segmentation.segment_graph import images2points
+
+
+
+def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distance=20):
+    source_images_path = os.path.join(manuscript_path, "images")
+    # We will save processed (and potentially resized) images here
+    # to avoid modifying source files while iterating over them.
+    resized_images_path = os.path.join(manuscript_path, "images_resized")
+
+    try:
+        # Create the target folder
+        os.makedirs(resized_images_path, exist_ok=True)
+        
+        # Verify source exists
+        if not os.path.exists(source_images_path):
+            print(f"Error: Source directory {source_images_path} not found.")
+            return
+
+    except Exception as e:
+        print(f"An error occurred setting up directories: {e}")
+        return
+
+    # Valid image extensions to look for
+    valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', '.webp'}
+
+    # Get list of files in the directory
+    files = [f for f in os.listdir(source_images_path) if os.path.isfile(os.path.join(source_images_path, f))]
+
+    print(f"Found {len(files)} files in {source_images_path}...")
+
+    for filename in files:
+        # Skip non-image files based on extension
+        ext = os.path.splitext(filename)[1].lower()
+        if ext not in valid_extensions:
+            continue
+
+        base_filename = os.path.splitext(filename)[0]
+        file_path = os.path.join(source_images_path, filename)
+
+        try:
+            # Open the image from the folder
+            with Image.open(file_path) as image:
+                
+                width, height = image.size
+                
+                # 1. VALIDATION: Check if image is too small for CV tasks
+                # If both dimensions are smaller than 600, we reject the image.
+                if width < 600 and height < 600:
+                    raise ValueError(f"Image resolution too low ({width}x{height}). Both dimensions are < 600px.")
+
+                
+                # Check if the longest side exceeds the target
+                if max(width, height) > target_longest_side:
+                    
+                    # Calculate scaling factor
+                    scale_factor = target_longest_side / max(width, height)
+                    
+                    # Calculate new dimensions
+                    new_width = int(width * scale_factor)
+                    new_height = int(height * scale_factor)
+                    
+                    # Handle Resampling filter compatibility
+                    try:
+                        resampling_filter = Image.Resampling.LANCZOS
+                    except AttributeError:
+                        resampling_filter = Image.LANCZOS
+
+                    print(f"Downscaling '{filename}': ({width}x{height}) -> ({new_width}x{new_height})")
+                    image = image.resize((new_width, new_height), resampling_filter)
+                    
+                else:
+                    print(f"Image '{filename}' is within limits ({width}x{height}). Keeping original size.")
+                    
+
+                # Standardize Color Mode
+                if image.mode in ("RGBA", "P", "LA"):
+                    image = image.convert("RGB")
+
+                # Save processed image to the NEW folder
+                new_filename = f"{base_filename}.jpg"
+                save_path = os.path.join(resized_images_path, new_filename)
+                
+                image.save(save_path, "JPEG")
+                print(f"Processed: {new_filename}")
+
+        except Exception as img_err:
+            # This block catches the ValueError raised above and prints the message
+            print(f"Failed to process image {filename}: {img_err}")
+            continue
+
+    # Point the inference function to the new resized/processed folder
+    print("Running images2points on processed folder...")
+    # --- MODIFIED: Pass min_distance ---
+    images2points(resized_images_path, min_distance=min_distance) 
+    
+    # Cleanup resources
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    print("Processing complete.")
+
+
+
+
+
+# if __name__ == "__main__":
+#     # 1. Parse standard CLI arguments4
+#     parser = argparse.ArgumentParser(description="GNN Layout Analysis Inference")
+#     parser.add_argument("--manuscript_path", type=str, default="./input_manuscripts/sample_manuscript_1", help="Path to the manuscript directory")
+#     args = parser.parse_args()
+
+#     # the data preparation.yaml is tied to the model_checkpoint used.
+#     args.model_checkpoint = "./pretrained_gnn/v2.pt"
+#     args.dataset_config_path = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
+
+#     # -- Hyperparameters
+#     args.visualize = True
+#     args.BINARIZE_THRESHOLD = 0.5098
+#     args.BBOX_PAD_V = 0.7
+#     args.BBOX_PAD_H = 0.5
+#     args.CC_SIZE_THRESHOLD_RATIO = 0.4
+
+#     process_new_manuscript(args.manuscript_path)
+#     run_gnn_inference(args)
+
+
+
+
+# save only button
+# text typing in devanagari
+# sampling from gemini..
