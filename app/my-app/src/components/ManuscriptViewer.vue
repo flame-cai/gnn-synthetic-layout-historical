@@ -8,17 +8,8 @@
         <span class="page-title">{{ manuscriptNameForDisplay }} <span class="divider">/</span> Page {{ currentPageForDisplay }}</span>
       </div>
 
-      <!-- NEW: Auto-Recognition Controls in Center/Right -->
+      <!-- Auto-Recognition Controls in Center -->
       <div class="top-bar-center" style="display:flex; align-items:center; gap: 10px; margin-left: 20px;">
-          <!-- <input 
-            v-model="geminiKey" 
-            type="password" 
-            placeholder="Gemini API Key" 
-            class="api-input-small"
-            @change="saveKeyToStorage"
-          /> -->
-          <!-- <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div> -->
-          
           <!-- Auto-Recog Toggle -->
           <label class="toggle-switch">
              <input type="checkbox" v-model="autoRecogEnabled">
@@ -26,7 +17,7 @@
           </label>
           <span style="font-size: 0.8rem; color: #ccc;">Auto-Recognize on Save</span>
 
-          <!-- NEW: Devanagari Keyboard Toggle -->
+          <!-- Devanagari Keyboard Toggle -->
           <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
           <label class="toggle-switch">
              <input type="checkbox" v-model="devanagariModeEnabled">
@@ -76,7 +67,7 @@
       <!-- 2. Loading Indicator (Only for initial page load) -->
       <div v-if="loading" class="loading">Loading Page Data...</div>
 
-      <!-- 3. Image Container: Changed v-else to v-show to prevent DOM destruction -->
+      <!-- 3. Image Container -->
       <div
         v-show="!loading && imageData" 
         class="image-container"
@@ -98,11 +89,12 @@
           No image available
         </div>
 
-        <!-- SVG Graph Layer (Visible in Graph Modes) -->
+        <!-- SVG Graph Layer (Visible in Layout Mode and View Mode) -->
+        <!-- is-visible class allows pointer events only in Layout Mode -->
         <svg
           v-if="graphIsLoaded && !recognitionModeActive"
           class="graph-overlay"
-          :class="{ 'is-visible': textlineModeActive || textboxModeActive || nodeModeActive }"
+          :class="{ 'is-visible': layoutModeActive }"
           :width="scaledWidth"
           :height="scaledHeight"
           :viewBox="`0 0 ${scaledWidth} ${scaledHeight}`"
@@ -122,7 +114,7 @@
             :y2="scaleY(workingGraph.nodes[edge.target].y)"
             :stroke="getEdgeColor(edge)"
             :stroke-width="isEdgeSelected(edge) ? 3 : 2.5"
-            @click.stop="textlineModeActive && onEdgeClick(edge, $event)"
+            @click.stop="layoutModeActive && onEdgeClick(edge, $event)"
           />
 
           <circle
@@ -138,11 +130,12 @@
 
           <line
             v-if="
-              textlineModeActive &&
+              layoutModeActive &&
               selectedNodes.length === 1 &&
               tempEndPoint &&
               !isAKeyPressed &&
-              !isDKeyPressed
+              !isDKeyPressed &&
+              !isEKeyPressed
             "
             :x1="scaleX(workingGraph.nodes[selectedNodes[0]].x)"
             :y1="scaleY(workingGraph.nodes[selectedNodes[0]].y)"
@@ -186,14 +179,12 @@
           />
         </svg>
 
-        <!-- Recognition Input Overlay Layer (Single Floating Input) -->
-        <!-- UPDATED: Added keydown handler and conditional styling for Devanagari font -->
+        <!-- Recognition Input Overlay Layer -->
         <div
             v-if="recognitionModeActive && focusedLineId && pagePolygons[focusedLineId]"
             class="input-floater"
             :style="getActiveInputStyle()"
         >
-            <!-- A. The Editable Input (Top) -->
             <input 
                 ref="activeInput"
                 v-model="localTextContent[focusedLineId]" 
@@ -209,9 +200,6 @@
                     marginBottom: '4px' 
                 }"
             />
-
-            <!-- B. The Confidence Visualization (Bottom) -->
-            <!-- Only show if we have confidence data for this line -->
             <div 
                 v-if="localTextConfidence[focusedLineId]" 
                 class="confidence-strip"
@@ -238,34 +226,18 @@
       <div class="mode-tabs">
          <button 
            class="mode-tab" 
-           :class="{ active: !textlineModeActive && !textboxModeActive && !nodeModeActive && !recognitionModeActive }"
+           :class="{ active: !layoutModeActive && !recognitionModeActive }"
            @click="setMode('view')"
            :disabled="isProcessingSave">
            View Mode
          </button>
           <button 
            class="mode-tab" 
-           :class="{ active: nodeModeActive }"
-           @click="setMode('node')"
+           :class="{ active: layoutModeActive }"
+           @click="setMode('layout')"
            :disabled="isProcessingSave || !graphIsLoaded">
-           Node Mode (N)
+           Layout Mode (W)
          </button>
-         <button 
-           class="mode-tab" 
-           :class="{ active: textlineModeActive }"
-           @click="setMode('edge')"
-           :disabled="isProcessingSave">
-           Edge Edit (W)
-         </button>
-         <button 
-           class="mode-tab" 
-           :class="{ active: textboxModeActive }"
-           @click="setMode('region')"
-           :disabled="isProcessingSave || !graphIsLoaded">
-           Region Labeling (R)
-         </button>
-         <!-- NEW RECOGNITION TAB -->
-
          <button 
            class="mode-tab" 
            :class="{ active: recognitionModeActive }"
@@ -285,54 +257,60 @@
       <!-- Help & Actions Content Area -->
       <div class="help-content-area" v-show="!isPanelCollapsed">
         
-        <div v-if="!textlineModeActive && !textboxModeActive && !nodeModeActive && !recognitionModeActive" class="help-section">
+        <!-- View Mode Help -->
+        <div v-if="!layoutModeActive && !recognitionModeActive" class="help-section">
           <div class="instructions-container">
             <h3>View Mode</h3>
-            <p>Pan and zoom to inspect the manuscript. Select a mode above or use hotkeys to start annotating.</p>
+            <p>Pan and zoom to inspect the manuscript. Press <code>W</code> for Layout Mode or <code>T</code> for Recognition.</p>
           </div>
         </div>
 
-        <div v-if="textlineModeActive" class="help-section">
-          <div class="media-container">
-            <video :src="edgeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
-          </div>
-          <div class="instructions-container">
-            <h3>Text-Line Mode</h3>
-            <ul>
-              <li><strong>Connect:</strong> Hold <code>'a'</code> and hover over nodes to connect.</li>
-              <li><strong>Delete:</strong> Hold <code>'d'</code> and hover over edges to delete.</li>
-            </ul>
-          </div>
-        </div>
+        <!-- Unified Layout Mode Help -->
+        <div v-if="layoutModeActive" class="help-section full-width">
+          <div class="help-grid">
+            
+            <!-- Nodes Card -->
+            <div class="help-card">
+              <div class="media-container-small">
+                <video :src="nodeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
+              </div>
+              <div class="card-text">
+                <h4>Nodes</h4>
+                <p><span class="key-badge">L-Click</span> Add Node</p>
+                <p><span class="key-badge">R-Click</span> Delete Node</p>
+              </div>
+            </div>
 
-        <div v-if="textboxModeActive" class="help-section">
-           <div class="media-container">
-            <video :src="regionWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
-          </div>
-          <div class="instructions-container">
-            <h3>Text-Box Mode</h3>
-            <p>
-              Hold <code>'e'</code> and hover over lines to label them. Release and press again for new box.
-            </p>
-          </div>
-        </div>
+            <!-- Edges Card -->
+            <div class="help-card">
+              <div class="media-container-small">
+                <video :src="edgeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
+              </div>
+              <div class="card-text">
+                <h4>Edges</h4>
+                <p>Hold <span class="key-badge">A</span> + Hover to Connect</p>
+                <p>Hold <span class="key-badge">D</span> + Hover to Delete</p>
+              </div>
+            </div>
 
-        <div v-if="nodeModeActive" class="help-section">
-           <div class="media-container">
-            <video :src="nodeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
-          </div>
-          <div class="instructions-container">
-            <h3>Node Mode</h3>
-            <ul>
-              <li><strong>Add/Delete:</strong> Left-click to add, Right-click to remove nodes.</li>
-            </ul>
+            <!-- Regions Card -->
+            <div class="help-card">
+              <div class="media-container-small">
+                <video :src="regionWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
+              </div>
+              <div class="card-text">
+                <h4>Regions</h4>
+                <p>Hold <span class="key-badge">E</span> + Hover to Label</p>
+                <p>Release & Press <span class="key-badge">E</span> for New Box</p>
+              </div>
+            </div>
+
           </div>
         </div>
 
         <!-- RECOGNITION MODE HELP -->
         <div v-if="recognitionModeActive" class="help-section">
            <div class="media-container">
-             <!-- Simplified Visual for Mode -->
              <div class="webm-placeholder" style="flex-direction:column; gap:10px;">
               <span>Recognition Mode</span>
               <span v-if="devanagariModeEnabled" style="color:#4CAF50; font-size:0.8rem;">Devanagari ON</span>
@@ -341,25 +319,19 @@
            <div class="instructions-container">
              <h3>Recognition Mode</h3>
              <p>Transcribe line-by-line using Gemini AI or Manual Input.</p>
-             <!-- <div class="form-group-inline">
-                <input v-model="geminiKey" type="password" placeholder="Enter Gemini API Key" class="api-input" />
-                <button class="action-btn primary" @click="triggerRecognition" :disabled="isRecognizing || !geminiKey">
-                    {{ isRecognizing ? 'Processing...' : 'Auto-Recognize' }}
-                </button>
-             </div> -->
              <ul>
                <li><strong>Navigate:</strong> Press <code>Tab</code> to move to the next line automatically.</li>
                <li><strong>Toggle Script:</strong> Use the switch in the top bar to enable Devanagari input.</li>
                <li v-if="devanagariModeEnabled"><strong>Keys:</strong> Type phonetically (e.g., 'k' -> 'क'). Use '`' for Halant+ZWNJ.</li>
              </ul>
              
-             <!-- NEW: Character Palette Integration -->
              <div v-if="devanagariModeEnabled" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
                  <CharacterPalette />
              </div>
            </div>
         </div>
         
+        <!-- Logs -->
         <div v-if="modifications.length > 0" class="log-sidebar">
             <div class="log-header">
               <span>Changes: {{ modifications.length }}</span>
@@ -405,30 +377,29 @@ const router = useRouter()
 const isPanelCollapsed = ref(false)
 const activeInput = ref(null) // DOM Ref for input
 
+// Consolidated Mode Switching
 const setMode = (mode) => {
-  // 1. Reset ALL modes to false immediately
-  textlineModeActive.value = false
-  textboxModeActive.value = false
-  nodeModeActive.value = false
+  // Reset all modes first
+  layoutModeActive.value = false
   recognitionModeActive.value = false
   
-  // 2. Activate the specific mode
-  if (mode === 'edge') {
-    textlineModeActive.value = true
-  } else if (mode === 'region') {
-    textboxModeActive.value = true
-  } else if (mode === 'node') {
-    nodeModeActive.value = true
+  // Clean up any lingering key states when switching modes
+  isAKeyPressed.value = false
+  isDKeyPressed.value = false
+  isEKeyPressed.value = false
+  resetSelection()
+
+  if (mode === 'layout') {
+    layoutModeActive.value = true
   } else if (mode === 'recognition') {
     recognitionModeActive.value = true
-    
     // Recognition specific init
     sortLinesTopToBottom()
     if(sortedLineIds.value.length > 0 && !focusedLineId.value) {
         activateInput(sortedLineIds.value[0])
     }
   }
-  // If mode === 'view', everything stays false, which is correct.
+  // 'view' leaves both false, which is the correct state
   
   isPanelCollapsed.value = false
 }
@@ -437,7 +408,11 @@ const setMode = (mode) => {
 const isEditModeFlow = computed(() => !!props.manuscriptName && !!props.pageName)
 
 // --- DATA ---
-const nodeModeActive = ref(false)
+// Consolidated Layout Mode
+const layoutModeActive = ref(false)
+// Recognition Mode
+const recognitionModeActive = ref(false)
+
 const localManuscriptName = ref('')
 const localCurrentPage = ref('')
 const localPageList = ref([])
@@ -446,9 +421,6 @@ const isProcessingSave = ref(false)
 const error = ref(null)
 const imageData = ref('')
 const imageLoaded = ref(false)
-const textlineModeActive = ref(false)
-const textboxModeActive = ref(false)
-const recognitionModeActive = ref(false)
 
 // Graph Data
 const dimensions = ref([0, 0])
@@ -459,9 +431,12 @@ const modifications = ref([])
 const nodeEdgeCounts = ref({})
 const selectedNodes = ref([])
 const tempEndPoint = ref(null)
+
+// Key states for Pseudo-Modes inside Layout Mode
 const isDKeyPressed = ref(false)
 const isAKeyPressed = ref(false)
 const isEKeyPressed = ref(false) 
+
 const hoveredNodesForMST = reactive(new Set())
 const container = ref(null)
 const svgOverlayRef = ref(null)
@@ -482,8 +457,8 @@ const pagePolygons = ref({}) // Map: lineId -> [[x,y],...]
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
 const autoRecogEnabled = ref(true)
-const devanagariModeEnabled = ref(true) // NEW: State for Devanagari Toggle
-const localTextConfidence = reactive({}) // NEW: Map: lineId -> [scores]
+const devanagariModeEnabled = ref(true) 
+const localTextConfidence = reactive({}) 
 const saveKeyToStorage = () => {
     localStorage.setItem('gemini_key', geminiKey.value)
 }
@@ -506,14 +481,12 @@ const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.le
 
 // --- RECOGNITION MODE LOGIC ---
 
-// NEW: Wrapper for Devanagari Input Handling
+// Wrapper for Devanagari Input Handling
 const handleRecognitionInput = (event) => {
-    if (!devanagariModeEnabled.value) return; // Standard input if disabled
-    if (event.ctrlKey || event.metaKey || event.altKey) return; // Allow shortcuts
+    if (!devanagariModeEnabled.value) return; 
+    if (event.ctrlKey || event.metaKey || event.altKey) return; 
     if (!focusedLineId.value) return;
 
-    // The utility expects a Ref-like object with .value
-    // Since localTextContent is a reactive object, we create a temporary proxy
     const textRef = {
         get value() {
             return localTextContent[focusedLineId.value] || '';
@@ -522,8 +495,6 @@ const handleRecognitionInput = (event) => {
             localTextContent[focusedLineId.value] = val;
         }
     };
-
-    // This function modifies the value and prevents default behavior for handled keys
     handleDevanagariInput(event, textRef);
 }
 
@@ -557,34 +528,66 @@ const sortLinesTopToBottom = () => {
     // Sort primarily by Y, secondarily by X
     stats.sort((a,b) => {
         const diffY = a.minY - b.minY;
-        if(Math.abs(diffY) > 20) return diffY; // Threshold for same-line detection
+        if(Math.abs(diffY) > 20) return diffY; 
         return a.minX - b.minX;
     });
     
     sortedLineIds.value = stats.map(s => s.id);
 }
 
-// Calculate style for the floating input
+// Calculate style for the floating input (Adaptive for Vertical/Horizontal)
 const getActiveInputStyle = () => {
     if(!focusedLineId.value || !pagePolygons.value[focusedLineId.value]) return { display: 'none' };
     
     const pts = pagePolygons.value[focusedLineId.value];
     const xs = pts.map(p => p[0]);
     const ys = pts.map(p => p[1]);
+    
+    // Raw coordinates
     const minX = Math.min(...xs);
     const maxX = Math.max(...xs);
-    const maxY = Math.max(...ys); // Position below bottom edge
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
     
-    const width = (maxX - minX);
-    
-    return {
+    const rawWidth = maxX - minX;
+    const rawHeight = maxY - minY;
+
+    // Determine Orientation: Vertical if height is significantly larger than width
+    const isVertical = rawHeight > (rawWidth * 1.2); 
+
+    const style = {
         position: 'absolute',
-        top: `${scaleY(maxY) + 5}px`, // 5px buffer
-        left: `${scaleX(minX)}px`,
-        width: `${scaleX(width)}px`,
         height: 'auto',
         zIndex: 100
+    };
+
+    if (isVertical) {
+        // VERTICAL LOGIC
+        // Decide Side: Check if polygon is on Left or Right half of the image
+        const pageCenterX = dimensions.value[0] / 2;
+        const polyCenterX = minX + (rawWidth / 2);
+        
+        // Fixed width for vertical inputs creates a better UX than trying to match the skinny line width
+        const INPUT_WIDTH_PX = 250; 
+        
+        style.top = `${scaleY(minY)}px`; // Align with top of the line
+        style.width = `${INPUT_WIDTH_PX}px`;
+
+        if (polyCenterX > pageCenterX) {
+            // Line is on Right side -> Place Input to the LEFT of the line
+            style.left = `${scaleX(minX) - INPUT_WIDTH_PX - 10}px`;
+        } else {
+            // Line is on Left side -> Place Input to the RIGHT of the line
+            style.left = `${scaleX(maxX) + 10}px`;
+        }
+    } else {
+        // HORIZONTAL LOGIC (Standard)
+        style.top = `${scaleY(maxY) + 5}px`;
+        style.left = `${scaleX(minX)}px`;
+        style.width = `${scaleX(rawWidth)}px`;
     }
+
+    return style;
 }
 
 // Dynamic Font Size Calculation
@@ -592,7 +595,7 @@ const getDynamicFontSize = () => {
     if(!focusedLineId.value) return '16px';
     
     const text = localTextContent[focusedLineId.value] || "";
-    const charCount = Math.max(text.length, 10); // avoid div by zero
+    const charCount = Math.max(text.length, 10); 
     
     const pts = pagePolygons.value[focusedLineId.value];
     if(!pts) return '16px';
@@ -600,11 +603,7 @@ const getDynamicFontSize = () => {
     const xs = pts.map(p => p[0]);
     const width = (Math.max(...xs) - Math.min(...xs)) * scaleFactor;
     
-    // Heuristic: Width / Chars gives px per char. Font size is roughly 1.6x char width for monospace, 
-    // but for variable width font, let's try a factor.
     let calcSize = (width / charCount) * 1.8;
-    
-    // Clamp values
     calcSize = Math.max(14, Math.min(calcSize, 40));
     
     return `${calcSize}px`;
@@ -620,16 +619,9 @@ const activateInput = (lineId) => {
 }
 
 const handleInputBlur = () => {
-    // Optional: Only clear focus if user clicks completely outside?
-    // For now, we keep the variable set so the polygon stays highlighted, 
-    // unless the user clicks another polygon.
-    // Setting focusedLineId = null here makes the box disappear on click-away, which is cleaner.
     setTimeout(() => {
-       // Check if focus moved to another input or button, if not, clear.
        if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
-       // Also check if clicked inside Character Palette (buttons)
        if (document.activeElement && document.activeElement.classList.contains('character-button')) return;
-
        focusedLineId.value = null; 
     }, 200);
 }
@@ -648,70 +640,13 @@ const focusNextLine = (reverse = false) => {
              if(nextIdx < 0) nextIdx = sortedLineIds.value.length - 1;
         } else {
              nextIdx = currentIdx + 1;
-             if(nextIdx >= sortedLineIds.value.length) nextIdx = 0; // Loop or stop? Loop is nice.
+             if(nextIdx >= sortedLineIds.value.length) nextIdx = 0; 
         }
     }
     
     activateInput(sortedLineIds.value[nextIdx]);
 }
 
-
-const triggerRecognition = async () => {
-    if (!geminiKey.value) return alert("Please enter an API Key");
-    localStorage.setItem('gemini_key', geminiKey.value);
-    
-    isRecognizing.value = true;
-    try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recognize-text`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                manuscript: localManuscriptName.value,
-                page: localCurrentPage.value,
-                apiKey: geminiKey.value
-            })
-        });
-        
-        const data = await res.json();
-        
-        if (!res.ok) throw new Error(data.error || "Unknown server error");
-        
-        let hasData = false;
-
-        // Handle updated structure: { text: {...}, confidences: {...} }
-        if (data.text) {
-            Object.assign(localTextContent, data.text);
-            hasData = true;
-            
-            if (data.confidences) {
-                Object.assign(localTextConfidence, data.confidences);
-            }
-        } 
-        // Fallback: Handle legacy structure { transcriptions: {...} }
-        else if (data.transcriptions) {
-            Object.entries(data.transcriptions).forEach(([id, text]) => {
-                if (text) {
-                    localTextContent[id] = text;
-                    hasData = true;
-                }
-            });
-            // Legacy structure has no confidence data, so we don't update localTextConfidence
-        }
-
-        if (hasData && sortedLineIds.value.length > 0) {
-            // Success: Move focus to the first line so user can start reviewing
-            activateInput(sortedLineIds.value[0]);
-        } else if (!hasData) {
-            alert("Gemini finished but returned no text.");
-        }
-
-    } catch(e) {
-        console.error(e);
-        alert("Recognition failed: " + e.message);
-    } finally {
-        isRecognizing.value = false;
-    }
-}
 
 // --- EXISTING GRAPH LOGIC ---
 
@@ -754,12 +689,15 @@ const deleteNode = (nodeIndex) => {
 }
 
 const svgCursor = computed(() => {
-  if (textboxModeActive.value) return isEKeyPressed.value ? 'crosshair' : 'pointer'
-  if (!textlineModeActive.value && !nodeModeActive.value) return 'default'
-  if (nodeModeActive.value) return 'cell'; 
-  if (isAKeyPressed.value) return 'crosshair'
-  if (isDKeyPressed.value) return 'not-allowed'
-  return 'default'
+  if (!layoutModeActive.value) return 'default'
+  
+  // Logic inside Layout Mode based on held keys
+  if (isEKeyPressed.value) return 'crosshair' // Region Mode
+  if (isAKeyPressed.value) return 'crosshair' // Edge Connect
+  if (isDKeyPressed.value) return 'not-allowed' // Edge Delete
+  
+  // Default Layout Mode is Node editing
+  return 'cell'; 
 })
 
 const downloadResults = async () => {
@@ -824,19 +762,17 @@ const computeTextlines = () => {
 const fetchPageData = async (manuscript, page, isRefresh = false) => {
   if (!manuscript || !page) return;
   
-  // Only trigger full loading state if this is a NEW page load
   if (!isRefresh) {
       loading.value = true;
-      imageData.value = ''; // Only clear image if changing pages
+      imageData.value = ''; 
   }
 
   error.value = null
   modifications.value = []
   
-  // Clear Data States (Keep these to ensure fresh data)
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
   Object.keys(localTextContent).forEach(k => delete localTextContent[k])
-  Object.keys(localTextConfidence).forEach(k => delete localTextConfidence[k]) // NEW: Clear confidences
+  Object.keys(localTextConfidence).forEach(k => delete localTextConfidence[k]) 
   pagePolygons.value = {}
   sortedLineIds.value = []
 
@@ -849,7 +785,6 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
 
     dimensions.value = data.dimensions
     
-    // Update image only if we need to (or if it wasn't there)
     if (data.image) imageData.value = data.image;
     points.value = data.points.map((p) => ({ coordinates: [p[0], p[1]], segment: null }))
 
@@ -868,12 +803,10 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
        textboxLabels.value = Math.max(...data.textbox_labels) + 1; 
     }
     
-    // Process new Polygon/Text data from backend
     if (data.polygons) pagePolygons.value = data.polygons;
     if (data.textContent) {
         Object.assign(localTextContent, data.textContent);
     }
-      // NEW: Load Confidences
     if (data.textConfidences) {
         Object.assign(localTextConfidence, data.textConfidences);
     }
@@ -889,12 +822,10 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
 }
 
 const getConfidenceColor = (score) => {
-    // If user typed new text, score might be undefined -> Treat as High Confidence (White/Green)
     if (score === undefined || score === null) return '#fff'; 
-    
-    if (score >= 0.8) return '#4CAF50'; // Green (High)
-    if (score >= 0.5) return '#FFC107'; // Amber (Medium)
-    return '#FF5252';                   // Red (Low)
+    if (score >= 0.8) return '#4CAF50'; 
+    if (score >= 0.5) return '#FFC107'; 
+    return '#FF5252';                   
 }
 
 const fetchPageList = async (manuscript) => {
@@ -944,12 +875,15 @@ const resetWorkingGraph = () => {
 
 // Colors & Styling
 const getNodeColor = (nodeIndex) => {
-  if (textboxModeActive.value) {
+  // If 'e' is held, show Region labeling colors
+  if (layoutModeActive.value && isEKeyPressed.value) {
     const textlineId = nodeToTextlineMap.value[nodeIndex]
     if (hoveredTextlineId.value === textlineId) return '#ff4081' 
     const label = textlineLabels[nodeIndex]
     return (label !== undefined && label > -1) ? labelColors[label % labelColors.length] : '#9e9e9e' 
   }
+  
+  // Standard Graph Colors
   if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#00bcd4'
   if (isNodeSelected(nodeIndex)) return '#ff9500'
   const edgeCount = nodeEdgeCounts.value[nodeIndex]
@@ -959,9 +893,11 @@ const getNodeColor = (nodeIndex) => {
 }
 
 const getNodeRadius = (nodeIndex) => {
-  if (textboxModeActive.value) {
+  // Larger nodes for Region Labeling
+  if (layoutModeActive.value && isEKeyPressed.value) {
     return (hoveredTextlineId.value === nodeToTextlineMap.value[nodeIndex]) ? 7 : 5
   }
+  
   if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return 7
   if (isNodeSelected(nodeIndex)) return 6
   return nodeEdgeCounts.value[nodeIndex] < 2 ? 5 : 3
@@ -980,44 +916,52 @@ const resetSelection = () => {
 }
 
 const onEdgeClick = (edge, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value || recognitionModeActive.value) return
+  if (isAKeyPressed.value || isDKeyPressed.value || isEKeyPressed.value || recognitionModeActive.value) return
   event.stopPropagation()
   selectedNodes.value = [edge.source, edge.target]
 }
 
 const onBackgroundClick = (event) => {
-    if (recognitionModeActive.value) return; // Handled by polygons
-    if (nodeModeActive.value) {
+    if (recognitionModeActive.value) return; 
+    
+    // In Layout Mode, clicking empty space adds a node unless keys are held
+    if (layoutModeActive.value && !isAKeyPressed.value && !isDKeyPressed.value && !isEKeyPressed.value) {
         addNode(event.clientX, event.clientY);
         return;
     }
-    if (!isAKeyPressed.value && !isDKeyPressed.value) resetSelection();
+    
+    resetSelection();
 }
 
 const onNodeClick = (nodeIndex, event) => {
     event.stopPropagation(); 
-    if (nodeModeActive.value || recognitionModeActive.value) return;
-    if (isAKeyPressed.value || isDKeyPressed.value || textboxModeActive.value) return;
+    if (!layoutModeActive.value || recognitionModeActive.value) return;
+    
+    // If modifiers are held, click behavior changes (or is disabled)
+    if (isAKeyPressed.value || isDKeyPressed.value || isEKeyPressed.value) return;
+    
+    // Standard Selection for Edges logic (click 1, click 2)
     const existingIndex = selectedNodes.value.indexOf(nodeIndex);
     if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1);
     else selectedNodes.value.length < 2 ? selectedNodes.value.push(nodeIndex) : (selectedNodes.value = [nodeIndex]);
 }
 
 const onNodeRightClick = (nodeIndex, event) => {
-    if (nodeModeActive.value) {
+    // Only delete node if in Layout Mode and NO modifiers are held
+    if (layoutModeActive.value && !isAKeyPressed.value && !isDKeyPressed.value && !isEKeyPressed.value) {
         event.preventDefault(); 
         deleteNode(nodeIndex);
     }
 }
 
 const handleSvgMouseMove = (event) => {
-  if (!svgOverlayRef.value) return
+  if (!svgOverlayRef.value || !layoutModeActive.value) return
   const { left, top } = svgOverlayRef.value.getBoundingClientRect()
   const mouseX = event.clientX - left
   const mouseY = event.clientY - top
 
-  if (textboxModeActive.value) {
-    // Hover logic for regions
+  // 1. Region Labeling Mode ('E' held)
+  if (isEKeyPressed.value) {
     let newHoveredTextlineId = null
     for (let i = 0; i < workingGraph.nodes.length; i++) {
       const node = workingGraph.nodes[i]
@@ -1026,7 +970,6 @@ const handleSvgMouseMove = (event) => {
         break 
       }
     }
-    // Check Edges if node not found
     if (newHoveredTextlineId === null) {
         for(const edge of workingGraph.edges) {
              const n1 = workingGraph.nodes[edge.source], n2 = workingGraph.nodes[edge.target];
@@ -1037,14 +980,24 @@ const handleSvgMouseMove = (event) => {
         }
     }
     hoveredTextlineId.value = newHoveredTextlineId
-    if (hoveredTextlineId.value !== null && isEKeyPressed.value) labelTextline()
+    if (hoveredTextlineId.value !== null) labelTextline()
     return
   }
 
-  if (!textlineModeActive.value) return
-  if (isDKeyPressed.value) handleEdgeHoverDelete(mouseX, mouseY)
-  else if (isAKeyPressed.value) handleNodeHoverCollect(mouseX, mouseY)
-  else if (selectedNodes.value.length === 1) tempEndPoint.value = { x: mouseX, y: mouseY }
+  // 2. Edge Deletion ('D' held)
+  if (isDKeyPressed.value) {
+      handleEdgeHoverDelete(mouseX, mouseY)
+      return
+  }
+
+  // 3. Edge Connection ('A' held)
+  if (isAKeyPressed.value) {
+      handleNodeHoverCollect(mouseX, mouseY)
+      return
+  }
+
+  // 4. Standard Layout Mode (Dragging Edge Selection)
+  if (selectedNodes.value.length === 1) tempEndPoint.value = { x: mouseX, y: mouseY }
   else tempEndPoint.value = null
 }
 
@@ -1071,31 +1024,32 @@ const handleGlobalKeyDown = (e) => {
     saveAndGoNext()
     return
   }
-  if (key === 'w' && !e.repeat) { e.preventDefault(); setMode('edge'); return }
-  if (key === 'r' && !e.repeat) { e.preventDefault(); setMode('region'); return }
-  if (key === 'n' && !e.repeat) { e.preventDefault(); setMode('node'); return }
-  if (key === 't' && !e.repeat) { e.preventDefault(); requestSwitchToRecognition(); return }
-  if (textboxModeActive.value && key === 'e' && !e.repeat) { e.preventDefault(); isEKeyPressed.value = true; return }
   
-  if (textlineModeActive.value && !e.repeat) {
-    if (key === 'd') { e.preventDefault(); isDKeyPressed.value = true; resetSelection(); }
-    if (key === 'a') { e.preventDefault(); isAKeyPressed.value = true; hoveredNodesForMST.clear(); resetSelection(); }
+  // Mode Switching Hotkeys
+  if (key === 'w' && !e.repeat) { e.preventDefault(); setMode('layout'); return }
+  if (key === 't' && !e.repeat) { e.preventDefault(); requestSwitchToRecognition(); return }
+  
+  // Layout Mode Modifiers
+  if (layoutModeActive.value && !e.repeat) {
+      if (key === 'e') { e.preventDefault(); isEKeyPressed.value = true; return }
+      if (key === 'd') { e.preventDefault(); isDKeyPressed.value = true; resetSelection(); return }
+      if (key === 'a') { e.preventDefault(); isAKeyPressed.value = true; hoveredNodesForMST.clear(); resetSelection(); return }
   }
 }
 
 const handleGlobalKeyUp = (e) => {
   const key = e.key.toLowerCase()
-  if (textboxModeActive.value && key === 'e') {
-    isEKeyPressed.value = false
-    textboxLabels.value++ 
-  }
-  if (textlineModeActive.value) {
-    if (key === 'd') isDKeyPressed.value = false
-    if (key === 'a') {
-      isAKeyPressed.value = false
-      if (hoveredNodesForMST.size >= 2) addMSTEdges()
-      hoveredNodesForMST.clear()
-    }
+  if (layoutModeActive.value) {
+      if (key === 'e') {
+        isEKeyPressed.value = false
+        textboxLabels.value++ 
+      }
+      if (key === 'd') isDKeyPressed.value = false
+      if (key === 'a') {
+        isAKeyPressed.value = false
+        if (hoveredNodesForMST.size >= 2) addMSTEdges()
+        hoveredNodesForMST.clear()
+      }
   }
 }
 
@@ -1146,7 +1100,6 @@ const undoModification = (index) => {
   } else if (mod.type === 'node_add') {
       workingGraph.nodes.pop();
   } else if (mod.type === 'node_delete') {
-      // Complex undo for node delete omitted for brevity
       alert("Undo node delete not fully implemented, reload page.")
   }
 }
@@ -1197,7 +1150,6 @@ const calculateMST = (indices, nodes) => {
         weight: Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y),
       })
     }
-  // Sort by weight
   edges.sort((a, b) => a.weight - b.weight)
   
   // Kruskal's Algorithm
@@ -1216,9 +1168,7 @@ const calculateMST = (indices, nodes) => {
 }
 
 const addMSTEdges = () => {
-  // Calculate MST based on hovered nodes
   const newEdges = calculateMST(Array.from(hoveredNodesForMST), workingGraph.nodes)
-  
   newEdges.forEach((edge) => {
     if (!edgeExists(edge.source, edge.target)) {
       const newEdge = { source: edge.source, target: edge.target, label: 0, modified: true }
@@ -1271,12 +1221,6 @@ const saveModifications = async () => {
         Object.assign(localTextContent, data.recognizedText)
     }
 
-    if (data.recognizedText) { 
-    // This will simply be undefined in the async version, which is correct.
-    // The UI won't update text immediately, but the user is navigating away anyway.
-    Object.assign(localTextContent, data.recognizedText) 
-    }
-
     modifications.value = []
     error.value = null
   } catch (err) {
@@ -1286,8 +1230,6 @@ const saveModifications = async () => {
 }
 
 
-// ManuscriptViewer.vue
-
 const requestSwitchToRecognition = async () => {
     if (recognitionModeActive.value) return;
 
@@ -1295,32 +1237,18 @@ const requestSwitchToRecognition = async () => {
     isProcessingSave.value = true;
 
     try {
-        // Scenario A: Unsaved Changes - Save first
         if (modifications.value.length > 0) {
-            // Optional: You can keep the confirm here if you want, 
-            // or perform auto-save since the user explicitly clicked the tool.
-            // For smoothness, we'll assume auto-save or prompt. 
-            // If you want the prompt back:
-            if (!confirm("Save changes and switch to Recognition Mode?")) {
-                isProcessingSave.value = false;
-                return;
-            }
-
             await saveModifications(); 
         }
 
-        // Scenario B: Load Data (Silent Refresh)
-        // Pass 'true' for isRefresh to avoid the "Loading..." spinner 
-        // and avoid clearing the image
+        // Silent refresh of data before switching
         await fetchPageData(localManuscriptName.value, localCurrentPage.value, true);
         
-        // Switch Mode
         setMode('recognition');
 
     } catch (e) {
         alert("Error switching mode: " + e.message);
     } finally {
-        // 2. Hide the overlay only when EVERYTHING is done
         isProcessingSave.value = false;
     }
 }
@@ -1404,7 +1332,7 @@ watch(() => props.pageName, (newPageName) => {
 
 watch(recognitionModeActive, (val) => {
     if(val) {
-        textlineModeActive.value = false; textboxModeActive.value = false; nodeModeActive.value = false;
+        layoutModeActive.value = false;
         resetSelection();
     }
 })
@@ -1472,7 +1400,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     stroke-width: 2;
 }
 .polygon-active {
-    pointer-events: none; /* Let clicks pass through to input if overlapping? or keep blocking? */
+    pointer-events: none; 
     animation: pulse-border 2s infinite;
 }
 
@@ -1508,13 +1436,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 /* Help Area */
 .help-content-area { padding: 16px 24px; display: flex; gap: 24px; height: 100%; overflow: hidden; }
 .help-section { display: flex; gap: 24px; flex-grow: 1; height: 100%; }
-.media-container { width: 200px; height: 200px; background: #000; border: 1px solid #444; flex-shrink: 0; }
+.media-container { width: 200px; height: 200px; background: #000; border: 1px solid #444; flex-shrink: 0; position: relative; }
 .tutorial-video { width: 100%; height: 100%; object-fit: contain; }
-.instructions-container { flex-grow: 1; max-width: 600px; overflow-y: auto; color: #ccc; }
+.instructions-container { flex-grow: 1; max-width: 700px; overflow-y: auto; color: #ccc; }
 .instructions-container h3 { color: #fff; margin-top: 0; }
+.instructions-container h4 { color: #ddd; margin-bottom: 5px; margin-top: 0; }
 code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
-.form-group-inline { display: flex; gap: 10px; margin-bottom: 10px; }
-.api-input { background: #444; border: 1px solid #555; color: #fff; padding: 5px 10px; flex-grow: 1; }
 .webm-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #777; background: #3a3a3a; }
 
 /* Sidebar Log */
@@ -1525,10 +1452,6 @@ code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px
 .undo-icon { background: none; color: #777; font-size: 1.1rem; }
 .undo-icon:hover { color: #fff; }
 
-.api-input-small {
-    background: #444; border: 1px solid #555; color: #fff; padding: 4px 8px; 
-    border-radius: 4px; font-size: 0.8rem; width: 120px;
-}
 .toggle-switch {
   position: relative; display: inline-block; width: 34px; height: 20px;
 }
@@ -1544,26 +1467,95 @@ code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px
 input:checked + .slider { background-color: #4CAF50; }
 input:checked + .slider:before { transform: translateX(14px); }
 
-/* NEW STYLES */
 .confidence-strip {
     background: rgba(0,0,0,0.6);
     padding: 4px 12px;
     border-radius: 4px;
-    white-space: pre; /* Preserve spaces in text */
-    pointer-events: none; /* Let clicks pass through if overlapping */
+    white-space: pre; 
+    pointer-events: none; 
     display: flex;
     flex-wrap: wrap;
-    margin-top: -2px; /* Pull closer to input */
+    margin-top: -2px; 
     border: 1px solid #333;
 }
 
 .conf-char {
     display: inline-block;
-    font-family: monospace; /* Match input font logic */
-    /* If input is devanagari, this should arguably match, 
-       but monospace helps align letters individually better visually */
+    font-family: monospace; 
 }
 
+/* New Help Grid Styles */
+.help-section.full-width {
+  width: 100%;
+}
 
+.help-grid {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 20px;
+  justify-content: space-evenly;
+  align-items: center;
+}
 
+.help-card {
+  flex: 1;
+  max-width: 300px;
+  height: 100%;
+  background: #252525;
+  border: 1px solid #3d3d3d;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.help-card:hover {
+  border-color: #555;
+  background: #2a2a2a;
+}
+
+.media-container-small {
+  width: 100%;
+  height: 110px; /* Fixed height for video area */
+  background: #000;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-text {
+  padding: 12px;
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-text h4 {
+  margin: 0 0 8px 0;
+  color: #fff;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-text p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.key-badge {
+  background: #424242;
+  color: #ffb74d;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: bold;
+  border: 1px solid #555;
+}
 </style>
