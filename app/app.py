@@ -18,6 +18,8 @@ from os.path import isdir, join
 import collections
 import math
 import difflib
+from dotenv import load_dotenv
+load_dotenv() 
 
 
 
@@ -76,26 +78,55 @@ def parse_page_xml_polygons(xml_path):
         
     return polygons
 
+
 def get_existing_text_content(xml_path):
-    """Parses PAGE-XML to extract existing Unicode text content."""
+    """
+    Parses PAGE-XML to extract Unicode text AND confidence scores.
+    Returns a dict with 'text' and 'confidences' maps.
+    """
     text_content = {}
+    confidences = {}
+    
     if not os.path.exists(xml_path):
-        return text_content
+        return {"text": {}, "confidences": {}}
         
     try:
         ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
         tree = ET.parse(xml_path)
         root = tree.getroot()
+        
         for textline in root.findall(".//p:TextLine", ns):
             custom_attr = textline.get('custom', '')
             if 'structure_line_id_' in custom_attr:
-                line_id = str(custom_attr.split('structure_line_id_')[1])
-                text_equiv = textline.find('p:TextEquiv/p:Unicode', ns)
-                if text_equiv is not None and text_equiv.text:
-                    text_content[line_id] = text_equiv.text
-    except Exception:
-        pass
-    return text_content
+                try:
+                    line_id = str(custom_attr.split('structure_line_id_')[1])
+                except IndexError:
+                    continue
+                
+                # Extract Text
+                text_equiv = textline.find('p:TextEquiv', ns)
+                if text_equiv is not None:
+                    uni = text_equiv.find('p:Unicode', ns)
+                    if uni is not None and uni.text:
+                        text_content[line_id] = uni.text
+                        
+                        # Extract Confidence from 'custom' attribute of TextEquiv
+                        # Format expected: "confidences:0.9,0.5,..."
+                        te_custom = text_equiv.get('custom', '')
+                        if 'confidences:' in te_custom:
+                            try:
+                                # Split by 'confidences:' and take the part after it
+                                # Then split by ';' in case there is other data
+                                raw_conf = te_custom.split('confidences:')[1].split(';')[0]
+                                if raw_conf.strip():
+                                    confidences[line_id] = [float(x) for x in raw_conf.split(',')]
+                            except Exception:
+                                pass
+    except Exception as e:
+        print(f"Error parsing existing text: {e}")
+    
+    return {"text": text_content, "confidences": confidences}
+
 
 @app.route('/upload', methods=['POST'])
 def upload_manuscript():
@@ -138,9 +169,12 @@ def get_pages(name):
     pages = sorted([f.name.replace("_dims.txt", "") for f in manuscript_path.glob("*_dims.txt")])
     return jsonify(pages)
 
+# ----------------------------------------------------------------
+# 2. UPDATE: Endpoint to return the new data fields
+# ----------------------------------------------------------------
 @app.route('/semi-segment/<manuscript>/<page>', methods=['GET'])
 def get_page_prediction(manuscript, page):
-    print("Received request for manuscript:", manuscript, "page:", page)
+    # print("Received request for manuscript:", manuscript, "page:", page)
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     try:
         # 1. Run GNN Inference / Get Graph Data
@@ -153,21 +187,19 @@ def get_page_prediction(manuscript, page):
         
         # 2. Get Image
         img_path = manuscript_path / "images_resized" / f"{page}.jpg"
-        if not img_path.exists():
-            return jsonify({"error": "Image not found"}), 404
+        encoded_string = ""
+        if img_path.exists():
+            with open(img_path, "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
 
-        with open(img_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-
-        # 3. Check for Existing XML to get Polygons & Text
-        # This is critical for the Recognition Mode UI
+        # 3. CRITICAL: Load Existing XML Data
         xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
         polygons = {}
-        existing_text = {}
+        existing_data = {"text": {}, "confidences": {}}
         
         if xml_path.exists():
             polygons = parse_page_xml_polygons(str(xml_path))
-            existing_text = get_existing_text_content(str(xml_path))
+            existing_data = get_existing_text_content(str(xml_path))
 
         response = {
             "image": encoded_string,
@@ -176,8 +208,11 @@ def get_page_prediction(manuscript, page):
             "graph": graph_data,
             "textline_labels": graph_data.get('textline_labels', []),
             "textbox_labels": graph_data.get('textbox_labels', []),
-            "polygons": polygons,   # <--- NEW: Send specific polygons
-            "textContent": existing_text # <--- NEW: Send existing text
+            
+            # Data for Recognition Mode
+            "polygons": polygons, 
+            "textContent": existing_data["text"],           # <--- Must match frontend expectation
+            "textConfidences": existing_data["confidences"] # <--- Must match frontend expectation
         }
         return jsonify(response)
         
@@ -189,107 +224,87 @@ def get_page_prediction(manuscript, page):
 
 def ensemble_text_samples(samples):
     """
-    Performs a character-level ensemble (consensus) of multiple text strings.
-    Strategy:
-    1. Select a 'Pivot' string (median length) to act as the backbone.
-    2. Align every other sample to this Pivot using SequenceMatcher.
-    3. Accumulate votes for each character position (including Insertions/Deletions).
-    4. Reconstruct the final string based on majority vote at each position.
+    Performs character-level ensemble.
+    Returns: (consensus_string, confidence_scores_list)
     """
-    # 1. Filter empty samples
     valid_samples = [s for s in samples if s and s.strip()]
     if not valid_samples:
-        return ""
+        return "", []
     if len(valid_samples) == 1:
-        return valid_samples[0]
+        # Single sample = 100% confidence for all chars
+        return valid_samples[0], [1.0] * len(valid_samples[0])
 
-    # 2. Select Pivot (Median length to avoid outliers like hallucinations or truncations)
     valid_samples.sort(key=len)
     pivot_idx = len(valid_samples) // 2
     pivot = valid_samples[pivot_idx]
     
-    # 3. Initialize Voting Grid
-    # grid[i] stores votes for the character at pivot[i]
-    # insertions[i] stores votes for characters inserted *after* pivot[i]
     GAP_TOKEN = "__GAP__"
+    total_samples = len(valid_samples) # N
     
     grid = [collections.Counter({char: 1}) for char in pivot]
-    # We use a dict of counters for insertions: index -> Counter
     insertions = collections.defaultdict(collections.Counter)
     
     others = valid_samples[:pivot_idx] + valid_samples[pivot_idx+1:]
     
     for sample in others:
         matcher = difflib.SequenceMatcher(None, pivot, sample)
-        
-        # Iterate through alignment opcodes
         for tag, i1, i2, j1, j2 in matcher.get_opcodes():
             if tag == 'equal':
-                # Characters match
                 for k in range(i2 - i1):
                     grid[i1 + k][pivot[i1 + k]] += 1
             elif tag == 'replace':
-                # Sample has different characters for this range
-                # We try to map 1-to-1 as much as possible
                 len_pivot_seg = i2 - i1
                 len_sample_seg = j2 - j1
                 min_len = min(len_pivot_seg, len_sample_seg)
-                
-                # Vote for replacements
                 for k in range(min_len):
                     grid[i1 + k][sample[j1 + k]] += 1
-                
-                # If pivot segment was longer, the rest are deletions (votes for GAP)
                 for k in range(min_len, len_pivot_seg):
                     grid[i1 + k][GAP_TOKEN] += 1
-                    
-                # If sample segment was longer, the rest are insertions
                 if len_sample_seg > len_pivot_seg:
                     inserted_chunk = sample[j1 + min_len : j2]
-                    # We treat the chunk as a single vote unit to preserve local coherence
-                    # or strictly char level. Strictly char level is messy for insertions without MSA.
-                    # Heuristic: Vote for the string chunk at the last mapped index.
                     insertions[i2 - 1][inserted_chunk] += 1
-
             elif tag == 'delete':
-                # Sample is missing these characters -> Vote for GAP
                 for k in range(i2 - i1):
                     grid[i1 + k][GAP_TOKEN] += 1
-            
             elif tag == 'insert':
-                # Sample has extra characters -> Vote for insertion
-                # Insertions happen *before* i1 (which is the same as *after* i1-1)
                 inserted_chunk = sample[j1:j2]
                 target_idx = i1 - 1
                 insertions[target_idx][inserted_chunk] += 1
 
-    # 4. Reconstruct Consensus String
     result_chars = []
-    
-    # Handle insertions at the very start (index -1)
+    result_confidences = []
+
+    def append_result(char_str, vote_count):
+        conf = round(vote_count / total_samples, 2)
+        # For multi-char chunks (insertions), append conf for each char
+        for c in char_str:
+            result_chars.append(c)
+            result_confidences.append(conf)
+
+    # Handle start insertions
     if -1 in insertions:
-        best_ins, _ = insertions[-1].most_common(1)[0]
-        result_chars.append(best_ins)
+        best_ins, count = insertions[-1].most_common(1)[0]
+        # Heuristic: Add +1 to count for the pivot's implied "nothing here" if needed, 
+        # but generally insertions are voted by 'others'. Let's trust the count.
+        # We assume the pivot voted "nothing", so count is strictly from others.
+        append_result(best_ins, count)
 
     for i in range(len(pivot)):
-        # A. Resolve the Pivot Character Position
-        # Get most common char (including GAP)
+        # Pivot position
         best_char, count = grid[i].most_common(1)[0]
-        
-        # Optional: Tie-breaking or Confidence threshold could go here
         if best_char != GAP_TOKEN:
-            result_chars.append(best_char)
+            append_result(best_char, count)
             
-        # B. Resolve Insertions after this position
+        # Insertions after
         if i in insertions:
-            best_ins, _ = insertions[i].most_common(1)[0]
-            result_chars.append(best_ins)
+            best_ins, count = insertions[i].most_common(1)[0]
+            append_result(best_ins, count)
 
-    return "".join(result_chars)
-
+    return "".join(result_chars), result_confidences
 
 def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
     """
+    IMPORTANT: api_key is unused, and we load it locally in the backend for security.
     Internal helper to run recognition on a specific page.
     Performs N sampling calls to Gemini with varied traces.
     Uses Character-Level Ensemble (CER-inspired) to merge results.
@@ -362,7 +377,9 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
             n_x = int((x / img_w) * 1000)
             return max(0, min(1000, n_y)), max(0, min(1000, n_x))
 
-        genai.configure(api_key=api_key)
+        local_api_key = os.getenv("GEMINI_API_KEY")
+
+        genai.configure(api_key=local_api_key)
         model = genai.GenerativeModel('gemini-2.5-flash') 
 
         for sample_idx in range(N):
@@ -436,18 +453,19 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
 
         # --- 3. CHARACTER-LEVEL ENSEMBLE ---
         final_map = {}
+        final_confidences = {} # Map: line_id -> list of floats
         
-        # Group all samples by Line ID
         texts_by_id = collections.defaultdict(list)
         for res_map in all_samples_results:
             for lid, txt in res_map.items():
                 texts_by_id[lid].append(txt)
 
-        # Apply Consensus Logic per Line
         for lid, candidates in texts_by_id.items():
-            consensus_text = ensemble_text_samples(candidates)
+            # Get text AND scores
+            consensus_text, scores = ensemble_text_samples(candidates)
             if consensus_text:
                 final_map[lid] = consensus_text
+                final_confidences[lid] = scores
                 # Log if significant divergence occurred
                 unique_variants = set(candidates)
                 if len(unique_variants) > 1 and N > 1:
@@ -467,13 +485,21 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
                         uni = te.find("p:Unicode", ns)
                         if uni is None: uni = ET.SubElement(te, "Unicode")
                         uni.text = final_map[lid]
+
+                        if lid in final_confidences:
+                            conf_str = ",".join(map(str, final_confidences[lid]))
+                            # Preserve existing custom data if any, simply append/replace conf
+                            current_custom = te.get('custom', '')
+                            # Simple replacement strategy for robustness
+                            new_custom = f"confidences:{conf_str}" 
+                            te.set('custom', new_custom)
                         changed = True
             
             if changed:
                 tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
                 print(f"[{page}] XML updated with robust ensemble text.")
 
-        return final_map
+        return { "text": final_map, "confidences": final_confidences }
 
     except Exception as e:
         import traceback
@@ -507,7 +533,7 @@ def save_correction(manuscript, page):
     
     # Flags for background processing
     run_recognition = data.get('runRecognition', False)
-    api_key = data.get('apiKey', None)
+    api_key = data.get('apiKey', None) #not used, unsafe
 
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -533,7 +559,7 @@ def save_correction(manuscript, page):
         )
 
         # 2. TRIGGER RECOGNITION (Asynchronous)
-        if run_recognition and api_key:
+        if run_recognition and api_key: #this api_key is placeholder (it is ununsed in the actual function)
             
             # Wrapper to log start/finish in backend console
             def background_task(m, p, k):
@@ -570,9 +596,8 @@ def recognize_text():
         return jsonify({"error": "API Key required"}), 400
 
     # Use the shared internal function
-    transcriptions = _run_gemini_recognition_internal(manuscript, page, api_key)
-    
-    return jsonify({"transcriptions": transcriptions})
+    result = _run_gemini_recognition_internal(manuscript, page, api_key)
+    return jsonify(result)
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):

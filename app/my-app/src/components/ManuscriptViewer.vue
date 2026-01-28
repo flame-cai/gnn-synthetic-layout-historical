@@ -10,14 +10,14 @@
 
       <!-- NEW: Auto-Recognition Controls in Center/Right -->
       <div class="top-bar-center" style="display:flex; align-items:center; gap: 10px; margin-left: 20px;">
-          <input 
+          <!-- <input 
             v-model="geminiKey" 
             type="password" 
             placeholder="Gemini API Key" 
             class="api-input-small"
             @change="saveKeyToStorage"
-          />
-          <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
+          /> -->
+          <!-- <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div> -->
           
           <!-- Auto-Recog Toggle -->
           <label class="toggle-switch">
@@ -193,6 +193,7 @@
             class="input-floater"
             :style="getActiveInputStyle()"
         >
+            <!-- A. The Editable Input (Top) -->
             <input 
                 ref="activeInput"
                 v-model="localTextContent[focusedLineId]" 
@@ -204,9 +205,27 @@
                 placeholder="Type text here..."
                 :style="{ 
                     fontSize: getDynamicFontSize(),
-                    fontFamily: devanagariModeEnabled ? 'Arial, sans-serif' : 'monospace' 
+                    fontFamily: devanagariModeEnabled ? 'Arial, sans-serif' : 'monospace',
+                    marginBottom: '4px' 
                 }"
             />
+
+            <!-- B. The Confidence Visualization (Bottom) -->
+            <!-- Only show if we have confidence data for this line -->
+            <div 
+                v-if="localTextConfidence[focusedLineId]" 
+                class="confidence-strip"
+            >
+                <span 
+                    v-for="(char, idx) in localTextContent[focusedLineId]" 
+                    :key="idx"
+                    class="conf-char"
+                    :style="{ 
+                        color: getConfidenceColor(localTextConfidence[focusedLineId][idx]),
+                        fontSize: getDynamicFontSize()
+                    }"
+                >{{ char }}</span>
+            </div>
         </div>
 
       </div>
@@ -322,12 +341,12 @@
            <div class="instructions-container">
              <h3>Recognition Mode</h3>
              <p>Transcribe line-by-line using Gemini AI or Manual Input.</p>
-             <div class="form-group-inline">
+             <!-- <div class="form-group-inline">
                 <input v-model="geminiKey" type="password" placeholder="Enter Gemini API Key" class="api-input" />
                 <button class="action-btn primary" @click="triggerRecognition" :disabled="isRecognizing || !geminiKey">
                     {{ isRecognizing ? 'Processing...' : 'Auto-Recognize' }}
                 </button>
-             </div>
+             </div> -->
              <ul>
                <li><strong>Navigate:</strong> Press <code>Tab</code> to move to the next line automatically.</li>
                <li><strong>Toggle Script:</strong> Use the switch in the top bar to enable Devanagari input.</li>
@@ -368,6 +387,7 @@ import { useRouter } from 'vue-router'
 import edgeWebm from '../tutorial/_edge.webm'
 import regionWebm from '../tutorial/_textbox.webm'
 import nodeWebm from '../tutorial/_node.webm'
+
 
 // Import Devanagari logic and Palette
 import { handleInput as handleDevanagariInput } from '../typing-utils/devanagariInputUtils.js'
@@ -461,9 +481,9 @@ const localTextContent = reactive({}) // Map: lineId -> string
 const pagePolygons = ref({}) // Map: lineId -> [[x,y],...]
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
-const autoRecogEnabled = ref(false)
-const devanagariModeEnabled = ref(false) // NEW: State for Devanagari Toggle
-
+const autoRecogEnabled = ref(true)
+const devanagariModeEnabled = ref(true) // NEW: State for Devanagari Toggle
+const localTextConfidence = reactive({}) // NEW: Map: lineId -> [scores]
 const saveKeyToStorage = () => {
     localStorage.setItem('gemini_key', geminiKey.value)
 }
@@ -635,8 +655,9 @@ const focusNextLine = (reverse = false) => {
     activateInput(sortedLineIds.value[nextIdx]);
 }
 
+
 const triggerRecognition = async () => {
-    if(!geminiKey.value) return alert("Please enter an API Key");
+    if (!geminiKey.value) return alert("Please enter an API Key");
     localStorage.setItem('gemini_key', geminiKey.value);
     
     isRecognizing.value = true;
@@ -655,21 +676,35 @@ const triggerRecognition = async () => {
         
         if (!res.ok) throw new Error(data.error || "Unknown server error");
         
-        if (data.transcriptions) {
-            let count = 0;
+        let hasData = false;
+
+        // Handle updated structure: { text: {...}, confidences: {...} }
+        if (data.text) {
+            Object.assign(localTextContent, data.text);
+            hasData = true;
+            
+            if (data.confidences) {
+                Object.assign(localTextConfidence, data.confidences);
+            }
+        } 
+        // Fallback: Handle legacy structure { transcriptions: {...} }
+        else if (data.transcriptions) {
             Object.entries(data.transcriptions).forEach(([id, text]) => {
                 if (text) {
                     localTextContent[id] = text;
-                    count++;
+                    hasData = true;
                 }
             });
-            if (count > 0 && sortedLineIds.value.length > 0) {
-                // Start review process at top
-                activateInput(sortedLineIds.value[0]);
-            } else if (count === 0) {
-                alert("Gemini finished but returned no text.");
-            }
+            // Legacy structure has no confidence data, so we don't update localTextConfidence
         }
+
+        if (hasData && sortedLineIds.value.length > 0) {
+            // Success: Move focus to the first line so user can start reviewing
+            activateInput(sortedLineIds.value[0]);
+        } else if (!hasData) {
+            alert("Gemini finished but returned no text.");
+        }
+
     } catch(e) {
         console.error(e);
         alert("Recognition failed: " + e.message);
@@ -677,7 +712,6 @@ const triggerRecognition = async () => {
         isRecognizing.value = false;
     }
 }
-
 
 // --- EXISTING GRAPH LOGIC ---
 
@@ -802,6 +836,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
   // Clear Data States (Keep these to ensure fresh data)
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
   Object.keys(localTextContent).forEach(k => delete localTextContent[k])
+  Object.keys(localTextConfidence).forEach(k => delete localTextConfidence[k]) // NEW: Clear confidences
   pagePolygons.value = {}
   sortedLineIds.value = []
 
@@ -838,6 +873,10 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
     if (data.textContent) {
         Object.assign(localTextContent, data.textContent);
     }
+      // NEW: Load Confidences
+    if (data.textConfidences) {
+        Object.assign(localTextConfidence, data.textConfidences);
+    }
 
     resetWorkingGraph()
     sortLinesTopToBottom()
@@ -847,6 +886,15 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
   } finally {
     loading.value = false
   }
+}
+
+const getConfidenceColor = (score) => {
+    // If user typed new text, score might be undefined -> Treat as High Confidence (White/Green)
+    if (score === undefined || score === null) return '#fff'; 
+    
+    if (score >= 0.8) return '#4CAF50'; // Green (High)
+    if (score >= 0.5) return '#FFC107'; // Amber (Medium)
+    return '#FF5252';                   // Red (Low)
 }
 
 const fetchPageList = async (manuscript) => {
@@ -1495,6 +1543,27 @@ code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px
 }
 input:checked + .slider { background-color: #4CAF50; }
 input:checked + .slider:before { transform: translateX(14px); }
+
+/* NEW STYLES */
+.confidence-strip {
+    background: rgba(0,0,0,0.6);
+    padding: 4px 12px;
+    border-radius: 4px;
+    white-space: pre; /* Preserve spaces in text */
+    pointer-events: none; /* Let clicks pass through if overlapping */
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: -2px; /* Pull closer to input */
+    border: 1px solid #333;
+}
+
+.conf-char {
+    display: inline-block;
+    font-family: monospace; /* Match input font logic */
+    /* If input is devanagari, this should arguably match, 
+       but monospace helps align letters individually better visually */
+}
+
 
 
 </style>

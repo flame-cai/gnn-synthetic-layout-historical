@@ -40,4 +40,5 @@ dependencies:
     - regex
     - pydantic
     - wandb
+    - nvidia-ml-py3
     

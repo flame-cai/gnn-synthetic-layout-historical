@@ -106,21 +106,57 @@ def heatmap_to_pointcloud(heatmap, min_peak_value=0.3, min_distance=5, max_growt
 
 
 
+def get_least_used_gpu():
+    """
+    Returns torch.device for the GPU with the least memory usage.
+    Falls back to CPU if CUDA or NVML is unavailable.
+    """
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+
+    try:
+        import pynvml
+        pynvml.nvmlInit()
+
+        device_count = pynvml.nvmlDeviceGetCount()
+        min_used_mem = float("inf")
+        best_gpu = 0
+
+        for i in range(device_count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+            mem_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+
+            used_mem = mem_info.used  # bytes
+            if used_mem < min_used_mem:
+                min_used_mem = used_mem
+                best_gpu = i
+
+        pynvml.nvmlShutdown()
+        return torch.device(f"cuda:{best_gpu}")
+
+    except Exception as e:
+        # If NVML fails for any reason, default to cuda:0
+        print(f"[Warning] GPU auto-selection failed: {e}")
+        return torch.device("cuda:0")
+
+
 
 
 def images2points(folder_path, min_distance=20):
     print(folder_path)
     # how to get manuscript path from folder path - get parent directory
     m_path = os.path.dirname(folder_path)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = get_least_used_gpu()
+    print(f"Using device: {device}")
 
     # --- Model Loading ---
     _detector = CRAFT()
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     pth_path = os.path.join(BASE_DIR, "pretrained_unet_craft", "craft_mlt_25k.pth")
+    
     _detector.load_state_dict(copyStateDict(torch.load(pth_path, map_location=device)))
-    detector = torch.nn.DataParallel(_detector).to(device)
+    detector = _detector.to(device)
     detector.eval()
 
     # --- Data Loading ---
