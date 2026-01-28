@@ -19,6 +19,7 @@ import collections
 import math
 import difflib
 from dotenv import load_dotenv
+import concurrent.futures
 load_dotenv() 
 
 
@@ -302,14 +303,16 @@ def ensemble_text_samples(samples):
 
     return "".join(result_chars), result_confidences
 
+
+
 def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
     """
-    IMPORTANT: api_key is unused, and we load it locally in the backend for security.
+    IMPORTANT: api_key arg is unused; we load GEMINI_API_KEY locally from environment.
     Internal helper to run recognition on a specific page.
-    Performs N sampling calls to Gemini with varied traces.
+    Performs N sampling calls to Gemini IN PARALLEL with varied traces.
     Uses Character-Level Ensemble (CER-inspired) to merge results.
     """
-    print(f"[{page}] Starting background recognition with N={N} samples...")
+    print(f"[{page}] Starting background recognition with N={N} samples (Parallel)...")
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     img_path = base_path / "images_resized" / f"{page}.jpg"
@@ -369,76 +372,83 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
 
         if not lines_geometry: return {}
 
-        # --- 2. SAMPLING & API CALLS ---
-        all_samples_results = []
+        # --- 2. PARALLEL SAMPLING & API CALLS ---
         
+        local_api_key = os.getenv("GEMINI_API_KEY")
+        if not local_api_key:
+            print(f"[{page}] No GEMINI_API_KEY found in environment variables.")
+            return {}
+
+        genai.configure(api_key=local_api_key)
+        # We can share the model instance across threads usually, or create new ones.
+        # Sharing is generally thread-safe for generate_content.
+        model = genai.GenerativeModel('gemini-2.5-flash') 
+
         def normalize(x, y):
             n_y = int((y / img_h) * 1000)
             n_x = int((x / img_w) * 1000)
             return max(0, min(1000, n_y)), max(0, min(1000, n_x))
 
-        local_api_key = os.getenv("GEMINI_API_KEY")
-
-        genai.configure(api_key=local_api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash') 
-
-        for sample_idx in range(N):
-            regions_payload = []
-            
-            # Vertical Shift Logic: N=1 -> 0.3 (Baseline+30%), N>1 -> 0.0 to 0.7
-            shift_ratios = [0.3] if N == 1 else [i * (0.7 / (N - 1)) for i in range(N)]
-            current_shift_ratio = shift_ratios[sample_idx]
-
-            for line in lines_geometry:
-                pts = line['baseline']
-                h = line['height']
-                
-                # Interpolate 3 points
-                if len(pts) >= 3:
-                    trace_raw = [pts[0], pts[len(pts)//2], pts[-1]]
-                elif len(pts) == 2:
-                    mid_x, mid_y = (pts[0][0] + pts[1][0]) // 2, (pts[0][1] + pts[1][1]) // 2
-                    trace_raw = [pts[0], [mid_x, mid_y], pts[-1]]
-                else:
-                    trace_raw = [pts[0], pts[0], pts[0]]
-
-                # Apply Shift (Upwards relative to page)
-                shift_px = int(h * current_shift_ratio)
-                shifted_trace = [[px, py - shift_px] for px, py in trace_raw]
-
-                gemini_trace = []
-                for px, py in shifted_trace:
-                    ny, nx = normalize(px, py)
-                    gemini_trace.extend([ny, nx])
-                
-                regions_payload.append({
-                    "id": line['id'],
-                    "trace": gemini_trace,
-                    "sort_y": trace_raw[0][1]
-                })
-
-            regions_payload.sort(key=lambda k: k['sort_y'])
-
-            prompt_text = (
-                "You are an expert paleographer and OCR engine specialized in historical Sanskrit manuscripts.\n"
-                "I have provided an image of a manuscript page. Your task is to perform visual grounding OCR: "
-                "transcribe the handwritten Devanagari text found at specific spatial locations defined by 'Path Traces'.\n"
-                "The coordinates are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
-                "to precisely map the text line locations on the image.\n"
-                "For each path trace [y_start, x_start, y_mid, x_mid, y_end, x_end], transcribe the text that sits along this curve.\n"
-                "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
-                "Output a JSON array of objects with 'id' and 'text'.\n\n"
-                "REGIONS:\n"
-            )
-            for item in regions_payload:
-                prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
-
+        # Helper function to run in a thread
+        def process_single_sample(sample_idx):
             try:
-                print(f"[{page}] Sampling {sample_idx+1}/{N}...")
+                regions_payload = []
+                
+                # Vertical Shift Logic: N=1 -> 0.3 (Baseline+30%), N>1 -> 0.0 to 0.7
+                shift_ratios = [0.3] if N == 1 else [i * (0.7 / (N - 1)) for i in range(N)]
+                current_shift_ratio = shift_ratios[sample_idx]
+
+                for line in lines_geometry:
+                    pts = line['baseline']
+                    h = line['height']
+                    
+                    # Interpolate 3 points
+                    if len(pts) >= 3:
+                        trace_raw = [pts[0], pts[len(pts)//2], pts[-1]]
+                    elif len(pts) == 2:
+                        mid_x, mid_y = (pts[0][0] + pts[1][0]) // 2, (pts[0][1] + pts[1][1]) // 2
+                        trace_raw = [pts[0], [mid_x, mid_y], pts[-1]]
+                    else:
+                        trace_raw = [pts[0], pts[0], pts[0]]
+
+                    # Apply Shift (Upwards relative to page)
+                    shift_px = int(h * current_shift_ratio)
+                    shifted_trace = [[px, py - shift_px] for px, py in trace_raw]
+
+                    gemini_trace = []
+                    for px, py in shifted_trace:
+                        ny, nx = normalize(px, py)
+                        gemini_trace.extend([ny, nx])
+                    
+                    regions_payload.append({
+                        "id": line['id'],
+                        "trace": gemini_trace,
+                        "sort_y": trace_raw[0][1]
+                    })
+
+                regions_payload.sort(key=lambda k: k['sort_y'])
+
+                prompt_text = (
+                    "You are an expert paleographer and OCR engine specialized in historical Sanskrit manuscripts.\n"
+                    "I have provided an image of a manuscript page. Your task is to perform visual grounding OCR: "
+                    "transcribe the handwritten Devanagari text found at specific spatial locations defined by 'Path Traces'.\n"
+                    "The coordinates are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
+                    "to precisely map the text line locations on the image.\n"
+                    "For each path trace [y_start, x_start, y_mid, x_mid, y_end, x_end], transcribe the text that sits along this curve.\n"
+                    "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
+                    "Output a JSON array of objects with 'id' and 'text'.\n\n"
+                    "REGIONS:\n"
+                )
+                for item in regions_payload:
+                    prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
+
+                # API Call
+                # print(f"[{page}] Thread {sample_idx+1}/{N} sending request...")
                 response = model.generate_content(
                     [pil_img, prompt_text],
-                    generation_config={"response_mime_type": "application/json", "temperature": 0.1} # Higher temp for variance
+                    generation_config={"response_mime_type": "application/json", "temperature": 0.1}
                 )
+                
                 result_list = json.loads(response.text.replace("```json", "").replace("```", ""))
                 
                 if isinstance(result_list, dict) and "transcriptions" in result_list:
@@ -447,9 +457,33 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
                     result_list = [{"id": k, "text": v} for k, v in result_list.items()]
 
                 sample_map = {str(i['id']): str(i['text']).strip() for i in result_list if 'id' in i and 'text' in i}
-                all_samples_results.append(sample_map)
+                return sample_map
+
             except Exception as e:
-                print(f"[{page}] Sample {sample_idx+1} failed: {e}")
+                print(f"[{page}] Thread {sample_idx+1} failed: {e}")
+                return None
+
+        # execute in parallel
+        all_samples_results = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=N) as executor:
+            # Submit all tasks
+            futures = [executor.submit(process_single_sample, i) for i in range(N)]
+            
+            # Wait maximum 15 seconds for the batch. 
+            # Any task not finished by then is left in 'not_done' and ignored.
+            done, not_done = concurrent.futures.wait(futures, timeout=50)
+            
+            # Process only the ones that finished in time
+            for future in done:
+                try:
+                    res = future.result()
+                    if res:
+                        all_samples_results.append(res)
+                except Exception as exc:
+                    print(f"[{page}] Thread exception: {exc}")
+            
+            if not_done:
+                print(f"[{page}] {len(not_done)} samples timed out (>10s) and were dropped.")
 
         # --- 3. CHARACTER-LEVEL ENSEMBLE ---
         final_map = {}
@@ -506,7 +540,6 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
         traceback.print_exc()
         print(f"Internal Recognition Error: {e}")
         return {}
-
 
 @app.route('/existing-manuscripts', methods=['GET'])
 def list_existing_manuscripts():
