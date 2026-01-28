@@ -17,11 +17,22 @@
             class="api-input-small"
             @change="saveKeyToStorage"
           />
+          <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
+          
+          <!-- Auto-Recog Toggle -->
           <label class="toggle-switch">
              <input type="checkbox" v-model="autoRecogEnabled">
              <span class="slider"></span>
           </label>
           <span style="font-size: 0.8rem; color: #ccc;">Auto-Recognize on Save</span>
+
+          <!-- NEW: Devanagari Keyboard Toggle -->
+          <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
+          <label class="toggle-switch">
+             <input type="checkbox" v-model="devanagariModeEnabled">
+             <span class="slider"></span>
+          </label>
+          <span style="font-size: 0.8rem; color: #ccc;">Devanagari Keyboard</span>
       </div>
 
       <div class="top-bar-right">
@@ -176,6 +187,7 @@
         </svg>
 
         <!-- Recognition Input Overlay Layer (Single Floating Input) -->
+        <!-- UPDATED: Added keydown handler and conditional styling for Devanagari font -->
         <div
             v-if="recognitionModeActive && focusedLineId && pagePolygons[focusedLineId]"
             class="input-floater"
@@ -185,11 +197,15 @@
                 ref="activeInput"
                 v-model="localTextContent[focusedLineId]" 
                 class="line-input active"
+                @keydown="handleRecognitionInput"
                 @blur="handleInputBlur"
                 @keydown.tab.prevent="focusNextLine(false)"
                 @keydown.shift.tab.prevent="focusNextLine(true)"
                 placeholder="Type text here..."
-                :style="{ fontSize: getDynamicFontSize() }"
+                :style="{ 
+                    fontSize: getDynamicFontSize(),
+                    fontFamily: devanagariModeEnabled ? 'Arial, sans-serif' : 'monospace' 
+                }"
             />
         </div>
 
@@ -297,13 +313,15 @@
         <!-- RECOGNITION MODE HELP -->
         <div v-if="recognitionModeActive" class="help-section">
            <div class="media-container">
-             <div class="webm-placeholder">
+             <!-- Simplified Visual for Mode -->
+             <div class="webm-placeholder" style="flex-direction:column; gap:10px;">
               <span>Recognition Mode</span>
+              <span v-if="devanagariModeEnabled" style="color:#4CAF50; font-size:0.8rem;">Devanagari ON</span>
             </div>
            </div>
            <div class="instructions-container">
              <h3>Recognition Mode</h3>
-             <p>Transcribe line-by-line using Gemini AI.</p>
+             <p>Transcribe line-by-line using Gemini AI or Manual Input.</p>
              <div class="form-group-inline">
                 <input v-model="geminiKey" type="password" placeholder="Enter Gemini API Key" class="api-input" />
                 <button class="action-btn primary" @click="triggerRecognition" :disabled="isRecognizing || !geminiKey">
@@ -312,9 +330,14 @@
              </div>
              <ul>
                <li><strong>Navigate:</strong> Press <code>Tab</code> to move to the next line automatically.</li>
-               <li><strong>Edit:</strong> Type in the box below the highlighted line.</li>
-               <li><strong>Focus:</strong> Click any faint box to jump to that line.</li>
+               <li><strong>Toggle Script:</strong> Use the switch in the top bar to enable Devanagari input.</li>
+               <li v-if="devanagariModeEnabled"><strong>Keys:</strong> Type phonetically (e.g., 'k' -> 'क'). Use '`' for Halant+ZWNJ.</li>
              </ul>
+             
+             <!-- NEW: Character Palette Integration -->
+             <div v-if="devanagariModeEnabled" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
+                 <CharacterPalette />
+             </div>
            </div>
         </div>
         
@@ -346,7 +369,9 @@ import edgeWebm from '../tutorial/_edge.webm'
 import regionWebm from '../tutorial/_textbox.webm'
 import nodeWebm from '../tutorial/_node.webm'
 
-
+// Import Devanagari logic and Palette
+import { handleInput as handleDevanagariInput } from '../typing-utils/devanagariInputUtils.js'
+import CharacterPalette from '../typing-utils/CharacterPalette.vue'
 
 const props = defineProps({
   manuscriptName: { type: String, default: null },
@@ -437,6 +462,7 @@ const pagePolygons = ref({}) // Map: lineId -> [[x,y],...]
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
 const autoRecogEnabled = ref(false)
+const devanagariModeEnabled = ref(false) // NEW: State for Devanagari Toggle
 
 const saveKeyToStorage = () => {
     localStorage.setItem('gemini_key', geminiKey.value)
@@ -459,6 +485,28 @@ const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.le
 
 
 // --- RECOGNITION MODE LOGIC ---
+
+// NEW: Wrapper for Devanagari Input Handling
+const handleRecognitionInput = (event) => {
+    if (!devanagariModeEnabled.value) return; // Standard input if disabled
+    if (event.ctrlKey || event.metaKey || event.altKey) return; // Allow shortcuts
+    if (!focusedLineId.value) return;
+
+    // The utility expects a Ref-like object with .value
+    // Since localTextContent is a reactive object, we create a temporary proxy
+    const textRef = {
+        get value() {
+            return localTextContent[focusedLineId.value] || '';
+        },
+        set value(val) {
+            localTextContent[focusedLineId.value] = val;
+        }
+    };
+
+    // This function modifies the value and prevents default behavior for handled keys
+    handleDevanagariInput(event, textRef);
+}
+
 
 // Helper: Convert polygon point list to SVG string
 const pointsToSvgString = (pts) => {
@@ -559,6 +607,9 @@ const handleInputBlur = () => {
     setTimeout(() => {
        // Check if focus moved to another input or button, if not, clear.
        if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+       // Also check if clicked inside Character Palette (buttons)
+       if (document.activeElement && document.activeElement.classList.contains('character-button')) return;
+
        focusedLineId.value = null; 
     }, 200);
 }

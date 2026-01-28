@@ -15,6 +15,12 @@ from PIL import Image
 import xml.etree.ElementTree as ET
 import numpy as np
 from os.path import isdir, join
+import collections
+import math
+import difflib
+
+
+
 
 # Import your existing pipelines
 from inference import process_new_manuscript
@@ -180,497 +186,298 @@ def get_page_prediction(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# @app.route('/semi-segment/<manuscript>/<page>', methods=['POST'])
-# def save_correction(manuscript, page):
-#     data = request.json
-#     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
+
+def ensemble_text_samples(samples):
+    """
+    Performs a character-level ensemble (consensus) of multiple text strings.
+    Strategy:
+    1. Select a 'Pivot' string (median length) to act as the backbone.
+    2. Align every other sample to this Pivot using SequenceMatcher.
+    3. Accumulate votes for each character position (including Insertions/Deletions).
+    4. Reconstruct the final string based on majority vote at each position.
+    """
+    # 1. Filter empty samples
+    valid_samples = [s for s in samples if s and s.strip()]
+    if not valid_samples:
+        return ""
+    if len(valid_samples) == 1:
+        return valid_samples[0]
+
+    # 2. Select Pivot (Median length to avoid outliers like hallucinations or truncations)
+    valid_samples.sort(key=len)
+    pivot_idx = len(valid_samples) // 2
+    pivot = valid_samples[pivot_idx]
     
-#     textline_labels = data.get('textlineLabels')
-#     graph_data = data.get('graph')
-#     textbox_labels = data.get('textboxLabels')
-#     nodes_data = graph_data.get('nodes')
-#     text_content = data.get('textContent') 
+    # 3. Initialize Voting Grid
+    # grid[i] stores votes for the character at pivot[i]
+    # insertions[i] stores votes for characters inserted *after* pivot[i]
+    GAP_TOKEN = "__GAP__"
     
-#     if not textline_labels or not graph_data:
-#         return jsonify({"error": "Missing labels or graph data"}), 400
-
-#     try:
-#         result = generate_xml_and_images_for_page(
-#             str(manuscript_path),
-#             page,
-#             textline_labels,
-#             graph_data['edges'],
-#             { 
-#                 'BINARIZE_THRESHOLD': 0.5098,
-#                 'BBOX_PAD_V': 0.7,
-#                 'BBOX_PAD_H': 0.5,
-#                 'CC_SIZE_THRESHOLD_RATIO': 0.4
-#             },
-#             textbox_labels=textbox_labels,
-#             nodes=nodes_data,
-#             text_content=text_content
-#         )
-#         return jsonify(result)
-#     except Exception as e:
-#         import traceback
-#         traceback.print_exc()
-#         return jsonify({"error": str(e)}), 500
-
-# @app.route('/recognize-text', methods=['POST'])
-# def recognize_text():
-#     data = request.json
-#     manuscript = data.get('manuscript')
-#     page = data.get('page')
-#     api_key = data.get('apiKey')
+    grid = [collections.Counter({char: 1}) for char in pivot]
+    # We use a dict of counters for insertions: index -> Counter
+    insertions = collections.defaultdict(collections.Counter)
     
-#     if not api_key:
-#         return jsonify({"error": "API Key required"}), 400
-
-#     base_path = Path(UPLOAD_FOLDER) / manuscript
-#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
-#     img_path = base_path / "images_resized" / f"{page}.jpg"
+    others = valid_samples[:pivot_idx] + valid_samples[pivot_idx+1:]
     
-#     if not xml_path.exists() or not img_path.exists():
-#         return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
-
-#     try:
-#         pil_img = Image.open(img_path)
-#         img_w, img_h = pil_img.size
-#     except Exception as e:
-#         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
-
-#     regions_to_process = []
-#     ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
-#     try:
-#         tree = ET.parse(xml_path)
-#         root = tree.getroot()
+    for sample in others:
+        matcher = difflib.SequenceMatcher(None, pivot, sample)
         
-#         for textline in root.findall(".//p:TextLine", ns):
-#             custom_attr = textline.get('custom', '')
-#             if 'structure_line_id_' not in custom_attr:
-#                 continue
-#             try:
-#                 line_id = str(custom_attr.split('structure_line_id_')[1])
-#             except IndexError:
-#                 continue
+        # Iterate through alignment opcodes
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag == 'equal':
+                # Characters match
+                for k in range(i2 - i1):
+                    grid[i1 + k][pivot[i1 + k]] += 1
+            elif tag == 'replace':
+                # Sample has different characters for this range
+                # We try to map 1-to-1 as much as possible
+                len_pivot_seg = i2 - i1
+                len_sample_seg = j2 - j1
+                min_len = min(len_pivot_seg, len_sample_seg)
+                
+                # Vote for replacements
+                for k in range(min_len):
+                    grid[i1 + k][sample[j1 + k]] += 1
+                
+                # If pivot segment was longer, the rest are deletions (votes for GAP)
+                for k in range(min_len, len_pivot_seg):
+                    grid[i1 + k][GAP_TOKEN] += 1
+                    
+                # If sample segment was longer, the rest are insertions
+                if len_sample_seg > len_pivot_seg:
+                    inserted_chunk = sample[j1 + min_len : j2]
+                    # We treat the chunk as a single vote unit to preserve local coherence
+                    # or strictly char level. Strictly char level is messy for insertions without MSA.
+                    # Heuristic: Vote for the string chunk at the last mapped index.
+                    insertions[i2 - 1][inserted_chunk] += 1
 
-#             coords_elem = textline.find('p:Coords', ns)
-#             if coords_elem is None: continue
-#             points_str = coords_elem.get('points', '')
-#             if not points_str: continue
-
-#             try:
-#                 points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-#             except ValueError: continue
+            elif tag == 'delete':
+                # Sample is missing these characters -> Vote for GAP
+                for k in range(i2 - i1):
+                    grid[i1 + k][GAP_TOKEN] += 1
             
-#             if not points: continue
+            elif tag == 'insert':
+                # Sample has extra characters -> Vote for insertion
+                # Insertions happen *before* i1 (which is the same as *after* i1-1)
+                inserted_chunk = sample[j1:j2]
+                target_idx = i1 - 1
+                insertions[target_idx][inserted_chunk] += 1
 
-#             xs = [p[0] for p in points]
-#             ys = [p[1] for p in points]
+    # 4. Reconstruct Consensus String
+    result_chars = []
+    
+    # Handle insertions at the very start (index -1)
+    if -1 in insertions:
+        best_ins, _ = insertions[-1].most_common(1)[0]
+        result_chars.append(best_ins)
+
+    for i in range(len(pivot)):
+        # A. Resolve the Pivot Character Position
+        # Get most common char (including GAP)
+        best_char, count = grid[i].most_common(1)[0]
+        
+        # Optional: Tie-breaking or Confidence threshold could go here
+        if best_char != GAP_TOKEN:
+            result_chars.append(best_char)
             
-#             # Normalize 0-1000
-#             n_ymin = int((min(ys) / img_h) * 1000)
-#             n_xmin = int((min(xs) / img_w) * 1000)
-#             n_ymax = int((max(ys) / img_h) * 1000)
-#             n_xmax = int((max(xs) / img_w) * 1000)
+        # B. Resolve Insertions after this position
+        if i in insertions:
+            best_ins, _ = insertions[i].most_common(1)[0]
+            result_chars.append(best_ins)
 
-#             n_ymin, n_ymax = sorted([max(0, min(1000, n_ymin)), max(0, min(1000, n_ymax))])
-#             n_xmin, n_xmax = sorted([max(0, min(1000, n_xmin)), max(0, min(1000, n_xmax))])
-
-#             regions_to_process.append({
-#                 "id": line_id,
-#                 "box_2d": [n_ymin, n_xmin, n_ymax, n_xmax]
-#             })
-
-#     except Exception as e:
-#         return jsonify({"error": f"XML Parsing Error: {str(e)}"}), 500
-
-#     if not regions_to_process:
-#          return jsonify({"transcriptions": {}})
-
-#     prompt_text = (
-#         "You are an expert paleographer analyzing a historical Sanskrit manuscript.\n"
-#         "Your task is to transcribe the handwritten text found inside specific bounding boxes.\n\n"
-#         "INPUT CONTEXT:\n"
-#         "The coordinates are in the format [ymin, xmin, ymax, xmax] on a scale of 0 to 1000.\n\n"
-#         "REGIONS TO TRANSCRIBE:\n"
-#     )
-#     for item in regions_to_process:
-#         prompt_text += f"- Region ID '{item['id']}' at Box: {item['box_2d']}\n"
-
-#     prompt_text += (
-#         "\nOUTPUT INSTRUCTIONS:\n"
-#         "1. Return a JSON List of objects.\n"
-#         "2. Each object must have two keys: 'id' (string) and 'text' (string).\n"
-#         "3. Do not modify the Region ID.\n"
-#         "4. If the text is illegible, set 'text' to an empty string.\n"
-#     )
-
-#     try:
-#         genai.configure(api_key=api_key)
-#         model = genai.GenerativeModel('gemini-2.5-flash')
-#         response = model.generate_content(
-#             [pil_img, prompt_text],
-#             generation_config={"response_mime_type": "application/json"}
-#         )
-        
-#         raw_result = json.loads(response.text)
-#         result_list = []
-#         if isinstance(raw_result, list):
-#             result_list = raw_result
-#         elif isinstance(raw_result, dict):
-#             for val in raw_result.values():
-#                 if isinstance(val, list):
-#                     result_list = val
-#                     break
-
-#         final_map = {}
-#         for item in result_list:
-#             if 'id' in item and 'text' in item:
-#                 final_map[str(item['id'])] = item['text']
-
-#         return jsonify({"transcriptions": final_map})
-
-#     except Exception as e:
-#         print(f"Gemini Error: {e}")
-#         return jsonify({"error": str(e)}), 500
+    return "".join(result_chars)
 
 
-
-# @app.route('/recognize-text', methods=['POST'])
-# def recognize_text():
-#     data = request.json
-#     manuscript = data.get('manuscript')
-#     page = data.get('page')
-#     api_key = data.get('apiKey')
-    
-#     if not api_key:
-#         return jsonify({"error": "API Key required"}), 400
-
-#     base_path = Path(UPLOAD_FOLDER) / manuscript
-#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
-#     img_path = base_path / "images_resized" / f"{page}.jpg"
-    
-#     if not xml_path.exists() or not img_path.exists():
-#         return jsonify({"error": "Page XML or Image not found. Please save layout first."}), 404
-
-#     try:
-#         pil_img = Image.open(img_path)
-#         img_w, img_h = pil_img.size
-#     except Exception as e:
-#         return jsonify({"error": f"Failed to load image: {str(e)}"}), 500
-
-#     regions_to_process = []
-#     # Standard PAGE-XML namespace
-#     ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
-    
-#     try:
-#         tree = ET.parse(xml_path)
-#         root = tree.getroot()
-        
-#         # Helper to normalize pixel coords to 0-1000 scale
-#         def normalize(x, y):
-#             n_y = int((y / img_h) * 1000)
-#             n_x = int((x / img_w) * 1000)
-#             return max(0, min(1000, n_y)), max(0, min(1000, n_x))
-
-#         for textline in root.findall(".//p:TextLine", ns):
-#             custom_attr = textline.get('custom', '')
-#             if 'structure_line_id_' not in custom_attr:
-#                 continue
-#             try:
-#                 line_id = str(custom_attr.split('structure_line_id_')[1])
-#             except IndexError:
-#                 continue
-
-#             # --- STRATEGY: PREFER BASELINE, FALLBACK TO COORDS ---
-            
-#             trace_points = [] # We want [Start(x,y), Mid(x,y), End(x,y)]
-
-#             # 1. Try extracting Baseline
-#             baseline_elem = textline.find('p:Baseline', ns)
-#             if baseline_elem is not None:
-#                 points_str = baseline_elem.get('points', '')
-#                 if points_str:
-#                     try:
-#                         # Parse "x,y x,y" string into list of lists
-#                         pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-#                         # Sort left-to-right
-#                         pts.sort(key=lambda k: k[0])
-                        
-#                         if len(pts) >= 2:
-#                             # Pick Start, Middle, End to capture the curve
-#                             p_start = pts[0]
-#                             p_mid = pts[len(pts) // 2]
-#                             p_end = pts[-1]
-#                             trace_points = [p_start, p_mid, p_end]
-#                     except ValueError:
-#                         pass # Parsing failed, fall through to Coords
-
-#             # 2. Fallback: Calculate "Spine" from Polygon Coords if Baseline failed
-#             if not trace_points:
-#                 coords_elem = textline.find('p:Coords', ns)
-#                 if coords_elem is not None:
-#                     points_str = coords_elem.get('points', '')
-#                     if points_str:
-#                         try:
-#                             pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-#                             if pts:
-#                                 # Get simple center-line logic
-#                                 xs = [p[0] for p in pts]
-#                                 ys = [p[1] for p in pts]
-#                                 # Sort points by X to find left/right extremities
-#                                 sorted_pts = sorted(zip(xs, ys), key=lambda k: k[0])
-                                
-#                                 p_start = [sorted_pts[0][0], sorted_pts[0][1]]
-#                                 p_end = [sorted_pts[-1][0], sorted_pts[-1][1]]
-#                                 # Geometric centroid for the middle
-#                                 p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
-                                
-#                                 trace_points = [p_start, p_mid, p_end]
-#                         except ValueError:
-#                             continue
-
-#             if not trace_points:
-#                 continue
-
-#             # 3. Format for Gemini [y1, x1, y2, x2, y3, x3] (Normalized)
-#             # Note: Gemini vision usually expects [y, x] order
-#             gemini_trace = []
-#             for px, py in trace_points:
-#                 ny, nx = normalize(px, py)
-#                 gemini_trace.extend([ny, nx])
-
-#             regions_to_process.append({
-#                 "id": line_id,
-#                 "trace": gemini_trace,
-#                 "sort_y": trace_points[0][1] # Keep raw Y for sorting
-#             })
-
-#     except Exception as e:
-#         return jsonify({"error": f"XML Parsing Error: {str(e)}"}), 500
-
-#     if not regions_to_process:
-#          return jsonify({"transcriptions": {}})
-
-#     # --- IMPORTANT: Sort Top-to-Bottom ---
-#     # This helps the model track its position on the page naturally
-#     regions_to_process.sort(key=lambda k: k['sort_y'])
-
-#     # Build Prompt
-#     prompt_text = (
-#         "You are an expert paleographer analyzing a Sanskrit manuscript.\n"
-#         "I will provide a list of Region IDs and a 'Path Trace' for each line.\n"
-#         "The trace format is [y_start, x_start, y_mid, x_mid, y_end, x_end] on a 0-1000 scale.\n"
-#         "This trace runs along the baseline of the text.\n\n"
-#         "INSTRUCTIONS:\n"
-#         "1. Visualize the curve defined by the 3 coordinate points (Start -> Mid -> End).\n"
-#         "2. Transcribe the handwritten Devanagari text that sits on this curve.\n"
-#         "3. Ignore text from lines above or below this specific path.\n"
-#         "4. Output a JSON array of objects with 'id' and 'text'.\n\n"
-#         "REGIONS:\n"
-#     )
-
-#     for item in regions_to_process:
-#         prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
-
-#     try:
-#         genai.configure(api_key=api_key)
-        
-#         # Use Pro model (Flash 1.5 is okay, but Pro is better for coordinate precision)
-#         # Note: 'gemini-2.5-flash' does not exist yet. Using stable 1.5-pro.
-#         model = genai.GenerativeModel('gemini-2.5-flash')
-        
-#         generation_config = {
-#             "temperature": 0.2,
-#             "response_mime_type": "application/json",
-#             "response_schema": {
-#                 "type": "ARRAY",
-#                 "items": {
-#                     "type": "OBJECT",
-#                     "properties": {
-#                         "id": {"type": "STRING"},
-#                         "text": {"type": "STRING"}
-#                     },
-#                     "required": ["id", "text"]
-#                 }
-#             }
-#         }
-
-#         response = model.generate_content(
-#             [pil_img, prompt_text],
-#             generation_config=generation_config
-#         )
-        
-#         # Response schema guarantees a list of objects
-#         result_list = json.loads(response.text)
-
-#         final_map = {}
-#         for item in result_list:
-#             if 'id' in item and 'text' in item:
-#                 final_map[str(item['id'])] = item['text']
-
-#         return jsonify({"transcriptions": final_map})
-
-#     except Exception as e:
-#         print(f"Gemini Error: {e}")
-#         return jsonify({"error": str(e)}), 500
-
-
-# ----------------------------------------------------------------
-# NEW HELPER: Internal function to run Gemini logic (Refactored)
-# ----------------------------------------------------------------
-def _run_gemini_recognition_internal(manuscript, page, api_key):
+def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
     """
     Internal helper to run recognition on a specific page.
-    Reads the existing XML, runs Gemini, updates the XML with text, and returns the text dict.
+    Performs N sampling calls to Gemini with varied traces.
+    Uses Character-Level Ensemble (CER-inspired) to merge results.
     """
+    print(f"[{page}] Starting background recognition with N={N} samples...")
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     img_path = base_path / "images_resized" / f"{page}.jpg"
 
     if not xml_path.exists() or not img_path.exists():
-        print(f"Skipping recognition for {page}: XML or Image missing.")
+        print(f"[{page}] Skipping: XML or Image missing.")
         return {}
 
     try:
         pil_img = Image.open(img_path)
         img_w, img_h = pil_img.size
         
-        # Standard PAGE-XML namespace
         ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
-        ET.register_namespace('', ns['p']) # Register to avoid ns0 prefixes
+        ET.register_namespace('', ns['p']) 
         
         tree = ET.parse(xml_path)
         root = tree.getroot()
-        
-        regions_to_process = []
 
-        # Helper to normalize pixel coords to 0-1000 scale
+        # --- 1. GEOMETRY EXTRACTION ---
+        lines_geometry = [] 
+        for textline in root.findall(".//p:TextLine", ns):
+            custom_attr = textline.get('custom', '')
+            if 'structure_line_id_' not in custom_attr: continue
+            line_id = str(custom_attr.split('structure_line_id_')[1])
+
+            # Get Baseline (Orientation Truth)
+            baseline_pts = []
+            base_elem = textline.find('p:Baseline', ns)
+            if base_elem is not None and base_elem.get('points'):
+                try:
+                    baseline_pts = [list(map(int, p.split(','))) for p in base_elem.get('points').strip().split(' ')]
+                    baseline_pts.sort(key=lambda k: k[0]) 
+                except ValueError: pass
+
+            # Get Polygon (Height Truth)
+            coords_elem = textline.find('p:Coords', ns)
+            poly_pts = []
+            if coords_elem is not None and coords_elem.get('points'):
+                try:
+                    poly_pts = [list(map(int, p.split(','))) for p in coords_elem.get('points').strip().split(' ')]
+                except ValueError: pass
+            
+            if not poly_pts and not baseline_pts: continue
+
+            # Fallback Spine
+            if not baseline_pts and poly_pts:
+                xs, ys = [p[0] for p in poly_pts], [p[1] for p in poly_pts]
+                sorted_poly = sorted(zip(xs, ys), key=lambda k: k[0])
+                p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
+                baseline_pts = [[sorted_poly[0][0], sorted_poly[0][1]], p_mid, [sorted_poly[-1][0], sorted_poly[-1][1]]]
+
+            # Estimate Height
+            poly_ys = [p[1] for p in poly_pts] if poly_pts else [p[1] for p in baseline_pts]
+            height_px = max(10, min(max(poly_ys) - min(poly_ys), 200)) if poly_ys else 20
+
+            lines_geometry.append({ "id": line_id, "baseline": baseline_pts, "height": height_px })
+
+        if not lines_geometry: return {}
+
+        # --- 2. SAMPLING & API CALLS ---
+        all_samples_results = []
+        
         def normalize(x, y):
             n_y = int((y / img_h) * 1000)
             n_x = int((x / img_w) * 1000)
             return max(0, min(1000, n_y)), max(0, min(1000, n_x))
 
-        # 1. Extract Trace data for Gemini
-        for textline in root.findall(".//p:TextLine", ns):
-            custom_attr = textline.get('custom', '')
-            if 'structure_line_id_' not in custom_attr: continue
-            
-            line_id = str(custom_attr.split('structure_line_id_')[1])
-            
-            trace_points = []
-            
-            # Prefer Baseline
-            baseline_elem = textline.find('p:Baseline', ns)
-            if baseline_elem is not None:
-                points_str = baseline_elem.get('points', '')
-                if points_str:
-                    try:
-                        pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-                        pts.sort(key=lambda k: k[0])
-                        if len(pts) >= 2:
-                            trace_points = [pts[0], pts[len(pts) // 2], pts[-1]]
-                    except ValueError: pass
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash') 
 
-            # Fallback Coords
-            if not trace_points:
-                coords_elem = textline.find('p:Coords', ns)
-                if coords_elem is not None:
-                    points_str = coords_elem.get('points', '')
-                    if points_str:
-                        try:
-                            pts = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
-                            if pts:
-                                xs, ys = [p[0] for p in pts], [p[1] for p in pts]
-                                sorted_pts = sorted(zip(xs, ys), key=lambda k: k[0])
-                                trace_points = [
-                                    [sorted_pts[0][0], sorted_pts[0][1]], 
-                                    [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))], 
-                                    [sorted_pts[-1][0], sorted_pts[-1][1]]
-                                ]
-                        except ValueError: continue
+        for sample_idx in range(N):
+            regions_payload = []
+            
+            # Vertical Shift Logic: N=1 -> 0.3 (Baseline+30%), N>1 -> 0.0 to 0.7
+            shift_ratios = [0.3] if N == 1 else [i * (0.7 / (N - 1)) for i in range(N)]
+            current_shift_ratio = shift_ratios[sample_idx]
 
-            if trace_points:
+            for line in lines_geometry:
+                pts = line['baseline']
+                h = line['height']
+                
+                # Interpolate 3 points
+                if len(pts) >= 3:
+                    trace_raw = [pts[0], pts[len(pts)//2], pts[-1]]
+                elif len(pts) == 2:
+                    mid_x, mid_y = (pts[0][0] + pts[1][0]) // 2, (pts[0][1] + pts[1][1]) // 2
+                    trace_raw = [pts[0], [mid_x, mid_y], pts[-1]]
+                else:
+                    trace_raw = [pts[0], pts[0], pts[0]]
+
+                # Apply Shift (Upwards relative to page)
+                shift_px = int(h * current_shift_ratio)
+                shifted_trace = [[px, py - shift_px] for px, py in trace_raw]
+
                 gemini_trace = []
-                for px, py in trace_points:
+                for px, py in shifted_trace:
                     ny, nx = normalize(px, py)
                     gemini_trace.extend([ny, nx])
                 
-                regions_to_process.append({
-                    "id": line_id,
+                regions_payload.append({
+                    "id": line['id'],
                     "trace": gemini_trace,
-                    "sort_y": trace_points[0][1]
+                    "sort_y": trace_raw[0][1]
                 })
 
-        if not regions_to_process:
-            return {}
+            regions_payload.sort(key=lambda k: k['sort_y'])
 
-        regions_to_process.sort(key=lambda k: k['sort_y'])
+            prompt_text = (
+                "You are an expert paleographer and OCR engine specialized in historical Sanskrit manuscripts.\n"
+                "I have provided an image of a manuscript page. Your task is to perform visual grounding OCR: "
+                "transcribe the handwritten Devanagari text found at specific spatial locations defined by 'Path Traces'.\n"
+                "The coordinates are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
+                "to precisely map the text line locations on the image.\n"
+                "For each path trace [y_start, x_start, y_mid, x_mid, y_end, x_end], transcribe the text that sits along this curve.\n"
+                "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
+                "Output a JSON array of objects with 'id' and 'text'.\n\n"
+                "REGIONS:\n"
+            )
+            for item in regions_payload:
+                prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
 
-        # 2. Build Prompt
-        prompt_text = (
-            "You are an expert paleographer transcribing a Sanskrit manuscript.\n"
-            "I will provide a list of Region IDs and a 'Path Trace' for each text-line.\n"
-            "The trace format is [y_start, x_start, y_mid, x_mid, y_end, x_end] on a 0-1000 scale.\n"
-            "Precisely transcribe the handwritten Devanagari text that sits on this curve.\n"
-            "Ignore text from lines above or below this specific path.\n"
-            "Output a JSON array of objects with 'id' and 'text'.\n\n"
-            "REGIONS:\n"
-        )
-        for item in regions_to_process:
-            prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
+            try:
+                print(f"[{page}] Sampling {sample_idx+1}/{N}...")
+                response = model.generate_content(
+                    [pil_img, prompt_text],
+                    generation_config={"response_mime_type": "application/json", "temperature": 0.1} # Higher temp for variance
+                )
+                result_list = json.loads(response.text.replace("```json", "").replace("```", ""))
+                
+                if isinstance(result_list, dict) and "transcriptions" in result_list:
+                    result_list = result_list["transcriptions"]
+                elif isinstance(result_list, dict):
+                    result_list = [{"id": k, "text": v} for k, v in result_list.items()]
 
-        # 3. Call API
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash') # Using stable pro model
-        
-        response = model.generate_content(
-            [pil_img, prompt_text],
-            generation_config={"response_mime_type": "application/json"}
-        )
-        
-        try:
-            result_list = json.loads(response.text)
-        except:
-            # Fallback if model returns list wrapped in dict or markdown
-            cleaned_text = response.text.replace("```json", "").replace("```", "")
-            result_list = json.loads(cleaned_text)
+                sample_map = {str(i['id']): str(i['text']).strip() for i in result_list if 'id' in i and 'text' in i}
+                all_samples_results.append(sample_map)
+            except Exception as e:
+                print(f"[{page}] Sample {sample_idx+1} failed: {e}")
 
-        if isinstance(result_list, dict) and "transcriptions" in result_list:
-            result_list = result_list["transcriptions"] # Handle variance
-
+        # --- 3. CHARACTER-LEVEL ENSEMBLE ---
         final_map = {}
-        for item in result_list:
-            if 'id' in item and 'text' in item:
-                final_map[str(item['id'])] = item['text']
+        
+        # Group all samples by Line ID
+        texts_by_id = collections.defaultdict(list)
+        for res_map in all_samples_results:
+            for lid, txt in res_map.items():
+                texts_by_id[lid].append(txt)
 
-        # 4. Update XML with Results immediately
+        # Apply Consensus Logic per Line
+        for lid, candidates in texts_by_id.items():
+            consensus_text = ensemble_text_samples(candidates)
+            if consensus_text:
+                final_map[lid] = consensus_text
+                # Log if significant divergence occurred
+                unique_variants = set(candidates)
+                if len(unique_variants) > 1 and N > 1:
+                    print(f"[{page}] Line {lid}: Merged {len(candidates)} samples. " 
+                          f"Result: {consensus_text[:15]}... (Variants: {len(unique_variants)})")
+
+        # --- 4. UPDATE XML ---
         if final_map:
             changed = False
             for textline in root.findall(".//p:TextLine", ns):
                 custom_attr = textline.get('custom', '')
                 if 'structure_line_id_' in custom_attr:
                     lid = str(custom_attr.split('structure_line_id_')[1])
-                    if lid in final_map and final_map[lid]:
-                        # Check/Create TextEquiv/Unicode
+                    if lid in final_map:
                         te = textline.find("p:TextEquiv", ns)
-                        if te is None:
-                            te = ET.SubElement(textline, "TextEquiv")
+                        if te is None: te = ET.SubElement(textline, "TextEquiv")
                         uni = te.find("p:Unicode", ns)
-                        if uni is None:
-                            uni = ET.SubElement(te, "Unicode")
-                        
+                        if uni is None: uni = ET.SubElement(te, "Unicode")
                         uni.text = final_map[lid]
                         changed = True
             
             if changed:
                 tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
-                print(f"Auto-recognition updated XML for {page}")
+                print(f"[{page}] XML updated with robust ensemble text.")
 
         return final_map
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Internal Recognition Error: {e}")
         return {}
 
