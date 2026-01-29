@@ -174,7 +174,7 @@
             :points="pointsToSvgString(pagePolygons[focusedLineId])"
             fill="rgba(0, 255, 255, 0.1)"
             stroke="#00e5ff"
-            stroke-width="2"
+            stroke-width="0"
             class="polygon-active"
           />
         </svg>
@@ -1394,10 +1394,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     cursor: pointer;
     pointer-events: auto;
     transition: stroke 0.2s;
+    stroke-width: 0;
 }
 .polygon-inactive:hover {
     stroke: rgba(255,255,255,0.6);
-    stroke-width: 2;
+    stroke-width: 0;
 }
 .polygon-active {
     pointer-events: none; 
