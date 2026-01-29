@@ -22,6 +22,9 @@ from dotenv import load_dotenv
 import concurrent.futures
 load_dotenv() 
 
+# from recognition.recognize_manuscript_text import recognize_manuscript_text
+# cd recognition
+# python recognize_manuscript_text.py complex_layout
 
 
 
@@ -304,20 +307,21 @@ def ensemble_text_samples(samples):
     return "".join(result_chars), result_confidences
 
 
-def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
+def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_points=4):
     """
-    IMPORTANT: api_key is unused, and we load it locally in the backend for security.
-    Internal helper to run recognition on a specific page.
-    Performs N sampling calls to Gemini with varied traces.
-    Uses Character-Level Ensemble (CER-inspired) to merge results.
+    Improved drop-in replacement.
+    - Parallelizes N samples.
+    - Configurable point density for polylines.
+    - Aligned with Gemini's spatial grounding CoT.
     """
-    print(f"[{page}] Starting background recognition with N={N} samples...")
+    print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
+    
+    # Setup paths
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     img_path = base_path / "images_resized" / f"{page}.jpg"
 
     if not xml_path.exists() or not img_path.exists():
-        print(f"[{page}] Skipping: XML or Image missing.")
         return {}
 
     try:
@@ -325,136 +329,109 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
         img_w, img_h = pil_img.size
         
         ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
-        ET.register_namespace('', ns['p']) 
-        
         tree = ET.parse(xml_path)
         root = tree.getroot()
 
-        # --- 1. GEOMETRY EXTRACTION ---
+        # --- 1. GEOMETRY EXTRACTION & INTERPOLATION ---
+        def get_equidistant_points(pts, m):
+            if len(pts) < 2: return pts * m
+            
+            # Cumulative distance along the original polyline
+            dists = [0.0]
+            for i in range(len(pts)-1):
+                dists.append(dists[-1] + ((pts[i+1][0]-pts[i][0])**2 + (pts[i+1][1]-pts[i][1])**2)**0.5)
+            
+            total_dist = dists[-1]
+            if total_dist == 0: return [pts[0]] * m
+            
+            new_pts = []
+            for i in range(m):
+                target = (i / (m - 1)) * total_dist
+                # Find which segment the target distance falls into
+                for j in range(len(dists)-1):
+                    if dists[j] <= target <= dists[j+1]:
+                        segment_dist = dists[j+1] - dists[j]
+                        # Linear interpolation within the segment
+                        rat = (target - dists[j]) / segment_dist if segment_dist > 0 else 0
+                        
+                        # FIX: Use 'j' for segment indexing, not 'i'
+                        nx = pts[j][0] + rat * (pts[j+1][0] - pts[j][0])
+                        ny = pts[j][1] + rat * (pts[j+1][1] - pts[j][1])
+                        new_pts.append([int(nx), int(ny)])
+                        break
+            return new_pts
+
         lines_geometry = [] 
         for textline in root.findall(".//p:TextLine", ns):
             custom_attr = textline.get('custom', '')
             if 'structure_line_id_' not in custom_attr: continue
             line_id = str(custom_attr.split('structure_line_id_')[1])
 
-            # Get Baseline (Orientation Truth)
-            baseline_pts = []
+            # Geometry extraction (Baseline is primary for Sanskrit)
             base_elem = textline.find('p:Baseline', ns)
             if base_elem is not None and base_elem.get('points'):
-                try:
-                    baseline_pts = [list(map(int, p.split(','))) for p in base_elem.get('points').strip().split(' ')]
-                    baseline_pts.sort(key=lambda k: k[0]) 
-                except ValueError: pass
+                pts = [list(map(int, p.split(','))) for p in base_elem.get('points').strip().split(' ')]
+                pts.sort(key=lambda k: k[0])
+            else: continue
 
-            # Get Polygon (Height/Width Truth)
+            # Orientation & Thickness Logic
             coords_elem = textline.find('p:Coords', ns)
-            poly_pts = []
-            if coords_elem is not None and coords_elem.get('points'):
-                try:
-                    poly_pts = [list(map(int, p.split(','))) for p in coords_elem.get('points').strip().split(' ')]
-                except ValueError: pass
+            poly_pts = [list(map(int, p.split(','))) for p in coords_elem.get('points').strip().split(' ')] if coords_elem is not None else []
             
-            if not poly_pts and not baseline_pts: continue
-
-            # Fallback Spine construction if no baseline
-            if not baseline_pts and poly_pts:
-                xs, ys = [p[0] for p in poly_pts], [p[1] for p in poly_pts]
-                sorted_poly = sorted(zip(xs, ys), key=lambda k: k[0])
-                p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
-                baseline_pts = [[sorted_poly[0][0], sorted_poly[0][1]], p_mid, [sorted_poly[-1][0], sorted_poly[-1][1]]]
-
-            # --- NEW: Vertical vs Horizontal Detection ---
             if poly_pts:
                 pxs, pys = [p[0] for p in poly_pts], [p[1] for p in poly_pts]
-                width_px = max(pxs) - min(pxs)
-                height_px = max(pys) - min(pys)
+                width_px, height_px = max(pxs)-min(pxs), max(pys)-min(pys)
+                is_vert = height_px > (width_px * 1.2)
+                thickness = width_px if is_vert else height_px
             else:
-                # Fallback geometry from baseline
-                bxs, bys = [p[0] for p in baseline_pts], [p[1] for p in baseline_pts]
-                width_px = max(bxs) - min(bxs) if bxs else 100
-                height_px = max(bys) - min(bys) if bys else 20
-            
-            # Heuristic: If height is significantly larger than width, it's vertical
-            is_vertical = height_px > (width_px * 1.2)
-            
-            # Use the smaller dimension as the "stroke thickness" reference for shifting
-            thickness_px = width_px if is_vertical else height_px
-            thickness_px = max(10, min(thickness_px, 200)) # Clamp
+                is_vert, thickness = False, 30
 
-            lines_geometry.append({ 
-                "id": line_id, 
-                "baseline": baseline_pts, 
-                "thickness": thickness_px,
-                "is_vertical": is_vertical
+            lines_geometry.append({
+                "id": line_id, "baseline": pts, 
+                "thickness": max(10, min(thickness, 20)), "is_vertical": is_vert
             })
 
         if not lines_geometry: return {}
 
-        # --- 2. SAMPLING & API CALLS ---
-        all_samples_results = []
-        
+        # --- 2. PARALLEL API EXECUTION ---
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        model = genai.GenerativeModel('gemini-2.5-flash') # Or gemini-3-flash
+
         def normalize(x, y):
-            n_y = int((y / img_h) * 1000)
-            n_x = int((x / img_w) * 1000)
-            return max(0, min(1000, n_y)), max(0, min(1000, n_x))
+            return max(0, min(1000, int((y / img_h) * 1000))), max(0, min(1000, int((x / img_w) * 1000)))
 
-        local_api_key = os.getenv("GEMINI_API_KEY")
-
-        genai.configure(api_key=local_api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash') 
-
-        for sample_idx in range(N):
-            regions_payload = []
+        def sample_worker(sample_idx):
+            # Centered at 0.0, ranging from -0.3 to +0.3 (total 60% of thickness)
+            shift_ratios = [0.0] if N == 1 else [(i / (N - 1) - 0.5) * 0.6 for i in range(N)]
+            current_shift = shift_ratios[sample_idx]
             
-            # Vertical Shift Logic: N=1 -> 0.3 (Baseline+30%), N>1 -> 0.0 to 0.7
-            shift_ratios = [0.3] if N == 1 else [i * (0.7 / (N - 1)) for i in range(N)]
-            current_shift_ratio = shift_ratios[sample_idx]
-
+            regions_payload = []
             for line in lines_geometry:
-                pts = line['baseline']
-                thick = line['thickness']
-                is_vert = line['is_vertical']
+                # Interpolate N points
+                trace_raw = get_equidistant_points(line['baseline'], num_trace_points)
+                shift_px = int(line['thickness'] * current_shift)
                 
-                # Interpolate 3 points
-                if len(pts) >= 3:
-                    trace_raw = [pts[0], pts[len(pts)//2], pts[-1]]
-                elif len(pts) == 2:
-                    mid_x, mid_y = (pts[0][0] + pts[1][0]) // 2, (pts[0][1] + pts[1][1]) // 2
-                    trace_raw = [pts[0], [mid_x, mid_y], pts[-1]]
-                else:
-                    trace_raw = [pts[0], pts[0], pts[0]]
-
-                # Calculate Shift
-                shift_px = int(thick * current_shift_ratio)
-
-                # --- NEW: Apply Shift based on Orientation ---
-                if is_vert:
-                    # Vertical Line (Top->Bottom): Shift Left (Negative X)
-                    shifted_trace = [[px - shift_px, py] for px, py in trace_raw]
-                else:
-                    # Horizontal Line (Left->Right): Shift Up (Negative Y)
-                    shifted_trace = [[px, py - shift_px] for px, py in trace_raw]
-
+                # Apply shift based on orientation
+                shifted = [[px + shift_px, py] if line['is_vertical'] else [px, py + shift_px] for px, py in trace_raw]
+                
+                # Format for Gemini: flat list [y, x, y, x...]
                 gemini_trace = []
-                for px, py in shifted_trace:
+                for px, py in shifted:
                     ny, nx = normalize(px, py)
                     gemini_trace.extend([ny, nx])
                 
-                regions_payload.append({
-                    "id": line['id'],
-                    "trace": gemini_trace,
-                    "sort_y": trace_raw[0][1]
-                })
+                regions_payload.append({"id": line['id'], "trace": gemini_trace, "y": trace_raw[0][1]})
 
-            regions_payload.sort(key=lambda k: k['sort_y'])
+            regions_payload.sort(key=lambda k: k['y'])
 
+            # Improved Prompt: Aligning with Autoregressive Spatial Grounding
             prompt_text = (
                 "You are an expert paleographer and OCR engine specialized in historical Sanskrit manuscripts.\n"
                 "I have provided an image of a manuscript page. Your task is to perform visual grounding OCR: "
                 "transcribe the handwritten Devanagari text found at specific spatial locations defined by 'Path Traces'.\n"
                 "The coordinates are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
                 "to precisely map the text line locations on the image.\n"
-                "For each path trace [y_start, x_start, y_mid, x_mid, y_end, x_end], transcribe the text that sits along this curve.\n"
+                "For each path trace [y_start, x_start, y_mid1, x_mid1, y_mid2, x_mid2, y_end, x_end], transcribe the text that sits along this curve.\n"
                 "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
                 "Output a JSON array of objects with 'id' and 'text'.\n\n"
                 "REGIONS:\n"
@@ -463,22 +440,23 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
                 prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
 
             try:
-                print(f"[{page}] Sampling {sample_idx+1}/{N}...")
+                # Place image before text for better multimodal attention in Flash models
                 response = model.generate_content(
                     [pil_img, prompt_text],
-                    generation_config={"response_mime_type": "application/json", "temperature": 0.1} # Higher temp for variance
+                    generation_config={"response_mime_type": "application/json", "temperature": 0.2}
                 )
-                result_list = json.loads(response.text.replace("```json", "").replace("```", ""))
-                
-                if isinstance(result_list, dict) and "transcriptions" in result_list:
-                    result_list = result_list["transcriptions"]
-                elif isinstance(result_list, dict):
-                    result_list = [{"id": k, "text": v} for k, v in result_list.items()]
-
-                sample_map = {str(i['id']): str(i['text']).strip() for i in result_list if 'id' in i and 'text' in i}
-                all_samples_results.append(sample_map)
+                data = json.loads(response.text)
+                # Normalize response format
+                if isinstance(data, dict) and "transcriptions" in data: data = data["transcriptions"]
+                return {str(i['id']): str(i['text']).strip() for i in data if 'id' in i}
             except Exception as e:
-                print(f"[{page}] Sample {sample_idx+1} failed: {e}")
+                print(f"Sample {sample_idx} error: {e}")
+                return None
+
+        # Execute in parallel
+        with concurrent.futures.ThreadPoolExecutor(max_workers=N) as executor:
+            future_to_idx = {executor.submit(sample_worker, i): i for i in range(N)}
+            all_samples_results = [f.result() for f in concurrent.futures.as_completed(future_to_idx) if f.result()]
 
         # --- 3. CHARACTER-LEVEL ENSEMBLE ---
         final_map = {}
@@ -532,272 +510,6 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
         print(f"Internal Recognition Error: {e}")
         return {}
 
-        
-# def _run_gemini_recognition_internal(manuscript, page, api_key, N=5):
-#     """
-#     IMPORTANT: api_key arg is unused; we load GEMINI_API_KEY locally from environment.
-#     Internal helper to run recognition on a specific page.
-#     Performs N sampling calls to Gemini IN PARALLEL with varied traces.
-#     Uses Character-Level Ensemble (CER-inspired) to merge results.
-#     """
-#     print(f"[{page}] Starting background recognition with N={N} samples (Parallel)...")
-#     base_path = Path(UPLOAD_FOLDER) / manuscript
-#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
-#     img_path = base_path / "images_resized" / f"{page}.jpg"
-
-#     if not xml_path.exists() or not img_path.exists():
-#         print(f"[{page}] Skipping: XML or Image missing.")
-#         return {}
-
-#     try:
-#         pil_img = Image.open(img_path)
-#         img_w, img_h = pil_img.size
-        
-#         ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
-#         ET.register_namespace('', ns['p']) 
-        
-#         tree = ET.parse(xml_path)
-#         root = tree.getroot()
-
-#         # --- 1. GEOMETRY EXTRACTION ---
-#         lines_geometry = [] 
-#         for textline in root.findall(".//p:TextLine", ns):
-#             custom_attr = textline.get('custom', '')
-#             if 'structure_line_id_' not in custom_attr: continue
-#             line_id = str(custom_attr.split('structure_line_id_')[1])
-
-#             # Get Baseline (Orientation Truth)
-#             baseline_pts = []
-#             base_elem = textline.find('p:Baseline', ns)
-#             if base_elem is not None and base_elem.get('points'):
-#                 try:
-#                     baseline_pts = [list(map(int, p.split(','))) for p in base_elem.get('points').strip().split(' ')]
-#                     baseline_pts.sort(key=lambda k: k[0]) 
-#                 except ValueError: pass
-
-#             # Get Polygon (Height Truth)
-#             coords_elem = textline.find('p:Coords', ns)
-#             poly_pts = []
-#             if coords_elem is not None and coords_elem.get('points'):
-#                 try:
-#                     poly_pts = [list(map(int, p.split(','))) for p in coords_elem.get('points').strip().split(' ')]
-#                 except ValueError: pass
-            
-#             if not poly_pts and not baseline_pts: continue
-
-#             # Fallback Spine
-#             if not baseline_pts and poly_pts:
-#                 xs, ys = [p[0] for p in poly_pts], [p[1] for p in poly_pts]
-#                 sorted_poly = sorted(zip(xs, ys), key=lambda k: k[0])
-#                 p_mid = [int(sum(xs)/len(xs)), int(sum(ys)/len(ys))]
-#                 baseline_pts = [[sorted_poly[0][0], sorted_poly[0][1]], p_mid, [sorted_poly[-1][0], sorted_poly[-1][1]]]
-
-#             # Estimate Height
-#             # Estimate Geometry & Orientation
-#             if poly_pts:
-#                 pxs, pys = [p[0] for p in poly_pts], [p[1] for p in poly_pts]
-#                 width_px = max(pxs) - min(pxs)
-#                 height_px = max(pys) - min(pys)
-#             else:
-#                 # Fallback to baseline bbox
-#                 bxs, bys = [p[0] for p in baseline_pts], [p[1] for p in baseline_pts]
-#                 width_px = max(bxs) - min(bxs) if bxs else 100
-#                 height_px = max(bys) - min(bys) if bys else 20
-            
-#             # Heuristic: If height is > 1.2x width, it's likely vertical
-#             is_vertical = height_px > (width_px * 1.2)
-            
-#             # Use the smaller dimension as the "stroke thickness" reference
-#             thickness_px = width_px if is_vertical else height_px
-#             thickness_px = max(10, min(thickness_px, 200)) # Clamp
-
-#             lines_geometry.append({ 
-#                 "id": line_id, 
-#                 "baseline": baseline_pts, 
-#                 "thickness": thickness_px,
-#                 "is_vertical": is_vertical
-#             })
-
-#         if not lines_geometry: return {}
-
-#         # --- 2. PARALLEL SAMPLING & API CALLS ---
-        
-#         local_api_key = os.getenv("GEMINI_API_KEY")
-#         if not local_api_key:
-#             print(f"[{page}] No GEMINI_API_KEY found in environment variables.")
-#             return {}
-
-#         genai.configure(api_key=local_api_key)
-#         # We can share the model instance across threads usually, or create new ones.
-#         # Sharing is generally thread-safe for generate_content.
-#         model = genai.GenerativeModel('gemini-2.5-flash') 
-
-#         def normalize(x, y):
-#             n_y = int((y / img_h) * 1000)
-#             n_x = int((x / img_w) * 1000)
-#             return max(0, min(1000, n_y)), max(0, min(1000, n_x))
-
-#         # Helper function to run in a thread
-#         def process_single_sample(sample_idx):
-#             try:
-#                 regions_payload = []
-                
-#                 # Vertical Shift Logic: N=1 -> 0.3 (Baseline+30%), N>1 -> 0.0 to 0.7
-#                 shift_ratios = [0.3] if N == 1 else [i * (0.7 / (N - 1)) for i in range(N)]
-#                 current_shift_ratio = shift_ratios[sample_idx]
-
-#                 for line in lines_geometry:
-#                     pts = line['baseline']
-#                     thick = line['thickness']
-#                     is_vert = line['is_vertical']
-                    
-#                     # Interpolate 3 points
-#                     if len(pts) >= 3:
-#                         trace_raw = [pts[0], pts[len(pts)//2], pts[-1]]
-#                     elif len(pts) == 2:
-#                         mid_x, mid_y = (pts[0][0] + pts[1][0]) // 2, (pts[0][1] + pts[1][1]) // 2
-#                         trace_raw = [pts[0], [mid_x, mid_y], pts[-1]]
-#                     else:
-#                         trace_raw = [pts[0], pts[0], pts[0]]
-
-#                     # Apply Shift
-#                     # N=1 -> 0.3 shift.
-#                     shift_px = int(thick * current_shift_ratio)
-                    
-#                     if is_vert:
-#                         # For vertical, baseline is usually Center or Right. 
-#                         # We shift 'Left' (negative X) to cover the body, assuming standard vertical layout.
-#                         # If graph provides center-line, shift should be 0, but safe heuristic is slight left.
-#                         shifted_trace = [[px - shift_px, py] for px, py in trace_raw]
-#                     else:
-#                         # For horizontal, shift Up (negative Y)
-#                         shifted_trace = [[px, py - shift_px] for px, py in trace_raw]
-
-#                     gemini_trace = []
-#                     for px, py in shifted_trace:
-#                         ny, nx = normalize(px, py)
-#                         gemini_trace.extend([ny, nx])
-                    
-#                     regions_payload.append({
-#                         "id": line['id'],
-#                         "trace": gemini_trace,
-#                         "sort_y": trace_raw[0][1]
-#                     })
-
-#                 regions_payload.sort(key=lambda k: k['sort_y'])
-
-#                 prompt_text = (
-#                     "You are an expert paleographer and OCR engine specialized in historical Sanskrit manuscripts.\n"
-#                     "I have provided an image of a manuscript page. Your task is to perform visual grounding OCR: "
-#                     "transcribe the handwritten Devanagari text found at specific spatial locations defined by 'Path Traces'.\n"
-#                     "The coordinates are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
-#                     "to precisely map the text line locations on the image.\n"
-#                     "For each path trace [y_start, x_start, y_mid, x_mid, y_end, x_end], transcribe the text that sits along this curve.\n"
-#                     "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
-#                     "Output a JSON array of objects with 'id' and 'text'.\n\n"
-#                     "REGIONS:\n"
-#                 )
-#                 for item in regions_payload:
-#                     prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
-
-#                 # API Call
-#                 # print(f"[{page}] Thread {sample_idx+1}/{N} sending request...")
-#                 response = model.generate_content(
-#                     [pil_img, prompt_text],
-#                     generation_config={"response_mime_type": "application/json", "temperature": 0.1}
-#                 )
-                
-#                 result_list = json.loads(response.text.replace("```json", "").replace("```", ""))
-                
-#                 if isinstance(result_list, dict) and "transcriptions" in result_list:
-#                     result_list = result_list["transcriptions"]
-#                 elif isinstance(result_list, dict):
-#                     result_list = [{"id": k, "text": v} for k, v in result_list.items()]
-
-#                 sample_map = {str(i['id']): str(i['text']).strip() for i in result_list if 'id' in i and 'text' in i}
-#                 return sample_map
-
-#             except Exception as e:
-#                 print(f"[{page}] Thread {sample_idx+1} failed: {e}")
-#                 return None
-
-#         # execute in parallel
-#         all_samples_results = []
-#         with concurrent.futures.ThreadPoolExecutor(max_workers=N) as executor:
-#             # Submit all tasks
-#             futures = [executor.submit(process_single_sample, i) for i in range(N)]
-            
-#             # Wait maximum 15 seconds for the batch. 
-#             # Any task not finished by then is left in 'not_done' and ignored.
-#             done, not_done = concurrent.futures.wait(futures, timeout=120)
-            
-#             # Process only the ones that finished in time
-#             for future in done:
-#                 try:
-#                     res = future.result()
-#                     if res:
-#                         all_samples_results.append(res)
-#                 except Exception as exc:
-#                     print(f"[{page}] Thread exception: {exc}")
-            
-#             if not_done:
-#                 print(f"[{page}] {len(not_done)} samples timed out (>120s) and were dropped.")
-
-#         # --- 3. CHARACTER-LEVEL ENSEMBLE ---
-#         final_map = {}
-#         final_confidences = {} # Map: line_id -> list of floats
-        
-#         texts_by_id = collections.defaultdict(list)
-#         for res_map in all_samples_results:
-#             for lid, txt in res_map.items():
-#                 texts_by_id[lid].append(txt)
-
-#         for lid, candidates in texts_by_id.items():
-#             # Get text AND scores
-#             consensus_text, scores = ensemble_text_samples(candidates)
-#             if consensus_text:
-#                 final_map[lid] = consensus_text
-#                 final_confidences[lid] = scores
-#                 # Log if significant divergence occurred
-#                 unique_variants = set(candidates)
-#                 if len(unique_variants) > 1 and N > 1:
-#                     print(f"[{page}] Line {lid}: Merged {len(candidates)} samples. " 
-#                           f"Result: {consensus_text[:15]}... (Variants: {len(unique_variants)})")
-
-#         # --- 4. UPDATE XML ---
-#         if final_map:
-#             changed = False
-#             for textline in root.findall(".//p:TextLine", ns):
-#                 custom_attr = textline.get('custom', '')
-#                 if 'structure_line_id_' in custom_attr:
-#                     lid = str(custom_attr.split('structure_line_id_')[1])
-#                     if lid in final_map:
-#                         te = textline.find("p:TextEquiv", ns)
-#                         if te is None: te = ET.SubElement(textline, "TextEquiv")
-#                         uni = te.find("p:Unicode", ns)
-#                         if uni is None: uni = ET.SubElement(te, "Unicode")
-#                         uni.text = final_map[lid]
-
-#                         if lid in final_confidences:
-#                             conf_str = ",".join(map(str, final_confidences[lid]))
-#                             # Preserve existing custom data if any, simply append/replace conf
-#                             current_custom = te.get('custom', '')
-#                             # Simple replacement strategy for robustness
-#                             new_custom = f"confidences:{conf_str}" 
-#                             te.set('custom', new_custom)
-#                         changed = True
-            
-#             if changed:
-#                 tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
-#                 print(f"[{page}] XML updated with robust ensemble text.")
-
-#         return { "text": final_map, "confidences": final_confidences }
-
-#     except Exception as e:
-#         import traceback
-#         traceback.print_exc()
-#         print(f"Internal Recognition Error: {e}")
-#         return {}
 
 @app.route('/existing-manuscripts', methods=['GET'])
 def list_existing_manuscripts():

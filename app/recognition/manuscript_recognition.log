@@ -1,0 +1,114 @@
+2026-01-29 10:59:16,352 - ERROR - Image directory not found: input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:01:41,717 - INFO - Using device: cuda
+2026-01-29 11:01:41,717 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:01:42,301 - INFO - Model loaded successfully.
+2026-01-29 11:01:42,302 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:01:51,126 - INFO - Inference completed. Processed 418 images.
+2026-01-29 11:01:51,127 - INFO - Organizing recognized text...
+2026-01-29 11:01:51,127 - INFO - Updating PAGE-XML files...
+2026-01-29 11:01:51,128 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0002.xml - 23 lines written.
+2026-01-29 11:01:51,139 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0003.xml - 22 lines written.
+2026-01-29 11:01:51,141 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0004.xml - 12 lines written.
+2026-01-29 11:01:51,141 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0005.xml - 16 lines written.
+2026-01-29 11:01:51,142 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0006.xml - 22 lines written.
+2026-01-29 11:01:51,143 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0007.xml - 15 lines written.
+2026-01-29 11:01:51,143 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0008.xml - 18 lines written.
+2026-01-29 11:01:51,144 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0009.xml - 19 lines written.
+2026-01-29 11:01:51,145 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0010.xml - 20 lines written.
+2026-01-29 11:01:51,146 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0011.xml - 18 lines written.
+2026-01-29 11:01:51,146 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0012.xml - 23 lines written.
+2026-01-29 11:01:51,147 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0013.xml - 21 lines written.
+2026-01-29 11:01:51,148 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0014.xml - 28 lines written.
+2026-01-29 11:01:51,149 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0015.xml - 21 lines written.
+2026-01-29 11:01:51,150 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0016.xml - 25 lines written.
+2026-01-29 11:01:51,150 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0017.xml - 14 lines written.
+2026-01-29 11:01:51,151 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0018.xml - 30 lines written.
+2026-01-29 11:01:51,152 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0019.xml - 27 lines written.
+2026-01-29 11:01:51,153 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0020.xml - 24 lines written.
+2026-01-29 11:01:51,154 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0021.xml - 20 lines written.
+2026-01-29 11:01:51,154 - INFO - Process completed for manuscript: complex_layout
+2026-01-29 11:27:39,320 - INFO - Using device: cuda
+2026-01-29 11:27:39,321 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:27:39,903 - INFO - Model loaded successfully.
+2026-01-29 11:27:39,904 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:28:05,262 - INFO - Using device: cuda
+2026-01-29 11:28:05,262 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:28:05,794 - INFO - Model loaded successfully.
+2026-01-29 11:28:05,794 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:28:45,482 - INFO - Using device: cuda
+2026-01-29 11:28:45,482 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:28:46,052 - INFO - Model loaded successfully.
+2026-01-29 11:28:46,052 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:28:57,303 - INFO - Using device: cuda
+2026-01-29 11:28:57,303 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:28:57,828 - INFO - Model loaded successfully.
+2026-01-29 11:28:57,828 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:29:06,230 - INFO - Inference completed. Processed 418 images.
+2026-01-29 11:29:06,230 - INFO - Organizing recognized text...
+2026-01-29 11:29:06,231 - INFO - Updating PAGE-XML files...
+2026-01-29 11:29:06,243 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0002.xml - 23 lines written.
+2026-01-29 11:29:06,244 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0003.xml - 22 lines written.
+2026-01-29 11:29:06,246 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0004.xml - 12 lines written.
+2026-01-29 11:29:06,246 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0005.xml - 16 lines written.
+2026-01-29 11:29:06,247 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0006.xml - 22 lines written.
+2026-01-29 11:29:06,248 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0007.xml - 15 lines written.
+2026-01-29 11:29:06,249 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0008.xml - 18 lines written.
+2026-01-29 11:29:06,250 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0009.xml - 19 lines written.
+2026-01-29 11:29:06,251 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0010.xml - 20 lines written.
+2026-01-29 11:29:06,252 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0011.xml - 18 lines written.
+2026-01-29 11:29:06,252 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0012.xml - 23 lines written.
+2026-01-29 11:29:06,253 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0013.xml - 21 lines written.
+2026-01-29 11:29:06,255 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0014.xml - 28 lines written.
+2026-01-29 11:29:06,255 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0015.xml - 21 lines written.
+2026-01-29 11:29:06,257 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0016.xml - 25 lines written.
+2026-01-29 11:29:06,258 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0017.xml - 14 lines written.
+2026-01-29 11:29:06,259 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0018.xml - 30 lines written.
+2026-01-29 11:29:06,260 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0019.xml - 27 lines written.
+2026-01-29 11:29:06,262 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0020.xml - 24 lines written.
+2026-01-29 11:29:06,263 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0021.xml - 20 lines written.
+2026-01-29 11:29:06,263 - INFO - Process completed for manuscript: complex_layout
+2026-01-29 11:29:17,427 - INFO - Using device: cuda
+2026-01-29 11:29:17,427 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:29:17,980 - INFO - Model loaded successfully.
+2026-01-29 11:29:17,980 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:29:47,588 - INFO - Using device: cuda
+2026-01-29 11:29:47,588 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:29:48,138 - INFO - Model loaded successfully.
+2026-01-29 11:29:48,138 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:37:10,797 - INFO - Using device: cuda
+2026-01-29 11:37:10,797 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-29 11:37:11,330 - INFO - Model loaded successfully (DataParallel prefix stripped).
+2026-01-29 11:37:11,331 - INFO - Starting inference on images in: ../input_manuscripts/complex_layout/layout_analysis_output/image-format
+2026-01-29 11:37:11,559 - INFO - Processed 0 lines...
+2026-01-29 11:37:12,754 - INFO - Processed 50 lines...
+2026-01-29 11:37:14,169 - INFO - Processed 100 lines...
+2026-01-29 11:37:16,057 - INFO - Processed 150 lines...
+2026-01-29 11:37:17,590 - INFO - Processed 200 lines...
+2026-01-29 11:37:18,777 - INFO - Processed 250 lines...
+2026-01-29 11:37:19,929 - INFO - Processed 300 lines...
+2026-01-29 11:37:21,072 - INFO - Processed 350 lines...
+2026-01-29 11:37:22,243 - INFO - Processed 400 lines...
+2026-01-29 11:37:22,650 - INFO - Inference completed. Processed 418 images.
+2026-01-29 11:37:22,650 - INFO - Organizing recognized text...
+2026-01-29 11:37:22,651 - INFO - Updating PAGE-XML files...
+2026-01-29 11:37:22,652 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0002.xml - 23 lines written.
+2026-01-29 11:37:22,653 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0003.xml - 22 lines written.
+2026-01-29 11:37:22,654 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0004.xml - 12 lines written.
+2026-01-29 11:37:22,655 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0005.xml - 16 lines written.
+2026-01-29 11:37:22,656 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0006.xml - 22 lines written.
+2026-01-29 11:37:22,657 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0007.xml - 15 lines written.
+2026-01-29 11:37:22,657 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0008.xml - 18 lines written.
+2026-01-29 11:37:22,658 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0009.xml - 19 lines written.
+2026-01-29 11:37:22,662 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0010.xml - 20 lines written.
+2026-01-29 11:37:22,663 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0011.xml - 18 lines written.
+2026-01-29 11:37:22,663 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0012.xml - 23 lines written.
+2026-01-29 11:37:22,664 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0013.xml - 21 lines written.
+2026-01-29 11:37:22,665 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0014.xml - 28 lines written.
+2026-01-29 11:37:22,666 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0015.xml - 21 lines written.
+2026-01-29 11:37:22,667 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0016.xml - 25 lines written.
+2026-01-29 11:37:22,668 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0017.xml - 14 lines written.
+2026-01-29 11:37:22,669 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0018.xml - 30 lines written.
+2026-01-29 11:37:22,670 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0019.xml - 27 lines written.
+2026-01-29 11:37:22,671 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0020.xml - 24 lines written.
+2026-01-29 11:37:22,672 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0021.xml - 20 lines written.
+2026-01-29 11:37:22,672 - INFO - Process completed for manuscript: complex_layout

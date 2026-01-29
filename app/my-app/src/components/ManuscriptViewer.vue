@@ -456,7 +456,7 @@ const localTextContent = reactive({}) // Map: lineId -> string
 const pagePolygons = ref({}) // Map: lineId -> [[x,y],...]
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
-const autoRecogEnabled = ref(true)
+const autoRecogEnabled = ref(false)
 const devanagariModeEnabled = ref(true) 
 const localTextConfidence = reactive({}) 
 const saveKeyToStorage = () => {
