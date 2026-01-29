@@ -1,5 +1,6 @@
 // InputClusterCode.js
-
+  
+// not working ऋ
 export function logCharactersBeforeCursor(input) {
   const cursorPosition = input.selectionStart;
   const currentValue = input.value;
