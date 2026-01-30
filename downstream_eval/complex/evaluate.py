@@ -202,7 +202,7 @@ def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
         pred_lines = parser_func(pred_path)
         
         # Run Matcher
-        tp, fp, fn = match_lines_for_ap(gt_lines, pred_lines, cer_threshold=0.90)
+        tp, fp, fn = match_lines_for_ap(gt_lines, pred_lines, cer_threshold=0.50)
         
         total_tp += tp
         total_fp += fp
@@ -229,14 +229,19 @@ def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
 # Define directories
 DIR_JSON_PRED = "json-format-pred"
 DIR_XML_PRED = "page-xml-format-pred"
+DIR_XML_PRED_EASY = "page-xml-format-pred-easy"
+
 DIR_GT = "page-xml-format"
 
 # Ensure directories exist (for testing safety)
 if os.path.exists(DIR_GT):
     # 1. Evaluate Method 1 (JSON)
-    evaluate_method(DIR_JSON_PRED, DIR_GT, parse_json, "Method 1 (JSON)")
+    evaluate_method(DIR_JSON_PRED, DIR_GT, parse_json, "NO STRUCTURE: GEMINI (JSON)")
 
     # 2. Evaluate Method 2 (PageXML)
-    evaluate_method(DIR_XML_PRED, DIR_GT, parse_pagexml, "Method 2 (PageXML)")
+    evaluate_method(DIR_XML_PRED, DIR_GT, parse_pagexml, "STRUCTURE: GEMINI (PageXML)")
+
+    # 2. Evaluate Method 3 (PageXML)
+    evaluate_method(DIR_XML_PRED_EASY, DIR_GT, parse_pagexml, "STRUCTURE: EASYOCR (PageXML)")
 else:
     print(f"Please ensure the directory '{DIR_GT}' exists and contains the dataset.")
