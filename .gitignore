@@ -6,7 +6,7 @@
 **/__pycache__/
 
 app/recognition/pretrained_model/devanagari.pth
-/recognition/pretrained_model/vadakautuhala.pth
+app/recognition/pretrained_model/vadakautuhala.pth
 
 # Vue app (app/my-app)
 app/my-app/node_modules/
@@ -18,6 +18,8 @@ app/my-app/.env
 app/my-app/.env.*
 app/.env
 app/.env.*
+downstream_eval/.env.*
+downstream_eval/.env
 
 # Logs
 app/my-app/npm-debug.log*

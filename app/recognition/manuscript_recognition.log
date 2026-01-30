@@ -112,3 +112,6 @@
 2026-01-29 11:37:22,671 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0020.xml - 24 lines written.
 2026-01-29 11:37:22,672 - INFO - Updated ../input_manuscripts/complex_layout/layout_analysis_output/page-xml-format/233_0021.xml - 20 lines written.
 2026-01-29 11:37:22,672 - INFO - Process completed for manuscript: complex_layout
+2026-01-30 11:16:05,562 - INFO - Using device: cuda
+2026-01-30 11:16:05,562 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-01-30 11:16:06,042 - ERROR - Critical error loading model: Model file not found at: pretrained_model/vadakautuhala.pth
