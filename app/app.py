@@ -1,5 +1,5 @@
 # app.py
-import threading  # <--- CRITICAL IMPORT
+import threading 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
@@ -42,10 +42,6 @@ MODEL_CHECKPOINT = "./pretrained_gnn/v2.pt"
 DATASET_CONFIG = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
 
 def parse_page_xml_polygons(xml_path):
-    """
-    Parses PAGE-XML to extract polygon coordinates for each textline.
-    Returns: Dict { structure_line_id: [[x,y], [x,y], ...] }
-    """
     polygons = {}
     if not os.path.exists(xml_path):
         return polygons
@@ -69,13 +65,8 @@ def parse_page_xml_polygons(xml_path):
             if coords_elem is not None:
                 points_str = coords_elem.get('points', '')
                 if points_str:
-                    # Convert "x,y x,y" -> [[x,y], [x,y]]
                     points = [list(map(int, p.split(','))) for p in points_str.strip().split(' ')]
                     polygons[line_id] = points
-                    
-            # Also try to grab existing text if any
-            text_equiv = textline.find('p:TextEquiv/p:Unicode', ns)
-            # We can optionally return this, but the main logic relies on the separate dict
             
     except Exception as e:
         print(f"Error parsing XML polygons: {e}")
@@ -84,10 +75,6 @@ def parse_page_xml_polygons(xml_path):
 
 
 def get_existing_text_content(xml_path):
-    """
-    Parses PAGE-XML to extract Unicode text AND confidence scores.
-    Returns a dict with 'text' and 'confidences' maps.
-    """
     text_content = {}
     confidences = {}
     
@@ -107,20 +94,15 @@ def get_existing_text_content(xml_path):
                 except IndexError:
                     continue
                 
-                # Extract Text
                 text_equiv = textline.find('p:TextEquiv', ns)
                 if text_equiv is not None:
                     uni = text_equiv.find('p:Unicode', ns)
                     if uni is not None and uni.text:
                         text_content[line_id] = uni.text
                         
-                        # Extract Confidence from 'custom' attribute of TextEquiv
-                        # Format expected: "confidences:0.9,0.5,..."
                         te_custom = text_equiv.get('custom', '')
                         if 'confidences:' in te_custom:
                             try:
-                                # Split by 'confidences:' and take the part after it
-                                # Then split by ';' in case there is other data
                                 raw_conf = te_custom.split('confidences:')[1].split(';')[0]
                                 if raw_conf.strip():
                                     confidences[line_id] = [float(x) for x in raw_conf.split(',')]
@@ -167,21 +149,36 @@ def upload_manuscript():
 
 @app.route('/manuscript/<name>/pages', methods=['GET'])
 def get_pages(name):
-    manuscript_path = Path(UPLOAD_FOLDER) / name / "gnn-dataset"
-    if not manuscript_path.exists():
-        return jsonify([]), 404
-    pages = sorted([f.name.replace("_dims.txt", "") for f in manuscript_path.glob("*_dims.txt")])
-    return jsonify(pages)
+    """
+    Returns list of pages and the ID of the most recently edited page based on XML mtime.
+    """
+    manuscript_path = Path(UPLOAD_FOLDER) / name
+    dataset_path = manuscript_path / "gnn-dataset"
+    if not dataset_path.exists():
+        return jsonify({"pages": [], "last_edited": None}), 404
+    
+    pages = sorted([f.name.replace("_dims.txt", "") for f in dataset_path.glob("*_dims.txt")])
+    
+    # Determine last edited page
+    xml_dir = manuscript_path / "layout_analysis_output" / "page-xml-format"
+    last_edited = None
+    latest_time = 0
+    
+    if xml_dir.exists():
+        for page in pages:
+            xml_file = xml_dir / f"{page}.xml"
+            if xml_file.exists():
+                mtime = xml_file.stat().st_mtime
+                if mtime > latest_time:
+                    latest_time = mtime
+                    last_edited = page
 
-# ----------------------------------------------------------------
-# 2. UPDATE: Endpoint to return the new data fields
-# ----------------------------------------------------------------
+    return jsonify({"pages": pages, "last_edited": last_edited})
+
 @app.route('/semi-segment/<manuscript>/<page>', methods=['GET'])
 def get_page_prediction(manuscript, page):
-    # print("Received request for manuscript:", manuscript, "page:", page)
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     try:
-        # 1. Run GNN Inference / Get Graph Data
         graph_data = run_gnn_prediction_for_page(
             str(manuscript_path), 
             page, 
@@ -189,14 +186,12 @@ def get_page_prediction(manuscript, page):
             DATASET_CONFIG
         )
         
-        # 2. Get Image
         img_path = manuscript_path / "images_resized" / f"{page}.jpg"
         encoded_string = ""
         if img_path.exists():
             with open(img_path, "rb") as image_file:
                 encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
 
-        # 3. CRITICAL: Load Existing XML Data
         xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
         polygons = {}
         existing_data = {"text": {}, "confidences": {}}
@@ -212,11 +207,9 @@ def get_page_prediction(manuscript, page):
             "graph": graph_data,
             "textline_labels": graph_data.get('textline_labels', []),
             "textbox_labels": graph_data.get('textbox_labels', []),
-            
-            # Data for Recognition Mode
             "polygons": polygons, 
-            "textContent": existing_data["text"],           # <--- Must match frontend expectation
-            "textConfidences": existing_data["confidences"] # <--- Must match frontend expectation
+            "textContent": existing_data["text"],
+            "textConfidences": existing_data["confidences"]
         }
         return jsonify(response)
         
@@ -227,15 +220,10 @@ def get_page_prediction(manuscript, page):
 
 
 def ensemble_text_samples(samples):
-    """
-    Performs character-level ensemble.
-    Returns: (consensus_string, confidence_scores_list)
-    """
     valid_samples = [s for s in samples if s and s.strip()]
     if not valid_samples:
         return "", []
     if len(valid_samples) == 1:
-        # Single sample = 100% confidence for all chars
         return valid_samples[0], [1.0] * len(valid_samples[0])
 
     valid_samples.sort(key=len)
@@ -243,7 +231,7 @@ def ensemble_text_samples(samples):
     pivot = valid_samples[pivot_idx]
     
     GAP_TOKEN = "__GAP__"
-    total_samples = len(valid_samples) # N
+    total_samples = len(valid_samples) 
     
     grid = [collections.Counter({char: 1}) for char in pivot]
     insertions = collections.defaultdict(collections.Counter)
@@ -280,26 +268,18 @@ def ensemble_text_samples(samples):
 
     def append_result(char_str, vote_count):
         conf = round(vote_count / total_samples, 2)
-        # For multi-char chunks (insertions), append conf for each char
         for c in char_str:
             result_chars.append(c)
             result_confidences.append(conf)
 
-    # Handle start insertions
     if -1 in insertions:
         best_ins, count = insertions[-1].most_common(1)[0]
-        # Heuristic: Add +1 to count for the pivot's implied "nothing here" if needed, 
-        # but generally insertions are voted by 'others'. Let's trust the count.
-        # We assume the pivot voted "nothing", so count is strictly from others.
         append_result(best_ins, count)
 
     for i in range(len(pivot)):
-        # Pivot position
         best_char, count = grid[i].most_common(1)[0]
         if best_char != GAP_TOKEN:
             append_result(best_char, count)
-            
-        # Insertions after
         if i in insertions:
             best_ins, count = insertions[i].most_common(1)[0]
             append_result(best_ins, count)
@@ -308,15 +288,8 @@ def ensemble_text_samples(samples):
 
 
 def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_points=4):
-    """
-    Improved drop-in replacement.
-    - Parallelizes N samples.
-    - Configurable point density for polylines.
-    - Aligned with Gemini's spatial grounding CoT.
-    """
     print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
     
-    # Setup paths
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     img_path = base_path / "images_resized" / f"{page}.jpg"
@@ -332,11 +305,8 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
         tree = ET.parse(xml_path)
         root = tree.getroot()
 
-        # --- 1. GEOMETRY EXTRACTION & INTERPOLATION ---
         def get_equidistant_points(pts, m):
             if len(pts) < 2: return pts * m
-            
-            # Cumulative distance along the original polyline
             dists = [0.0]
             for i in range(len(pts)-1):
                 dists.append(dists[-1] + ((pts[i+1][0]-pts[i][0])**2 + (pts[i+1][1]-pts[i][1])**2)**0.5)
@@ -347,14 +317,10 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
             new_pts = []
             for i in range(m):
                 target = (i / (m - 1)) * total_dist
-                # Find which segment the target distance falls into
                 for j in range(len(dists)-1):
                     if dists[j] <= target <= dists[j+1]:
                         segment_dist = dists[j+1] - dists[j]
-                        # Linear interpolation within the segment
                         rat = (target - dists[j]) / segment_dist if segment_dist > 0 else 0
-                        
-                        # FIX: Use 'j' for segment indexing, not 'i'
                         nx = pts[j][0] + rat * (pts[j+1][0] - pts[j][0])
                         ny = pts[j][1] + rat * (pts[j+1][1] - pts[j][1])
                         new_pts.append([int(nx), int(ny)])
@@ -367,14 +333,12 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
             if 'structure_line_id_' not in custom_attr: continue
             line_id = str(custom_attr.split('structure_line_id_')[1])
 
-            # Geometry extraction (Baseline is primary for Sanskrit)
             base_elem = textline.find('p:Baseline', ns)
             if base_elem is not None and base_elem.get('points'):
                 pts = [list(map(int, p.split(','))) for p in base_elem.get('points').strip().split(' ')]
                 pts.sort(key=lambda k: k[0])
             else: continue
 
-            # Orientation & Thickness Logic
             coords_elem = textline.find('p:Coords', ns)
             poly_pts = [list(map(int, p.split(','))) for p in coords_elem.get('points').strip().split(' ')] if coords_elem is not None else []
             
@@ -393,28 +357,23 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
 
         if not lines_geometry: return {}
 
-        # --- 2. PARALLEL API EXECUTION ---
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        model = genai.GenerativeModel('gemini-2.5-flash') # Or gemini-3-flash
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
         def normalize(x, y):
             return max(0, min(1000, int((y / img_h) * 1000))), max(0, min(1000, int((x / img_w) * 1000)))
 
         def sample_worker(sample_idx):
-            # Centered at 0.0, ranging from -0.3 to +0.3 (total 60% of thickness)
             shift_ratios = [0.0] if N == 1 else [(i / (N - 1) - 0.5) * 0.6 for i in range(N)]
             current_shift = shift_ratios[sample_idx]
             
             regions_payload = []
             for line in lines_geometry:
-                # Interpolate N points
                 trace_raw = get_equidistant_points(line['baseline'], num_trace_points)
                 shift_px = int(line['thickness'] * current_shift)
                 
-                # Apply shift based on orientation
                 shifted = [[px + shift_px, py] if line['is_vertical'] else [px, py + shift_px] for px, py in trace_raw]
                 
-                # Format for Gemini: flat list [y, x, y, x...]
                 gemini_trace = []
                 for px, py in shifted:
                     ny, nx = normalize(px, py)
@@ -440,27 +399,24 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
                 prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
 
             try:
-                # Place image before text for better multimodal attention in Flash models
                 response = model.generate_content(
                     [pil_img, prompt_text],
                     generation_config={"response_mime_type": "application/json", "temperature": 0.2}
                 )
                 data = json.loads(response.text)
-                # Normalize response format
                 if isinstance(data, dict) and "transcriptions" in data: data = data["transcriptions"]
                 return {str(i['id']): str(i['text']).strip() for i in data if 'id' in i}
             except Exception as e:
                 print(f"Sample {sample_idx} error: {e}")
                 return None
 
-        # Execute in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=N) as executor:
             future_to_idx = {executor.submit(sample_worker, i): i for i in range(N)}
             all_samples_results = [f.result() for f in concurrent.futures.as_completed(future_to_idx) if f.result()]
 
         # --- 3. CHARACTER-LEVEL ENSEMBLE ---
         final_map = {}
-        final_confidences = {} # Map: line_id -> list of floats
+        final_confidences = {}
         
         texts_by_id = collections.defaultdict(list)
         for res_map in all_samples_results:
@@ -468,7 +424,6 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
                 texts_by_id[lid].append(txt)
 
         for lid, candidates in texts_by_id.items():
-            # Get text AND scores
             consensus_text, scores = ensemble_text_samples(candidates)
             if consensus_text:
                 final_map[lid] = consensus_text
@@ -477,7 +432,6 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
                     print(f"[{page}] Line {lid}: Merged {len(candidates)} samples. " 
                           f"Result: {consensus_text[:15]}... (Variants: {len(set(candidates))})")
 
-        # --- 4. UPDATE XML ---
         if final_map:
             changed = False
             for textline in root.findall(".//p:TextLine", ns):
@@ -534,7 +488,6 @@ def save_correction(manuscript, page):
     nodes_data = graph_data.get('nodes')
     text_content = data.get('textContent') 
     
-    # Flags for background processing
     run_recognition = data.get('runRecognition', False)
     api_key = data.get('apiKey', None) #not used, unsafe
 
@@ -542,9 +495,6 @@ def save_correction(manuscript, page):
         return jsonify({"error": "Missing labels or graph data"}), 400
 
     try:
-        # 1. SAVE LAYOUT (Synchronous)
-        # We must wait for this to finish so the XML/Images exist for the thread to read.
-        # This is usually very fast (<200ms).
         result = generate_xml_and_images_for_page(
             str(manuscript_path),
             page,
@@ -561,23 +511,15 @@ def save_correction(manuscript, page):
             text_content=text_content 
         )
 
-         # 2. TRIGGER RECOGNITION (Asynchronous)
-        # FIX: Run if requested, even if apiKey not sent (internal function checks os.getenv)
         if run_recognition: 
-            
-            # Wrapper to log start/finish in backend console
             def background_task(m, p, k):
                 _run_gemini_recognition_internal(m, p, k)
 
-            # Spawn the thread
-            # Pass None for api_key to force internal function to use .env
             thread = threading.Thread(target=background_task, args=(manuscript, page, None), daemon=True)
             thread.start()
             
-            # Let the frontend know we started it, but don't wait for the result
             result['autoRecognitionStatus'] = "processing_in_background"
 
-        # Return immediately to unblock the UI
         return jsonify(result)
 
     except Exception as e:
@@ -586,9 +528,6 @@ def save_correction(manuscript, page):
         return jsonify({"error": str(e)}), 500
 
 
-# ----------------------------------------------------------------
-# MODIFIED: Existing Recognize Endpoint (Wrapper)
-# ----------------------------------------------------------------
 @app.route('/recognize-text', methods=['POST'])
 def recognize_text():
     data = request.json
@@ -599,16 +538,12 @@ def recognize_text():
     if not api_key:
         return jsonify({"error": "API Key required"}), 400
 
-    # Use the shared internal function
     result = _run_gemini_recognition_internal(manuscript, page, api_key)
     return jsonify(result)
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):
     return jsonify({"status": "ok"})
-
-
-
 
 @app.route('/download-results/<manuscript>', methods=['GET'])
 def download_results(manuscript):
@@ -641,13 +576,5 @@ def download_results(manuscript):
         download_name=f'{manuscript}_results.zip'
     )
 
-
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)  
-
-# backend
-# ssh -N -L 5001:localhost:5000 kartik@192.168.8.12
-
-# frontend
-# ssh -L 8000:localhost:5173 kartik@192.168.8.12
+    app.run(host='0.0.0.0', port=5000, debug=True)

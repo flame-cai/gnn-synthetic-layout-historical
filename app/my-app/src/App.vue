@@ -24,18 +24,16 @@
           <input v-model="formName" type="text" placeholder="e.g. manuscript_1" />
         </div>
 
-
-
         <div class="form-group">
           <label>Resize Dimension (Longest Side):</label>
           <input v-model.number="formLongestSide" type="number" />
         </div>
-        <!-- NEW FIELD -->
+        
         <div class="form-group">
           <label>Min Distance (Peak Detection):</label>
           <input v-model.number="formMinDistance" type="number" title="Distance between char centers" />
         </div>
-        <!-- END NEW FIELD -->
+        
         <div class="form-group">
           <label>Images:</label>
           <input type="file" multiple @change="handleFileChange" accept="image/*" />
@@ -49,12 +47,11 @@
 
     <div v-else>
       <!-- Main Workstation -->
-      <!-- REMOVED: The floating .back-btn is gone. We handle it via the event below -->
       <ManuscriptViewer 
         :manuscriptName="currentManuscript" 
         :pageName="currentPage"
         @page-changed="handlePageChange"
-        @back="currentManuscript = null" 
+        @back="resetSelection" 
       />
     </div>
   </div>
@@ -62,7 +59,7 @@
 
 <script setup>
 
-import { ref, onMounted } from 'vue' // Added onMounted
+import { ref, onMounted } from 'vue'
 import ManuscriptViewer from './components/ManuscriptViewer.vue'
 
 // Basic State
@@ -73,14 +70,13 @@ const pageList = ref([])
 // Upload Form State
 const formName = ref('my_manuscript')
 const formLongestSide = ref(2500)
-const formMinDistance = ref(20) // NEW STATE
+const formMinDistance = ref(20)
 const selectedFiles = ref([])
 const uploading = ref(false)
 const uploadStatus = ref('')
 const existingManuscripts = ref([])
 const selectedExisting = ref('')
 
-// NEW: Fetch existing on mount
 onMounted(async () => {
     try {
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/existing-manuscripts`)
@@ -104,7 +100,7 @@ const upload = async () => {
   const formData = new FormData()
   formData.append('manuscriptName', formName.value)
   formData.append('longestSide', formLongestSide.value)
-  formData.append('minDistance', formMinDistance.value) // NEW
+  formData.append('minDistance', formMinDistance.value)
   selectedFiles.value.forEach(file => formData.append('images', file))
 
   try {
@@ -115,7 +111,7 @@ const upload = async () => {
     if(!res.ok) throw new Error('Upload failed')
     const data = await res.json()
     
-    // Success - Switch to viewer
+    // The /upload endpoint returns { message: "...", pages: [...] }
     pageList.value = data.pages
     if (pageList.value.length > 0) {
       currentManuscript.value = formName.value
@@ -134,20 +130,24 @@ const handlePageChange = (newPage) => {
   currentPage.value = newPage
 }
 
-// NEW: Load Logic
+// FIXED: Handle new backend response format { pages: [], last_edited: ... }
 const loadExisting = async () => {
     if(!selectedExisting.value) return
     
-    // Fetch pages for this manuscript
     try {
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/manuscript/${selectedExisting.value}/pages`)
         if(!res.ok) throw new Error("Could not load pages")
-        const pages = await res.json()
+        
+        const data = await res.json()
+        // Extract pages array
+        const pages = data.pages || []
+        const lastEdited = data.last_edited
         
         if(pages.length > 0) {
             pageList.value = pages
             currentManuscript.value = selectedExisting.value
-            currentPage.value = pages[0]
+            // Jump to last edited if available, otherwise first page
+            currentPage.value = lastEdited && pages.includes(lastEdited) ? lastEdited : pages[0]
         } else {
             alert("This manuscript has no processed pages.")
         }
@@ -158,7 +158,10 @@ const loadExisting = async () => {
 
 const resetSelection = () => {
     currentManuscript.value = null
-    // Refresh list on back
+    // Reset internal state
+    currentPage.value = null
+    pageList.value = []
+    // Refresh existing list
     onMounted() 
 }
 </script>
@@ -177,4 +180,5 @@ button:disabled { background: #555; }
 .load-group { display: flex; gap: 10px; }
 .dropdown { flex-grow: 1; padding: 10px; background: #444; color: white; border: 1px solid #555; }
 .load-btn { background: #2196F3; }
+.status { margin-top: 15px; color: #aaa; font-style: italic; }
 </style>

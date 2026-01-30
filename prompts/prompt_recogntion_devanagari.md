@@ -1,7 +1,11 @@
-As an expert software development, specializing front-end sofware development using .vue, and backend developend using python. Please assist me in making precise improvements to data annotation tool below, which helps historians digitize historical manuscripts.
+As an expert software development, specializing front-end sofware development using .vue, and backend developend using python. Please assist me in making precise improvements to data annotation tool below, which helps historians analyze layout and digitize text from historical manuscripts.
 
-This code is part of a larger system which performs layout analysis on manuscript images using a Graph Neural Network (GNN). The layout analysis problem is formulated in a graph based manner, where characters are treated as nodes and characters of the same text lines are connected with edges. Thus nodes containing the same textline have the same text line label. The user can also label nodes with textbox labels, marking nodes of each text box with the same integer label. Once labelled (using gnn layout inference + manual corrections), the system generates PAGE XML files containing textbox and text line bounding polygons, along with visualizations. The system also saves textline images, for each textbox.
+This code is part of a larger system which performs layout analysis on manuscript images using a Graph Neural Network (GNN). The layout analysis problem is formulated in a graph based manner, where characters are treated as nodes and characters of the same text lines are connected with edges. Thus nodes containing the same textline have the same text line label. The user can also add/delete nodes, label nodes with textbox labels by marking nodes of each text box with the same integer label. Once labelled (using gnn layout inference + manual corrections), the system generates PAGE XML files containing textbox and text line bounding polygons. The system also saves textline images, for each textbox.
 After performing the layout analysis semi-automatically using the graph neural network, we use Gemini API to recognize text context from each textline in the "Recognition Mode".
+
+
+
+
 
 I want your help in updating how keystrokes are handled in the text input fields in the recognition mode, where the user will make manual corrections to Gemini output. Right now the key board only records latin characters, but we want to support devanagari script now. Note that this feature is optional, and user should be able to toggle default behaviour, with the new "devanagari input keyboard"
 
