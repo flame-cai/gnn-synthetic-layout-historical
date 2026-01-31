@@ -113,7 +113,7 @@ def parse_json(filepath):
 # 3. MATCHING LOGIC (The AP Adaptation)
 # ==========================================
 
-def match_lines_for_ap(gt_lines, pred_lines, cer_threshold=0.5):
+def match_lines_for_ap(gt_lines, pred_lines, cer_threshold=0.25):
     """
     Matches predictions to ground truth based on CER threshold.
     Returns counts of TP, FP, FN.
@@ -202,7 +202,7 @@ def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
         pred_lines = parser_func(pred_path)
         
         # Run Matcher
-        tp, fp, fn = match_lines_for_ap(gt_lines, pred_lines, cer_threshold=0.50)
+        tp, fp, fn = match_lines_for_ap(gt_lines, pred_lines, cer_threshold=0.20) # we count as match wiht GT line if cer<0.5
         
         total_tp += tp
         total_fp += fp
@@ -227,11 +227,11 @@ def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
     print(f"F1 Score:  {f1:.4f}")
 
 # Define directories
-DIR_JSON_PRED = "json-format-pred"
-DIR_XML_PRED = "page-xml-format-pred"
-DIR_XML_PRED_EASY = "page-xml-format-pred-easy"
+DIR_JSON_PRED = "gemini-no-structure-pred"
+DIR_XML_PRED = "gemini-structure-pred"
+# DIR_XML_PRED_EASY = "page-xml-format-pred-easy"
 
-DIR_GT = "page-xml-format"
+DIR_GT = "ground-truth"
 
 # Ensure directories exist (for testing safety)
 if os.path.exists(DIR_GT):
@@ -241,7 +241,7 @@ if os.path.exists(DIR_GT):
     # 2. Evaluate Method 2 (PageXML)
     evaluate_method(DIR_XML_PRED, DIR_GT, parse_pagexml, "STRUCTURE: GEMINI (PageXML)")
 
-    # 2. Evaluate Method 3 (PageXML)
-    evaluate_method(DIR_XML_PRED_EASY, DIR_GT, parse_pagexml, "STRUCTURE: EASYOCR (PageXML)")
+    # # 2. Evaluate Method 3 (PageXML)
+    # evaluate_method(DIR_XML_PRED_EASY, DIR_GT, parse_pagexml, "STRUCTURE: EASYOCR (PageXML)")
 else:
     print(f"Please ensure the directory '{DIR_GT}' exists and contains the dataset.")
