@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-02T14:02:22.121646</Created>
+  </Metadata>
+  <Page imageFilename="233_0005.jpg" imageWidth="2500" imageHeight="967">
+    <TextRegion id="region_0" custom="type:metadata">
+      <Coords points="235,135 437,135 437,193 235,193"/>
+      <TextLine id="line_0">
+        <Coords points="235,135 437,135 437,193 235,193"/>
+        <TextEquiv>
+          <Unicode>M-233</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:page_number">
+      <Coords points="2000,135 2110,135 2110,183 2000,183"/>
+      <TextLine id="line_0">
+        <Coords points="2000,135 2110,135 2110,183 2000,183"/>
+        <TextEquiv>
+          <Unicode>5</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:marginalia">
+      <Coords points="62,377 140,377 140,531 62,531"/>
+      <TextLine id="line_0">
+        <Coords points="62,377 140,377 140,531 62,531"/>
+        <TextEquiv>
+          <Unicode>पञ्चमा तिमुखर</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="157,232 2345,232 2345,754 157,754"/>
+      <TextLine id="line_0">
+        <Coords points="157,232 2265,232 2265,280 157,280"/>
+        <TextEquiv>
+          <Unicode>स्नानमर्देवतेर्मिर्जनंयारासैमयः॥सूर्यस्याप्युपस्थानंगायात्र्यप्रलहंजपः॥गायत्री</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="157,285 2345,285 2345,338 157,338"/>
+        <TextEquiv>
+          <Unicode>पिरसार्दनवेद्याहतिपूर्वका॥प्रणवसंयुक्तोघिरयंप्राणसंयमः॥प्राणानाप्यसंप्रोष्य मार्जनैकवार</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="157,343 2345,343 2345,396 157,396"/>
+        <TextEquiv>
+          <Unicode>चेनादैवतेनतुजपन्नासीतसावित्रीप्रसंगात्तारकोद्यात्॥संध्याचौरुषातरेवंहितेदासूयदर्श पूर्विमुखरः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="157,401 2265,401 2265,454 157,454"/>
+        <TextEquiv>
+          <Unicode>मात्ता॥उर्जिनेकाचर्य्यततःकुर्वीतसंध्योरुपि॥ततोविवादयेद्ददानलवन्हितिवुवनाणु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="157,459 2265,459 2265,512 157,512"/>
+        <TextEquiv>
+          <Unicode>रुंचेवाप्युपासीतंद्यापार्थसमाहितः॥जज्ञाप्यधीपीतंध्याचामैवेवेदा॥हितंचार्य्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="157,517 2265,517 2265,570 157,570"/>
+        <TextEquiv>
+          <Unicode>चरेत्सुखंमंमोनावाकापकर्मात्तः॥रुताद्रोहिमेधाविद्युचिकल्पारासूपका॥उध्याप्याधर्मी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="157,580 2265,580 2265,633 157,633"/>
+        <TextEquiv>
+          <Unicode>तःसाधुशाकाप्रज्ञानावित्तदा॥दंडाजिनोपवीतनिमेखलांचैवधारयेत्॥ब्राह्मणेषुचरेदैक्ष</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

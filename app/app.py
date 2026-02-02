@@ -11,7 +11,7 @@ import zipfile
 import io
 import google.generativeai as genai
 import glob
-from PIL import Image
+
 import xml.etree.ElementTree as ET
 import numpy as np
 from os.path import isdir, join
@@ -21,6 +21,10 @@ import difflib
 from dotenv import load_dotenv
 import concurrent.futures
 load_dotenv() 
+import traceback
+from PIL import Image, ImageDraw
+
+from google.api_core import retry
 
 # from recognition.recognize_manuscript_text import recognize_manuscript_text
 # cd recognition
@@ -286,8 +290,7 @@ def ensemble_text_samples(samples):
 
     return "".join(result_chars), result_confidences
 
-
-def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_points=4):
+def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_points=4):
     print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
     
     base_path = Path(UPLOAD_FOLDER) / manuscript
@@ -364,15 +367,13 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
             return max(0, min(1000, int((y / img_h) * 1000))), max(0, min(1000, int((x / img_w) * 1000)))
 
         def sample_worker(sample_idx):
-            shift_ratios = [0.0] if N == 1 else [(i / (N - 1) - 0.5) * 0.6 for i in range(N)]
-            current_shift = shift_ratios[sample_idx]
+            # No path shifting logic here anymore.
             
             regions_payload = []
             for line in lines_geometry:
                 trace_raw = get_equidistant_points(line['baseline'], num_trace_points)
-                shift_px = int(line['thickness'] * current_shift)
-                
-                shifted = [[px + shift_px, py] if line['is_vertical'] else [px, py + shift_px] for px, py in trace_raw]
+                # Use the exact baseline trace without shifting
+                shifted = trace_raw
                 
                 gemini_trace = []
                 for px, py in shifted:
@@ -385,13 +386,15 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
 
             # Improved Prompt: Aligning with Autoregressive Spatial Grounding
             prompt_text = (
-                "You are an expert paleographer and OCR engine specialized in historical Sanskrit manuscripts.\n"
-                "I have provided an image of a manuscript page. Your task is to perform visual grounding OCR: "
-                "transcribe the handwritten Devanagari text found at specific spatial locations defined by 'Path Traces'.\n"
-                "The coordinates are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
+                "You are an expert Indologist and Paleographer specializing in handwritten Sanskrit manuscripts."
+                "Your Task: Perform a diplomatic transcription (OCR) of the attached manuscript image.\n"
+                "CRITICAL INSTRUCTIONS:\n"
+                "Transcribe the Sanskrit text from the image at the text-line level, where locations of the handwritten text-lines are defined using 'Path Traces'. Each 'Path Trace' refers to one text-line.\n"
+                "The coordinates of the Path Traces are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
                 "to precisely map the text line locations on the image.\n"
                 "For each path trace [y_start, x_start, y_mid1, x_mid1, y_mid2, x_mid2, y_end, x_end], transcribe the text that sits along this curve.\n"
                 "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
+                "Transcribe in Unicode Devanagari. Preserve original spelling (Sandhi).\n"
                 "Output a JSON array of objects with 'id' and 'text'.\n\n"
                 "REGIONS:\n"
             )
@@ -399,9 +402,12 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
                 prompt_text += f"ID: {item['id']} | Trace: {item['trace']}\n"
 
             try:
+                # Use higher temperature for ensemble diversity if N > 1, else greedy (0.2)
+                run_temperature = 0.7 if N > 1 else 0.2
+                
                 response = model.generate_content(
                     [pil_img, prompt_text],
-                    generation_config={"response_mime_type": "application/json", "temperature": 0.2}
+                    generation_config={"response_mime_type": "application/json", "temperature": run_temperature}
                 )
                 data = json.loads(response.text)
                 if isinstance(data, dict) and "transcriptions" in data: data = data["transcriptions"]
@@ -464,6 +470,222 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=5, num_trace_p
         print(f"Internal Recognition Error: {e}")
         return {}
 
+
+
+
+# def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_points=4):
+#     """
+#     Drop-in replacement for Gemini OCR.
+#     1. Crops text lines using PAGE-XML polygons (Masked to white background).
+#     2. Sends individual image chips to Gemini.
+#     3. Uses Temperature variation for sampling (N > 1).
+#     """
+#     print(f"[{page}] Starting chipped recognition with N={N}...")
+    
+#     base_path = Path(UPLOAD_FOLDER) / manuscript
+#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+#     img_path = base_path / "images_resized" / f"{page}.jpg"
+
+#     if not xml_path.exists() or not img_path.exists():
+#         print(f"[{page}] Missing XML or Image file.")
+#         return {}
+
+#     try:
+#         # 1. Setup Model
+#         genai.configure(api_key=api_key)
+#         # Using a model capable of high-res vision. Flash is fast, but Pro is better for Paleography.
+#         # Keeping 'flash' as per implied previous config, but Pro is recommended if budget allows.
+#         model = genai.GenerativeModel('gemini-2.5-pro') 
+
+#         # 2. Parse XML and Image
+#         pil_img = Image.open(img_path).convert("RGB")
+#         img_w, img_h = pil_img.size
+        
+#         ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+#         tree = ET.parse(xml_path)
+#         root = tree.getroot()
+        
+#         # Check if XML has scaling info to match image coordinates
+#         page_elem = root.find(".//p:Page", ns)
+#         xml_w = int(page_elem.get('imageWidth')) if page_elem is not None and page_elem.get('imageWidth') else img_w
+#         xml_h = int(page_elem.get('imageHeight')) if page_elem is not None and page_elem.get('imageHeight') else img_h
+        
+#         scale_x = img_w / xml_w if xml_w > 0 else 1.0
+#         scale_y = img_h / xml_h if xml_h > 0 else 1.0
+
+#         lines_data = [] # List of tuples: (line_id, cropped_image_obj)
+
+#         for textline in root.findall(".//p:TextLine", ns):
+#             custom_attr = textline.get('custom', '')
+#             if 'structure_line_id_' not in custom_attr: continue
+#             line_id = str(custom_attr.split('structure_line_id_')[1])
+
+#             # Priority: Use Coords (Polygon) for precise cropping
+#             coords_elem = textline.find('p:Coords', ns)
+#             if coords_elem is not None and coords_elem.get('points'):
+#                 points_str = coords_elem.get('points').strip()
+#                 # Parse "x,y x,y" format
+#                 poly_pts = []
+#                 for p in points_str.split(' '):
+#                     try:
+#                         px, py = map(int, p.split(','))
+#                         poly_pts.append((int(px * scale_x), int(py * scale_y)))
+#                     except: continue
+                
+#                 if len(poly_pts) < 3: continue
+
+#                 # --- MASKING AND CROPPING LOGIC ---
+#                 # 1. create a blank mask the size of the image
+#                 mask = Image.new('L', (img_w, img_h), 0)
+#                 draw = ImageDraw.Draw(mask)
+#                 # 2. Draw the polygon in white (255)
+#                 draw.polygon(poly_pts, outline=255, fill=255)
+                
+#                 # 3. Create a white background image
+#                 white_bg = Image.new('RGB', (img_w, img_h), (255, 255, 255))
+                
+#                 # 4. Composite: Keep original pixels where mask is white, else use white_bg
+#                 masked_img = Image.composite(pil_img, white_bg, mask)
+                
+#                 # 5. Crop to bounding box of the polygon
+#                 bbox = mask.getbbox()
+#                 if bbox:
+#                     # Add slight padding (5px) to bbox to avoid cutting edge strokes
+#                     left, upper, right, lower = bbox
+#                     left = max(0, left - 5)
+#                     upper = max(0, upper - 5)
+#                     right = min(img_w, right + 5)
+#                     lower = min(img_h, lower + 5)
+                    
+#                     cropped_chip = masked_img.crop((left, upper, right, lower))
+#                     lines_data.append((line_id, cropped_chip))
+
+#         if not lines_data:
+#             print(f"[{page}] No lines found with Coords.")
+#             return {}
+
+#         print(f"[{page}] Prepared {len(lines_data)} image chips for recognition.")
+
+#         # 3. Define the Recognition Worker
+#         # We need to reconstruct the list of N dictionaries [{lid: text}, {lid: text}...]
+#         # Since we are processing line-by-line now (not page-by-page), we need a temp structure.
+#         line_results = collections.defaultdict(list) # {line_id: [sample1, sample2, ...]}
+
+#         def process_line(args):
+#             l_id, img_chip = args
+#             results = []
+            
+#             # Prompt Engineering for Image Chips
+#             prompt = (
+#                 "You are an expert Indologist and Paleographer specializing in historical handwritten Sanskrit manuscripts. "
+#                 "TASK: Transcribe the Sanskrit text visible in this image fragment in Unicode Devanagari.\n"
+#                 "CONTEXT: This image is a cropped strip containing exactly one line of text. "
+#                 "Because of the cropping, there may be small artifacts or bottom parts of characters from the line above, "
+#                 "or top parts of characters from the line below. "
+#                 "STRICTLY IGNORE these partial artifacts. Focus only on the central, dominant line of text.\n"
+#                 "INSTRUCTIONS:\n"
+#                 "1. Transcribe strictly in Devanagari script.\n"
+#                 "2. Preserve original spelling, including Sandhi.\n"
+#                 "3. Do not expand abbreviations unless absolutely certain.\n"
+#                 "4. Output ONLY the transcription text string. Do not output JSON or Markdown.\n"
+#             )
+
+#             # Sampling Loop
+#             for i in range(N):
+#                 # Temperature strategy: Low for single shot accuracy, Higher for ensemble diversity
+#                 temp = 0.1 if N == 1 else 0.7 
+#                 try:
+#                     response = model.generate_content(
+#                         [img_chip, prompt],
+#                         generation_config={
+#                             "temperature": temp,
+#                             "max_output_tokens": 1024,
+#                         }
+#                     )
+#                     text = response.text.strip()
+#                     # Cleanup common markdown issues if model disobeys
+#                     text = text.replace("```json", "").replace("```", "").strip()
+#                     results.append(text)
+#                 except Exception as e:
+#                     print(f"[{page}] Error Line {l_id} Sample {i}: {e}")
+#                     results.append("") # Append empty to maintain index alignment
+            
+#             return l_id, results
+
+#         # 4. Execute Parallel Line Recognition
+#         # We process lines in parallel. Inside each line task, we get N samples sequentially (or could be parallel too)
+#         # Limited max_workers to prevent rate limiting issues with Gemini Flash
+#         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+#             future_to_line = {executor.submit(process_line, item): item[0] for item in lines_data}
+            
+#             for future in concurrent.futures.as_completed(future_to_line):
+#                 l_id = future_to_line[future]
+#                 try:
+#                     _, samples = future.result()
+#                     line_results[l_id] = samples
+#                 except Exception as e:
+#                     print(f"[{page}] Critical failure on line {l_id}: {e}")
+
+#         # 5. Restructure for Ensemble Function
+#         # The ensemble function expects: List of dictionaries [ {id: text}, {id: text} ... ] (length N)
+#         all_samples_results = []
+#         for i in range(N):
+#             sample_map = {}
+#             for l_id, samples in line_results.items():
+#                 if i < len(samples) and samples[i]:
+#                     sample_map[l_id] = samples[i]
+#             all_samples_results.append(sample_map)
+
+#         # --- 6. CHARACTER-LEVEL ENSEMBLE (Existing Logic preserved) ---
+#         final_map = {}
+#         final_confidences = {}
+        
+#         texts_by_id = collections.defaultdict(list)
+#         for res_map in all_samples_results:
+#             for lid, txt in res_map.items():
+#                 texts_by_id[lid].append(txt)
+
+#         for lid, candidates in texts_by_id.items():
+#             consensus_text, scores = ensemble_text_samples(candidates)
+#             if consensus_text:
+#                 final_map[lid] = consensus_text
+#                 final_confidences[lid] = scores
+#                 if len(set(candidates)) > 1 and N > 1:
+#                     print(f"[{page}] Line {lid}: Merged {len(candidates)} samples. " 
+#                           f"Result: {consensus_text[:15]}...")
+
+#         # Update XML (Existing Logic preserved)
+#         if final_map:
+#             changed = False
+#             for textline in root.findall(".//p:TextLine", ns):
+#                 custom_attr = textline.get('custom', '')
+#                 if 'structure_line_id_' in custom_attr:
+#                     lid = str(custom_attr.split('structure_line_id_')[1])
+#                     if lid in final_map:
+#                         te = textline.find("p:TextEquiv", ns)
+#                         if te is None: te = ET.SubElement(textline, "TextEquiv")
+#                         uni = te.find("p:Unicode", ns)
+#                         if uni is None: uni = ET.SubElement(te, "Unicode")
+#                         uni.text = final_map[lid]
+
+#                         if lid in final_confidences:
+#                             conf_str = ",".join(map(str, final_confidences[lid]))
+#                             current_custom = te.get('custom', '')
+#                             # Simple regex replace or append might be safer, but overwriting custom for now as per original
+#                             te.set('custom', f"{current_custom} confidences:{conf_str}") 
+#                         changed = True
+            
+#             if changed:
+#                 tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
+#                 print(f"[{page}] XML updated with robust chipped ensemble text.")
+
+#         return { "text": final_map, "confidences": final_confidences }
+
+#     except Exception as e:
+#         import traceback
+#         traceback.print_exc()
+#         print(f"Internal Recognition Error: {e}")
+#         return {}
 
 @app.route('/existing-manuscripts', methods=['GET'])
 def list_existing_manuscripts():

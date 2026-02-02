@@ -126,3 +126,22 @@
 2026-01-30 11:19:35,037 - INFO - Updated ../input_manuscripts/complex_structure/layout_analysis_output/page-xml-format/233_0002.xml - 20 lines written.
 2026-01-30 11:19:35,038 - INFO - Updated ../input_manuscripts/complex_structure/layout_analysis_output/page-xml-format/233_0003.xml - 20 lines written.
 2026-01-30 11:19:35,038 - INFO - Process completed for manuscript: complex_structure
+2026-02-02 13:10:51,374 - INFO - Using device: cuda
+2026-02-02 13:10:51,374 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-02 13:10:51,874 - INFO - Model loaded successfully (DataParallel prefix stripped).
+2026-02-02 13:10:51,874 - INFO - Starting inference on images in: ../input_manuscripts/complex_easyocr_8/layout_analysis_output/image-format
+2026-02-02 13:10:52,094 - INFO - Processed 0 lines...
+2026-02-02 13:10:53,457 - INFO - Processed 50 lines...
+2026-02-02 13:10:54,820 - INFO - Processed 100 lines...
+2026-02-02 13:10:55,697 - INFO - Inference completed. Processed 133 images.
+2026-02-02 13:10:55,697 - INFO - Organizing recognized text...
+2026-02-02 13:10:55,697 - INFO - Updating PAGE-XML files...
+2026-02-02 13:10:55,708 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0002.xml - 20 lines written.
+2026-02-02 13:10:55,709 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0003.xml - 20 lines written.
+2026-02-02 13:10:55,709 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0004.xml - 10 lines written.
+2026-02-02 13:10:55,710 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0005.xml - 16 lines written.
+2026-02-02 13:10:55,711 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0006.xml - 20 lines written.
+2026-02-02 13:10:55,711 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0007.xml - 12 lines written.
+2026-02-02 13:10:55,712 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0008.xml - 15 lines written.
+2026-02-02 13:10:55,713 - INFO - Updated ../input_manuscripts/complex_easyocr_8/layout_analysis_output/page-xml-format/233_0009.xml - 20 lines written.
+2026-02-02 13:10:55,713 - INFO - Process completed for manuscript: complex_easyocr_8
