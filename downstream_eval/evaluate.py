@@ -311,7 +311,7 @@ def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
     
     print(f"Files Processed: {file_count}")
     print(f"-" * 40)
-    print(f"OBJECT LEVEL METRICS (Threshold: CER <= 0.25)")
+    print(f"OBJECT LEVEL METRICS (Threshold: CER <= 0.5)")
     print(f"  Precision: {precision:.4f}")
     print(f"  Recall:    {recall:.4f}")
     print(f"  F1 Score:  {f1:.4f}")
