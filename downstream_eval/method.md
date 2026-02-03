@@ -6,7 +6,7 @@ get gemini to use the GNN predicitons as grounding to perform OCR
 
 3) upload the images, as a new manuscript - EASY OCR OUTPUT 
 cd app/recognition
-python recognize_manuscript_text.py complex_easyocr_8
+python recognize_manuscript_text.py complex_layout_remaining_12_pages
 
 
 4) use the images to make gemini api call - GEMINI NO-STRUCTURE OUTPUT
