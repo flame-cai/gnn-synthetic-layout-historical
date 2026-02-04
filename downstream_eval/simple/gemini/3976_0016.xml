@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:47:31.403001</Created>
+  </Metadata>
+  <Page imageFilename="3976_0016.jpg" imageWidth="2500" imageHeight="1035">
+    <TextRegion id="region_0" custom="type:marginalia">
+      <Coords points="250,105 700,105 700,175 250,175"/>
+      <TextLine id="line_0">
+        <Coords points="250,105 700,105 700,175 250,175"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:marginalia">
+      <Coords points="2050,123 2175,123 2175,193 2050,193"/>
+      <TextLine id="line_1">
+        <Coords points="2050,123 2175,123 2175,193 2050,193"/>
+        <TextEquiv>
+          <Unicode>16</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="237,219 2225,219 2225,897 237,897"/>
+      <TextLine id="line_2">
+        <Coords points="237,219 2225,219 2225,281 237,281"/>
+        <TextEquiv>
+          <Unicode>पदि कार्यस्य विभक्तय द्वारे व भावनायाम न यस्य निरुपसर्ग लासस दसी मया करवि काशव नेति बो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="237,281 2225,281 2225,342 237,342"/>
+        <TextEquiv>
+          <Unicode>धे सिधे समवाय संबं धेन संख्यायास्तस्याम न्यथा भावात्थैौनेना भेदः। कथं न नीत द्यथानु पपसा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="237,342 2225,342 2225,404 237,404"/>
+        <TextEquiv>
+          <Unicode>था सार्थे भेद सिधिनावा संख्यायाश्च ना करणा तयो र्ग्यतापि। भावना करणा नि तदुपच्छेदक त्वादि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="237,404 2225,404 2225,465 237,465"/>
+        <TextEquiv>
+          <Unicode>तस्य योग्यतेति तादृशा का क्षये त दन्वयो वाच्यः। न च नादक्षा काक्षा संभ वति पशुना यजे तेत्येकत्वस्यो विवक्षि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="237,465 2225,465 2225,527 237,527"/>
+        <TextEquiv>
+          <Unicode>त ते नांग त्वादेकप्रुनिष्यजे कादशा व दान इत्येकत्वस्यो द्येत एव लाभा न्नौपदेशिकेन बहु ते नातिदेशि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="237,527 2225,527 2225,588 237,588"/>
+        <TextEquiv>
+          <Unicode>केन तद्वाधः। जना की क्षित विधानापत्तेः। सोम मवमने एयधिकरपो आकां क्षित विधानज्यायस्सि निरुपघातः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="237,588 2225,588 2225,651 237,651"/>
+        <TextEquiv>
+          <Unicode>अबाधेनो प पौ तद्यो गाच्च। अतर वय व प्रथमोपस्थित संख्या व दिछोया म ती ते न वचरमोपस्थि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="237,651 2225,651 2225,712 237,712"/>
+        <TextEquiv>
+          <Unicode>ता तद्विरुधा संख्यामयो गान्विनीसी क्रियते। एकादशप्रयाजान्या जतिषडुपसद इत्यत्रा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="237,712 2225,712 2225,774 237,774"/>
+        <TextEquiv>
+          <Unicode>रिसेत सद्वो ध्याः। सैरखे या यागाए व। पशु विशो षत्वात्पशु पशु परस्य सव न म त्पर्थे क क्षपायाप</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="237,774 2225,774 2225,835 237,835"/>
+        <TextEquiv>
+          <Unicode>भुमदर्थे कल्पे न सस द्वा संख्याकेः। पश्म द्विर्गी र्गोदि से व प र्यवसा नात्। धा स र्थेड भेद संबं धे न य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_12">
+        <Coords points="237,835 2225,835 2225,897 237,897"/>
+        <TextEquiv>
+          <Unicode>दि दोषो पांत दोन क पदे दि तीया ततीयो र्गनि होत्रज्यो तिष्ठोमा दि पदयोः। सि धो त संम त तो तद्रे संन्ययव</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:marginalia">
+      <Coords points="2250,844 2300,844 2300,897 2250,897"/>
+      <TextLine id="line_13">
+        <Coords points="2250,844 2300,844 2300,897 2250,897"/>
+        <TextEquiv>
+          <Unicode>८।</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

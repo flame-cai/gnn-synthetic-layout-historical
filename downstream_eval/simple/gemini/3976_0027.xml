@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:48:40.443535</Created>
+  </Metadata>
+  <Page imageFilename="3976_0027.jpg" imageWidth="2500" imageHeight="1041">
+    <TextRegion id="region_0" custom="type:marginalia">
+      <Coords points="312,88 762,88 762,161 312,161"/>
+      <TextLine id="line_0">
+        <Coords points="325,93 750,93 750,156 325,156"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:page_number">
+      <Coords points="1937,88 2087,88 2087,140 1937,140"/>
+      <TextLine id="line_0">
+        <Coords points="1950,93 2075,93 2075,135 1950,135"/>
+        <TextEquiv>
+          <Unicode>27 बा</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="237,161 2237,161 2237,603 237,603"/>
+      <TextLine id="line_0">
+        <Coords points="250,166 2225,166 2225,197 250,197"/>
+        <TextEquiv>
+          <Unicode>पिनाच्यत्तासंबं धेनतद् तिलक्षणा पस्यामलर्थलक्षणा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="250,197 2225,197 2225,234 250,234"/>
+        <TextEquiv>
+          <Unicode>अथयज्ञशब्दार्थोस्तादात्म्यमप्यस्यैव । यद्योयमिसामानाविकरण्यदोषीनात् । शक्तिर</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="250,234 2225,234 2225,270 250,270"/>
+        <TextEquiv>
+          <Unicode>वा । नेश्वरे व्यादिरूपा । तथासस्मादर्थोद्य मर्थो जननीयइत्याकारकेश्वरेच्छाविषयताविशेषा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="250,270 2225,270 2225,307 250,307"/>
+        <TextEquiv>
+          <Unicode>वकारणातारूपा । यापाख्यांगंगापदसंबं धिजनकतायाश्रयभूतीरबोधस्पतन्निछ्जन्यतया</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="250,307 2225,307 2225,343 250,343"/>
+        <TextEquiv>
+          <Unicode>श्रयत्वानिरूप्यनिरूपकभावस्यनगंन्माचविषयकसर्वे जने व्याप्तिविषयताया अव रुपांगीकार्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="250,343 2225,343 2225,379 250,379"/>
+        <TextEquiv>
+          <Unicode>लेन गंगापदात्तीरबुध्या लिसाकारकेश्वरेच्छाविषयत सिध्याशत्तैयौपतो लक्षणावसावबहु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="250,379 2225,379 2225,416 250,416"/>
+        <TextEquiv>
+          <Unicode>व्युत्पन्नाकुलीस्यात् । अयंच पदेसः सोपपतिकौव्याकरणान्वयैर्मनूषायौप्रपंचितः । नदंगीकारे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="250,416 2225,416 2225,452 250,452"/>
+        <TextEquiv>
+          <Unicode>पि धर्मी हान्याभावा दुक्तसमयैर्धा विरोधेनोद्विधिकरणा पूर्वोत्तरपदयोः अस्तिविशेषइतिचेत्</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="250,452 2225,452 2225,489 250,489"/>
+        <TextEquiv>
+          <Unicode>तुळ्योयं समाधिर्ममापि । यागाभिरूप्यदे व्यस्यापिकरणालोपपत्तेः । किं च आरूप्यस्याप्यमूर्त</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="250,489 2225,489 2225,525 250,525"/>
+        <TextEquiv>
+          <Unicode>लेन कयभाविनोः करणात्वयोगेनकयंतदधिकरणो भावनान्वयसमर्थेन । तदर्थे गुक्तिल</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="250,525 2225,525 2225,562 250,562"/>
+        <TextEquiv>
+          <Unicode>क्षणायांतुपा हिर्छ कोरु सौकहा यन्याः संबं धधरति सिद्धिरुध्येता । सोमवतरवप्राथ</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="250,562 2225,562 2225,598 250,598"/>
+        <TextEquiv>
+          <Unicode>मिकबोध एवधालर्थेनान्वयसंभवात् । उक्तृतीयाया एव करणा परिच्छेदार्थत्वे यो</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

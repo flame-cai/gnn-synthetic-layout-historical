@@ -1,0 +1,186 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:32:12.170788</Created>
+  </Metadata>
+  <Page imageFilename="233_0016.jpg" imageWidth="2500" imageHeight="935">
+    <TextRegion id="region_0" custom="type:metadata">
+      <Coords points="122,84 370,84 370,138 122,138"/>
+      <TextLine id="line_0">
+        <Coords points="122,84 370,84 370,138 122,138"/>
+        <TextEquiv>
+          <Unicode>M-233</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:metadata">
+      <Coords points="72,233 250,233 250,271 72,271"/>
+      <TextLine id="line_1">
+        <Coords points="72,233 250,233 250,271 72,271"/>
+        <TextEquiv>
+          <Unicode>पाष्ट २</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:metadata">
+      <Coords points="125,271 225,271 225,299 125,299"/>
+      <TextLine id="line_2">
+        <Coords points="125,271 225,271 225,299 125,299"/>
+        <TextEquiv>
+          <Unicode>वरः</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:metadata">
+      <Coords points="750,84 825,84 825,112 750,112"/>
+      <TextLine id="line_3">
+        <Coords points="750,84 825,84 825,112 750,112"/>
+        <TextEquiv>
+          <Unicode>त ३</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:metadata">
+      <Coords points="2075,93 2150,93 2150,121 2075,121"/>
+      <TextLine id="line_4">
+        <Coords points="2075,93 2150,93 2150,121 2075,121"/>
+        <TextEquiv>
+          <Unicode>16</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_5" custom="type:main_text">
+      <Coords points="350,135 1987,135 1987,434 350,434"/>
+      <TextLine id="line_5">
+        <Coords points="375,140 1975,140 1975,168 375,168"/>
+        <TextEquiv>
+          <Unicode>समिद्धेवाप्यन्यासं संस्वादु भोजनं सूनृतं वचः ॥ प्रतिसंवत्सरं श्राद्धीः स्नातकाचार्यपाथिविः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="375,172 1975,172 1975,205 375,205"/>
+        <TextEquiv>
+          <Unicode>वरः येदिवाल्यमृतं पापं संसृजेत् पुनः ॥ जघनीनोतिथिर्योयः श्रोत्रियोवेदपारगः ॥ मान्यावैतौपर</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="375,210 1975,210 1975,243 375,243"/>
+        <TextEquiv>
+          <Unicode>ह्यस्यस्वर्णलोकमभीप्सतः ॥ परपाकरुचिर्नस्यादनेघामंत्रणा हते ॥ वाक्यादिपांखापलं व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="375,247 1975,247 1975,280 375,280"/>
+        <TextEquiv>
+          <Unicode>र्ययेजातिभोजनं ॥ प्रतिथिं श्रोत्रियं यत्प्रमासीमतादनुव्रजेत् ॥ जं हं शेषंस हासीत दिरे रे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="375,285 1975,285 1975,317 375,317"/>
+        <TextEquiv>
+          <Unicode>श्रवंधुभिः ॥ उपास्पयथिसं संध्यां दुस्ताग्नी सानुपास्यच ॥ त्सैपरिजतोन्नु कानातिटप्रासं</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="375,322 1975,322 1975,355 375,355"/>
+        <TextEquiv>
+          <Unicode>विशेषात् ब्राह्मणेभ्यो हृतैषोस्यापयंचित्पेदलमनो हितं ॥ धर्मीपंकामान्स्वेकालेपयथाशक्तिः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="375,359 1975,359 1975,392 375,392"/>
+        <TextEquiv>
+          <Unicode>र्महापयेत् ॥ विधाकर्मवयोबंधुवित्ते श्रीन्यापयथाक्रमं ॥ एतैः प्रवृत्तैः षोडोपिवादे को मानमर्ह</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_12">
+        <Coords points="375,397 1975,397 1975,430 375,430"/>
+        <TextEquiv>
+          <Unicode>ति ॥ वदनांरिनपस्नातस्त्रीरोगवरचक्रिणां ॥ पादेषोन्नपसेषां मान्यास्नातप्रनूपतेः ॥ इड्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_6" custom="type:marginalia">
+      <Coords points="2175,130 2350,130 2350,280 2175,280"/>
+      <TextLine id="line_13">
+        <Coords points="2175,130 2350,130 2350,149 2175,149"/>
+        <TextEquiv>
+          <Unicode>गुरुशेरन्नयावेदू</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_14">
+        <Coords points="2175,149 2350,149 2350,168 2175,168"/>
+        <TextEquiv>
+          <Unicode>स्नात्कः ब्रह्म</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_15">
+        <Coords points="2175,168 2350,168 2350,187 2175,187"/>
+        <TextEquiv>
+          <Unicode>चोशीः ॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_16">
+        <Coords points="2175,205 2350,205 2350,224 2175,224"/>
+        <TextEquiv>
+          <Unicode>विरैतिहास्पु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_17">
+        <Coords points="2175,224 2350,224 2350,243 2175,243"/>
+        <TextEquiv>
+          <Unicode>मरुवेदक्षिः ५</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_18">
+        <Coords points="2175,243 2350,243 2350,261 2175,261"/>
+        <TextEquiv>
+          <Unicode>इष्टैः काव्यकथा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_19">
+        <Coords points="2175,261 2350,261 2350,280 2175,280"/>
+        <TextEquiv>
+          <Unicode>प्रपचनिः ४=</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_7" custom="type:metadata">
+      <Coords points="37,635 275,635 275,663 37,663"/>
+      <TextLine id="line_20">
+        <Coords points="37,635 275,635 275,663 37,663"/>
+        <TextEquiv>
+          <Unicode>नाउद का १</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_8" custom="type:metadata">
+      <Coords points="1175,776 1250,776 1250,804 1175,804"/>
+      <TextLine id="line_21">
+        <Coords points="1175,776 1250,776 1250,804 1175,804"/>
+        <TextEquiv>
+          <Unicode>२३३</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_9" custom="type:metadata">
+      <Coords points="2225,682 2350,682 2350,710 2225,710"/>
+      <TextLine id="line_22">
+        <Coords points="2225,682 2350,682 2350,710 2225,710"/>
+        <TextEquiv>
+          <Unicode>रामच</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_10" custom="type:metadata">
+      <Coords points="2075,776 2125,776 2125,804 2075,804"/>
+      <TextLine id="line_23">
+        <Coords points="2075,776 2125,776 2125,804 2075,804"/>
+        <TextEquiv>
+          <Unicode>२</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

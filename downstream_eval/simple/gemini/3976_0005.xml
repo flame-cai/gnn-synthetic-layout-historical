@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:46:05.333533</Created>
+  </Metadata>
+  <Page imageFilename="3976_0005.jpg" imageWidth="2500" imageHeight="1026">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="252,146 2272,146 2272,806 252,806"/>
+      <TextLine id="line_0">
+        <Coords points="252,146 2247,146 2247,205 252,205"/>
+        <TextEquiv>
+          <Unicode>पानां च प राथै लादसे बंधः सम हा त्यादि ति न्याये न स म म न्वयायोगात्थै तद न्वयानुपत्ति</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="252,212 2247,212 2247,270 252,270"/>
+        <TextEquiv>
+          <Unicode>नि बंध ना म समर्थे क क्षा ॥ इति सो म र रायावां दि तीया क क्षा ॥ यदि तावत्सो म यागयो र वै रूप्ये</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="252,278 2247,278 2247,337 252,337"/>
+        <TextEquiv>
+          <Unicode>ला भाव नायो कर पाले न्वयः सो मे न यागे न ह त्वा व ये दिति त त उभय वि धाने वाक्य भेदा पतिः सो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="252,344 2247,344 2247,403 252,403"/>
+        <TextEquiv>
+          <Unicode>म स्थापि या ग व फळ भावना कर पाले न मा धान्या पा तश्च । सो म स्व प या गार्थे सानु प प तिश्च । या गे द्र</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="252,410 2247,410 2247,468 252,468"/>
+        <TextEquiv>
+          <Unicode>व्या नु प प तिश्वा प्र स य वा च्य फळ भावनायाः स मान प दो पा त या गे न कर पा की क्षा नि वृत्त्या भि प दो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="252,476 2247,476 2247,534 252,534"/>
+        <TextEquiv>
+          <Unicode>पा त स्व सो म स्व कर पाले न्वयानु प प तिश्वा ॥ अ तो भावनायो सोम स्था न्वयायो गे सा मा ना</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="252,542 2247,542 2247,601 252,601"/>
+        <TextEquiv>
+          <Unicode>धिक र पे ना न्व य द र्थे क क्षा व श्य मे व क्ष्या ॥ इति स्वा मि शा मि प्रयो त तीया क क्षा ॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="252,608 2247,608 2247,666 252,666"/>
+        <TextEquiv>
+          <Unicode>सो म या गयो र प यो र्भा व ना न्व ये व्यु भय वि शिष्टा पा व एक क्षा ए क भा व ना या वि धे य त्वे न क थ मु भ य वि धा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="252,674 2247,674 2247,732 252,732"/>
+        <TextEquiv>
+          <Unicode>न प्र युक्त वाक्य भे दा प तिः ॥ न च कर पाले न भावना दा दु भय वि ध भा व ना वि धाने न वाक्य भे द इति</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="252,739 2247,739 2247,799 252,799"/>
+        <TextEquiv>
+          <Unicode>वा च्यं । कर पाले न स्य भा व ना क्षे द्य व्या प्वा भा वा त् । ह स्ते न कु ठारे पा दा रू छि न ती सा दो ले के वा रू प य</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

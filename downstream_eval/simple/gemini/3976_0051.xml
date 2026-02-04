@@ -1,0 +1,111 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:51:55.282520</Created>
+  </Metadata>
+  <Page imageFilename="3976_0051.jpg" imageWidth="2500" imageHeight="1057">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="260,75 520,75 520,107 260,107"/>
+      <TextLine id="line_0">
+        <Coords points="260,75 520,75 520,107 260,107"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:main_text">
+      <Coords points="2212,75 2290,75 2290,107 2212,107"/>
+      <TextLine id="line_0">
+        <Coords points="2212,75 2290,75 2290,107 2212,107"/>
+        <TextEquiv>
+          <Unicode>51</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="260,128 2290,128 2290,775 260,775"/>
+      <TextLine id="line_0">
+        <Coords points="260,128 2290,128 2290,182 260,182"/>
+        <TextEquiv>
+          <Unicode>तिशेमरस्यैव बहुफलानामुद्देश्यत्वेन तत्रापि न हापत्तेः ॥ सर्वेभ्यः कामेभ्यो दर्शपूर्णमासयजेत जुहेद्ध्यविधेययो रुभयोरपि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="260,182 2290,182 2290,236 260,236"/>
+        <TextEquiv>
+          <Unicode>बहुण्यातोऽनतवनकर कातावच्छेदको हे रूपतावच्छेदकभेदनियामकत्वाद्वाजसूयत्व काम्यत्वरू</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="260,236 2290,236 2290,290 260,290"/>
+        <TextEquiv>
+          <Unicode>पावच्छेदके क्या भदोऽछइति परिहारः साधीयान् ॥ दर्श व पूर्णमासत्वयोः करणातावच्छेदकयो र्भेदात् । यदुषपतिप्रया</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="260,290 2290,290 2290,344 260,344"/>
+        <TextEquiv>
+          <Unicode>जानुयाजेभ्यस्तदिसन् प्रयाज लानुयाज लयोः स्याभ्यो धीगवेऽनुष्ठेयत्वे भवतस्तस्य च नया नभ्यसा मत्वं) गीगव</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="260,344 2290,344 2290,398 260,398"/>
+        <TextEquiv>
+          <Unicode>सामत्वयोः उद्देश्यतावच्छेदकयो र्भेदात् । अतएव च न हेनसाहिस्यवावगमाद्दर्शिस हितपूर्णमास तस्ये के वक्र</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="260,398 2290,398 2290,452 260,452"/>
+        <TextEquiv>
+          <Unicode>र घातावच्छेदकत्वावच्छेदे इति परिहारो युक्तः ॥ विधेयविशेषाख्यसाहित्यस्य विवक्षितत्वे बुध्यविशेषा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="260,452 2290,452 2290,506 260,506"/>
+        <TextEquiv>
+          <Unicode>स्यतस्तस्योगाता तथाले आतिथ्याया मौपष्ट ताजस्य स्याति ज्ञानापत्तेः । नाप्येकविभक्त्यंत पद निर्देश्येन करणाना</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="260,506 2290,506 2290,560 260,560"/>
+        <TextEquiv>
+          <Unicode>मुद्दिश्यत्वे ने स्थीप्युर एषा भुनासोमेन यजेत सोमावा स्यायो यो पौर्णमासीवे सवेष्या दी नौर्विभक्तिभेदा दनचपा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="260,560 2290,560 2290,614 260,614"/>
+        <TextEquiv>
+          <Unicode>ग न चेत् फलत्वेनैकव्येय मेयत्वादि वदति प्रसेंज कत्वात् तस्मादेक पदोपस्थाप्यकान कस्यैकं विधा नचयेन निराकांक्षा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="260,614 2290,614 2290,668 260,668"/>
+        <TextEquiv>
+          <Unicode>वनापदातयो परुष्ण्या तादृशान्यमना श्रुतान सहत इत्येव (न यमः स्वीकर्तव्यः यद्येष चतुर एषा चन्यतमस्य य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="260,668 2290,668 2290,721 260,721"/>
+        <TextEquiv>
+          <Unicode>(उपदेनेने वा पादाने) इ त्यादीनि पदानितु लद्धि वरणा रूपाणि । एवं वेति विकल्प वाचकं पद पौर्णमास्य मावास्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="260,721 2290,721 2290,775 260,775"/>
+        <TextEquiv>
+          <Unicode>कें यतत्वेन काल लक्षकी इतर सदृदयतु तदर्थे तात्पर्यग्राहकः । एवं कामेभ्य इति बहुवचन नस्यैव सर्वेभ्य इति विवर</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="442,926 2290,926 2290,991 442,991"/>
+      <TextLine id="line_0">
+        <Coords points="442,926 2290,926 2290,991 442,991"/>
+        <TextEquiv>
+          <Unicode>* भिन्न वि सक्तिक पद निर्देश्येनवाका मेदापत्ते र्सर्वकामानां चे थुर्यनाचन पदद्वये चतुर्थ प.</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

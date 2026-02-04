@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:46:41.536331</Created>
+  </Metadata>
+  <Page imageFilename="3976_0010.jpg" imageWidth="2500" imageHeight="1037">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="225,114 2225,114 2225,788 225,788"/>
+      <TextLine id="line_0">
+        <Coords points="225,114 2225,114 2225,165 225,165"/>
+        <TextEquiv>
+          <Unicode>१ पातकीर्षा कायास्तंडुलजावनायात्रोपः सन्नूतकरण श्रुतस्यावघातस्यांगमित्यादिवाधागनि हो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="225,176 2225,176 2225,228 225,228"/>
+        <TextEquiv>
+          <Unicode>पितृज्ञेदेनैव प्रयुज्येताव्ययः पुनः सस माधान्यायेनचर्वाति केपिसोमेनयजे तेस्य चापितृनाधिक</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="225,238 2225,238 2225,290 225,290"/>
+        <TextEquiv>
+          <Unicode>रपाकेन मार्गेण धार्थेकारकावा मरोपौक हायनीवसरस्येव धासेव ध्यभावना संबधानामु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="225,300 2225,300 2225,352 225,352"/>
+        <TextEquiv>
+          <Unicode>तरकल्प रूपस्यो कावितैत त्त्रस मन वमाध्ययर्थेतीतिनसोमविशिष्ट धार्थेव धानुमि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="225,362 2225,362 2225,414 225,414"/>
+        <TextEquiv>
+          <Unicode>सिद्धांतः सो म स्यापि भावनायामेवोन्च यः सि धौ त संमतः नचत थालेवि धः प्रवर्तकत्वानोः ज्ञान</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="225,425 2225,425 2225,477 225,477"/>
+        <TextEquiv>
+          <Unicode>हि सोमकर टिकायागकरणि का फळ भाव्यिका जावने तिबो धेजनयित्वेव वाक्यपर्यवस्येति ये ने</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="225,487 2225,487 2225,539 225,539"/>
+        <TextEquiv>
+          <Unicode>चेनो धेता प्रवर्तकत्वान्यथा नुपपत्ते वहि पार्विक बो धितरस्यस्वीका रात् ततश्च हि सोमयागयोर्वैशि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="225,549 2225,549 2225,601 225,601"/>
+        <TextEquiv>
+          <Unicode>ष्टे विषयेवतिन का प्यनुपपत्तिः नचमाथमिक बो धेव्यर्थी यागभावनयोः फळ भावनयोश्चेविशि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="225,611 2225,611 2225,663 225,663"/>
+        <TextEquiv>
+          <Unicode>ष्टस्य प्राथमिक बो धेवियुक्तत्वात् नच यागरसो मयोर्वैशि ष्ट्यमपि प्रथम र क बो धेविषयः का</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="225,674 2225,674 2225,725 225,725"/>
+        <TextEquiv>
+          <Unicode>रकयोः क्रियाम द्वारी कृत्य परस्परेसं बंधायो गेन द्वार भूतक्रिया परिच्छेदन पूर्व तयोः संबं धात्</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="225,736 2225,736 2225,788 225,788"/>
+        <TextEquiv>
+          <Unicode>परिच्छेदनं नवप्रसन्नैयो परिच्छेत्ताकि यानयोर्दी र्घि सवितु मीष्टे ॥ नतस्या भावा थी सिद्ध करणा न्यायै</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:49:01.280208</Created>
+  </Metadata>
+  <Page imageFilename="3976_0030.jpg" imageWidth="2500" imageHeight="1042">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="102,93 155,93 155,135 102,135"/>
+      <TextLine id="line_0">
+        <Coords points="102,93 155,93 155,135 102,135"/>
+        <TextEquiv>
+          <Unicode>१५</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:main_text">
+      <Coords points="2082,83 2160,83 2160,125 2082,125"/>
+      <TextLine id="line_0">
+        <Coords points="2082,83 2160,83 2160,125 2082,125"/>
+        <TextEquiv>
+          <Unicode>३०</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="102,364 142,364 142,406 102,406"/>
+      <TextLine id="line_0">
+        <Coords points="102,364 142,364 142,406 102,406"/>
+        <TextEquiv>
+          <Unicode>ने</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="232,187 2212,187 2212,646 232,646"/>
+      <TextLine id="line_0">
+        <Coords points="232,187 2212,187 2212,229 232,229"/>
+        <TextEquiv>
+          <Unicode>ने प्रपस्यासंभेदे न स्फुटितदर्शनात् यत्र बाधवर कल्पायी सरस्वतीमाज्यस्य येना बाह्यस्प स्मृति यस्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="232,229 2212,229 2212,270 232,270"/>
+        <TextEquiv>
+          <Unicode>निवारेश्व व पीतत्रो सतिष्ठिष्ठापूर्वी हुदि कालभेदश्र व पोनगुका दे वसेदः य यत्ववर्जनीय कालभेदमो न वे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="232,270 2212,270 2212,312 232,312"/>
+        <TextEquiv>
+          <Unicode>सतिष्ठिष्ठः कालभेदः नार्थभेदे द्वा स्यसोपदे के रूप निरुपपदकस्य वा पुनः श्रुति स्यातादृश स्थळे क मी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="232,312 2212,312 2212,354 232,354"/>
+        <TextEquiv>
+          <Unicode>को मानुतिर्नैव कव्यायतु मुचि ता। अन्यूनोनति कांगस्य पुनः क्रियमाणास्यै कदीष दपि दृष्टगुणा वैल</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="232,354 2212,354 2212,395 232,395"/>
+        <TextEquiv>
+          <Unicode>क्षण्या भावे भेदे माना भावात्। अतरवोत्तरे मी मांसायां चतुर्थे प्रथमे सं स्कृदु पदे रैख्यादि तिसाधन एव हेतुत्वं</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="232,395 2212,395 2212,437 232,437"/>
+        <TextEquiv>
+          <Unicode>यो यताम ग व ताव्यासे नैव प्रदशितो। आ वृत्तिर स कृदु पदे शादिति च यैव वाक्ये पुभना मधे यानि निस्मिनानि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="232,437 2212,437 2212,479 232,479"/>
+        <TextEquiv>
+          <Unicode>सिंञ्जन च धा त्वर्थस्य पुन श्रुति निस्सादी स्थळ एव नाम्नाभे द कृतौ। अत एवार्थे पज्यो ति रथे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="232,479 2212,479 2212,521 232,521"/>
+        <TextEquiv>
+          <Unicode>ष सर्वज्यो ति रस्येव सं साधिकरपो दा ह रण पालेन समिधो यज तीत्यादे रभ्यासाधिकरपो दा ह रण पाले</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="232,521 2212,521 2212,562 232,562"/>
+        <TextEquiv>
+          <Unicode>न च माची ले रवः सैंग छते। नचज्यो ति रादि वाक्य त्रये प्येतेन स ह स्त्र दक्षिणा नयजे ते स्यस्यानुषंग भावात्।</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="232,562 2212,562 2212,604 232,604"/>
+        <TextEquiv>
+          <Unicode>दस्ये वाभ्यास इति वाच्यं। अनुषंगस्य वाक्य भेदोत्तर कालिकत्वात्। न वाक्य भे द सिध्यर्थ परस्पर विसिप्राय</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="232,604 2212,604 2212,646 232,646"/>
+        <TextEquiv>
+          <Unicode>रु मुख्य विसेष्यक जो धजनकत्व सि ध्युनर कालिकत्वात्। तस्याश्र नामनो से द सि धि सापेक्षत्वा न यानु</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:main_text">
+      <Coords points="2265,823 2317,823 2317,864 2265,864"/>
+      <TextLine id="line_0">
+        <Coords points="2265,823 2317,823 2317,864 2265,864"/>
+        <TextEquiv>
+          <Unicode>१५</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

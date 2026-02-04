@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:48:11.245040</Created>
+  </Metadata>
+  <Page imageFilename="3976_0023.jpg" imageWidth="2500" imageHeight="1041">
+    <TextRegion id="region_0" custom="type:marginal_note">
+      <Coords points="302,93 704,93 704,169 302,169"/>
+      <TextLine id="line_0">
+        <Coords points="302,93 704,93 704,169 302,169"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:page_number">
+      <Coords points="2095,132 2220,132 2220,208 2095,208"/>
+      <TextLine id="line_1">
+        <Coords points="2095,132 2220,132 2220,208 2095,208"/>
+        <TextEquiv>
+          <Unicode>23</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="100,188 2397,188 2397,926 100,926"/>
+      <TextLine id="line_2">
+        <Coords points="100,188 2397,188 2397,264 100,264"/>
+        <TextEquiv>
+          <Unicode>दुहितृदिसनयोः पदयोर्युसंबंधिनी दुहितेसे कार्य प्रतिपादक</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="100,255 2397,255 2397,331 100,331"/>
+        <TextEquiv>
+          <Unicode>पदस्यानाधेयस्यै नैवान्यार्थामि वि ते नेन सह न्यायोगेना मं वि ततदगयोः पदयोः (वि)धी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="100,321 2397,321 2397,396 100,396"/>
+        <TextEquiv>
+          <Unicode>त्वाभावात् ॥ तस्मा न्नि वारुणाविसादात् ॥ मिकस र्नि निघात सिध्यर्थं श कुरुद र्ल नि काना र्थचस</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="100,387 2397,387 2397,463 100,463"/>
+        <TextEquiv>
+          <Unicode>मर्थे प सिषावा प्रवृत्ति राव श्य की । सा च पदोद्दे श्य को विधिः पदविधि रित्यर्थे संगच्छे ॥ सुदंतामि त्रितवि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="100,453 2397,453 2397,529 100,529"/>
+        <TextEquiv>
+          <Unicode>भत्स्यतेपदेउद्दे श्यव र्णीगवद्वाव विधानात् ॥ प दनि व्यादको विधि रितिव्याख्यानेतु नै त सं ग्र हः तेन</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="100,520 2397,520 2397,595 100,595"/>
+        <TextEquiv>
+          <Unicode>पदस्यानिष्पत्तेः किं च सामर्थ्य हि दे भाषा व्य कारैरंगीकृतीएकार्थीभाव रूप व्यपेक्षा रूपे (क) समास स्थले</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="100,586 2397,586 2397,662 100,662"/>
+        <TextEquiv>
+          <Unicode>समस्यमानपदानो परस्परार्थ विशि ष्ट स्वार्थ प्रति पादक लल क्षणौका र्थी भावस्वी का रात् ॥ परं तु ना वश्मि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="100,652 2397,652 2397,728 100,728"/>
+        <TextEquiv>
+          <Unicode>यस्यपेक्षा लक्षण सामर्थ्य नैव पदी गवद्वावा पादनात् ॥ व्यपेक्षाच परस्परा न्वयि त्वं (एवं चो) ही अर्थयव</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="100,718 2397,718 2397,794 100,794"/>
+        <TextEquiv>
+          <Unicode>सोपेक्ष त्वे (पिप्यपेक्षा) लक्षण सामर्थ्य स्या क्षतेः कथं न स मुच्च यः । न च नै रपेक्ष्यमपि तृतीयं सा मर्थ्य माना</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="100,784 2397,784 2397,860 100,860"/>
+        <TextEquiv>
+          <Unicode>भावात् ॥ ते स्मा भ क पियी या श्री हि प वयोः परस्पर नै रपेक्ष्ये पासाधनत्व मनु ना सनबला सि ध्य तीति</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_12">
+        <Coords points="100,851 2397,851 2397,926 100,926"/>
+        <TextEquiv>
+          <Unicode>प्र सयार्थे कृ त्यर्थस्य विदो षणी त रयो ग्या वृत्ति रूपे नै रपेक्ष्ये न मनंगीकृ</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

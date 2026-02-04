@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:48:53.976503</Created>
+  </Metadata>
+  <Page imageFilename="3976_0028.jpg" imageWidth="2500" imageHeight="1041">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="325,182 2175,182 2175,739 325,739"/>
+      <TextLine id="line_0">
+        <Coords points="350,191 2150,191 2150,245 350,245"/>
+        <TextEquiv>
+          <Unicode>ग्यतानवशादुरी कार्यात्तच्च नामशब्दे पिबुक्कयि नामधेयस्यापि धावर्थे परिच्छेदकत्वात्तथायच्येतसक्षेउद्दि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="350,245 2150,245 2150,300 350,300"/>
+        <TextEquiv>
+          <Unicode>धिकरणासिद्धांतेसुप्रसये कल्पका पूर्वपक्षेतु प्रातिपदिकरस्योपयतो तथाप्यसेजातविरोधेनिप्रातिप</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="350,300 2150,300 2150,356 350,356"/>
+        <TextEquiv>
+          <Unicode>दिकेक्लक्षका मपेक्ष्य चरमत्र नविसंक्ला वेवक्लक्षा साधीयसी। अतएव शाख्यायीत प्रधानतादिति वा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="350,356 2150,356 2150,410 350,410"/>
+        <TextEquiv>
+          <Unicode>तुर्थिकाधिकरणयोगामीमाहरतीसन्नचक्षस्यपयकिंचिद्ग्सवां शाख्यांत संधानं लांदिरितं प्राच्यांदिशा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="350,410 2150,410 2150,465 350,465"/>
+        <TextEquiv>
+          <Unicode>नयतीत्यर्थेवाश्रितः पूर्वपक्षे। यद्यपितेनैव सिद्धांतेपिधात्री प्रातिपदिकश्रुतिन मपेक्ष्य विनियोगी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="350,465 2150,465 2150,520 350,520"/>
+        <TextEquiv>
+          <Unicode>विभक्तिश्रुतिर्वलीयसी साश्रिस प्रातिपदिकेवक्लक्षा मात्रिस पूर्वदिग्ग्सवां शाख्यानयतीसेवार्थः स</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="350,520 2150,520 2150,574 350,574"/>
+        <TextEquiv>
+          <Unicode>मा श्रितः यदुक्तंतेन सारे। विनियोगप्रधानत्वादाक्षि धाच्येवतदृशाते। व्याख्यानार्थकाहिंस्या हि नियो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="350,574 2150,574 2150,629 350,629"/>
+        <TextEquiv>
+          <Unicode>गादतेसिध्येद्योदि तथापिकरणत्वस्यनालोसेतर्वादे नियोगश्रुतिरेवेहा न्याख्याने</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="350,629 2150,629 2150,683 350,683"/>
+        <TextEquiv>
+          <Unicode>धिपक्षेयागमिकरूप तकरातावादिनी तृतीया। नामपदसेतुयागनिष करखातानुवादिनी। अनुवादे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="350,683 2150,683 2150,739 350,739"/>
+        <TextEquiv>
+          <Unicode>चक्लक्षकानदोषौ। नैतेडयादिसंज्ञाशब्दाः। डिस्थजातेरेकव्यक्ति कत्वादिदो षवशादिसिद्धावपि ॥१४</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:50:11.628966</Created>
+  </Metadata>
+  <Page imageFilename="3976_0039.jpg" imageWidth="2500" imageHeight="1052">
+    <TextRegion id="region_0" custom="type:metadata">
+      <Coords points="325,63 750,63 750,105 325,105"/>
+      <TextLine id="line_0">
+        <Coords points="325,63 750,63 750,105 325,105"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:metadata">
+      <Coords points="2025,63 2125,63 2125,105 2025,105"/>
+      <TextLine id="line_1">
+        <Coords points="2025,63 2125,63 2125,105 2025,105"/>
+        <TextEquiv>
+          <Unicode>39</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="200,110 2375,110 2375,478 200,478"/>
+      <TextLine id="line_2">
+        <Coords points="225,115 2225,115 2225,152 225,152"/>
+        <TextEquiv>
+          <Unicode>रूपाले जी हि यें व ला व छि न्न प्रतियोगि ता क भेद व द वृत्ति ले सति या व द्री हि न्न छ स्य य वा व्या व छि न्न</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="225,147 2225,147 2225,184 225,184"/>
+        <TextEquiv>
+          <Unicode>से द व द वृत्ति ले सति या व द वृत्ति त्व च वो धे द त रु न्ने दु मा ने हे तो पर व्य परे भि न्न त्वे पि जो ष ता सि ध्यति ॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="225,178 2225,178 2225,215 225,215"/>
+        <TextEquiv>
+          <Unicode>य व भि न्ने सति द र्क र पा त्व स्य धी ही त ने द्वा भि न्ना ना द्री ही त्व व्या ध र्मि ना वा दि क र्य ता नि रु पि त का</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="225,210 2225,210 2225,247 225,247"/>
+        <TextEquiv>
+          <Unicode>र पा ता बा धा न्नि द्य प्रा मा प्या त् तृ ती या र्थः त स्या प्र कृ त्यर्था व छे द का व छि न्न प्रतियोगि ता क भेद व द वृत्ति त्व नि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="225,241 2225,241 2225,278 225,278"/>
+        <TextEquiv>
+          <Unicode>रा बा धा त् ॥ सै व च कार्य ता व छे द क मे दे न वि क ल्प णा द्वि वि धा सति प्र ये क प नि समा सा नि र पे क्षे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="225,273 2225,273 2225,310 225,310"/>
+        <TextEquiv>
+          <Unicode>स्य च्य ते ॥ उ क्त च त्थे न स कि मी मां सि भिः के व ल ना म स्म रू पा स्य पा प स्य हे तु त्व प्रति पा द क वि धि बु श्रु तं के</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="225,305 2225,305 2225,341 225,341"/>
+        <TextEquiv>
+          <Unicode>व ल्पे का र पा वो ध्क ल्प त दे व च ने न पे क्ष्य मि क ल्पा नु प दि पौ क ल्य मे व ने र पे क्ष्यं कथं त हि द्री हि य व यो रि या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="225,336 2225,336 2225,373 225,373"/>
+        <TextEquiv>
+          <Unicode>द्री ह्य त न का र पा त्व स्प वि क ल्प पा त्व प्र सङ्के प रे प स्मा स ला द न्यो न्य नि र पे क्षे मे वे ति स्मा र्त्त हे तो द्री ह्ये व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="225,368 2225,368 2225,405 225,405"/>
+        <TextEquiv>
+          <Unicode>च का र पा त्व वि क ल्प द्य व्य व हा यो । स मु च्च य स्वी का रे तु द्री हि य व यो स य ला व छि न्न प्रतियोगि ता क भेद व द वृत्ति</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="225,399 2225,399 2225,436 225,436"/>
+        <TextEquiv>
+          <Unicode>त्वे न बा धा भा वा द भे द क र पा त्व नि क ला दु भ य त्व स्य च प्रा स प दि का र्थ ता व छे द क त्वा भा वे न ता दृ श क र पा त्व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_12">
+        <Coords points="225,431 2225,431 2225,468 225,468"/>
+        <TextEquiv>
+          <Unicode>यो स्तु ती या वो ध्यौ भा वा त्ति या श्रु ति वि रो धः ए ते ने हे ता वि स्य स्मा प्र धा न नि र्दे को प र त्वे न ने र पे क्ष्य स्य र्थ</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_13">
+        <Coords points="2325,399 2375,399 2375,420 2325,420"/>
+        <TextEquiv>
+          <Unicode>त्व</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

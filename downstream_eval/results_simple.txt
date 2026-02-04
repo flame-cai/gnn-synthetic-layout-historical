@@ -1,0 +1,76 @@
+
+==================================================
+EVALUATING: GEMINI
+==================================================
+Files Processed: 50
+----------------------------------------
+OBJECT LEVEL METRICS (Threshold: CER <= 0.5)
+  Precision: 0.7931
+  Recall:    0.7532
+  F1 Score:  0.7726
+  (TP: 525, FP: 137, FN: 172)
+----------------------------------------
+CHARACTER LEVEL METRICS
+  1. Matched CER: 0.6604
+     (Sum of edits in matches + insertions + deletions)
+  2. Crude CER:   0.3979
+     (Concatenated page sorted Top-to-Bottom)
+==================================================
+
+
+==================================================
+EVALUATING: GNN+GEMINI (FULL IMAGE)
+==================================================
+Files Processed: 50
+----------------------------------------
+OBJECT LEVEL METRICS (Threshold: CER <= 0.5)
+  Precision: 0.8693
+  Recall:    0.8494
+  F1 Score:  0.8592
+  (TP: 592, FP: 89, FN: 105)
+----------------------------------------
+CHARACTER LEVEL METRICS
+  1. Matched CER: 0.5459
+     (Sum of edits in matches + insertions + deletions)
+  2. Crude CER:   0.3664
+     (Concatenated page sorted Top-to-Bottom)
+==================================================
+
+
+==================================================
+EVALUATING: GNN+GEMINI (SUB IMAGES)
+==================================================
+Files Processed: 50
+----------------------------------------
+OBJECT LEVEL METRICS (Threshold: CER <= 0.5)
+  Precision: 0.7037
+  Recall:    0.7088
+  F1 Score:  0.7062
+  (TP: 494, FP: 208, FN: 203)
+----------------------------------------
+CHARACTER LEVEL METRICS
+  1. Matched CER: 0.8392
+     (Sum of edits in matches + insertions + deletions)
+  2. Crude CER:   0.6095
+     (Concatenated page sorted Top-to-Bottom)
+==================================================
+
+
+==================================================
+EVALUATING: GNN+EASYOCR
+==================================================
+Files Processed: 50
+----------------------------------------
+OBJECT LEVEL METRICS (Threshold: CER <= 0.5)
+  Precision: 0.8302
+  Recall:    0.8135
+  F1 Score:  0.8217
+  (TP: 567, FP: 116, FN: 130)
+----------------------------------------
+CHARACTER LEVEL METRICS
+  1. Matched CER: 0.1346
+     (Sum of edits in matches + insertions + deletions)
+  2. Crude CER:   0.1224
+     (Concatenated page sorted Top-to-Bottom)
+==================================================
+

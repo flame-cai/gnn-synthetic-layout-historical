@@ -1,0 +1,93 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:46:07.245424</Created>
+  </Metadata>
+  <Page imageFilename="3976_0002.jpg" imageWidth="2500" imageHeight="1004">
+    <TextRegion id="region_0" custom="type:metadata">
+      <Coords points="352,110 2145,110 2145,161 352,161"/>
+      <TextLine id="line_0">
+        <Coords points="352,110 732,110 732,161 352,161"/>
+        <TextEquiv>
+          <Unicode>M-3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="2070,110 2145,110 2145,161 2070,161"/>
+        <TextEquiv>
+          <Unicode>2</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:main_text">
+      <Coords points="277,169 2220,169 2220,731 277,731"/>
+      <TextLine id="line_0">
+        <Coords points="277,169 2220,169 2220,220 277,220"/>
+        <TextEquiv>
+          <Unicode>॥श्रीगणेशायनमः॥ ॥ प्रह्लादासीष्टदानेविबुधसमुदयस्तूयमानायदानेऽशेषोर्वीभृदत्तः प्र</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="277,220 2220,220 2220,272 277,272"/>
+        <TextEquiv>
+          <Unicode>विलसितपदाहोबळक्षेवगर्भीत् ॥आदुर्भुतेहिरण्यकशिपुमदध्वांतसंछेदहेतुं धीरेसद्वास्त्व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="277,272 2220,272 2220,323 277,323"/>
+        <TextEquiv>
+          <Unicode>यो नौमनुभुवनगुरुरावस्कृतिनृसिंहै॥१॥कल्पक्षापिरुहाश्रकळ्पळतिकाभिश्चिंतितार्थामधूकू</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="277,323 2220,323 2220,374 277,374"/>
+        <TextEquiv>
+          <Unicode>सर्वेसंमिलितायदीय तुलनां नैवाधिरोदक्षमाः॥ तेयाताअतएवलाघववशाद्धीर्धीवगौरवादे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="277,374 2220,374 2220,425 277,425"/>
+        <TextEquiv>
+          <Unicode>षसोळाधिपतिस्थधोभुवमितिरस्येधेधेधीमती॥२॥मल्लिकार्जुनमहीमहेषरोदानेवादिर्वनेहोळ</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="277,425 2220,425 2220,476 277,476"/>
+        <TextEquiv>
+          <Unicode>सकूरः॥ सार्वभौमरुचिं कुसिनामगातुंशिनीकथं (मियं भवेअभूत्॥३॥मल्लसोळाभुजोमिर्चसमिति</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="277,476 2220,476 2220,527 277,527"/>
+        <TextEquiv>
+          <Unicode>तस्यामसंभ्यावतः संख्याव (न्निवहान्नीकैपेगळाणूवी स्थापनीपानपि॥राज्येवश्यमवइयमप्पनि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="277,527 2220,527 2220,578 277,578"/>
+        <TextEquiv>
+          <Unicode>तरीरुचीन्निरुपानालोलोक्यकस्मिना७॥४॥जनाःसर्वभृजीविस्मिताः॥विद्वल्लक्ष्ममल्लि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="277,578 2220,578 2220,629 277,629"/>
+        <TextEquiv>
+          <Unicode>कार्जुनमहीपालतदीयमलंकुर्वांस (मितिर्निजगुरुसुतेंद्रचिगुदागते॥ श्रीमद्भास्कररायना</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="277,629 2220,629 2220,680 277,680"/>
+        <TextEquiv>
+          <Unicode>मनिबुधेराज्ञासुविज्ञापितो कुर्वते कुतुकेनकामपि केर्थो स्वैधमानाविवा॥५॥श्री नृसिंहगु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="277,680 2220,680 2220,731 277,731"/>
+        <TextEquiv>
+          <Unicode>रुभ्योनमः॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

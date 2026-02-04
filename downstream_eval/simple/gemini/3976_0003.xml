@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:46:02.857250</Created>
+  </Metadata>
+  <Page imageFilename="3976_0003.jpg" imageWidth="2500" imageHeight="1030">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="347,162 747,162 747,245 347,245"/>
+      <TextLine id="line_0">
+        <Coords points="347,162 747,162 747,245 347,245"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:main_text">
+      <Coords points="1977,162 2050,162 2050,245 1977,245"/>
+      <TextLine id="line_0">
+        <Coords points="1977,162 2050,162 2050,245 1977,245"/>
+        <TextEquiv>
+          <Unicode>3</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="247,265 2227,265 2227,883 247,883"/>
+      <TextLine id="line_0">
+        <Coords points="247,265 2227,265 2227,327 247,327"/>
+        <TextEquiv>
+          <Unicode>रुषानुग्रहीतोस्वामि शाकिच्युधभास्कररायो। यांकथांरचयत्कृतिनस्तौ दोषदृष्टिं धुराःकलयंतु॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="247,327 2227,327 2227,389 247,389"/>
+        <TextEquiv>
+          <Unicode>मिथ्यःप्रसंगरूपत्वात्सर्गानुप्रसंगतः॥०२॥नप्रदक्षीण्यावेःस्वोपस्थितिंकल्पना॥०३॥नाप्राप्त</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="247,389 2227,389 2227,451 247,451"/>
+        <TextEquiv>
+          <Unicode>कामरूपाडुहिडासुतेनंद प्रविनादाप्रतीचोगांधारासिंधुसांद्रीधुवचदितादाचसेतोराच॥आके</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="247,451 2227,451 2227,512 247,512"/>
+        <TextEquiv>
+          <Unicode>लासादुदीचेस्तुहिनगहनतःसेतिविद्वसमाजा येतानेषयत्लःसुरखयतुसमजांचक्रमर्तुमीष्टे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="247,512 2227,512 2227,574 247,574"/>
+        <TextEquiv>
+          <Unicode>॥०८॥तत्रैवंमध्यस्थैःप्रदर्शितोविप्रतिपत्तिः॥पशुनायजेतसोमनयजेतस्यादिके विशिष्टविधौ॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="247,574 2227,574 2227,636 247,636"/>
+        <TextEquiv>
+          <Unicode>पशुसोमादिपदानांमर्थेळक्षणास्तिनवा॥अत्रविधिकोष्टिःशाक्तिप्रांनिषेधकोहिस्त्वरायाणौ।</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="247,636 2227,636 2227,698 247,698"/>
+        <TextEquiv>
+          <Unicode>तत्रायंसमयेवधः॥सिद्धांतवादिनेषासाध्यामर्थोळक्षणापपदे। प्रतिवादिनातुधर्माद्यविनोघे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="247,698 2227,698 2227,760 247,760"/>
+        <TextEquiv>
+          <Unicode>नैवसाट्या॥०९॥एवंवेसमयेवादिनोयपचिका मुखेनोपन्यासः॥विधिष्टविधेोतावत्सर्वोपप</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="247,760 2227,760 2227,821 247,821"/>
+        <TextEquiv>
+          <Unicode>दे मर्थेळक्षणातिसिद्धांत॥तचेयमुपपत्तिःसोमेनयजेतेत्यादौभावार्थोधिकरण्यायेनयागस्यप</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="247,821 2227,821 2227,883 247,883"/>
+        <TextEquiv>
+          <Unicode>रत्वात्लभावनायान्यपरतितादृग्विवादःसोमादेस्तूनतवान्वयःसमानपदोपात्तार्थोवरो</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

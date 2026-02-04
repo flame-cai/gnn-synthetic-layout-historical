@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:50:51.427368</Created>
+  </Metadata>
+  <Page imageFilename="3976_0044.jpg" imageWidth="2500" imageHeight="1039">
+    <TextRegion id="metadata_0" custom="type:manuscript_id">
+      <Coords points="300,72 650,72 650,124 300,124"/>
+      <TextLine id="line_ms_id_0">
+        <Coords points="300,72 650,72 650,124 300,124"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="metadata_1" custom="type:page_number_left">
+      <Coords points="125,124 225,124 225,166 125,166"/>
+      <TextLine id="line_page_left_0">
+        <Coords points="125,124 225,124 225,166 125,166"/>
+        <TextEquiv>
+          <Unicode>२२</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="metadata_2" custom="type:page_number_right">
+      <Coords points="2100,72 2250,72 2250,124 2100,124"/>
+      <TextLine id="line_page_right_0">
+        <Coords points="2100,72 2250,72 2250,124 2100,124"/>
+        <TextEquiv>
+          <Unicode>४४</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="495,101 2375,101 2375,558 495,558"/>
+      <TextLine id="line_0">
+        <Coords points="495,101 2375,101 2375,143 495,143"/>
+        <TextEquiv>
+          <Unicode>कस्याचावाक्येन वार्तिको रुदुकताबीजस्याभावेन वाक्ये दाप्रसंगात् ॥ किं च विनयायजेत पशुकामइत्यत्रोक्त</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="495,143 2375,143 2375,184 495,184"/>
+        <TextEquiv>
+          <Unicode>मीत्या वाक्ये दाप्रसंगात् ॥ किं च विनयायजेत पशुकामइत्यत्रोक्तं सोयमात्मनः सप्रसंगात् नामत्वे मति न सिध्येदिति नाधिकरणविरोधः किं चोदुंबरो यूषो भवसूजो विरध्ये</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="495,184 2375,184 2375,226 495,226"/>
+        <TextEquiv>
+          <Unicode>यस्योपवी मयीजुहु भवतीति न स पांशुलोकेष्टोति इ सत्राप्युदुंबर पर्णतयोः फले विधानात् ॥ न चाश्रयालाभे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="495,226 2375,226 2375,268 495,268"/>
+        <TextEquiv>
+          <Unicode>प्रथमं खले कपोतन्याये न भावनाचिंता नामेवदेसीयी क बोधे आश्रयते नान्यसे मं वातू ॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="495,268 2375,268 2375,309 495,309"/>
+        <TextEquiv>
+          <Unicode>वा भावादि तिसर्वं चैव भवन्मते वाक्यस्ये दस्या भावेन वितीर्ण ज लोलिस्ता इनादोचायतिवाक्ये</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="495,309 2375,309 2375,351 495,351"/>
+        <TextEquiv>
+          <Unicode>बृढना मधिकरणानां उच्छेदः ॥ किं च विधि श्चैव तावन्मवर्थ लक्षणांगीकारे उद्दधिकरणाविरोधः न</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="495,351 2375,351 2375,392 495,392"/>
+        <TextEquiv>
+          <Unicode>हिगुणावि धिपक्षे यागस्यामासस्य विधेयत्वे न विविशिष्ट विधातुमुपगमे मत्वर्थ लक्षणा भिये न नामधेयसमा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="495,392 2375,392 2375,434 495,434"/>
+        <TextEquiv>
+          <Unicode>स्किताहे श बाधो काभावे हिगुणावि धि (न) हे विधिलमे व परावर्तेत । प्रतिप दधिकरण का विरोधः । न नहिनस</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="495,434 2375,434 2375,475 495,475"/>
+        <TextEquiv>
+          <Unicode>र्वधी फलं भावनाकन दाता किं कस्येवेति निर्णी यात् ॥ यदाप्ये कस्यैव करणाता नदापि किमुपपदार्थस्यैव बोनधा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="495,475 2375,475 2375,517 495,517"/>
+        <TextEquiv>
+          <Unicode>नर्थे स्येवेति संदिह्यो तर पक्षे स्येव सिद्धांतीकर णोना पपदार्थस्यन भावना करणात् ॥ मिन्नस्य स्पष्टावेदका</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="495,517 2375,517 2375,558 495,558"/>
+        <TextEquiv>
+          <Unicode>वाथोधिकरणावि रोधः ॥ नैमि क बोध इय मंगीकुर्वै तुमत नैते दोषा उन्मी लंतीति स्पष्टं ॥ ॥ यद्यपि</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

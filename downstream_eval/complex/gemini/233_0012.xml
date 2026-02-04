@@ -1,0 +1,129 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:31:37.828417</Created>
+  </Metadata>
+  <Page imageFilename="233_0012.jpg" imageWidth="2500" imageHeight="926">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="1225,30 2375,30 2375,49 1225,49"/>
+      <TextLine id="line_0">
+        <Coords points="1225,30 2375,30 2375,49 1225,49"/>
+        <TextEquiv>
+          <Unicode>जमादस्यामीवैपूर्णाचतुर्दशीवत्सरावेडूयंतौचस्मातकेविजः॥२=</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:main_text">
+      <Coords points="350,148 625,148 625,197 350,197"/>
+      <TextLine id="line_1">
+        <Coords points="350,148 625,148 625,197 350,197"/>
+        <TextEquiv>
+          <Unicode>M-233</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="2125,148 2250,148 2250,197 2125,197"/>
+      <TextLine id="line_2">
+        <Coords points="2125,148 2250,148 2250,197 2125,197"/>
+        <TextEquiv>
+          <Unicode>12</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="250,222 2375,222 2375,768 250,768"/>
+      <TextLine id="line_3">
+        <Coords points="250,222 2375,222 2375,271 250,271"/>
+        <TextEquiv>
+          <Unicode>याज्ञवल्क्यः संदिग्धः प्राप्तेः श्रीपुत्रपौत्रप्रपौत्रकैः॥यस्मात् स्रातिथ्यः सेव्याकर्तव्यासुरचिताः॥षोडश</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="250,271 2375,271 2375,320 250,320"/>
+        <TextEquiv>
+          <Unicode>स्त्रीसांते तैः न पुंमासुसंविशेत्॥युग्मासुपुत्राजायंते स्त्रियोयुग्मासुरात्रेषु॥ब्रह्मचर्यपर्व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="250,320 2375,320 2375,370 250,370"/>
+        <TextEquiv>
+          <Unicode>सतुकालदिनप्रज्ञ न्यायात् तस्यवर्जयेत्॥स्तौतुर्गर्भसंकेलात् स्नानमैथुनिनः स्मृता॥अग्नौतु सदा कार्यौ</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="250,370 2375,370 2375,419 250,419"/>
+        <TextEquiv>
+          <Unicode>तपः चेत्तारः= चैत्रं मृगशीर्षे तथा फाल्गुनं खर्पलां माघामूलं च वर्जयेत्॥सुखैदौ सकृत्पुत्रलक्षण</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="250,419 2375,419 2375,468 250,468"/>
+        <TextEquiv>
+          <Unicode>येतुमाणायायथाकामी नवेदापिस्त्रीसंगवरमनुस्मरन्॥स्वदारनिरतैतौ वक्रिचोर</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="250,468 2375,468 2375,518 250,518"/>
+        <TextEquiv>
+          <Unicode>ताः॥मर्त्तजाति पितृज्ञातिप्रभूखसुरदेवैः॥बंधुनिस्त्रियः पूजाजूषणादानाप</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="250,518 2375,518 2375,567 250,567"/>
+        <TextEquiv>
+          <Unicode>तोपस्करादक्षाहाएवपयराडुरखी॥कुपीचसुरयोः पादवंदनमर्त्ततरा॥श्रीडाशारी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="250,567 2375,567 2375,616 250,616"/>
+        <TextEquiv>
+          <Unicode>उपस्करोजहोपकर रसस्कारे समौत्सवदर्शिनौ॥हा संपरग्टहे पानं त्येच्योचितमर्त्तका॥रसेकन्यौप्यितावि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="250,616 2375,616 2375,666 250,666"/>
+        <TextEquiv>
+          <Unicode>एवमेवचायधोलूख जो२</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_12">
+        <Coords points="250,666 2375,666 2375,715 250,715"/>
+        <TextEquiv>
+          <Unicode>लमुपालसूफदेः= जे२</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_13">
+        <Coords points="250,715 2375,715 2375,764 250,764"/>
+        <TextEquiv>
+          <Unicode>राम६</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:main_text">
+      <Coords points="2200,542 2375,542 2375,641 2200,641"/>
+      <TextLine id="line_14">
+        <Coords points="2200,542 2375,542 2375,592 2200,592"/>
+        <TextEquiv>
+          <Unicode>स्वस्थानमेवे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_15">
+        <Coords points="2200,592 2375,592 2375,641 2200,641"/>
+        <TextEquiv>
+          <Unicode>पाताः=</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_5" custom="type:main_text">
+      <Coords points="675,579 950,579 950,604 675,604"/>
+      <TextLine id="line_16">
+        <Coords points="675,579 950,579 950,604 675,604"/>
+        <TextEquiv>
+          <Unicode>सदेवप्रहसिता</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

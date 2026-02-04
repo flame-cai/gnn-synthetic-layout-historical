@@ -324,16 +324,21 @@ def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
     print(f"     (Concatenated page sorted Top-to-Bottom)")
     print(f"==================================================\n")
 
-document_layout_type="complex"
+document_layout_type="simple"
 # Define directories
 DIR_JSON_PRED = f"{document_layout_type}/gemini"
-DIR_XML_PRED = f"{document_layout_type}/gnn_gemini"
+DIR_XML_PRED_FULL = f"{document_layout_type}/gnn_gemini_fullimage"
+DIR_XML_PRED_SUB = f"{document_layout_type}/gnn_gemini_subimages"
 DIR_XML_PRED_EASY = f"{document_layout_type}/gnn_easyocr"
+
+
+
 DIR_GT = f"{document_layout_type}/ground_truth"
 
 if os.path.exists(DIR_GT):
     evaluate_method(DIR_JSON_PRED, DIR_GT, parse_pagexml, "GEMINI")
-    evaluate_method(DIR_XML_PRED, DIR_GT, parse_pagexml, "GNN+GEMINI")
+    evaluate_method(DIR_XML_PRED_FULL, DIR_GT, parse_pagexml, "GNN+GEMINI (FULL IMAGE)")
+    evaluate_method(DIR_XML_PRED_SUB, DIR_GT, parse_pagexml, "GNN+GEMINI (SUB IMAGES)")
     evaluate_method(DIR_XML_PRED_EASY, DIR_GT, parse_pagexml, "GNN+EASYOCR")
 else:
     print(f"Please ensure the directory '{DIR_GT}' exists and contains the dataset.")

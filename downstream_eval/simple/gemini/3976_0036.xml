@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:49:47.105074</Created>
+  </Metadata>
+  <Page imageFilename="3976_0036.jpg" imageWidth="2500" imageHeight="1052">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="87,84 2362,84 2362,941 87,941"/>
+      <TextLine id="line_0">
+        <Coords points="375,84 950,84 950,126 375,126"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="2075,84 2200,84 2200,126 2075,126"/>
+        <TextEquiv>
+          <Unicode>36</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="87,142 175,142 175,178 87,178"/>
+        <TextEquiv>
+          <Unicode>१८</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="250,142 2250,142 2250,178 250,178"/>
+        <TextEquiv>
+          <Unicode>किंचक र पाले ब्रीहीणां व्याप्यवृत्ति त्वं विदीहा व्याप्यव्यति कर पात्वरूप समुच्चि तकरत्वा संभवेपिप्र</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="250,178 2250,178 2250,215 250,215"/>
+        <TextEquiv>
+          <Unicode>सेक पर्यासकर पात्वरूपं चासमुच्चया पतिः॥तयाचदुष्टेरोन्यानो समुच्चयेन तस्मादियं समाधेयोहेतो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="250,215 2250,215 2250,252 250,252"/>
+        <TextEquiv>
+          <Unicode>स्तृतीयेति सूत्रेणहे तुत्व विशिष्टार्थ बोधकात्प्रातिपदिक कात्तोया विसक्तिषे वतीयर्थः॥यद्यपिविसक्तिबुद्धि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="250,252 2250,252 2250,289 250,289"/>
+        <TextEquiv>
+          <Unicode>धि तः पूर्वमन सिद्धि तद्स्य धिकान वतंतः पूर्वं प्रातिपदिक दि स्य धिका रा भावेनानुव स्योगा हेतुवाचकासा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="250,289 2250,289 2250,326 250,326"/>
+        <TextEquiv>
+          <Unicode>तिपदि को स रात्तोये यर्थे व र्णानायोगेन हेतौवाच्ये ततीये से वार्थो युक्तस्तथा पिष्यापू प्रातिपदि का दिति सू</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="250,326 2250,326 2250,362 250,362"/>
+        <TextEquiv>
+          <Unicode>त्रो तरे स्खोजसमो डियादि सूचकन पाद्ये मथ्यते ॥अ नभिहितत्वा दाक्षे प्रातिपदि कादिति सूचकरखा लि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="250,362 2250,362 2250,399 250,399"/>
+        <TextEquiv>
+          <Unicode>ग विशिष्ट पक्षिभाव ग्राह्या वेतादि सपि सि धे ताहि तानां प्रातिपदि को स र प्रयोज्य त्वं लोभाय ष्ण्यापू र्याति लि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="250,399 2250,399 2250,436 250,436"/>
+        <TextEquiv>
+          <Unicode>रा सा य च्चे बा तु र्थे क र प्सू च्चे स्ययथा स्खित्तस्पा व र्प क ले प्रातिपदिक पद स्पछः सू त्रेषु गौ र वा पतिरिसा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="250,436 2250,436 2250,473 250,473"/>
+        <TextEquiv>
+          <Unicode>ये न लाघवायते न व स्खोजस्खौ जसौ जैरचितौ स्खौ जसादीनामेव प्रथम दि पदवाच्यत्वे न व्यपे क्षा ल क्षणासाम</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_12">
+        <Coords points="250,473 2250,473 2250,510 250,510"/>
+        <TextEquiv>
+          <Unicode>र्थ्यस्य प्र सयानां प्रकृ सर्थो न्वित स्वार्थ बोध कत्वं स्य तौपर्य व सित्तस्य पद ने प्याद्विधा वपे क्षित</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_13">
+        <Coords points="250,510 2250,510 2250,547 250,547"/>
+        <TextEquiv>
+          <Unicode>त्व न प दि भाषा ॥ से वैकवा क्यतायां हेतुत्व वि शिष्टो बोध कात्प्रातिपदि का दर्थी न्वित बोध का क्षी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_14">
+        <Coords points="2275,831 2362,831 2362,867 2275,867"/>
+        <TextEquiv>
+          <Unicode>१८</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_15">
+        <Coords points="2075,904 2200,904 2200,941 2075,941"/>
+        <TextEquiv>
+          <Unicode>३२</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

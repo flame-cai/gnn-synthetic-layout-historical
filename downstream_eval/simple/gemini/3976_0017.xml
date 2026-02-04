@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:47:31.508578</Created>
+  </Metadata>
+  <Page imageFilename="3976_0017.jpg" imageWidth="2500" imageHeight="1035">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="300,64 625,64 625,129 300,129"/>
+      <TextLine id="line_0">
+        <Coords points="300,64 625,64 625,129 300,129"/>
+        <TextEquiv>
+          <Unicode>M-3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:main_text">
+      <Coords points="2050,64 2150,64 2150,129 2050,129"/>
+      <TextLine id="line_1">
+        <Coords points="2050,64 2150,64 2150,129 2050,129"/>
+        <TextEquiv>
+          <Unicode>17</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="250,207 2225,207 2225,853 250,853"/>
+      <TextLine id="line_2">
+        <Coords points="250,207 2225,207 2225,271 250,271"/>
+        <TextEquiv>
+          <Unicode>तत्रोद्देशोद्देश्यभावोस्ति वाक्ये परिच्छेदकसंख्वानश्रुतौ नैव शंका तद्वाधिनं नेति ब्रूयान्न तथाऽनु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="250,271 2225,271 2225,336 250,336"/>
+        <TextEquiv>
+          <Unicode>स्यमानकर्मानुमानाधिकरणविधेयसंख्याया आज्यभागाद्यजति तिस्र आहुतीर्जुहोतीति श्रुतौ कर्मभे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="250,336 2225,336 2225,400 250,400"/>
+        <TextEquiv>
+          <Unicode>दकत्वात्सुपगमात् ॥ यद्यपि प्रधानन्वयोगुणान्वयाद् बलीयस्ते तथा प्रधानन्वयोपि प्रकृते त्ववधूमूळा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="250,400 2225,400 2225,465 250,465"/>
+        <TextEquiv>
+          <Unicode>सन्निकृष्ट संबंधमूळकोऽप्यर्हितः न्यायतो व्याप्त तथापि सप्रदशेत्व संख्यायाः स्वाश्रयकरकाकयाग</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="250,465 2225,465 2225,529 250,529"/>
+        <TextEquiv>
+          <Unicode>करकाकलसंबंधेन प्रसायोः प्रधानन्वयमपेक्ष्य स्वाश्रयकरकाकलसंबंधेनैवाश्रयितेनान्वयसिद्दो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="250,529 2225,529 2225,595 250,595"/>
+        <TextEquiv>
+          <Unicode>र्वति । इयमेवचेतदधिकरणोयागभेदसाधियुक्तिः चोदकप्राप्तैकपक्षनिष्पन्नैकादशारुद्रव्यै</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="250,595 2225,595 2225,659 250,659"/>
+        <TextEquiv>
+          <Unicode>स्तयुक्तिराकरख्यातेने कातिदीक्षानाय परस्वत आलंबत इत्य चार व्ययागानांसे दानापत्तेन तत्राप</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="250,659 2225,659 2225,724 250,724"/>
+        <TextEquiv>
+          <Unicode>न येनकृता नारपर्यातसजतीतिगुणा वाक्येन तदंतां गररीति विधानस्यनवमोयासाधिकरण</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="250,724 2225,724 2225,788 250,788"/>
+        <TextEquiv>
+          <Unicode>वेन चोदकाभावात् न चेष्टापत्तिः संख्याधिकरणपोरा प्रकृतेनारपेषु यागसे दोलेवै शाख्यामावा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="250,788 2225,788 2225,853 250,853"/>
+        <TextEquiv>
+          <Unicode>त्स्यायां ससदृशामास्तीति क्रियवसाउ पाकवोति सप्रदशेपीनुद्देशा स्वन्यर्येनिनु किंतितराळाळ भैते</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="125,685 175,685 175,750 125,750"/>
+      <TextLine id="line_12">
+        <Coords points="125,685 175,685 175,750 125,750"/>
+        <TextEquiv>
+          <Unicode>३</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:main_text">
+      <Coords points="2250,750 2300,750 2300,814 2250,814"/>
+      <TextLine id="line_13">
+        <Coords points="2250,750 2300,750 2300,814 2250,814"/>
+        <TextEquiv>
+          <Unicode>म</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

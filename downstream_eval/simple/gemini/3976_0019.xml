@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:47:58.297729</Created>
+  </Metadata>
+  <Page imageFilename="3976_0019.jpg" imageWidth="2500" imageHeight="1041">
+    <TextRegion id="region_0" custom="type:manuscript_id">
+      <Coords points="312,128 730,128 730,240 312,240"/>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:page_number">
+      <Coords points="2187,128 2317,128 2317,208 2187,208"/>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="235,272 2370,272 2370,976 235,976"/>
+      <TextLine id="line_0">
+        <Coords points="235,272 2370,272 2370,336 235,336"/>
+        <TextEquiv>
+          <Unicode>म्योः बाई द्विरपार्थेवमाय्यं मयो वाहीयानीद्वादशा हिकत्र लस्तो असाध नसे नब्रह्मणादिसे देन विहिता नाम पिसा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="235,336 2370,336 2370,400 235,400"/>
+        <TextEquiv>
+          <Unicode>न्नो सामान्य विहिते नाभी वर्तसा म्मास हविकल्पस्यसिद्धांत संमत लाते मूर्धावसितस्या या जोते साभावे नाशीव</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="235,400 2370,400 2370,464 235,464"/>
+        <TextEquiv>
+          <Unicode>र्तस्यत्तन्मात्र परतायावा कोक्त्या यावदनुचित त्वादिनयानयुत्त्याप्येद सिद्धां नच भवदु कापि युक्तिर्व सेता यक</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="235,464 2370,464 2370,528 235,528"/>
+        <TextEquiv>
+          <Unicode>पिंजलनालसेते स्यादौ जीनि सादिप दाश्रवणाद नै कांति की तिवाच्यं । कपिंजल न्यायेना ध्याहारस्यासिधेः नचा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="235,528 2370,528 2370,592 235,592"/>
+        <TextEquiv>
+          <Unicode>ध्या हृत पदे लक्षणादि दोषा भावात् कपिंजले षे व संख्या न्यो स्ति तिवाच्यं ॥ विप्रकृष्ट संबं ध मूलक भावना न्चया</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="235,592 2370,592 2370,656 235,656"/>
+        <TextEquiv>
+          <Unicode>पतेः । आकरे तुद्व्य गतापि संख्या बोधक स हकारे णा कर्म भृद्दि कासं भवती साशयेन माजा पेक्षा नि तिबहुत्व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="235,656 2370,656 2370,720 235,720"/>
+        <TextEquiv>
+          <Unicode>दे वता संबं धे विशिष्ट द्व्य गतं द्व्य मात्रग ते वेत्यादि विचार कृतः सर्वथापि स्व करादि प दि छे दकल संबं धे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="235,720 2370,720 2370,784 235,784"/>
+        <TextEquiv>
+          <Unicode>नसैख्या र ती भाव ने ति प्राथमिक बो धोत्तर मूर्धी प सायाग भे दसिद्धि स्तद न्यथानु प प त्त्या न ज ड न क कृ त्सा मे के भावना</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="235,784 2370,784 2370,848 235,848"/>
+        <TextEquiv>
+          <Unicode>भे दसिधि रिति नि राबा धः सिधौ तर ति कथं वैपरी यं । तस्मा त्का र काणां क्रिया न्वय इति पक्षः पा रि पुवाधि करणा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="235,848 2370,848 2370,912 235,912"/>
+        <TextEquiv>
+          <Unicode>दाना करे व्य वह तो निराबा ध एवे त त्तत्प्र सो मस्य योगे न य स्याभावे न त सामानाधि करणोपाय म वे थै लक्षणा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="235,912 2370,912 2370,976 235,976"/>
+        <TextEquiv>
+          <Unicode>॥ ॥ इति षष्ठी कक्षेया ॥ ॥ संदुता व कारकाणां क्रिया न्वय प्रति पाद का आकरे ग्रं था नः परंतु ते सर्वे पियो गदा रापरेष</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:marginal_note">
+      <Coords points="2370,848 2422,848 2422,880 2370,880"/>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:page_number_bottom">
+      <Coords points="1302,928 1432,928 1432,993 1302,993"/>
+    </TextRegion>
+  </Page>
+</PcGts>

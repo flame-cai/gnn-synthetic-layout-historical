@@ -1,0 +1,126 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:31:23.440640</Created>
+  </Metadata>
+  <Page imageFilename="233_0011.jpg" imageWidth="2500" imageHeight="928">
+    <TextRegion id="region_0" custom="type:metadata">
+      <Coords points="280,67 662,67 662,241 280,241"/>
+      <TextLine id="line_0">
+        <Coords points="280,67 740,67 740,135 280,135"/>
+        <TextEquiv>
+          <Unicode>नलोपपरिशास्त्रि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="280,144 637,144 637,232 280,232"/>
+        <TextEquiv>
+          <Unicode>M-233</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:metadata">
+      <Coords points="1275,67 2195,67 2195,309 1275,309"/>
+      <TextLine id="line_0">
+        <Coords points="1275,67 1912,67 1912,135 1275,135"/>
+        <TextEquiv>
+          <Unicode>उरुकी तरसं योज कल्पोपरः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="1682,135 1785,135 1785,193 1682,193"/>
+        <TextEquiv>
+          <Unicode>ना४</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="1325,193 1477,193 1477,251 1325,251"/>
+        <TextEquiv>
+          <Unicode>चिर</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="2117,251 2195,251 2195,309 2117,309"/>
+        <TextEquiv>
+          <Unicode>।। </Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="280,309 2475,309 2475,928 280,928"/>
+      <TextLine id="line_0">
+        <Coords points="280,309 2475,309 2475,386 280,386"/>
+        <TextEquiv>
+          <Unicode>आगर्नसंज्ञवा रुदे तपति तस्नपच्याजवेते॥ छनेज वधिनाजात क्षेत्रोर्प्यम वेत्सुत॥१॥ हताधि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="280,386 2475,386 2475,464 280,464"/>
+        <TextEquiv>
+          <Unicode>नांपिंडमाचोपजीविनी॥ परेनूतामद्यः श्वांपावासयेद्यौचैचारिणी॥२॥ सोमः शौचंद दोछी सोंगु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="280,464 2475,464 2475,541 280,541"/>
+        <TextEquiv>
+          <Unicode>नांगिरं॥ पावकः सर्वमेधपंतमेधावैयोचितोहतः॥३॥ व्यभिचारा हतौपुत्रौर्जेल्यागोविधीयते॥ गर्भा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="280,541 2295,541 2295,618 280,618"/>
+        <TextEquiv>
+          <Unicode>नैवधादैचतथा महतिपातके॥ सुरापीव्याधिनायत्तीवर्थ्यर्धप्रिवदा॥४॥ स्त्रीप्रसूयाधिवैतवा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="280,618 2475,618 2475,696 280,696"/>
+        <TextEquiv>
+          <Unicode>पुरुषदेविराणीतथा॥ उग्रधिविन्नापिकर्तव्यामहदेनोप्यप्यजवेते॥ यत्रानुकूलंद सोखिवर्गी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="280,696 2475,696 2475,773 280,773"/>
+        <TextEquiv>
+          <Unicode>सच्चवर्द्धते॥ एतेजी वतिवापत्तौयाना न्यन्यमुपगच्छति॥ से हकीर्तिमवाप्रोतिमोदतेचोभयास</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="280,773 2475,773 2475,850 280,850"/>
+        <TextEquiv>
+          <Unicode>ह॥ प्राज्ञासंपादिनीदंक्षावीरसूंधिववादिनी॥ सज्जूरदाप्यस्तृतीयांशमदोनरएं स्त्रियां॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="280,850 2475,850 2475,928 280,928"/>
+        <TextEquiv>
+          <Unicode>निर्जर्तवचः कार्य्यमेषः धर्मः परस्त्रियाः॥ प्राप्यं देः संप्रतीस्योहि महा पातक दूषितः॥ लोकानं</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:marginal_note">
+      <Coords points="102,560 280,560 280,889 102,889"/>
+      <TextLine id="line_0">
+        <Coords points="177,560 254,560 254,618 177,618"/>
+        <TextEquiv>
+          <Unicode>त</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="102,812 280,812 280,889 102,889"/>
+        <TextEquiv>
+          <Unicode>पुत्रवतीर</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:marginal_note">
+      <Coords points="2295,560 2397,560 2397,618 2295,618"/>
+      <TextLine id="line_0">
+        <Coords points="2295,560 2397,560 2397,618 2295,618"/>
+        <TextEquiv>
+          <Unicode>ता४</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

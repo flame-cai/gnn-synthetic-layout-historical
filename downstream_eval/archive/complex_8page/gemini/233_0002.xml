@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-02T14:02:35.163718</Created>
+  </Metadata>
+  <Page imageFilename="233_0002.jpg" imageWidth="2500" imageHeight="940">
+    <TextRegion id="region_0" custom="type:marginal_note">
+      <Coords points="260,29 820,29 820,58 260,58"/>
+      <TextLine id="line_0">
+        <Coords points="260,29 820,29 820,58 260,58"/>
+        <TextEquiv>
+          <Unicode>सिद्धान्नं व्याकरोति छंदसि ॥ = स्वयमेव ॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:identifier">
+      <Coords points="130,117 325,117 325,156 130,156"/>
+      <TextLine id="line_0">
+        <Coords points="130,117 325,117 325,156 130,156"/>
+        <TextEquiv>
+          <Unicode>M-233</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:page_number">
+      <Coords points="1092,117 1145,117 1145,156 1092,156"/>
+      <TextLine id="line_0">
+        <Coords points="1092,117 1145,117 1145,156 1092,156"/>
+        <TextEquiv>
+          <Unicode>2</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="105,176 1160,176 1160,567 105,567"/>
+      <TextLine id="line_0">
+        <Coords points="105,176 1160,176 1160,225 105,225"/>
+        <TextEquiv>
+          <Unicode>याज्ञव० १ ॐ अस्मिन् श्रीगणेशाय नमः ॥ ॐ श्रीगुरवे नमः ॥ ॐ श्रीयोगपतये नमः ॥ रामाय नमः ॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="105,225 1160,225 1160,274 105,274"/>
+        <TextEquiv>
+          <Unicode>योगीनां पावनकाः योगीश्वरं याज्ञवल्क्यं मुनयोऽच्युवनं ॥ वरिमितरासां नो ब्रूहि धर्मानशेषतः ॥ मिथिलास्थः प्रबोधाय स्थः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="105,274 1160,274 1160,323 105,323"/>
+        <TextEquiv>
+          <Unicode>दीनामीश्वरः = सयोगींद्रः क्षात्वाऽव्वीन् मुनीन् यस्मिन्नेषं गः रुहस्तस्मिन् धर्मी विधीयते ॥ पुराणाख्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="105,323 1160,323 1160,372 105,372"/>
+        <TextEquiv>
+          <Unicode>पमीमांसा धर्मशास्त्रांग मिश्रिताः ॥ वेदाः स्थानानि विद्यानां धर्मस्य चतुर्दश ॥ मन्वत्रि विष्णुहा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="105,372 1160,372 1160,421 105,421"/>
+        <TextEquiv>
+          <Unicode>हारीत याज्ञवल्क्योशनो गिराः ॥ यमापस्तंब संवर्त कात्यायन बृहस्पति ॥ पराशर व्यास शंख</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="105,421 1160,421 1160,470 105,470"/>
+        <TextEquiv>
+          <Unicode>लिखित दक्षमौतमाः ॥ शातातपो वशिष्ठ धर्मशास्त्र प्रयोजकाः ॥ देशो काल उपायेन द्रव्यं</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="105,470 1160,470 1160,518 105,518"/>
+        <TextEquiv>
+          <Unicode>दासमन्वते पचेदी पते पते सकलं धर्मलक्षणं ॥ श्रुतिः स्मृतिः सदाचारः स्वस्य च प्रियमात्मनः राम १</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="105,518 1160,518 1160,567 105,567"/>
+        <TextEquiv>
+          <Unicode>सतामाचारः सतामाचारः १</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:marginal_note">
+      <Coords points="845,822 1170,822 1170,861 845,861"/>
+      <TextLine id="line_0">
+        <Coords points="845,822 1170,822 1170,861 845,861"/>
+        <TextEquiv>
+          <Unicode>= देशेऽकाल संजातो ॥ उपाधेन उपार्जनं २ =</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

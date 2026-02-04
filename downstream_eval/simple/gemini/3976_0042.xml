@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:50:43.753989</Created>
+  </Metadata>
+  <Page imageFilename="3976_0042.jpg" imageWidth="2500" imageHeight="1050">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="200,194 2300,194 2300,514 200,514"/>
+      <TextLine id="line_0">
+        <Coords points="212,199 2275,199 2275,225 212,225"/>
+        <TextEquiv>
+          <Unicode>तक्तः। पद निष्पादको विधिरेवार्थः परोगा वद्वा हेतु समर्थ पदा नु इति बला ध्येते का समर्थो श्रित्तलसिद्धिः सुवचा।</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="212,228 2275,228 2275,257 212,257"/>
+        <TextEquiv>
+          <Unicode>सु वामं जिते परोगा वसर इति सूत्रेण समर्थः सु वं चैव आर्मं जिते परे स्वर कार्य विषये परोगा वद्वा मा पद्यते इत्यर्थः।</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="212,260 2275,260 2275,288 212,288"/>
+        <TextEquiv>
+          <Unicode>अत्र यथास्यस्य सूत्रस्य समर्थ सूचोत्तर मे व प्रणा पनं वैयर्थ्यापत्तेः। सह सु पति सूत्रेण सु सु पूरपदस्यानु वृत्त्या वषट्क</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="212,291 2275,291 2275,320 212,320"/>
+        <TextEquiv>
+          <Unicode>स्योपि रु सु पे से व से ज यितुं शक्यत्वात् समास म र्थ पदा नु इति लिङ्सये व तल्लक्षाने सू त्रं का मि ति त स्वपद नि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="212,323 2275,323 2275,351 212,351"/>
+        <TextEquiv>
+          <Unicode>ष्पादकत्वा भावे पि पांर्थे के न समर्थो श्रित्तल विधिः। तल्लक्षा ने सूत्रं कामे व च पद निष्पाद को विधिः पद विधिनेत्यर्थः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="212,354 2275,354 2275,383 212,383"/>
+        <TextEquiv>
+          <Unicode>वपीन ज्ञापक सिपि सुलु शभ्यो लिङ्चे व व्याकर णानां प्रातिपदि क विभक्तयोः परस्परा न्वि तार्थ बोध कत्व नियमस्यैक</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="212,386 2275,386 2275,414 212,414"/>
+        <TextEquiv>
+          <Unicode>त्वं ला भं न न ले के वं न तथा सरित्सि मा सादा न पि तथैव सुव व से न सूत्रेण स्वे व वैयर्थ्यापत्तेः। नाय मूला नोपिक्षाषा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="212,417 2275,417 2275,446 212,446"/>
+        <TextEquiv>
+          <Unicode>वांस न कोरे प्राणापनात्कृ वि कृतीपना दनुवाद लें केले तु सर्वा नु गमं कृते ना स्मा की न ए वायो व र्ण यितुं युक्तः प्रस्</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="212,449 2275,449 2275,477 212,477"/>
+        <TextEquiv>
+          <Unicode>त ब न्ध सू चक लेन स च ला नु गुण्या त्वा लि भावा नै । इमा म व च सि भाषा मा श्रि म्भिलितयो रे व समस्मान</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="212,480 2275,480 2275,509 212,509"/>
+        <TextEquiv>
+          <Unicode>प स र्थ यो र्ली हितो स्मी षो दो प्र कृति प्रत्ययार्थयो र्भा व ना या म न्वयो मी मां सकेः स्वी क्रियते न पर स्पर शातीन</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

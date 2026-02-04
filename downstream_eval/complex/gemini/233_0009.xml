@@ -2,123 +2,141 @@
 <PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
   <Metadata>
     <Creator>Gemini-OCR-Wrapper</Creator>
-    <Created>2026-02-02T14:02:53.490599</Created>
+    <Created>2026-02-03T17:31:03.447643</Created>
   </Metadata>
   <Page imageFilename="233_0009.jpg" imageWidth="2500" imageHeight="928">
-    <TextRegion id="region_0" custom="type:main_text">
-      <Coords points="100,37 2250,37 2250,816 100,816"/>
-      <TextLine id="line_0">
-        <Coords points="850,37 2250,37 2250,55 850,55"/>
+    <TextRegion id="region_top_marginalia" custom="type:marginalia">
+      <Coords points="247,36 2400,36 2400,64 247,64"/>
+      <TextLine id="line_top_0">
+        <Coords points="247,36 2400,36 2400,64 247,64"/>
         <TextEquiv>
-          <Unicode>=रमकुलात हरमात्मातःमात बसुः आरभ्य पंचमतः उर्द पित्तः पित्त धमु आरभ्य सप्तमतः उर्द =</Unicode>
+          <Unicode>=रमकुलात हरतमात् मात् बसुः आरज्यं पचमत् उर्द पित्तः पित्त धमु आरज्यं ममत उर्दः=</Unicode>
         </TextEquiv>
       </TextLine>
-      <TextLine id="line_1">
-        <Coords points="350,120 600,120 600,148 350,148"/>
+    </TextRegion>
+    <TextRegion id="region_left_marginalia_m233" custom="type:marginalia">
+      <Coords points="250,120 587,120 587,148 250,148"/>
+      <TextLine id="line_m233_0">
+        <Coords points="250,120 587,120 587,148 250,148"/>
         <TextEquiv>
           <Unicode>M-233</Unicode>
         </TextEquiv>
       </TextLine>
-      <TextLine id="line_2">
-        <Coords points="2100,120 2150,120 2150,139 2100,139"/>
+    </TextRegion>
+    <TextRegion id="region_right_marginalia_9" custom="type:marginalia">
+      <Coords points="2125,120 2175,120 2175,148 2125,148"/>
+      <TextLine id="line_9_0">
+        <Coords points="2125,120 2175,120 2175,148 2125,148"/>
         <TextEquiv>
           <Unicode>9</Unicode>
         </TextEquiv>
       </TextLine>
-      <TextLine id="line_3">
-        <Coords points="950,167 1000,167 1000,185 950,185"/>
-        <TextEquiv>
-          <Unicode>जां</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_4">
-        <Coords points="2100,167 2175,167 2175,185 2100,185"/>
+    </TextRegion>
+    <TextRegion id="region_right_marginalia_tar" custom="type:marginalia">
+      <Coords points="2125,153 2200,153 2200,171 2125,171"/>
+      <TextLine id="line_tar_0">
+        <Coords points="2125,153 2200,153 2200,171 2125,171"/>
         <TextEquiv>
           <Unicode>तार</Unicode>
         </TextEquiv>
       </TextLine>
-      <TextLine id="line_5">
-        <Coords points="275,194 2225,194 2225,232 275,232"/>
+    </TextRegion>
+    <TextRegion id="region_main_text" custom="type:main_text">
+      <Coords points="250,176 2400,176 2400,473 250,473"/>
+      <TextLine id="line_0">
+        <Coords points="250,176 2225,176 2225,213 250,213"/>
         <TextEquiv>
-          <Unicode>सुरोगेण ख्यात मती समान वर्गोच यों। पंचमास प्राहर्र्मात् सः पित्त तस्तथा ॥ दशपुरु षविख्याति</Unicode>
+          <Unicode>सुरोगेलीक्लातमतीम समानवगोच्योः।। पंचमासप्रमात् सः पित्ततस्या।। दशपुरु षविख्याति</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="250,213 2225,213 2225,250 250,250"/>
+        <TextEquiv>
+          <Unicode>श्रोत्रियारां महाकुलातासकीतादपिन संचारी रोगदोषसमन्विता।। ऐतैरेव गुणैर्युक्तः सर्वोधी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="250,250 2225,250 2225,287 250,287"/>
+        <TextEquiv>
+          <Unicode>श्रेयोवरः।। यज्ञात् सरीक्षैत पुंस्वेयुवा धीमान् जनप्रियः।। यदुच्यते छजातीनां शूद्रासरोपसंग्र</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2_annotation_0">
+        <Coords points="1475,273 1550,273 1550,287 1475,287"/>
+        <TextEquiv>
+          <Unicode>कमेला</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="250,287 2225,287 2225,324 250,324"/>
+        <TextEquiv>
+          <Unicode>ह।। नैतन्मममंतं तस्मात् नाजाजापते स्वं।। पितोर्नानुर्वरता देतथैकाप्यकामां।। ब्राह्मण</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3_annotation_0">
+        <Coords points="1100,310 1200,310 1200,324 1100,324"/>
+        <TextEquiv>
+          <Unicode>देववाहे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="250,324 2225,324 2225,361 250,361"/>
+        <TextEquiv>
+          <Unicode>तत्रिविद्याजापीश्रुद्रजनमनः।। वालोविवाहमाहृयदी यते शक्कलंकृता।। तत्रः पुनात्युनयतः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4_annotation_0">
+        <Coords points="750,348 900,348 900,361 750,361"/>
+        <TextEquiv>
+          <Unicode>शुद्धि विवाहे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="250,361 2225,361 2225,399 250,399"/>
+        <TextEquiv>
+          <Unicode>पुरुषानेकविंशती।। यत् स्वस्लिजेदैवज्ञा स्त्रीषगोदयं।। चतुर्दशप्रप्यमजः पुनात्युत्तरजश्वव</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5_annotation_0">
+        <Coords points="1100,385 1225,385 1225,399 1100,399"/>
+        <TextEquiv>
+          <Unicode>श्रीजाप्यमः</Unicode>
         </TextEquiv>
       </TextLine>
       <TextLine id="line_6">
-        <Coords points="275,241 2225,241 2225,278 275,278"/>
+        <Coords points="250,399 2225,399 2225,436 250,436"/>
         <TextEquiv>
-          <Unicode>श्रोत्रियाणां महाकुलातासीतादपि संचारी रोगदोष समन्विता ॥ एतैरेव गुणैर्युक्तः सर्वोधी</Unicode>
+          <Unicode>ह।। इत्युक्तचरां धर्मसंह पादी यतेष्यने।। सकायः पावयेतजः षट् षट् पै वंश्यान्माहालना।। असु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6_annotation_0">
+        <Coords points="1100,422 1225,422 1225,436 1100,436"/>
+        <TextEquiv>
+          <Unicode>श्रीजाप्यमः</Unicode>
         </TextEquiv>
       </TextLine>
       <TextLine id="line_7">
-        <Coords points="275,287 2225,287 2225,324 275,324"/>
+        <Coords points="250,436 2400,436 2400,473 250,473"/>
         <TextEquiv>
-          <Unicode>श्रेयोवरः ॥ यज्ञात् सरीक्षैत पुंस्वेयु वाधीमान जनप्रियः ॥ यदुच्यते छ जातीनां शूद्रासरोपसंग्र</Unicode>
+          <Unicode>=परीक्षोपाय नारदेनोपदर्शितः।। यत् स्वानुरुपते वीर्यं ह्यदमूत्रं च केवलं।। पुमांस्यात् स्त्री रैतैरेव पैतैका षंडका पनाः=</Unicode>
         </TextEquiv>
       </TextLine>
-      <TextLine id="line_8">
-        <Coords points="1750,334 1850,334 1850,352 1750,352"/>
-        <TextEquiv>
-          <Unicode>कमेण</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_9">
-        <Coords points="275,334 2225,334 2225,371 275,371"/>
-        <TextEquiv>
-          <Unicode>हः ॥ नैतन्मम मतं तस्मात् नाजाजापते स्वं ॥ पितोर्द्धानुपूर्वेण देत्तथैका प्यका मंहारु</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_10">
-        <Coords points="1100,380 1250,380 1250,399 1100,399"/>
-        <TextEquiv>
-          <Unicode>देवविवाह</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_11">
-        <Coords points="275,380 2225,380 2225,417 275,417"/>
-        <TextEquiv>
-          <Unicode>तत्रैव विवाहा श्री प्रमुद् जनमनः ॥ वालोविवाह आहूयदी यते शक्कलंकृता ॥ तत्रः पुनातुनयतः</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_12">
-        <Coords points="750,426 925,426 925,445 750,445"/>
-        <TextEquiv>
-          <Unicode>शुद्धि विवाह</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_13">
-        <Coords points="1100,426 1250,426 1250,445 1100,445"/>
-        <TextEquiv>
-          <Unicode>प्रजापत्यः</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_14">
-        <Coords points="275,454 2225,454 2225,491 275,491"/>
-        <TextEquiv>
-          <Unicode>पुरुषानैकविंशती ॥ यत्स्पृष्ट सिजेदैवज्ञा स्त्री षष्ठी पर्षत् गो दयं ॥ चतुर्दश प्रप्यमजः पुनातुत्तरजश्व</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_15">
-        <Coords points="275,501 2225,501 2225,538 275,538"/>
-        <TextEquiv>
-          <Unicode>ह ॥ इत्युक्तच रतां धर्म संह पादी यतेष्यने ॥ सकायः पावयेत् तज्ञः षट् षट् पै वंश्यान्मा हालना ॥ आसु</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_16">
-        <Coords points="100,556 250,556 250,584 100,584"/>
-        <TextEquiv>
-          <Unicode>जनपा सह</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_17">
-        <Coords points="275,705 2225,705 2225,742 275,742"/>
-        <TextEquiv>
-          <Unicode>=परीक्षोपाय नारदेनोपदर्शितः ॥ यत्स्पृष्ट प्रकृते वीर्यं ह्यमूत्रं च केनला ॥ पुमांस्यात् स्त्री रैतैवैपरी तैका षंडका ॥ प=॥</Unicode>
-        </TextEquiv>
-      </TextLine>
-      <TextLine id="line_18">
-        <Coords points="1125,798 1200,798 1200,816 1125,816"/>
+    </TextRegion>
+    <TextRegion id="region_bottom_marginalia_dar" custom="type:marginalia">
+      <Coords points="1050,798 1150,798 1150,825 1050,825"/>
+      <TextLine id="line_dar_0">
+        <Coords points="1050,798 1150,798 1150,825 1050,825"/>
         <TextEquiv>
           <Unicode>दार</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_left_marginalia_janapasah" custom="type:marginalia">
+      <Coords points="75,408 225,408 225,426 75,426"/>
+      <TextLine id="line_janapasah_0">
+        <Coords points="75,408 225,408 225,426 75,426"/>
+        <TextEquiv>
+          <Unicode>जनपासह</Unicode>
         </TextEquiv>
       </TextLine>
     </TextRegion>

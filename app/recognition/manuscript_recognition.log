@@ -197,3 +197,105 @@
 2026-02-03 09:58:40,612 - INFO - Updated ../input_manuscripts/complex_layout_remaining_12_pages/layout_analysis_output/page-xml-format/233_0020.xml - 24 lines written.
 2026-02-03 09:58:40,613 - INFO - Updated ../input_manuscripts/complex_layout_remaining_12_pages/layout_analysis_output/page-xml-format/233_0021.xml - 20 lines written.
 2026-02-03 09:58:40,613 - INFO - Process completed for manuscript: complex_layout_remaining_12_pages
+2026-02-03 17:19:29,309 - INFO - Using device: cuda
+2026-02-03 17:19:29,309 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-03 17:19:30,542 - INFO - Model loaded successfully (DataParallel prefix stripped).
+2026-02-03 17:19:30,542 - INFO - Starting inference on images in: ../input_manuscripts/complex_15_easyocr/layout_analysis_output/image-format
+2026-02-03 17:19:31,681 - INFO - Processed 0 lines...
+2026-02-03 17:20:02,754 - INFO - Processed 50 lines...
+2026-02-03 17:20:32,388 - INFO - Processed 100 lines...
+2026-02-03 17:21:00,915 - INFO - Processed 150 lines...
+2026-02-03 17:21:34,430 - INFO - Processed 200 lines...
+2026-02-03 17:22:04,065 - INFO - Processed 250 lines...
+2026-02-03 17:22:22,445 - INFO - Inference completed. Processed 288 images.
+2026-02-03 17:22:22,446 - INFO - Organizing recognized text...
+2026-02-03 17:22:22,446 - INFO - Updating PAGE-XML files...
+2026-02-03 17:22:22,447 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0002.xml - 20 lines written.
+2026-02-03 17:22:22,447 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0003.xml - 20 lines written.
+2026-02-03 17:22:22,448 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0004.xml - 10 lines written.
+2026-02-03 17:22:22,448 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0005.xml - 16 lines written.
+2026-02-03 17:22:22,449 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0006.xml - 20 lines written.
+2026-02-03 17:22:22,449 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0007.xml - 12 lines written.
+2026-02-03 17:22:22,449 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0008.xml - 15 lines written.
+2026-02-03 17:22:22,450 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0009.xml - 20 lines written.
+2026-02-03 17:22:22,450 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0010.xml - 22 lines written.
+2026-02-03 17:22:22,451 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0011.xml - 18 lines written.
+2026-02-03 17:22:22,451 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0012.xml - 22 lines written.
+2026-02-03 17:22:22,451 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0013.xml - 23 lines written.
+2026-02-03 17:22:22,452 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0014.xml - 26 lines written.
+2026-02-03 17:22:22,452 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0015.xml - 19 lines written.
+2026-02-03 17:22:22,453 - INFO - Updated ../input_manuscripts/complex_15_easyocr/layout_analysis_output/page-xml-format/233_0016.xml - 25 lines written.
+2026-02-03 17:22:22,453 - INFO - Process completed for manuscript: complex_15_easyocr
+2026-02-03 17:49:32,978 - INFO - Using device: cuda
+2026-02-03 17:49:32,978 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-03 17:49:34,224 - INFO - Model loaded successfully (DataParallel prefix stripped).
+2026-02-03 17:49:34,224 - INFO - Starting inference on images in: ../input_manuscripts/simple_easyocr/layout_analysis_output/image-format
+2026-02-03 17:49:35,279 - INFO - Processed 0 lines...
+2026-02-03 17:50:09,640 - INFO - Processed 50 lines...
+2026-02-03 17:50:42,466 - INFO - Processed 100 lines...
+2026-02-03 17:51:11,116 - INFO - Processed 150 lines...
+2026-02-03 17:51:42,183 - INFO - Processed 200 lines...
+2026-02-03 17:52:15,282 - INFO - Processed 250 lines...
+2026-02-03 17:52:46,732 - INFO - Processed 300 lines...
+2026-02-03 17:53:20,815 - INFO - Processed 350 lines...
+2026-02-03 17:53:54,148 - INFO - Processed 400 lines...
+2026-02-03 17:54:25,597 - INFO - Processed 450 lines...
+2026-02-03 17:54:57,021 - INFO - Processed 500 lines...
+2026-02-03 17:55:28,427 - INFO - Processed 550 lines...
+2026-02-03 17:55:59,929 - INFO - Processed 600 lines...
+2026-02-03 17:56:31,994 - INFO - Processed 650 lines...
+2026-02-03 17:57:08,156 - INFO - Processed 700 lines...
+2026-02-03 17:57:09,794 - INFO - Inference completed. Processed 704 images.
+2026-02-03 17:57:09,794 - INFO - Organizing recognized text...
+2026-02-03 17:57:09,795 - INFO - Updating PAGE-XML files...
+2026-02-03 17:57:09,796 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0002.xml - 12 lines written.
+2026-02-03 17:57:09,797 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0003.xml - 12 lines written.
+2026-02-03 17:57:09,797 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0004.xml - 15 lines written.
+2026-02-03 17:57:09,798 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0005.xml - 12 lines written.
+2026-02-03 17:57:09,798 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0006.xml - 13 lines written.
+2026-02-03 17:57:09,799 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0007.xml - 13 lines written.
+2026-02-03 17:57:09,799 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0008.xml - 13 lines written.
+2026-02-03 17:57:09,800 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0009.xml - 13 lines written.
+2026-02-03 17:57:09,806 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0010.xml - 16 lines written.
+2026-02-03 17:57:09,807 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0011.xml - 12 lines written.
+2026-02-03 17:57:09,808 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0012.xml - 14 lines written.
+2026-02-03 17:57:09,808 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0013.xml - 14 lines written.
+2026-02-03 17:57:09,809 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0014.xml - 13 lines written.
+2026-02-03 17:57:09,809 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0015.xml - 14 lines written.
+2026-02-03 17:57:09,810 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0016.xml - 14 lines written.
+2026-02-03 17:57:09,810 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0017.xml - 14 lines written.
+2026-02-03 17:57:09,811 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0018.xml - 13 lines written.
+2026-02-03 17:57:09,811 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0019.xml - 14 lines written.
+2026-02-03 17:57:09,812 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0020.xml - 16 lines written.
+2026-02-03 17:57:09,812 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0021.xml - 13 lines written.
+2026-02-03 17:57:09,813 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0022.xml - 13 lines written.
+2026-02-03 17:57:09,813 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0023.xml - 15 lines written.
+2026-02-03 17:57:09,814 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0024.xml - 14 lines written.
+2026-02-03 17:57:09,814 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0025.xml - 15 lines written.
+2026-02-03 17:57:09,815 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0026.xml - 13 lines written.
+2026-02-03 17:57:09,815 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0027.xml - 13 lines written.
+2026-02-03 17:57:09,816 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0028.xml - 14 lines written.
+2026-02-03 17:57:09,816 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0029.xml - 13 lines written.
+2026-02-03 17:57:09,817 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0030.xml - 17 lines written.
+2026-02-03 17:57:09,817 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0031.xml - 14 lines written.
+2026-02-03 17:57:09,819 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0032.xml - 16 lines written.
+2026-02-03 17:57:09,819 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0033.xml - 14 lines written.
+2026-02-03 17:57:09,820 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0034.xml - 14 lines written.
+2026-02-03 17:57:09,820 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0035.xml - 13 lines written.
+2026-02-03 17:57:09,821 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0036.xml - 15 lines written.
+2026-02-03 17:57:09,821 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0037.xml - 16 lines written.
+2026-02-03 17:57:09,822 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0038.xml - 15 lines written.
+2026-02-03 17:57:09,822 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0039.xml - 14 lines written.
+2026-02-03 17:57:09,823 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0040.xml - 16 lines written.
+2026-02-03 17:57:09,823 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0041.xml - 15 lines written.
+2026-02-03 17:57:09,824 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0042.xml - 14 lines written.
+2026-02-03 17:57:09,824 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0043.xml - 13 lines written.
+2026-02-03 17:57:09,825 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0044.xml - 16 lines written.
+2026-02-03 17:57:09,825 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0045.xml - 13 lines written.
+2026-02-03 17:57:09,826 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0046.xml - 14 lines written.
+2026-02-03 17:57:09,826 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0047.xml - 14 lines written.
+2026-02-03 17:57:09,827 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0048.xml - 16 lines written.
+2026-02-03 17:57:09,827 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0049.xml - 14 lines written.
+2026-02-03 17:57:09,828 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0050.xml - 16 lines written.
+2026-02-03 17:57:09,828 - INFO - Updated ../input_manuscripts/simple_easyocr/layout_analysis_output/page-xml-format/3976_0051.xml - 15 lines written.
+2026-02-03 17:57:09,829 - INFO - Process completed for manuscript: simple_easyocr

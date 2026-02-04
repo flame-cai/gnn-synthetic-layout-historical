@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:49:40.462303</Created>
+  </Metadata>
+  <Page imageFilename="3976_0035.jpg" imageWidth="2500" imageHeight="1052">
+    <TextRegion id="region_0" custom="type:manuscript_id">
+      <Coords points="272,153 714,153 714,244 272,244"/>
+      <TextLine id="line_0">
+        <Coords points="272,153 714,153 714,244 272,244"/>
+        <TextEquiv>
+          <Unicode>M-3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:page_number">
+      <Coords points="2200,135 2330,135 2330,208 2200,208"/>
+      <TextLine id="line_0">
+        <Coords points="2200,135 2330,135 2330,208 2200,208"/>
+        <TextEquiv>
+          <Unicode>35</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="260,289 2342,289 2342,988 260,988"/>
+      <TextLine id="line_0">
+        <Coords points="260,289 2342,289 2342,353 260,353"/>
+        <TextEquiv>
+          <Unicode>मवतोनान्वयः संस वतीति विपरीतमेतत् ॥ यद्यपि विशेषका स्थान्ययोगव्यवच्छेदकत्वमावश्यकमिसाहि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="260,353 2342,353 2342,416 260,416"/>
+        <TextEquiv>
+          <Unicode>तरत्पिपियोर्डीकुंडली वेदवत्तरत्वादोदो डारुंडलोप्यवच्छेदकत्वात्पिपिहीहेमवयोः समुच्चय</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="260,416 2342,416 2342,479 260,479"/>
+        <TextEquiv>
+          <Unicode>निरासार्थेन मीमांसकैः कल्पितो न्यायः। सो पितुच्छः। करकाले ब्रीहीनां विशेषकत्वे पियवानामेकुंड</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="260,479 2342,479 2342,543 260,543"/>
+        <TextEquiv>
+          <Unicode>ल वदथात्से नूकात्। अयोगाव्यापिविशेष पालोपपत्तेः। नचायोगवसाप्यन्ययोग व्याप्तिः पूल</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="260,543 2342,543 2342,607 260,607"/>
+        <TextEquiv>
+          <Unicode>तीति युक्तः। शरावे प्रकाशजल योरुसयोर्दिप्यप्यृत्तिलेन पार्थिव विकाराणामेव तथात्वं घटेटुघटत्व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="260,607 2342,607 2342,670 260,670"/>
+        <TextEquiv>
+          <Unicode>मिसाहो। घटत्वे सर्वघटानी व्यापिवृत्तिले नभा वनात् ॥ ब्रीहीदीनां करकाले व्यापिवृत्तिले माना भावाच्च</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="260,670 2342,670 2342,734 260,734"/>
+        <TextEquiv>
+          <Unicode>विशेष्याप्यवे संस्य विशेष्य संबंध मात्रार्थ कलात् ॥ व्यापिवृत्तिलार्थ कले बाधिनिगमन विरहादे शंका</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="260,734 2342,734 2342,797 260,797"/>
+        <TextEquiv>
+          <Unicode>लतश्च व्यापिवृत्तिले वक्तव्यी। तच समुच्चयोरतो व्यापिवृत्तिलहानिर्वाद्धकल्पे कालतो व्यापिवृत्तिलहानि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="260,797 2342,797 2342,861 260,861"/>
+        <TextEquiv>
+          <Unicode>प्रसंगादुसयमपिहाते यस्यात् ॥ यववाक्ये बळादन्यतरस्मिन् व्यापिवृत्तिले हात ये विनिगमना विरहा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="260,861 2342,861 2342,924 260,924"/>
+        <TextEquiv>
+          <Unicode>रुदाचिल समुच्चयः कदाचिद्विकल्पप्रति समुच्चय विकल्पयोर्विकल्पेन स्वीका रस्स्यात् ॥ निखानि संसयो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="260,924 2342,924 2342,988 260,988"/>
+        <TextEquiv>
+          <Unicode>गविशेषादे दोषाणां परिहाराय वादे रतो व्यापिवृत्तिल से वविशेषता बलब्यस्पसागोपत्तिः</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

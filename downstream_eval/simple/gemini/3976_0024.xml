@@ -1,0 +1,84 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:48:22.308819</Created>
+  </Metadata>
+  <Page imageFilename="3976_0024.jpg" imageWidth="2500" imageHeight="1041">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="252,173 2020,173 2020,1006 252,1006"/>
+      <TextLine id="line_0">
+        <Coords points="252,173 2020,173 2020,242 252,242"/>
+        <TextEquiv>
+          <Unicode>यस्म मुच्यो निरसनीयः। स च न्यायः सुबंतदेव तिङंते पितु</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="252,242 2020,242 2020,312 252,312"/>
+        <TextEquiv>
+          <Unicode>योगस्य कर पाले नभावः। भावनायामन्वय करे कांतयो न्याय व</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="252,312 2020,312 2020,382 252,382"/>
+        <TextEquiv>
+          <Unicode>प्रकृत स समाधा दिपुसो मस्येति कर्तव्यता कोटि प्रवेक्षा क</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="252,382 2020,382 2020,450 252,450"/>
+        <TextEquiv>
+          <Unicode>व तदन्वय निर्वाहार्थे मत्वर्थ लक्षणा स्वी कार्या ॥ इति स</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="252,450 2020,450 2020,520 252,520"/>
+        <TextEquiv>
+          <Unicode>नस्य पार्श्वे कागान्वय बोधस्य शाब्दत्वे सर्वमिदमुपपद्यते।</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="252,520 2020,520 2020,590 252,590"/>
+        <TextEquiv>
+          <Unicode>प्रतीति सुसार्थम क्रियान्वय बोधे नजनितान्वय बोधे ननिराकांक्षतया</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="252,590 2020,590 2020,658 252,658"/>
+        <TextEquiv>
+          <Unicode>र्थ्यात् ॥ अन्यानि तते नोपसिद्धत स्थार्थ्यन्यायै नैराकांक्ष्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="252,658 2020,658 2020,728 252,728"/>
+        <TextEquiv>
+          <Unicode>कारक क्ष्या स मार्ग भावनान्वयः पश्चात् पूर्व कान्वय इति</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="252,728 2020,728 2020,798 252,798"/>
+        <TextEquiv>
+          <Unicode>र्थ मिक बोध एव न संभवति ॥ वाक्यभेदे न स तैपे कुच भा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="252,798 2020,798 2020,867 252,867"/>
+        <TextEquiv>
+          <Unicode>स्तो न च दिवसेति युक्तौ ॥ सकृदुच्चरित न्यायांगीकारे वाक</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="252,867 2020,867 2020,936 252,936"/>
+        <TextEquiv>
+          <Unicode>दूषकता बी जत्वात् ॥ तायस दुर्महे कलाधिकरणे वार्तिक</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="252,936 2020,936 2020,1006 252,1006"/>
+        <TextEquiv>
+          <Unicode>कृतः पुनरुचार्यमाणश्रस मामाया विहिस्तितः प्र</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:48:41.430332</Created>
+  </Metadata>
+  <Page imageFilename="3976_0026.jpg" imageWidth="2500" imageHeight="1041">
+    <TextRegion id="region_0" custom="type:manuscript_number">
+      <Coords points="527,95 1030,95 1030,160 527,160"/>
+      <TextLine id="line_0">
+        <Coords points="527,95 1030,95 1030,160 527,160"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:folio_number">
+      <Coords points="195,288 305,288 305,337 195,337"/>
+      <TextLine id="line_1">
+        <Coords points="195,288 305,288 305,337 195,337"/>
+        <TextEquiv>
+          <Unicode>१३</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:page_number">
+      <Coords points="2225,208 2362,208 2362,272 2225,272"/>
+      <TextLine id="line_2">
+        <Coords points="2225,208 2362,208 2362,272 2225,272"/>
+        <TextEquiv>
+          <Unicode>26</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="277,272 2500,272 2500,977 277,977"/>
+      <TextLine id="line_3">
+        <Coords points="332,288 2447,288 2447,344 332,344"/>
+        <TextEquiv>
+          <Unicode>ट त्विषोपितले नोपस्थितेपिनीलाचवदर्शिना ॥ कानका षां किंचयैवान्वयर तियुसनेरेक विशेषणानान्विता</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="332,344 2447,344 2447,400 332,400"/>
+        <TextEquiv>
+          <Unicode>याअ प्याकांक्षायां सक्षा वस्यच तंवलेनतस्य निराबाधत्वा प्रकृतेतर विशेषणतयापस्थिते पदार्थान्तरान्वयः</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="332,400 2447,400 2447,456 332,456"/>
+        <TextEquiv>
+          <Unicode>स्यात् युसले नक्षावनाविशे षोयोगाकथं सोमवतो न्वयः ॥ अन्यथा नि सोयट र तिवाक्यस्यापि निसत्वि</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="332,456 2447,456 2447,513 332,513"/>
+        <TextEquiv>
+          <Unicode>शिष्टघटत्व वानयमिति बोध जन कत्वापत्तिः इष्यते बतचे घटले निसत्वान्वयसिध्यर्थं लक्षणाया मुख्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="332,513 2447,513 2447,569 332,569"/>
+        <TextEquiv>
+          <Unicode>विशेष्यत्व नोपस्थितिः प्रसक ल तीनि कैः कथ मन्यथा त्र स्यस्य राज पुरुषइतिवाक्य स्याता सवन्मतेसं</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="332,569 2447,569 2447,624 332,624"/>
+        <TextEquiv>
+          <Unicode>गच्छती ॥ नचक्ष वन्मतेगु णोपपदे म लर्थक क्षाप नंगीकारेपिना मोपपदेजो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="332,624 2447,624 2447,680 332,680"/>
+        <TextEquiv>
+          <Unicode>ति षोमादेरभेदेनयाग एवान्वयावशेषत्वादि त रावि शेषकालेनोपस्थितर व पदार्थान्तरान्वयइति युस</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="332,680 2447,680 2447,737 332,737"/>
+        <TextEquiv>
+          <Unicode>तिरोध इतिवाच्यं ॥ अस्मिन्मते प्राथमिक बोधेना म्नामपि भावनापामे वान्वायात् शाब्दिक बोधेर वा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="332,737 2447,737 2447,793 332,793"/>
+        <TextEquiv>
+          <Unicode>रूपो क हायनी न्यायेन स द्यविशेषणत्वात् ॥ ननु संज्ञाशब्दा नी श ब्दार्थो न जा त्यादिक मिति ॥ डिया</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_12">
+        <Coords points="332,793 2447,793 2447,849 332,849"/>
+        <TextEquiv>
+          <Unicode>(दि) षु सर्वेसं मती ॥ नहि श ब्दस्यावनायां कर णत्वं संभवती ए का रकत्वा लर्थे न तदन्वयः ॥ या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_13">
+        <Coords points="332,849 2500,849 2500,977 332,977"/>
+        <TextEquiv>
+          <Unicode>(दि) ज्यो तिष्टोमपदवाच्यलक्षणात् दो दिष्ट धिकरण पूर्व पदसा हि ति र्ष्यतेना मधेयपक्षे १३</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

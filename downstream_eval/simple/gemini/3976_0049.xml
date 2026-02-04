@@ -1,0 +1,84 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:51:28.854890</Created>
+  </Metadata>
+  <Page imageFilename="3976_0049.jpg" imageWidth="2500" imageHeight="1058">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="245,135 2245,135 2245,516 245,516"/>
+      <TextLine id="line_0">
+        <Coords points="245,135 2245,135 2245,167 245,167"/>
+        <TextEquiv>
+          <Unicode>नार्थके बोधजनकत्वी अर्थे यो साम्यं यस्य स विषयकबोधे मुख्य विशेष्यत्वरूपेण ते सदृनकरोमि यत्स्यात्</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="245,167 2245,167 2245,198 245,198"/>
+        <TextEquiv>
+          <Unicode>या सु रोवे कल्पयामितस्मिन्सीदेति सदनसाधनं मययोः स्मिन्मुख्य विशेष्यक बोधयजनकत्वो देवना</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="245,198 2245,198 2245,230 245,230"/>
+        <TextEquiv>
+          <Unicode>नयैः पदं न चयैकेनैव वाक्येन बोधौ जनितो तत्र वाक्ये दापयिरिति वाच्यं ॥१ कदाशानहृदयोपपद्या नैगी</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="245,230 2245,230 2245,262 245,262"/>
+        <TextEquiv>
+          <Unicode>कारेण तद्योगात्स्वीकारेवा क्रमिकबोधो धयजनकत्वे सति विवक्षितत्वात् शब्दस्य विरम्य व्यापारा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="245,262 2245,262 2245,294 245,294"/>
+        <TextEquiv>
+          <Unicode>योगे न तादृशो बोधो संभवत्वा न चयचैद्योर्वाक्ययोः समूहालंबनाक्यार्थबोधो पितादृशस्तन्नायासिः पदो</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="245,294 2245,294 2245,325 245,325"/>
+        <TextEquiv>
+          <Unicode>चारकाना क्रमिकेन वाक्यद्वय विषयक समूहालंबनाकांक्षापि न योग्या ॥ इयोर्वाक्ययोः समू</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="245,325 2245,325 2245,357 245,357"/>
+        <TextEquiv>
+          <Unicode>हालंबनात्कस्मरकासंभवे पितृमूलभूतानुभवैर्विध्येनैव तत्र वाक्ये दळक्षणास्य निराबाधत्वात् यैच</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="245,357 2245,357 2245,389 245,389"/>
+        <TextEquiv>
+          <Unicode>मीमांसक मते भावनाया एव मुख्य विशेष्यत्वा तद्बोधकृति डन्तपदार्थिरेव वाक्यभेदे बीजाअत एव ब्रह्मलक्षण</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="245,389 2245,389 2245,421 245,421"/>
+        <TextEquiv>
+          <Unicode>रूपामालभते देशजायराज्य (मिसा) दालभते सकृद्वर्षोपि राज्ञ्या दिपदाकांक्षा नुषंगरूपो चारणप्रसदेस्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="245,421 2245,421 2245,452 245,452"/>
+        <TextEquiv>
+          <Unicode>वैर्थ्य भावाद्वाक्यभेदे ॥ एतेन (विच्छिद्य पाठोव्य ध्येते प्रागुपपद्यतोति डन्तपदार्थिरेक पर्यवसा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_10">
+        <Coords points="245,452 2245,452 2245,484 245,484"/>
+        <TextEquiv>
+          <Unicode>पुनराकांक्षितरकल्पनेन सति भावनायाः (क्रियारूपा) कारकाकांक्षा प्राणाया अपेक्षित योग्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_11">
+        <Coords points="245,484 2245,484 2245,516 245,516"/>
+        <TextEquiv>
+          <Unicode>कारकान्वये नैव पर्यवसानो एकेनैव करणेन विध्येनैव कर्मणो द्वयेन करणा कर्मणो क्षेण पूरका</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

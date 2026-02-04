@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:47:54.801597</Created>
+  </Metadata>
+  <Page imageFilename="3976_0021.jpg" imageWidth="2500" imageHeight="1026">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="155,153 2312,153 2312,923 155,923"/>
+      <TextLine id="line_0">
+        <Coords points="155,153 2312,153 2312,230 155,230"/>
+        <TextEquiv>
+          <Unicode>मक्तसिध्येत् इत्यमेव वचनैः ससमर्थ्यते । तृतीयार्थकर पाले प्रातिपदिकार्थधीहीबां</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="155,230 2312,230 2312,307 155,307"/>
+        <TextEquiv>
+          <Unicode>स्पचनिषेधांतरयोगव्यवच्छेदकृतसामर्थ्यनयवा । लेन्वयायोगाभतयोः समुच्चयइति यद्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="155,307 2312,307 2312,384 155,384"/>
+        <TextEquiv>
+          <Unicode>प्ययोगव्यावृत्तिरूप नियमफलकल्पनापि विशेषप्राप्तत्वसंभवात् विशेष्याप्यवृत्तेर्विशेष पाख्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="155,384 2312,384 2312,461 155,461"/>
+        <TextEquiv>
+          <Unicode>योगो विशेष्यांतरयोगव्यवच्छेदमत रानव्यवच्छिद्यत इति सिध्यति । करपाले त्रीहि सिद्धानामन्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="155,461 2312,461 2312,538 155,538"/>
+        <TextEquiv>
+          <Unicode>एतत्तद्भावेन वार्तिके विशेष्यापिते विशेषणविशेष्ये व्याप्यवृत्तीत्यर्थः । यत्तु निरपे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="155,538 2312,538 2312,615 155,615"/>
+        <TextEquiv>
+          <Unicode>क्षसाधनत्वं तृतीयार्थ इति यो व्यवहारो नित्याभावप्रधाननिर्देशोन हेता विति सूत्रेण हेतुत्वमाने त</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="155,615 2312,615 2312,692 155,692"/>
+        <TextEquiv>
+          <Unicode>तीयाया अनुशासनेन नैरुपेक्ष्य स्मृतौ या विशेषरूपतावच्छेदकको टावप्रवेशात् । यद्दिषाको कृता</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="155,692 2312,692 2312,769 155,769"/>
+        <TextEquiv>
+          <Unicode>हेतुधिक्करपाउक्तौ ससमर्थपदविधिदिति वैयाकरणपाणि भाषा नुसारा निरपेक्ष साधनत्वं प्रतीयत</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="155,769 2312,769 2312,846 155,846"/>
+        <TextEquiv>
+          <Unicode>इति । तदभिप्रायेण दोहे शको विधिः पदविधिः ससमर्थोति बोध्युत्सेवैयाकरण पौस्तन्याख्या</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="155,846 2312,846 2312,923 155,923"/>
+        <TextEquiv>
+          <Unicode>भादा सुबुधिघेः पदो हे शकाभावे न तत्र समर्थपदसाधायाप्रवृत्तेः यद्यपि पदनिष्पादको विधिः</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

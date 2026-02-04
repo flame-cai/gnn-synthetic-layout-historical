@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:47:13.211032</Created>
+  </Metadata>
+  <Page imageFilename="3976_0013.jpg" imageWidth="2500" imageHeight="1036">
+    <TextRegion id="region_0" custom="type:main_text">
+      <Coords points="375,124 725,124 725,173 375,173"/>
+      <TextLine id="line_0">
+        <Coords points="375,124 725,124 725,173 375,173"/>
+        <TextEquiv>
+          <Unicode>M- 3976</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:main_text">
+      <Coords points="2125,124 2225,124 2225,173 2125,173"/>
+      <TextLine id="line_0">
+        <Coords points="2125,124 2225,124 2225,173 2125,173"/>
+        <TextEquiv>
+          <Unicode>13</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:main_text">
+      <Coords points="100,388 200,388 200,432 100,432"/>
+      <TextLine id="line_0">
+        <Coords points="100,388 200,388 200,432 100,432"/>
+        <TextEquiv>
+          <Unicode>कांक्षा</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:main_text">
+      <Coords points="100,442 200,442 200,485 100,485"/>
+      <TextLine id="line_0">
+        <Coords points="100,442 200,442 200,485 100,485"/>
+        <TextEquiv>
+          <Unicode>मान</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:main_text">
+      <Coords points="250,193 2250,193 2250,722 250,722"/>
+      <TextLine id="line_0">
+        <Coords points="250,193 2225,193 2225,237 250,237"/>
+        <TextEquiv>
+          <Unicode>विरोधश्रु॥ यतु रुपायानिष्का सेने सञ्चकारे पा कर पायोः समुच्चयउक्तइति तद प्रावेनसोमेने सञ्चकर</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_1">
+        <Coords points="250,247 2225,247 2225,291 250,291"/>
+        <TextEquiv>
+          <Unicode>पायोः समुच्चयइति। नैव कीर्तिः शहेनप्रजा कामं याजयेदिसञ्चकरपानां समुच्चयइति। अथाधिकरणे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_2">
+        <Coords points="250,301 2225,301 2225,344 250,344"/>
+        <TextEquiv>
+          <Unicode>सिद्धांतेन तानाहितवचको रुड पळयतो। किंच तुळप कल्पयोः कर पायो न्यातः प्रासस्य विकल्पस्थापवा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_3">
+        <Coords points="250,355 2225,355 2225,398 250,398"/>
+        <TextEquiv>
+          <Unicode>दार्थेव हि चकोरापेक्षा। नचसोमस्यायागतुळप कल्पे कर पातु मिति। फकारे धनयो रिख जल नकर पायो न्यीय</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_4">
+        <Coords points="250,409 2225,409 2225,452 250,452"/>
+        <TextEquiv>
+          <Unicode>तरव सिध्यति। समुच्चयइति। किमिति अर्थानुवादकचे कार गवैषधी। यदोषा रुण्यादि नय स्मृतुळप कल्पे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_5">
+        <Coords points="250,463 2225,463 2225,506 250,506"/>
+        <TextEquiv>
+          <Unicode>भावनान्वयइति। तदपिन क्रयकर पाक भावनासाध्य नद्रव्यगोः कि रूपो कीदृक्षाक्षीक ति वर्षी चेति पन रूप्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_6">
+        <Coords points="250,516 2225,516 2225,560 250,560"/>
+        <TextEquiv>
+          <Unicode>र विकल्पाय। यत्पुरकाणा मारुप्यादी नी द्वारस्य परिच्छेदस्यापिविकल्प पालात्। यदपि द्रव्यदे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_7">
+        <Coords points="250,570 2225,570 2225,614 250,614"/>
+        <TextEquiv>
+          <Unicode>वतासंबध हेतेनयागव ह तो नू मिति। तदपिना द्रव्यदेवतासंबधस्यैव योग लात्। द्रव्यस्य</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_8">
+        <Coords points="250,624 2225,624 2225,668 250,668"/>
+        <TextEquiv>
+          <Unicode>वतयासंबधस्य निष्ठा विधेयता निरूपक ज्ञानीयो हेश्यते करूपत्वात्। यदपि सप्रदशानामपियागा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_9">
+        <Coords points="250,678 2225,678 2225,722 250,722"/>
+        <TextEquiv>
+          <Unicode>मां धातुवाच्यत्वेस कृदुच्चरितन्याय विरोधापादनं तदपिन त्पागत प्रकार श्रुत्वा धजेन कलोंगीकार एव।</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

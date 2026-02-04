@@ -1,0 +1,213 @@
+<?xml version="1.0" ?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Metadata>
+    <Creator>Gemini-OCR-Wrapper</Creator>
+    <Created>2026-02-03T17:31:47.300054</Created>
+  </Metadata>
+  <Page imageFilename="233_0014.jpg" imageWidth="2500" imageHeight="912">
+    <TextRegion id="region_0" custom="type:marginal_text">
+      <Coords points="975,36 1250,36 1250,59 975,59"/>
+      <TextLine id="line_0">
+        <Coords points="975,36 1250,36 1250,59 975,59"/>
+        <TextEquiv>
+          <Unicode>भूसी वसे प्राचा तासां तातुल पेक्षादिः</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_1" custom="type:marginal_text">
+      <Coords points="200,82 450,82 450,109 200,109"/>
+      <TextLine id="line_1">
+        <Coords points="200,82 450,82 450,109 200,109"/>
+        <TextEquiv>
+          <Unicode>M-233</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_2" custom="type:page_number">
+      <Coords points="2100,136 2175,136 2175,164 2100,164"/>
+      <TextLine id="line_2">
+        <Coords points="2100,136 2175,136 2175,164 2100,164"/>
+        <TextEquiv>
+          <Unicode>14</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_3" custom="type:marginal_text">
+      <Coords points="100,228 250,228 250,255 100,255"/>
+      <TextLine id="line_3">
+        <Coords points="100,228 250,228 250,255 100,255"/>
+        <TextEquiv>
+          <Unicode>पात्र १</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_4" custom="type:marginal_text">
+      <Coords points="37,337 275,337 275,360 37,360"/>
+      <TextLine id="line_4">
+        <Coords points="37,337 275,337 275,360 37,360"/>
+        <TextEquiv>
+          <Unicode>आपारात्पष्टेः</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_5" custom="type:marginal_text">
+      <Coords points="37,383 275,383 275,405 37,405"/>
+      <TextLine id="line_5">
+        <Coords points="37,383 275,383 275,405 37,405"/>
+        <TextEquiv>
+          <Unicode>वैश्वदेव कर्म</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_6" custom="type:marginal_text">
+      <Coords points="37,428 300,428 300,451 37,451"/>
+      <TextLine id="line_6">
+        <Coords points="37,428 300,428 300,451 37,451"/>
+        <TextEquiv>
+          <Unicode>श्रोतस्मृति होत्रादि</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_7" custom="type:marginal_text">
+      <Coords points="37,451 112,451 112,469 37,469"/>
+      <TextLine id="line_7">
+        <Coords points="37,451 112,451 112,469 37,469"/>
+        <TextEquiv>
+          <Unicode>क ष</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_8" custom="type:marginal_text">
+      <Coords points="37,492 325,492 325,515 37,515"/>
+      <TextLine id="line_8">
+        <Coords points="37,492 325,492 325,515 37,515"/>
+        <TextEquiv>
+          <Unicode>आर्हपत्या ह्नीविका</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_9" custom="type:marginal_text">
+      <Coords points="37,538 300,538 300,560 37,560"/>
+      <TextLine id="line_9">
+        <Coords points="37,538 300,538 300,560 37,560"/>
+        <TextEquiv>
+          <Unicode>य द क्षिणाग्निषु</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_10" custom="type:marginal_text">
+      <Coords points="1175,319 1250,319 1250,337 1175,337"/>
+      <TextLine id="line_10">
+        <Coords points="1175,319 1250,319 1250,337 1175,337"/>
+        <TextEquiv>
+          <Unicode>ज म ष</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_11" custom="type:marginal_text">
+      <Coords points="1724,392 1875,392 1875,410 1724,410"/>
+      <TextLine id="line_11">
+        <Coords points="1724,392 1875,392 1875,410 1724,410"/>
+        <TextEquiv>
+          <Unicode>विभाग कालः</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_12" custom="type:marginal_text">
+      <Coords points="1950,410 2025,410 2025,428 1950,428"/>
+      <TextLine id="line_12">
+        <Coords points="1950,410 2025,410 2025,428 1950,428"/>
+        <TextEquiv>
+          <Unicode>ग सी दे</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_13" custom="type:marginal_text">
+      <Coords points="2125,364 2300,364 2300,383 2125,383"/>
+      <TextLine id="line_13">
+        <Coords points="2125,364 2300,364 2300,383 2125,383"/>
+        <TextEquiv>
+          <Unicode>अधरोत्तर प्रति</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_14" custom="type:marginal_text">
+      <Coords points="2125,383 2275,383 2275,401 2125,401"/>
+      <TextLine id="line_14">
+        <Coords points="2125,383 2275,383 2275,401 2125,401"/>
+        <TextEquiv>
+          <Unicode>लोमानौ तो</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_15" custom="type:marginal_text">
+      <Coords points="2125,401 2200,401 2200,419 2125,419"/>
+      <TextLine id="line_15">
+        <Coords points="2125,401 2200,401 2200,419 2125,419"/>
+        <TextEquiv>
+          <Unicode>मा दि र</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_16" custom="type:main_text">
+      <Coords points="450,209 2350,209 2350,574 450,574"/>
+      <TextLine id="line_16">
+        <Coords points="450,209 2350,209 2350,255 450,255"/>
+        <TextEquiv>
+          <Unicode>मूढजातकूचा सर्वधर्मविहृतः क्षत्रियाभागधवैश्या शूद्राश्चेतारमेवच॥ शूद्रासयोगवे</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_17">
+        <Coords points="450,255 2350,255 2350,300 450,300"/>
+        <TextEquiv>
+          <Unicode>वैश्या जनपामासवैसुता॥ माहिष्येरा करै राया तुरथ्यकारः प्रजापतेलोमा</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_18">
+        <Coords points="450,300 2350,300 2350,346 450,346"/>
+        <TextEquiv>
+          <Unicode>नुलोमगीजाः॥ जात्युत्कर्षीयुगेरोयः सप्तमेपंचमेपिवा॥ व्यत्यये कर्मणासां पूर्ववध्याधरोत्तरा॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_19">
+        <Coords points="450,346 2350,346 2350,392 450,392"/>
+        <TextEquiv>
+          <Unicode>इतिवर्णाजातिप्रकरणं॥ कर्मस्मात्त्रिवाहगौकुवीतप्रत्यहंही॥ दायकालाहेतेवाविष्ये</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_20">
+        <Coords points="450,392 2350,392 2350,437 450,437"/>
+        <TextEquiv>
+          <Unicode>नैवेताग्निकाग्निषु॥ शरीरचिंता निर्धर्तसौचविधिद्विजः॥ प्रातसंध्यामुपासीतंदत्तयावनपू</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_21">
+        <Coords points="450,437 2350,437 2350,483 450,483"/>
+        <TextEquiv>
+          <Unicode>हृत्याग्नीन्सूर्यदेवत्यान्रजपेन्मन्त्रान्समाहितः॥ वेदाधीनाधिगदेष्ट्रशास्त्राणिवैव</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_22">
+        <Coords points="450,483 2350,483 2350,528 450,528"/>
+        <TextEquiv>
+          <Unicode>धानिचा॥ उपादीक्षयैयोगक्षेमार्थसिद्धये॥ स्नात्वादेवान्पूजिह्रैवतपयेदर्चयेत्तथा॥</Unicode>
+        </TextEquiv>
+      </TextLine>
+      <TextLine id="line_23">
+        <Coords points="450,528 2350,528 2350,574 450,574"/>
+        <TextEquiv>
+          <Unicode>वेदापर्वपुराणसेतिहासानेराक्तिता॥ जपयज्ञप्रसिध्यर्थेचानाध्यापिकीजपेता॥ राम १</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="region_17" custom="type:marginal_text">
+      <Coords points="450,756 1125,756 1125,784 450,784"/>
+      <TextLine id="line_24">
+        <Coords points="450,756 1125,756 1125,784 450,784"/>
+        <TextEquiv>
+          <Unicode>जप्त्वस्वप्राप्तिः योगः लक्षस्यप्रपानं देयः २</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
