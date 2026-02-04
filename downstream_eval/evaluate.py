@@ -1,9 +1,16 @@
 import os
-import json
 import glob
 import xml.etree.ElementTree as ET
 import unicodedata
-import statistics
+import sys
+
+# Try to import Shapely for robust Polygon math
+try:
+    from shapely.geometry import Polygon
+except ImportError:
+    print("\n[CRITICAL ERROR] The 'shapely' library is required for Polygon IoU.")
+    print("Please install it using: pip install shapely\n")
+    sys.exit(1)
 
 # ==========================================
 # 1. CORE METRIC UTILITIES
@@ -12,7 +19,6 @@ import statistics
 def levenshtein_distance(s1, s2):
     """
     Calculates the Levenshtein distance between two strings.
-    Optimized for memory usage (only stores two rows).
     """
     if len(s1) < len(s2):
         return levenshtein_distance(s2, s1)
@@ -32,38 +38,70 @@ def levenshtein_distance(s1, s2):
     
     return previous_row[-1]
 
-def calculate_cer_ratio(distance, ref_length):
-    """ Safe division for CER """
-    if ref_length == 0:
-        return 1.0 if distance > 0 else 0.0
-    return distance / ref_length
-
-# ==========================================
-# 2. FILE PARSERS (Updated for Coordinates)
-# ==========================================
-
-def get_avg_y(points_str):
+def parse_polygon_string(points_str):
     """
-    Parses a point string "x1,y1 x2,y2 ..." and returns average Y.
+    Parses "x1,y1 x2,y2 ..." into a list of tuples [(x1,y1), (x2,y2)...]
+    and creates a Shapely Polygon object.
     """
     try:
         points = points_str.strip().split()
-        y_coords = [int(p.split(',')[1]) for p in points]
-        return statistics.mean(y_coords) if y_coords else 0
-    except:
-        return 0
+        if len(points) < 3:
+            return None # Not a valid polygon
+        
+        coords = []
+        for p in points:
+            x, y = map(int, p.split(','))
+            coords.append((x, y))
+            
+        poly = Polygon(coords)
+        
+        # Fix invalid geometry (e.g., self-intersection)
+        if not poly.is_valid:
+            poly = poly.buffer(0)
+            
+        return poly
+    except Exception:
+        return None
+
+def calculate_iou_polygon(poly1, poly2):
+    """
+    Calculates Intersection over Union (IoU) of two Shapely Polygons.
+    """
+    if poly1 is None or poly2 is None:
+        return 0.0
+    
+    try:
+        # Calculate intersection area
+        inter_area = poly1.intersection(poly2).area
+        
+        if inter_area == 0:
+            return 0.0
+            
+        # Calculate union area
+        union_area = poly1.union(poly2).area
+        
+        if union_area == 0:
+            return 0.0
+            
+        return inter_area / union_area
+    except Exception:
+        # Fallback for topological errors
+        return 0.0
+
+# ==========================================
+# 2. FILE PARSER
+# ==========================================
 
 def parse_pagexml(filepath):
     """
-    Parses PageXML to extract Unicode text lines AND their Y-coordinates.
-    Returns: list of dicts [{'text': str, 'y': float}, ...]
+    Parses PageXML to extract text and Polygon Geometry.
+    Returns: list of dicts [{'text': str, 'poly': Polygon_Obj, ...}, ...]
     """
     extracted_lines = []
     try:
         tree = ET.parse(filepath)
         root = tree.getroot()
         
-        # Handle XML Namespaces
         ns = {'ns': root.tag.split('}')[0].strip('{')} if '}' in root.tag else {}
         
         if ns:
@@ -72,59 +110,34 @@ def parse_pagexml(filepath):
             lines = root.findall('.//TextLine')
 
         for line in lines:
-            # 1. Extract Text
             if ns:
                 equiv = line.find('./ns:TextEquiv/ns:Unicode', ns)
-                baseline = line.find('./ns:Baseline', ns)
                 coords = line.find('./ns:Coords', ns)
             else:
                 equiv = line.find('./TextEquiv/Unicode')
-                baseline = line.find('./Baseline')
                 coords = line.find('./Coords')
                 
-            if equiv is not None and equiv.text:
+            if equiv is not None and equiv.text and coords is not None:
                 clean_text = unicodedata.normalize('NFC', equiv.text).strip()
-                if clean_text:
-                    # 2. Extract Y-Coordinate (prefer Baseline, fallback to Coords)
-                    y_pos = 0
-                    if baseline is not None:
-                        y_pos = get_avg_y(baseline.get('points'))
-                    elif coords is not None:
-                        y_pos = get_avg_y(coords.get('points'))
+                points_str = coords.get('points')
+                
+                # Parse the Polygon
+                poly_obj = parse_polygon_string(points_str)
+                
+                if clean_text and poly_obj:
+                    # Get Centroid for sorting
+                    centroid = poly_obj.centroid
+                    min_x, min_y, max_x, max_y = poly_obj.bounds
                     
-                    extracted_lines.append({'text': clean_text, 'y': y_pos})
+                    extracted_lines.append({
+                        'text': clean_text, 
+                        'poly': poly_obj,
+                        'y_center': centroid.y, 
+                        'x_min': min_x
+                    })
                     
     except Exception as e:
         print(f"[Error] Failed to parse XML {filepath}: {e}")
-        
-    return extracted_lines
-
-def parse_json(filepath):
-    """
-    Parses JSON. Since JSON has no coordinates in this schema, 
-    we assign a dummy 'y' index based on reading order.
-    Returns: list of dicts [{'text': str, 'y': int_index}, ...]
-    """
-    extracted_lines = []
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            
-        regions = data.get('regions', [])
-        row_counter = 0
-        
-        for region in regions:
-            lines = region.get('lines', [])
-            for line in lines:
-                if isinstance(line, str):
-                    clean_text = unicodedata.normalize('NFC', line).strip()
-                    if clean_text:
-                        # Use counter as Y to maintain file order
-                        extracted_lines.append({'text': clean_text, 'y': row_counter})
-                        row_counter += 1
-                        
-    except Exception as e:
-        print(f"[Error] Failed to parse JSON {filepath}: {e}")
         
     return extracted_lines
 
@@ -132,95 +145,89 @@ def parse_json(filepath):
 # 3. METRIC CALCULATIONS
 # ==========================================
 
-def calculate_matched_cer(gt_objs, pred_objs, threshold=0.25):
+def calculate_page_level_stats(gt_objs, pred_objs):
     """
-    Performs the AP-style matching and calculates stats + Post-Match CER.
+    Sorts all lines Top-Left to Bottom-Right, concatenates, and computes distance.
+    Using Centroid Y for robust sorting.
     """
-    gt_lines = [x['text'] for x in gt_objs]
-    pred_lines = [x['text'] for x in pred_objs]
+    # Sort logic: Primary key Y (top to bottom), Secondary key X (left to right)
+    gt_sorted = sorted(gt_objs, key=lambda k: (k['y_center'], k['x_min']))
+    pred_sorted = sorted(pred_objs, key=lambda k: (k['y_center'], k['x_min']))
     
-    # --- 1. The Matching Logic (Greedy by CER) ---
-    potential_matches = []
-    
-    for p_idx, pred in enumerate(pred_lines):
-        for g_idx, gt in enumerate(gt_lines):
-            dist = levenshtein_distance(pred, gt)
-            cer = calculate_cer_ratio(dist, len(gt))
-            
-            # Record match if it meets threshold
-            if cer <= threshold:
-                potential_matches.append({
-                    'cer': cer,
-                    'dist': dist,
-                    'p_idx': p_idx,
-                    'g_idx': g_idx
-                })
-    
-    # Sort best matches first
-    potential_matches.sort(key=lambda x: x['cer'])
-    
-    matched_gt = set()
-    matched_pred = set()
-    
-    # Stats for F1/AP
-    tp_count = 0
-    
-    # Accumulators for "Matched Page CER"
-    matched_edit_distance = 0
-    
-    for match in potential_matches:
-        if match['p_idx'] not in matched_pred and match['g_idx'] not in matched_gt:
-            # Accept Match
-            tp_count += 1
-            matched_pred.add(match['p_idx'])
-            matched_gt.add(match['g_idx'])
-            
-            # Add the edit distance of the matched pair
-            matched_edit_distance += match['dist']
-
-    fp_count = len(pred_lines) - len(matched_pred)
-    fn_count = len(gt_lines) - len(matched_gt)
-    
-    # --- 2. Calculate "Matched Page CER" ---
-    # Cost = (Edits in TPs) + (Length of FNs/Deletions) + (Length of FPs/Insertions)
-    
-    cost_fn = sum(len(gt_lines[i]) for i in range(len(gt_lines)) if i not in matched_gt)
-    cost_fp = sum(len(pred_lines[i]) for i in range(len(pred_lines)) if i not in matched_pred)
-    
-    total_edit_cost = matched_edit_distance + cost_fn + cost_fp
-    
-    # Ground truth total length (for denominator)
-    total_gt_chars = sum(len(s) for s in gt_lines)
-    
-    return {
-        'tp': tp_count,
-        'fp': fp_count,
-        'fn': fn_count,
-        'edit_cost': total_edit_cost,
-        'gt_char_len': total_gt_chars
-    }
-
-def calculate_crude_cer(gt_objs, pred_objs):
-    """
-    Sorts lines by Y-coordinate, joins them into one string, 
-    and calculates one massive CER.
-    """
-    # Sort by Y coordinate
-    gt_sorted = sorted(gt_objs, key=lambda k: k['y'])
-    pred_sorted = sorted(pred_objs, key=lambda k: k['y'])
-    
-    # Join with newline to represent page structure
     gt_blob = "\n".join([x['text'] for x in gt_sorted])
     pred_blob = "\n".join([x['text'] for x in pred_sorted])
     
     dist = levenshtein_distance(pred_blob, gt_blob)
     return dist, len(gt_blob)
 
+def pair_lines_by_polygon_iou(gt_objs, pred_objs):
+    """
+    Matches predictions to GT based on highest Polygon IoU (Greedy 1-to-1).
+    """
+    potential_matches = []
+    
+    # 1. Calculate all IoUs
+    for g_idx, gt in enumerate(gt_objs):
+        for p_idx, pred in enumerate(pred_objs):
+            # POLYGON IOU CALCULATION
+            iou = calculate_iou_polygon(gt['poly'], pred['poly'])
+            
+            if iou > 0:
+                potential_matches.append({'g_idx': g_idx, 'p_idx': p_idx, 'iou': iou})
+    
+    # 2. Sort by IoU descending (Greedy approach)
+    potential_matches.sort(key=lambda x: x['iou'], reverse=True)
+    
+    final_matches = []
+    matched_gt = set()
+    matched_pred = set()
+    
+    # 3. Assign matches
+    for m in potential_matches:
+        if m['g_idx'] not in matched_gt and m['p_idx'] not in matched_pred:
+            final_matches.append(m)
+            matched_gt.add(m['g_idx'])
+            matched_pred.add(m['p_idx'])
+            
+    unmatched_gt = set(range(len(gt_objs))) - matched_gt
+    unmatched_pred = set(range(len(pred_objs))) - matched_pred
+    
+    return final_matches, unmatched_gt, unmatched_pred
+
+def calculate_line_level_cost(matches, unmatched_gt, unmatched_pred, gt_objs, pred_objs, iou_threshold):
+    """
+    Calculates total edit distance given specific IoU threshold.
+    """
+    total_dist = 0
+    
+    # 1. Process Matches
+    for m in matches:
+        gt_text = gt_objs[m['g_idx']]['text']
+        pred_text = pred_objs[m['p_idx']]['text']
+        
+        if m['iou'] >= iou_threshold:
+            # Valid geometric match: Calculate character distance
+            total_dist += levenshtein_distance(pred_text, gt_text)
+        else:
+            # IoU too low: Treat as Missed GT + False Positive Pred
+            total_dist += len(gt_text) # Deletion cost
+            total_dist += len(pred_text) # Insertion cost
+
+    # 2. Process Completely Unmatched GT (Deletions)
+    for idx in unmatched_gt:
+        total_dist += len(gt_objs[idx]['text'])
+        
+    # 3. Process Completely Unmatched Preds (Insertions)
+    for idx in unmatched_pred:
+        total_dist += len(pred_objs[idx]['text'])
+        
+    return total_dist
+
 # ==========================================
 # 4. MAIN EXECUTION
 # ==========================================
 
-def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
+def evaluate_dataset(pred_folder, gt_folder, method_name):
     print(f"\n==================================================")
     print(f"EVALUATING: {method_name}")
     print(f"==================================================")
@@ -230,115 +237,110 @@ def evaluate_method(pred_folder, gt_folder, parser_func, method_name):
         print("No GT files found!")
         return
 
-    # Accumulators for Object-Level Metrics (F1, Precision, Recall)
-    total_tp = 0
-    total_fp = 0
-    total_fn = 0
+    # Accumulators for Page Level
+    sum_page_dist = 0
+    sum_page_gt_len = 0
     
-    # Accumulators for Character-Level Metrics (CERs)
-    sum_matched_cer_dist = 0
-    sum_matched_gt_len = 0
+    # Accumulators for Line Level
+    sum_line_dist_50 = 0
+    sum_line_dist_75 = 0
+    sum_line_dist_range = 0 
     
-    sum_crude_cer_dist = 0
-    sum_crude_gt_len = 0
-    
+    total_gt_len_all_files = 0
     file_count = 0
     
     for gt_path in gt_files:
         filename_base = os.path.splitext(os.path.basename(gt_path))[0]
         
-        # Determine prediction file path
-        if "json" in method_name.lower():
-            pred_ext = ".json"
-        else:
-            pred_ext = ".xml"
-            
-        pred_path = os.path.join(pred_folder, filename_base + pred_ext)
+        # Look for XML prediction only
+        pred_path = os.path.join(pred_folder, filename_base + ".xml")
         
-        # Parse GT
+        # Parse Data
         gt_objs = parse_pagexml(gt_path)
         
-        # Handle missing predictions
         if not os.path.exists(pred_path):
             print(f"  [Miss] Pred file not found: {filename_base}")
-            # All GT lines are FN
-            total_fn += len(gt_objs)
-            # Add full length of GT to error costs (Deletion)
-            gt_len_total = sum(len(x['text']) for x in gt_objs)
-            sum_matched_cer_dist += gt_len_total
-            sum_matched_gt_len += gt_len_total
-            # Crude CER logic: Pred is empty string, distance = gt length
-            # Note: For crude, we join with \n, so length might differ slightly
-            gt_blob_len = len("\n".join([x['text'] for x in gt_objs]))
-            sum_crude_cer_dist += gt_blob_len
-            sum_crude_gt_len += gt_blob_len
-            continue
+            pred_objs = []
+        else:
+            pred_objs = parse_pagexml(pred_path)
             
-        # Parse Pred
-        pred_objs = parser_func(pred_path)
+        # Global GT Length for this file
+        current_gt_len = sum(len(x['text']) for x in gt_objs)
+        total_gt_len_all_files += current_gt_len
         
-        # --- Metric 1 & Base: Matching Logic + Matched CER ---
-        # Using threshold 0.25 as requested in prompt description (though user code had 0.20)
-        # We will use 0.25 to align with the function default and prompt text.
-        res = calculate_matched_cer(gt_objs, pred_objs, threshold=0.50)
+        # --- 1. Page Level CER (Sorted by Polygon Centroid) ---
+        p_dist, p_len = calculate_page_level_stats(gt_objs, pred_objs)
+        sum_page_dist += p_dist
+        sum_page_gt_len += p_len 
+
+        # --- 2. Line Level Matching (Polygon IoU) ---
+        matches, unmatched_gt, unmatched_pred = pair_lines_by_polygon_iou(gt_objs, pred_objs)
         
-        total_tp += res['tp']
-        total_fp += res['fp']
-        total_fn += res['fn']
+        # Calculate cost for IoU @ 0.5
+        sum_line_dist_50 += calculate_line_level_cost(matches, unmatched_gt, unmatched_pred, gt_objs, pred_objs, 0.5)
         
-        sum_matched_cer_dist += res['edit_cost']
-        sum_matched_gt_len += res['gt_char_len']
+        # Calculate cost for IoU @ 0.75
+        sum_line_dist_75 += calculate_line_level_cost(matches, unmatched_gt, unmatched_pred, gt_objs, pred_objs, 0.75)
         
-        # --- Metric 2: Crude CER (Top-to-Bottom) ---
-        crude_dist, crude_len = calculate_crude_cer(gt_objs, pred_objs)
-        sum_crude_cer_dist += crude_dist
-        sum_crude_gt_len += crude_len
+        # Calculate cost for IoU range [0.50 ... 0.95] (step 0.05 -> 10 thresholds)
+        thresholds = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
+        file_range_dist = 0
+        for t in thresholds:
+            file_range_dist += calculate_line_level_cost(matches, unmatched_gt, unmatched_pred, gt_objs, pred_objs, t)
+        
+        sum_line_dist_range += file_range_dist
         
         file_count += 1
 
-    # --- Final Calculations ---
+    # --- Final Metric Calculation ---
     
-    # 1. Object Detection Metrics
-    precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0
-    recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0
-    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    def safe_div(n, d): return n / d if d > 0 else 0
     
-    # 2. Matched CER (Micro-average)
-    matched_cer_final = sum_matched_cer_dist / sum_matched_gt_len if sum_matched_gt_len > 0 else 0
-    
-    # 3. Crude CER (Micro-average)
-    crude_cer_final = sum_crude_cer_dist / sum_crude_gt_len if sum_crude_gt_len > 0 else 0
-    
+    cer_page = safe_div(sum_page_dist, sum_page_gt_len)
+    cer_line_50 = safe_div(sum_line_dist_50, total_gt_len_all_files)
+    cer_line_75 = safe_div(sum_line_dist_75, total_gt_len_all_files)
+    cer_line_range = safe_div(sum_line_dist_range, total_gt_len_all_files) / 10.0
+
     print(f"Files Processed: {file_count}")
     print(f"-" * 40)
-    print(f"OBJECT LEVEL METRICS (Threshold: CER <= 0.5)")
-    print(f"  Precision: {precision:.4f}")
-    print(f"  Recall:    {recall:.4f}")
-    print(f"  F1 Score:  {f1:.4f}")
-    print(f"  (TP: {total_tp}, FP: {total_fp}, FN: {total_fn})")
+    print(f"1. PAGE-LEVEL CER:        {cer_page:.4f}")
+    print(f"   (Concat lines sorted by Polygon Centroid Y)")
     print(f"-" * 40)
-    print(f"CHARACTER LEVEL METRICS")
-    print(f"  1. Matched CER: {matched_cer_final:.4f}")
-    print(f"     (Sum of edits in matches + insertions + deletions)")
-    print(f"  2. Crude CER:   {crude_cer_final:.4f}")
-    print(f"     (Concatenated page sorted Top-to-Bottom)")
+    print(f"2. LINE-LEVEL CER (Polygon IoU Matching)")
+    print(f"   CER @ IoU 0.50:        {cer_line_50:.4f}")
+    print(f"   CER @ IoU 0.75:        {cer_line_75:.4f}")
+    print(f"   CER @ IoU [0.5:0.95]:  {cer_line_range:.4f}")
     print(f"==================================================\n")
 
-document_layout_type="simple"
+
+# ==========================================
+# 5. CONFIGURATION
+# ==========================================
+
+document_layout_type="complex"
+
 # Define directories
-DIR_JSON_PRED = f"{document_layout_type}/gemini"
+DIR_XML_PRED_NO_STRUCTURE = f"{document_layout_type}/gemini"
 DIR_XML_PRED_FULL = f"{document_layout_type}/gnn_gemini_fullimage"
 DIR_XML_PRED_SUB = f"{document_layout_type}/gnn_gemini_subimages"
 DIR_XML_PRED_EASY = f"{document_layout_type}/gnn_easyocr"
 
-
-
 DIR_GT = f"{document_layout_type}/ground_truth"
 
+
+
+
 if os.path.exists(DIR_GT):
-    evaluate_method(DIR_JSON_PRED, DIR_GT, parse_pagexml, "GEMINI")
-    evaluate_method(DIR_XML_PRED_FULL, DIR_GT, parse_pagexml, "GNN+GEMINI (FULL IMAGE)")
-    evaluate_method(DIR_XML_PRED_SUB, DIR_GT, parse_pagexml, "GNN+GEMINI (SUB IMAGES)")
-    evaluate_method(DIR_XML_PRED_EASY, DIR_GT, parse_pagexml, "GNN+EASYOCR")
+    evaluate_dataset(DIR_XML_PRED_NO_STRUCTURE, DIR_GT, "GEMINI (FULL IMAGE)")
+    if os.path.exists(DIR_XML_PRED_FULL):
+        evaluate_dataset(DIR_XML_PRED_FULL, DIR_GT, "GNN+GEMINI (FULL IMAGE)")
+    else:
+        print(f"Directory not found: {DIR_XML_PRED_FULL}")
+
+    # if os.path.exists(DIR_XML_PRED_SUB):
+    #     evaluate_dataset(DIR_XML_PRED_SUB, DIR_GT, "GNN+GEMINI (SUB IMAGES)")
+
+    if os.path.exists(DIR_XML_PRED_EASY):
+        evaluate_dataset(DIR_XML_PRED_EASY, DIR_GT, "GNN+EASYOCR")
 else:
     print(f"Please ensure the directory '{DIR_GT}' exists and contains the dataset.")
