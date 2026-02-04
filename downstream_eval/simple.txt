@@ -1,0 +1,80 @@
+
+==================================================
+EVALUATING: GEMINI (FULL IMAGE)
+LAYOUT TYPE: simple
+==================================================
+Files Processed: 50
+----------------------------------------
+1. PAGE-LEVEL CER:        0.3931
+   (Concat lines sorted by Polygon Centroid Y)
+----------------------------------------
+2. LINE-LEVEL CER (Polygon IoU Matching)
+   CER @ IoU 0.50:        1.5358
+   CER @ IoU 0.75:        1.9947
+   CER @ IoU [0.5:0.95]:  1.8906
+==================================================
+
+
+==================================================
+EVALUATING: GNN+GEMINI (FULL IMAGE) PERFECT LAYOUT
+LAYOUT TYPE: simple
+==================================================
+Files Processed: 50
+----------------------------------------
+1. PAGE-LEVEL CER:        0.3693
+   (Concat lines sorted by Polygon Centroid Y)
+----------------------------------------
+2. LINE-LEVEL CER (Polygon IoU Matching)
+   CER @ IoU 0.50:        0.3819
+   CER @ IoU 0.75:        0.3819
+   CER @ IoU [0.5:0.95]:  0.3819
+==================================================
+
+
+==================================================
+EVALUATING: GNN+GEMINI (FULL IMAGE)
+LAYOUT TYPE: simple
+==================================================
+Files Processed: 50
+----------------------------------------
+1. PAGE-LEVEL CER:        0.3685
+   (Concat lines sorted by Polygon Centroid Y)
+----------------------------------------
+2. LINE-LEVEL CER (Polygon IoU Matching)
+   CER @ IoU 0.50:        0.3857
+   CER @ IoU 0.75:        0.3889
+   CER @ IoU [0.5:0.95]:  0.3886
+==================================================
+
+
+==================================================
+EVALUATING: GNN+EASYOCR PERFECT LAYOUT
+LAYOUT TYPE: simple
+==================================================
+Files Processed: 50
+----------------------------------------
+1. PAGE-LEVEL CER:        0.1101
+   (Concat lines sorted by Polygon Centroid Y)
+----------------------------------------
+2. LINE-LEVEL CER (Polygon IoU Matching)
+   CER @ IoU 0.50:        0.1114
+   CER @ IoU 0.75:        0.1114
+   CER @ IoU [0.5:0.95]:  0.1114
+==================================================
+
+
+==================================================
+EVALUATING: GNN+EASYOCR
+LAYOUT TYPE: simple
+==================================================
+Files Processed: 50
+----------------------------------------
+1. PAGE-LEVEL CER:        0.1128
+   (Concat lines sorted by Polygon Centroid Y)
+----------------------------------------
+2. LINE-LEVEL CER (Polygon IoU Matching)
+   CER @ IoU 0.50:        0.1142
+   CER @ IoU 0.75:        0.1160
+   CER @ IoU [0.5:0.95]:  0.1159
+==================================================
+
