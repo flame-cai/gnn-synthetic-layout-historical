@@ -408,11 +408,16 @@ document_layout_type="simple"
 # Define directories
 DIR_XML_PRED_NO_STRUCTURE = f"{document_layout_type}/gemini"
 DIR_XML_PRED_FULL = f"{document_layout_type}/gnn_gemini_fullimage"
-DIR_XML_PRED_SUB = f"{document_layout_type}/gnn_gemini_subimages"
-DIR_XML_PRED_EASY = f"{document_layout_type}/gnn_easyocr"
+# DIR_XML_PRED_SUB = f"{document_layout_type}/gnn_gemini_subimages"
 
-DIR_XML_PRED_DOCUFCN = f"{document_layout_type}/docufcn_gemini"
-DIR_XML_PRED_SEAMFORMER = f"{document_layout_type}/seamformer_gemini"
+
+DIR_XML_PRED_EASY = f"{document_layout_type}/gnn_easyocr"
+DIR_XML_PRED_EASY_DOC = f"{document_layout_type}/docufcn_easyocr_v2"
+DIR_XML_PRED_EASY_SEAM = f"{document_layout_type}/seamformer_easyocr_v2"
+
+
+DIR_XML_PRED_DOCUFCN = f"{document_layout_type}/docufcn_gemini_v3"
+DIR_XML_PRED_SEAMFORMER = f"{document_layout_type}/seamformer_gemini_v3"
 
 
 
@@ -425,13 +430,16 @@ DIR_GT = f"{document_layout_type}/ground_truth"
 if os.path.exists(DIR_GT):
     evaluate_dataset(DIR_XML_PRED_NO_STRUCTURE, DIR_GT, "GEMINI (FULL IMAGE)", layout_type=document_layout_type)
 
-    evaluate_dataset(DIR_XML_PRED_GEMINI_PERFECTLAYOUT, DIR_GT, "GNN+GEMINI (FULL IMAGE) PERFECT LAYOUT", layout_type=document_layout_type)
-    evaluate_dataset(DIR_XML_PRED_FULL, DIR_GT, "GNN+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
 
-    evaluate_dataset(DIR_XML_PRED_DOCUFCN, DIR_GT, "DOCUFCN+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
     evaluate_dataset(DIR_XML_PRED_SEAMFORMER, DIR_GT, "SEAMFORMER+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_DOCUFCN, DIR_GT, "DOCUFCN+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_FULL, DIR_GT, "GNN+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_GEMINI_PERFECTLAYOUT, DIR_GT, "GNN+GEMINI (FULL IMAGE) PERFECT LAYOUT", layout_type=document_layout_type)
 
-    evaluate_dataset(DIR_XML_PRED_EASY_PERFECTLAYOUT, DIR_GT, "GNN+EASYOCR PERFECT LAYOUT", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_EASY_DOC, DIR_GT, "DOCUFCN+EASYOCR", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_EASY_SEAM, DIR_GT, "SEAMFORMER+EASYOCR", layout_type=document_layout_type)
     evaluate_dataset(DIR_XML_PRED_EASY, DIR_GT, "GNN+EASYOCR", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_EASY_PERFECTLAYOUT, DIR_GT, "GNN+EASYOCR PERFECT LAYOUT", layout_type=document_layout_type)
+    
 else:
     print(f"Please ensure the directory '{DIR_GT}' exists and contains the dataset.")

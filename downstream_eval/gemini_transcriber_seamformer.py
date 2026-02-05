@@ -21,7 +21,7 @@ load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 # --- Configuration for polyfit ---
-POLY_DEGREE = 3  # Degree of polynomial to fit through polygon points (allows for curvature)
+POLY_DEGREE = 2  # Degree of polynomial to fit through polygon points (allows for curvature)
 VIZ_FOLDER = "trace_visualizations"
 
 def get_equidistant_points(pts, m):
@@ -62,8 +62,8 @@ def ensemble_text_samples(candidates):
 
 def generate_trace_from_polygon(poly_pts, is_vertical, resolution=50):
     """
-    Calculates a centerline trace from a bounding polygon using Polynomial Regression.
-    This works for both box-like and tight-contour polygons.
+    Calculates a centerline trace using Polynomial Regression.
+    UPDATE: Forces a linear fit (degree 1) for short lines to prevent overfitting/curviness.
     """
     if not poly_pts or len(poly_pts) < 2:
         return []
@@ -74,28 +74,32 @@ def generate_trace_from_polygon(poly_pts, is_vertical, resolution=50):
 
     try:
         if is_vertical:
-            # Fit X as a function of Y for vertical lines
-            # Use lower degree if fewer points available
-            deg = min(POLY_DEGREE, len(y) - 1)
+            # Check vertical span
+            span = np.max(y) - np.min(y)
+            # Use degree 1 (straight line) if short (<200px), else degree 3
+            target_degree = 1 if span < 200 else POLY_DEGREE
+            
+            deg = min(target_degree, len(y) - 1)
             if deg < 1: return poly_pts
             
             p = np.poly1d(np.polyfit(y, x, deg))
             
-            # Generate smooth Y range
             min_y, max_y = np.min(y), np.max(y)
             y_line = np.linspace(min_y, max_y, resolution)
             x_line = p(y_line)
             
-            # Combine into list of [x, y]
             trace = np.column_stack((x_line, y_line)).astype(int).tolist()
         else:
-            # Fit Y as a function of X for horizontal lines (standard)
-            deg = min(POLY_DEGREE, len(x) - 1)
+            # Check horizontal span
+            span = np.max(x) - np.min(x)
+            # Use degree 1 (straight line) if short (<200px), else degree 3
+            target_degree = 1 if span < 200 else POLY_DEGREE
+            
+            deg = min(target_degree, len(x) - 1)
             if deg < 1: return poly_pts
             
             p = np.poly1d(np.polyfit(x, y, deg))
             
-            # Generate smooth X range
             min_x, max_x = np.min(x), np.max(x)
             x_line = np.linspace(min_x, max_x, resolution)
             y_line = p(x_line)
@@ -104,7 +108,6 @@ def generate_trace_from_polygon(poly_pts, is_vertical, resolution=50):
             
         return trace
     except Exception as e:
-        # Fallback: simple average of points if regression fails
         print(f"Warning: Trace generation failed ({e}), using raw points.")
         return poly_pts
 

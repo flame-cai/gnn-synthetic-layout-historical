@@ -21,9 +21,18 @@ python evaluate.py
 
 
 # DOCUFCN and SEAMFORMER
-python gemini_transcriber.py --images complex/images --xml complex/docufcn/page-xml
-python gemini_transcriber.py --images complex/images --xml complex/seamformer/page-xml
+python gemini_transcriber_docufcn.py --images complex/images --xml complex/docufcn/page-xml
+python gemini_transcriber_seamformer.py --images complex/images --xml complex/seamformer/page-xml
 
 
 python gemini_transcriber_docufcn.py --images simple/images --xml simple/docufcn/page-xml
 python gemini_transcriber_seamformer.py --images simple/images --xml simple/seamformer/page-xml
+
+
+# RECOGNIZE (padding 10 for docufcn)
+python recognize_manuscript_text_v2.py  --xml_folder ../../downstream_eval/complex/docufcn_easyocr_v2 --image_folder ../../downstream_eval/complex/images
+python recognize_manuscript_text_v2.py  --xml_folder ../../downstream_eval/complex/seamformer_easyocr_v2 --image_folder ../../downstream_eval/complex/images
+
+
+python recognize_manuscript_text_v2.py  --xml_folder ../../downstream_eval/simple/docufcn_easyocr_v2 --image_folder ../../downstream_eval/simple/images
+python recognize_manuscript_text_v2.py  --xml_folder ../../downstream_eval/simple/seamformer_easyocr_v2 --image_folder ../../downstream_eval/simple/images
