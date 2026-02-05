@@ -403,7 +403,7 @@ def evaluate_dataset(pred_folder, gt_folder, method_name, layout_type="complex")
 # ==========================================
 
 # NOTE: Change this to "simple" or "complex" as needed
-document_layout_type="simple" 
+document_layout_type="complex" 
 
 # Define directories
 DIR_XML_PRED_NO_STRUCTURE = f"{document_layout_type}/gemini"
@@ -424,7 +424,7 @@ DIR_XML_PRED_SEAMFORMER = f"{document_layout_type}/seamformer_gemini_v3"
 DIR_XML_PRED_EASY_PERFECTLAYOUT = f"{document_layout_type}/gnn_easyocr_perfectlayout"
 DIR_XML_PRED_GEMINI_PERFECTLAYOUT = f"{document_layout_type}/gnn_gemini_perfectlayout"
 
-DIR_GT = f"{document_layout_type}/ground_truth"
+DIR_GT = f"{document_layout_type}/ground_truth_modified"
 
 
 if os.path.exists(DIR_GT):
