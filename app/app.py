@@ -394,7 +394,7 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
                 "Transcribe the Sanskrit text from the image at the text-line level, where locations of the handwritten text-lines are defined using 'Path Traces'. Each 'Path Trace' refers to one text-line.\n"
                 "The coordinates of the Path Traces are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) "
                 "to precisely map the text line locations on the image.\n"
-                "For each path trace [y_start, x_start, y_mid1, x_mid1, y_mid2, x_mid2, y_end, x_end], transcribe the text that sits along this curve.\n"
+                "For each path trace points, transcribe the text that sits along this curve.\n"
                 "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
                 "Transcribe in Unicode Devanagari. Preserve original spelling (Sandhi).\n"
                 "Output a JSON array of objects with 'id' and 'text'.\n\n"

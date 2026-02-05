@@ -17,3 +17,13 @@ python gemini_ocr_no_structure.py complex/images
 EVALUATE
 cd downstream_eval
 python evaluate.py
+
+
+
+# DOCUFCN and SEAMFORMER
+python gemini_transcriber.py --images complex/images --xml complex/docufcn/page-xml
+python gemini_transcriber.py --images complex/images --xml complex/seamformer/page-xml
+
+
+python gemini_transcriber_docufcn.py --images simple/images --xml simple/docufcn/page-xml
+python gemini_transcriber_seamformer.py --images simple/images --xml simple/seamformer/page-xml

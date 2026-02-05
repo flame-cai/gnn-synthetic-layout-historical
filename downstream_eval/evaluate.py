@@ -93,54 +93,54 @@ def calculate_iou_polygon(poly1, poly2):
 # ==========================================
 
 def parse_pagexml(filepath):
-    """
-    Parses PageXML to extract text and Polygon Geometry.
-    Returns: list of dicts [{'text': str, 'poly': Polygon_Obj, ...}, ...]
-    """
     extracted_lines = []
     try:
         tree = ET.parse(filepath)
         root = tree.getroot()
-        
-        ns = {'ns': root.tag.split('}')[0].strip('{')} if '}' in root.tag else {}
-        
-        if ns:
-            lines = root.findall('.//ns:TextLine', ns)
-        else:
-            lines = root.findall('.//TextLine')
 
-        for line in lines:
-            if ns:
-                equiv = line.find('./ns:TextEquiv/ns:Unicode', ns)
-                coords = line.find('./ns:Coords', ns)
-            else:
-                equiv = line.find('./TextEquiv/Unicode')
-                coords = line.find('./Coords')
-                
-            if equiv is not None and equiv.text and coords is not None:
-                clean_text = unicodedata.normalize('NFC', equiv.text).strip()
-                points_str = coords.get('points')
-                
-                # Parse the Polygon
-                poly_obj = parse_polygon_string(points_str)
-                
+        # Namespace-agnostic tags
+        def strip_ns(tag):
+            return tag.split('}', 1)[-1]
+
+        for textline in root.iter():
+            if strip_ns(textline.tag) != "TextLine":
+                continue
+
+            # Find Coords and Unicode inside this <TextLine>
+            coords = None
+            text = None
+            for child in textline:
+                tag = strip_ns(child.tag)
+                if tag == "Coords":
+                    coords = child.get("points")
+                elif tag == "TextEquiv":
+                    for sub in child:
+                        if strip_ns(sub.tag) == "Unicode":
+                            text = sub.text
+
+            if text and coords:
+                clean_text = unicodedata.normalize("NFC", text).strip()
+                poly_obj = parse_polygon_string(coords)
+
                 if clean_text and poly_obj:
-                    # Get Centroid for sorting
                     centroid = poly_obj.centroid
                     min_x, min_y, max_x, max_y = poly_obj.bounds
-                    
+
                     extracted_lines.append({
-                        'text': clean_text, 
+                        'text': clean_text,
                         'poly': poly_obj,
-                        'y_center': centroid.y, 
+                        'y_center': centroid.y,
                         'x_min': min_x,
-                        'width': max_x - min_x  # Added width for 'simple' layout filtering
+                        'width': max_x - min_x,
                     })
-                    
+
     except Exception as e:
         print(f"[Error] Failed to parse XML {filepath}: {e}")
-        
+
     return extracted_lines
+
+
+
 
 def filter_simple_layout_lines(line_objs):
     """
@@ -403,13 +403,18 @@ def evaluate_dataset(pred_folder, gt_folder, method_name, layout_type="complex")
 # ==========================================
 
 # NOTE: Change this to "simple" or "complex" as needed
-document_layout_type="complex" 
+document_layout_type="simple" 
 
 # Define directories
 DIR_XML_PRED_NO_STRUCTURE = f"{document_layout_type}/gemini"
 DIR_XML_PRED_FULL = f"{document_layout_type}/gnn_gemini_fullimage"
 DIR_XML_PRED_SUB = f"{document_layout_type}/gnn_gemini_subimages"
 DIR_XML_PRED_EASY = f"{document_layout_type}/gnn_easyocr"
+
+DIR_XML_PRED_DOCUFCN = f"{document_layout_type}/docufcn_gemini"
+DIR_XML_PRED_SEAMFORMER = f"{document_layout_type}/seamformer_gemini"
+
+
 
 DIR_XML_PRED_EASY_PERFECTLAYOUT = f"{document_layout_type}/gnn_easyocr_perfectlayout"
 DIR_XML_PRED_GEMINI_PERFECTLAYOUT = f"{document_layout_type}/gnn_gemini_perfectlayout"
@@ -423,8 +428,9 @@ if os.path.exists(DIR_GT):
     evaluate_dataset(DIR_XML_PRED_GEMINI_PERFECTLAYOUT, DIR_GT, "GNN+GEMINI (FULL IMAGE) PERFECT LAYOUT", layout_type=document_layout_type)
     evaluate_dataset(DIR_XML_PRED_FULL, DIR_GT, "GNN+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
 
-    # if os.path.exists(DIR_XML_PRED_SUB):
-    #     evaluate_dataset(DIR_XML_PRED_SUB, DIR_GT, "GNN+GEMINI (SUB IMAGES)", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_DOCUFCN, DIR_GT, "DOCUFCN+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
+    evaluate_dataset(DIR_XML_PRED_SEAMFORMER, DIR_GT, "SEAMFORMER+GEMINI (FULL IMAGE)", layout_type=document_layout_type)
+
     evaluate_dataset(DIR_XML_PRED_EASY_PERFECTLAYOUT, DIR_GT, "GNN+EASYOCR PERFECT LAYOUT", layout_type=document_layout_type)
     evaluate_dataset(DIR_XML_PRED_EASY, DIR_GT, "GNN+EASYOCR", layout_type=document_layout_type)
 else:
