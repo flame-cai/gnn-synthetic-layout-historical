@@ -36,3 +36,26 @@ python recognize_manuscript_text_v2.py  --xml_folder ../../downstream_eval/compl
 
 python recognize_manuscript_text_v2.py  --xml_folder ../../downstream_eval/simple/docufcn_easyocr_v2 --image_folder ../../downstream_eval/simple/images
 python recognize_manuscript_text_v2.py  --xml_folder ../../downstream_eval/simple/seamformer_easyocr_v2 --image_folder ../../downstream_eval/simple/images
+
+
+
+
+# RECOGNIZE WITH DEVANAGARI.PTH
+PAD=12
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2 --image_folder ../../downstream_eval/complex/images
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2 --image_folder ../../downstream_eval/simple/images
+
+PAD=4
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2 --image_folder ../../downstream_eval/complex/images
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2 --image_folder ../../downstream_eval/simple/images
+
+
+PAD=0
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/complex/pretrained_gnn_easyocr --image_folder ../../downstream_eval/complex/images
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout --image_folder ../../downstream_eval/complex/images
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/simple/pretrained_gnn_easyocr --image_folder ../../downstream_eval/simple/images
+python recognize_manuscript_text_v2_pretrained.py  --xml_folder ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout --image_folder ../../downstream_eval/simple/images
+
+
+
+

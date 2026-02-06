@@ -839,3 +839,850 @@
 2026-02-05 10:46:11,697 - INFO - Updated ../../downstream_eval/simple/docufcn_easyocr_v2/3976_0050.xml: 17 lines recognized.
 2026-02-05 10:46:12,192 - INFO - Updated ../../downstream_eval/simple/docufcn_easyocr_v2/3976_0051.xml: 18 lines recognized.
 2026-02-05 10:46:12,192 - INFO - Process completed.
+2026-02-06 10:03:20,117 - INFO - Using device: cuda
+2026-02-06 10:03:20,117 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:03:20,587 - INFO - Model loaded successfully.
+2026-02-06 10:03:20,588 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:03:20,588 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:03:21,213 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0002.xml: 15 lines recognized.
+2026-02-06 10:03:21,809 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0003.xml: 21 lines recognized.
+2026-02-06 10:03:22,166 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0004.xml: 13 lines recognized.
+2026-02-06 10:03:22,505 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0005.xml: 12 lines recognized.
+2026-02-06 10:03:22,963 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0006.xml: 17 lines recognized.
+2026-02-06 10:03:23,258 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0007.xml: 12 lines recognized.
+2026-02-06 10:03:23,720 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0008.xml: 19 lines recognized.
+2026-02-06 10:03:24,190 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0009.xml: 18 lines recognized.
+2026-02-06 10:03:24,783 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0010.xml: 19 lines recognized.
+2026-02-06 10:03:25,328 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0011.xml: 18 lines recognized.
+2026-02-06 10:03:25,999 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0012.xml: 22 lines recognized.
+2026-02-06 10:03:26,526 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0013.xml: 17 lines recognized.
+2026-02-06 10:03:27,173 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0014.xml: 21 lines recognized.
+2026-02-06 10:03:27,665 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0015.xml: 16 lines recognized.
+2026-02-06 10:03:28,435 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0016.xml: 26 lines recognized.
+2026-02-06 10:03:28,435 - INFO - Process completed.
+2026-02-06 10:03:38,420 - INFO - Using device: cuda
+2026-02-06 10:03:38,420 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:03:38,885 - INFO - Model loaded successfully.
+2026-02-06 10:03:38,885 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:03:38,885 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:03:39,437 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0002.xml: 11 lines recognized.
+2026-02-06 10:03:39,807 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0003.xml: 12 lines recognized.
+2026-02-06 10:03:40,122 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0004.xml: 9 lines recognized.
+2026-02-06 10:03:40,335 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0005.xml: 7 lines recognized.
+2026-02-06 10:03:40,692 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0006.xml: 11 lines recognized.
+2026-02-06 10:03:40,913 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0007.xml: 8 lines recognized.
+2026-02-06 10:03:41,189 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0008.xml: 9 lines recognized.
+2026-02-06 10:03:41,474 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0009.xml: 8 lines recognized.
+2026-02-06 10:03:41,770 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0010.xml: 9 lines recognized.
+2026-02-06 10:03:42,094 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0011.xml: 9 lines recognized.
+2026-02-06 10:03:42,513 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0012.xml: 10 lines recognized.
+2026-02-06 10:03:42,976 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0013.xml: 11 lines recognized.
+2026-02-06 10:03:43,463 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0014.xml: 9 lines recognized.
+2026-02-06 10:03:43,845 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0015.xml: 9 lines recognized.
+2026-02-06 10:03:44,210 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0016.xml: 8 lines recognized.
+2026-02-06 10:03:44,211 - INFO - Process completed.
+2026-02-06 10:04:00,518 - INFO - Using device: cuda
+2026-02-06 10:04:00,518 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:04:00,989 - INFO - Model loaded successfully.
+2026-02-06 10:04:00,989 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:04:00,990 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:04:01,701 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0002.xml: 20 lines recognized.
+2026-02-06 10:04:02,236 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0003.xml: 20 lines recognized.
+2026-02-06 10:04:02,536 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0004.xml: 10 lines recognized.
+2026-02-06 10:04:02,960 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0005.xml: 16 lines recognized.
+2026-02-06 10:04:03,488 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0006.xml: 20 lines recognized.
+2026-02-06 10:04:03,783 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0007.xml: 12 lines recognized.
+2026-02-06 10:04:04,171 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0008.xml: 15 lines recognized.
+2026-02-06 10:04:04,677 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0009.xml: 20 lines recognized.
+2026-02-06 10:04:05,273 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0010.xml: 22 lines recognized.
+2026-02-06 10:04:05,718 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0011.xml: 18 lines recognized.
+2026-02-06 10:04:06,293 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0012.xml: 22 lines recognized.
+2026-02-06 10:04:06,872 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0013.xml: 23 lines recognized.
+2026-02-06 10:04:07,527 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0014.xml: 26 lines recognized.
+2026-02-06 10:04:08,017 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0015.xml: 19 lines recognized.
+2026-02-06 10:04:08,641 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0016.xml: 25 lines recognized.
+2026-02-06 10:04:08,642 - INFO - Process completed.
+2026-02-06 10:04:16,152 - INFO - Using device: cuda
+2026-02-06 10:04:16,152 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:04:16,611 - INFO - Model loaded successfully.
+2026-02-06 10:04:16,611 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:04:16,611 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:04:17,422 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0002.xml: 23 lines recognized.
+2026-02-06 10:04:18,003 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0003.xml: 22 lines recognized.
+2026-02-06 10:04:18,368 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0004.xml: 13 lines recognized.
+2026-02-06 10:04:18,819 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0005.xml: 16 lines recognized.
+2026-02-06 10:04:19,454 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0006.xml: 22 lines recognized.
+2026-02-06 10:04:19,936 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0007.xml: 15 lines recognized.
+2026-02-06 10:04:20,451 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0008.xml: 18 lines recognized.
+2026-02-06 10:04:21,083 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0009.xml: 19 lines recognized.
+2026-02-06 10:04:21,621 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0010.xml: 20 lines recognized.
+2026-02-06 10:04:22,081 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0011.xml: 18 lines recognized.
+2026-02-06 10:04:22,533 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0012.xml: 23 lines recognized.
+2026-02-06 10:04:23,033 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0013.xml: 21 lines recognized.
+2026-02-06 10:04:23,758 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0014.xml: 28 lines recognized.
+2026-02-06 10:04:24,403 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0015.xml: 21 lines recognized.
+2026-02-06 10:04:25,198 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0016.xml: 25 lines recognized.
+2026-02-06 10:04:25,198 - INFO - Process completed.
+2026-02-06 10:04:35,404 - INFO - Using device: cuda
+2026-02-06 10:04:35,404 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:04:35,865 - INFO - Model loaded successfully.
+2026-02-06 10:04:35,866 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:04:35,866 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:04:36,514 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0002.xml: 16 lines recognized.
+2026-02-06 10:04:36,961 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0003.xml: 15 lines recognized.
+2026-02-06 10:04:37,315 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0004.xml: 12 lines recognized.
+2026-02-06 10:04:37,744 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0005.xml: 15 lines recognized.
+2026-02-06 10:04:38,138 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:04:38,563 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0007.xml: 15 lines recognized.
+2026-02-06 10:04:38,924 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0008.xml: 12 lines recognized.
+2026-02-06 10:04:39,304 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0009.xml: 12 lines recognized.
+2026-02-06 10:04:39,751 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:04:40,194 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0011.xml: 15 lines recognized.
+2026-02-06 10:04:40,644 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:04:41,204 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0013.xml: 18 lines recognized.
+2026-02-06 10:04:41,618 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:04:42,043 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0015.xml: 12 lines recognized.
+2026-02-06 10:04:42,468 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0016.xml: 13 lines recognized.
+2026-02-06 10:04:42,945 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0017.xml: 15 lines recognized.
+2026-02-06 10:04:43,445 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0018.xml: 15 lines recognized.
+2026-02-06 10:04:43,947 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0019.xml: 16 lines recognized.
+2026-02-06 10:04:44,447 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0020.xml: 15 lines recognized.
+2026-02-06 10:04:44,890 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0021.xml: 14 lines recognized.
+2026-02-06 10:04:45,408 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0022.xml: 16 lines recognized.
+2026-02-06 10:04:45,805 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0023.xml: 12 lines recognized.
+2026-02-06 10:04:46,306 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0024.xml: 15 lines recognized.
+2026-02-06 10:04:46,812 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0025.xml: 16 lines recognized.
+2026-02-06 10:04:47,314 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0026.xml: 15 lines recognized.
+2026-02-06 10:04:47,692 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:04:48,203 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0028.xml: 13 lines recognized.
+2026-02-06 10:04:48,613 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:04:49,045 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0030.xml: 16 lines recognized.
+2026-02-06 10:04:49,612 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0031.xml: 15 lines recognized.
+2026-02-06 10:04:50,184 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0032.xml: 15 lines recognized.
+2026-02-06 10:04:50,665 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0033.xml: 15 lines recognized.
+2026-02-06 10:04:51,196 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0034.xml: 16 lines recognized.
+2026-02-06 10:04:51,608 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:04:52,013 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0036.xml: 13 lines recognized.
+2026-02-06 10:04:52,478 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:04:52,800 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0038.xml: 12 lines recognized.
+2026-02-06 10:04:53,159 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:04:53,719 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0040.xml: 19 lines recognized.
+2026-02-06 10:04:54,141 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0041.xml: 13 lines recognized.
+2026-02-06 10:04:54,586 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:04:55,039 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0043.xml: 15 lines recognized.
+2026-02-06 10:04:55,442 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0044.xml: 12 lines recognized.
+2026-02-06 10:04:55,896 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0045.xml: 14 lines recognized.
+2026-02-06 10:04:56,345 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:04:56,741 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:04:57,316 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0048.xml: 15 lines recognized.
+2026-02-06 10:04:57,791 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:04:58,261 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0050.xml: 17 lines recognized.
+2026-02-06 10:04:58,804 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0051.xml: 18 lines recognized.
+2026-02-06 10:04:58,805 - INFO - Process completed.
+2026-02-06 10:05:10,038 - INFO - Using device: cuda
+2026-02-06 10:05:10,038 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:05:10,498 - INFO - Model loaded successfully.
+2026-02-06 10:05:10,498 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:05:10,498 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:05:11,082 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0002.xml: 11 lines recognized.
+2026-02-06 10:05:11,493 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0003.xml: 11 lines recognized.
+2026-02-06 10:05:11,892 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0004.xml: 11 lines recognized.
+2026-02-06 10:05:12,280 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0005.xml: 11 lines recognized.
+2026-02-06 10:05:12,589 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0006.xml: 11 lines recognized.
+2026-02-06 10:05:12,952 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0007.xml: 10 lines recognized.
+2026-02-06 10:05:13,324 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0008.xml: 11 lines recognized.
+2026-02-06 10:05:13,713 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0009.xml: 10 lines recognized.
+2026-02-06 10:05:14,106 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0010.xml: 11 lines recognized.
+2026-02-06 10:05:14,472 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0011.xml: 11 lines recognized.
+2026-02-06 10:05:14,895 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0012.xml: 10 lines recognized.
+2026-02-06 10:05:15,193 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0013.xml: 10 lines recognized.
+2026-02-06 10:05:15,517 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0014.xml: 11 lines recognized.
+2026-02-06 10:05:15,860 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0015.xml: 11 lines recognized.
+2026-02-06 10:05:16,253 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0016.xml: 12 lines recognized.
+2026-02-06 10:05:16,631 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0017.xml: 11 lines recognized.
+2026-02-06 10:05:17,049 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0018.xml: 12 lines recognized.
+2026-02-06 10:05:17,463 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0019.xml: 12 lines recognized.
+2026-02-06 10:05:17,837 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0020.xml: 12 lines recognized.
+2026-02-06 10:05:18,176 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0021.xml: 10 lines recognized.
+2026-02-06 10:05:18,575 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0022.xml: 12 lines recognized.
+2026-02-06 10:05:18,983 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0023.xml: 12 lines recognized.
+2026-02-06 10:05:19,391 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0024.xml: 12 lines recognized.
+2026-02-06 10:05:19,716 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0025.xml: 11 lines recognized.
+2026-02-06 10:05:20,060 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0026.xml: 10 lines recognized.
+2026-02-06 10:05:20,428 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0027.xml: 11 lines recognized.
+2026-02-06 10:05:20,791 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0028.xml: 11 lines recognized.
+2026-02-06 10:05:21,229 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0029.xml: 11 lines recognized.
+2026-02-06 10:05:21,754 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0030.xml: 12 lines recognized.
+2026-02-06 10:05:22,224 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0031.xml: 12 lines recognized.
+2026-02-06 10:05:22,701 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0032.xml: 13 lines recognized.
+2026-02-06 10:05:23,134 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0033.xml: 11 lines recognized.
+2026-02-06 10:05:23,515 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0034.xml: 11 lines recognized.
+2026-02-06 10:05:23,890 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0035.xml: 12 lines recognized.
+2026-02-06 10:05:24,298 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0036.xml: 12 lines recognized.
+2026-02-06 10:05:24,770 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0037.xml: 13 lines recognized.
+2026-02-06 10:05:25,187 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0038.xml: 12 lines recognized.
+2026-02-06 10:05:25,536 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0039.xml: 12 lines recognized.
+2026-02-06 10:05:25,902 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0040.xml: 12 lines recognized.
+2026-02-06 10:05:26,235 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0041.xml: 10 lines recognized.
+2026-02-06 10:05:26,606 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0042.xml: 11 lines recognized.
+2026-02-06 10:05:27,077 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0043.xml: 12 lines recognized.
+2026-02-06 10:05:27,468 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0044.xml: 12 lines recognized.
+2026-02-06 10:05:27,860 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0045.xml: 12 lines recognized.
+2026-02-06 10:05:28,274 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0046.xml: 12 lines recognized.
+2026-02-06 10:05:28,650 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0047.xml: 13 lines recognized.
+2026-02-06 10:05:29,107 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0048.xml: 13 lines recognized.
+2026-02-06 10:05:29,457 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0049.xml: 10 lines recognized.
+2026-02-06 10:05:29,831 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0050.xml: 11 lines recognized.
+2026-02-06 10:05:30,300 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0051.xml: 14 lines recognized.
+2026-02-06 10:05:30,300 - INFO - Process completed.
+2026-02-06 10:05:35,432 - INFO - Using device: cuda
+2026-02-06 10:05:35,432 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:05:35,890 - INFO - Model loaded successfully.
+2026-02-06 10:05:35,891 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:05:35,891 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:05:36,544 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0002.xml: 12 lines recognized.
+2026-02-06 10:05:36,990 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0003.xml: 12 lines recognized.
+2026-02-06 10:05:37,476 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0004.xml: 15 lines recognized.
+2026-02-06 10:05:37,876 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0005.xml: 12 lines recognized.
+2026-02-06 10:05:38,334 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:05:38,742 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0007.xml: 13 lines recognized.
+2026-02-06 10:05:39,108 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0008.xml: 13 lines recognized.
+2026-02-06 10:05:39,494 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0009.xml: 13 lines recognized.
+2026-02-06 10:05:39,944 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:05:40,340 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0011.xml: 12 lines recognized.
+2026-02-06 10:05:40,802 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:05:41,283 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0013.xml: 14 lines recognized.
+2026-02-06 10:05:41,716 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:05:42,202 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0015.xml: 14 lines recognized.
+2026-02-06 10:05:42,661 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0016.xml: 14 lines recognized.
+2026-02-06 10:05:43,151 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0017.xml: 14 lines recognized.
+2026-02-06 10:05:43,587 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0018.xml: 13 lines recognized.
+2026-02-06 10:05:44,072 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0019.xml: 14 lines recognized.
+2026-02-06 10:05:44,527 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0020.xml: 16 lines recognized.
+2026-02-06 10:05:44,908 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0021.xml: 13 lines recognized.
+2026-02-06 10:05:45,314 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0022.xml: 13 lines recognized.
+2026-02-06 10:05:45,728 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0023.xml: 15 lines recognized.
+2026-02-06 10:05:46,116 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0024.xml: 14 lines recognized.
+2026-02-06 10:05:46,546 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0025.xml: 15 lines recognized.
+2026-02-06 10:05:46,940 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0026.xml: 13 lines recognized.
+2026-02-06 10:05:47,349 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:05:47,722 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0028.xml: 14 lines recognized.
+2026-02-06 10:05:48,174 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:05:48,716 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0030.xml: 17 lines recognized.
+2026-02-06 10:05:49,200 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0031.xml: 14 lines recognized.
+2026-02-06 10:05:49,717 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0032.xml: 16 lines recognized.
+2026-02-06 10:05:50,138 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0033.xml: 14 lines recognized.
+2026-02-06 10:05:50,532 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0034.xml: 14 lines recognized.
+2026-02-06 10:05:50,917 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:05:51,363 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0036.xml: 15 lines recognized.
+2026-02-06 10:05:51,829 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:05:52,281 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0038.xml: 15 lines recognized.
+2026-02-06 10:05:52,692 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:05:53,195 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0040.xml: 16 lines recognized.
+2026-02-06 10:05:53,626 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0041.xml: 15 lines recognized.
+2026-02-06 10:05:54,027 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:05:54,436 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0043.xml: 13 lines recognized.
+2026-02-06 10:05:54,869 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0044.xml: 16 lines recognized.
+2026-02-06 10:05:55,238 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0045.xml: 13 lines recognized.
+2026-02-06 10:05:55,644 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:05:56,057 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:05:56,527 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0048.xml: 16 lines recognized.
+2026-02-06 10:05:56,907 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:05:57,373 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0050.xml: 16 lines recognized.
+2026-02-06 10:05:57,815 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0051.xml: 15 lines recognized.
+2026-02-06 10:05:57,815 - INFO - Process completed.
+2026-02-06 10:06:05,009 - INFO - Using device: cuda
+2026-02-06 10:06:05,009 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:06:05,480 - INFO - Model loaded successfully.
+2026-02-06 10:06:05,481 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:06:05,481 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:06:06,017 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0002.xml: 12 lines recognized.
+2026-02-06 10:06:06,443 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0003.xml: 12 lines recognized.
+2026-02-06 10:06:07,029 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0004.xml: 15 lines recognized.
+2026-02-06 10:06:07,342 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0005.xml: 12 lines recognized.
+2026-02-06 10:06:07,693 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:06:08,074 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0007.xml: 13 lines recognized.
+2026-02-06 10:06:08,458 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0008.xml: 13 lines recognized.
+2026-02-06 10:06:08,864 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0009.xml: 13 lines recognized.
+2026-02-06 10:06:09,273 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:06:09,602 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0011.xml: 12 lines recognized.
+2026-02-06 10:06:10,012 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:06:10,419 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0013.xml: 14 lines recognized.
+2026-02-06 10:06:10,828 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:06:11,196 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0015.xml: 14 lines recognized.
+2026-02-06 10:06:11,549 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0016.xml: 14 lines recognized.
+2026-02-06 10:06:11,936 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0017.xml: 14 lines recognized.
+2026-02-06 10:06:12,327 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0018.xml: 13 lines recognized.
+2026-02-06 10:06:12,805 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0019.xml: 14 lines recognized.
+2026-02-06 10:06:13,265 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0020.xml: 16 lines recognized.
+2026-02-06 10:06:13,670 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0021.xml: 13 lines recognized.
+2026-02-06 10:06:14,061 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0022.xml: 13 lines recognized.
+2026-02-06 10:06:14,487 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0023.xml: 15 lines recognized.
+2026-02-06 10:06:14,918 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0024.xml: 14 lines recognized.
+2026-02-06 10:06:15,312 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0025.xml: 15 lines recognized.
+2026-02-06 10:06:15,737 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0026.xml: 13 lines recognized.
+2026-02-06 10:06:16,102 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:06:16,469 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0028.xml: 14 lines recognized.
+2026-02-06 10:06:16,876 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:06:17,363 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0030.xml: 17 lines recognized.
+2026-02-06 10:06:17,837 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0031.xml: 14 lines recognized.
+2026-02-06 10:06:18,312 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0032.xml: 16 lines recognized.
+2026-02-06 10:06:18,713 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0033.xml: 14 lines recognized.
+2026-02-06 10:06:19,160 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0034.xml: 15 lines recognized.
+2026-02-06 10:06:19,625 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:06:20,160 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0036.xml: 15 lines recognized.
+2026-02-06 10:06:20,682 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:06:21,230 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0038.xml: 15 lines recognized.
+2026-02-06 10:06:21,700 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:06:22,247 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0040.xml: 16 lines recognized.
+2026-02-06 10:06:22,738 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0041.xml: 15 lines recognized.
+2026-02-06 10:06:23,230 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:06:23,667 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0043.xml: 13 lines recognized.
+2026-02-06 10:06:24,140 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0044.xml: 16 lines recognized.
+2026-02-06 10:06:24,490 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0045.xml: 13 lines recognized.
+2026-02-06 10:06:24,885 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:06:25,301 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:06:25,753 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0048.xml: 16 lines recognized.
+2026-02-06 10:06:26,196 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:06:26,611 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0050.xml: 16 lines recognized.
+2026-02-06 10:06:27,041 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0051.xml: 15 lines recognized.
+2026-02-06 10:06:27,041 - INFO - Process completed.
+2026-02-06 10:27:12,518 - INFO - Using device: cuda
+2026-02-06 10:27:12,518 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:27:12,976 - INFO - Model loaded successfully.
+2026-02-06 10:27:12,978 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:27:12,979 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:27:13,528 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0002.xml: 11 lines recognized.
+2026-02-06 10:27:13,898 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0003.xml: 12 lines recognized.
+2026-02-06 10:27:14,213 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0004.xml: 9 lines recognized.
+2026-02-06 10:27:14,427 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0005.xml: 7 lines recognized.
+2026-02-06 10:27:14,774 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0006.xml: 11 lines recognized.
+2026-02-06 10:27:14,998 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0007.xml: 8 lines recognized.
+2026-02-06 10:27:15,275 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0008.xml: 9 lines recognized.
+2026-02-06 10:27:15,574 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0009.xml: 8 lines recognized.
+2026-02-06 10:27:15,866 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0010.xml: 9 lines recognized.
+2026-02-06 10:27:16,175 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0011.xml: 9 lines recognized.
+2026-02-06 10:27:16,514 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0012.xml: 10 lines recognized.
+2026-02-06 10:27:16,964 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0013.xml: 11 lines recognized.
+2026-02-06 10:27:17,391 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0014.xml: 9 lines recognized.
+2026-02-06 10:27:17,726 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0015.xml: 9 lines recognized.
+2026-02-06 10:27:18,025 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0016.xml: 8 lines recognized.
+2026-02-06 10:27:18,026 - INFO - Process completed.
+2026-02-06 10:27:22,993 - INFO - Using device: cuda
+2026-02-06 10:27:22,993 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:27:23,455 - INFO - Model loaded successfully.
+2026-02-06 10:27:23,456 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:27:23,456 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:27:24,055 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0002.xml: 11 lines recognized.
+2026-02-06 10:27:24,451 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0003.xml: 11 lines recognized.
+2026-02-06 10:27:24,858 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0004.xml: 11 lines recognized.
+2026-02-06 10:27:25,271 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0005.xml: 11 lines recognized.
+2026-02-06 10:27:25,608 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0006.xml: 11 lines recognized.
+2026-02-06 10:27:25,948 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0007.xml: 10 lines recognized.
+2026-02-06 10:27:26,310 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0008.xml: 11 lines recognized.
+2026-02-06 10:27:26,671 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0009.xml: 10 lines recognized.
+2026-02-06 10:27:27,061 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0010.xml: 11 lines recognized.
+2026-02-06 10:27:27,474 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0011.xml: 11 lines recognized.
+2026-02-06 10:27:27,904 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0012.xml: 10 lines recognized.
+2026-02-06 10:27:28,221 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0013.xml: 10 lines recognized.
+2026-02-06 10:27:28,568 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0014.xml: 11 lines recognized.
+2026-02-06 10:27:28,950 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0015.xml: 11 lines recognized.
+2026-02-06 10:27:29,402 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0016.xml: 12 lines recognized.
+2026-02-06 10:27:29,831 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0017.xml: 11 lines recognized.
+2026-02-06 10:27:30,208 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0018.xml: 12 lines recognized.
+2026-02-06 10:27:30,599 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0019.xml: 12 lines recognized.
+2026-02-06 10:27:30,959 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0020.xml: 12 lines recognized.
+2026-02-06 10:27:31,334 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0021.xml: 10 lines recognized.
+2026-02-06 10:27:31,752 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0022.xml: 12 lines recognized.
+2026-02-06 10:27:32,144 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0023.xml: 12 lines recognized.
+2026-02-06 10:27:32,588 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0024.xml: 12 lines recognized.
+2026-02-06 10:27:32,979 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0025.xml: 11 lines recognized.
+2026-02-06 10:27:33,283 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0026.xml: 10 lines recognized.
+2026-02-06 10:27:33,597 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0027.xml: 11 lines recognized.
+2026-02-06 10:27:33,929 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0028.xml: 11 lines recognized.
+2026-02-06 10:27:34,295 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0029.xml: 11 lines recognized.
+2026-02-06 10:27:34,796 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0030.xml: 12 lines recognized.
+2026-02-06 10:27:35,184 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0031.xml: 12 lines recognized.
+2026-02-06 10:27:35,600 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0032.xml: 13 lines recognized.
+2026-02-06 10:27:36,080 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0033.xml: 11 lines recognized.
+2026-02-06 10:27:36,492 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0034.xml: 11 lines recognized.
+2026-02-06 10:27:36,861 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0035.xml: 12 lines recognized.
+2026-02-06 10:27:37,248 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0036.xml: 12 lines recognized.
+2026-02-06 10:27:37,718 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0037.xml: 13 lines recognized.
+2026-02-06 10:27:38,134 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0038.xml: 12 lines recognized.
+2026-02-06 10:27:38,481 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0039.xml: 12 lines recognized.
+2026-02-06 10:27:38,815 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0040.xml: 12 lines recognized.
+2026-02-06 10:27:39,185 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0041.xml: 10 lines recognized.
+2026-02-06 10:27:39,552 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0042.xml: 11 lines recognized.
+2026-02-06 10:27:40,017 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0043.xml: 12 lines recognized.
+2026-02-06 10:27:40,407 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0044.xml: 12 lines recognized.
+2026-02-06 10:27:40,805 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0045.xml: 12 lines recognized.
+2026-02-06 10:27:41,225 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0046.xml: 12 lines recognized.
+2026-02-06 10:27:41,675 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0047.xml: 13 lines recognized.
+2026-02-06 10:27:42,253 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0048.xml: 13 lines recognized.
+2026-02-06 10:27:42,643 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0049.xml: 10 lines recognized.
+2026-02-06 10:27:43,080 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0050.xml: 11 lines recognized.
+2026-02-06 10:27:43,590 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0051.xml: 14 lines recognized.
+2026-02-06 10:27:43,590 - INFO - Process completed.
+2026-02-06 10:28:41,525 - INFO - Using device: cuda
+2026-02-06 10:28:41,525 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:28:41,982 - INFO - Model loaded successfully.
+2026-02-06 10:28:41,982 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:28:41,982 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:28:42,663 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0002.xml: 20 lines recognized.
+2026-02-06 10:28:43,214 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0003.xml: 20 lines recognized.
+2026-02-06 10:28:43,512 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0004.xml: 10 lines recognized.
+2026-02-06 10:28:43,932 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0005.xml: 16 lines recognized.
+2026-02-06 10:28:44,457 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0006.xml: 20 lines recognized.
+2026-02-06 10:28:44,747 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0007.xml: 12 lines recognized.
+2026-02-06 10:28:45,103 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0008.xml: 15 lines recognized.
+2026-02-06 10:28:45,752 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0009.xml: 20 lines recognized.
+2026-02-06 10:28:46,449 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0010.xml: 22 lines recognized.
+2026-02-06 10:28:46,976 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0011.xml: 18 lines recognized.
+2026-02-06 10:28:47,640 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0012.xml: 22 lines recognized.
+2026-02-06 10:28:48,348 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0013.xml: 23 lines recognized.
+2026-02-06 10:28:49,086 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0014.xml: 26 lines recognized.
+2026-02-06 10:28:49,673 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0015.xml: 19 lines recognized.
+2026-02-06 10:28:50,406 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0016.xml: 25 lines recognized.
+2026-02-06 10:28:50,406 - INFO - Process completed.
+2026-02-06 10:28:56,082 - INFO - Using device: cuda
+2026-02-06 10:28:56,082 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:28:56,542 - INFO - Model loaded successfully.
+2026-02-06 10:28:56,543 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:28:56,543 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:28:57,316 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0002.xml: 23 lines recognized.
+2026-02-06 10:28:57,993 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0003.xml: 22 lines recognized.
+2026-02-06 10:28:58,352 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0004.xml: 13 lines recognized.
+2026-02-06 10:28:58,792 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0005.xml: 16 lines recognized.
+2026-02-06 10:28:59,339 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0006.xml: 22 lines recognized.
+2026-02-06 10:28:59,761 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0007.xml: 15 lines recognized.
+2026-02-06 10:29:00,225 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0008.xml: 18 lines recognized.
+2026-02-06 10:29:00,736 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0009.xml: 19 lines recognized.
+2026-02-06 10:29:01,240 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0010.xml: 20 lines recognized.
+2026-02-06 10:29:01,763 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0011.xml: 18 lines recognized.
+2026-02-06 10:29:02,334 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0012.xml: 23 lines recognized.
+2026-02-06 10:29:02,953 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0013.xml: 21 lines recognized.
+2026-02-06 10:29:03,620 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0014.xml: 28 lines recognized.
+2026-02-06 10:29:04,149 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0015.xml: 21 lines recognized.
+2026-02-06 10:29:04,620 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0016.xml: 25 lines recognized.
+2026-02-06 10:29:04,620 - INFO - Process completed.
+2026-02-06 10:29:16,358 - INFO - Using device: cuda
+2026-02-06 10:29:16,358 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:29:16,804 - INFO - Model loaded successfully.
+2026-02-06 10:29:16,805 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:29:16,805 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:29:17,372 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0002.xml: 12 lines recognized.
+2026-02-06 10:29:17,743 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0003.xml: 12 lines recognized.
+2026-02-06 10:29:18,185 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0004.xml: 15 lines recognized.
+2026-02-06 10:29:18,498 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0005.xml: 12 lines recognized.
+2026-02-06 10:29:18,814 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:29:19,163 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0007.xml: 13 lines recognized.
+2026-02-06 10:29:19,539 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0008.xml: 13 lines recognized.
+2026-02-06 10:29:19,935 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0009.xml: 13 lines recognized.
+2026-02-06 10:29:20,384 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:29:20,783 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0011.xml: 12 lines recognized.
+2026-02-06 10:29:21,222 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:29:21,592 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0013.xml: 14 lines recognized.
+2026-02-06 10:29:22,016 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:29:22,421 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0015.xml: 14 lines recognized.
+2026-02-06 10:29:22,823 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0016.xml: 14 lines recognized.
+2026-02-06 10:29:23,253 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0017.xml: 14 lines recognized.
+2026-02-06 10:29:23,594 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0018.xml: 13 lines recognized.
+2026-02-06 10:29:23,974 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0019.xml: 14 lines recognized.
+2026-02-06 10:29:24,423 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0020.xml: 16 lines recognized.
+2026-02-06 10:29:24,798 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0021.xml: 13 lines recognized.
+2026-02-06 10:29:25,208 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0022.xml: 13 lines recognized.
+2026-02-06 10:29:25,586 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0023.xml: 15 lines recognized.
+2026-02-06 10:29:25,954 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0024.xml: 14 lines recognized.
+2026-02-06 10:29:26,378 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0025.xml: 15 lines recognized.
+2026-02-06 10:29:26,797 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0026.xml: 13 lines recognized.
+2026-02-06 10:29:27,198 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:29:27,542 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0028.xml: 14 lines recognized.
+2026-02-06 10:29:27,830 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:29:28,253 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0030.xml: 17 lines recognized.
+2026-02-06 10:29:28,741 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0031.xml: 14 lines recognized.
+2026-02-06 10:29:29,350 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0032.xml: 16 lines recognized.
+2026-02-06 10:29:29,756 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0033.xml: 14 lines recognized.
+2026-02-06 10:29:30,170 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0034.xml: 14 lines recognized.
+2026-02-06 10:29:30,558 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:29:30,976 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0036.xml: 15 lines recognized.
+2026-02-06 10:29:31,417 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:29:31,796 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0038.xml: 15 lines recognized.
+2026-02-06 10:29:32,190 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:29:32,631 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0040.xml: 16 lines recognized.
+2026-02-06 10:29:33,075 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0041.xml: 15 lines recognized.
+2026-02-06 10:29:33,476 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:29:33,856 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0043.xml: 13 lines recognized.
+2026-02-06 10:29:34,317 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0044.xml: 16 lines recognized.
+2026-02-06 10:29:34,657 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0045.xml: 13 lines recognized.
+2026-02-06 10:29:35,017 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:29:35,449 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:29:35,897 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0048.xml: 16 lines recognized.
+2026-02-06 10:29:36,333 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:29:36,737 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0050.xml: 16 lines recognized.
+2026-02-06 10:29:37,136 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0051.xml: 15 lines recognized.
+2026-02-06 10:29:37,136 - INFO - Process completed.
+2026-02-06 10:29:46,371 - INFO - Using device: cuda
+2026-02-06 10:29:46,371 - INFO - Loading model from pretrained_model/vadakautuhala.pth...
+2026-02-06 10:29:46,828 - INFO - Model loaded successfully.
+2026-02-06 10:29:46,828 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:29:46,828 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:29:47,381 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0002.xml: 12 lines recognized.
+2026-02-06 10:29:47,748 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0003.xml: 12 lines recognized.
+2026-02-06 10:29:48,185 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0004.xml: 15 lines recognized.
+2026-02-06 10:29:48,498 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0005.xml: 12 lines recognized.
+2026-02-06 10:29:48,821 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:29:49,173 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0007.xml: 13 lines recognized.
+2026-02-06 10:29:49,548 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0008.xml: 13 lines recognized.
+2026-02-06 10:29:49,944 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0009.xml: 13 lines recognized.
+2026-02-06 10:29:50,349 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:29:50,704 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0011.xml: 12 lines recognized.
+2026-02-06 10:29:51,126 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:29:51,522 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0013.xml: 14 lines recognized.
+2026-02-06 10:29:51,898 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:29:52,320 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0015.xml: 14 lines recognized.
+2026-02-06 10:29:52,680 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0016.xml: 14 lines recognized.
+2026-02-06 10:29:53,062 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0017.xml: 14 lines recognized.
+2026-02-06 10:29:53,439 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0018.xml: 13 lines recognized.
+2026-02-06 10:29:53,843 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0019.xml: 14 lines recognized.
+2026-02-06 10:29:54,312 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0020.xml: 16 lines recognized.
+2026-02-06 10:29:54,641 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0021.xml: 13 lines recognized.
+2026-02-06 10:29:55,093 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0022.xml: 13 lines recognized.
+2026-02-06 10:29:55,534 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0023.xml: 15 lines recognized.
+2026-02-06 10:29:55,932 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0024.xml: 14 lines recognized.
+2026-02-06 10:29:56,374 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0025.xml: 15 lines recognized.
+2026-02-06 10:29:56,719 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0026.xml: 13 lines recognized.
+2026-02-06 10:29:57,080 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:29:57,474 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0028.xml: 14 lines recognized.
+2026-02-06 10:29:57,852 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:29:58,343 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0030.xml: 17 lines recognized.
+2026-02-06 10:29:58,701 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0031.xml: 14 lines recognized.
+2026-02-06 10:29:59,159 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0032.xml: 16 lines recognized.
+2026-02-06 10:29:59,551 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0033.xml: 14 lines recognized.
+2026-02-06 10:29:59,962 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0034.xml: 15 lines recognized.
+2026-02-06 10:30:00,360 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:30:00,736 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0036.xml: 15 lines recognized.
+2026-02-06 10:30:01,150 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:30:01,571 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0038.xml: 15 lines recognized.
+2026-02-06 10:30:01,978 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:30:02,453 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0040.xml: 16 lines recognized.
+2026-02-06 10:30:02,830 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0041.xml: 15 lines recognized.
+2026-02-06 10:30:03,195 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:30:03,601 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0043.xml: 13 lines recognized.
+2026-02-06 10:30:04,182 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0044.xml: 16 lines recognized.
+2026-02-06 10:30:04,661 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0045.xml: 13 lines recognized.
+2026-02-06 10:30:05,156 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:30:05,528 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:30:05,948 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0048.xml: 16 lines recognized.
+2026-02-06 10:30:06,368 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:30:06,785 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0050.xml: 16 lines recognized.
+2026-02-06 10:30:07,156 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0051.xml: 15 lines recognized.
+2026-02-06 10:30:07,157 - INFO - Process completed.
+2026-02-06 10:36:14,032 - INFO - Using device: cuda
+2026-02-06 10:36:14,032 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:36:14,545 - INFO - Model loaded successfully.
+2026-02-06 10:36:14,546 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:36:14,546 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:36:15,154 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0002.xml: 15 lines recognized.
+2026-02-06 10:36:15,717 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0003.xml: 21 lines recognized.
+2026-02-06 10:36:16,161 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0004.xml: 13 lines recognized.
+2026-02-06 10:36:16,579 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0005.xml: 12 lines recognized.
+2026-02-06 10:36:17,154 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0006.xml: 17 lines recognized.
+2026-02-06 10:36:17,516 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0007.xml: 12 lines recognized.
+2026-02-06 10:36:18,089 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0008.xml: 19 lines recognized.
+2026-02-06 10:36:18,626 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0009.xml: 18 lines recognized.
+2026-02-06 10:36:19,270 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0010.xml: 19 lines recognized.
+2026-02-06 10:36:19,747 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0011.xml: 18 lines recognized.
+2026-02-06 10:36:20,338 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0012.xml: 22 lines recognized.
+2026-02-06 10:36:20,852 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0013.xml: 17 lines recognized.
+2026-02-06 10:36:21,391 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0014.xml: 21 lines recognized.
+2026-02-06 10:36:21,863 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0015.xml: 16 lines recognized.
+2026-02-06 10:36:22,485 - INFO - Updated ../../downstream_eval/complex/pretrained_docufcn_easyocr_v2/233_0016.xml: 26 lines recognized.
+2026-02-06 10:36:22,485 - INFO - Process completed.
+2026-02-06 10:36:33,730 - INFO - Using device: cuda
+2026-02-06 10:36:33,730 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:36:34,185 - INFO - Model loaded successfully.
+2026-02-06 10:36:34,186 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:36:34,186 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:36:34,915 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0002.xml: 16 lines recognized.
+2026-02-06 10:36:35,429 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0003.xml: 15 lines recognized.
+2026-02-06 10:36:35,787 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0004.xml: 12 lines recognized.
+2026-02-06 10:36:36,198 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0005.xml: 15 lines recognized.
+2026-02-06 10:36:36,594 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:36:36,970 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0007.xml: 15 lines recognized.
+2026-02-06 10:36:37,310 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0008.xml: 12 lines recognized.
+2026-02-06 10:36:37,654 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0009.xml: 12 lines recognized.
+2026-02-06 10:36:38,094 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:36:38,535 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0011.xml: 15 lines recognized.
+2026-02-06 10:36:38,929 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:36:39,438 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0013.xml: 18 lines recognized.
+2026-02-06 10:36:39,903 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:36:40,303 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0015.xml: 12 lines recognized.
+2026-02-06 10:36:40,754 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0016.xml: 13 lines recognized.
+2026-02-06 10:36:41,232 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0017.xml: 15 lines recognized.
+2026-02-06 10:36:41,737 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0018.xml: 15 lines recognized.
+2026-02-06 10:36:42,180 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0019.xml: 16 lines recognized.
+2026-02-06 10:36:42,591 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0020.xml: 15 lines recognized.
+2026-02-06 10:36:42,985 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0021.xml: 14 lines recognized.
+2026-02-06 10:36:43,467 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0022.xml: 16 lines recognized.
+2026-02-06 10:36:43,842 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0023.xml: 12 lines recognized.
+2026-02-06 10:36:44,318 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0024.xml: 15 lines recognized.
+2026-02-06 10:36:44,856 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0025.xml: 16 lines recognized.
+2026-02-06 10:36:45,294 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0026.xml: 15 lines recognized.
+2026-02-06 10:36:45,693 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:36:46,089 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0028.xml: 13 lines recognized.
+2026-02-06 10:36:46,486 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:36:46,920 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0030.xml: 16 lines recognized.
+2026-02-06 10:36:47,336 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0031.xml: 15 lines recognized.
+2026-02-06 10:36:47,783 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0032.xml: 15 lines recognized.
+2026-02-06 10:36:48,192 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0033.xml: 15 lines recognized.
+2026-02-06 10:36:48,646 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0034.xml: 16 lines recognized.
+2026-02-06 10:36:49,018 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:36:49,379 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0036.xml: 13 lines recognized.
+2026-02-06 10:36:49,842 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:36:50,153 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0038.xml: 12 lines recognized.
+2026-02-06 10:36:50,538 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:36:51,037 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0040.xml: 19 lines recognized.
+2026-02-06 10:36:51,413 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0041.xml: 13 lines recognized.
+2026-02-06 10:36:51,833 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:36:52,243 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0043.xml: 15 lines recognized.
+2026-02-06 10:36:52,577 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0044.xml: 12 lines recognized.
+2026-02-06 10:36:53,049 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0045.xml: 14 lines recognized.
+2026-02-06 10:36:53,494 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:36:53,968 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:36:54,461 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0048.xml: 15 lines recognized.
+2026-02-06 10:36:54,908 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:36:55,331 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0050.xml: 17 lines recognized.
+2026-02-06 10:36:55,838 - INFO - Updated ../../downstream_eval/simple/pretrained_docufcn_easyocr_v2/3976_0051.xml: 18 lines recognized.
+2026-02-06 10:36:55,838 - INFO - Process completed.
+2026-02-06 10:37:28,387 - INFO - Using device: cuda
+2026-02-06 10:37:28,387 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:37:28,848 - INFO - Model loaded successfully.
+2026-02-06 10:37:28,848 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:37:28,848 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:37:29,398 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0002.xml: 11 lines recognized.
+2026-02-06 10:37:29,771 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0003.xml: 12 lines recognized.
+2026-02-06 10:37:30,089 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0004.xml: 9 lines recognized.
+2026-02-06 10:37:30,302 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0005.xml: 7 lines recognized.
+2026-02-06 10:37:30,646 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0006.xml: 11 lines recognized.
+2026-02-06 10:37:30,871 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0007.xml: 8 lines recognized.
+2026-02-06 10:37:31,153 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0008.xml: 9 lines recognized.
+2026-02-06 10:37:31,433 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0009.xml: 8 lines recognized.
+2026-02-06 10:37:31,726 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0010.xml: 9 lines recognized.
+2026-02-06 10:37:32,051 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0011.xml: 9 lines recognized.
+2026-02-06 10:37:32,387 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0012.xml: 10 lines recognized.
+2026-02-06 10:37:32,755 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0013.xml: 11 lines recognized.
+2026-02-06 10:37:33,153 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0014.xml: 9 lines recognized.
+2026-02-06 10:37:33,418 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0015.xml: 9 lines recognized.
+2026-02-06 10:37:33,649 - INFO - Updated ../../downstream_eval/complex/pretrained_seamformer_easyocr_v2/233_0016.xml: 8 lines recognized.
+2026-02-06 10:37:33,650 - INFO - Process completed.
+2026-02-06 10:37:41,614 - INFO - Using device: cuda
+2026-02-06 10:37:41,615 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:37:42,074 - INFO - Model loaded successfully.
+2026-02-06 10:37:42,074 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:37:42,075 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:37:42,720 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0002.xml: 11 lines recognized.
+2026-02-06 10:37:43,171 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0003.xml: 11 lines recognized.
+2026-02-06 10:37:43,578 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0004.xml: 11 lines recognized.
+2026-02-06 10:37:44,032 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0005.xml: 11 lines recognized.
+2026-02-06 10:37:44,421 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0006.xml: 11 lines recognized.
+2026-02-06 10:37:44,800 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0007.xml: 10 lines recognized.
+2026-02-06 10:37:45,236 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0008.xml: 11 lines recognized.
+2026-02-06 10:37:45,619 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0009.xml: 10 lines recognized.
+2026-02-06 10:37:46,009 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0010.xml: 11 lines recognized.
+2026-02-06 10:37:46,471 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0011.xml: 11 lines recognized.
+2026-02-06 10:37:46,926 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0012.xml: 10 lines recognized.
+2026-02-06 10:37:47,337 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0013.xml: 10 lines recognized.
+2026-02-06 10:37:47,749 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0014.xml: 11 lines recognized.
+2026-02-06 10:37:48,158 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0015.xml: 11 lines recognized.
+2026-02-06 10:37:48,628 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0016.xml: 12 lines recognized.
+2026-02-06 10:37:49,042 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0017.xml: 11 lines recognized.
+2026-02-06 10:37:49,515 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0018.xml: 12 lines recognized.
+2026-02-06 10:37:49,930 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0019.xml: 12 lines recognized.
+2026-02-06 10:37:50,305 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0020.xml: 12 lines recognized.
+2026-02-06 10:37:50,670 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0021.xml: 10 lines recognized.
+2026-02-06 10:37:51,097 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0022.xml: 12 lines recognized.
+2026-02-06 10:37:51,515 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0023.xml: 12 lines recognized.
+2026-02-06 10:37:51,928 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0024.xml: 12 lines recognized.
+2026-02-06 10:37:52,242 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0025.xml: 11 lines recognized.
+2026-02-06 10:37:52,616 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0026.xml: 10 lines recognized.
+2026-02-06 10:37:52,983 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0027.xml: 11 lines recognized.
+2026-02-06 10:37:53,365 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0028.xml: 11 lines recognized.
+2026-02-06 10:37:53,723 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0029.xml: 11 lines recognized.
+2026-02-06 10:37:54,169 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0030.xml: 12 lines recognized.
+2026-02-06 10:37:54,614 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0031.xml: 12 lines recognized.
+2026-02-06 10:37:54,983 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0032.xml: 13 lines recognized.
+2026-02-06 10:37:55,298 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0033.xml: 11 lines recognized.
+2026-02-06 10:37:55,634 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0034.xml: 11 lines recognized.
+2026-02-06 10:37:55,976 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0035.xml: 12 lines recognized.
+2026-02-06 10:37:56,301 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0036.xml: 12 lines recognized.
+2026-02-06 10:37:56,800 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0037.xml: 13 lines recognized.
+2026-02-06 10:37:57,249 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0038.xml: 12 lines recognized.
+2026-02-06 10:37:57,669 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0039.xml: 12 lines recognized.
+2026-02-06 10:37:58,014 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0040.xml: 12 lines recognized.
+2026-02-06 10:37:58,308 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0041.xml: 10 lines recognized.
+2026-02-06 10:37:58,657 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0042.xml: 11 lines recognized.
+2026-02-06 10:37:59,105 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0043.xml: 12 lines recognized.
+2026-02-06 10:37:59,520 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0044.xml: 12 lines recognized.
+2026-02-06 10:37:59,929 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0045.xml: 12 lines recognized.
+2026-02-06 10:38:00,290 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0046.xml: 12 lines recognized.
+2026-02-06 10:38:00,736 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0047.xml: 13 lines recognized.
+2026-02-06 10:38:01,169 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0048.xml: 13 lines recognized.
+2026-02-06 10:38:01,502 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0049.xml: 10 lines recognized.
+2026-02-06 10:38:01,873 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0050.xml: 11 lines recognized.
+2026-02-06 10:38:02,321 - INFO - Updated ../../downstream_eval/simple/pretrained_seamformer_easyocr_v2/3976_0051.xml: 14 lines recognized.
+2026-02-06 10:38:02,322 - INFO - Process completed.
+2026-02-06 10:38:18,763 - INFO - Using device: cuda
+2026-02-06 10:38:18,763 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:38:19,222 - INFO - Model loaded successfully.
+2026-02-06 10:38:19,223 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:38:19,223 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:38:19,935 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0002.xml: 20 lines recognized.
+2026-02-06 10:38:20,467 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0003.xml: 20 lines recognized.
+2026-02-06 10:38:20,764 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0004.xml: 10 lines recognized.
+2026-02-06 10:38:21,192 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0005.xml: 16 lines recognized.
+2026-02-06 10:38:21,748 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0006.xml: 20 lines recognized.
+2026-02-06 10:38:22,118 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0007.xml: 12 lines recognized.
+2026-02-06 10:38:22,603 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0008.xml: 15 lines recognized.
+2026-02-06 10:38:23,188 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0009.xml: 20 lines recognized.
+2026-02-06 10:38:23,842 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0010.xml: 22 lines recognized.
+2026-02-06 10:38:24,407 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0011.xml: 18 lines recognized.
+2026-02-06 10:38:25,003 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0012.xml: 22 lines recognized.
+2026-02-06 10:38:25,608 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0013.xml: 23 lines recognized.
+2026-02-06 10:38:26,336 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0014.xml: 26 lines recognized.
+2026-02-06 10:38:26,932 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0015.xml: 19 lines recognized.
+2026-02-06 10:38:27,664 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr/233_0016.xml: 25 lines recognized.
+2026-02-06 10:38:27,664 - INFO - Process completed.
+2026-02-06 10:38:41,902 - INFO - Using device: cuda
+2026-02-06 10:38:41,902 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:38:42,407 - INFO - Model loaded successfully.
+2026-02-06 10:38:42,408 - INFO - Found 15 XML files. Starting processing...
+2026-02-06 10:38:42,408 - INFO - Looking for images in: ../../downstream_eval/complex/images
+2026-02-06 10:38:43,442 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0002.xml: 23 lines recognized.
+2026-02-06 10:38:44,047 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0003.xml: 22 lines recognized.
+2026-02-06 10:38:44,423 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0004.xml: 13 lines recognized.
+2026-02-06 10:38:44,885 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0005.xml: 16 lines recognized.
+2026-02-06 10:38:45,408 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0006.xml: 22 lines recognized.
+2026-02-06 10:38:45,806 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0007.xml: 15 lines recognized.
+2026-02-06 10:38:46,289 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0008.xml: 18 lines recognized.
+2026-02-06 10:38:46,973 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0009.xml: 19 lines recognized.
+2026-02-06 10:38:47,691 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0010.xml: 20 lines recognized.
+2026-02-06 10:38:48,205 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0011.xml: 18 lines recognized.
+2026-02-06 10:38:48,859 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0012.xml: 23 lines recognized.
+2026-02-06 10:38:49,448 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0013.xml: 21 lines recognized.
+2026-02-06 10:38:50,208 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0014.xml: 28 lines recognized.
+2026-02-06 10:38:50,771 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0015.xml: 21 lines recognized.
+2026-02-06 10:38:51,438 - INFO - Updated ../../downstream_eval/complex/pretrained_gnn_easyocr_perfectlayout/233_0016.xml: 25 lines recognized.
+2026-02-06 10:38:51,438 - INFO - Process completed.
+2026-02-06 10:39:10,537 - INFO - Using device: cuda
+2026-02-06 10:39:10,537 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:39:11,050 - INFO - Model loaded successfully.
+2026-02-06 10:39:11,050 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:39:11,050 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:39:11,654 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0002.xml: 12 lines recognized.
+2026-02-06 10:39:12,176 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0003.xml: 12 lines recognized.
+2026-02-06 10:39:12,673 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0004.xml: 15 lines recognized.
+2026-02-06 10:39:13,083 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0005.xml: 12 lines recognized.
+2026-02-06 10:39:13,557 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:39:13,997 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0007.xml: 13 lines recognized.
+2026-02-06 10:39:14,475 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0008.xml: 13 lines recognized.
+2026-02-06 10:39:14,913 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0009.xml: 13 lines recognized.
+2026-02-06 10:39:15,469 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:39:15,879 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0011.xml: 12 lines recognized.
+2026-02-06 10:39:16,467 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:39:17,081 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0013.xml: 14 lines recognized.
+2026-02-06 10:39:17,582 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:39:17,995 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0015.xml: 14 lines recognized.
+2026-02-06 10:39:18,433 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0016.xml: 14 lines recognized.
+2026-02-06 10:39:18,857 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0017.xml: 14 lines recognized.
+2026-02-06 10:39:19,311 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0018.xml: 13 lines recognized.
+2026-02-06 10:39:19,774 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0019.xml: 14 lines recognized.
+2026-02-06 10:39:20,353 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0020.xml: 16 lines recognized.
+2026-02-06 10:39:20,748 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0021.xml: 13 lines recognized.
+2026-02-06 10:39:21,165 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0022.xml: 13 lines recognized.
+2026-02-06 10:39:21,633 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0023.xml: 15 lines recognized.
+2026-02-06 10:39:22,020 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0024.xml: 14 lines recognized.
+2026-02-06 10:39:22,455 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0025.xml: 15 lines recognized.
+2026-02-06 10:39:22,864 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0026.xml: 13 lines recognized.
+2026-02-06 10:39:23,269 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:39:23,711 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0028.xml: 14 lines recognized.
+2026-02-06 10:39:24,110 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:39:24,631 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0030.xml: 17 lines recognized.
+2026-02-06 10:39:25,005 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0031.xml: 14 lines recognized.
+2026-02-06 10:39:25,463 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0032.xml: 16 lines recognized.
+2026-02-06 10:39:25,885 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0033.xml: 14 lines recognized.
+2026-02-06 10:39:26,400 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0034.xml: 14 lines recognized.
+2026-02-06 10:39:27,019 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:39:27,666 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0036.xml: 15 lines recognized.
+2026-02-06 10:39:28,142 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:39:28,661 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0038.xml: 15 lines recognized.
+2026-02-06 10:39:29,048 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:39:29,539 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0040.xml: 16 lines recognized.
+2026-02-06 10:39:30,020 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0041.xml: 15 lines recognized.
+2026-02-06 10:39:30,474 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:39:30,883 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0043.xml: 13 lines recognized.
+2026-02-06 10:39:31,348 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0044.xml: 16 lines recognized.
+2026-02-06 10:39:31,789 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0045.xml: 13 lines recognized.
+2026-02-06 10:39:32,327 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:39:32,875 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:39:33,392 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0048.xml: 16 lines recognized.
+2026-02-06 10:39:33,922 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:39:34,489 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0050.xml: 16 lines recognized.
+2026-02-06 10:39:34,943 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr/3976_0051.xml: 15 lines recognized.
+2026-02-06 10:39:34,943 - INFO - Process completed.
+2026-02-06 10:39:55,545 - INFO - Using device: cuda
+2026-02-06 10:39:55,545 - INFO - Loading model from pretrained_model/devanagari.pth...
+2026-02-06 10:39:56,058 - INFO - Model loaded successfully.
+2026-02-06 10:39:56,059 - INFO - Found 50 XML files. Starting processing...
+2026-02-06 10:39:56,059 - INFO - Looking for images in: ../../downstream_eval/simple/images
+2026-02-06 10:39:56,656 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0002.xml: 12 lines recognized.
+2026-02-06 10:39:57,062 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0003.xml: 12 lines recognized.
+2026-02-06 10:39:57,557 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0004.xml: 15 lines recognized.
+2026-02-06 10:39:57,865 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0005.xml: 12 lines recognized.
+2026-02-06 10:39:58,219 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0006.xml: 13 lines recognized.
+2026-02-06 10:39:58,618 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0007.xml: 13 lines recognized.
+2026-02-06 10:39:59,020 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0008.xml: 13 lines recognized.
+2026-02-06 10:39:59,477 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0009.xml: 13 lines recognized.
+2026-02-06 10:39:59,889 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0010.xml: 16 lines recognized.
+2026-02-06 10:40:00,185 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0011.xml: 12 lines recognized.
+2026-02-06 10:40:00,645 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0012.xml: 14 lines recognized.
+2026-02-06 10:40:01,123 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0013.xml: 14 lines recognized.
+2026-02-06 10:40:01,637 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0014.xml: 13 lines recognized.
+2026-02-06 10:40:01,998 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0015.xml: 14 lines recognized.
+2026-02-06 10:40:02,377 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0016.xml: 14 lines recognized.
+2026-02-06 10:40:02,860 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0017.xml: 14 lines recognized.
+2026-02-06 10:40:03,375 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0018.xml: 13 lines recognized.
+2026-02-06 10:40:03,856 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0019.xml: 14 lines recognized.
+2026-02-06 10:40:04,458 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0020.xml: 16 lines recognized.
+2026-02-06 10:40:04,855 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0021.xml: 13 lines recognized.
+2026-02-06 10:40:05,254 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0022.xml: 13 lines recognized.
+2026-02-06 10:40:05,866 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0023.xml: 15 lines recognized.
+2026-02-06 10:40:06,455 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0024.xml: 14 lines recognized.
+2026-02-06 10:40:06,945 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0025.xml: 15 lines recognized.
+2026-02-06 10:40:07,495 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0026.xml: 13 lines recognized.
+2026-02-06 10:40:08,025 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0027.xml: 13 lines recognized.
+2026-02-06 10:40:08,614 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0028.xml: 14 lines recognized.
+2026-02-06 10:40:09,116 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0029.xml: 13 lines recognized.
+2026-02-06 10:40:09,615 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0030.xml: 17 lines recognized.
+2026-02-06 10:40:10,026 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0031.xml: 14 lines recognized.
+2026-02-06 10:40:10,573 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0032.xml: 16 lines recognized.
+2026-02-06 10:40:11,024 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0033.xml: 14 lines recognized.
+2026-02-06 10:40:11,535 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0034.xml: 15 lines recognized.
+2026-02-06 10:40:11,971 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0035.xml: 13 lines recognized.
+2026-02-06 10:40:12,481 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0036.xml: 15 lines recognized.
+2026-02-06 10:40:13,000 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0037.xml: 16 lines recognized.
+2026-02-06 10:40:13,518 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0038.xml: 15 lines recognized.
+2026-02-06 10:40:13,982 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0039.xml: 14 lines recognized.
+2026-02-06 10:40:14,526 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0040.xml: 16 lines recognized.
+2026-02-06 10:40:15,012 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0041.xml: 15 lines recognized.
+2026-02-06 10:40:15,504 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0042.xml: 14 lines recognized.
+2026-02-06 10:40:15,942 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0043.xml: 13 lines recognized.
+2026-02-06 10:40:16,486 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0044.xml: 16 lines recognized.
+2026-02-06 10:40:16,929 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0045.xml: 13 lines recognized.
+2026-02-06 10:40:17,342 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0046.xml: 14 lines recognized.
+2026-02-06 10:40:17,770 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0047.xml: 14 lines recognized.
+2026-02-06 10:40:18,178 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0048.xml: 16 lines recognized.
+2026-02-06 10:40:18,581 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0049.xml: 14 lines recognized.
+2026-02-06 10:40:19,037 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0050.xml: 16 lines recognized.
+2026-02-06 10:40:19,505 - INFO - Updated ../../downstream_eval/simple/pretrained_gnn_easyocr_perfectlayout/3976_0051.xml: 15 lines recognized.
+2026-02-06 10:40:19,505 - INFO - Process completed.
