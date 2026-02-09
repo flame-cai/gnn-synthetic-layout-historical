@@ -5,6 +5,9 @@
 **/training_runs/
 **/__pycache__/
 
+app/recognition/pretrained_model/devanagari.pth
+app/recognition/pretrained_model/vadakautuhala.pth
+
 
 # Vue app (app/my-app)
 app/my-app/node_modules/
@@ -14,6 +17,7 @@ app/my-app/.vite/
 # Env files
 app/my-app/.env
 app/my-app/.env.*
+app/.env
 
 # Logs
 app/my-app/npm-debug.log*
