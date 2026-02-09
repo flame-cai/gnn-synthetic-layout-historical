@@ -21,7 +21,7 @@ In this work we formulate the text-line segmentation task as an edge classificat
 ## **Getting Started**
 Clone the repository:
 ```bash
-git clone https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+git clone --depth 1 --branch human-in-the-loop https://github.com/flame-cai/gnn-synthetic-layout-historical.git
 ```
 
 #### Install Conda Environment
