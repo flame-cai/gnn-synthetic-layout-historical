@@ -33,6 +33,10 @@ cd gnn-synthetic-layout-historical
 conda env create -f environment.yaml
 conda activate gnn_layout
 ```
+After activating the environment, run:
+```bash
+pip install torch-spline-conv -f https://data.pyg.org/whl/torch-2.4.1+cu121.html
+```
 
 
 ## **Semi Automatic Annotation Tool**

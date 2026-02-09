@@ -40,5 +40,4 @@ dependencies:
     - wandb
     - nvidia-ml-py3
     - lxml
-    - torch-spline-conv
     
