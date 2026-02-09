@@ -32,6 +32,10 @@ cd gnn-synthetic-layout-historical
 conda env create -f environment.yaml
 conda activate gnn_layout
 ```
+After activating the environment, run:
+```bash
+pip install torch-spline-conv -f https://data.pyg.org/whl/torch-2.4.1+cu121.html
+```
 
 
 ## **Semi Automatic Annotation Tool**
@@ -60,7 +64,7 @@ The server runs on `http://localhost:5000`.
 #### 2 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
-Create a .env file in `app/my-app/` with the following content:
+Create a .env file in `app/my-app/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
 
 ```env
 VITE_BACKEND_URL="http://localhost:5000"
