@@ -21,3 +21,6 @@ app/my-app/.env.*
 
 # Logs
 app/my-app/npm-debug.log*
+
+# all .pth files (model checkpoints)
+**.pth
