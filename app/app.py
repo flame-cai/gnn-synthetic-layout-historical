@@ -1,8 +1,30 @@
 # app.py
+import os
+import sys
+import torch
+
+# --- NEW IMPORTS FOR LOCAL OCR ---
+# Ensure we can import from the recognition folder
+sys.path.append(os.path.join(os.path.dirname(__file__), 'recognition'))
+
+try:
+    from recognition.recognize_manuscript_text_v2_pretrained import (
+        process_page_xml, 
+        load_ocr_model, 
+        get_model_config
+    )
+except ImportError:
+    print("Warning: Could not import local recognition modules. Ensure 'recognition' folder exists.")
+
+# Global variable to hold the loaded model so we don't reload it every request
+OCR_GLOBAL_CONTEXT = None
+OCR_MODEL_PATH = "./recognition/pretrained_model/vadakautuhala.pth" # Adjust path if necessary
+
+
 import threading 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-import os
+
 import shutil
 from pathlib import Path
 import base64
@@ -119,6 +141,89 @@ def get_existing_text_content(xml_path):
     
     return {"text": text_content, "confidences": confidences}
 
+
+def get_ocr_context():
+    """
+    Singleton to load the OCR model and config only once.
+    """
+    global OCR_GLOBAL_CONTEXT
+    if OCR_GLOBAL_CONTEXT is not None:
+        return OCR_GLOBAL_CONTEXT
+
+    if not os.path.exists(OCR_MODEL_PATH):
+        print(f"Error: OCR Model not found at {OCR_MODEL_PATH}")
+        return None
+
+    try:
+        print("Loading Local OCR Model...")
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        config = get_model_config(OCR_MODEL_PATH)
+        model, converter = load_ocr_model(config, device)
+        
+        OCR_GLOBAL_CONTEXT = {
+            'model': model,
+            'converter': converter,
+            'config': config,
+            'device': device
+        }
+        print("Local OCR Model Loaded Successfully.")
+        return OCR_GLOBAL_CONTEXT
+    except Exception as e:
+        print(f"Failed to load OCR model: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+def _run_local_recognition_internal(manuscript, page):
+    """
+    Drop-in replacement for Gemini OCR using local EasyOCR/PyTorch.
+    1. Loads model (if not loaded).
+    2. Runs process_page_xml (crops, infers, updates XML).
+    3. Reads updated XML and returns text/confidences.
+    """
+    print(f"[{page}] Starting Local Recognition...")
+    
+    # 1. Path Setup
+    base_path = Path(UPLOAD_FOLDER) / manuscript
+    xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    
+    # Image search paths: Look in original images and resized images
+    image_dirs = [
+        str(base_path / "images"),
+        str(base_path / "images_resized")
+    ]
+
+    if not xml_path.exists():
+        print(f"[{page}] XML file not found: {xml_path}")
+        return {}
+
+    # 2. Get Model Context
+    ctx = get_ocr_context()
+    if not ctx:
+        return {"error": "OCR Model could not be loaded"}
+
+    try:
+        # 3. Run Inference (Modifies XML in-place)
+        # We assume single-threaded access to the model for inference is 'safe enough' 
+        # via Flask, or process_page_xml handles data loading internally.
+        process_page_xml(
+            str(xml_path), 
+            image_dirs, 
+            ctx['model'], 
+            ctx['converter'], 
+            ctx['config'], 
+            ctx['device']
+        )
+        
+        # 4. Read back the results from the updated XML
+        # We reuse your existing helper function
+        return get_existing_text_content(str(xml_path))
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Local Recognition Error: {e}")
+        return {}
 
 @app.route('/upload', methods=['POST'])
 def upload_manuscript():
@@ -292,6 +397,9 @@ def ensemble_text_samples(samples):
 
     return "".join(result_chars), result_confidences
 
+
+
+# TODO write a drop-in replacement function which will use a function similar to the process_page_xml function in recognize_manuscript_text_v2_pretrained.py.
 def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_points=4):
     print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
     
@@ -746,6 +854,11 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
 #         print(f"Internal Recognition Error: {e}")
 #         return {}
 
+
+
+
+
+
 @app.route('/existing-manuscripts', methods=['GET'])
 def list_existing_manuscripts():
     if not os.path.exists(UPLOAD_FOLDER):
@@ -794,7 +907,8 @@ def save_correction(manuscript, page):
 
         if run_recognition: 
             def background_task(m, p, k):
-                _run_gemini_recognition_internal(m, p, k)
+                # _run_gemini_recognition_internal(m, p, k)
+                _run_local_recognition_internal(m, p)
 
             thread = threading.Thread(target=background_task, args=(manuscript, page, None), daemon=True)
             thread.start()
@@ -819,7 +933,9 @@ def recognize_text():
     if not api_key:
         return jsonify({"error": "API Key required"}), 400
 
-    result = _run_gemini_recognition_internal(manuscript, page, api_key)
+    # result = _run_gemini_recognition_internal(manuscript, page, api_key)
+    result = _run_local_recognition_internal(manuscript, page)
+
     return jsonify(result)
 
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
