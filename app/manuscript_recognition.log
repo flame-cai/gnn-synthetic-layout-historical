@@ -133,3 +133,5 @@
 2026-02-26 10:37:57,821 - INFO - 127.0.0.1 - - [26/Feb/2026 10:37:57] "POST /semi-segment/my_manuscript12/233_0011 HTTP/1.1" 200 -
 2026-02-26 10:38:17,080 - INFO - 127.0.0.1 - - [26/Feb/2026 10:38:17] "OPTIONS /semi-segment/my_manuscript12/233_0011 HTTP/1.1" 200 -
 2026-02-26 10:38:17,775 - INFO - 127.0.0.1 - - [26/Feb/2026 10:38:17] "POST /semi-segment/my_manuscript12/233_0011 HTTP/1.1" 200 -
+2026-02-26 11:39:51,238 - WARNING -  * Debugger is active!
+2026-02-26 11:39:51,238 - INFO -  * Debugger PIN: 855-131-808
