@@ -84,7 +84,7 @@ def save_augmented_data(page_id: str, output_dir: Path, dims: dict, points: np.n
 def copy_original_data(page_id: str, input_dir: Path, output_dir: Path):
     """Copies the three original data files for a page to a new directory."""
     try:
-        file_suffixes = ["_dims.txt", "_inputs_unnormalized.txt","_inputs_normalized.txt", "_labels_textline.txt"]
+        file_suffixes = ["_dims.txt", "_inputs_unnormalized.txt","_inputs_normalized.txt", "_labels_textline.txt", "_labels_region.txt"]
         for suffix in file_suffixes:
             source_file = input_dir / f"{page_id}{suffix}"
             if source_file.exists():
@@ -291,9 +291,6 @@ def main():
     logging.info(f"Successfully generated: {len(tasks) - len(errors)} augmented samples.")
     if errors:
         logging.warning(f"Encountered {len(errors)} errors during augmentation. See logs for details.")
-
-if __name__ == "__main__":
-    main()
 
 if __name__ == "__main__":
     main()
