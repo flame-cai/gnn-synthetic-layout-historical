@@ -82,6 +82,20 @@ class SyntheticManuscriptGenerator:
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
         print(f"Starting dataset generation...")
+        # --- Detect highest existing sample index to continue numbering ---
+        existing = list(self.output_dir.glob("*_dims.txt"))
+        if existing:
+            try:
+                # Extract numeric prefixes
+                existing_ids = [int(f.stem.split("_")[0]) for f in existing]
+                start_index_offset = max(existing_ids) + 1
+            except Exception as e:
+                print(f"[WARN] Failed to parse existing file indices: {e}")
+                start_index_offset = 0
+        else:
+            start_index_offset = 0
+
+        print(f"[INFO] Continuing dataset from index: {start_index_offset}")
         print(f" - Mode: {'Dry Run' if dry_run else 'Full Generation'}")
         print(f" - Number of samples to generate: {num_samples}")
         print(f" - Output directory: {self.output_dir.resolve()}")
@@ -95,11 +109,10 @@ class SyntheticManuscriptGenerator:
         if num_workers > 1:
             print(f" - Using {num_workers} parallel workers.")
             with Pool(processes=num_workers) as pool:
-                results = list(tqdm(pool.imap(worker_func, range(num_samples)), total=num_samples, desc="Generating Samples"))
+                results = list(tqdm(pool.imap(worker_func, range(start_index_offset, start_index_offset + num_samples)), total=num_samples, desc="Generating Samples"))
         else:
             print(" - Using a single process (sequential).")
-            results = [worker_func(i) for i in tqdm(range(num_samples), desc="Generating Samples")]
-        
+            results = [worker_func(i) for i in tqdm(range(start_index_offset, start_index_offset + num_samples), desc="Generating Samples")]        
         errors = [r for r in results if r is not None]
         if errors:
             print(f"\nEncountered {len(errors)} errors during generation:")

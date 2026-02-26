@@ -1,7 +1,7 @@
 # augmentation.yaml
 
 general:
-  num_augmentations_per_sample: 10
+  num_augmentations_per_sample: 50
   num_workers: -1 # Use all available CPU cores
   base_seed: 42
   visualize: false # Creates a PNG of some augmented samples
@@ -17,8 +17,8 @@ phase1_content:
 
   point_level_jitter:
     enabled: true
-    probability: 0.9
-    jitter_std_factor: { dist: "uniform_float", min: 0.03, max: 0.1 } # Milder jitter
+    probability: 1.0
+    jitter_std_factor: { dist: "uniform_float", min: 0.05, max: 0.2 } # Milder jitter
 
 # --- Phase 2: Geometric Distortions (Applied to whole page) ---
 # These are applied sequentially, each with its own probability.

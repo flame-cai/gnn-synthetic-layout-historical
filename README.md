@@ -144,7 +144,7 @@ python synthetic_data_gen/generate.py --dry-run --config configs/synthetic.yaml 
 python synthetic_data_gen/generate.py --config configs/synthetic.yaml
 ```
 
-This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the generated synthetic data files in the graph based format.
+This will create a new folder `src/gnn_data/generated_synthetic_data/` with all the generated synthetic data files in the graph based format.
 
 This script peforms domain randomization to generate synthetic layout data simulating complex layouts in the graph based formulation introduced in this project. Both the synthetic data and the real data use the same graph based format, making it easy to integrate synthetic data into training pipelines.
 

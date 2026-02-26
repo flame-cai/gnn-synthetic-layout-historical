@@ -3,7 +3,7 @@
 generation:
   num_samples: 20000 # set this less than 50 to enable dry run and visualize
   num_workers: -1 # -1 means use all available CPU cores
-  base_seed: 42
+  base_seed: 43
   output_dir: "./gnn_data/generated_synthetic_data"
 
 # --- Visualization Settings ---
@@ -21,11 +21,11 @@ page:
 
   # Define the distributions for each side type.
   # Ensure these ranges have minimal overlap to create distinct rectangles.
-  long_side: { dist: "uniform_int", min: 900, max: 1100 }
-  short_side: { dist: "uniform_int", min: 622, max: 722 }
+  long_side: { dist: "uniform_int", min: 900, max: 1500 }
+  short_side: { dist: "uniform_int", min: 400, max: 899 }
   
   # Define the distribution for the 'square' case.
-  square_side: { dist: "uniform_int", min: 800, max: 1200 }
+  square_side: { dist: "uniform_int", min: 800, max: 1000 }
 
   
   layout_strategy:
@@ -37,8 +37,8 @@ page:
 # --- Layout Strategy: Rejection Sampling ---
 rejection_sampling:
   num_textboxes: { dist: "uniform_int", min: 1, max: 10 }
-  max_placement_attempts: { dist: "uniform_int", min: 30, max: 50 } # N attempts
-  max_box_generation_attempts: { dist: "uniform_int", min: 30, max: 50 } # K attempts
+  max_placement_attempts: { dist: "uniform_int", min: 10, max: 10 } # N attempts
+  max_box_generation_attempts: { dist: "uniform_int", min: 10, max: 10 } # K attempts
   textbox_type_probabilities:
     main_text: 0.70
     marginalia: 0.15
@@ -106,14 +106,14 @@ textbox_content:
   point_level_jitter:
     enabled: true
     # Jitter is relative to font size
-    jitter_std_factor: { dist: "uniform_float", min: 0.05, max: 0.15 }
+    jitter_std_factor: { dist: "uniform_float", min: 0.0, max: 0.20 }
 
   congestion_jitter:
     enabled: true
     # Percentage of points to be heavily jittered
-    percentage: { dist: "uniform_float", min: 0.0, max: 0.02 }
+    percentage: { dist: "uniform_float", min: 0.0, max: 0.05 }
     # Jitter strength as a multiplier of line spacing
-    strength_factor: { dist: "uniform_float", min: 0.1, max: 0.25 }
+    strength_factor: { dist: "uniform_float", min: 0.1, max: 0.20 }
 
 
 # --- TextBox Geometric Distortion (Phase 2) ---
@@ -167,7 +167,7 @@ page_augmentations:
   # Point Dropout (Missing Characters)
   point_dropout:
     enabled: true
-    probability: { dist: "uniform_float", min: 0.04, max: 0.125 }
+    probability: { dist: "uniform_float", min: 0.05, max: 0.2 }
 
 
 
@@ -186,7 +186,7 @@ grid_layout:
 
 textbox_splitting:
   enabled: true
-  probability: 0.1
+  probability: 0.4
 
   # A value between 0.0 and 0.5. When a textbox's aspect ratio is skewed,
   # this value is added to the probability of the 'natural' split direction
