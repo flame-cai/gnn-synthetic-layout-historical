@@ -580,281 +580,6 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
         print(f"Internal Recognition Error: {e}")
         return {}
 
-# def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_points=4):
-#     """
-#     Drop-in replacement for Gemini OCR.
-    
-#     STRATEGY:
-#     1. Polygon Masking: Precise cropping of text lines using PAGE-XML coords.
-#     2. Dynamic Padding: Small/Tiny crops are NOT skipped; they are padded with 
-#        extra white background to meet a minimum resolution for the Vision Encoder.
-#     3. Safety Override: Explicitly disables safety filters to prevent false positives 
-#        on historical/religious Sanskrit content.
-#     4. Robust Sampling: Handles N=1 (Low Temp) vs N>1 (High Temp) and catches 
-#        API blocking errors gracefully.
-#     """
-#     print(f"[{page}] Starting chipped recognition with N={N}...")
-    
-#     base_path = Path(UPLOAD_FOLDER) / manuscript
-#     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
-#     img_path = base_path / "images_resized" / f"{page}.jpg"
-
-#     if not xml_path.exists() or not img_path.exists():
-#         print(f"[{page}] Missing XML or Image file.")
-#         return {}
-
-#     try:
-#         # --- 1. CONFIGURATION ---
-#         genai.configure(api_key=api_key)
-        
-#         # CRITICAL: Disable all safety filters. 
-#         # "Block None" is required because historical manuscripts often trigger 
-#         # false positives for "Hate Speech" (Swastikas) or "Violence" (Depictions of War).
-#         safety_settings = {
-#             HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-#             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-#             HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-#             HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-#         }
-
-#         # Using Flash 2.0 as requested/implied (Cost effective, fast)
-#         model = genai.GenerativeModel('gemini-2.0-flash') 
-
-#         # --- 2. IMAGE & XML PROCESSING ---
-#         pil_img = Image.open(img_path).convert("RGB")
-#         img_w, img_h = pil_img.size
-        
-#         ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
-#         tree = ET.parse(xml_path)
-#         root = tree.getroot()
-        
-#         # Calculate scaling between XML coords (high-res) and Input Image (resized)
-#         page_elem = root.find(".//p:Page", ns)
-#         xml_w = int(page_elem.get('imageWidth')) if page_elem is not None and page_elem.get('imageWidth') else img_w
-#         xml_h = int(page_elem.get('imageHeight')) if page_elem is not None and page_elem.get('imageHeight') else img_h
-        
-#         scale_x = img_w / xml_w if xml_w > 0 else 1.0
-#         scale_y = img_h / xml_h if xml_h > 0 else 1.0
-
-#         lines_data = [] # Stores (line_id, cropped_image_object)
-
-#         for textline in root.findall(".//p:TextLine", ns):
-#             custom_attr = textline.get('custom', '')
-#             if 'structure_line_id_' not in custom_attr: continue
-#             line_id = str(custom_attr.split('structure_line_id_')[1])
-
-#             # Extract Polygon Coordinates
-#             coords_elem = textline.find('p:Coords', ns)
-#             if coords_elem is not None and coords_elem.get('points'):
-#                 points_str = coords_elem.get('points').strip()
-#                 poly_pts = []
-#                 for p in points_str.split(' '):
-#                     try:
-#                         px, py = map(int, p.split(','))
-#                         poly_pts.append((int(px * scale_x), int(py * scale_y)))
-#                     except: continue
-                
-#                 if len(poly_pts) < 3: continue
-
-#                 # A. MASKING: Isolate text from background noise
-#                 # Create a black mask, draw white polygon, composite with white background
-#                 mask = Image.new('L', (img_w, img_h), 0)
-#                 draw = ImageDraw.Draw(mask)
-#                 draw.polygon(poly_pts, outline=255, fill=255)
-                
-#                 white_bg = Image.new('RGB', (img_w, img_h), (255, 255, 255))
-#                 masked_img = Image.composite(pil_img, white_bg, mask)
-                
-#                 # B. CROPPING & PADDING LOGIC
-#                 bbox = mask.getbbox()
-#                 if bbox:
-#                     left, upper, right, lower = bbox
-                    
-#                     # 1. Base Padding (Standard context)
-#                     pad_l, pad_t, pad_r, pad_b = 5, 5, 5, 5
-                    
-#                     # 2. Minimum Size Enforcement (Handle "Small Chips")
-#                     # If a chip is tiny (e.g. noise or punctuation), the model fails.
-#                     # We increase padding to ensure the chip is at least 60x60px.
-#                     curr_w = right - left
-#                     curr_h = lower - upper
-#                     MIN_DIM = 60
-                    
-#                     if curr_w < MIN_DIM:
-#                         needed = MIN_DIM - curr_w
-#                         pad_l += needed // 2
-#                         pad_r += needed // 2
-                    
-#                     if curr_h < MIN_DIM:
-#                         needed = MIN_DIM - curr_h
-#                         pad_t += needed // 2
-#                         pad_b += needed // 2
-
-#                     # 3. Apply Padding (clamped to image boundaries)
-#                     # Note: If clamped at edge, we might still be small, but we handle that next.
-#                     crop_left = max(0, left - pad_l)
-#                     crop_upper = max(0, upper - pad_t)
-#                     crop_right = min(img_w, right + pad_r)
-#                     crop_lower = min(img_h, lower + pad_b)
-                    
-#                     cropped_chip = masked_img.crop((crop_left, crop_upper, crop_right, crop_lower))
-                    
-#                     # 4. Final Safety Pad (Canvas Expansion)
-#                     # If we hit the image edge and couldn't pad enough, the chip is still small.
-#                     # We paste it onto a white canvas of MIN_DIM size.
-#                     cw, ch = cropped_chip.size
-#                     if cw < MIN_DIM or ch < MIN_DIM:
-#                         final_w = max(cw, MIN_DIM)
-#                         final_h = max(ch, MIN_DIM)
-#                         new_canvas = Image.new('RGB', (final_w, final_h), (255, 255, 255))
-#                         # Paste in center
-#                         paste_x = (final_w - cw) // 2
-#                         paste_y = (final_h - ch) // 2
-#                         new_canvas.paste(cropped_chip, (paste_x, paste_y))
-#                         cropped_chip = new_canvas
-
-#                     lines_data.append((line_id, cropped_chip))
-
-#         if not lines_data:
-#             print(f"[{page}] No lines found with Coords.")
-#             return {}
-
-#         print(f"[{page}] Prepared {len(lines_data)} image chips.")
-
-#         # --- 3. WORKER FUNCTION ---
-#         line_results = collections.defaultdict(list)
-
-#         def process_line(args):
-#             l_id, img_chip = args
-#             results = []
-            
-#             prompt = (
-#                 "You are an expert Indologist and Paleographer specializing in historical handwritten Sanskrit manuscripts. "
-#                 "TASK: Transcribe the Sanskrit text visible in this image fragment in Unicode Devanagari.\n"
-#                 "CONTEXT: This image is a cropped strip containing exactly one line of text. "
-#                 "STRICTLY IGNORE partial artifacts from lines above/below. Focus only on the central, dominant line.\n"
-#                 "INSTRUCTIONS:\n"
-#                 "1. Transcribe strictly in Devanagari script.\n"
-#                 "2. Preserve original spelling, including Sandhi.\n"
-#                 "3. Do not expand abbreviations.\n"
-#                 "4. Output ONLY the transcription text string.\n"
-#             )
-
-#             for i in range(N):
-#                 # Temperature: Low for precision if N=1, High for diversity if N>1
-#                 temp = 0.1 if N == 1 else 0.7 
-#                 try:
-#                     response = model.generate_content(
-#                         [img_chip, prompt],
-#                         generation_config={
-#                             "temperature": temp,
-#                             "max_output_tokens": 1024,
-#                         },
-#                         safety_settings=safety_settings # APPLY SAFETY FIX
-#                     )
-                    
-#                     # Robust Response Parsing
-#                     # Checks for candidates and parts to avoid 'AttributeError' or 'ValueError'
-#                     if response.candidates and response.candidates[0].content.parts:
-#                         text = response.candidates[0].content.parts[0].text.strip()
-#                         # Cleanup formatting
-#                         text = text.replace("```json", "").replace("```", "").replace("\n", "").strip()
-#                         results.append(text)
-#                     else:
-#                         # If blocked or empty, log specific reason
-#                         reason = "UNKNOWN"
-#                         if response.candidates:
-#                             reason = response.candidates[0].finish_reason
-#                         print(f"[{page}] Line {l_id} Sample {i} Empty. Reason: {reason}")
-#                         results.append("")
-
-#                 except Exception as e:
-#                     # Log but continue (don't crash the thread)
-#                     print(f"[{page}] Error Line {l_id} Sample {i}: {str(e)[:100]}")
-#                     results.append("")
-            
-#             return l_id, results
-
-#         # --- 4. EXECUTION ---
-#         # Using ThreadPoolExecutor. 
-#         # Note: Workers reduced to 5 to avoid Rate Limit (429) errors on Gemini Flash, 
-#         # which can happen if sending too many images simultaneously.
-#         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-#             future_to_line = {executor.submit(process_line, item): item[0] for item in lines_data}
-            
-#             for future in concurrent.futures.as_completed(future_to_line):
-#                 l_id = future_to_line[future]
-#                 try:
-#                     _, samples = future.result()
-#                     line_results[l_id] = samples
-#                 except Exception as e:
-#                     print(f"[{page}] Critical failure on line {l_id}: {e}")
-
-#         # --- 5. ENSEMBLE PREPARATION ---
-#         all_samples_results = []
-#         for i in range(N):
-#             sample_map = {}
-#             for l_id, samples in line_results.items():
-#                 if i < len(samples) and samples[i]:
-#                     sample_map[l_id] = samples[i]
-#             all_samples_results.append(sample_map)
-
-#         # --- 6. AGGREGATION & XML UPDATE ---
-#         final_map = {}
-#         final_confidences = {}
-        
-#         texts_by_id = collections.defaultdict(list)
-#         for res_map in all_samples_results:
-#             for lid, txt in res_map.items():
-#                 texts_by_id[lid].append(txt)
-
-#         for lid, candidates in texts_by_id.items():
-#             # ensemble_text_samples is assumed to be defined globally as per original snippet
-#             consensus_text, scores = ensemble_text_samples(candidates)
-#             if consensus_text:
-#                 final_map[lid] = consensus_text
-#                 final_confidences[lid] = scores
-#                 if len(set(candidates)) > 1 and N > 1:
-#                     print(f"[{page}] Line {lid}: Merged {len(candidates)} samples.")
-
-#         if final_map:
-#             changed = False
-#             for textline in root.findall(".//p:TextLine", ns):
-#                 custom_attr = textline.get('custom', '')
-#                 if 'structure_line_id_' in custom_attr:
-#                     lid = str(custom_attr.split('structure_line_id_')[1])
-#                     if lid in final_map:
-#                         te = textline.find("p:TextEquiv", ns)
-#                         if te is None: te = ET.SubElement(textline, "TextEquiv")
-#                         uni = te.find("p:Unicode", ns)
-#                         if uni is None: uni = ET.SubElement(te, "Unicode")
-#                         uni.text = final_map[lid]
-
-#                         if lid in final_confidences:
-#                             conf_str = ",".join(map(str, final_confidences[lid]))
-#                             current_custom = te.get('custom', '')
-#                             # Appending confidence to custom attr
-#                             new_conf_str = f"confidences:{conf_str}"
-#                             if "confidences:" in current_custom:
-#                                 # simplistic replace to avoid duplicate keys if rerunning
-#                                 import re
-#                                 te.set('custom', re.sub(r'confidences:[0-9.,]+', new_conf_str, current_custom))
-#                             else:
-#                                 te.set('custom', f"{current_custom} {new_conf_str}".strip())
-#                         changed = True
-            
-#             if changed:
-#                 tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
-#                 print(f"[{page}] XML updated with robust chipped ensemble text.")
-
-#         return { "text": final_map, "confidences": final_confidences }
-
-#     except Exception as e:
-#         traceback.print_exc()
-#         print(f"Internal Recognition Error: {e}")
-#         return {}
-
-
 
 
 
@@ -883,7 +608,9 @@ def save_correction(manuscript, page):
     text_content = data.get('textContent') 
     
     run_recognition = data.get('runRecognition', False)
-    api_key = data.get('apiKey', None) #not used, unsafe
+    api_key = data.get('apiKey', None)
+    # --- NEW: Get engine choice ---
+    recognition_engine = data.get('recognitionEngine', 'local') 
 
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -906,14 +633,26 @@ def save_correction(manuscript, page):
         )
 
         if run_recognition: 
-            def background_task(m, p, k):
-                # _run_gemini_recognition_internal(m, p, k)
-                _run_local_recognition_internal(m, p)
+            # --- MODIFIED: Robust background task with engine switch & logging ---
+            def background_task(m, p, k, engine):
+                print(f"[{p}] Starting background auto-recognition. Engine: {engine}")
+                try:
+                    if engine == 'gemini':
+                        if not k:
+                            print(f"[{p}] ERROR: Gemini API key is missing. Aborting recognition.")
+                            return
+                        _run_gemini_recognition_internal(m, p, k)
+                    else:
+                        _run_local_recognition_internal(m, p)
+                    print(f"[{p}] Background auto-recognition completed successfully.")
+                except Exception as e:
+                    print(f"[{p}] ERROR in background auto-recognition: {e}")
+                    traceback.print_exc()
 
-            thread = threading.Thread(target=background_task, args=(manuscript, page, None), daemon=True)
+            thread = threading.Thread(target=background_task, args=(manuscript, page, api_key, recognition_engine), daemon=True)
             thread.start()
             
-            result['autoRecognitionStatus'] = "processing_in_background"
+            result['autoRecognitionStatus'] = f"processing_in_background_with_{recognition_engine}"
 
         return jsonify(result)
 
@@ -929,15 +668,20 @@ def recognize_text():
     manuscript = data.get('manuscript')
     page = data.get('page')
     api_key = data.get('apiKey')
+    # --- NEW: Get engine choice ---
+    recognition_engine = data.get('recognitionEngine', 'local')
     
-    if not api_key:
-        return jsonify({"error": "API Key required"}), 400
+    print(f"[{page}] Manual recognition requested using engine: {recognition_engine}")
 
-    # result = _run_gemini_recognition_internal(manuscript, page, api_key)
-    result = _run_local_recognition_internal(manuscript, page)
+    if recognition_engine == 'gemini':
+        if not api_key:
+            return jsonify({"error": "API Key required for Gemini"}), 400
+        result = _run_gemini_recognition_internal(manuscript, page, api_key)
+    else:
+        result = _run_local_recognition_internal(manuscript, page)
 
     return jsonify(result)
-
+    
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):
     return jsonify({"status": "ok"})

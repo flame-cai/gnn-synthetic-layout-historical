@@ -52,6 +52,15 @@ It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset pr
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
 
 ### Setup Instructions
+#### 0 Download the Recognition Model
+To recognize the unicode text-content from segmented text-line image, we need a text recognition model. To do this, the tool supports using Gemini (using API key), and a EasyOCR based recogntion model which will need to be downloaded:
+```bash
+cd app/recognition/pretrained_model
+wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
+```
+This step is optional if you want to use the tool to only segment text-line images without recognizing their text-content.
+
+
 #### 1 Start Backend Server
 ```bash
 cd app

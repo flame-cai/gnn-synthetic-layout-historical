@@ -15,12 +15,21 @@
 
       <!-- Auto-Recognition Controls in Center -->
       <div class="top-bar-center" style="display:flex; align-items:center; gap: 10px; margin-left: 20px;">
-          <!-- Auto-Recog Toggle -->
+          <!-- Auto-Recog Toggle & Options -->
           <label class="toggle-switch">
              <input type="checkbox" v-model="autoRecogEnabled">
              <span class="slider"></span>
           </label>
-          <span style="font-size: 0.8rem; color: #ccc;">Auto-Recognize on Save</span>
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px;">
+              <span style="font-size: 0.8rem; color: #ccc; line-height: 1;">Auto-Recognize on Save</span>
+              <div v-if="autoRecogEnabled" style="display:flex; gap: 5px; align-items:center;">
+                  <select v-model="recognitionEngine" style="font-size:0.7rem; padding:2px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; outline:none; cursor:pointer;">
+                      <option value="local">Local OCR</option>
+                      <option value="gemini">Gemini API</option>
+                  </select>
+                  <input v-if="recognitionEngine === 'gemini'" type="password" v-model="geminiKey" placeholder="API Key" style="font-size:0.7rem; padding:2px; width:80px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; outline:none;" title="Enter Gemini API Key" />
+              </div>
+          </div>
 
           <!-- Devanagari Keyboard Toggle -->
           <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
@@ -451,7 +460,12 @@ const pagePolygons = ref({})
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
 const autoRecogEnabled = ref(false)
+const recognitionEngine = ref(localStorage.getItem('recognition_engine') || 'local') // NEW
 const devanagariModeEnabled = ref(true) 
+
+// NEW: Persist keys/settings to local storage
+watch(recognitionEngine, (val) => localStorage.setItem('recognition_engine', val))
+watch(geminiKey, (val) => localStorage.setItem('gemini_key', val))
 const localTextConfidence = reactive({}) 
 const autoSaveInterval = ref(null) // NEW
 
@@ -1132,7 +1146,8 @@ const saveModifications = async (background = false) => {
     textboxLabels: labelsToSend,
     textContent: localTextContent,
     runRecognition: autoRecogEnabled.value && !background, // Don't run GNN/AI on auto-save
-    apiKey: geminiKey.value
+    apiKey: geminiKey.value,
+    recognitionEngine: recognitionEngine.value // <--- NEW PARAMETER
   }
   try {
     const res = await fetch(
