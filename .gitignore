@@ -13,6 +13,10 @@ app/my-app/node_modules/
 app/my-app/dist/
 app/my-app/.vite/
 
+# all folders inside app/
+app/input_manuscripts/*/
+
+
 # Env files
 app/my-app/.env
 app/my-app/.env.*
