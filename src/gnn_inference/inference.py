@@ -6,6 +6,8 @@ import torch
 
 from segmentation.segment_graph import images2points
 from gnn_inference import run_gnn_inference
+import time
+
 
 
 
@@ -130,8 +132,11 @@ if __name__ == "__main__":
     args.BBOX_PAD_H = 0.5
     args.CC_SIZE_THRESHOLD_RATIO = 0.4
 
+    start_time = time.time()  
     process_new_manuscript(args.manuscript_path)
     run_gnn_inference(args)
+    duration = time.time() - start_time
+    print(f"Total processing time: {duration:.2f} seconds")
 
 
 
