@@ -29,14 +29,10 @@ Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
 
 ```bash
 cd gnn-synthetic-layout-historical 
-conda env create -f environment.yaml
+conda create -n gnn_layout python=3.11 -y
 conda activate gnn_layout
+pip install -r requirements.txt
 ```
-After activating the environment, run:
-```bash
-pip install torch-spline-conv -f https://data.pyg.org/whl/torch-2.4.1+cu121.html
-```
-
 
 ## **Semi Automatic Annotation Tool**
 Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
@@ -53,12 +49,12 @@ It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset pr
 
 ### Setup Instructions
 #### 0 Download the Recognition Model
-To recognize the unicode text-content from segmented text-line image, we need a text recognition model. To do this, the tool supports using Gemini (using API key), and a EasyOCR based recogntion model which will need to be downloaded:
+To recognize the unicode text-content from segmented text-line image, we need a text recognition model. To do this, the tool supports using Gemini (using API key), OR an EasyOCR based recogntion model which will need to be downloaded:
 ```bash
 cd app/recognition/pretrained_model
 wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
 ```
-This step is optional if you want to use the tool to only segment text-line images without recognizing their text-content.
+This download step is optional if you want to use the EasyOCR model.
 
 
 #### 1 Start Backend Server
@@ -87,6 +83,8 @@ npm install
 npm run dev
 ```
 Access the UI at `http://localhost:5173`.
+
+```npm install``` only needs to be run once for the first time. To launch the front-end subsequently, we need to only need to run ```npm run dev```.
 
 
 
@@ -144,7 +142,7 @@ python synthetic_data_gen/generate.py --dry-run --config configs/synthetic.yaml 
 python synthetic_data_gen/generate.py --config configs/synthetic.yaml
 ```
 
-This will create a new folder `src/gnn_data/generated_synthetic_data/` with all the generated synthetic data files in the graph based format.
+This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the generated synthetic data files in the graph based format.
 
 This script peforms domain randomization to generate synthetic layout data simulating complex layouts in the graph based formulation introduced in this project. Both the synthetic data and the real data use the same graph based format, making it easy to integrate synthetic data into training pipelines.
 
@@ -205,5 +203,6 @@ This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`
 
 
 ## Acknowledgements
-We would like to thank Petar Veličković, Dhavel Patel, and Oliver Hellwig for their extermely valuable inputs and discussions.
+The authors also wish to express their thanks to Lalchand Research Library, DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
+The authors also wish to express their gratitude to the anonymous reviewers, Dr. Petar Veličković, Dr. Dhaval Patel, Dr. Tarinee Awasthi and Dr. Oliver Hellwig for their invaluable guidance and support. Finally the authors wish to express their thanks to Shagun Dwivedi and Ansh Kushwaha for their valuable insights and feedback.
 
