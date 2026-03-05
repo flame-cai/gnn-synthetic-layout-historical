@@ -19,5 +19,7 @@ app/my-app/.env
 app/.env
 app/my-app/.env.*
 
+app/input_manuscripts/**/
+
 # Logs
 app/my-app/npm-debug.log*
