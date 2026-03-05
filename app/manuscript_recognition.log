@@ -135,3 +135,42 @@
 2026-02-26 10:38:17,775 - INFO - 127.0.0.1 - - [26/Feb/2026 10:38:17] "POST /semi-segment/my_manuscript12/233_0011 HTTP/1.1" 200 -
 2026-02-26 11:39:51,238 - WARNING -  * Debugger is active!
 2026-02-26 11:39:51,238 - INFO -  * Debugger PIN: 855-131-808
+2026-03-05 12:05:22,875 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-05 12:05:22,875 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-05 12:05:22,876 - INFO -  * Restarting with stat
+2026-03-05 12:05:27,142 - WARNING -  * Debugger is active!
+2026-03-05 12:05:27,142 - INFO -  * Debugger PIN: 715-107-216
+2026-03-05 12:05:38,989 - INFO - 127.0.0.1 - - [05/Mar/2026 12:05:38] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-05 12:05:58,590 - INFO - 127.0.0.1 - - [05/Mar/2026 12:05:58] "POST /upload HTTP/1.1" 200 -
+2026-03-05 12:05:59,197 - INFO - 127.0.0.1 - - [05/Mar/2026 12:05:59] "GET /manuscript/my_manuscript2/pages HTTP/1.1" 200 -
+2026-03-05 12:05:59,931 - INFO - 127.0.0.1 - - [05/Mar/2026 12:05:59] "GET /semi-segment/my_manuscript2/233_0003 HTTP/1.1" 200 -
+2026-03-05 12:07:14,024 - INFO - 127.0.0.1 - - [05/Mar/2026 12:07:14] "OPTIONS /semi-segment/my_manuscript2/233_0003 HTTP/1.1" 200 -
+2026-03-05 12:07:14,633 - INFO - 127.0.0.1 - - [05/Mar/2026 12:07:14] "POST /semi-segment/my_manuscript2/233_0003 HTTP/1.1" 200 -
+2026-03-05 12:07:14,882 - INFO - 127.0.0.1 - - [05/Mar/2026 12:07:14] "GET /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:07:57,546 - INFO - 127.0.0.1 - - [05/Mar/2026 12:07:57] "OPTIONS /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:07:58,088 - INFO - 127.0.0.1 - - [05/Mar/2026 12:07:58] "POST /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:07:58,312 - INFO - 127.0.0.1 - - [05/Mar/2026 12:07:58] "GET /semi-segment/my_manuscript2/233_0009 HTTP/1.1" 200 -
+2026-03-05 12:08:11,096 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:11] "OPTIONS /semi-segment/my_manuscript2/233_0009 HTTP/1.1" 200 -
+2026-03-05 12:08:11,671 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:11] "POST /semi-segment/my_manuscript2/233_0009 HTTP/1.1" 200 -
+2026-03-05 12:08:15,299 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:15] "GET /semi-segment/my_manuscript2/233_0003 HTTP/1.1" 200 -
+2026-03-05 12:08:17,267 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:17] "GET /semi-segment/my_manuscript2/233_0003 HTTP/1.1" 200 -
+2026-03-05 12:08:38,658 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:38] "GET /semi-segment/my_manuscript2/233_0003 HTTP/1.1" 200 -
+2026-03-05 12:08:49,614 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:49] "GET /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:08:59,196 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:59] "OPTIONS /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:08:59,945 - INFO - 127.0.0.1 - - [05/Mar/2026 12:08:59] "POST /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:09:19,194 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:19] "OPTIONS /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:09:19,936 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:19] "POST /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:09:37,012 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:37] "OPTIONS /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:09:37,689 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:37] "POST /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:09:37,690 - INFO - Loading model from ./recognition/pretrained_model/vadakautuhala.pth...
+2026-03-05 12:09:37,813 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:37] "GET /semi-segment/my_manuscript2/233_0009 HTTP/1.1" 200 -
+2026-03-05 12:09:38,829 - INFO - Model loaded successfully.
+2026-03-05 12:09:39,554 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:39] "OPTIONS /semi-segment/my_manuscript2/233_0009 HTTP/1.1" 200 -
+2026-03-05 12:09:40,123 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:40] "POST /semi-segment/my_manuscript2/233_0009 HTTP/1.1" 200 -
+2026-03-05 12:09:46,147 - INFO - Updated input_manuscripts/my_manuscript2/layout_analysis_output/page-xml-format/233_0008.xml: 18 lines recognized.
+2026-03-05 12:09:53,969 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:53] "GET /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:09:59,572 - INFO - 127.0.0.1 - - [05/Mar/2026 12:09:59] "OPTIONS /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
+2026-03-05 12:10:00,164 - INFO - 127.0.0.1 - - [05/Mar/2026 12:10:00] "POST /semi-segment/my_manuscript2/233_0008 HTTP/1.1" 200 -
