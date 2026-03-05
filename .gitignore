@@ -21,6 +21,9 @@ app/.env.*
 downstream_eval/.env.*
 downstream_eval/.env
 
+# all processed manuscripts
+app/input_manuscripts/**/
+
 # Logs
 app/my-app/npm-debug.log*
 

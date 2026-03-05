@@ -29,14 +29,10 @@ Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
 
 ```bash
 cd gnn-synthetic-layout-historical 
-conda env create -f environment.yaml
+conda create -n gnn_layout python=3.11 -y
 conda activate gnn_layout
+pip install -r requirements.txt
 ```
-After activating the environment, run:
-```bash
-pip install torch-spline-conv -f https://data.pyg.org/whl/torch-2.4.1+cu121.html
-```
-
 
 ## **Semi Automatic Annotation Tool**
 Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
