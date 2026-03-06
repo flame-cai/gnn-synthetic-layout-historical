@@ -812,6 +812,55 @@ def download_results(manuscript):
         download_name=f'{manuscript}_results.zip'
     )
 
+@app.route('/save-overlay/<manuscript>/<page>', methods=['POST'])
+def save_overlay(manuscript, page):
+    try:
+        data = request.json
+        manuscript_path = Path(UPLOAD_FOLDER) / manuscript
+        
+        # Load the base image
+        img_path = manuscript_path / "images_resized" / f"{page}.jpg"
+        if not img_path.exists():
+            return jsonify({"error": "Image not found"}), 404
+            
+        img = Image.open(img_path).convert("RGB")
+        draw = ImageDraw.Draw(img)
+        
+        graph = data.get('graph', {})
+        nodes = graph.get('nodes', [])
+        edges = graph.get('edges', [])
+        
+        # Draw edges (red if modified, otherwise white)
+        for edge in edges:
+            source_idx = edge.get('source')
+            target_idx = edge.get('target')
+            
+            if source_idx < len(nodes) and target_idx < len(nodes):
+                n1 = nodes[source_idx]
+                n2 = nodes[target_idx]
+                color = "red" if edge.get('modified') else "white"
+                draw.line([(n1['x'], n1['y']), (n2['x'], n2['y'])], fill=color, width=3)
+                
+        # Draw nodes (blue)
+        r = 6
+        for node in nodes:
+            x, y = node['x'], node['y']
+            draw.ellipse([(x-r, y-r), (x+r, y+r)], fill="#2196F3", outline="white")
+            
+        # Save to overlay_exports directory
+        export_dir = manuscript_path / "overlay_exports"
+        export_dir.mkdir(parents=True, exist_ok=True)
+        
+        save_path = export_dir / f"{page}_overlay.jpg"
+        img.save(save_path, "JPEG", quality=90)
+        
+        print(f"[{page}] Overlay successfully saved to {save_path}")
+        return jsonify({"message": "Overlay saved successfully", "path": str(save_path)})
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

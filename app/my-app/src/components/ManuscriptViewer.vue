@@ -57,6 +57,9 @@
            <button class="action-btn" @click="saveCurrentPage" :disabled="loading || isProcessingSave">
              Save (S)
            </button>
+           <button class="action-btn" @click="saveOverlay" :disabled="loading || isProcessingSave || recognitionModeActive" title="Save image with graph to backend">
+             Export Image
+           </button>
 
            <button class="action-btn primary" @click="saveAndGoNext" :disabled="loading || isProcessingSave">
             {{ autoRecogEnabled ? 'Save, Recog & Next' : 'Save & Next' }}
@@ -903,6 +906,30 @@ const onEdgeClick = (edge, event) => {
   if (isAKeyPressed.value || isDKeyPressed.value || isEKeyPressed.value || recognitionModeActive.value) return
   event.stopPropagation()
   selectedNodes.value = [edge.source, edge.target]
+}
+
+const saveOverlay = async () => {
+    // Add visual loading feedback to cursor
+    const originalCursor = document.body.style.cursor;
+    document.body.style.cursor = 'wait';
+    
+    try {
+        const payload = { graph: workingGraph };
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/save-overlay/${localManuscriptName.value}/${localCurrentPage.value}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) throw new Error((await res.json()).error || "Failed to save overlay to backend");
+        
+        alert(`✅ Image saved successfully to backend for page ${localCurrentPage.value}!`);
+    } catch (err) {
+        console.error("Error saving overlay:", err);
+        alert(`❌ Error saving overlay: ${err.message}`);
+    } finally {
+        document.body.style.cursor = originalCursor;
+    }
 }
 
 const onBackgroundClick = (event) => {
