@@ -134,7 +134,7 @@
                 :x2="scaleX(workingGraph.nodes[edge.target].x)"
                 :y2="scaleY(workingGraph.nodes[edge.target].y)"
                 :stroke="getEdgeColor(edge)"
-                :stroke-width="isEdgeSelected(edge) ? 3 : 2.5"
+                :stroke-width="isEdgeSelected(edge) ? 4 : 4"
                 @click.stop="layoutModeActive && onEdgeClick(edge, $event)"
               />
 
@@ -865,28 +865,28 @@ const resetWorkingGraph = () => {
 const getNodeColor = (nodeIndex) => {
   if (layoutModeActive.value && isEKeyPressed.value) {
     const textlineId = nodeToTextlineMap.value[nodeIndex]
-    if (hoveredTextlineId.value === textlineId) return '#ff4081' 
+    if (hoveredTextlineId.value === textlineId) return '#000000' 
     const label = textlineLabels[nodeIndex]
-    return (label !== undefined && label > -1) ? labelColors[label % labelColors.length] : '#9e9e9e' 
+    return (label !== undefined && label > -1) ? labelColors[label % labelColors.length] : '#000000' 
   }
   
-  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#00bcd4'
-  if (isNodeSelected(nodeIndex)) return '#ff9500'
+  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#000000'
+  if (isNodeSelected(nodeIndex)) return '#000000'
   const edgeCount = nodeEdgeCounts.value[nodeIndex]
-  if (edgeCount < 2) return '#f44336'
-  if (edgeCount === 2) return '#4CAF50'
-  return '#2196F3'
+  if (edgeCount < 2) return '#000000'
+  if (edgeCount === 2) return '#000000'
+  return '#000000'
 }
 
 const getNodeRadius = (nodeIndex) => {
   if (layoutModeActive.value && isEKeyPressed.value) {
-    return (hoveredTextlineId.value === nodeToTextlineMap.value[nodeIndex]) ? 7 : 5
+    return (hoveredTextlineId.value === nodeToTextlineMap.value[nodeIndex]) ? 7 : 7
   }
   if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return 7
-  if (isNodeSelected(nodeIndex)) return 6
-  return nodeEdgeCounts.value[nodeIndex] < 2 ? 5 : 3
+  if (isNodeSelected(nodeIndex)) return 7
+  return nodeEdgeCounts.value[nodeIndex] < 2 ? 7 : 7
 }
-const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#ffffff')
+const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#FF0000')
 const isNodeSelected = (nodeIndex) => selectedNodes.value.includes(nodeIndex)
 const isEdgeSelected = (edge) => {
   return selectedNodes.value.length === 2 &&
@@ -1374,7 +1374,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   justify-content: center; align-items: flex-start; padding: 2rem; background-color: #121212;
 }
 .image-container { position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
-.manuscript-image { display: block; user-select: none; opacity: 1.0; }
+.manuscript-image { display: block; user-select: none; opacity: 0.7; }
 .graph-overlay { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .graph-overlay.is-visible { opacity: 1; pointer-events: auto; }
 
