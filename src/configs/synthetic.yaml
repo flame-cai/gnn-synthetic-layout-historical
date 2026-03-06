@@ -111,7 +111,7 @@ textbox_content:
   congestion_jitter:
     enabled: true
     # Percentage of points to be heavily jittered
-    percentage: { dist: "uniform_float", min: 0.0, max: 0.05 }
+    percentage: { dist: "uniform_float", min: 0.0, max: 0.15 }
     # Jitter strength as a multiplier of line spacing
     strength_factor: { dist: "uniform_float", min: 0.1, max: 0.20 }
 
@@ -167,7 +167,7 @@ page_augmentations:
   # Point Dropout (Missing Characters)
   point_dropout:
     enabled: true
-    probability: { dist: "uniform_float", min: 0.05, max: 0.2 }
+    probability: { dist: "uniform_float", min: 0.00, max: 0.40 }
 
 
 

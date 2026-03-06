@@ -18,7 +18,7 @@ phase1_content:
   point_level_jitter:
     enabled: true
     probability: 1.0
-    jitter_std_factor: { dist: "uniform_float", min: 0.01, max: 0.2 } # Milder jitter
+    jitter_std_factor: { dist: "uniform_float", min: 0.00, max: 0.2 } # Milder jitter
 
 # --- Phase 2: Geometric Distortions (Applied to whole page) ---
 # These are applied sequentially, each with its own probability.
@@ -61,9 +61,9 @@ phase3_page:
   point_dropout:
     enabled: true
     # This is the probability that dropout will be ATTEMPTED on a sample.
-    probability: 0.9
+    probability: 1.0
     # This is the distribution from which the ACTUAL dropout rate is sampled.
-    dropout_probability_dist: { dist: "uniform_float", min: 0.0, max: 0.15 } # Max 1% dropout
+    dropout_probability_dist: { dist: "uniform_float", min: 0.0, max: 0.4 } # Max 1% dropout
 
 # --- Phase 4: Page-level Rigid Transforms ---
 # These are applied after distortion but before dropout.
