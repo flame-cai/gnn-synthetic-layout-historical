@@ -230,3 +230,108 @@
  * Running on http://192.168.8.12:5000
 2026-03-02 13:27:46,564 - INFO - [33mPress CTRL+C to quit[0m
 2026-03-02 13:27:46,565 - INFO -  * Restarting with stat
+2026-03-06 12:31:44,026 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-06 12:31:44,027 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-06 12:31:44,027 - INFO -  * Restarting with stat
+2026-03-06 12:31:49,834 - WARNING -  * Debugger is active!
+2026-03-06 12:31:49,835 - INFO -  * Debugger PIN: 278-323-629
+2026-03-06 12:33:20,479 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-06 12:33:20,479 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-06 12:33:20,480 - INFO -  * Restarting with stat
+2026-03-06 12:33:25,225 - WARNING -  * Debugger is active!
+2026-03-06 12:33:25,225 - INFO -  * Debugger PIN: 278-323-629
+2026-03-06 12:33:31,505 - INFO - 127.0.0.1 - - [06/Mar/2026 12:33:31] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-06 12:34:21,124 - INFO - 127.0.0.1 - - [06/Mar/2026 12:34:21] "POST /upload HTTP/1.1" 200 -
+2026-03-06 12:34:22,270 - INFO - 127.0.0.1 - - [06/Mar/2026 12:34:22] "GET /manuscript/complex/pages HTTP/1.1" 200 -
+2026-03-06 12:34:23,080 - INFO - 127.0.0.1 - - [06/Mar/2026 12:34:23] "GET /semi-segment/complex/233_0002 HTTP/1.1" 200 -
+2026-03-06 12:40:06,780 - INFO - 127.0.0.1 - - [06/Mar/2026 12:40:06] "OPTIONS /semi-segment/complex/233_0002 HTTP/1.1" 200 -
+2026-03-06 12:40:07,741 - INFO - 127.0.0.1 - - [06/Mar/2026 12:40:07] "POST /semi-segment/complex/233_0002 HTTP/1.1" 200 -
+2026-03-06 12:40:09,130 - INFO - 127.0.0.1 - - [06/Mar/2026 12:40:09] "GET /semi-segment/complex/233_0003 HTTP/1.1" 200 -
+2026-03-06 12:41:03,185 - INFO - 127.0.0.1 - - [06/Mar/2026 12:41:03] "OPTIONS /semi-segment/complex/233_0003 HTTP/1.1" 200 -
+2026-03-06 12:41:05,114 - INFO - 127.0.0.1 - - [06/Mar/2026 12:41:05] "POST /semi-segment/complex/233_0003 HTTP/1.1" 200 -
+2026-03-06 12:41:05,508 - INFO - 127.0.0.1 - - [06/Mar/2026 12:41:05] "GET /semi-segment/complex/233_0004 HTTP/1.1" 200 -
+2026-03-06 12:42:05,689 - INFO - 127.0.0.1 - - [06/Mar/2026 12:42:05] "OPTIONS /semi-segment/complex/233_0004 HTTP/1.1" 200 -
+2026-03-06 12:42:06,524 - INFO - 127.0.0.1 - - [06/Mar/2026 12:42:06] "POST /semi-segment/complex/233_0004 HTTP/1.1" 200 -
+2026-03-06 12:42:07,855 - INFO - 127.0.0.1 - - [06/Mar/2026 12:42:07] "GET /semi-segment/complex/233_0005 HTTP/1.1" 200 -
+2026-03-06 12:42:32,559 - INFO - 127.0.0.1 - - [06/Mar/2026 12:42:32] "OPTIONS /semi-segment/complex/233_0005 HTTP/1.1" 200 -
+2026-03-06 12:42:34,472 - INFO - 127.0.0.1 - - [06/Mar/2026 12:42:34] "POST /semi-segment/complex/233_0005 HTTP/1.1" 200 -
+2026-03-06 12:42:34,928 - INFO - 127.0.0.1 - - [06/Mar/2026 12:42:34] "GET /semi-segment/complex/233_0006 HTTP/1.1" 200 -
+2026-03-06 12:43:18,715 - INFO - 127.0.0.1 - - [06/Mar/2026 12:43:18] "OPTIONS /semi-segment/complex/233_0006 HTTP/1.1" 200 -
+2026-03-06 12:43:19,487 - INFO - 127.0.0.1 - - [06/Mar/2026 12:43:19] "POST /semi-segment/complex/233_0006 HTTP/1.1" 200 -
+2026-03-06 12:43:20,983 - INFO - 127.0.0.1 - - [06/Mar/2026 12:43:20] "GET /semi-segment/complex/233_0007 HTTP/1.1" 200 -
+2026-03-06 13:02:24,576 - INFO - 127.0.0.1 - - [06/Mar/2026 13:02:24] "OPTIONS /semi-segment/complex/233_0007 HTTP/1.1" 200 -
+2026-03-06 13:02:25,306 - INFO - 127.0.0.1 - - [06/Mar/2026 13:02:25] "POST /semi-segment/complex/233_0007 HTTP/1.1" 200 -
+2026-03-06 13:02:26,674 - INFO - 127.0.0.1 - - [06/Mar/2026 13:02:26] "GET /semi-segment/complex/233_0008 HTTP/1.1" 200 -
+2026-03-06 13:03:14,581 - INFO - 127.0.0.1 - - [06/Mar/2026 13:03:14] "OPTIONS /semi-segment/complex/233_0008 HTTP/1.1" 200 -
+2026-03-06 13:03:16,756 - INFO - 127.0.0.1 - - [06/Mar/2026 13:03:16] "POST /semi-segment/complex/233_0008 HTTP/1.1" 200 -
+2026-03-06 13:03:17,302 - INFO - 127.0.0.1 - - [06/Mar/2026 13:03:17] "GET /semi-segment/complex/233_0009 HTTP/1.1" 200 -
+2026-03-06 13:05:08,416 - INFO - 127.0.0.1 - - [06/Mar/2026 13:05:08] "OPTIONS /semi-segment/complex/233_0009 HTTP/1.1" 200 -
+2026-03-06 13:05:09,739 - INFO - 127.0.0.1 - - [06/Mar/2026 13:05:09] "POST /semi-segment/complex/233_0009 HTTP/1.1" 200 -
+2026-03-06 13:05:11,151 - INFO - 127.0.0.1 - - [06/Mar/2026 13:05:11] "GET /semi-segment/complex/233_0010 HTTP/1.1" 200 -
+2026-03-06 13:06:03,524 - INFO - 127.0.0.1 - - [06/Mar/2026 13:06:03] "OPTIONS /semi-segment/complex/233_0010 HTTP/1.1" 200 -
+2026-03-06 13:06:05,304 - INFO - 127.0.0.1 - - [06/Mar/2026 13:06:05] "POST /semi-segment/complex/233_0010 HTTP/1.1" 200 -
+2026-03-06 13:06:05,802 - INFO - 127.0.0.1 - - [06/Mar/2026 13:06:05] "GET /semi-segment/complex/233_0011 HTTP/1.1" 200 -
+2026-03-06 13:06:35,155 - INFO - 127.0.0.1 - - [06/Mar/2026 13:06:35] "OPTIONS /semi-segment/complex/233_0011 HTTP/1.1" 200 -
+2026-03-06 13:06:36,028 - INFO - 127.0.0.1 - - [06/Mar/2026 13:06:36] "POST /semi-segment/complex/233_0011 HTTP/1.1" 200 -
+2026-03-06 13:06:37,579 - INFO - 127.0.0.1 - - [06/Mar/2026 13:06:37] "GET /semi-segment/complex/233_0012 HTTP/1.1" 200 -
+2026-03-06 13:07:13,053 - INFO - 127.0.0.1 - - [06/Mar/2026 13:07:13] "OPTIONS /semi-segment/complex/233_0012 HTTP/1.1" 200 -
+2026-03-06 13:07:15,076 - INFO - 127.0.0.1 - - [06/Mar/2026 13:07:15] "POST /semi-segment/complex/233_0012 HTTP/1.1" 200 -
+2026-03-06 13:07:15,667 - INFO - 127.0.0.1 - - [06/Mar/2026 13:07:15] "GET /semi-segment/complex/233_0013 HTTP/1.1" 200 -
+2026-03-06 13:10:47,157 - INFO - 127.0.0.1 - - [06/Mar/2026 13:10:47] "OPTIONS /semi-segment/complex/233_0013 HTTP/1.1" 200 -
+2026-03-06 13:10:48,152 - INFO - 127.0.0.1 - - [06/Mar/2026 13:10:48] "POST /semi-segment/complex/233_0013 HTTP/1.1" 200 -
+2026-03-06 13:10:49,714 - INFO - 127.0.0.1 - - [06/Mar/2026 13:10:49] "GET /semi-segment/complex/233_0014 HTTP/1.1" 200 -
+2026-03-06 13:12:30,589 - INFO - 127.0.0.1 - - [06/Mar/2026 13:12:30] "OPTIONS /semi-segment/complex/233_0014 HTTP/1.1" 200 -
+2026-03-06 13:12:31,550 - INFO - 127.0.0.1 - - [06/Mar/2026 13:12:31] "POST /semi-segment/complex/233_0014 HTTP/1.1" 200 -
+2026-03-06 13:12:32,940 - INFO - 127.0.0.1 - - [06/Mar/2026 13:12:32] "GET /semi-segment/complex/233_0015 HTTP/1.1" 200 -
+2026-03-06 13:12:49,027 - INFO - 127.0.0.1 - - [06/Mar/2026 13:12:49] "OPTIONS /semi-segment/complex/233_0015 HTTP/1.1" 200 -
+2026-03-06 13:12:50,897 - INFO - 127.0.0.1 - - [06/Mar/2026 13:12:50] "POST /semi-segment/complex/233_0015 HTTP/1.1" 200 -
+2026-03-06 13:12:51,367 - INFO - 127.0.0.1 - - [06/Mar/2026 13:12:51] "GET /semi-segment/complex/233_0016 HTTP/1.1" 200 -
+2026-03-06 13:14:50,780 - INFO - 127.0.0.1 - - [06/Mar/2026 13:14:50] "OPTIONS /semi-segment/complex/233_0016 HTTP/1.1" 200 -
+2026-03-06 13:14:51,972 - INFO - 127.0.0.1 - - [06/Mar/2026 13:14:51] "POST /semi-segment/complex/233_0016 HTTP/1.1" 200 -
+2026-03-06 13:14:57,620 - INFO - 127.0.0.1 - - [06/Mar/2026 13:14:57] "GET /download-results/complex HTTP/1.1" 200 -
+2026-03-06 13:15:01,495 - INFO - 127.0.0.1 - - [06/Mar/2026 13:15:01] "GET /download-results/complex HTTP/1.1" 200 -
+2026-03-06 13:18:43,166 - INFO - 127.0.0.1 - - [06/Mar/2026 13:18:43] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-06 13:18:48,657 - INFO - 127.0.0.1 - - [06/Mar/2026 13:18:48] "GET /manuscript/complex/pages HTTP/1.1" 200 -
+2026-03-06 13:18:49,020 - INFO - 127.0.0.1 - - [06/Mar/2026 13:18:49] "GET /manuscript/complex/pages HTTP/1.1" 200 -
+2026-03-06 13:18:49,309 - INFO - 127.0.0.1 - - [06/Mar/2026 13:18:49] "GET /semi-segment/complex/233_0016 HTTP/1.1" 200 -
+2026-03-06 13:18:52,719 - INFO - 127.0.0.1 - - [06/Mar/2026 13:18:52] "GET /download-results/complex HTTP/1.1" 200 -
+2026-03-06 14:01:17,853 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-06 14:01:17,853 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-06 14:01:17,854 - INFO -  * Restarting with stat
+2026-03-06 14:01:23,881 - WARNING -  * Debugger is active!
+2026-03-06 14:01:23,881 - INFO -  * Debugger PIN: 278-323-629
+2026-03-06 14:01:42,184 - INFO - 127.0.0.1 - - [06/Mar/2026 14:01:42] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-06 14:05:36,406 - INFO - 127.0.0.1 - - [06/Mar/2026 14:05:36] "[31m[1mPOST /upload HTTP/1.1[0m" 400 -
+2026-03-06 14:06:52,462 - INFO - 127.0.0.1 - - [06/Mar/2026 14:06:52] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-06 14:10:20,839 - INFO - 127.0.0.1 - - [06/Mar/2026 14:10:20] "[31m[1mPOST /upload HTTP/1.1[0m" 400 -
+2026-03-06 14:29:25,448 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-06 14:29:25,448 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-06 14:29:25,449 - INFO -  * Restarting with stat
+2026-03-06 14:29:31,874 - WARNING -  * Debugger is active!
+2026-03-06 14:29:31,875 - INFO -  * Debugger PIN: 437-260-211
+2026-03-06 14:29:40,162 - INFO - 127.0.0.1 - - [06/Mar/2026 14:29:40] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-06 14:30:11,480 - INFO - 127.0.0.1 - - [06/Mar/2026 14:30:11] "POST /upload HTTP/1.1" 200 -
+2026-03-06 14:30:13,598 - INFO - 127.0.0.1 - - [06/Mar/2026 14:30:13] "GET /manuscript/OOD/pages HTTP/1.1" 200 -
+2026-03-06 14:30:14,644 - INFO - 127.0.0.1 - - [06/Mar/2026 14:30:14] "GET /semi-segment/OOD/image HTTP/1.1" 200 -
+2026-03-06 14:39:50,138 - INFO - 127.0.0.1 - - [06/Mar/2026 14:39:50] "GET /manuscript/OOD/pages HTTP/1.1" 200 -
+2026-03-06 14:39:50,654 - INFO - 127.0.0.1 - - [06/Mar/2026 14:39:50] "GET /semi-segment/OOD/image HTTP/1.1" 200 -
+2026-03-06 14:41:08,114 - INFO - 127.0.0.1 - - [06/Mar/2026 14:41:08] "GET /manuscript/OOD/pages HTTP/1.1" 200 -
+2026-03-06 14:41:08,818 - INFO - 127.0.0.1 - - [06/Mar/2026 14:41:08] "GET /semi-segment/OOD/image HTTP/1.1" 200 -
+2026-03-06 14:41:11,913 - INFO - 127.0.0.1 - - [06/Mar/2026 14:41:11] "GET /manuscript/OOD/pages HTTP/1.1" 200 -
+2026-03-06 14:41:14,016 - INFO - 127.0.0.1 - - [06/Mar/2026 14:41:14] "GET /semi-segment/OOD/image HTTP/1.1" 200 -
+2026-03-06 14:42:43,301 - INFO - 127.0.0.1 - - [06/Mar/2026 14:42:43] "GET /manuscript/OOD/pages HTTP/1.1" 200 -
+2026-03-06 14:42:44,004 - INFO - 127.0.0.1 - - [06/Mar/2026 14:42:44] "GET /semi-segment/OOD/image HTTP/1.1" 200 -
+2026-03-06 14:43:37,307 - INFO - 127.0.0.1 - - [06/Mar/2026 14:43:37] "GET /manuscript/OOD/pages HTTP/1.1" 200 -
+2026-03-06 14:43:37,949 - INFO - 127.0.0.1 - - [06/Mar/2026 14:43:37] "GET /semi-segment/OOD/image HTTP/1.1" 200 -

@@ -398,8 +398,6 @@ def ensemble_text_samples(samples):
     return "".join(result_chars), result_confidences
 
 
-
-# TODO write a drop-in replacement function which will use a function similar to the process_page_xml function in recognize_manuscript_text_v2_pretrained.py.
 def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_points=4):
     print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
     
@@ -601,6 +599,47 @@ def save_correction(manuscript, page):
     data = request.json
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     
+    # --- START OF NODE CORRECTION LOGGING ---
+    try:
+        modifications = data.get('modifications', [])
+        nodes_data = data.get('graph', {}).get('nodes', [])
+        
+        nodes_added = sum(1 for m in modifications if m.get('type') == 'node_add')
+        nodes_removed = sum(1 for m in modifications if m.get('type') == 'node_delete')
+        final_nodes_count = len(nodes_data) if nodes_data else 0
+        
+        corrections_dir = manuscript_path / "node_corrections"
+        corrections_dir.mkdir(parents=True, exist_ok=True)
+        correction_file = corrections_dir / f"{page}.json"
+        
+        # If file exists, we cumulatively update the counts (useful for multiple saves / auto-saves)
+        if correction_file.exists():
+            with open(correction_file, 'r') as f:
+                prev_data = json.load(f)
+            original_nodes_count = prev_data.get('original_nodes', final_nodes_count - nodes_added + nodes_removed)
+            total_added = prev_data.get('nodes_added', 0) + nodes_added
+            total_removed = prev_data.get('nodes_removed', 0) + nodes_removed
+        else:
+            original_nodes_count = final_nodes_count - nodes_added + nodes_removed
+            total_added = nodes_added
+            total_removed = nodes_removed
+            
+        correction_data = {
+            "original_nodes": original_nodes_count,
+            "nodes_added": total_added,
+            "nodes_removed": total_removed,
+            "final_nodes": final_nodes_count
+        }
+        
+        with open(correction_file, 'w') as f:
+            json.dump(correction_data, f, indent=4)
+            
+        print(f"[{page}] Node corrections logged: Original: {original_nodes_count}, Added: {total_added}, Removed: {total_removed}, Final: {final_nodes_count}")
+    except Exception as e:
+        print(f"[{page}] Error saving node corrections: {e}")
+        traceback.print_exc()
+    # --- END OF NODE CORRECTION LOGGING ---
+    
     textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph')
     textbox_labels = data.get('textboxLabels')
@@ -691,8 +730,10 @@ def download_results(manuscript):
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output"
     if not manuscript_path.exists():
          return jsonify({"error": "No output found for this manuscript"}), 404
+    
     xml_dir = manuscript_path / "page-xml-format"
     img_dir = manuscript_path / "image-format"
+    corrections_dir = Path(UPLOAD_FOLDER) / manuscript / "node_corrections"
     
     memory_file = io.BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
@@ -708,6 +749,60 @@ def download_results(manuscript):
                     file_path = os.path.join(root, file)
                     arcname = os.path.join('image-format', os.path.relpath(file_path, img_dir))
                     zf.write(file_path, arcname)
+                    
+        # --- START METRICS CALCULATION ---
+        total_original = 0
+        total_added = 0
+        total_removed = 0
+        total_final = 0
+        total_pages_corrected = 0
+        
+        if corrections_dir.exists():
+            json_files = list(corrections_dir.glob("*.json"))
+            total_pages_corrected = len(json_files)
+            for f in json_files:
+                try:
+                    with open(f, 'r') as jf:
+                        cdata = json.load(jf)
+                        total_original += cdata.get("original_nodes", 0)
+                        total_added += cdata.get("nodes_added", 0)
+                        total_removed += cdata.get("nodes_removed", 0)
+                        total_final += cdata.get("final_nodes", 0)
+                except Exception as e:
+                    print(f"Error reading metrics file {f}: {e}")
+                    
+        # Standard Definitions for object detection task via user correction:
+        # TP = Original nodes that were kept (Original - Removed)
+        # FP = Original nodes that user removed
+        # FN = Missed nodes that user had to manually add
+        tp = max(0, total_original - total_removed)
+        fp = total_removed
+        fn = total_added
+        
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+        
+        metrics_data = {
+            "manuscript": manuscript,
+            "total_pages_corrected": total_pages_corrected,
+            "total_original_nodes": total_original,
+            "total_nodes_added_by_user": total_added,
+            "total_nodes_removed_by_user": total_removed,
+            "total_final_nodes": total_final,
+            "metrics": {
+                "true_positives": tp,
+                "false_positives": fp,
+                "false_negatives": fn,
+                "precision": round(precision, 4),
+                "recall": round(recall, 4),
+                "f1_score": round(f1, 4)
+            }
+        }
+        
+        # Write directly to the ZIP
+        zf.writestr('node_metrics.json', json.dumps(metrics_data, indent=4))
+        # --- END METRICS CALCULATION ---
 
     memory_file.seek(0)
     return send_file(
@@ -716,6 +811,7 @@ def download_results(manuscript):
         as_attachment=True, 
         download_name=f'{manuscript}_results.zip'
     )
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
