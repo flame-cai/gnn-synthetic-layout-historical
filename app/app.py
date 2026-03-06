@@ -818,19 +818,53 @@ def save_overlay(manuscript, page):
         data = request.json
         manuscript_path = Path(UPLOAD_FOLDER) / manuscript
         
-        # Load the base image
-        img_path = manuscript_path / "images_resized" / f"{page}.jpg"
-        if not img_path.exists():
-            return jsonify({"error": "Image not found"}), 404
-            
-        img = Image.open(img_path).convert("RGB")
+        dimensions = data.get('dimensions', None)
+        
+        # 1. Load Original Image
+        original_dir = manuscript_path / "images"
+        orig_img_path = None
+        for ext in ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.JPG', '.JPEG', '.PNG']:
+            candidate = original_dir / f"{page}{ext}"
+            if candidate.exists():
+                orig_img_path = candidate
+                break
+                
+        if not orig_img_path:
+            orig_img_path = manuscript_path / "images_resized" / f"{page}.jpg"
+            if not orig_img_path.exists():
+                return jsonify({"error": "Image not found"}), 404
+                
+        # Open as RGBA for proper blending
+        img = Image.open(orig_img_path).convert("RGBA")
+        
+        # 2. Resize to match graph coordinates
+        if dimensions and len(dimensions) == 2:
+            target_size = (int(dimensions[0]), int(dimensions[1]))
+            img = img.resize(target_size, Image.Resampling.LANCZOS)
+        
+        # 3. Simulate Frontend CSS: opacity: 0.7 over background-color: #121212
+        # #121212 in RGB is (18, 18, 18)
+        background = Image.new("RGBA", img.size, (18, 18, 18, 255))
+        
+        # Set image opacity to 0.7 (255 * 0.7 = 178)
+        img_alpha = img.copy()
+        img_alpha.putalpha(178)
+        
+        # Alpha composite to blend the dark background and the image
+        img = Image.alpha_composite(background, img_alpha).convert("RGB")
         draw = ImageDraw.Draw(img)
         
         graph = data.get('graph', {})
         nodes = graph.get('nodes', [])
         edges = graph.get('edges', [])
         
-        # Draw edges (red if modified, otherwise white)
+        # Compensation for scaleFactor = 0.7 in the UI
+        # UI edge width = 4  --> 4 / 0.7 = 5.7 (round to 6)
+        # UI node radius = 7 --> 7 / 0.7 = 10
+        line_width = 6
+        r = 10
+        
+        # 4. Draw edges (using UI colors: #f44336 or #FF0000)
         for edge in edges:
             source_idx = edge.get('source')
             target_idx = edge.get('target')
@@ -838,21 +872,19 @@ def save_overlay(manuscript, page):
             if source_idx < len(nodes) and target_idx < len(nodes):
                 n1 = nodes[source_idx]
                 n2 = nodes[target_idx]
-                color = "red" if edge.get('modified') else "white"
-                draw.line([(n1['x'], n1['y']), (n2['x'], n2['y'])], fill=color, width=3)
+                color = "#f44336" if edge.get('modified') else "#FF0000"
+                draw.line([(n1['x'], n1['y']), (n2['x'], n2['y'])], fill=color, width=line_width)
                 
-        # Draw nodes (blue)
-        r = 6
+        # 5. Draw nodes (using UI color: #000000 / Black)
         for node in nodes:
             x, y = node['x'], node['y']
-            draw.ellipse([(x-r, y-r), (x+r, y+r)], fill="#2196F3", outline="white")
+            draw.ellipse([(x-r, y-r), (x+r, y+r)], fill="#000000")
             
-        # Save to overlay_exports directory
         export_dir = manuscript_path / "overlay_exports"
         export_dir.mkdir(parents=True, exist_ok=True)
         
         save_path = export_dir / f"{page}_overlay.jpg"
-        img.save(save_path, "JPEG", quality=90)
+        img.save(save_path, "JPEG", quality=95)
         
         print(f"[{page}] Overlay successfully saved to {save_path}")
         return jsonify({"message": "Overlay saved successfully", "path": str(save_path)})
@@ -861,6 +893,6 @@ def save_overlay(manuscript, page):
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
+        
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
