@@ -197,7 +197,7 @@ python -m gnn_training.training.main_train_eval \
 --config "configs/gnn_training.yaml" \
 --dataset_path "gnn_data/processed_data_gnn/" \
 --unique_folder_name "gnn_experiment_1" \
---gpu_id 1
+--gpu_id 0
 ```
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 

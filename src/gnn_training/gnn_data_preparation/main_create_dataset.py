@@ -39,8 +39,22 @@ def process_page(page_id: str, data_dir: Path, config: DatasetCreationConfig):
             points_normalized = points_normalized.reshape(1, -1)
             
         textline_labels = np.loadtxt(labels_path, dtype=int)
+        
+        # Ensure textline_labels is strictly a 1D array (prevents 0-d scalar errors if file has 1 line)
+        textline_labels = np.atleast_1d(textline_labels)
 
-        if len(points_normalized) < config.min_nodes_per_page:
+        # ---------------------------------------------------------
+        # ROBUST FIX: Ensure point features and labels match exactly
+        # ---------------------------------------------------------
+        num_points = points_normalized.shape[0]
+        num_labels = textline_labels.shape[0]
+        
+        if num_points != num_labels:
+            logging.error(f"Skipping page {page_id}: Shape mismatch! Points: {num_points}, Labels: {num_labels}. Data is corrupted.")
+            return None
+        # ---------------------------------------------------------
+
+        if num_points < config.min_nodes_per_page:
             logging.info(f"Skipping page {page_id}: has {len(points_normalized)} nodes, less than min {config.min_nodes_per_page}.")
             return None
             

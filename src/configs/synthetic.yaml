@@ -1,7 +1,7 @@
 # --- General Generation Settings ---
 # python synthetic-data-gen/generate.py --dry-run --config synthetic-data-gen/configs/histdb_synthetic.yaml
 generation:
-  num_samples: 20000 # set this less than 50 to enable dry run and visualize
+  num_samples: 40000 # set this less than 50 to enable dry run and visualize
   num_workers: -1 # -1 means use all available CPU cores
   base_seed: 43
   output_dir: "./gnn_data/generated_synthetic_data"
@@ -101,7 +101,7 @@ textbox_content:
   # Augmentations (Phase 1)
   font_size_variation:
     enabled: true
-    variation_factor: { dist: "normal", mean: 0.0, std: 0.1 } # Multiplicative factor. Might need to tweak
+    variation_factor: { dist: "normal", mean: 0.0, std: 0.1 } # Multiplicativ e factor. Might need to tweak
 
   point_level_jitter:
     enabled: true
