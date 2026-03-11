@@ -409,3 +409,75 @@
 2026-03-06 15:23:58,224 - INFO - 127.0.0.1 - - [06/Mar/2026 15:23:58] "GET /semi-segment/OOD/image HTTP/1.1" 200 -
 2026-03-06 15:24:04,425 - INFO - 127.0.0.1 - - [06/Mar/2026 15:24:04] "OPTIONS /save-overlay/OOD/image HTTP/1.1" 200 -
 2026-03-06 15:24:10,682 - INFO - 127.0.0.1 - - [06/Mar/2026 15:24:10] "POST /save-overlay/OOD/image HTTP/1.1" 200 -
+2026-03-07 09:45:06,215 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-07 09:45:06,215 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-07 09:45:06,215 - INFO -  * Restarting with stat
+2026-03-07 09:45:08,778 - WARNING -  * Debugger is active!
+2026-03-07 09:45:08,778 - INFO -  * Debugger PIN: 404-304-761
+2026-03-07 09:46:15,564 - INFO - 127.0.0.1 - - [07/Mar/2026 09:46:15] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 09:46:31,778 - INFO - 127.0.0.1 - - [07/Mar/2026 09:46:31] "POST /upload HTTP/1.1" 200 -
+2026-03-07 09:46:31,807 - INFO - 127.0.0.1 - - [07/Mar/2026 09:46:31] "GET /manuscript/testt/pages HTTP/1.1" 200 -
+2026-03-07 09:46:32,256 - INFO - 127.0.0.1 - - [07/Mar/2026 09:46:32] "[35m[1mGET /semi-segment/testt/image HTTP/1.1[0m" 500 -
+2026-03-07 09:48:51,898 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-07 09:48:51,898 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-07 09:48:51,899 - INFO -  * Restarting with stat
+2026-03-07 09:48:54,383 - WARNING -  * Debugger is active!
+2026-03-07 09:48:54,384 - INFO -  * Debugger PIN: 404-304-761
+2026-03-07 09:49:22,663 - INFO - 127.0.0.1 - - [07/Mar/2026 09:49:22] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 09:49:42,252 - INFO - 127.0.0.1 - - [07/Mar/2026 09:49:42] "POST /upload HTTP/1.1" 200 -
+2026-03-07 09:49:42,303 - INFO - 127.0.0.1 - - [07/Mar/2026 09:49:42] "GET /manuscript/OODv3/pages HTTP/1.1" 200 -
+2026-03-07 09:49:43,191 - INFO - 127.0.0.1 - - [07/Mar/2026 09:49:43] "GET /semi-segment/OODv3/image HTTP/1.1" 200 -
+2026-03-07 09:56:57,689 - INFO - 127.0.0.1 - - [07/Mar/2026 09:56:57] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 09:57:12,764 - INFO - 127.0.0.1 - - [07/Mar/2026 09:57:12] "GET /manuscript/complex/pages HTTP/1.1" 200 -
+2026-03-07 09:57:13,149 - INFO - 127.0.0.1 - - [07/Mar/2026 09:57:13] "GET /manuscript/complex/pages HTTP/1.1" 200 -
+2026-03-07 09:57:13,426 - INFO - 127.0.0.1 - - [07/Mar/2026 09:57:13] "GET /semi-segment/complex/233_0016 HTTP/1.1" 200 -
+2026-03-07 09:57:53,096 - INFO - 127.0.0.1 - - [07/Mar/2026 09:57:53] "POST /upload HTTP/1.1" 200 -
+2026-03-07 09:57:53,487 - INFO - 127.0.0.1 - - [07/Mar/2026 09:57:53] "GET /manuscript/my_manuscriptkk/pages HTTP/1.1" 200 -
+2026-03-07 09:57:53,857 - INFO - 127.0.0.1 - - [07/Mar/2026 09:57:53] "GET /semi-segment/my_manuscriptkk/test_layout_1 HTTP/1.1" 200 -
+2026-03-07 09:58:09,877 - INFO - 127.0.0.1 - - [07/Mar/2026 09:58:09] "GET /semi-segment/my_manuscriptkk/test_layout_2 HTTP/1.1" 200 -
+2026-03-07 10:01:15,635 - INFO - 127.0.0.1 - - [07/Mar/2026 10:01:15] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 10:01:34,386 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-07 10:01:34,386 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-07 10:01:34,386 - INFO -  * Restarting with stat
+2026-03-07 10:01:37,813 - WARNING -  * Debugger is active!
+2026-03-07 10:01:37,813 - INFO -  * Debugger PIN: 404-304-761
+2026-03-07 10:05:20,345 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-07 10:05:20,345 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-07 10:05:20,345 - INFO -  * Restarting with stat
+2026-03-07 10:05:23,493 - WARNING -  * Debugger is active!
+2026-03-07 10:05:23,493 - INFO -  * Debugger PIN: 404-304-761
+2026-03-07 10:05:28,665 - INFO - 127.0.0.1 - - [07/Mar/2026 10:05:28] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 10:07:48,178 - INFO - 127.0.0.1 - - [07/Mar/2026 10:07:48] "POST /upload HTTP/1.1" 200 -
+2026-03-07 10:07:48,563 - INFO - 127.0.0.1 - - [07/Mar/2026 10:07:48] "GET /manuscript/DIVA/pages HTTP/1.1" 200 -
+2026-03-07 10:07:49,476 - INFO - 127.0.0.1 - - [07/Mar/2026 10:07:49] "GET /semi-segment/DIVA/000618 HTTP/1.1" 200 -
+2026-03-07 10:08:37,751 - INFO - 127.0.0.1 - - [07/Mar/2026 10:08:37] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 10:20:30,748 - INFO - 127.0.0.1 - - [07/Mar/2026 10:20:30] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 10:20:57,646 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-07 10:20:57,646 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-07 10:20:57,647 - INFO -  * Restarting with stat
+2026-03-07 10:21:01,083 - WARNING -  * Debugger is active!
+2026-03-07 10:21:01,083 - INFO -  * Debugger PIN: 404-304-761
+2026-03-07 10:21:09,953 - INFO - 127.0.0.1 - - [07/Mar/2026 10:21:09] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-07 10:37:29,266 - INFO - 127.0.0.1 - - [07/Mar/2026 10:37:29] "POST /upload HTTP/1.1" 200 -
+2026-03-07 10:37:29,669 - INFO - 127.0.0.1 - - [07/Mar/2026 10:37:29] "GET /manuscript/DIVA/pages HTTP/1.1" 200 -
+2026-03-07 10:37:31,116 - INFO - 127.0.0.1 - - [07/Mar/2026 10:37:31] "GET /semi-segment/DIVA/000618 HTTP/1.1" 200 -
+2026-03-07 10:45:07,976 - INFO - 127.0.0.1 - - [07/Mar/2026 10:45:07] "GET /semi-segment/DIVA/000619 HTTP/1.1" 200 -
+2026-03-07 10:47:02,014 - INFO -  * Detected change in '/home/kartik/gnn-synthetic-layout-historical/app/app.py', reloading
+2026-03-07 10:47:03,160 - INFO -  * Restarting with stat
+2026-03-07 10:47:06,508 - WARNING -  * Debugger is active!
+2026-03-07 10:47:06,508 - INFO -  * Debugger PIN: 404-304-761

@@ -15,6 +15,7 @@ app/my-app/.vite/
 
 # all folders inside app/
 app/input_manuscripts/*/
+app/manuscript_recognition.log
 
 
 # Env files
