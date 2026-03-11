@@ -18,8 +18,10 @@ ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative M
 </p>
 
 <p align="center">
-<a href="https://openreview.net/forum?id=0GoutqIh3l"><b>📄 Paper</b></a>
+  <a href="https://openreview.net/forum?id=0GoutqIh3l"><b>📄 Paper</b></a> &nbsp;|&nbsp;
+  <a href="https://kartikchincholikar.github.io/gnn-layout-analysis/"><b>🌐 Project Website</b></a>
 </p>
+
 
 In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line. 
 
