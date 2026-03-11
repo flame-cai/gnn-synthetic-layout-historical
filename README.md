@@ -1,19 +1,30 @@
-# Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data
+<h1 align="center">
+Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks
+</h1>
 
+<p align="center">
+<a href="https://kartikchincholikar.github.io/">Kartik Chincholikar</a> ·
+<a href="https://www.linkedin.com/in/kaushik-gopalan-b6533624/">Kaushik Gopalan</a> ·
+<a href="https://www.linkedin.com/in/mihir-hasabnis-4078a01b/">Mihir Hasabnis</a>
+</p>
+
+<p align="center">
+Centre for Interdisciplinary Artificial Intelligence (CAI) <br>
+FLAME University
+</p>
+
+<p align="center">
+ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling
+</p>
+
+<p align="center">
+<a href="https://openreview.net/forum?id=0GoutqIh3l"><b>📄 Paper</b></a>
+</p>
+
+In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line. 
 
 **Version:** 3.0
 **Last Updated:** March 11, 2026
-
-This repository contains a public implementation of the Graph based text-line segmentation method proposed in the paper "Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data". This work has been developed by the original authors from Centre for inter-disciplinary Artificial Intelligence (CAI) at FLAME University:
-[Kartik Chincholikar ](https://kartikchincholikar.github.io/), [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubdomain=in), [Mihir Hasabnis](https://www.linkedin.com/in/mihir-hasabnis-4078a01b/)
-
-In this work we formulate the text-line segmentation task as an edge classification problem for graph neural networks, representing each character as a node in the graph, with edges connecting characters of the same text-line. 
-
-## 📄 Paper
-
-[**Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks**](https://openreview.net/forum?id=0GoutqIh3l)  
-ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling, 2026.
-
 
 ## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
@@ -212,7 +223,7 @@ python -m gnn_training.training.main_train_eval \
 ```
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 
-## Citation
+## 📌 Citation
 
 If you use this work, please cite:
 
