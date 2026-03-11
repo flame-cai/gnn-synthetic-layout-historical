@@ -2,15 +2,20 @@
 
 
 **Version:** 3.0
-**Last Updated:** Jan 15, 2026
+**Last Updated:** March 11, 2026
 
 This repository contains a public implementation of the Graph based text-line segmentation method proposed in the paper "Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data". This work has been developed by the original authors from Centre for inter-disciplinary Artificial Intelligence (CAI) at FLAME University:
 [Kartik Chincholikar ](https://kartikchincholikar.github.io/), [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubdomain=in), [Mihir Hasabnis](https://www.linkedin.com/in/mihir-hasabnis-4078a01b/)
 
 In this work we formulate the text-line segmentation task as an edge classification problem for graph neural networks, representing each character as a node in the graph, with edges connecting characters of the same text-line. 
 
+## 📄 Paper
 
-## **Project Components**
+[**Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks**](https://openreview.net/forum?id=0GoutqIh3l)  
+ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling, 2026.
+
+
+## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
 *   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at `character level`, `text-line level` and `text-box level`.
 *   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
@@ -18,7 +23,7 @@ In this work we formulate the text-line segmentation task as an edge classificat
 *   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
 
 
-## **Getting Started**
+## 🚀 **Getting Started**
 Clone the repository:
 ```bash
 git clone --depth 1 --branch human-in-the-loop https://github.com/flame-cai/gnn-synthetic-layout-historical.git
@@ -34,7 +39,7 @@ conda activate gnn_layout
 pip install -r requirements.txt
 ```
 
-## **Semi Automatic Annotation Tool**
+## 🧩 **Semi Automatic Annotation Tool**
 Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
 Automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes.
 Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming, requiring manual correction of predicted bounding polygons or polylines.
@@ -47,17 +52,23 @@ It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset pr
 
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
 
-### Setup Instructions
-#### 0 Download the Recognition Model
-To recognize the unicode text-content from segmented text-line image, we need a text recognition model. To do this, the tool supports using Gemini (using API key), OR an EasyOCR based recogntion model which will need to be downloaded:
+### ⚙️ Setup Instructions
+
+#### 🔵 Setup Recognition Model (optional)
+To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recogntion model.
+
+##### Gemini
+If you would be using Gemini to recognize text, make sure to make the neccessary adjustment to the prompt in ```_run_gemini_recognition_internal``` function in ```app/app.py```. In the same function we use ```model = genai.GenerativeModel('gemini-2.5-flash')```, which can be updated with the latest Gemini release. You will also need to enter your API key in the frontend (or hardcode it in ```app/app.py```)
+
+##### EasyOCR
+To use EasyOCR based recognition, you will need to download the model as follows (or use your own finetuned one)
 ```bash
 cd app/recognition/pretrained_model
 wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
 ```
-This download step is optional if you want to use the EasyOCR model.
 
 
-#### 1 Start Backend Server
+#### 🔵 Start Backend Server
 ```bash
 cd app
 conda activate gnn_layout
@@ -66,7 +77,7 @@ python app.py
 
 The server runs on `http://localhost:5000`.
 
-#### 2 Start Frontend
+#### 🔵 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
 Create a .env file in `app/my-app/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
@@ -88,7 +99,7 @@ Access the UI at `http://localhost:5173`.
 
 
 
-##  **Automatic Out of the Box Inference**
+##  💻 **Automatic Out of the Box Inference**
 Run the entire layout analysis pipeline in fully automatic mode on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images.
 
 #### 🔵 Run Inference (fully automatic)
@@ -122,7 +133,7 @@ This will process all the manuscript images in sample_manuscript_1 and save the 
 
 
 
-## **GNN Training Recipe**
+## 🧠 **GNN Training Recipe**
 The following instructions will help you configure parameters to generate synthetic layout data, augment the Sanskrit dataset, prepare data for GNN training, and train custom GNN architectures to perform text-line segmentation, which is formulated as an edge classification task.
 
 
@@ -201,8 +212,23 @@ python -m gnn_training.training.main_train_eval \
 ```
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 
+## Citation
 
-## Acknowledgements
+If you use this work, please cite:
+
+```bibtex
+@inproceedings{
+chincholikar2026towards,
+title={Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks},
+author={Kartik Chincholikar and Kaushik Gopalan and Mihir Hasabnis},
+booktitle={ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling},
+year={2026},
+url={https://openreview.net/forum?id=0GoutqIh3l}
+}
+```
+
+
+## ♥️ Acknowledgements
 The authors also wish to express their thanks to Lalchand Research Library, DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
-The authors also wish to express their gratitude to the anonymous reviewers, Dr. Petar Veličković, Dr. Dhaval Patel, Dr. Tarinee Awasthi and Dr. Oliver Hellwig for their invaluable guidance and support. Finally the authors wish to express their thanks to Shagun Dwivedi and Ansh Kushwaha for their valuable insights and feedback.
+The authors also wish to express their gratitude to the anonymous reviewers, Shagun Dwivedi, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, Dr. Tarinee Awasthi and Dr. Oliver Hellwig for their invaluable guidance and support.
 
