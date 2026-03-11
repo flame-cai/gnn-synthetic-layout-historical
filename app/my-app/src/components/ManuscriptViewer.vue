@@ -868,17 +868,17 @@ const resetWorkingGraph = () => {
 const getNodeColor = (nodeIndex) => {
   if (layoutModeActive.value && isEKeyPressed.value) {
     const textlineId = nodeToTextlineMap.value[nodeIndex]
-    if (hoveredTextlineId.value === textlineId) return '#000000' 
+    if (hoveredTextlineId.value === textlineId) return '#ff4081' 
     const label = textlineLabels[nodeIndex]
-    return (label !== undefined && label > -1) ? labelColors[label % labelColors.length] : '#000000' 
+    return (label !== undefined && label > -1) ? labelColors[label % labelColors.length] : '#9e9e9e' 
   }
   
-  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#000000'
-  if (isNodeSelected(nodeIndex)) return '#000000'
+  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return '#00bcd4'
+  if (isNodeSelected(nodeIndex)) return '#ff9500'
   const edgeCount = nodeEdgeCounts.value[nodeIndex]
-  if (edgeCount < 2) return '#000000'
-  if (edgeCount === 2) return '#000000'
-  return '#000000'
+  if (edgeCount < 2) return '#f44336'
+  if (edgeCount === 2) return '4CAF50'
+  return '#2196F3'
 }
 
 const getNodeRadius = (nodeIndex) => {
@@ -889,7 +889,7 @@ const getNodeRadius = (nodeIndex) => {
   if (isNodeSelected(nodeIndex)) return 7
   return nodeEdgeCounts.value[nodeIndex] < 2 ? 7 : 7
 }
-const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#FF0000')
+const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#ffffff')
 const isNodeSelected = (nodeIndex) => selectedNodes.value.includes(nodeIndex)
 const isEdgeSelected = (edge) => {
   return selectedNodes.value.length === 2 &&

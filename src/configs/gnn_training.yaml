@@ -89,7 +89,7 @@ model_configs:
   SplineCNN:
     type: "gnn"
     hidden_channels: 128
-    num_layers: 4 # this was 7
+    num_layers: 2 # this was 7
     dropout: 0.05  #this was 0.15
     kernel_size: 3
     spline_edge_dim: 5 # The target dimension for the edge feature pre-processor
