@@ -26,7 +26,7 @@ ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative M
 ## 🚀 **Getting Started**
 Clone the repository:
 ```bash
-git clone --depth 1 --branch human-in-the-loop https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+git clone --depth 1 https://github.com/flame-cai/gnn-synthetic-layout-historical.git
 ```
 
 #### Install Conda Environment
