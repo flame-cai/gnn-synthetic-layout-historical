@@ -3,6 +3,7 @@
 
 **Version:** 3.0
 **Last Updated:** Jan 21, 2026
+**NOTE:** The latest version of the project is available on the [main branch](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/main).
 
 This repository contains a public implementation of the Graph based text-line segmentation method proposed in the paper "Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks and Synthetic Layout Data". 
 
@@ -21,7 +22,7 @@ In this work we formulate the text-line segmentation task as an edge classificat
 ## **Getting Started**
 Clone the repository:
 ```bash
-git clone https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+git clone --depth 1 --branch gram-submission https://github.com/flame-cai/gnn-synthetic-layout-historical.git
 ```
 
 #### Install Conda Environment
