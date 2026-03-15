@@ -70,7 +70,8 @@ It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset pr
 ### ⚙️ Setup Instructions
 
 #### 🔵 Setup Recognition Model (optional)
-To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recogntion model.
+
+To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recognition model.
 
 ##### Gemini
 If you would be using Gemini to recognize text, make sure to make the neccessary adjustment to the prompt in ```_run_gemini_recognition_internal``` function in ```app/app.py```. In the same function we use ```model = genai.GenerativeModel('gemini-2.5-flash')```, which can be updated with the latest Gemini release. You will also need to enter your API key in the frontend (or hardcode it in ```app/app.py```)
@@ -81,6 +82,11 @@ To use EasyOCR based recognition, you will need to download the model as follows
 cd app/recognition/pretrained_model
 wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
 ```
+The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025)
+
+
+
+
 
 
 #### 🔵 Start Backend Server

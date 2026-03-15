@@ -481,3 +481,15 @@
 2026-03-07 10:47:03,160 - INFO -  * Restarting with stat
 2026-03-07 10:47:06,508 - WARNING -  * Debugger is active!
 2026-03-07 10:47:06,508 - INFO -  * Debugger PIN: 404-304-761
+2026-03-15 12:56:08,689 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-03-15 12:56:08,689 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-15 12:56:08,690 - INFO -  * Restarting with stat
+2026-03-15 12:56:11,117 - WARNING -  * Debugger is active!
+2026-03-15 12:56:11,127 - INFO -  * Debugger PIN: 831-658-179
+2026-03-15 12:56:30,915 - INFO - 127.0.0.1 - - [15/Mar/2026 12:56:30] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-15 12:56:53,921 - INFO - 127.0.0.1 - - [15/Mar/2026 12:56:53] "POST /upload HTTP/1.1" 200 -
+2026-03-15 12:56:54,347 - INFO - 127.0.0.1 - - [15/Mar/2026 12:56:54] "GET /manuscript/my_manuscript_test/pages HTTP/1.1" 200 -
+2026-03-15 12:56:55,229 - INFO - 127.0.0.1 - - [15/Mar/2026 12:56:55] "GET /semi-segment/my_manuscript_test/test_layout_1 HTTP/1.1" 200 -
