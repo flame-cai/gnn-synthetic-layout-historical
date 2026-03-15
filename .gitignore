@@ -1,0 +1,32 @@
+**/generated_synthetic_data/
+**/augmented_sanskrit_dataset/
+**/combined_data/
+**/processed_data_gnn/
+**/training_runs/
+**/__pycache__/
+
+app/recognition/pretrained_model/devanagari.pth
+app/recognition/pretrained_model/vadakautuhala.pth
+
+# Vue app (app/my-app)
+app/my-app/node_modules/
+app/my-app/dist/
+app/my-app/.vite/
+
+# all folders inside app/
+app/input_manuscripts/*/
+app/manuscript_recognition.log
+
+
+# Env files
+app/my-app/.env
+app/my-app/.env.*
+app/.env
+app/.env.*
+downstream_eval/.env.*
+downstream_eval/.env
+
+# Logs
+app/my-app/npm-debug.log*
+
+

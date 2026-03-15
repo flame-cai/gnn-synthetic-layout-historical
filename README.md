@@ -1,0 +1,255 @@
+<h1 align="center">
+Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks
+</h1>
+
+<p align="center">
+<a href="https://kartikchincholikar.github.io/">Kartik Chincholikar</a> ·
+<a href="https://www.linkedin.com/in/kaushik-gopalan-b6533624/">Kaushik Gopalan</a> ·
+<a href="https://www.linkedin.com/in/mihir-hasabnis-4078a01b/">Mihir Hasabnis</a>
+</p>
+
+<p align="center">
+Centre for Interdisciplinary Artificial Intelligence (CAI) <br>
+FLAME University
+</p>
+
+<p align="center">
+ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling
+</p>
+
+<p align="center">
+  <a href="https://openreview.net/forum?id=0GoutqIh3l"><b>📄 Paper</b></a> &nbsp;|&nbsp;
+  <a href="https://kartikchincholikar.github.io/gnn-layout-analysis/"><b>🌐 Project Website</b></a>
+</p>
+
+
+In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line. 
+
+**Version:** 3.0
+**Last Updated:** March 11, 2026
+
+## ✅ **Project Components**
+*   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at `character level`, `text-line level` and `text-box level`.
+*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
+*   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
+*   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
+*   **📂 Dataset:** The dataset used in the paper is currently available in the 
+  [`gram-submission`](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/gram-submission?tab=readme-ov-file) branch of this repository.
+
+
+## 🚀 **Getting Started**
+Clone the repository:
+```bash
+git clone --depth 1 https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+```
+
+#### Install Conda Environment
+Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
+
+```bash
+cd gnn-synthetic-layout-historical 
+conda create -n gnn_layout python=3.11 -y
+conda activate gnn_layout
+pip install -r requirements.txt
+```
+
+## 🧩 **Semi Automatic Annotation Tool**
+Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
+Automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes.
+Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming, requiring manual correction of predicted bounding polygons or polylines.
+
+This semi-automatic annotation tool presented in this work natively supports graph-based labelling, treating character locations as nodes, with characters of the same text-lines being connected together.
+This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level`. (See GIF below).
+
+
+It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset presented using a previous version of the tool. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool, especially on Sanskrit manuscripts with complex layouts.
+
+![GNN Layout UI Demo](./app/demo_tutorial.gif)
+
+### ⚙️ Setup Instructions
+
+#### 🔵 Setup Recognition Model (optional)
+
+To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recognition model.
+
+##### Gemini
+If you would be using Gemini to recognize text, make sure to make the neccessary adjustment to the prompt in ```_run_gemini_recognition_internal``` function in ```app/app.py```. In the same function we use ```model = genai.GenerativeModel('gemini-2.5-flash')```, which can be updated with the latest Gemini release. You will also need to enter your API key in the frontend (or hardcode it in ```app/app.py```)
+
+##### EasyOCR
+To use EasyOCR based recognition, you will need to download the model as follows (or use your own finetuned one)
+```bash
+cd app/recognition/pretrained_model
+wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
+```
+The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025)
+
+
+
+
+
+
+#### 🔵 Start Backend Server
+```bash
+cd app
+conda activate gnn_layout
+python app.py
+```
+
+The server runs on `http://localhost:5000`.
+
+#### 🔵 Start Frontend
+First install npm from [Node.js official website](https://nodejs.org/en/download/). 
+
+Create a .env file in `app/my-app/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
+
+```env
+VITE_BACKEND_URL="http://localhost:5000"
+```
+
+Then run:
+
+```bash
+cd app/my-app
+npm install
+npm run dev
+```
+Access the UI at `http://localhost:5173`.
+
+```npm install``` only needs to be run once for the first time. To launch the front-end subsequently, we need to only need to run ```npm run dev```.
+
+
+
+##  💻 **Automatic Out of the Box Inference**
+Run the entire layout analysis pipeline in fully automatic mode on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images.
+
+#### 🔵 Run Inference (fully automatic)
+```bash
+cd src/gnn_inference
+conda activate gnn_layout
+python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
+```
+
+This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/layout_analysis_output/` in PAGE_XML format, GNN format, and as individual line images.
+
+> **NOTE 1:**  
+> This project is made for Handwritten Sanskrit Manuscripts in Devanagari script, however it will work reasonibly well on other scripts if they fit the following criteria:
+> 1) [CRAFT](https://github.com/clovaai/CRAFT-pytorch) successfully detects the script characters  
+> 2) Character spacing is less than Line spacing. 
+>
+> If the output is not satisfactory, please use the Semi-Autonomous Mode to make corrections (add/delete edges or nodes, label text boxes etc.)
+
+
+> **NOTE 2:**  
+> `sample_manuscript_1/` and `sample_manuscript_2` contain high resolution images and will work out of the box. However, `sample_manuscript_3/` contains lower resolution images - for whom the feature engineering parameter `min_distance` in `src/gnn_inference/segmentation/segment_graph.py` will need to be reduced from `20` to `10` as follows:
+> ```python
+> `raw_points = heatmap_to_pointcloud(region_score, min_peak_value=0.4, min_distance=10)`
+> ```
+> The inference code resizes very large images to `2500` longest side for processing to reduce the GPU memory requirements and to standardize the feature extraction process. If you wish to change this limit, you can do so in `src/gnn_inference/inference.py` at the following lines:
+> ```python
+> target_longest_side = 2500
+> ```
+> However, this is also require adjusting the feature extraction parameter `min_distance` in `src/gnn_inference/segmentation/segment_graph.py` accordingly.
+
+
+
+
+## 🧠 **GNN Training Recipe**
+The following instructions will help you configure parameters to generate synthetic layout data, augment the Sanskrit dataset, prepare data for GNN training, and train custom GNN architectures to perform text-line segmentation, which is formulated as an edge classification task.
+
+
+#### 🔵 Activate Conda Environment
+Activate the conda environment if not already done:
+```bash
+cd src
+conda activate gnn_layout
+```
+
+#### 🔵 Generate Synthetic Data
+Configure the parameters in `src/configs/synthetic.yaml` as needed, then run:
+```bash
+cd src
+
+python synthetic_data_gen/generate.py --dry-run --config configs/synthetic.yaml  # to visualize a few samples
+python synthetic_data_gen/generate.py --config configs/synthetic.yaml
+```
+
+This will create a new folder `src/gnn_data/synthetic_layout_data/` with all the generated synthetic data files in the graph based format.
+
+This script peforms domain randomization to generate synthetic layout data simulating complex layouts in the graph based formulation introduced in this project. Both the synthetic data and the real data use the same graph based format, making it easy to integrate synthetic data into training pipelines.
+
+#### 🔵 To Augment Sanskrit Dataset
+Configure the parameters in `src/configs/augment.yaml` as needed, then run:
+```bash
+cd src
+
+python synthetic_data_gen/augment.py \
+--config configs/augment.yaml \
+--input_dir "gnn_data/flattened_sanskrit_data/gnn-dataset" \
+--output_dir "gnn_data/augmented_sanskrit_dataset/"
+```
+This will create a new folder `src/gnn_data/augmented_sanskrit_dataset/` with three subfolders: `train`, `val` and `test`. `train` will contain the augmented training samples, while `val` and `test` will contain the original validation and test samples respectively.
+
+
+#### 🔵 Create Combined Dataset (Synthetic + Augmented Real Data)
+First, copy synthetic data, augmented sanskrit data (training set) into a single folder. For example, you can create a new folder `src/gnn_data/combined_data/` and copy the following into it:
+```bash
+cd src
+
+mkdir -p gnn_data/combined_data/
+
+rsync -a gnn_data/generated_synthetic_data/ gnn_data/combined_data/
+rsync -a gnn_data/augmented_sanskrit_dataset/train/ gnn_data/combined_data/
+echo "augmented real data + synthetic data prepared at: gnn_data/combined_data/"
+```
+
+Hence our training dataset will be at `src/gnn_data/combined_data/`
+validation dataset at `src/gnn_data/augmented_sanskrit_dataset/val/` 
+and test dataset at `src/gnn_data/augmented_sanskrit_dataset/test/` (unused as of now).
+
+#### 🔵 Prepare Data for GNN Training
+First configure the data preprocessing parameters in `src/configs/gnn_preprocessing.yaml` as needed, then run:
+```bash
+cd src
+
+python gnn_training/gnn_data_preparation/main_create_dataset.py \
+--config configs/gnn_preprocessing.yaml \
+--train_data_dir gnn_data/combined_data/ \
+--val_test_data_dir gnn_data/augmented_sanskrit_dataset/val/ \
+--output_dir gnn_data/processed_data_gnn/
+```
+This will create a new folder `src/gnn_data/processed_data_gnn/` with all the processed data files ready for GNN training (node features, edge features, labels etc.).
+
+#### 🔵 Train GNN Model
+First configure the GNN training parameters in `src/configs/gnn_training.yaml` as needed, then run:
+```bash
+cd src
+
+python -m gnn_training.training.main_train_eval \
+--config "configs/gnn_training.yaml" \
+--dataset_path "gnn_data/processed_data_gnn/" \
+--unique_folder_name "gnn_experiment_1" \
+--gpu_id 0
+```
+This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
+
+## 📌 Citation
+
+If you use this work, please cite:
+
+```bibtex
+@inproceedings{
+chincholikar2026towards,
+title={Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks},
+author={Kartik Chincholikar and Kaushik Gopalan and Mihir Hasabnis},
+booktitle={ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling},
+year={2026},
+url={https://openreview.net/forum?id=0GoutqIh3l}
+}
+```
+
+
+## ♥️ Acknowledgements
+The authors also wish to express their thanks to Lalchand Research Library, DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
+The authors also wish to express their gratitude to the anonymous reviewers, Shagun Dwivedi, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, Dr. Tarinee Awasthi and Dr. Oliver Hellwig for their invaluable guidance and support.
+

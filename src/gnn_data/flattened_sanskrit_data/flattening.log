@@ -1,0 +1,564 @@
+2025-12-09 12:35:21,861 - INFO - Starting directory flattening. Source: '.', Destination: '../src/gnn_data/flattened_sanskrit_data'
+2025-12-09 12:35:21,861 - INFO - Destination sub-directories created successfully.
+2025-12-09 12:35:21,866 - INFO - Loaded layout_info.csv from './layout_info.csv' with 481 layout entries.
+2025-12-09 12:35:21,866 - INFO - --- Phase 1: Scanning source files and copying to destination ---
+2025-12-09 12:35:21,867 - INFO - Scanning folder: ./vagbhatalamkara-vyakhya1/page-xml-graph-groundtruth
+2025-12-09 12:35:21,874 - INFO - Scanning folder: ./vagbhatalamkara-vyakhya1/images
+2025-12-09 12:35:21,874 - INFO - Skipping markdown file: ./vagbhatalamkara-vyakhya1/images/put_images_here.md
+2025-12-09 12:35:21,875 - INFO - Scanning folder: ./vagbhatalamkara-vyakhya1/gnn-dataset
+2025-12-09 12:35:21,898 - INFO - Scanning folder: ./vagbhatalamkara-vyakhya1/heatmaps
+2025-12-09 12:35:21,904 - INFO - Scanning folder: ./tarkasangrahah-sateekah2/page-xml-graph-groundtruth
+2025-12-09 12:35:21,907 - INFO - Scanning folder: ./tarkasangrahah-sateekah2/images
+2025-12-09 12:35:21,907 - INFO - Skipping markdown file: ./tarkasangrahah-sateekah2/images/put_images_here.md
+2025-12-09 12:35:21,907 - INFO - Scanning folder: ./tarkasangrahah-sateekah2/gnn-dataset
+2025-12-09 12:35:21,917 - INFO - Scanning folder: ./tarkasangrahah-sateekah2/heatmaps
+2025-12-09 12:35:21,921 - INFO - Scanning folder: ./vrittaratnakarah1/page-xml-graph-groundtruth
+2025-12-09 12:35:21,922 - INFO - Scanning folder: ./vrittaratnakarah1/images
+2025-12-09 12:35:21,922 - INFO - Skipping markdown file: ./vrittaratnakarah1/images/put_images_here.md
+2025-12-09 12:35:21,922 - INFO - Scanning folder: ./vrittaratnakarah1/gnn-dataset
+2025-12-09 12:35:21,927 - INFO - Scanning folder: ./vrittaratnakarah1/heatmaps
+2025-12-09 12:35:21,929 - INFO - Scanning folder: ./vyapati-sang-rahah-muktavaligatavyapati-vyakhya/page-xml-graph-groundtruth
+2025-12-09 12:35:21,934 - INFO - Scanning folder: ./vyapati-sang-rahah-muktavaligatavyapati-vyakhya/images
+2025-12-09 12:35:21,935 - INFO - Skipping markdown file: ./vyapati-sang-rahah-muktavaligatavyapati-vyakhya/images/put_images_here.md
+2025-12-09 12:35:21,935 - INFO - Scanning folder: ./vyapati-sang-rahah-muktavaligatavyapati-vyakhya/gnn-dataset
+2025-12-09 12:35:21,943 - INFO - Scanning folder: ./vyapati-sang-rahah-muktavaligatavyapati-vyakhya/heatmaps
+2025-12-09 12:35:21,946 - INFO - Scanning folder: ./yujurvedashakavrikshah-chitram/page-xml-graph-groundtruth
+2025-12-09 12:35:21,947 - INFO - Scanning folder: ./yujurvedashakavrikshah-chitram/images
+2025-12-09 12:35:21,947 - INFO - Skipping markdown file: ./yujurvedashakavrikshah-chitram/images/put_images_here.md
+2025-12-09 12:35:21,947 - INFO - Scanning folder: ./yujurvedashakavrikshah-chitram/gnn-dataset
+2025-12-09 12:35:21,950 - INFO - Scanning folder: ./yujurvedashakavrikshah-chitram/heatmaps
+2025-12-09 12:35:21,951 - INFO - Scanning folder: ./amarakoshah-kanda2-3/page-xml-graph-groundtruth
+2025-12-09 12:35:21,966 - INFO - Scanning folder: ./amarakoshah-kanda2-3/images
+2025-12-09 12:35:21,967 - INFO - Skipping markdown file: ./amarakoshah-kanda2-3/images/put_images_here.md
+2025-12-09 12:35:21,967 - INFO - Scanning folder: ./amarakoshah-kanda2-3/gnn-dataset
+2025-12-09 12:35:22,015 - INFO - Scanning folder: ./amarakoshah-kanda2-3/heatmaps
+2025-12-09 12:35:22,035 - INFO - Scanning folder: ./pakshikachaturmasika-samvatsarika-pratikramanavidhah/page-xml-graph-groundtruth
+2025-12-09 12:35:22,035 - INFO - Scanning folder: ./pakshikachaturmasika-samvatsarika-pratikramanavidhah/images
+2025-12-09 12:35:22,035 - INFO - Skipping markdown file: ./pakshikachaturmasika-samvatsarika-pratikramanavidhah/images/put_images_here.md
+2025-12-09 12:35:22,035 - INFO - Scanning folder: ./pakshikachaturmasika-samvatsarika-pratikramanavidhah/gnn-dataset
+2025-12-09 12:35:22,037 - INFO - Scanning folder: ./pakshikachaturmasika-samvatsarika-pratikramanavidhah/heatmaps
+2025-12-09 12:35:22,038 - INFO - Scanning folder: ./amaranathamahatmyam/page-xml-graph-groundtruth
+2025-12-09 12:35:22,041 - INFO - Scanning folder: ./amaranathamahatmyam/images
+2025-12-09 12:35:22,041 - INFO - Skipping markdown file: ./amaranathamahatmyam/images/put_images_here.md
+2025-12-09 12:35:22,041 - INFO - Scanning folder: ./amaranathamahatmyam/gnn-dataset
+2025-12-09 12:35:22,053 - INFO - Scanning folder: ./amaranathamahatmyam/heatmaps
+2025-12-09 12:35:22,059 - INFO - Scanning folder: ./vrittaratnakarah/page-xml-graph-groundtruth
+2025-12-09 12:35:22,063 - INFO - Scanning folder: ./vrittaratnakarah/images
+2025-12-09 12:35:22,063 - INFO - Skipping markdown file: ./vrittaratnakarah/images/put_images_here.md
+2025-12-09 12:35:22,064 - INFO - Scanning folder: ./vrittaratnakarah/gnn-dataset
+2025-12-09 12:35:22,080 - INFO - Scanning folder: ./vrittaratnakarah/heatmaps
+2025-12-09 12:35:22,086 - INFO - Scanning folder: ./bhagavatapuranam-sateekam-skandha-1-1mashlokah/page-xml-graph-groundtruth
+2025-12-09 12:35:22,088 - INFO - Scanning folder: ./bhagavatapuranam-sateekam-skandha-1-1mashlokah/images
+2025-12-09 12:35:22,088 - INFO - Skipping markdown file: ./bhagavatapuranam-sateekam-skandha-1-1mashlokah/images/put_images_here.md
+2025-12-09 12:35:22,088 - INFO - Scanning folder: ./bhagavatapuranam-sateekam-skandha-1-1mashlokah/gnn-dataset
+2025-12-09 12:35:22,092 - INFO - Scanning folder: ./bhagavatapuranam-sateekam-skandha-1-1mashlokah/heatmaps
+2025-12-09 12:35:22,094 - INFO - Scanning folder: ./bhagavatamahatmyam-padmapuranagatam1/page-xml-graph-groundtruth
+2025-12-09 12:35:22,096 - INFO - Scanning folder: ./bhagavatamahatmyam-padmapuranagatam1/images
+2025-12-09 12:35:22,096 - INFO - Skipping markdown file: ./bhagavatamahatmyam-padmapuranagatam1/images/put_images_here.md
+2025-12-09 12:35:22,097 - INFO - Scanning folder: ./bhagavatamahatmyam-padmapuranagatam1/gnn-dataset
+2025-12-09 12:35:22,105 - INFO - Scanning folder: ./bhagavatamahatmyam-padmapuranagatam1/heatmaps
+2025-12-09 12:35:22,110 - INFO - Scanning folder: ./ravisankrantivicharah/page-xml-graph-groundtruth
+2025-12-09 12:35:22,111 - INFO - Scanning folder: ./ravisankrantivicharah/images
+2025-12-09 12:35:22,111 - INFO - Skipping markdown file: ./ravisankrantivicharah/images/put_images_here.md
+2025-12-09 12:35:22,111 - INFO - Scanning folder: ./ravisankrantivicharah/gnn-dataset
+2025-12-09 12:35:22,112 - INFO - Scanning folder: ./ravisankrantivicharah/heatmaps
+2025-12-09 12:35:22,112 - INFO - Scanning folder: ./yajnavalkyashiksha/page-xml-graph-groundtruth
+2025-12-09 12:35:22,114 - INFO - Scanning folder: ./yajnavalkyashiksha/images
+2025-12-09 12:35:22,114 - INFO - Skipping markdown file: ./yajnavalkyashiksha/images/put_images_here.md
+2025-12-09 12:35:22,114 - INFO - Scanning folder: ./yajnavalkyashiksha/gnn-dataset
+2025-12-09 12:35:22,118 - INFO - Scanning folder: ./yajnavalkyashiksha/heatmaps
+2025-12-09 12:35:22,120 - INFO - Scanning folder: ./ashirmanimala/page-xml-graph-groundtruth
+2025-12-09 12:35:22,121 - INFO - Scanning folder: ./ashirmanimala/images
+2025-12-09 12:35:22,121 - INFO - Skipping markdown file: ./ashirmanimala/images/put_images_here.md
+2025-12-09 12:35:22,122 - INFO - Scanning folder: ./ashirmanimala/gnn-dataset
+2025-12-09 12:35:22,126 - INFO - Scanning folder: ./ashirmanimala/heatmaps
+2025-12-09 12:35:22,128 - INFO - Scanning folder: ./dashabhuvanapatayah/page-xml-graph-groundtruth
+2025-12-09 12:35:22,129 - INFO - Scanning folder: ./dashabhuvanapatayah/images
+2025-12-09 12:35:22,129 - INFO - Skipping markdown file: ./dashabhuvanapatayah/images/put_images_here.md
+2025-12-09 12:35:22,129 - INFO - Scanning folder: ./dashabhuvanapatayah/gnn-dataset
+2025-12-09 12:35:22,132 - INFO - Scanning folder: ./dashabhuvanapatayah/heatmaps
+2025-12-09 12:35:22,133 - INFO - --- Phase 2: Verifying the integrity of the flattened structure ---
+2025-12-09 12:35:22,133 - ERROR - Verification for 000001: FAILED - Expected 1 image file for 000001, found 0
+2025-12-09 12:35:22,133 - ERROR - Verification for 000002: FAILED - Expected 1 image file for 000002, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000003: FAILED - Expected 1 image file for 000003, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000004: FAILED - Expected 1 image file for 000004, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000005: FAILED - Expected 1 image file for 000005, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000006: FAILED - Expected 1 image file for 000006, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000007: FAILED - Expected 1 image file for 000007, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000008: FAILED - Expected 1 image file for 000008, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000009: FAILED - Expected 1 image file for 000009, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000010: FAILED - Expected 1 image file for 000010, found 0
+2025-12-09 12:35:22,134 - ERROR - Verification for 000011: FAILED - Expected 1 image file for 000011, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000012: FAILED - Expected 1 image file for 000012, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000013: FAILED - Expected 1 image file for 000013, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000014: FAILED - Expected 1 image file for 000014, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000015: FAILED - Expected 1 image file for 000015, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000016: FAILED - Expected 1 image file for 000016, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000017: FAILED - Expected 1 image file for 000017, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000018: FAILED - Expected 1 image file for 000018, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000019: FAILED - Expected 1 image file for 000019, found 0
+2025-12-09 12:35:22,135 - ERROR - Verification for 000020: FAILED - Expected 1 image file for 000020, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000021: FAILED - Expected 1 image file for 000021, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000022: FAILED - Expected 1 image file for 000022, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000023: FAILED - Expected 1 image file for 000023, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000024: FAILED - Expected 1 image file for 000024, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000025: FAILED - Expected 1 image file for 000025, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000026: FAILED - Expected 1 image file for 000026, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000027: FAILED - Expected 1 image file for 000027, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000028: FAILED - Expected 1 image file for 000028, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000029: FAILED - Expected 1 image file for 000029, found 0
+2025-12-09 12:35:22,136 - ERROR - Verification for 000030: FAILED - Expected 1 image file for 000030, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000031: FAILED - Expected 1 image file for 000031, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000032: FAILED - Expected 1 image file for 000032, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000033: FAILED - Expected 1 image file for 000033, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000034: FAILED - Expected 1 image file for 000034, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000035: FAILED - Expected 1 image file for 000035, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000036: FAILED - Expected 1 image file for 000036, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000037: FAILED - Expected 1 image file for 000037, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000038: FAILED - Expected 1 image file for 000038, found 0
+2025-12-09 12:35:22,137 - ERROR - Verification for 000039: FAILED - Expected 1 image file for 000039, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000040: FAILED - Expected 1 image file for 000040, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000041: FAILED - Expected 1 image file for 000041, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000042: FAILED - Expected 1 image file for 000042, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000043: FAILED - Expected 1 image file for 000043, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000044: FAILED - Expected 1 image file for 000044, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000045: FAILED - Expected 1 image file for 000045, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000046: FAILED - Expected 1 image file for 000046, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000047: FAILED - Expected 1 image file for 000047, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000048: FAILED - Expected 1 image file for 000048, found 0
+2025-12-09 12:35:22,138 - ERROR - Verification for 000049: FAILED - Expected 1 image file for 000049, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000050: FAILED - Expected 1 image file for 000050, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000051: FAILED - Expected 1 image file for 000051, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000052: FAILED - Expected 1 image file for 000052, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000053: FAILED - Expected 1 image file for 000053, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000054: FAILED - Expected 1 image file for 000054, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000055: FAILED - Expected 1 image file for 000055, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000056: FAILED - Expected 1 image file for 000056, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000057: FAILED - Expected 1 image file for 000057, found 0
+2025-12-09 12:35:22,139 - ERROR - Verification for 000058: FAILED - Expected 1 image file for 000058, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000059: FAILED - Expected 1 image file for 000059, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000060: FAILED - Expected 1 image file for 000060, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000061: FAILED - Expected 1 image file for 000061, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000062: FAILED - Expected 1 image file for 000062, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000063: FAILED - Expected 1 image file for 000063, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000064: FAILED - Expected 1 image file for 000064, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000065: FAILED - Expected 1 image file for 000065, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000066: FAILED - Expected 1 image file for 000066, found 0
+2025-12-09 12:35:22,140 - ERROR - Verification for 000067: FAILED - Expected 1 image file for 000067, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000068: FAILED - Expected 1 image file for 000068, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000069: FAILED - Expected 1 image file for 000069, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000070: FAILED - Expected 1 image file for 000070, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000071: FAILED - Expected 1 image file for 000071, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000072: FAILED - Expected 1 image file for 000072, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000073: FAILED - Expected 1 image file for 000073, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000074: FAILED - Expected 1 image file for 000074, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000075: FAILED - Expected 1 image file for 000075, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000076: FAILED - Expected 1 image file for 000076, found 0
+2025-12-09 12:35:22,141 - ERROR - Verification for 000077: FAILED - Expected 1 image file for 000077, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000078: FAILED - Expected 1 image file for 000078, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000079: FAILED - Expected 1 image file for 000079, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000080: FAILED - Expected 1 image file for 000080, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000081: FAILED - Expected 1 image file for 000081, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000082: FAILED - Expected 1 image file for 000082, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000083: FAILED - Expected 1 image file for 000083, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000084: FAILED - Expected 1 image file for 000084, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000085: FAILED - Expected 1 image file for 000085, found 0
+2025-12-09 12:35:22,142 - ERROR - Verification for 000086: FAILED - Expected 1 image file for 000086, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000087: FAILED - Expected 1 image file for 000087, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000088: FAILED - Expected 1 image file for 000088, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000089: FAILED - Expected 1 image file for 000089, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000090: FAILED - Expected 1 image file for 000090, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000091: FAILED - Expected 1 image file for 000091, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000092: FAILED - Expected 1 image file for 000092, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000093: FAILED - Expected 1 image file for 000093, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000094: FAILED - Expected 1 image file for 000094, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000095: FAILED - Expected 1 image file for 000095, found 0
+2025-12-09 12:35:22,143 - ERROR - Verification for 000096: FAILED - Expected 1 image file for 000096, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000097: FAILED - Expected 1 image file for 000097, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000098: FAILED - Expected 1 image file for 000098, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000099: FAILED - Expected 1 image file for 000099, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000100: FAILED - Expected 1 image file for 000100, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000101: FAILED - Expected 1 image file for 000101, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000102: FAILED - Expected 1 image file for 000102, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000103: FAILED - Expected 1 image file for 000103, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000104: FAILED - Expected 1 image file for 000104, found 0
+2025-12-09 12:35:22,144 - ERROR - Verification for 000105: FAILED - Expected 1 image file for 000105, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000106: FAILED - Expected 1 image file for 000106, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000107: FAILED - Expected 1 image file for 000107, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000108: FAILED - Expected 1 image file for 000108, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000109: FAILED - Expected 1 image file for 000109, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000110: FAILED - Expected 1 image file for 000110, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000111: FAILED - Expected 1 image file for 000111, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000112: FAILED - Expected 1 image file for 000112, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000113: FAILED - Expected 1 image file for 000113, found 0
+2025-12-09 12:35:22,145 - ERROR - Verification for 000114: FAILED - Expected 1 image file for 000114, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000115: FAILED - Expected 1 image file for 000115, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000116: FAILED - Expected 1 image file for 000116, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000117: FAILED - Expected 1 image file for 000117, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000118: FAILED - Expected 1 image file for 000118, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000119: FAILED - Expected 1 image file for 000119, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000120: FAILED - Expected 1 image file for 000120, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000121: FAILED - Expected 1 image file for 000121, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000122: FAILED - Expected 1 image file for 000122, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000123: FAILED - Expected 1 image file for 000123, found 0
+2025-12-09 12:35:22,146 - ERROR - Verification for 000124: FAILED - Expected 1 image file for 000124, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000125: FAILED - Expected 1 image file for 000125, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000126: FAILED - Expected 1 image file for 000126, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000127: FAILED - Expected 1 image file for 000127, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000128: FAILED - Expected 1 image file for 000128, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000129: FAILED - Expected 1 image file for 000129, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000130: FAILED - Expected 1 image file for 000130, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000131: FAILED - Expected 1 image file for 000131, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000132: FAILED - Expected 1 image file for 000132, found 0
+2025-12-09 12:35:22,147 - ERROR - Verification for 000133: FAILED - Expected 1 image file for 000133, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000134: FAILED - Expected 1 image file for 000134, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000135: FAILED - Expected 1 image file for 000135, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000136: FAILED - Expected 1 image file for 000136, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000137: FAILED - Expected 1 image file for 000137, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000138: FAILED - Expected 1 image file for 000138, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000139: FAILED - Expected 1 image file for 000139, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000140: FAILED - Expected 1 image file for 000140, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000141: FAILED - Expected 1 image file for 000141, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000142: FAILED - Expected 1 image file for 000142, found 0
+2025-12-09 12:35:22,148 - ERROR - Verification for 000143: FAILED - Expected 1 image file for 000143, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000144: FAILED - Expected 1 image file for 000144, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000145: FAILED - Expected 1 image file for 000145, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000146: FAILED - Expected 1 image file for 000146, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000147: FAILED - Expected 1 image file for 000147, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000148: FAILED - Expected 1 image file for 000148, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000149: FAILED - Expected 1 image file for 000149, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000150: FAILED - Expected 1 image file for 000150, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000151: FAILED - Expected 1 image file for 000151, found 0
+2025-12-09 12:35:22,149 - ERROR - Verification for 000152: FAILED - Expected 1 image file for 000152, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000153: FAILED - Expected 1 image file for 000153, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000154: FAILED - Expected 1 image file for 000154, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000155: FAILED - Expected 1 image file for 000155, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000156: FAILED - Expected 1 image file for 000156, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000157: FAILED - Expected 1 image file for 000157, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000158: FAILED - Expected 1 image file for 000158, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000159: FAILED - Expected 1 image file for 000159, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000160: FAILED - Expected 1 image file for 000160, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000161: FAILED - Expected 1 image file for 000161, found 0
+2025-12-09 12:35:22,150 - ERROR - Verification for 000162: FAILED - Expected 1 image file for 000162, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000163: FAILED - Expected 1 image file for 000163, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000164: FAILED - Expected 1 image file for 000164, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000165: FAILED - Expected 1 image file for 000165, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000166: FAILED - Expected 1 image file for 000166, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000167: FAILED - Expected 1 image file for 000167, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000168: FAILED - Expected 1 image file for 000168, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000169: FAILED - Expected 1 image file for 000169, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000170: FAILED - Expected 1 image file for 000170, found 0
+2025-12-09 12:35:22,151 - ERROR - Verification for 000171: FAILED - Expected 1 image file for 000171, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000172: FAILED - Expected 1 image file for 000172, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000173: FAILED - Expected 1 image file for 000173, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000174: FAILED - Expected 1 image file for 000174, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000175: FAILED - Expected 1 image file for 000175, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000176: FAILED - Expected 1 image file for 000176, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000177: FAILED - Expected 1 image file for 000177, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000178: FAILED - Expected 1 image file for 000178, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000179: FAILED - Expected 1 image file for 000179, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000180: FAILED - Expected 1 image file for 000180, found 0
+2025-12-09 12:35:22,152 - ERROR - Verification for 000181: FAILED - Expected 1 image file for 000181, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000182: FAILED - Expected 1 image file for 000182, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000183: FAILED - Expected 1 image file for 000183, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000184: FAILED - Expected 1 image file for 000184, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000185: FAILED - Expected 1 image file for 000185, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000186: FAILED - Expected 1 image file for 000186, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000187: FAILED - Expected 1 image file for 000187, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000188: FAILED - Expected 1 image file for 000188, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000189: FAILED - Expected 1 image file for 000189, found 0
+2025-12-09 12:35:22,153 - ERROR - Verification for 000190: FAILED - Expected 1 image file for 000190, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000191: FAILED - Expected 1 image file for 000191, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000192: FAILED - Expected 1 image file for 000192, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000193: FAILED - Expected 1 image file for 000193, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000194: FAILED - Expected 1 image file for 000194, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000195: FAILED - Expected 1 image file for 000195, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000196: FAILED - Expected 1 image file for 000196, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000197: FAILED - Expected 1 image file for 000197, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000198: FAILED - Expected 1 image file for 000198, found 0
+2025-12-09 12:35:22,154 - ERROR - Verification for 000199: FAILED - Expected 1 image file for 000199, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000200: FAILED - Expected 1 image file for 000200, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000201: FAILED - Expected 1 image file for 000201, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000202: FAILED - Expected 1 image file for 000202, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000203: FAILED - Expected 1 image file for 000203, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000204: FAILED - Expected 1 image file for 000204, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000205: FAILED - Expected 1 image file for 000205, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000206: FAILED - Expected 1 image file for 000206, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000207: FAILED - Expected 1 image file for 000207, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000208: FAILED - Expected 1 image file for 000208, found 0
+2025-12-09 12:35:22,155 - ERROR - Verification for 000209: FAILED - Expected 1 image file for 000209, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000210: FAILED - Expected 1 image file for 000210, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000211: FAILED - Expected 1 image file for 000211, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000212: FAILED - Expected 1 image file for 000212, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000213: FAILED - Expected 1 image file for 000213, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000214: FAILED - Expected 1 image file for 000214, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000215: FAILED - Expected 1 image file for 000215, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000216: FAILED - Expected 1 image file for 000216, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000217: FAILED - Expected 1 image file for 000217, found 0
+2025-12-09 12:35:22,156 - ERROR - Verification for 000218: FAILED - Expected 1 image file for 000218, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000219: FAILED - Expected 1 image file for 000219, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000220: FAILED - Expected 1 image file for 000220, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000221: FAILED - Expected 1 image file for 000221, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000222: FAILED - Expected 1 image file for 000222, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000223: FAILED - Expected 1 image file for 000223, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000224: FAILED - Expected 1 image file for 000224, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000225: FAILED - Expected 1 image file for 000225, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000226: FAILED - Expected 1 image file for 000226, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000227: FAILED - Expected 1 image file for 000227, found 0
+2025-12-09 12:35:22,157 - ERROR - Verification for 000228: FAILED - Expected 1 image file for 000228, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000229: FAILED - Expected 1 image file for 000229, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000230: FAILED - Expected 1 image file for 000230, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000231: FAILED - Expected 1 image file for 000231, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000232: FAILED - Expected 1 image file for 000232, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000233: FAILED - Expected 1 image file for 000233, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000234: FAILED - Expected 1 image file for 000234, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000235: FAILED - Expected 1 image file for 000235, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000236: FAILED - Expected 1 image file for 000236, found 0
+2025-12-09 12:35:22,158 - ERROR - Verification for 000237: FAILED - Expected 1 image file for 000237, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000238: FAILED - Expected 1 image file for 000238, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000239: FAILED - Expected 1 image file for 000239, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000240: FAILED - Expected 1 image file for 000240, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000241: FAILED - Expected 1 image file for 000241, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000242: FAILED - Expected 1 image file for 000242, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000243: FAILED - Expected 1 image file for 000243, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000244: FAILED - Expected 1 image file for 000244, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000245: FAILED - Expected 1 image file for 000245, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000246: FAILED - Expected 1 image file for 000246, found 0
+2025-12-09 12:35:22,159 - ERROR - Verification for 000247: FAILED - Expected 1 image file for 000247, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000248: FAILED - Expected 1 image file for 000248, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000249: FAILED - Expected 1 image file for 000249, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000250: FAILED - Expected 1 image file for 000250, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000251: FAILED - Expected 1 image file for 000251, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000252: FAILED - Expected 1 image file for 000252, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000253: FAILED - Expected 1 image file for 000253, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000254: FAILED - Expected 1 image file for 000254, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000255: FAILED - Expected 1 image file for 000255, found 0
+2025-12-09 12:35:22,160 - ERROR - Verification for 000256: FAILED - Expected 1 image file for 000256, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000257: FAILED - Expected 1 image file for 000257, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000258: FAILED - Expected 1 image file for 000258, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000259: FAILED - Expected 1 image file for 000259, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000260: FAILED - Expected 1 image file for 000260, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000261: FAILED - Expected 1 image file for 000261, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000262: FAILED - Expected 1 image file for 000262, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000263: FAILED - Expected 1 image file for 000263, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000264: FAILED - Expected 1 image file for 000264, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000265: FAILED - Expected 1 image file for 000265, found 0
+2025-12-09 12:35:22,161 - ERROR - Verification for 000266: FAILED - Expected 1 image file for 000266, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000267: FAILED - Expected 1 image file for 000267, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000268: FAILED - Expected 1 image file for 000268, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000269: FAILED - Expected 1 image file for 000269, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000270: FAILED - Expected 1 image file for 000270, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000271: FAILED - Expected 1 image file for 000271, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000272: FAILED - Expected 1 image file for 000272, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000273: FAILED - Expected 1 image file for 000273, found 0
+2025-12-09 12:35:22,162 - ERROR - Verification for 000274: FAILED - Expected 1 image file for 000274, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000275: FAILED - Expected 1 image file for 000275, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000276: FAILED - Expected 1 image file for 000276, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000277: FAILED - Expected 1 image file for 000277, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000278: FAILED - Expected 1 image file for 000278, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000279: FAILED - Expected 1 image file for 000279, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000280: FAILED - Expected 1 image file for 000280, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000281: FAILED - Expected 1 image file for 000281, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000282: FAILED - Expected 1 image file for 000282, found 0
+2025-12-09 12:35:22,163 - ERROR - Verification for 000283: FAILED - Expected 1 image file for 000283, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000284: FAILED - Expected 1 image file for 000284, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000285: FAILED - Expected 1 image file for 000285, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000286: FAILED - Expected 1 image file for 000286, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000287: FAILED - Expected 1 image file for 000287, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000288: FAILED - Expected 1 image file for 000288, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000289: FAILED - Expected 1 image file for 000289, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000290: FAILED - Expected 1 image file for 000290, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000291: FAILED - Expected 1 image file for 000291, found 0
+2025-12-09 12:35:22,164 - ERROR - Verification for 000292: FAILED - Expected 1 image file for 000292, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000293: FAILED - Expected 1 image file for 000293, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000294: FAILED - Expected 1 image file for 000294, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000295: FAILED - Expected 1 image file for 000295, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000296: FAILED - Expected 1 image file for 000296, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000297: FAILED - Expected 1 image file for 000297, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000298: FAILED - Expected 1 image file for 000298, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000299: FAILED - Expected 1 image file for 000299, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000300: FAILED - Expected 1 image file for 000300, found 0
+2025-12-09 12:35:22,165 - ERROR - Verification for 000301: FAILED - Expected 1 image file for 000301, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000302: FAILED - Expected 1 image file for 000302, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000303: FAILED - Expected 1 image file for 000303, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000304: FAILED - Expected 1 image file for 000304, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000305: FAILED - Expected 1 image file for 000305, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000306: FAILED - Expected 1 image file for 000306, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000307: FAILED - Expected 1 image file for 000307, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000308: FAILED - Expected 1 image file for 000308, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000309: FAILED - Expected 1 image file for 000309, found 0
+2025-12-09 12:35:22,166 - ERROR - Verification for 000310: FAILED - Expected 1 image file for 000310, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000311: FAILED - Expected 1 image file for 000311, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000312: FAILED - Expected 1 image file for 000312, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000313: FAILED - Expected 1 image file for 000313, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000314: FAILED - Expected 1 image file for 000314, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000315: FAILED - Expected 1 image file for 000315, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000316: FAILED - Expected 1 image file for 000316, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000317: FAILED - Expected 1 image file for 000317, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000318: FAILED - Expected 1 image file for 000318, found 0
+2025-12-09 12:35:22,167 - ERROR - Verification for 000319: FAILED - Expected 1 image file for 000319, found 0
+2025-12-09 12:35:22,168 - ERROR - Verification for 000320: FAILED - Expected 1 image file for 000320, found 0
+2025-12-09 12:35:22,168 - ERROR - Verification for 000321: FAILED - Expected 1 image file for 000321, found 0
+2025-12-09 12:35:22,168 - ERROR - Verification for 000322: FAILED - Expected 1 image file for 000322, found 0
+2025-12-09 12:35:22,168 - ERROR - Verification for 000323: FAILED - Expected 1 image file for 000323, found 0
+2025-12-09 12:35:22,168 - ERROR - Verification for 000324: FAILED - Expected 1 image file for 000324, found 0
+2025-12-09 12:35:22,168 - ERROR - Verification for 000325: FAILED - Expected 1 image file for 000325, found 0
+2025-12-09 12:35:22,168 - ERROR - Verification for 000326: FAILED - Expected 1 image file for 000326, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000327: FAILED - Expected 1 image file for 000327, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000328: FAILED - Expected 1 image file for 000328, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000329: FAILED - Expected 1 image file for 000329, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000330: FAILED - Expected 1 image file for 000330, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000331: FAILED - Expected 1 image file for 000331, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000332: FAILED - Expected 1 image file for 000332, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000333: FAILED - Expected 1 image file for 000333, found 0
+2025-12-09 12:35:22,169 - ERROR - Verification for 000334: FAILED - Expected 1 image file for 000334, found 0
+2025-12-09 12:35:22,170 - ERROR - Verification for 000335: FAILED - Expected 1 image file for 000335, found 0
+2025-12-09 12:35:22,170 - ERROR - Verification for 000336: FAILED - Expected 1 image file for 000336, found 0
+2025-12-09 12:35:22,170 - ERROR - Verification for 000337: FAILED - Expected 1 image file for 000337, found 0
+2025-12-09 12:35:22,170 - ERROR - Verification for 000338: FAILED - Expected 1 image file for 000338, found 0
+2025-12-09 12:35:22,170 - ERROR - Verification for 000339: FAILED - Expected 1 image file for 000339, found 0
+2025-12-09 12:35:22,170 - ERROR - Verification for 000340: FAILED - Expected 1 image file for 000340, found 0
+2025-12-09 12:35:22,170 - ERROR - Verification for 000341: FAILED - Expected 1 image file for 000341, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000342: FAILED - Expected 1 image file for 000342, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000343: FAILED - Expected 1 image file for 000343, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000344: FAILED - Expected 1 image file for 000344, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000345: FAILED - Expected 1 image file for 000345, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000346: FAILED - Expected 1 image file for 000346, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000347: FAILED - Expected 1 image file for 000347, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000348: FAILED - Expected 1 image file for 000348, found 0
+2025-12-09 12:35:22,171 - ERROR - Verification for 000349: FAILED - Expected 1 image file for 000349, found 0
+2025-12-09 12:35:22,172 - ERROR - Verification for 000350: FAILED - Expected 1 image file for 000350, found 0
+2025-12-09 12:35:22,172 - ERROR - Verification for 000351: FAILED - Expected 1 image file for 000351, found 0
+2025-12-09 12:35:22,172 - ERROR - Verification for 000352: FAILED - Expected 1 image file for 000352, found 0
+2025-12-09 12:35:22,172 - ERROR - Verification for 000353: FAILED - Expected 1 image file for 000353, found 0
+2025-12-09 12:35:22,172 - ERROR - Verification for 000354: FAILED - Expected 1 image file for 000354, found 0
+2025-12-09 12:35:22,172 - ERROR - Verification for 000355: FAILED - Expected 1 image file for 000355, found 0
+2025-12-09 12:35:22,173 - ERROR - Verification for 000356: FAILED - Expected 1 image file for 000356, found 0
+2025-12-09 12:35:22,173 - ERROR - Verification for 000357: FAILED - Expected 1 image file for 000357, found 0
+2025-12-09 12:35:22,173 - ERROR - Verification for 000358: FAILED - Expected 1 image file for 000358, found 0
+2025-12-09 12:35:22,173 - ERROR - Verification for 000359: FAILED - Expected 1 image file for 000359, found 0
+2025-12-09 12:35:22,173 - ERROR - Verification for 000360: FAILED - Expected 1 image file for 000360, found 0
+2025-12-09 12:35:22,173 - ERROR - Verification for 000361: FAILED - Expected 1 image file for 000361, found 0
+2025-12-09 12:35:22,173 - ERROR - Verification for 000362: FAILED - Expected 1 image file for 000362, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000363: FAILED - Expected 1 image file for 000363, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000364: FAILED - Expected 1 image file for 000364, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000365: FAILED - Expected 1 image file for 000365, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000366: FAILED - Expected 1 image file for 000366, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000367: FAILED - Expected 1 image file for 000367, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000368: FAILED - Expected 1 image file for 000368, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000369: FAILED - Expected 1 image file for 000369, found 0
+2025-12-09 12:35:22,174 - ERROR - Verification for 000370: FAILED - Expected 1 image file for 000370, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000371: FAILED - Expected 1 image file for 000371, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000372: FAILED - Expected 1 image file for 000372, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000373: FAILED - Expected 1 image file for 000373, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000374: FAILED - Expected 1 image file for 000374, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000375: FAILED - Expected 1 image file for 000375, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000376: FAILED - Expected 1 image file for 000376, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000377: FAILED - Expected 1 image file for 000377, found 0
+2025-12-09 12:35:22,175 - ERROR - Verification for 000378: FAILED - Expected 1 image file for 000378, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000379: FAILED - Expected 1 image file for 000379, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000380: FAILED - Expected 1 image file for 000380, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000381: FAILED - Expected 1 image file for 000381, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000382: FAILED - Expected 1 image file for 000382, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000383: FAILED - Expected 1 image file for 000383, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000384: FAILED - Expected 1 image file for 000384, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000385: FAILED - Expected 1 image file for 000385, found 0
+2025-12-09 12:35:22,176 - ERROR - Verification for 000386: FAILED - Expected 1 image file for 000386, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000387: FAILED - Expected 1 image file for 000387, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000388: FAILED - Expected 1 image file for 000388, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000389: FAILED - Expected 1 image file for 000389, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000390: FAILED - Expected 1 image file for 000390, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000391: FAILED - Expected 1 image file for 000391, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000392: FAILED - Expected 1 image file for 000392, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000393: FAILED - Expected 1 image file for 000393, found 0
+2025-12-09 12:35:22,177 - ERROR - Verification for 000394: FAILED - Expected 1 image file for 000394, found 0
+2025-12-09 12:35:22,178 - ERROR - Verification for 000395: FAILED - Expected 1 image file for 000395, found 0
+2025-12-09 12:35:22,178 - ERROR - Verification for 000396: FAILED - Expected 1 image file for 000396, found 0
+2025-12-09 12:35:22,178 - ERROR - Verification for 000397: FAILED - Expected 1 image file for 000397, found 0
+2025-12-09 12:35:22,178 - ERROR - Verification for 000398: FAILED - Expected 1 image file for 000398, found 0
+2025-12-09 12:35:22,178 - ERROR - Verification for 000399: FAILED - Expected 1 image file for 000399, found 0
+2025-12-09 12:35:22,178 - ERROR - Verification for 000400: FAILED - Expected 1 image file for 000400, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000401: FAILED - Expected 1 image file for 000401, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000402: FAILED - Expected 1 image file for 000402, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000403: FAILED - Expected 1 image file for 000403, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000404: FAILED - Expected 1 image file for 000404, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000405: FAILED - Expected 1 image file for 000405, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000406: FAILED - Expected 1 image file for 000406, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000407: FAILED - Expected 1 image file for 000407, found 0
+2025-12-09 12:35:22,179 - ERROR - Verification for 000408: FAILED - Expected 1 image file for 000408, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000409: FAILED - Expected 1 image file for 000409, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000410: FAILED - Expected 1 image file for 000410, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000411: FAILED - Expected 1 image file for 000411, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000412: FAILED - Expected 1 image file for 000412, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000413: FAILED - Expected 1 image file for 000413, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000414: FAILED - Expected 1 image file for 000414, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000415: FAILED - Expected 1 image file for 000415, found 0
+2025-12-09 12:35:22,180 - ERROR - Verification for 000416: FAILED - Expected 1 image file for 000416, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000417: FAILED - Expected 1 image file for 000417, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000418: FAILED - Expected 1 image file for 000418, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000419: FAILED - Expected 1 image file for 000419, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000420: FAILED - Expected 1 image file for 000420, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000421: FAILED - Expected 1 image file for 000421, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000422: FAILED - Expected 1 image file for 000422, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000423: FAILED - Expected 1 image file for 000423, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000424: FAILED - Expected 1 image file for 000424, found 0
+2025-12-09 12:35:22,181 - ERROR - Verification for 000425: FAILED - Expected 1 image file for 000425, found 0
+2025-12-09 12:35:22,182 - ERROR - Verification for 000426: FAILED - Expected 1 image file for 000426, found 0
+2025-12-09 12:35:22,182 - ERROR - Verification for 000427: FAILED - Expected 1 image file for 000427, found 0
+2025-12-09 12:35:22,182 - ERROR - Verification for 000428: FAILED - Expected 1 image file for 000428, found 0
+2025-12-09 12:35:22,182 - ERROR - Verification for 000429: FAILED - Expected 1 image file for 000429, found 0
+2025-12-09 12:35:22,182 - ERROR - Verification for 000430: FAILED - Expected 1 image file for 000430, found 0
+2025-12-09 12:35:22,182 - ERROR - Verification for 000431: FAILED - Expected 1 image file for 000431, found 0
+2025-12-09 12:35:22,183 - ERROR - Verification for 000432: FAILED - Expected 1 image file for 000432, found 0
+2025-12-09 12:35:22,183 - ERROR - Verification for 000433: FAILED - Expected 1 image file for 000433, found 0
+2025-12-09 12:35:22,183 - ERROR - Verification for 000434: FAILED - Expected 1 image file for 000434, found 0
+2025-12-09 12:35:22,183 - ERROR - Verification for 000435: FAILED - Expected 1 image file for 000435, found 0
+2025-12-09 12:35:22,183 - ERROR - Verification for 000436: FAILED - Expected 1 image file for 000436, found 0
+2025-12-09 12:35:22,183 - ERROR - Verification for 000437: FAILED - Expected 1 image file for 000437, found 0
+2025-12-09 12:35:22,183 - ERROR - Verification for 000438: FAILED - Expected 1 image file for 000438, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000439: FAILED - Expected 1 image file for 000439, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000440: FAILED - Expected 1 image file for 000440, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000441: FAILED - Expected 1 image file for 000441, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000442: FAILED - Expected 1 image file for 000442, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000443: FAILED - Expected 1 image file for 000443, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000444: FAILED - Expected 1 image file for 000444, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000445: FAILED - Expected 1 image file for 000445, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000446: FAILED - Expected 1 image file for 000446, found 0
+2025-12-09 12:35:22,184 - ERROR - Verification for 000447: FAILED - Expected 1 image file for 000447, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000448: FAILED - Expected 1 image file for 000448, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000449: FAILED - Expected 1 image file for 000449, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000450: FAILED - Expected 1 image file for 000450, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000451: FAILED - Expected 1 image file for 000451, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000452: FAILED - Expected 1 image file for 000452, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000453: FAILED - Expected 1 image file for 000453, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000454: FAILED - Expected 1 image file for 000454, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000455: FAILED - Expected 1 image file for 000455, found 0
+2025-12-09 12:35:22,185 - ERROR - Verification for 000456: FAILED - Expected 1 image file for 000456, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000457: FAILED - Expected 1 image file for 000457, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000458: FAILED - Expected 1 image file for 000458, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000459: FAILED - Expected 1 image file for 000459, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000460: FAILED - Expected 1 image file for 000460, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000461: FAILED - Expected 1 image file for 000461, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000462: FAILED - Expected 1 image file for 000462, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000463: FAILED - Expected 1 image file for 000463, found 0
+2025-12-09 12:35:22,186 - ERROR - Verification for 000464: FAILED - Expected 1 image file for 000464, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000465: FAILED - Expected 1 image file for 000465, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000466: FAILED - Expected 1 image file for 000466, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000467: FAILED - Expected 1 image file for 000467, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000468: FAILED - Expected 1 image file for 000468, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000469: FAILED - Expected 1 image file for 000469, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000470: FAILED - Expected 1 image file for 000470, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000471: FAILED - Expected 1 image file for 000471, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000472: FAILED - Expected 1 image file for 000472, found 0
+2025-12-09 12:35:22,187 - ERROR - Verification for 000473: FAILED - Expected 1 image file for 000473, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000474: FAILED - Expected 1 image file for 000474, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000475: FAILED - Expected 1 image file for 000475, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000476: FAILED - Expected 1 image file for 000476, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000477: FAILED - Expected 1 image file for 000477, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000478: FAILED - Expected 1 image file for 000478, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000479: FAILED - Expected 1 image file for 000479, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000480: FAILED - Expected 1 image file for 000480, found 0
+2025-12-09 12:35:22,188 - ERROR - Verification for 000481: FAILED - Expected 1 image file for 000481, found 0
+2025-12-09 12:35:22,188 - WARNING - --- One or more IDs failed verification. Please review the log for errors. ---
+2025-12-09 12:35:22,191 - INFO - index.csv file created successfully with 481 unique page entries.
+2025-12-09 12:35:22,191 - INFO - Directory flattening process completed.

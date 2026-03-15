@@ -1,0 +1,47 @@
+# Simplified index for standard packages
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+# Core AI Stack
+torch==2.4.1+cu121
+torchvision
+torchaudio
+torch_geometric
+
+# PyG Specialized Kernels (Spline Conv)
+--find-links https://data.pyg.org/whl/torch-2.4.1+cu121.html
+torch-spline-conv
+
+# Generative AI
+google-generativeai
+
+# Data Science & Imaging
+numpy
+scipy
+pandas
+scikit-learn
+scikit-image
+matplotlib
+shapely
+pillow
+opencv-python
+
+# Backend & Web
+flask
+flask-cors
+flask-sqlalchemy
+werkzeug
+python-dotenv
+
+# Utilities & Infrastructure
+packaging
+six
+natsort
+pyyaml
+lmdb
+nltk
+python-json-logger
+regex
+pydantic
+wandb
+nvidia-ml-py3
+lxml

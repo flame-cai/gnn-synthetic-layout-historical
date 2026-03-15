@@ -1,0 +1,68 @@
+2026-03-07 01:02:21,059 - INFO - Overriding device to: cuda:2 from command line argument --gpu_id.
+2026-03-07 01:02:21,060 - INFO - ===== Starting Fold 0 for Model: SplineCNN =====
+2026-03-07 01:02:45,640 - INFO - Using learning rate warmup for 5 epochs.
+2026-03-07 01:02:45,640 - INFO - Using Focal Loss
+2026-03-07 01:02:45,640 - INFO - --- PRE-TRAINING LOADER TEST ---
+2026-03-07 01:02:45,647 - INFO - >>> SUCCESS: next(iter(val_loader)) worked perfectly before training. <<<
+2026-03-07 01:02:45,648 - INFO - --- Starting Training Loop ---
+2026-03-07 01:02:45,648 - INFO - --- Epoch 1/10 ---
+2026-03-07 02:23:53,472 - INFO - Textline Metrics | TP: 2396, FP: 204, FN: 424 | F1: 0.8841
+2026-03-07 02:23:53,472 - INFO - Epoch 1: Train Loss: 0.0082, Val Textline F1: 0.8841, LR: 0.000200
+2026-03-07 02:23:53,472 - INFO - The precision is: 0.8841328413284133
+2026-03-07 02:23:53,594 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260307-010221/best_model.pt
+2026-03-07 02:23:53,594 - INFO - --- Epoch 2/10 ---
+2026-03-07 03:05:44,524 - INFO - Textline Metrics | TP: 2392, FP: 162, FN: 428 | F1: 0.8902
+2026-03-07 03:05:44,524 - INFO - Epoch 2: Train Loss: 0.0048, Val Textline F1: 0.8902, LR: 0.000400
+2026-03-07 03:05:44,524 - INFO - The precision is: 0.8902121324897655
+2026-03-07 03:05:44,524 - INFO - Validation metric improved (0.884133 --> 0.890212). Saving model ...
+2026-03-07 03:05:44,699 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260307-010221/best_model.pt
+2026-03-07 03:05:44,700 - INFO - --- Epoch 3/10 ---
+2026-03-07 03:47:46,018 - INFO - Textline Metrics | TP: 2521, FP: 201, FN: 299 | F1: 0.9098
+2026-03-07 03:47:46,018 - INFO - Epoch 3: Train Loss: 0.0042, Val Textline F1: 0.9098, LR: 0.000600
+2026-03-07 03:47:46,018 - INFO - The precision is: 0.9097798628653917
+2026-03-07 03:47:46,018 - INFO - Validation metric improved (0.890212 --> 0.909780). Saving model ...
+2026-03-07 03:47:46,197 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260307-010221/best_model.pt
+2026-03-07 03:47:46,197 - INFO - --- Epoch 4/10 ---
+2026-03-07 04:29:54,678 - INFO - Textline Metrics | TP: 2549, FP: 209, FN: 271 | F1: 0.9139
+2026-03-07 04:29:54,679 - INFO - Epoch 4: Train Loss: 0.0040, Val Textline F1: 0.9139, LR: 0.000800
+2026-03-07 04:29:54,679 - INFO - The precision is: 0.9139476514879884
+2026-03-07 04:29:54,679 - INFO - Validation metric improved (0.909780 --> 0.913948). Saving model ...
+2026-03-07 04:29:54,853 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260307-010221/best_model.pt
+2026-03-07 04:29:54,853 - INFO - --- Epoch 5/10 ---
+2026-03-07 05:12:09,198 - INFO - Textline Metrics | TP: 2418, FP: 154, FN: 402 | F1: 0.8969
+2026-03-07 05:12:09,198 - INFO - Epoch 5: Train Loss: 0.0039, Val Textline F1: 0.8969, LR: 0.001000
+2026-03-07 05:12:09,198 - INFO - The precision is: 0.8968842729970326
+2026-03-07 05:12:09,198 - INFO - EarlyStopping counter: 1 out of 10
+2026-03-07 05:12:09,198 - INFO - --- Epoch 6/10 ---
+2026-03-07 05:54:27,975 - INFO - Textline Metrics | TP: 2498, FP: 189, FN: 322 | F1: 0.9072
+2026-03-07 05:54:27,975 - INFO - Epoch 6: Train Loss: 0.0037, Val Textline F1: 0.9072, LR: 0.001000
+2026-03-07 05:54:27,975 - INFO - The precision is: 0.9072090067187216
+2026-03-07 05:54:27,975 - INFO - EarlyStopping counter: 2 out of 10
+2026-03-07 05:54:27,975 - INFO - --- Epoch 7/10 ---
+2026-03-07 06:36:51,335 - INFO - Textline Metrics | TP: 2616, FP: 221, FN: 204 | F1: 0.9249
+2026-03-07 06:36:51,335 - INFO - Epoch 7: Train Loss: 0.0034, Val Textline F1: 0.9249, LR: 0.001000
+2026-03-07 06:36:51,335 - INFO - The precision is: 0.9248718401979849
+2026-03-07 06:36:51,335 - INFO - Validation metric improved (0.913948 --> 0.924872). Saving model ...
+2026-03-07 06:36:51,510 - INFO - Saved checkpoint to training_runs/gnn_experiment_1/SplineCNN-fold_0-20260307-010221/best_model.pt
+2026-03-07 06:36:51,510 - INFO - --- Epoch 8/10 ---
+2026-03-07 07:19:17,807 - INFO - Textline Metrics | TP: 2349, FP: 231, FN: 471 | F1: 0.8700
+2026-03-07 07:19:17,807 - INFO - Epoch 8: Train Loss: 0.0032, Val Textline F1: 0.8700, LR: 0.001000
+2026-03-07 07:19:17,807 - INFO - The precision is: 0.8699999999999999
+2026-03-07 07:19:17,807 - INFO - EarlyStopping counter: 1 out of 10
+2026-03-07 07:19:17,807 - INFO - --- Epoch 9/10 ---
+2026-03-07 08:01:49,326 - INFO - Textline Metrics | TP: 2563, FP: 184, FN: 257 | F1: 0.9208
+2026-03-07 08:01:49,326 - INFO - Epoch 9: Train Loss: 0.0032, Val Textline F1: 0.9208, LR: 0.001000
+2026-03-07 08:01:49,327 - INFO - The precision is: 0.9207831866355308
+2026-03-07 08:01:49,327 - INFO - EarlyStopping counter: 2 out of 10
+2026-03-07 08:01:49,327 - INFO - --- Epoch 10/10 ---
+2026-03-07 08:44:19,570 - INFO - Textline Metrics | TP: 2575, FP: 182, FN: 245 | F1: 0.9234
+2026-03-07 08:44:19,570 - INFO - Epoch 10: Train Loss: 0.0031, Val Textline F1: 0.9234, LR: 0.001000
+2026-03-07 08:44:19,570 - INFO - The precision is: 0.9234355388201543
+2026-03-07 08:44:19,571 - INFO - EarlyStopping counter: 3 out of 10
+2026-03-07 08:44:19,571 - INFO - --- Final Evaluation on Test Set ---
+2026-03-07 08:44:19,655 - WARNING - Batch size is 2 during evaluation. Textline F1-Score calculation is skipped for this batch. Please use batch_size=1 for accurate validation metrics.
+2026-03-07 08:44:19,658 - INFO - Textline Metrics | TP: 0, FP: 0, FN: 0 | F1: 0.0000
+2026-03-07 08:44:19,659 - INFO - Test Metrics: {'test_loss': 0.00027116440469399095, 'test_accuracy': 0.9997371879106439, 'test_f1_score_macro': 0.9992542404904883, 'test_textline_f1_score': 0.0, 'test_textline_precision': 0.0, 'test_textline_recall': 0.0}
+2026-03-07 08:44:28,152 - INFO - 
+
+===== Aggregated Cross-Validation Results =====
