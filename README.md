@@ -74,7 +74,22 @@ It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset pr
 To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recognition model.
 
 ##### Gemini
-If you would be using Gemini to recognize text, make sure to make the neccessary adjustment to the prompt in ```_run_gemini_recognition_internal``` function in ```app/app.py```. In the same function we use ```model = genai.GenerativeModel('gemini-2.5-flash')```, which can be updated with the latest Gemini release. You will also need to enter your API key in the frontend (or hardcode it in ```app/app.py```)
+If you are using Gemini for text recognition, you may need to adjust the prompt within the `_run_gemini_recognition_internal` function located in `app/app.py`.
+
+By default, the application uses:
+`model = genai.GenerativeModel('gemini-2.5-flash')`
+You can update this string in the same function to utilize the latest Gemini releases.
+
+To configure your Gemini API key:
+1. Create an API key in [Google AI Studio](https://aistudio.google.com/).
+2. Create a `.env` file in the `app/` directory (`app/.env`).
+3. Add the following line to the file:
+   ```env
+   GEMINI_API_KEY="YOUR_API_KEY_HERE"
+   ```
+
+
+
 
 ##### EasyOCR
 To use EasyOCR based recognition, you will need to download the model as follows (or use your own finetuned one)
