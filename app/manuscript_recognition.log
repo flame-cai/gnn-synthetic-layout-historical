@@ -493,3 +493,95 @@
 2026-03-15 12:56:53,921 - INFO - 127.0.0.1 - - [15/Mar/2026 12:56:53] "POST /upload HTTP/1.1" 200 -
 2026-03-15 12:56:54,347 - INFO - 127.0.0.1 - - [15/Mar/2026 12:56:54] "GET /manuscript/my_manuscript_test/pages HTTP/1.1" 200 -
 2026-03-15 12:56:55,229 - INFO - 127.0.0.1 - - [15/Mar/2026 12:56:55] "GET /semi-segment/my_manuscript_test/test_layout_1 HTTP/1.1" 200 -
+2026-03-22 14:09:45,818 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.164:5000
+2026-03-22 14:09:45,819 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-22 14:09:45,836 - INFO -  * Restarting with stat
+2026-03-22 14:09:57,498 - WARNING -  * Debugger is active!
+2026-03-22 14:09:57,503 - INFO -  * Debugger PIN: 327-524-487
+2026-03-22 14:11:02,701 - INFO - 127.0.0.1 - - [22/Mar/2026 14:11:02] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-22 14:11:29,320 - INFO - 127.0.0.1 - - [22/Mar/2026 14:11:29] "POST /upload HTTP/1.1" 200 -
+2026-03-22 14:11:29,657 - INFO - 127.0.0.1 - - [22/Mar/2026 14:11:29] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-03-22 14:11:32,432 - INFO - 127.0.0.1 - - [22/Mar/2026 14:11:32] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:11:41,691 - INFO - 127.0.0.1 - - [22/Mar/2026 14:11:41] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:12:03,001 - INFO - 127.0.0.1 - - [22/Mar/2026 14:12:03] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:12:05,274 - INFO - 127.0.0.1 - - [22/Mar/2026 14:12:05] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:12:22,690 - INFO - 127.0.0.1 - - [22/Mar/2026 14:12:22] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:12:24,922 - INFO - 127.0.0.1 - - [22/Mar/2026 14:12:24] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:12:42,688 - INFO - 127.0.0.1 - - [22/Mar/2026 14:12:42] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:12:44,707 - INFO - 127.0.0.1 - - [22/Mar/2026 14:12:44] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:13:00,279 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:00] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:13:02,781 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:02] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:13:03,902 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:03] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:13:36,659 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:36] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-22 14:13:38,795 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:38] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-03-22 14:13:39,120 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:39] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-03-22 14:13:39,583 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:39] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:13:42,794 - INFO - 127.0.0.1 - - [22/Mar/2026 14:13:42] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:14:06,167 - INFO - 127.0.0.1 - - [22/Mar/2026 14:14:06] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:14:22,640 - INFO - 127.0.0.1 - - [22/Mar/2026 14:14:22] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:14:24,699 - INFO - 127.0.0.1 - - [22/Mar/2026 14:14:24] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:15:05,739 - INFO - 127.0.0.1 - - [22/Mar/2026 14:15:05] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:15:07,896 - INFO - 127.0.0.1 - - [22/Mar/2026 14:15:07] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:15:26,283 - INFO - 127.0.0.1 - - [22/Mar/2026 14:15:26] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:15:28,268 - INFO - 127.0.0.1 - - [22/Mar/2026 14:15:28] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:15:46,283 - INFO - 127.0.0.1 - - [22/Mar/2026 14:15:46] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:15:48,203 - INFO - 127.0.0.1 - - [22/Mar/2026 14:15:48] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:16:06,706 - INFO - 127.0.0.1 - - [22/Mar/2026 14:16:06] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:16:08,947 - INFO - 127.0.0.1 - - [22/Mar/2026 14:16:08] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:16:26,285 - INFO - 127.0.0.1 - - [22/Mar/2026 14:16:26] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:16:28,381 - INFO - 127.0.0.1 - - [22/Mar/2026 14:16:28] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:17:14,186 - INFO - 127.0.0.1 - - [22/Mar/2026 14:17:14] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:17:29,612 - INFO - 127.0.0.1 - - [22/Mar/2026 14:17:29] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:17:31,740 - INFO - 127.0.0.1 - - [22/Mar/2026 14:17:31] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:17:34,710 - INFO - 127.0.0.1 - - [22/Mar/2026 14:17:34] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:17:36,752 - INFO - 127.0.0.1 - - [22/Mar/2026 14:17:36] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:17:54,379 - INFO - 127.0.0.1 - - [22/Mar/2026 14:17:54] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:17:56,683 - INFO - 127.0.0.1 - - [22/Mar/2026 14:17:56] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:18:14,704 - INFO - 127.0.0.1 - - [22/Mar/2026 14:18:14] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:18:16,635 - INFO - 127.0.0.1 - - [22/Mar/2026 14:18:16] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:18:34,707 - INFO - 127.0.0.1 - - [22/Mar/2026 14:18:34] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:18:36,840 - INFO - 127.0.0.1 - - [22/Mar/2026 14:18:36] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:18:54,688 - INFO - 127.0.0.1 - - [22/Mar/2026 14:18:54] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:18:56,926 - INFO - 127.0.0.1 - - [22/Mar/2026 14:18:56] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:19:14,700 - INFO - 127.0.0.1 - - [22/Mar/2026 14:19:14] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:19:16,826 - INFO - 127.0.0.1 - - [22/Mar/2026 14:19:16] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:19:55,698 - INFO - 127.0.0.1 - - [22/Mar/2026 14:19:55] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:19:57,730 - INFO - 127.0.0.1 - - [22/Mar/2026 14:19:57] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:20:24,278 - INFO - 127.0.0.1 - - [22/Mar/2026 14:20:24] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:20:26,395 - INFO - 127.0.0.1 - - [22/Mar/2026 14:20:26] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:20:34,701 - INFO - 127.0.0.1 - - [22/Mar/2026 14:20:34] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:20:36,782 - INFO - 127.0.0.1 - - [22/Mar/2026 14:20:36] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:20:54,697 - INFO - 127.0.0.1 - - [22/Mar/2026 14:20:54] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:20:56,990 - INFO - 127.0.0.1 - - [22/Mar/2026 14:20:56] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:29:33,245 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.164:5000
+2026-03-22 14:29:33,246 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-22 14:29:33,263 - INFO -  * Restarting with stat
+2026-03-22 14:29:46,600 - WARNING -  * Debugger is active!
+2026-03-22 14:29:46,607 - INFO -  * Debugger PIN: 327-524-487
+2026-03-22 14:30:06,545 - INFO - 127.0.0.1 - - [22/Mar/2026 14:30:06] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-22 14:30:22,750 - INFO - 127.0.0.1 - - [22/Mar/2026 14:30:22] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-03-22 14:30:23,070 - INFO - 127.0.0.1 - - [22/Mar/2026 14:30:23] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-03-22 14:30:23,475 - INFO - 127.0.0.1 - - [22/Mar/2026 14:30:23] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:30:25,336 - INFO - 127.0.0.1 - - [22/Mar/2026 14:30:25] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:33:07,147 - INFO - 127.0.0.1 - - [22/Mar/2026 14:33:07] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:33:09,279 - INFO - 127.0.0.1 - - [22/Mar/2026 14:33:09] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:33:51,895 - INFO - 127.0.0.1 - - [22/Mar/2026 14:33:51] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-03-22 14:33:52,220 - INFO - 127.0.0.1 - - [22/Mar/2026 14:33:52] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-03-22 14:33:52,668 - INFO - 127.0.0.1 - - [22/Mar/2026 14:33:52] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:33:53,409 - INFO - 127.0.0.1 - - [22/Mar/2026 14:33:53] "GET /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:34:13,837 - INFO - 127.0.0.1 - - [22/Mar/2026 14:34:13] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:34:15,912 - INFO - 127.0.0.1 - - [22/Mar/2026 14:34:15] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:34:33,507 - INFO - 127.0.0.1 - - [22/Mar/2026 14:34:33] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:34:35,791 - INFO - 127.0.0.1 - - [22/Mar/2026 14:34:35] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:34:53,696 - INFO - 127.0.0.1 - - [22/Mar/2026 14:34:53] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:34:56,008 - INFO - 127.0.0.1 - - [22/Mar/2026 14:34:56] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:35:13,705 - INFO - 127.0.0.1 - - [22/Mar/2026 14:35:13] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:35:15,934 - INFO - 127.0.0.1 - - [22/Mar/2026 14:35:15] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:35:33,692 - INFO - 127.0.0.1 - - [22/Mar/2026 14:35:33] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-22 14:35:35,964 - INFO - 127.0.0.1 - - [22/Mar/2026 14:35:35] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
