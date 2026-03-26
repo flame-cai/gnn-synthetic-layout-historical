@@ -237,6 +237,8 @@ python -m gnn_training.training.main_train_eval \
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 
 ---
+
+## ♥️ Acknowledgements
 This is work done at the Centre for Interdisciplinary Artificial Intelligence (CAI), FLAME University and is based on the following papers:
 
 #### **Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks**
@@ -261,8 +263,6 @@ This poster presents an annotation tool which allows the user to extract text fr
 
 ---
 
-
-## ♥️ Acknowledgements
 The authors also wish to express their thanks to [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/), DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
 The authors also wish to express their gratitude to the anonymous reviewers, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, and Dr. Oliver Hellwig for their invaluable guidance and support.
 
