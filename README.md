@@ -1,32 +1,43 @@
 <h1 align="center">
-Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks
+Historical OCR Tool
 </h1>
 
-<p align="center">
-<a href="https://kartikchincholikar.github.io/">Kartik Chincholikar</a> ·
-<a href="https://www.linkedin.com/in/kaushik-gopalan-b6533624/">Kaushik Gopalan</a> ·
-<a href="https://www.linkedin.com/in/mihir-hasabnis-4078a01b/">Mihir Hasabnis</a>
-</p>
 
-<p align="center">
-Centre for Interdisciplinary Artificial Intelligence (CAI) <br>
-FLAME University
-</p>
+This tools digitizes text from historical manuscripts in two steps:  
+1) layout analysis and  
+2) text recognition.  
 
-<p align="center">
-ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling
-</p>
+In step 1, layout analysis, text-lines of the the page are detected automatically (or semi-automatically for complex layouts).  
+In step 2, the text content of the detected text-lines is recognized and converted to unicode text.
+Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
-<p align="center">
-  <a href="https://openreview.net/forum?id=0GoutqIh3l"><b>📄 Paper</b></a> &nbsp;|&nbsp;
-  <a href="https://kartikchincholikar.github.io/gnn-layout-analysis/"><b>🌐 Project Website</b></a>
-</p>
+---
+Work done at the Centre for Interdisciplinary Artificial Intelligence (CAI), FLAME University and is based on the following papers:
+
+#### **Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks**
+[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/) · [Mihir Hasabnis](https://www.linkedin.com/in/mihir-hasabnis-4078a01b/)  
+ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling  
+[📄 Paper](https://openreview.net/forum?id=0GoutqIh3l) | [🌐 Project Website](https://kartikchincholikar.github.io/gnn-layout-analysis/)  
+In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line.
 
 
-In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line. 
+#### **A Case Study of Handwritten Text Recognition from Early Modern Sanskrit Manuscripts**
+[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubdomain=in) · [Tarinee Awasthi](https://www.linkedin.com/in/tarinee-awasthi-89883a244/)  
+Proceedings of the Workshop on Computational Sanskrit & Digital Humanities, World Sanskrit Conference 2025  
+[📄 Paper](https://aclanthology.org/2025.wsc-csdh.4.pdf) | [💻 Code](https://github.com/flame-cai/case-study-handwritten-sanskrit-ocr)  
+In this case study, we perform Handwritten Text Recognition on Sanskrit manuscripts from the Early Modern period, namely _Vādakautūhala_ of Svāmiśāstrin and Bhāskararāya (early eighteenth century), and _Mahāvākyārtha_ and _Dvādaśamahāvākyārthavicāra_ of unknown authorship.
 
-**Version:** 3.0
-**Last Updated:** March 11, 2026
+
+#### **A Semi-Automatic Text Recognition Tool for Pre-Colonial Handwritten Manuscripts in Devanāgari Script**
+[Bharath Valaboju](https://Bharath314.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubDomain=in) · [Shivkiran Chitkulwar](https://github.com/SSCoderin) · [Vinod Vidwans](https://www.linkedin.com/in/vinod-vidwans-2b57b4b/?originalSubDomain=in)  
+International Conference on Human-Computer Interaction, Springer 2025  
+[📄 Paper](https://link.springer.com/chapter/10.1007/978-3-031-94171-9_13)  
+This poster presents an annotation tool which allows the user to extract text from undigitized manuscripts using OCR, following which users can make corrections to the OCR-detected text. Users can then request fine tuning on a few pages corrected by them, making the annotation process easier and more efficient for the subsequent pages by improving OCR performance.
+
+---
+
+**Version:** 3.0  
+**Last Updated:** March 26, 2026
 
 ## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
@@ -56,16 +67,19 @@ pip install -r requirements.txt
 
 ## 🧩 **Semi Automatic Annotation Tool**
 Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
-Automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes.
-Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming, requiring manual correction of predicted bounding polygons or polylines.
+Further more, automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes. Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming.
 
-This semi-automatic annotation tool presented in this work natively supports graph-based labelling, treating character locations as nodes, with characters of the same text-lines being connected together.
-This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level`. (See GIF below).
+The semi-automatic annotation tool presented in this work natively supports graph-based labelling, treating character locations as nodes, with characters of the same text-lines being connected together.
+This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level`.
 
+![OOD_performance](./app/ood_performance.png)
 
-It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset presented using a previous version of the tool. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool, especially on Sanskrit manuscripts with complex layouts.
+When faced with **complex Out-of-Distribution layouts**, manually correcting _automatically but incorrectly_ segmented text-lines in a bounding polygon format, could perhaps be more time consuming than manually correcting predictions in a graph-based format, as illustrated in the above figure. The out-of-the-box predictions of leading methods DocUFCN and SeamFormer are in a bounding polygon format, and the prediction of the proposed method is in the graph-based format (which we believe to be less time consuming to post-correct). **The training data of the proposed method did not contain any circular layouts, thus also highlighting the generalizability of the proposed method to complex out-of-distribution layouts.**
+
+It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset presented. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool, especially on Sanskrit manuscripts with complex layouts.
 
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
+
 
 ### ⚙️ Setup Instructions
 
@@ -74,7 +88,7 @@ It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset pr
 To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recognition model.
 
 ##### Gemini
-If you are using Gemini for text recognition, you may need to adjust the prompt within the `_run_gemini_recognition_internal` function located in `app/app.py`.
+If you are using Gemini for text recognition, you may need to adjust the prompt within the `_run_gemini_recognition_internal` function located in `app/app.py` based on your use case and the language/script of the manuscript in question.
 
 By default, the application uses:
 `model = genai.GenerativeModel('gemini-2.5-flash')`
@@ -92,12 +106,12 @@ To configure your Gemini API key:
 
 
 ##### EasyOCR
-To use EasyOCR based recognition, you will need to download the model as follows (or use your own finetuned one)
+To use EasyOCR for recognizing devanagari text, you will need to download the model as follows (or use your own finetuned one for other scripts)
 ```bash
 cd app/recognition/pretrained_model
 wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
 ```
-The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025)
+The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025), and is specialized to recognize text from a common writing style found in the sanskrit manuscripts at the [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/). In the study, we observed that fine-tuning the recognition model to specific manuscripts is always benificial (in terms of Character error rate).
 
 
 
@@ -248,23 +262,8 @@ python -m gnn_training.training.main_train_eval \
 ```
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 
-## 📌 Citation
-
-If you use this work, please cite:
-
-```bibtex
-@inproceedings{
-chincholikar2026towards,
-title={Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks},
-author={Kartik Chincholikar and Kaushik Gopalan and Mihir Hasabnis},
-booktitle={ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling},
-year={2026},
-url={https://openreview.net/forum?id=0GoutqIh3l}
-}
-```
-
 
 ## ♥️ Acknowledgements
-The authors also wish to express their thanks to Lalchand Research Library, DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
-The authors also wish to express their gratitude to the anonymous reviewers, Shagun Dwivedi, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, Dr. Tarinee Awasthi and Dr. Oliver Hellwig for their invaluable guidance and support.
+The authors also wish to express their thanks to [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/), DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
+The authors also wish to express their gratitude to the anonymous reviewers, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, and Dr. Oliver Hellwig for their invaluable guidance and support.
 
