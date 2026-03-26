@@ -1,10 +1,12 @@
 
-Historical OCR Tool
+# Historical OCR Tool
 
 This tools digitizes text from historical manuscripts in two steps:  
-In step 1, layout analysis, text-lines of the the page are detected automatically (or semi-automatically for complex layouts).  
+
+In step 1, text-lines of the the page are detected automatically (or semi-automatically for complex layouts).  
 
 In step 2, the text content of the detected text-lines is recognized and converted to unicode text.
+
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
 
