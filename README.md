@@ -1,40 +1,12 @@
-<h1 align="center">
-Historical OCR Tool
-</h1>
 
+Historical OCR Tool
 
 This tools digitizes text from historical manuscripts in two steps:  
-1) layout analysis and  
-2) text recognition.  
-
 In step 1, layout analysis, text-lines of the the page are detected automatically (or semi-automatically for complex layouts).  
+
 In step 2, the text content of the detected text-lines is recognized and converted to unicode text.
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
----
-Work done at the Centre for Interdisciplinary Artificial Intelligence (CAI), FLAME University and is based on the following papers:
-
-#### **Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks**
-[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/) · [Mihir Hasabnis](https://www.linkedin.com/in/mihir-hasabnis-4078a01b/)  
-ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling  
-[📄 Paper](https://openreview.net/forum?id=0GoutqIh3l) | [🌐 Project Website](https://kartikchincholikar.github.io/gnn-layout-analysis/)  
-In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line.
-
-
-#### **A Case Study of Handwritten Text Recognition from Early Modern Sanskrit Manuscripts**
-[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubdomain=in) · [Tarinee Awasthi](https://www.linkedin.com/in/tarinee-awasthi-89883a244/)  
-Proceedings of the Workshop on Computational Sanskrit & Digital Humanities, World Sanskrit Conference 2025  
-[📄 Paper](https://aclanthology.org/2025.wsc-csdh.4.pdf) | [💻 Code](https://github.com/flame-cai/case-study-handwritten-sanskrit-ocr)  
-In this case study, we perform Handwritten Text Recognition on Sanskrit manuscripts from the Early Modern period, namely _Vādakautūhala_ of Svāmiśāstrin and Bhāskararāya (early eighteenth century), and _Mahāvākyārtha_ and _Dvādaśamahāvākyārthavicāra_ of unknown authorship.
-
-
-#### **A Semi-Automatic Text Recognition Tool for Pre-Colonial Handwritten Manuscripts in Devanāgari Script**
-[Bharath Valaboju](https://Bharath314.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubDomain=in) · [Shivkiran Chitkulwar](https://github.com/SSCoderin) · [Vinod Vidwans](https://www.linkedin.com/in/vinod-vidwans-2b57b4b/?originalSubDomain=in)  
-International Conference on Human-Computer Interaction, Springer 2025  
-[📄 Paper](https://link.springer.com/chapter/10.1007/978-3-031-94171-9_13)  
-This poster presents an annotation tool which allows the user to extract text from undigitized manuscripts using OCR, following which users can make corrections to the OCR-detected text. Users can then request fine tuning on a few pages corrected by them, making the annotation process easier and more efficient for the subsequent pages by improving OCR performance.
-
----
 
 **Version:** 3.0  
 **Last Updated:** March 26, 2026
@@ -261,6 +233,31 @@ python -m gnn_training.training.main_train_eval \
 --gpu_id 0
 ```
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
+
+---
+This is work done at the Centre for Interdisciplinary Artificial Intelligence (CAI), FLAME University and is based on the following papers:
+
+#### **Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks**
+[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/) · [Mihir Hasabnis](https://www.linkedin.com/in/mihir-hasabnis-4078a01b/)  
+ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling  
+[📄 Paper](https://openreview.net/forum?id=0GoutqIh3l) | [🌐 Project Website](https://kartikchincholikar.github.io/gnn-layout-analysis/)  
+In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line.
+
+
+#### **A Case Study of Handwritten Text Recognition from Early Modern Sanskrit Manuscripts**
+[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubdomain=in) · [Tarinee Awasthi](https://www.linkedin.com/in/tarinee-awasthi-89883a244/)  
+Proceedings of the Workshop on Computational Sanskrit & Digital Humanities, World Sanskrit Conference 2025  
+[📄 Paper](https://aclanthology.org/2025.wsc-csdh.4.pdf) | [💻 Code](https://github.com/flame-cai/case-study-handwritten-sanskrit-ocr)  
+In this case study, we perform Handwritten Text Recognition on Sanskrit manuscripts from the Early Modern period, namely _Vādakautūhala_ of Svāmiśāstrin and Bhāskararāya (early eighteenth century), and _Mahāvākyārtha_ and _Dvādaśamahāvākyārthavicāra_ of unknown authorship.
+
+
+#### **A Semi-Automatic Text Recognition Tool for Pre-Colonial Handwritten Manuscripts in Devanāgari Script**
+[Bharath Valaboju](https://Bharath314.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubDomain=in) · [Shivkiran Chitkulwar](https://github.com/SSCoderin) · [Vinod Vidwans](https://www.linkedin.com/in/vinod-vidwans-2b57b4b/?originalSubDomain=in)  
+International Conference on Human-Computer Interaction, Springer 2025  
+[📄 Paper](https://link.springer.com/chapter/10.1007/978-3-031-94171-9_13)  
+This poster presents an annotation tool which allows the user to extract text from undigitized manuscripts using OCR, following which users can make corrections to the OCR-detected text. Users can then request fine tuning on a few pages corrected by them, making the annotation process easier and more efficient for the subsequent pages by improving OCR performance.
+
+---
 
 
 ## ♥️ Acknowledgements
