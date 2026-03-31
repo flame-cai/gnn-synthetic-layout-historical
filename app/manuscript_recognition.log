@@ -616,3 +616,291 @@
 2026-03-31 12:01:38,177 - INFO - 127.0.0.1 - - [31/Mar/2026 12:01:38] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
 2026-03-31 12:01:58,746 - INFO - 127.0.0.1 - - [31/Mar/2026 12:01:58] "GET /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
 2026-03-31 12:03:50,600 - INFO - 127.0.0.1 - - [31/Mar/2026 12:03:50] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 12:04:15,925 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.30:5000
+2026-03-31 12:04:15,926 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-31 12:04:15,930 - INFO -  * Restarting with stat
+2026-03-31 12:04:27,837 - WARNING -  * Debugger is active!
+2026-03-31 12:04:27,852 - INFO -  * Debugger PIN: 133-573-382
+2026-03-31 12:04:27,921 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:27] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 12:04:27,925 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:27] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 12:04:35,265 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:35] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 12:04:35,525 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:35] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 12:04:40,635 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:40] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-03-31 12:04:40,963 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:40] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-03-31 12:04:41,261 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:41] "GET /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:04:47,679 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:47] "OPTIONS /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:04:48,897 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:48] "POST /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:04:50,870 - INFO - 127.0.0.1 - - [31/Mar/2026 12:04:50] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:05:18,262 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:18] "GET /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:05:19,403 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:19] "GET /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:05:34,579 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:34] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:05:39,989 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:39] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:05:41,249 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:41] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:05:53,044 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:53] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:05:54,393 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:54] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:05:55,142 - INFO - 127.0.0.1 - - [31/Mar/2026 12:05:55] "GET /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 12:06:00,221 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:00] "OPTIONS /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 12:06:01,243 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:01] "POST /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 12:06:19,478 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:19] "OPTIONS /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 12:06:20,600 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:20] "POST /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 12:06:20,899 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:20] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:06:36,630 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:36] "GET /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 12:06:37,432 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:37] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:06:39,791 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:39] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:06:41,019 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:41] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:06:59,473 - INFO - 127.0.0.1 - - [31/Mar/2026 12:06:59] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:07:00,746 - INFO - 127.0.0.1 - - [31/Mar/2026 12:07:00] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:07:19,473 - INFO - 127.0.0.1 - - [31/Mar/2026 12:07:19] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:07:20,763 - INFO - 127.0.0.1 - - [31/Mar/2026 12:07:20] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:07:39,499 - INFO - 127.0.0.1 - - [31/Mar/2026 12:07:39] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:07:40,793 - INFO - 127.0.0.1 - - [31/Mar/2026 12:07:40] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:07:59,478 - INFO - 127.0.0.1 - - [31/Mar/2026 12:07:59] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:08:00,702 - INFO - 127.0.0.1 - - [31/Mar/2026 12:08:00] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:08:05,304 - INFO - 127.0.0.1 - - [31/Mar/2026 12:08:05] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:08:18,983 - INFO - 127.0.0.1 - - [31/Mar/2026 12:08:18] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:08:39,082 - INFO - 127.0.0.1 - - [31/Mar/2026 12:08:39] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:08:40,282 - INFO - 127.0.0.1 - - [31/Mar/2026 12:08:40] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:08:59,081 - INFO - 127.0.0.1 - - [31/Mar/2026 12:08:59] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:09:00,325 - INFO - 127.0.0.1 - - [31/Mar/2026 12:09:00] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:09:19,077 - INFO - 127.0.0.1 - - [31/Mar/2026 12:09:19] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:09:20,353 - INFO - 127.0.0.1 - - [31/Mar/2026 12:09:20] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:09:39,083 - INFO - 127.0.0.1 - - [31/Mar/2026 12:09:39] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:09:40,419 - INFO - 127.0.0.1 - - [31/Mar/2026 12:09:40] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:09:59,926 - INFO - 127.0.0.1 - - [31/Mar/2026 12:09:59] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:10:01,402 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:01] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:10:19,925 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:19] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:10:21,193 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:21] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:10:39,911 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:39] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:10:41,289 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:41] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:10:58,049 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:58] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-03-31 12:10:58,399 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:58] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-03-31 12:10:58,826 - INFO - 127.0.0.1 - - [31/Mar/2026 12:10:58] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:11:13,648 - INFO - 127.0.0.1 - - [31/Mar/2026 12:11:13] "GET /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 12:11:24,769 - INFO - 127.0.0.1 - - [31/Mar/2026 12:11:24] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:15:09,793 - INFO - 127.0.0.1 - - [31/Mar/2026 12:15:09] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:15:11,185 - INFO - 127.0.0.1 - - [31/Mar/2026 12:15:11] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:15:11,343 - INFO - 127.0.0.1 - - [31/Mar/2026 12:15:11] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:15:31,729 - INFO - 127.0.0.1 - - [31/Mar/2026 12:15:31] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:15:33,032 - INFO - 127.0.0.1 - - [31/Mar/2026 12:15:33] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:15:51,420 - INFO - 127.0.0.1 - - [31/Mar/2026 12:15:51] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:15:52,796 - INFO - 127.0.0.1 - - [31/Mar/2026 12:15:52] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:16:11,419 - INFO - 127.0.0.1 - - [31/Mar/2026 12:16:11] "OPTIONS /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:16:12,727 - INFO - 127.0.0.1 - - [31/Mar/2026 12:16:12] "POST /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:25:46,841 - INFO - 127.0.0.1 - - [31/Mar/2026 12:25:46] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 12:25:47,103 - INFO - 127.0.0.1 - - [31/Mar/2026 12:25:47] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 12:25:47,914 - INFO - 127.0.0.1 - - [31/Mar/2026 12:25:47] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 12:25:50,379 - INFO - 127.0.0.1 - - [31/Mar/2026 12:25:50] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 12:33:42,815 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-03-31 12:33:46,619 - INFO -  * Restarting with stat
+2026-03-31 12:34:00,737 - WARNING -  * Debugger is active!
+2026-03-31 12:34:00,741 - INFO -  * Debugger PIN: 133-573-382
+2026-03-31 12:34:01,825 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-03-31 12:34:04,023 - INFO -  * Restarting with stat
+2026-03-31 12:34:15,992 - WARNING -  * Debugger is active!
+2026-03-31 12:34:15,998 - INFO -  * Debugger PIN: 133-573-382
+2026-03-31 12:34:17,095 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-03-31 12:34:19,202 - INFO -  * Restarting with stat
+2026-03-31 12:34:30,124 - WARNING -  * Debugger is active!
+2026-03-31 12:34:30,135 - INFO -  * Debugger PIN: 133-573-382
+2026-03-31 12:34:46,068 - INFO - 127.0.0.1 - - [31/Mar/2026 12:34:46] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 12:34:51,295 - INFO - 127.0.0.1 - - [31/Mar/2026 12:34:51] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 12:34:51,674 - INFO - 127.0.0.1 - - [31/Mar/2026 12:34:51] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 12:34:53,083 - INFO - 127.0.0.1 - - [31/Mar/2026 12:34:53] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 12:34:54,570 - INFO - 127.0.0.1 - - [31/Mar/2026 12:34:54] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 12:35:10,868 - INFO - 127.0.0.1 - - [31/Mar/2026 12:35:10] "GET /manuscript/tarkasangrahah-sateekah2/pages HTTP/1.1" 200 -
+2026-03-31 12:35:11,117 - INFO - 127.0.0.1 - - [31/Mar/2026 12:35:11] "GET /manuscript/tarkasangrahah-sateekah2/pages HTTP/1.1" 200 -
+2026-03-31 12:35:11,410 - INFO - 127.0.0.1 - - [31/Mar/2026 12:35:11] "GET /semi-segment/tarkasangrahah-sateekah2/tarkasangrahah-sateekah2_page_001 HTTP/1.1" 200 -
+2026-03-31 12:35:13,374 - INFO - 127.0.0.1 - - [31/Mar/2026 12:35:13] "GET /semi-segment/tarkasangrahah-sateekah2/tarkasangrahah-sateekah2_page_001 HTTP/1.1" 200 -
+2026-03-31 12:36:05,259 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.30:5000
+2026-03-31 12:36:05,259 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-31 12:36:05,277 - INFO -  * Restarting with stat
+2026-03-31 12:36:18,068 - WARNING -  * Debugger is active!
+2026-03-31 12:36:18,084 - INFO -  * Debugger PIN: 133-573-382
+2026-03-31 12:36:18,098 - INFO - 127.0.0.1 - - [31/Mar/2026 12:36:18] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 12:36:23,544 - INFO - 127.0.0.1 - - [31/Mar/2026 12:36:23] "GET /manuscript/yajnavalkyashiksha/pages HTTP/1.1" 200 -
+2026-03-31 12:36:23,909 - INFO - 127.0.0.1 - - [31/Mar/2026 12:36:23] "GET /manuscript/yajnavalkyashiksha/pages HTTP/1.1" 200 -
+2026-03-31 12:36:27,090 - INFO - 127.0.0.1 - - [31/Mar/2026 12:36:27] "GET /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:36:31,372 - INFO - 127.0.0.1 - - [31/Mar/2026 12:36:31] "GET /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:36:52,233 - INFO - 127.0.0.1 - - [31/Mar/2026 12:36:52] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:36:53,542 - INFO - 127.0.0.1 - - [31/Mar/2026 12:36:53] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:37:11,933 - INFO - 127.0.0.1 - - [31/Mar/2026 12:37:11] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:37:13,271 - INFO - 127.0.0.1 - - [31/Mar/2026 12:37:13] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:37:31,919 - INFO - 127.0.0.1 - - [31/Mar/2026 12:37:31] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:37:33,158 - INFO - 127.0.0.1 - - [31/Mar/2026 12:37:33] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:37:51,917 - INFO - 127.0.0.1 - - [31/Mar/2026 12:37:51] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:37:53,147 - INFO - 127.0.0.1 - - [31/Mar/2026 12:37:53] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:38:11,912 - INFO - 127.0.0.1 - - [31/Mar/2026 12:38:11] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:38:13,159 - INFO - 127.0.0.1 - - [31/Mar/2026 12:38:13] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:38:31,915 - INFO - 127.0.0.1 - - [31/Mar/2026 12:38:31] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:38:33,147 - INFO - 127.0.0.1 - - [31/Mar/2026 12:38:33] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:39:42,238 - INFO - 127.0.0.1 - - [31/Mar/2026 12:39:42] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:39:43,415 - INFO - 127.0.0.1 - - [31/Mar/2026 12:39:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:40:41,924 - INFO - 127.0.0.1 - - [31/Mar/2026 12:40:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:40:43,146 - INFO - 127.0.0.1 - - [31/Mar/2026 12:40:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:41:41,922 - INFO - 127.0.0.1 - - [31/Mar/2026 12:41:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:41:43,127 - INFO - 127.0.0.1 - - [31/Mar/2026 12:41:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:42:41,914 - INFO - 127.0.0.1 - - [31/Mar/2026 12:42:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:42:43,371 - INFO - 127.0.0.1 - - [31/Mar/2026 12:42:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:43:41,916 - INFO - 127.0.0.1 - - [31/Mar/2026 12:43:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:43:43,169 - INFO - 127.0.0.1 - - [31/Mar/2026 12:43:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:44:41,922 - INFO - 127.0.0.1 - - [31/Mar/2026 12:44:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:44:43,203 - INFO - 127.0.0.1 - - [31/Mar/2026 12:44:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:45:41,918 - INFO - 127.0.0.1 - - [31/Mar/2026 12:45:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:45:43,228 - INFO - 127.0.0.1 - - [31/Mar/2026 12:45:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:46:41,925 - INFO - 127.0.0.1 - - [31/Mar/2026 12:46:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:46:43,178 - INFO - 127.0.0.1 - - [31/Mar/2026 12:46:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:47:41,916 - INFO - 127.0.0.1 - - [31/Mar/2026 12:47:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:47:43,276 - INFO - 127.0.0.1 - - [31/Mar/2026 12:47:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:48:41,931 - INFO - 127.0.0.1 - - [31/Mar/2026 12:48:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:48:43,260 - INFO - 127.0.0.1 - - [31/Mar/2026 12:48:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:49:41,905 - INFO - 127.0.0.1 - - [31/Mar/2026 12:49:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:49:43,134 - INFO - 127.0.0.1 - - [31/Mar/2026 12:49:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:50:41,908 - INFO - 127.0.0.1 - - [31/Mar/2026 12:50:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:50:43,113 - INFO - 127.0.0.1 - - [31/Mar/2026 12:50:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:51:41,920 - INFO - 127.0.0.1 - - [31/Mar/2026 12:51:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:51:43,119 - INFO - 127.0.0.1 - - [31/Mar/2026 12:51:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:52:41,922 - INFO - 127.0.0.1 - - [31/Mar/2026 12:52:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:52:43,105 - INFO - 127.0.0.1 - - [31/Mar/2026 12:52:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:53:41,920 - INFO - 127.0.0.1 - - [31/Mar/2026 12:53:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:53:43,138 - INFO - 127.0.0.1 - - [31/Mar/2026 12:53:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:54:41,915 - INFO - 127.0.0.1 - - [31/Mar/2026 12:54:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:54:43,168 - INFO - 127.0.0.1 - - [31/Mar/2026 12:54:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:55:41,918 - INFO - 127.0.0.1 - - [31/Mar/2026 12:55:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:55:43,166 - INFO - 127.0.0.1 - - [31/Mar/2026 12:55:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 12:56:00,542 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-03-31 12:56:02,239 - INFO -  * Restarting with stat
+2026-03-31 13:00:25,953 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.30:5000
+2026-03-31 13:00:25,953 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-31 13:00:25,953 - INFO -  * Restarting with stat
+2026-03-31 13:00:36,394 - WARNING -  * Debugger is active!
+2026-03-31 13:00:36,398 - INFO -  * Debugger PIN: 133-573-382
+2026-03-31 13:00:43,831 - INFO - 127.0.0.1 - - [31/Mar/2026 13:00:43] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 13:00:47,597 - INFO - 127.0.0.1 - - [31/Mar/2026 13:00:47] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 13:00:47,920 - INFO - 127.0.0.1 - - [31/Mar/2026 13:00:47] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 13:00:51,179 - INFO - 127.0.0.1 - - [31/Mar/2026 13:00:51] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:00:52,722 - INFO - 127.0.0.1 - - [31/Mar/2026 13:00:52] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:01:01,059 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:01] "GET /manuscript/yajnavalkyashiksha/pages HTTP/1.1" 200 -
+2026-03-31 13:01:01,325 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:01] "GET /manuscript/yajnavalkyashiksha/pages HTTP/1.1" 200 -
+2026-03-31 13:01:01,529 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:01] "GET /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:01:02,683 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:02] "GET /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:01:23,219 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:23] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:01:24,499 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:24] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:01:42,914 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:42] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:01:44,174 - INFO - 127.0.0.1 - - [31/Mar/2026 13:01:44] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:02:02,917 - INFO - 127.0.0.1 - - [31/Mar/2026 13:02:02] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:02:04,179 - INFO - 127.0.0.1 - - [31/Mar/2026 13:02:04] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:02:22,919 - INFO - 127.0.0.1 - - [31/Mar/2026 13:02:22] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:02:24,232 - INFO - 127.0.0.1 - - [31/Mar/2026 13:02:24] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:02:42,917 - INFO - 127.0.0.1 - - [31/Mar/2026 13:02:42] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:02:44,081 - INFO - 127.0.0.1 - - [31/Mar/2026 13:02:44] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:03:02,913 - INFO - 127.0.0.1 - - [31/Mar/2026 13:03:02] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:03:04,079 - INFO - 127.0.0.1 - - [31/Mar/2026 13:03:04] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:03:41,923 - INFO - 127.0.0.1 - - [31/Mar/2026 13:03:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:03:43,160 - INFO - 127.0.0.1 - - [31/Mar/2026 13:03:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:04:41,924 - INFO - 127.0.0.1 - - [31/Mar/2026 13:04:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:04:43,354 - INFO - 127.0.0.1 - - [31/Mar/2026 13:04:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:05:41,922 - INFO - 127.0.0.1 - - [31/Mar/2026 13:05:41] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:05:43,262 - INFO - 127.0.0.1 - - [31/Mar/2026 13:05:43] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:06:16,581 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:16] "OPTIONS /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:06:17,979 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:17] "POST /semi-segment/yajnavalkyashiksha/215_0002 HTTP/1.1" 200 -
+2026-03-31 13:06:19,743 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:19] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 13:06:24,763 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:24] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 13:06:25,023 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:25] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 13:06:25,758 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:25] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:06:27,394 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:27] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:06:47,791 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:47] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:06:48,941 - INFO - 127.0.0.1 - - [31/Mar/2026 13:06:48] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:07,484 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:07] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:08,632 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:08] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:27,475 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:27] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:28,602 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:28] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:36,654 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:36] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:37,958 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:37] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:38,799 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:38] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:07:42,029 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:42] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:07:43,395 - INFO - 127.0.0.1 - - [31/Mar/2026 13:07:43] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:03,806 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:03] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:05,035 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:05] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:05,709 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:05] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:08:10,771 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:10] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:23,927 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:23] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:25,046 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:25] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:43,490 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:43] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:44,814 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:44] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:08:52,345 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:52] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:08:53,550 - INFO - 127.0.0.1 - - [31/Mar/2026 13:08:53] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:09:03,491 - INFO - 127.0.0.1 - - [31/Mar/2026 13:09:03] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:09:04,577 - INFO - 127.0.0.1 - - [31/Mar/2026 13:09:04] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:09:23,487 - INFO - 127.0.0.1 - - [31/Mar/2026 13:09:23] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:09:24,662 - INFO - 127.0.0.1 - - [31/Mar/2026 13:09:24] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:09:43,485 - INFO - 127.0.0.1 - - [31/Mar/2026 13:09:43] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:09:44,655 - INFO - 127.0.0.1 - - [31/Mar/2026 13:09:44] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:10:03,917 - INFO - 127.0.0.1 - - [31/Mar/2026 13:10:03] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:10:05,112 - INFO - 127.0.0.1 - - [31/Mar/2026 13:10:05] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:10:23,906 - INFO - 127.0.0.1 - - [31/Mar/2026 13:10:23] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:10:25,061 - INFO - 127.0.0.1 - - [31/Mar/2026 13:10:25] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:10:43,901 - INFO - 127.0.0.1 - - [31/Mar/2026 13:10:43] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:10:45,027 - INFO - 127.0.0.1 - - [31/Mar/2026 13:10:45] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:11:03,489 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:03] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:11:04,989 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:04] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:11:05,324 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:05] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:11:06,155 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:06] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:11:24,238 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:24] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:11:25,361 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:25] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:11:43,925 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:43] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:11:44,967 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:44] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:11:59,563 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:59] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 13:11:59,917 - INFO - 127.0.0.1 - - [31/Mar/2026 13:11:59] "GET /manuscript/yujurvedashakavrikshah-chitram/pages HTTP/1.1" 200 -
+2026-03-31 13:12:00,284 - INFO - 127.0.0.1 - - [31/Mar/2026 13:12:00] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0003 HTTP/1.1" 200 -
+2026-03-31 13:12:05,077 - INFO - 127.0.0.1 - - [31/Mar/2026 13:12:05] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:12:06,752 - INFO - 127.0.0.1 - - [31/Mar/2026 13:12:06] "GET /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:12:26,909 - INFO - 127.0.0.1 - - [31/Mar/2026 13:12:26] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:12:28,026 - INFO - 127.0.0.1 - - [31/Mar/2026 13:12:28] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:12:46,906 - INFO - 127.0.0.1 - - [31/Mar/2026 13:12:46] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:12:48,014 - INFO - 127.0.0.1 - - [31/Mar/2026 13:12:48] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:13:07,043 - INFO - 127.0.0.1 - - [31/Mar/2026 13:13:07] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:13:08,368 - INFO - 127.0.0.1 - - [31/Mar/2026 13:13:08] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:13:26,918 - INFO - 127.0.0.1 - - [31/Mar/2026 13:13:26] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:13:28,101 - INFO - 127.0.0.1 - - [31/Mar/2026 13:13:28] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:13:46,976 - INFO - 127.0.0.1 - - [31/Mar/2026 13:13:46] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:13:48,092 - INFO - 127.0.0.1 - - [31/Mar/2026 13:13:48] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:14:06,910 - INFO - 127.0.0.1 - - [31/Mar/2026 13:14:06] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:14:08,057 - INFO - 127.0.0.1 - - [31/Mar/2026 13:14:08] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:14:41,925 - INFO - 127.0.0.1 - - [31/Mar/2026 13:14:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:14:43,055 - INFO - 127.0.0.1 - - [31/Mar/2026 13:14:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:15:41,926 - INFO - 127.0.0.1 - - [31/Mar/2026 13:15:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:15:43,083 - INFO - 127.0.0.1 - - [31/Mar/2026 13:15:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:16:41,916 - INFO - 127.0.0.1 - - [31/Mar/2026 13:16:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:16:43,065 - INFO - 127.0.0.1 - - [31/Mar/2026 13:16:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:17:41,920 - INFO - 127.0.0.1 - - [31/Mar/2026 13:17:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:17:43,068 - INFO - 127.0.0.1 - - [31/Mar/2026 13:17:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:18:41,923 - INFO - 127.0.0.1 - - [31/Mar/2026 13:18:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:18:43,050 - INFO - 127.0.0.1 - - [31/Mar/2026 13:18:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:19:41,929 - INFO - 127.0.0.1 - - [31/Mar/2026 13:19:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:19:43,257 - INFO - 127.0.0.1 - - [31/Mar/2026 13:19:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:20:41,923 - INFO - 127.0.0.1 - - [31/Mar/2026 13:20:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:20:43,078 - INFO - 127.0.0.1 - - [31/Mar/2026 13:20:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:21:41,925 - INFO - 127.0.0.1 - - [31/Mar/2026 13:21:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:21:43,230 - INFO - 127.0.0.1 - - [31/Mar/2026 13:21:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:22:41,921 - INFO - 127.0.0.1 - - [31/Mar/2026 13:22:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:22:43,018 - INFO - 127.0.0.1 - - [31/Mar/2026 13:22:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:23:41,915 - INFO - 127.0.0.1 - - [31/Mar/2026 13:23:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:23:43,091 - INFO - 127.0.0.1 - - [31/Mar/2026 13:23:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:24:41,916 - INFO - 127.0.0.1 - - [31/Mar/2026 13:24:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:24:43,023 - INFO - 127.0.0.1 - - [31/Mar/2026 13:24:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:25:41,928 - INFO - 127.0.0.1 - - [31/Mar/2026 13:25:41] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:25:43,033 - INFO - 127.0.0.1 - - [31/Mar/2026 13:25:43] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:25:51,526 - INFO - 127.0.0.1 - - [31/Mar/2026 13:25:51] "OPTIONS /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:25:52,763 - INFO - 127.0.0.1 - - [31/Mar/2026 13:25:52] "POST /semi-segment/yujurvedashakavrikshah-chitram/5682_0002 HTTP/1.1" 200 -
+2026-03-31 13:26:00,373 - INFO - 127.0.0.1 - - [31/Mar/2026 13:26:00] "GET /manuscript/tarkasangrahah-sateekah2/pages HTTP/1.1" 200 -
+2026-03-31 13:26:00,699 - INFO - 127.0.0.1 - - [31/Mar/2026 13:26:00] "GET /manuscript/tarkasangrahah-sateekah2/pages HTTP/1.1" 200 -
+2026-03-31 13:26:01,233 - INFO - 127.0.0.1 - - [31/Mar/2026 13:26:01] "GET /semi-segment/tarkasangrahah-sateekah2/tarkasangrahah-sateekah2_page_001 HTTP/1.1" 200 -
