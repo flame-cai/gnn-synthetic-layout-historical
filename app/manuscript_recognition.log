@@ -585,3 +585,34 @@
 2026-03-22 14:35:15,934 - INFO - 127.0.0.1 - - [22/Mar/2026 14:35:15] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
 2026-03-22 14:35:33,692 - INFO - 127.0.0.1 - - [22/Mar/2026 14:35:33] "OPTIONS /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
 2026-03-22 14:35:35,964 - INFO - 127.0.0.1 - - [22/Mar/2026 14:35:35] "POST /semi-segment/my_manuscript/000128_for_viz HTTP/1.1" 200 -
+2026-03-31 11:31:07,134 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.30:5000
+2026-03-31 11:31:07,134 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-31 11:31:07,134 - INFO -  * Restarting with stat
+2026-03-31 11:31:21,636 - WARNING -  * Debugger is active!
+2026-03-31 11:31:21,646 - INFO -  * Debugger PIN: 133-573-382
+2026-03-31 11:32:03,148 - INFO - 127.0.0.1 - - [31/Mar/2026 11:32:03] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 11:32:07,607 - INFO - 127.0.0.1 - - [31/Mar/2026 11:32:07] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-03-31 11:32:07,946 - INFO - 127.0.0.1 - - [31/Mar/2026 11:32:07] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-03-31 11:32:11,203 - INFO - 127.0.0.1 - - [31/Mar/2026 11:32:11] "GET /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+2026-03-31 11:32:24,615 - INFO - 127.0.0.1 - - [31/Mar/2026 11:32:24] "GET /semi-segment/amarakoshah-kanda2-3/1481_0002 HTTP/1.1" 200 -
+2026-03-31 11:32:37,478 - INFO - 127.0.0.1 - - [31/Mar/2026 11:32:37] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-03-31 11:50:11,707 - INFO - 127.0.0.1 - - [31/Mar/2026 11:50:11] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 11:50:42,772 - INFO - 127.0.0.1 - - [31/Mar/2026 11:50:42] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-03-31 11:50:52,192 - INFO - 127.0.0.1 - - [31/Mar/2026 11:50:52] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-03-31 11:50:52,438 - INFO - 127.0.0.1 - - [31/Mar/2026 11:50:52] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-03-31 11:50:52,864 - INFO - 127.0.0.1 - - [31/Mar/2026 11:50:52] "GET /semi-segment/testing/1481_0001 HTTP/1.1" 200 -
+2026-03-31 11:51:28,054 - INFO - 127.0.0.1 - - [31/Mar/2026 11:51:28] "GET /semi-segment/testing/1481_0013 HTTP/1.1" 200 -
+2026-03-31 11:55:10,017 - INFO - 127.0.0.1 - - [31/Mar/2026 11:55:10] "GET /semi-segment/testing/1481_0007 HTTP/1.1" 200 -
+2026-03-31 11:55:19,812 - INFO - 127.0.0.1 - - [31/Mar/2026 11:55:19] "OPTIONS /semi-segment/testing/1481_0007 HTTP/1.1" 200 -
+2026-03-31 11:55:21,207 - INFO - 127.0.0.1 - - [31/Mar/2026 11:55:21] "POST /semi-segment/testing/1481_0007 HTTP/1.1" 200 -
+2026-03-31 11:58:33,628 - INFO - 127.0.0.1 - - [31/Mar/2026 11:58:33] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-03-31 11:58:34,027 - INFO - 127.0.0.1 - - [31/Mar/2026 11:58:34] "GET /semi-segment/testing/1481_0007 HTTP/1.1" 200 -
+2026-03-31 11:58:44,165 - INFO - 127.0.0.1 - - [31/Mar/2026 11:58:44] "GET /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:01:36,208 - INFO - 127.0.0.1 - - [31/Mar/2026 12:01:36] "OPTIONS /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:01:37,377 - INFO - 127.0.0.1 - - [31/Mar/2026 12:01:37] "POST /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:01:38,177 - INFO - 127.0.0.1 - - [31/Mar/2026 12:01:38] "GET /semi-segment/testing/1481_0012 HTTP/1.1" 200 -
+2026-03-31 12:01:58,746 - INFO - 127.0.0.1 - - [31/Mar/2026 12:01:58] "GET /semi-segment/testing/1481_0011 HTTP/1.1" 200 -
+2026-03-31 12:03:50,600 - INFO - 127.0.0.1 - - [31/Mar/2026 12:03:50] "GET /existing-manuscripts HTTP/1.1" 200 -

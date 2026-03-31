@@ -27,7 +27,6 @@
                       <option value="local">Local OCR</option>
                       <option value="gemini">Gemini API</option>
                   </select>
-                  <input v-if="recognitionEngine === 'gemini'" type="password" v-model="geminiKey" placeholder="API Key" style="font-size:0.7rem; padding:2px; width:80px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; outline:none;" title="Enter Gemini API Key" />
               </div>
           </div>
 
@@ -122,7 +121,7 @@
               :width="scaledWidth"
               :height="scaledHeight"
               :viewBox="`0 0 ${scaledWidth} ${scaledHeight}`"
-              :style="{ cursor: svgCursor }"
+              :style="{ cursor: pointer}"
               @click="onBackgroundClick($event)"
               @contextmenu.prevent 
               @mousemove="handleSvgMouseMove"
@@ -672,14 +671,6 @@ const deleteNode = (nodeIndex) => {
     resetSelection();
     modifications.value.push({ type: 'node_delete' });
 }
-
-const svgCursor = computed(() => {
-  if (!layoutModeActive.value) return 'default'
-  if (isEKeyPressed.value) return 'crosshair' 
-  if (isAKeyPressed.value) return 'crosshair' 
-  if (isDKeyPressed.value) return 'not-allowed' 
-  return 'cell'; 
-})
 
 const downloadResults = async () => {
     try {
