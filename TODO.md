@@ -1,1 +1,0 @@
- 1) prepare a SKILL.md/AGENTS.md file such that any agent will be able to clone the repo, install conda env, and npm, and use the application in both automatic and semi-automatic mode, considering their operating system and other factors. They should also be able to prompt to enter their Gemini API (optionally). LLM agents should handle edge cases for a smooth user experience.
