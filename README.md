@@ -247,6 +247,16 @@ ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative M
 [📄 Paper](https://openreview.net/forum?id=0GoutqIh3l) | [🌐 Project Website](https://kartikchincholikar.github.io/gnn-layout-analysis/)  
 In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line.
 
+```bibtex
+@inproceedings{chincholikar2026towards,
+  title={Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks},
+  author={Kartik Chincholikar and Kaushik Gopalan and Mihir Hasabnis},
+  booktitle={ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling},
+  year={2026},
+  url={https://openreview.net/forum?id=0GoutqIh3l}
+}
+```
+
 ---
 
 
@@ -256,6 +266,16 @@ Proceedings of the Workshop on Computational Sanskrit & Digital Humanities, Worl
 [📄 Paper](https://aclanthology.org/2025.wsc-csdh.4.pdf) | [💻 Code](https://github.com/flame-cai/case-study-handwritten-sanskrit-ocr)  
 In this case study, we perform Handwritten Text Recognition on Sanskrit manuscripts from the Early Modern period, namely _Vādakautūhala_ of Svāmiśāstrin and Bhāskararāya (early eighteenth century), and _Mahāvākyārtha_ and _Dvādaśamahāvākyārthavicāra_ of unknown authorship.
 
+```bibtex
+@inproceedings{chincholikar2025case,
+  title={A Case Study of Handwritten Text Recognition from Pre-Colonial era Sanskrit Manuscripts},
+  author={Chincholikar, Kartik and Dwivedi, Shagun and Gopalan, Kaushik and Awasthi, Tarinee},
+  booktitle={Computational Sanskrit and Digital Humanities-World Sanskrit Conference 2025},
+  pages={52--69},
+  year={2025}
+}
+```
+
 ---
 
 #### **A Semi-Automatic Text Recognition Tool for Pre-Colonial Handwritten Manuscripts in Devanāgari Script**
@@ -263,6 +283,17 @@ In this case study, we perform Handwritten Text Recognition on Sanskrit manuscri
 International Conference on Human-Computer Interaction, Springer 2025  
 [📄 Paper](https://link.springer.com/chapter/10.1007/978-3-031-94171-9_13)  
 This poster presents an annotation tool which allows the user to extract text from undigitized manuscripts using OCR, following which users can make corrections to the OCR-detected text. Users can then request fine tuning on a few pages corrected by them, making the annotation process easier and more efficient for the subsequent pages by improving OCR performance.
+
+```bibtex
+@inproceedings{valaboju2025semi,
+  title={A Semi-Automatic Text Recognition Tool for Pre-Colonial Handwritten Manuscripts in Devan{\=a}gari Script},
+  author={Valaboju, Bharath and Dwivedi, Shagun and Chincholikar, Kartik and Gopalan, Kaushik and Vidwans, Vinod},
+  booktitle={International Conference on Human-Computer Interaction},
+  pages={152--160},
+  year={2025},
+  organization={Springer}
+}
+```
 
 ---
 
