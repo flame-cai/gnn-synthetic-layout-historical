@@ -2,7 +2,7 @@
   <div class="manuscript-viewer">
     
     <!-- TOP RAIL: Navigation & Global Actions -->
-    <div class="top-bar">
+    <div class="top-bar fixed-ui-compensated" :style="fixedUiCompensationStyle">
       <div class="top-bar-left">
         <button class="nav-btn secondary" @click="$emit('back')">Back</button>
         <span class="page-title">{{ manuscriptNameForDisplay }} <span class="divider">/</span></span>
@@ -136,7 +136,7 @@
                 :x2="scaleX(workingGraph.nodes[edge.target].x)"
                 :y2="scaleY(workingGraph.nodes[edge.target].y)"
                 :stroke="getEdgeColor(edge)"
-                :stroke-width="isEdgeSelected(edge) ? 4 : 4"
+                :stroke-width="getEdgeStrokeWidth(edge)"
                 @click.stop="layoutModeActive && onEdgeClick(edge, $event)"
               />
 
@@ -165,7 +165,7 @@
                 :x2="tempEndPoint.x"
                 :y2="tempEndPoint.y"
                 stroke="#ff9500"
-                stroke-width="2.5"
+                :stroke-width="tempEdgeStrokeWidth"
                 stroke-dasharray="5,5"
               />
             </svg>
@@ -242,7 +242,11 @@
     </div>
 
     <!-- BOTTOM RAIL: Controls & Help Center -->
-    <div class="bottom-panel" :class="{ 'is-collapsed': isPanelCollapsed }">
+    <div
+      class="bottom-panel fixed-ui-compensated"
+      :class="{ 'is-collapsed': isPanelCollapsed }"
+      :style="fixedUiCompensationStyle"
+    >
       
       <!-- Mode Tabs (Always Visible) -->
       <div class="mode-tabs">
@@ -472,8 +476,30 @@ const localTextConfidence = reactive({})
 const autoSaveInterval = ref(null) // NEW
 
 const scaleFactor = 0.7
-const NODE_HOVER_RADIUS = 7
-const EDGE_HOVER_THRESHOLD = 5
+const DEFAULT_MEDIAN_NEIGHBOR_DISTANCE_RAW = 20
+const MIN_NODE_RADIUS_PX = 2.2
+const MAX_NODE_RADIUS_PX = 7
+const MIN_EDGE_STROKE_PX = 1.1
+const MAX_EDGE_STROKE_PX = 4
+
+const pageMedianNeighborDistanceRaw = ref(DEFAULT_MEDIAN_NEIGHBOR_DISTANCE_RAW)
+const baseNodeRadiusPx = ref(7)
+const baseEdgeStrokePx = ref(4)
+
+const getOuterToInnerRatio = () => {
+  const innerWidth = window.innerWidth || 0
+  const outerWidth = window.outerWidth || 0
+  if (innerWidth <= 0 || outerWidth <= 0) return 1
+  return outerWidth / innerWidth
+}
+
+const initialDevicePixelRatio = window.devicePixelRatio || 1
+const initialOuterToInnerRatio = getOuterToInnerRatio()
+const initialViewportWidth = window.visualViewport?.width || window.innerWidth || 1
+const browserZoomLevel = ref(1)
+let zoomUpdateRafId = null
+let zoomPollIntervalId = null
+let zoomShortcutTimeoutId = null
 
 const manuscriptNameForDisplay = computed(() => localManuscriptName.value)
 const currentPageForDisplay = computed(() => localCurrentPage.value)
@@ -485,6 +511,172 @@ const scaledHeight = computed(() => Math.floor(dimensions.value[1] * scaleFactor
 const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
+
+const readBrowserZoomLevel = () => {
+  const zoomCandidates = []
+
+  const viewportScale = window.visualViewport?.scale
+  if (typeof viewportScale === 'number' && Number.isFinite(viewportScale) && viewportScale > 0) {
+    zoomCandidates.push(viewportScale)
+  }
+
+  const currentDpr = window.devicePixelRatio || initialDevicePixelRatio
+  if (initialDevicePixelRatio > 0) {
+    zoomCandidates.push(currentDpr / initialDevicePixelRatio)
+  }
+
+  const currentOuterToInnerRatio = getOuterToInnerRatio()
+  if (initialOuterToInnerRatio > 0 && currentOuterToInnerRatio > 0) {
+    zoomCandidates.push(currentOuterToInnerRatio / initialOuterToInnerRatio)
+  }
+
+  if (window.visualViewport?.width && initialViewportWidth > 0) {
+    zoomCandidates.push(initialViewportWidth / window.visualViewport.width)
+  }
+
+  const validCandidates = zoomCandidates
+    .filter((value) => Number.isFinite(value) && value > 0)
+    .map((value) => clamp(value, 0.25, 4))
+
+  if (validCandidates.length === 0) return 1
+
+  // Median is stable against noisy signals from resize/frame metrics.
+  validCandidates.sort((a, b) => a - b)
+  return validCandidates[Math.floor(validCandidates.length / 2)]
+}
+
+const updateBrowserZoomLevel = () => {
+  const measuredZoom = readBrowserZoomLevel()
+  if (Math.abs(measuredZoom - browserZoomLevel.value) > 0.002) {
+    browserZoomLevel.value = measuredZoom
+  }
+}
+
+const scheduleBrowserZoomLevelUpdate = () => {
+  if (zoomUpdateRafId !== null) return
+  zoomUpdateRafId = window.requestAnimationFrame(() => {
+    zoomUpdateRafId = null
+    updateBrowserZoomLevel()
+  })
+}
+
+const schedulePostZoomShortcutUpdate = () => {
+  if (zoomShortcutTimeoutId !== null) {
+    window.clearTimeout(zoomShortcutTimeoutId)
+  }
+  // Let browser apply zoom first, then measure.
+  zoomShortcutTimeoutId = window.setTimeout(() => {
+    zoomShortcutTimeoutId = null
+    scheduleBrowserZoomLevelUpdate()
+  }, 40)
+}
+
+const handleCtrlWheelZoom = (event) => {
+  if (!event.ctrlKey) return
+  schedulePostZoomShortcutUpdate()
+}
+
+const fixedUiCompensationStyle = computed(() => {
+  const inverseZoom = 1 / browserZoomLevel.value
+  const normalizedScale = clamp(inverseZoom, 0.25, 4)
+  return {
+    '--fixed-ui-zoom': normalizedScale.toFixed(4),
+    '--fixed-ui-transform-scale': normalizedScale.toFixed(4),
+  }
+})
+
+const tempEdgeStrokeWidth = computed(() =>
+  clamp(baseEdgeStrokePx.value * 0.95, MIN_EDGE_STROKE_PX, MAX_EDGE_STROKE_PX)
+)
+const nodeHoverRadiusPx = computed(() => Math.max(baseNodeRadiusPx.value * 1.6, baseNodeRadiusPx.value + 2.5))
+const edgeHoverThresholdPx = computed(() => Math.max(baseEdgeStrokePx.value * 1.8, 4))
+
+const getMedian = (values) => {
+  if (!Array.isArray(values) || values.length === 0) return null
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  if (sorted.length % 2 === 1) return sorted[mid]
+  return (sorted[mid - 1] + sorted[mid]) / 2
+}
+
+const computeMedianNeighborDistanceFromGraph = (nodes, edges) => {
+  if (!Array.isArray(nodes) || nodes.length < 2) return null
+
+  const minDistances = new Array(nodes.length).fill(Number.POSITIVE_INFINITY)
+  const uniqueEdges = new Set()
+  for (const edge of edges || []) {
+    const source = Number(edge?.source)
+    const target = Number(edge?.target)
+    if (
+      !Number.isInteger(source) || !Number.isInteger(target) ||
+      source < 0 || target < 0 ||
+      source >= nodes.length || target >= nodes.length ||
+      source === target
+    ) {
+      continue
+    }
+    const key = source < target ? `${source}-${target}` : `${target}-${source}`
+    if (uniqueEdges.has(key)) continue
+    uniqueEdges.add(key)
+
+    const n1 = nodes[source]
+    const n2 = nodes[target]
+    const distance = Math.hypot((n1?.x || 0) - (n2?.x || 0), (n1?.y || 0) - (n2?.y || 0))
+    if (!Number.isFinite(distance) || distance <= 0) continue
+    if (distance < minDistances[source]) minDistances[source] = distance
+    if (distance < minDistances[target]) minDistances[target] = distance
+  }
+
+  const validDistances = minDistances.filter((d) => Number.isFinite(d) && d > 0)
+  if (validDistances.length < Math.min(8, Math.max(3, Math.floor(nodes.length * 0.2)))) return null
+  return getMedian(validDistances)
+}
+
+const computeMedianNearestDistanceFallback = (nodes) => {
+  if (!Array.isArray(nodes) || nodes.length < 2) return null
+
+  const SAMPLE_LIMIT = 1200
+  const step = Math.max(1, Math.ceil(nodes.length / SAMPLE_LIMIT))
+  const sampledIndices = []
+  for (let i = 0; i < nodes.length; i += step) {
+    sampledIndices.push(i)
+  }
+
+  const nearestDistances = []
+  for (const sourceIndex of sampledIndices) {
+    const sourceNode = nodes[sourceIndex]
+    if (!sourceNode) continue
+    let nearest = Number.POSITIVE_INFINITY
+    for (let j = 0; j < nodes.length; j++) {
+      if (j === sourceIndex) continue
+      const targetNode = nodes[j]
+      if (!targetNode) continue
+      const distance = Math.hypot((sourceNode.x || 0) - (targetNode.x || 0), (sourceNode.y || 0) - (targetNode.y || 0))
+      if (distance > 0 && distance < nearest) nearest = distance
+    }
+    if (Number.isFinite(nearest) && nearest > 0) nearestDistances.push(nearest)
+  }
+
+  return getMedian(nearestDistances)
+}
+
+const updatePageDynamicSizing = (nodes, edges) => {
+  const safeNodes = Array.isArray(nodes) ? nodes : []
+  const safeEdges = Array.isArray(edges) ? edges : []
+
+  let medianDistance = computeMedianNeighborDistanceFromGraph(safeNodes, safeEdges)
+  if (!medianDistance) medianDistance = computeMedianNearestDistanceFallback(safeNodes)
+  if (!medianDistance || !Number.isFinite(medianDistance) || medianDistance <= 0) {
+    medianDistance = DEFAULT_MEDIAN_NEIGHBOR_DISTANCE_RAW
+  }
+
+  pageMedianNeighborDistanceRaw.value = medianDistance
+  const medianDistanceScaled = medianDistance * scaleFactor
+  baseNodeRadiusPx.value = clamp(medianDistanceScaled * 0.28, MIN_NODE_RADIUS_PX, MAX_NODE_RADIUS_PX)
+  baseEdgeStrokePx.value = clamp(baseNodeRadiusPx.value * 0.58, MIN_EDGE_STROKE_PX, MAX_EDGE_STROKE_PX)
+}
 
 
 // --- RECOGNITION MODE LOGIC ---
@@ -635,8 +827,8 @@ const focusNextLine = (reverse = false) => {
 // --- EXISTING GRAPH LOGIC ---
 
 const getAverageNodeSize = () => {
-    if (!workingGraph.nodes || workingGraph.nodes.length === 0) return 10;
-    const sum = workingGraph.nodes.reduce((acc, n) => acc + (n.s || 10), 0);
+    if (!workingGraph.nodes || workingGraph.nodes.length === 0) return pageMedianNeighborDistanceRaw.value;
+    const sum = workingGraph.nodes.reduce((acc, n) => acc + (n.s || pageMedianNeighborDistanceRaw.value), 0);
     return sum / workingGraph.nodes.length;
 }
 
@@ -788,6 +980,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
         Object.assign(localTextConfidence, data.textConfidences);
     }
 
+    updatePageDynamicSizing(graph.value?.nodes || [], graph.value?.edges || [])
     resetWorkingGraph()
     sortLinesTopToBottom()
   } catch (err) {
@@ -873,14 +1066,24 @@ const getNodeColor = (nodeIndex) => {
 }
 
 const getNodeRadius = (nodeIndex) => {
+  const baseRadius = baseNodeRadiusPx.value
   if (layoutModeActive.value && isEKeyPressed.value) {
-    return (hoveredTextlineId.value === nodeToTextlineMap.value[nodeIndex]) ? 7 : 7
+    return (hoveredTextlineId.value === nodeToTextlineMap.value[nodeIndex])
+      ? clamp(baseRadius * 1.2, MIN_NODE_RADIUS_PX, MAX_NODE_RADIUS_PX + 1)
+      : baseRadius
   }
-  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return 7
-  if (isNodeSelected(nodeIndex)) return 7
-  return nodeEdgeCounts.value[nodeIndex] < 2 ? 7 : 7
+  if (isAKeyPressed.value && hoveredNodesForMST.has(nodeIndex)) return clamp(baseRadius * 1.2, MIN_NODE_RADIUS_PX, MAX_NODE_RADIUS_PX + 1)
+  if (isNodeSelected(nodeIndex)) return clamp(baseRadius * 1.25, MIN_NODE_RADIUS_PX, MAX_NODE_RADIUS_PX + 1.2)
+  return nodeEdgeCounts.value[nodeIndex] < 2 ? clamp(baseRadius * 0.95, MIN_NODE_RADIUS_PX, MAX_NODE_RADIUS_PX) : baseRadius
 }
 const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#ffffff')
+const getEdgeStrokeWidth = (edge) => {
+  const baseWidth = baseEdgeStrokePx.value
+  if (isEdgeSelected(edge)) return clamp(baseWidth * 1.35, MIN_EDGE_STROKE_PX, MAX_EDGE_STROKE_PX + 1)
+  return edge.modified
+    ? clamp(baseWidth * 1.1, MIN_EDGE_STROKE_PX, MAX_EDGE_STROKE_PX + 0.5)
+    : baseWidth
+}
 const isNodeSelected = (nodeIndex) => selectedNodes.value.includes(nodeIndex)
 const isEdgeSelected = (edge) => {
   return selectedNodes.value.length === 2 &&
@@ -961,7 +1164,7 @@ const handleSvgMouseMove = (event) => {
     let newHoveredTextlineId = null
     for (let i = 0; i < workingGraph.nodes.length; i++) {
       const node = workingGraph.nodes[i]
-      if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < NODE_HOVER_RADIUS) {
+      if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < nodeHoverRadiusPx.value) {
         newHoveredTextlineId = nodeToTextlineMap.value[i]
         break 
       }
@@ -969,7 +1172,7 @@ const handleSvgMouseMove = (event) => {
     if (newHoveredTextlineId === null) {
         for(const edge of workingGraph.edges) {
              const n1 = workingGraph.nodes[edge.source], n2 = workingGraph.nodes[edge.target];
-             if(n1 && n2 && distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) < EDGE_HOVER_THRESHOLD) {
+             if(n1 && n2 && distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) < edgeHoverThresholdPx.value) {
                  newHoveredTextlineId = nodeToTextlineMap.value[edge.source];
                  break;
              }
@@ -1012,6 +1215,12 @@ const handleGlobalKeyDown = (e) => {
   const isInput = tagName === 'input' || tagName === 'textarea';
 
   const key = e.key.toLowerCase()
+  const isZoomShortcut = (e.ctrlKey || e.metaKey) &&
+    (key === '+' || key === '-' || key === '=' || key === '0' || e.code === 'NumpadAdd' || e.code === 'NumpadSubtract')
+  if (isZoomShortcut) {
+    schedulePostZoomShortcutUpdate()
+  }
+
   if (key === 's' && !e.repeat && !isInput) {
     e.preventDefault()
     saveCurrentPage()
@@ -1093,7 +1302,7 @@ const handleEdgeHoverDelete = (mouseX, mouseY) => {
   for (let i = workingGraph.edges.length - 1; i >= 0; i--) {
     const edge = workingGraph.edges[i]
     const n1 = workingGraph.nodes[edge.source], n2 = workingGraph.nodes[edge.target]
-    if (n1 && n2 && distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) < EDGE_HOVER_THRESHOLD) {
+    if (n1 && n2 && distanceToLineSegment(mouseX, mouseY, scaleX(n1.x), scaleY(n1.y), scaleX(n2.x), scaleY(n2.y)) < edgeHoverThresholdPx.value) {
       const removed = workingGraph.edges.splice(i, 1)[0]
       modifications.value.push({
         type: 'delete',
@@ -1106,7 +1315,7 @@ const handleEdgeHoverDelete = (mouseX, mouseY) => {
 }
 const handleNodeHoverCollect = (mouseX, mouseY) => {
   workingGraph.nodes.forEach((node, index) => {
-    if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < NODE_HOVER_RADIUS)
+    if (Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y)) < nodeHoverRadiusPx.value)
       hoveredNodesForMST.add(index)
   })
 }
@@ -1306,6 +1515,7 @@ watch(recognitionModeActive, (active) => {
 })
 
 onMounted(async () => {
+  updateBrowserZoomLevel()
   if (props.manuscriptName && props.pageName) {
     localManuscriptName.value = props.manuscriptName
     localCurrentPage.value = props.pageName
@@ -1324,11 +1534,34 @@ onMounted(async () => {
 
     await fetchPageData(props.manuscriptName, localCurrentPage.value)
   }
+  window.addEventListener('resize', scheduleBrowserZoomLevelUpdate, { passive: true })
+  window.addEventListener('wheel', handleCtrlWheelZoom, { passive: true })
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scheduleBrowserZoomLevelUpdate, { passive: true })
+  }
+  zoomPollIntervalId = window.setInterval(updateBrowserZoomLevel, 500)
   window.addEventListener('keydown', handleGlobalKeyDown)
   window.addEventListener('keyup', handleGlobalKeyUp)
 })
 
 onBeforeUnmount(() => {
+  if (zoomUpdateRafId !== null) {
+    window.cancelAnimationFrame(zoomUpdateRafId)
+    zoomUpdateRafId = null
+  }
+  if (zoomShortcutTimeoutId !== null) {
+    window.clearTimeout(zoomShortcutTimeoutId)
+    zoomShortcutTimeoutId = null
+  }
+  if (zoomPollIntervalId !== null) {
+    window.clearInterval(zoomPollIntervalId)
+    zoomPollIntervalId = null
+  }
+  window.removeEventListener('resize', scheduleBrowserZoomLevelUpdate)
+  window.removeEventListener('wheel', handleCtrlWheelZoom)
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', scheduleBrowserZoomLevelUpdate)
+  }
   window.removeEventListener('keydown', handleGlobalKeyDown)
   window.removeEventListener('keyup', handleGlobalKeyUp)
   if(autoSaveInterval.value) clearInterval(autoSaveInterval.value);
@@ -1360,6 +1593,18 @@ watch(recognitionModeActive, (val) => {
 .top-bar {
   display: flex; justify-content: space-between; align-items: center; padding: 0 16px;
   height: 60px; background-color: #2c2c2c; border-bottom: 1px solid #3d3d3d; flex-shrink: 0; z-index: 10;
+}
+
+.fixed-ui-compensated {
+  zoom: var(--fixed-ui-zoom, 1);
+}
+
+@supports not (zoom: 1) {
+  .fixed-ui-compensated {
+    transform: scale(var(--fixed-ui-transform-scale, 1));
+    transform-origin: top left;
+    width: calc(100% / var(--fixed-ui-transform-scale, 1));
+  }
 }
 .top-bar-left, .top-bar-right, .action-group { display: flex; align-items: center; gap: 16px; }
 .page-title { font-size: 1.1rem; color: #fff; white-space: nowrap; }
