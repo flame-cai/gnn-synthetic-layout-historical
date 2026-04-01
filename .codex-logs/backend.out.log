@@ -44,3 +44,189 @@ Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
 --> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
 Running GNN Inference...
 2026-04-01 11:38:20,192 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:20] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:04:03,764 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:03] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 12:04:07,677 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:07] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:04:08,054 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:08] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:04:09,246 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:09] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:04:30,194 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:30] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:04:30,558 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:30] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0001
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:04:30,823 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:30] "GET /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+Fetching data for page: 1481_0002
+--> Loading RAW CRAFT node definitions from input_manuscripts\amarakoshah-kanda2-3\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:04:40,094 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:40] "GET /semi-segment/amarakoshah-kanda2-3/1481_0002 HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading RAW CRAFT node definitions from input_manuscripts\amarakoshah-kanda2-3\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:05:24,451 - INFO - 127.0.0.1 - - [01/Apr/2026 12:05:24] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading RAW CRAFT node definitions from input_manuscripts\amarakoshah-kanda2-3\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:06:53,410 - INFO - 127.0.0.1 - - [01/Apr/2026 12:06:53] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:13,491 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:13] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+[1481_0003] Node corrections logged: Original: 862, Added: 0, Removed: 0, Final: 862
+Successfully generated data for 39 lines.
+2026-04-01 12:07:15,131 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:15] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:33,490 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:33] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+[1481_0003] Node corrections logged: Original: 862, Added: 0, Removed: 0, Final: 862
+Successfully generated data for 39 lines.
+2026-04-01 12:07:35,166 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:35] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:53,486 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:53] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+[1481_0003] Node corrections logged: Original: 862, Added: 0, Removed: 0, Final: 862
+Successfully generated data for 39 lines.
+2026-04-01 12:07:55,099 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:55] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:07:59,953 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:59] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:08:20,389 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:20] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+[1481_0003] Node corrections logged: Original: 862, Added: 0, Removed: 0, Final: 862
+Successfully generated data for 39 lines.
+2026-04-01 12:08:22,106 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:22] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:08:40,058 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:40] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+[1481_0003] Node corrections logged: Original: 862, Added: 0, Removed: 0, Final: 862
+Successfully generated data for 39 lines.
+2026-04-01 12:08:41,705 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:41] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:09:00,060 - INFO - 127.0.0.1 - - [01/Apr/2026 12:09:00] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+[1481_0003] Node corrections logged: Original: 862, Added: 0, Removed: 0, Final: 862
+Successfully generated data for 39 lines.
+2026-04-01 12:09:01,764 - INFO - 127.0.0.1 - - [01/Apr/2026 12:09:01] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:15:03,679 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:03] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:15:04,117 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:04] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:15:10,296 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:10] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:15:10,688 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:10] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:16:51,495 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:51] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 12:16:56,154 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:56] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:16:56,543 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:56] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:16:56,861 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:56] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:18:49,579 - INFO - 127.0.0.1 - - [01/Apr/2026 12:18:49] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:18:49,897 - INFO - 127.0.0.1 - - [01/Apr/2026 12:18:49] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:20:01,793 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:01] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:20:02,045 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:02] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:20:02,176 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:02] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:20:21,141 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:21] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:20:21,470 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:21] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:20:22,501 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:22] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:33:41,424 - INFO - 127.0.0.1 - - [01/Apr/2026 12:33:41] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:33:42,515 - INFO - 127.0.0.1 - - [01/Apr/2026 12:33:42] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:35:25,516 - INFO - 127.0.0.1 - - [01/Apr/2026 12:35:25] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:35:26,551 - INFO - 127.0.0.1 - - [01/Apr/2026 12:35:26] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:40:58,601 - INFO - 127.0.0.1 - - [01/Apr/2026 12:40:58] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:40:59,678 - INFO - 127.0.0.1 - - [01/Apr/2026 12:40:59] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:41:57,007 - INFO - 127.0.0.1 - - [01/Apr/2026 12:41:57] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 12:42:01,276 - INFO - 127.0.0.1 - - [01/Apr/2026 12:42:01] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:42:01,530 - INFO - 127.0.0.1 - - [01/Apr/2026 12:42:01] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:42:02,254 - INFO - 127.0.0.1 - - [01/Apr/2026 12:42:02] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:42:42,868 - INFO - 127.0.0.1 - - [01/Apr/2026 12:42:42] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 12:42:49,175 - INFO - 127.0.0.1 - - [01/Apr/2026 12:42:49] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:42:49,441 - INFO - 127.0.0.1 - - [01/Apr/2026 12:42:49] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:42:49,573 - INFO - 127.0.0.1 - - [01/Apr/2026 12:42:49] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:46:45,185 - INFO - 127.0.0.1 - - [01/Apr/2026 12:46:45] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:46:45,493 - INFO - 127.0.0.1 - - [01/Apr/2026 12:46:45] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:48:35,089 - INFO - 127.0.0.1 - - [01/Apr/2026 12:48:35] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 12:48:40,207 - INFO - 127.0.0.1 - - [01/Apr/2026 12:48:40] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:48:40,570 - INFO - 127.0.0.1 - - [01/Apr/2026 12:48:40] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:48:40,887 - INFO - 127.0.0.1 - - [01/Apr/2026 12:48:40] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:59:31,500 - INFO - 127.0.0.1 - - [01/Apr/2026 12:59:31] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:59:31,749 - INFO - 127.0.0.1 - - [01/Apr/2026 12:59:31] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 12:59:31,936 - INFO - 127.0.0.1 - - [01/Apr/2026 12:59:31] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:59:46,863 - INFO - 127.0.0.1 - - [01/Apr/2026 12:59:46] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:59:47,216 - INFO - 127.0.0.1 - - [01/Apr/2026 12:59:47] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 12:59:48,273 - INFO - 127.0.0.1 - - [01/Apr/2026 12:59:48] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 13:00:50,020 - INFO - 127.0.0.1 - - [01/Apr/2026 13:00:50] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 13:00:50,284 - INFO - 127.0.0.1 - - [01/Apr/2026 13:00:50] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 13:00:50,490 - INFO - 127.0.0.1 - - [01/Apr/2026 13:00:50] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 13:00:59,165 - INFO - 127.0.0.1 - - [01/Apr/2026 13:00:59] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 13:01:19,589 - INFO - 127.0.0.1 - - [01/Apr/2026 13:01:19] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+[1481_0003] Node corrections logged: Original: 862, Added: 0, Removed: 0, Final: 862
+Successfully generated data for 39 lines.
+2026-04-01 13:01:21,574 - INFO - 127.0.0.1 - - [01/Apr/2026 13:01:21] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 13:03:13,619 - INFO - 127.0.0.1 - - [01/Apr/2026 13:03:13] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 13:03:13,883 - INFO - 127.0.0.1 - - [01/Apr/2026 13:03:13] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0003
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 13:03:14,080 - INFO - 127.0.0.1 - - [01/Apr/2026 13:03:14] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 13:03:22,765 - INFO - 127.0.0.1 - - [01/Apr/2026 13:03:22] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-01 13:03:23,089 - INFO - 127.0.0.1 - - [01/Apr/2026 13:03:23] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+Fetching data for page: amaranathamahatmyam_page_001
+--> Loading RAW CRAFT node definitions from input_manuscripts\amaranathamahatmyam\gnn-dataset
+Running GNN Inference...
+2026-04-01 13:03:23,533 - INFO - 127.0.0.1 - - [01/Apr/2026 13:03:23] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-01 13:04:19,889 - INFO - 127.0.0.1 - - [01/Apr/2026 13:04:19] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+[amaranathamahatmyam_page_001] Node corrections logged: Original: 131, Added: 0, Removed: 0, Final: 131
+Successfully generated data for 15 lines.
+2026-04-01 13:04:20,863 - INFO - 127.0.0.1 - - [01/Apr/2026 13:04:20] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+Fetching data for page: amaranathamahatmyam_page_002
+--> Loading RAW CRAFT node definitions from input_manuscripts\amaranathamahatmyam\gnn-dataset
+Running GNN Inference...
+2026-04-01 13:04:21,577 - INFO - 127.0.0.1 - - [01/Apr/2026 13:04:21] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+Fetching data for page: amaranathamahatmyam_page_003
+--> Loading RAW CRAFT node definitions from input_manuscripts\amaranathamahatmyam\gnn-dataset
+Running GNN Inference...
+2026-04-01 13:05:01,811 - INFO - 127.0.0.1 - - [01/Apr/2026 13:05:01] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_003 HTTP/1.1" 200 -
+Fetching data for page: amaranathamahatmyam_page_004
+--> Loading RAW CRAFT node definitions from input_manuscripts\amaranathamahatmyam\gnn-dataset
+Running GNN Inference...
+2026-04-01 13:05:10,985 - INFO - 127.0.0.1 - - [01/Apr/2026 13:05:10] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_004 HTTP/1.1" 200 -
+Fetching data for page: amaranathamahatmyam_page_005
+--> Loading RAW CRAFT node definitions from input_manuscripts\amaranathamahatmyam\gnn-dataset
+Running GNN Inference...
+2026-04-01 13:05:17,127 - INFO - 127.0.0.1 - - [01/Apr/2026 13:05:17] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_005 HTTP/1.1" 200 -
