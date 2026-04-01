@@ -2,40 +2,17 @@
 Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks
 </h1>
 
-<p align="center">
-<a href="https://kartikchincholikar.github.io/">Kartik Chincholikar</a> ·
-<a href="https://www.linkedin.com/in/kaushik-gopalan-b6533624/">Kaushik Gopalan</a> ·
-<a href="https://www.linkedin.com/in/mihir-hasabnis-4078a01b/">Mihir Hasabnis</a>
-</p>
-
-<p align="center">
-Centre for Interdisciplinary Artificial Intelligence (CAI) <br>
-FLAME University
-</p>
-
-<p align="center">
-ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling
-</p>
-
-<p align="center">
-  <a href="https://openreview.net/forum?id=0GoutqIh3l"><b>📄 Paper</b></a> &nbsp;|&nbsp;
-  <a href="https://kartikchincholikar.github.io/gnn-layout-analysis/"><b>🌐 Project Website</b></a>
-</p>
-
-
-In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line. 
+This repository provides tools for historical manuscript layout analysis, text-line segmentation, manual correction, and recognition. It uses a graph-based formulation where each character (or grapheme cluster) is treated as a node, with edges connecting characters that belong to the same text-line.
 
 **Version:** 3.0
 **Last Updated:** March 11, 2026
 
 ## ✅ **Project Components**
-*   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
-*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at `character level`, `text-line level` and `text-box level`.
-*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
-*   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
-*   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
-*   **📂 Dataset:** The dataset used in the paper is currently available in the 
-  [`gram-submission`](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/gram-submission?tab=readme-ov-file) branch of this repository.
+*   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/grantha_integration#getting-started)** Clone the repository and install the conda environment.
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/grantha_integration#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections if required, with support for `character level`, `text-line level`, and `text-box level` annotation.
+*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/grantha_integration#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
+*   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/grantha_integration#gnn-training-recipe):** Train custom GNN architectures using synthetic data and augmented real data.
+*   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/grantha_integration#-generate-synthetic-data):** Generate synthetic layout data in the same graph-based format used by the training and inference pipelines.
 
 
 ## 🚀 **Getting Started**
@@ -65,7 +42,7 @@ This graph based problem formulation easily supports working with irregular and 
 
 It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset presented using a previous version of the tool. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool, especially on Sanskrit manuscripts with complex layouts.
 
-![GNN Layout UI Demo](./app/demo_tutorial.gif)
+![GNN Layout UI Demo](./backend/demo_tutorial.gif)
 
 ### ⚙️ Setup Instructions
 
@@ -82,7 +59,7 @@ You can update this string in the same function to utilize the latest Gemini rel
 
 To configure your Gemini API key:
 1. Create an API key in [Google AI Studio](https://aistudio.google.com/).
-2. Create a `.env` file in the `backend/` directory (`app/.env`).
+2. Create a `.env` file in the `backend/` directory.
 3. Add the following line to the file:
    ```env
    GEMINI_API_KEY="YOUR_API_KEY_HERE"
@@ -97,13 +74,6 @@ To use EasyOCR based recognition, you will need to download the model as follows
 cd backend/recognition/pretrained_model
 wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
 ```
-The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025)
-
-
-
-
-
-
 #### 🔵 Start Backend Server
 ```bash
 cd backend
@@ -247,24 +217,3 @@ python -m gnn_training.training.main_train_eval \
 --gpu_id 0
 ```
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
-
-## 📌 Citation
-
-If you use this work, please cite:
-
-```bibtex
-@inproceedings{
-chincholikar2026towards,
-title={Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks},
-author={Kartik Chincholikar and Kaushik Gopalan and Mihir Hasabnis},
-booktitle={ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling},
-year={2026},
-url={https://openreview.net/forum?id=0GoutqIh3l}
-}
-```
-
-
-## ♥️ Acknowledgements
-The authors also wish to express their thanks to Lalchand Research Library, DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
-The authors also wish to express their gratitude to the anonymous reviewers, Shagun Dwivedi, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, Dr. Tarinee Awasthi and Dr. Oliver Hellwig for their invaluable guidance and support.
-
