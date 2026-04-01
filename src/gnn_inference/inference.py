@@ -9,6 +9,12 @@ from gnn_inference import run_gnn_inference
 import time
 
 
+HORIZONTAL_SEGMENTATION_COMPRESSION_FACTOR = 0.7
+
+
+def should_compress_width_for_segmentation():
+    return True
+
 
 
 def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscript_1"):
@@ -50,6 +56,10 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
         try:
             # Open the image from the folder
             with Image.open(file_path) as image:
+                try:
+                    resampling_filter = Image.Resampling.LANCZOS
+                except AttributeError:
+                    resampling_filter = Image.LANCZOS
                 
                 width, height = image.size
                 
@@ -70,12 +80,6 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
                     # Calculate new dimensions
                     new_width = int(width * scale_factor)
                     new_height = int(height * scale_factor)
-                    
-                    # Handle Resampling filter compatibility
-                    try:
-                        resampling_filter = Image.Resampling.LANCZOS
-                    except AttributeError:
-                        resampling_filter = Image.LANCZOS
 
                     print(f"Downscaling '{filename}': ({width}x{height}) -> ({new_width}x{new_height})")
                     image = image.resize((new_width, new_height), resampling_filter)
@@ -87,6 +91,14 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
                 # Standardize Color Mode
                 if image.mode in ("RGBA", "P", "LA"):
                     image = image.convert("RGB")
+
+                if should_compress_width_for_segmentation():
+                    compressed_width = max(1, int(round(image.size[0] * HORIZONTAL_SEGMENTATION_COMPRESSION_FACTOR)))
+                    print(
+                        f"Horizontally compressing '{filename}': "
+                        f"({image.size[0]}x{image.size[1]}) -> ({compressed_width}x{image.size[1]})"
+                    )
+                    image = image.resize((compressed_width, image.size[1]), resampling_filter)
 
                 # Save processed image to the NEW folder
                 new_filename = f"{base_filename}.jpg"
@@ -137,6 +149,5 @@ if __name__ == "__main__":
     run_gnn_inference(args)
     duration = time.time() - start_time
     print(f"Total processing time: {duration:.2f} seconds")
-
 
 

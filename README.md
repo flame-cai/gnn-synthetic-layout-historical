@@ -74,7 +74,7 @@ It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset pr
 To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recognition model.
 
 ##### Gemini
-If you are using Gemini for text recognition, you may need to adjust the prompt within the `_run_gemini_recognition_internal` function located in `app/app.py`.
+If you are using Gemini for text recognition, you may need to adjust the prompt within the `_run_gemini_recognition_internal` function located in `backend/app.py`.
 
 By default, the application uses:
 `model = genai.GenerativeModel('gemini-2.5-flash')`
@@ -82,7 +82,7 @@ You can update this string in the same function to utilize the latest Gemini rel
 
 To configure your Gemini API key:
 1. Create an API key in [Google AI Studio](https://aistudio.google.com/).
-2. Create a `.env` file in the `app/` directory (`app/.env`).
+2. Create a `.env` file in the `backend/` directory (`app/.env`).
 3. Add the following line to the file:
    ```env
    GEMINI_API_KEY="YOUR_API_KEY_HERE"
@@ -94,7 +94,7 @@ To configure your Gemini API key:
 ##### EasyOCR
 To use EasyOCR based recognition, you will need to download the model as follows (or use your own finetuned one)
 ```bash
-cd app/recognition/pretrained_model
+cd backend/recognition/pretrained_model
 wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
 ```
 The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025)
@@ -106,7 +106,7 @@ The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Cas
 
 #### 🔵 Start Backend Server
 ```bash
-cd app
+cd backend
 conda activate gnn_layout
 python app.py
 ```
@@ -116,7 +116,7 @@ The server runs on `http://localhost:5000`.
 #### 🔵 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
-Create a .env file in `app/my-app/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
+Create a .env file in `frontend/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
 
 ```env
 VITE_BACKEND_URL="http://localhost:5000"
@@ -125,7 +125,7 @@ VITE_BACKEND_URL="http://localhost:5000"
 Then run:
 
 ```bash
-cd app/my-app
+cd frontend
 npm install
 npm run dev
 ```

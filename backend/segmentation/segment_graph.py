@@ -142,7 +142,7 @@ def get_least_used_gpu():
 
 
 
-def images2points(folder_path, min_distance=20):
+def images2points(folder_path, min_distance=20, progress_callback=None):
     print(folder_path)
     # how to get manuscript path from folder path - get parent directory
     m_path = os.path.dirname(folder_path)
@@ -162,6 +162,7 @@ def images2points(folder_path, min_distance=20):
     # --- Data Loading ---
     inp_images, file_names = load_images_from_folder(folder_path)
     print("Current Working Directory:", os.getcwd())
+    total_images = len(file_names)
 
     # --- Processing Loop ---
     out_images = []
@@ -169,7 +170,7 @@ def images2points(folder_path, min_distance=20):
     unnormalized_points_list = [] # NEW: List for raw, unnormalized points
     page_dimensions = []
     
-    for image, _filename in zip(inp_images, file_names):
+    for page_index, (image, _filename) in enumerate(zip(inp_images, file_names), start=1):
         # 0. Store original page dimensions
         original_height, original_width, _ = image.shape
         page_dimensions.append((original_width, original_height))
@@ -197,6 +198,14 @@ def images2points(folder_path, min_distance=20):
         # 4. Store the processed data
         normalized_points_list.append(normalized_points)
         out_images.append(np.copy(region_score))
+
+        if progress_callback:
+            progress_callback(
+                "segmenting_pages",
+                page_index,
+                max(total_images, 1),
+                f"Segmented page {page_index}/{total_images}: {_filename}",
+            )
 
     # --- Saving Results ---
     heatmap_dir = f'{m_path}/heatmaps'
@@ -237,4 +246,3 @@ def images2points(folder_path, min_distance=20):
     torch.cuda.empty_cache()
 
     print(f"Finished processing. All data saved to: {base_data_dir}")
-

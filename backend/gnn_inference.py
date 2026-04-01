@@ -24,6 +24,7 @@ from segment_from_point_clusters import segmentLinesFromPointClusters
 from gnn_data_preparation.config_models import DatasetCreationConfig
 from gnn_data_preparation.graph_constructor import create_input_graph_edges
 from gnn_data_preparation.feature_engineering import get_node_features, get_edge_features
+from scale_config import load_scale_config, restore_x, restore_y, scale_x, scale_y
 
 # Global Cache
 LOADED_MODEL = None
@@ -66,6 +67,7 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     dims = np.loadtxt(raw_dims_path) 
     heatmap_w, heatmap_h = dims[0], dims[1]
     max_dim_heatmap = max(heatmap_w, heatmap_h)
+    scale_config = load_scale_config(base_path)
 
     points_unnormalized = []
     points_normalized = []
@@ -74,7 +76,9 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         scale_factor = 0.5 
         for n in nodes:
             img_x, img_y, img_s = float(n['x']), float(n['y']), float(n['s'])
-            hm_x, hm_y, hm_s = img_x * scale_factor, img_y * scale_factor, img_s * scale_factor
+            hm_x = scale_x(img_x, scale_config) * scale_factor
+            hm_y = scale_y(img_y, scale_config) * scale_factor
+            hm_s = scale_y(img_s, scale_config) * scale_factor
             points_unnormalized.append([hm_x, hm_y, hm_s])
             norm_x, norm_y, norm_s = hm_x / max_dim_heatmap, hm_y / max_dim_heatmap, hm_s / max_dim_heatmap
             points_normalized.append([norm_x, norm_y, norm_s])
@@ -149,6 +153,16 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         shutil.rmtree(images_output_dir)
     images_output_dir.mkdir(parents=True, exist_ok=True)
 
+    flat_images_output_dir = output_dir / "line_images_flat" / page_id
+    if flat_images_output_dir.exists():
+        shutil.rmtree(flat_images_output_dir)
+    flat_images_output_dir.mkdir(parents=True, exist_ok=True)
+
+    flat_grayscale_output_dir = output_dir / "line_images_flat_grayscale_mode" / page_id
+    if flat_grayscale_output_dir.exists():
+        shutil.rmtree(flat_grayscale_output_dir)
+    flat_grayscale_output_dir.mkdir(parents=True, exist_ok=True)
+
     # 6. Generate XML AND Save Images
     create_page_xml(
         page_id,
@@ -161,6 +175,8 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         textbox_labels=final_textbox_labels,
         image_path=base_path / "images_resized" / f"{page_id}.jpg",
         images_output_dir=images_output_dir,
+        flat_images_output_dir=flat_images_output_dir,
+        flat_grayscale_output_dir=flat_grayscale_output_dir,
         text_content=text_content # <--- PASS THIS DOWN
     )
 
@@ -467,16 +483,19 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
     elif points_normalized.ndim == 1: 
         points_normalized = points_normalized.reshape(1, -1)
     
+    scale_config = load_scale_config(base_path)
     dims = np.loadtxt(dims_path)
-    full_width = dims[0] * 2
-    full_height = dims[1] * 2
-    max_dimension = max(full_width, full_height)
+    scaled_full_width = dims[0] * 2
+    scaled_full_height = dims[1] * 2
+    full_width = restore_x(scaled_full_width, scale_config)
+    full_height = restore_y(scaled_full_height, scale_config)
+    scaled_max_dimension = max(scaled_full_width, scaled_full_height)
     
     nodes_payload = [
         {
-            "x": float(p[0]) * max_dimension, 
-            "y": float(p[1]) * max_dimension, 
-            "s": float(p[2])
+            "x": restore_x(float(p[0]) * scaled_max_dimension, scale_config), 
+            "y": restore_y(float(p[1]) * scaled_max_dimension, scale_config), 
+            "s": restore_y(float(p[2]) * scaled_max_dimension, scale_config)
         } 
         for p in points_normalized
     ]
@@ -593,6 +612,8 @@ def create_page_xml(
     image_path: Path = None, 
     save_vis: bool = True,
     images_output_dir: Path = None,
+    flat_images_output_dir: Path = None,
+    flat_grayscale_output_dir: Path = None,
     text_content: dict = None # <--- NEW ARGUMENT
 ):
     """
@@ -781,6 +802,7 @@ def create_page_xml(
                 if isinstance(data, dict):
                     polygon_points = data.get('points', [])
                     line_img = data.get('image', None)
+                    line_img_grayscale = data.get('image_grayscale', None)
                     
                     # --- NEW: Save Image to Textbox Folder ---
                     if current_tb_dir is not None and line_img is not None:
@@ -788,6 +810,12 @@ def create_page_xml(
                         # Note: line_label is an integer, typically 0-indexed relative to graph
                         img_save_path = current_tb_dir / f"line_{line_label}.jpg"
                         cv2.imwrite(str(img_save_path), line_img)
+                    if flat_images_output_dir is not None and line_img is not None:
+                        flat_img_save_path = flat_images_output_dir / f"line_{line_label}.jpg"
+                        cv2.imwrite(str(flat_img_save_path), line_img)
+                    if flat_grayscale_output_dir is not None and line_img_grayscale is not None:
+                        flat_gray_img_save_path = flat_grayscale_output_dir / f"line_{line_label}.jpg"
+                        cv2.imwrite(str(flat_gray_img_save_path), line_img_grayscale)
                     # ------------------------------------------
                 else:
                     polygon_points = data # Old format fallback

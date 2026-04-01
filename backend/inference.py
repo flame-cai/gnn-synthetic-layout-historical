@@ -4,15 +4,16 @@ import gc
 from PIL import Image
 import torch
 
+from scale_config import normalize_scale_config, scale_x, scale_y
 from segmentation.segment_graph import images2points
 
 
-
-def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distance=20):
+def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distance=20, scale_config=None, progress_callback=None):
     source_images_path = os.path.join(manuscript_path, "images")
     # We will save processed (and potentially resized) images here
     # to avoid modifying source files while iterating over them.
     resized_images_path = os.path.join(manuscript_path, "images_resized")
+    scale_config = normalize_scale_config(**(scale_config or {}))
 
     try:
         # Create the target folder
@@ -32,9 +33,13 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distan
 
     # Get list of files in the directory
     files = [f for f in os.listdir(source_images_path) if os.path.isfile(os.path.join(source_images_path, f))]
+    valid_files = [f for f in files if os.path.splitext(f)[1].lower() in valid_extensions]
 
     print(f"Found {len(files)} files in {source_images_path}...")
+    if progress_callback:
+        progress_callback("preparing_images", 0, max(len(valid_files), 1), f"Preparing {len(valid_files)} image(s)...")
 
+    processed_count = 0
     for filename in files:
         # Skip non-image files based on extension
         ext = os.path.splitext(filename)[1].lower()
@@ -47,6 +52,10 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distan
         try:
             # Open the image from the folder
             with Image.open(file_path) as image:
+                try:
+                    resampling_filter = Image.Resampling.LANCZOS
+                except AttributeError:
+                    resampling_filter = Image.LANCZOS
                 
                 width, height = image.size
                 
@@ -65,12 +74,6 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distan
                     # Calculate new dimensions
                     new_width = int(width * scale_factor)
                     new_height = int(height * scale_factor)
-                    
-                    # Handle Resampling filter compatibility
-                    try:
-                        resampling_filter = Image.Resampling.LANCZOS
-                    except AttributeError:
-                        resampling_filter = Image.LANCZOS
 
                     print(f"Downscaling '{filename}': ({width}x{height}) -> ({new_width}x{new_height})")
                     image = image.resize((new_width, new_height), resampling_filter)
@@ -83,6 +86,15 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distan
                 if image.mode in ("RGBA", "P", "LA"):
                     image = image.convert("RGB")
 
+                if scale_config["enabled"]:
+                    scaled_width = max(1, int(round(scale_x(image.size[0], scale_config))))
+                    scaled_height = max(1, int(round(scale_y(image.size[1], scale_config))))
+                    print(
+                        f"Applying segmentation scaling to '{filename}': "
+                        f"({image.size[0]}x{image.size[1]}) -> ({scaled_width}x{scaled_height})"
+                    )
+                    image = image.resize((scaled_width, scaled_height), resampling_filter)
+
                 # Save processed image to the NEW folder
                 new_filename = f"{base_filename}.jpg"
                 save_path = os.path.join(resized_images_path, new_filename)
@@ -93,16 +105,29 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distan
         except Exception as img_err:
             # This block catches the ValueError raised above and prints the message
             print(f"Failed to process image {filename}: {img_err}")
-            continue
+        finally:
+            processed_count += 1
+            if progress_callback:
+                progress_callback(
+                    "preparing_images",
+                    processed_count,
+                    max(len(valid_files), 1),
+                    f"Prepared image {processed_count}/{len(valid_files)}: {filename}",
+                )
 
     # Point the inference function to the new resized/processed folder
     print("Running images2points on processed folder...")
     # --- MODIFIED: Pass min_distance ---
-    images2points(resized_images_path, min_distance=min_distance) 
+    if progress_callback:
+        progress_callback("segmenting_pages", 0, max(len(valid_files), 1), f"Starting pagewise segmentation for {len(valid_files)} page(s)...")
+    images2points(resized_images_path, min_distance=min_distance, progress_callback=progress_callback) 
     
     # Cleanup resources
     torch.cuda.empty_cache()
     gc.collect()
+
+    if progress_callback:
+        progress_callback("finalizing", 1, 1, "Finalizing processed manuscript...")
 
     print("Processing complete.")
 
@@ -129,6 +154,3 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500, min_distan
 
 #     process_new_manuscript(args.manuscript_path)
 #     run_gnn_inference(args)
-
-
-

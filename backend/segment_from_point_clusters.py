@@ -221,6 +221,41 @@ def load_node_features_and_labels(points_file, labels_file):
         return np.array([]), np.array([])
 
 
+def extract_line_images_with_local_fill(image, polygon):
+    """
+    Match the local polygon-fill logic used in utils/polygons_to_line_images.py
+    and return both a binary export and a grayscale median-fill export.
+    """
+    x, y, w, h = cv2.boundingRect(polygon)
+    cropped_line_image = image[y:y+h, x:x+w]
+
+    mask_polygon = np.zeros(cropped_line_image.shape[:2], dtype=np.uint8)
+    polygon_shifted = polygon - [x, y]
+    cv2.drawContours(mask_polygon, [polygon_shifted], -1, 255, -1)
+
+    polygon_pixels = cropped_line_image[mask_polygon == 255]
+    if polygon_pixels.size == 0:
+        return {
+            "binary": cropped_line_image.copy(),
+            "grayscale": cropped_line_image.copy(),
+        }
+
+    line_bg_color = int(np.median(polygon_pixels))
+    grayscale_img = np.ones(cropped_line_image.shape, dtype=np.uint8) * line_bg_color
+    grayscale_img[mask_polygon == 255] = polygon_pixels
+
+    binary_img = grayscale_img.copy()
+    dark_mask = binary_img <= np.percentile(binary_img, 15)
+    if np.any(dark_mask):
+        threshold = np.percentile(binary_img[dark_mask], 72)
+        binary_img = np.where(binary_img <= threshold, 0, 255).astype(np.uint8)
+
+    return {
+        "binary": binary_img,
+        "grayscale": grayscale_img,
+    }
+
+
 
 def assign_labels_and_plot(bounding_boxes, points, labels, image, output_path):
     labeled_bboxes = []
@@ -583,20 +618,15 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
                 cv2.drawContours(poly_viz_page_img, [polygon], -1, color, 2)
             
             # Generate the image content
-            x, y, w, h = cv2.boundingRect(polygon)
-            cropped_line_image = processing_image[y:y+h, x:x+w]
-            new_img = np.ones(cropped_line_image.shape, dtype=np.uint8) * CONFIG['PAGE_MEDIAN_COLOR']
-            mask_polygon = np.zeros(cropped_line_image.shape[:2], dtype=np.uint8)
-            polygon_shifted = polygon - [x, y]
-            cv2.drawContours(mask_polygon, [polygon_shifted], -1, 255, -1)
-            new_img[mask_polygon == 255] = cropped_line_image[mask_polygon == 255]
+            line_images = extract_line_images_with_local_fill(processing_image, polygon)
             
             # --- MODIFIED: Return Image Data instead of Saving ---
             polygon_points_xy = [point[0].tolist() for point in polygon]
             
             line_polygons_data[line_label] = {
                 "points": polygon_points_xy,
-                "image": new_img
+                "image": line_images["binary"],
+                "image_grayscale": line_images["grayscale"],
             }
 
     if upscale_heatmap and debug_mode:

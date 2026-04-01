@@ -108,7 +108,7 @@ Tue Jan 13 10:41:39 AM IST 2026
 #        └── __init__.py (~0 tokens)
 #        └── sklearn_models.py (~331 tokens)
 #  /input_manuscripts/ (~0 tokens)
-#  /my-app/ (~1021 tokens)
+#  /frontend/ (~1021 tokens)
 #    └── .env (~10 tokens)
 #    └── env.d.ts (~9 tokens)
 #    └── .gitignore (~92 tokens)
@@ -119,17 +119,17 @@ Tue Jan 13 10:41:39 AM IST 2026
 #    └── tsconfig.json (~34 tokens)
 #    └── tsconfig.node.json (~103 tokens)
 #    └── vite.config.ts (~94 tokens)
-#    /my-app/public/ (~0 tokens)
-#    /my-app/src/ (~937 tokens)
+#    /frontend/public/ (~0 tokens)
+#    /frontend/src/ (~937 tokens)
 #      └── App.vue (~884 tokens)
 #      └── main.ts (~53 tokens)
-#      /my-app/src/components/ (~8886 tokens)
+#      /frontend/src/components/ (~8886 tokens)
 #        └── ManuscriptViewer.vue (~8886 tokens)
-#      /my-app/src/layout-analysis-utils/ (~2567 tokens)
+#      /frontend/src/layout-analysis-utils/ (~2567 tokens)
 #        └── LayoutGraphGenerator.js (~2567 tokens)
-#      /my-app/src/router/ (~46 tokens)
+#      /frontend/src/router/ (~46 tokens)
 #        └── index.ts (~46 tokens)
-#      /my-app/src/stores/ (~76 tokens)
+#      /frontend/src/stores/ (~76 tokens)
 #        └── counter.ts (~76 tokens)
 #  /pretrained_gnn/ (~960 tokens)
 #    └── gnn_preprocessing_v2.yaml (~960 tokens)
@@ -3542,16 +3542,16 @@ def process_new_manuscript(manuscript_path, target_longest_side=2500):
 
 
 ---
-my-app/.env
+frontend/.env
 ---
 VITE_BACKEND_URL="http://localhost:5000"
 ---
-my-app/env.d.ts
+frontend/env.d.ts
 ---
 /// <reference types="vite/client" />
 
 ---
-my-app/.gitignore
+frontend/.gitignore
 ---
 # Logs
 logs
@@ -3591,7 +3591,7 @@ coverage
 __screenshots__/
 
 ---
-my-app/index.html
+frontend/index.html
 ---
 <!DOCTYPE html>
 <html lang="">
@@ -3608,10 +3608,10 @@ my-app/index.html
 </html>
 
 ---
-my-app/package.json
+frontend/package.json
 ---
 {
-  "name": "my-app",
+  "name": "frontend",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -3644,9 +3644,9 @@ my-app/package.json
 }
 
 ---
-my-app/README.md
+frontend/README.md
 ---
-# my-app
+# frontend
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -3690,7 +3690,7 @@ npm run build
 ```
 
 ---
-my-app/src/App.vue
+frontend/src/App.vue
 ---
 <template>
   <div class="app-container">
@@ -3798,7 +3798,7 @@ button:disabled { background: #555; }
 .back-btn { position: absolute; top: 10px; left: 10px; z-index: 1000; background: #444; }
 </style>
 ---
-my-app/src/components/ManuscriptViewer.vue
+frontend/src/components/ManuscriptViewer.vue
 ---
 <template>
   <div class="manuscript-viewer">
@@ -5007,7 +5007,7 @@ button:disabled {
 }
 </style>
 ---
-my-app/src/layout-analysis-utils/LayoutGraphGenerator.js
+frontend/src/layout-analysis-utils/LayoutGraphGenerator.js
 ---
 /**
  * Build a KD-Tree for fast neighbor lookup
@@ -5337,7 +5337,7 @@ export function generateLayoutGraph(points) { // TODO ADD FEATURES
   return graphData;
 }
 ---
-my-app/src/main.ts
+frontend/src/main.ts
 ---
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -5353,7 +5353,7 @@ app.use(router)
 app.mount('#app')
 
 ---
-my-app/src/router/index.ts
+frontend/src/router/index.ts
 ---
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -5365,7 +5365,7 @@ const router = createRouter({
 export default router
 
 ---
-my-app/src/stores/counter.ts
+frontend/src/stores/counter.ts
 ---
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
@@ -5381,7 +5381,7 @@ export const useCounterStore = defineStore('counter', () => {
 })
 
 ---
-my-app/tsconfig.app.json
+frontend/tsconfig.app.json
 ---
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
@@ -5397,7 +5397,7 @@ my-app/tsconfig.app.json
 }
 
 ---
-my-app/tsconfig.json
+frontend/tsconfig.json
 ---
 {
   "files": [],
@@ -5412,7 +5412,7 @@ my-app/tsconfig.json
 }
 
 ---
-my-app/tsconfig.node.json
+frontend/tsconfig.node.json
 ---
 {
   "extends": "@tsconfig/node24/tsconfig.json",
@@ -5435,7 +5435,7 @@ my-app/tsconfig.node.json
 }
 
 ---
-my-app/vite.config.ts
+frontend/vite.config.ts
 ---
 import { fileURLToPath, URL } from 'node:url'
 
@@ -5567,14 +5567,14 @@ To run the application with a user interface for verification and correction:
 
 #### 1 Install Conda Environment
     ```bash
-    cd app
+    cd backend
     conda env create -f environment.yaml
     conda activate gnn_layout
     ```
 
 #### 2 Start Backend Server
     ```bash
-    cd app
+    cd backend
     conda activate gnn_layout
     python app.py
     ```
@@ -5582,7 +5582,7 @@ To run the application with a user interface for verification and correction:
 
 #### 3 Start Frontend
     ```bash
-    cd app/my-app
+    cd frontend
     npm install
     npm run dev
     ```

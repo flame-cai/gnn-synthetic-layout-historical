@@ -5,28 +5,28 @@
 **/training_runs/
 **/__pycache__/
 
-app/recognition/pretrained_model/devanagari.pth
-app/recognition/pretrained_model/vadakautuhala.pth
+backend/recognition/pretrained_model/devanagari.pth
+backend/recognition/pretrained_model/vadakautuhala.pth
 
-# Vue app (app/my-app)
-app/my-app/node_modules/
-app/my-app/dist/
-app/my-app/.vite/
+# Vue app (backend/my-app)
+backend/frontend/node_modules/
+backend/frontend/dist/
+backend/frontend/.vite/
 
-# all folders inside app/
-app/input_manuscripts/*/
-app/manuscript_recognition.log
+# all folders inside backend/
+backend/input_manuscripts/*/
+backend/manuscript_recognition.log
 
 
 # Env files
-app/my-app/.env
-app/my-app/.env.*
-app/.env
-app/.env.*
+backend/frontend/.env
+backend/frontend/.env.*
+backend/.env
+backend/.env.*
 downstream_eval/.env.*
 downstream_eval/.env
 
 # Logs
-app/my-app/npm-debug.log*
+backend/frontend/npm-debug.log*
 
 
