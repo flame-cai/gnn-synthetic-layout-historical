@@ -1,0 +1,46 @@
+ * Serving Flask app 'app'
+ * Debug mode: on
+2026-04-01 11:16:24,566 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.30:5000
+2026-04-01 11:16:24,574 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-01 11:16:24,579 - INFO -  * Restarting with stat
+2026-04-01 11:16:40,630 - WARNING -  * Debugger is active!
+2026-04-01 11:16:40,640 - INFO -  * Debugger PIN: 133-573-382
+2026-04-01 11:31:19,836 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:19] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 11:31:27,679 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:27] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 11:31:28,017 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:28] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+Fetching data for page: 1481_0001
+--> Loading RAW CRAFT node definitions from input_manuscripts\amarakoshah-kanda2-3\gnn-dataset
+Running GNN Inference...
+Loading model from ./pretrained_gnn/v2.pt on cuda...
+2026-04-01 11:31:32,605 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:32] "GET /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+2026-04-01 11:32:54,508 - INFO - 127.0.0.1 - - [01/Apr/2026 11:32:54] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+[1481_0001] Node corrections logged: Original: 133, Added: 0, Removed: 0, Final: 133
+Successfully generated data for 17 lines.
+2026-04-01 11:32:55,416 - INFO - 127.0.0.1 - - [01/Apr/2026 11:32:55] "POST /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+Fetching data for page: 1481_0002
+--> Loading RAW CRAFT node definitions from input_manuscripts\amarakoshah-kanda2-3\gnn-dataset
+Running GNN Inference...
+2026-04-01 11:32:56,075 - INFO - 127.0.0.1 - - [01/Apr/2026 11:32:56] "GET /semi-segment/amarakoshah-kanda2-3/1481_0002 HTTP/1.1" 200 -
+Fetching data for page: 1481_0001
+--> Loading USER-MODIFIED node definitions from input_manuscripts\amarakoshah-kanda2-3\layout_analysis_output\gnn-format
+Found saved edge topology...
+2026-04-01 11:33:09,247 - INFO - 127.0.0.1 - - [01/Apr/2026 11:33:09] "GET /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+Found 1 files in ./input_manuscripts\new\images...
+Image 'WhatsApp Image 2026-04-01 at 11.34.45.jpeg' is within limits (1600x330). Keeping original size.
+Processed: WhatsApp Image 2026-04-01 at 11.34.45.jpg
+Running images2points on processed folder...
+./input_manuscripts\new\images_resized
+[Warning] GPU auto-selection failed: NVML Shared Library Not Found
+Using device: cuda:0
+Current Working Directory: C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app
+Finished processing. All data saved to: ./input_manuscripts\new/gnn-dataset
+Processing complete.
+2026-04-01 11:38:19,050 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:19] "POST /upload HTTP/1.1" 200 -
+2026-04-01 11:38:19,069 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:19] "GET /manuscript/new/pages HTTP/1.1" 200 -
+Fetching data for page: WhatsApp Image 2026-04-01 at 11.34.45
+--> Loading RAW CRAFT node definitions from input_manuscripts\new\gnn-dataset
+Running GNN Inference...
+2026-04-01 11:38:20,192 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:20] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -

@@ -904,3 +904,71 @@
 2026-03-31 13:26:00,373 - INFO - 127.0.0.1 - - [31/Mar/2026 13:26:00] "GET /manuscript/tarkasangrahah-sateekah2/pages HTTP/1.1" 200 -
 2026-03-31 13:26:00,699 - INFO - 127.0.0.1 - - [31/Mar/2026 13:26:00] "GET /manuscript/tarkasangrahah-sateekah2/pages HTTP/1.1" 200 -
 2026-03-31 13:26:01,233 - INFO - 127.0.0.1 - - [31/Mar/2026 13:26:01] "GET /semi-segment/tarkasangrahah-sateekah2/tarkasangrahah-sateekah2_page_001 HTTP/1.1" 200 -
+2026-04-01 11:16:24,566 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.30:5000
+2026-04-01 11:16:24,574 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-01 11:16:24,579 - INFO -  * Restarting with stat
+2026-04-01 11:16:40,630 - WARNING -  * Debugger is active!
+2026-04-01 11:16:40,640 - INFO -  * Debugger PIN: 133-573-382
+2026-04-01 11:30:55,345 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.30:5000
+2026-04-01 11:30:55,345 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-01 11:30:55,348 - INFO -  * Restarting with stat
+2026-04-01 11:31:05,312 - WARNING -  * Debugger is active!
+2026-04-01 11:31:05,318 - INFO -  * Debugger PIN: 133-573-382
+2026-04-01 11:31:19,836 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:19] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 11:31:27,679 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:27] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 11:31:28,017 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:28] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 11:31:32,605 - INFO - 127.0.0.1 - - [01/Apr/2026 11:31:32] "GET /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+2026-04-01 11:32:54,508 - INFO - 127.0.0.1 - - [01/Apr/2026 11:32:54] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+2026-04-01 11:32:55,416 - INFO - 127.0.0.1 - - [01/Apr/2026 11:32:55] "POST /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+2026-04-01 11:32:56,075 - INFO - 127.0.0.1 - - [01/Apr/2026 11:32:56] "GET /semi-segment/amarakoshah-kanda2-3/1481_0002 HTTP/1.1" 200 -
+2026-04-01 11:33:09,247 - INFO - 127.0.0.1 - - [01/Apr/2026 11:33:09] "GET /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+2026-04-01 11:38:19,050 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:19] "POST /upload HTTP/1.1" 200 -
+2026-04-01 11:38:19,069 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:19] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 11:38:20,192 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:20] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:04:03,764 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:03] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 12:04:07,677 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:07] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:04:08,054 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:08] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:04:09,246 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:09] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:04:30,194 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:30] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:04:30,558 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:30] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:04:30,823 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:30] "GET /semi-segment/amarakoshah-kanda2-3/1481_0001 HTTP/1.1" 200 -
+2026-04-01 12:04:40,094 - INFO - 127.0.0.1 - - [01/Apr/2026 12:04:40] "GET /semi-segment/amarakoshah-kanda2-3/1481_0002 HTTP/1.1" 200 -
+2026-04-01 12:05:24,451 - INFO - 127.0.0.1 - - [01/Apr/2026 12:05:24] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:06:53,410 - INFO - 127.0.0.1 - - [01/Apr/2026 12:06:53] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:13,491 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:13] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:15,131 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:15] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:33,490 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:33] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:35,166 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:35] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:53,486 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:53] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:55,099 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:55] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:07:59,953 - INFO - 127.0.0.1 - - [01/Apr/2026 12:07:59] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:08:20,389 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:20] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:08:22,106 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:22] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:08:40,058 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:40] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:08:41,705 - INFO - 127.0.0.1 - - [01/Apr/2026 12:08:41] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:09:00,060 - INFO - 127.0.0.1 - - [01/Apr/2026 12:09:00] "OPTIONS /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:09:01,764 - INFO - 127.0.0.1 - - [01/Apr/2026 12:09:01] "POST /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:15:03,679 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:03] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:15:04,117 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:04] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:15:10,296 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:10] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:15:10,688 - INFO - 127.0.0.1 - - [01/Apr/2026 12:15:10] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:16:51,495 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:51] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-01 12:16:56,154 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:56] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:16:56,543 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:56] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:16:56,861 - INFO - 127.0.0.1 - - [01/Apr/2026 12:16:56] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:18:49,579 - INFO - 127.0.0.1 - - [01/Apr/2026 12:18:49] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:18:49,897 - INFO - 127.0.0.1 - - [01/Apr/2026 12:18:49] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:20:01,793 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:01] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:20:02,045 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:02] "GET /manuscript/amarakoshah-kanda2-3/pages HTTP/1.1" 200 -
+2026-04-01 12:20:02,176 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:02] "GET /semi-segment/amarakoshah-kanda2-3/1481_0003 HTTP/1.1" 200 -
+2026-04-01 12:20:21,141 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:21] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:20:21,470 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:21] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:20:22,501 - INFO - 127.0.0.1 - - [01/Apr/2026 12:20:22] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
+2026-04-01 12:33:41,424 - INFO - 127.0.0.1 - - [01/Apr/2026 12:33:41] "GET /manuscript/new/pages HTTP/1.1" 200 -
+2026-04-01 12:33:42,515 - INFO - 127.0.0.1 - - [01/Apr/2026 12:33:42] "GET /semi-segment/new/WhatsApp%20Image%202026-04-01%20at%2011.34.45 HTTP/1.1" 200 -
