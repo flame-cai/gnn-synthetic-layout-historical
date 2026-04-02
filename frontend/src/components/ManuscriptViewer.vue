@@ -602,6 +602,9 @@ const fitScale = ref(1)
 const zoomLevel = ref(1)
 const containerViewportWidth = ref(1)
 const containerViewportHeight = ref(1)
+const RECOGNITION_INPUT_FONT_SIZE_PX = 18
+const RECOGNITION_PREVIEW_FONT_SIZE_PX = 18
+const RECOGNITION_INPUT_PADDING_PX = 8
 const NODE_HOVER_RADIUS = 7
 const EDGE_HOVER_THRESHOLD = 5
 const ZOOM_STEP = 0.1
@@ -629,6 +632,8 @@ const visualizationStageStyle = computed(() => ({
 }))
 const scaleX = (x) => x * scaleFactor.value
 const scaleY = (y) => y * scaleFactor.value
+const baseScaleX = (x) => x * fitScale.value
+const baseScaleY = (y) => y * fitScale.value
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
 const focusedLineBounds = computed(() => {
   if (!focusedLineId.value || !pagePolygons.value[focusedLineId.value]) return null
@@ -758,21 +763,36 @@ const getPolygonHeight = (lineId) => {
 
 const getRecognitionInputHeightPx = (lineId) => {
     if (!lineId) return 28
-    return Math.max(scaleY(getPolygonHeight(lineId)), 28)
+    return Math.max(baseScaleY(getPolygonHeight(lineId)), 28)
+}
+
+const getRecognitionOverlayWidthPx = (lineId) => {
+    if (!lineId || !pagePolygons.value[lineId]) return 120
+    const xs = pagePolygons.value[lineId].map((point) => point[0])
+    return Math.max(baseScaleX(Math.max(...xs) - Math.min(...xs)), 1)
 }
 
 const getRecognitionInputFontSizePx = (lineId) => {
-    const inputHeight = getRecognitionInputHeightPx(lineId)
-    return Math.max(11, Math.min(24, Math.round(inputHeight * 0.4)))
+    if (!lineId) return RECOGNITION_INPUT_FONT_SIZE_PX
+    const text = localTextContent[lineId] || ''
+    const charCount = Math.max(text.length, 8)
+    const padding = getRecognitionInputPaddingPx(lineId)
+    const usableWidth = Math.max(getRecognitionOverlayWidthPx(lineId) - (Math.max(10, padding) * 2), 40)
+    const widthBasedSize = (usableWidth / charCount) * 1.7
+    const heightLimitedSize = Math.max(10, getRecognitionInputHeightPx(lineId) - (padding * 2) - 2)
+    const nextSize = Math.min(widthBasedSize, heightLimitedSize)
+    return Math.max(RECOGNITION_INPUT_FONT_SIZE_PX, Math.min(24, Math.round(nextSize)))
 }
 
 const getRecognitionPreviewFontSizePx = (lineId) => {
-    return Math.max(9, getRecognitionInputFontSizePx(lineId) - 2)
+    const inputSize = getRecognitionInputFontSizePx(lineId)
+    return Math.max(RECOGNITION_PREVIEW_FONT_SIZE_PX, inputSize - 2)
 }
 
 const getRecognitionInputPaddingPx = (lineId) => {
-    const inputHeight = getRecognitionInputHeightPx(lineId)
-    return Math.max(6, Math.min(14, Math.round(inputHeight * 0.18)))
+    if (!lineId) return RECOGNITION_INPUT_PADDING_PX
+    const heightBasedPadding = getRecognitionInputHeightPx(lineId) * 0.18
+    return Math.max(RECOGNITION_INPUT_PADDING_PX, Math.min(12, Math.round(heightBasedPadding)))
 }
 
 const getActivePreviewHeight = () => {
@@ -984,35 +1004,37 @@ const getActiveInputStyle = () => {
     
     const rawWidth = maxX - minX;
     const rawHeight = maxY - minY;
+    const overlayWidthPx = Math.max(baseScaleX(rawWidth), 1)
+    const renderedOverlayWidthPx = Math.max(scaleX(rawWidth), 1)
 
     const isVertical = rawHeight > (rawWidth * 1.2); 
     const scaledGap = Math.max(5, Math.round(8 * scaleFactor.value))
 
     const style = {
         position: 'absolute',
-        minHeight: `${Math.max(scaleY(rawHeight), 28)}px`,
+        minHeight: `${getRecognitionInputHeightPx(focusedLineId.value)}px`,
         overflow: 'visible',
-        zIndex: 100
+        zIndex: 100,
+        transform: `scale(${zoomLevel.value})`,
+        transformOrigin: 'top left'
     };
 
     if (isVertical) {
         const pageCenterX = dimensions.value[0] / 2;
         const polyCenterX = minX + (rawWidth / 2);
-        
-        const INPUT_WIDTH_PX = Math.max(250, Math.round(250 * scaleFactor.value)); 
-        
+
         style.top = `${scaleY(minY)}px`; 
-        style.width = `${INPUT_WIDTH_PX}px`;
+        style.width = `${overlayWidthPx}px`;
 
         if (polyCenterX > pageCenterX) {
-            style.left = `${scaleX(minX) - INPUT_WIDTH_PX - scaledGap}px`;
+            style.left = `${scaleX(minX) - renderedOverlayWidthPx - scaledGap}px`;
         } else {
             style.left = `${scaleX(maxX) + scaledGap}px`;
         }
     } else {
         style.top = `${scaleY(maxY) + scaledGap}px`;
         style.left = `${scaleX(minX)}px`;
-        style.width = `${scaleX(rawWidth)}px`;
+        style.width = `${overlayWidthPx}px`;
     }
 
     return style;
