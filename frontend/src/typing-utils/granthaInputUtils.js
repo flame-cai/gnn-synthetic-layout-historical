@@ -180,7 +180,7 @@ export const reverseTransliterateGrantha = (value) => {
     } else if (current === '𑌃') {
       result += 'H'
     } else if (current === '।') {
-      result += '/'
+      result += '.'
     } else {
       result += current
     }
