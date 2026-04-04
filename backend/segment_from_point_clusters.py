@@ -10,6 +10,26 @@ matplotlib.use("Agg")  # Use non-GUI backend (fast)
 import matplotlib.pyplot as plt
 from skimage import io
 
+PUNCHHOLE_THRESHOLD_EXCLUDE_TOP_RATIO = 0.20
+PUNCHHOLE_THRESHOLD_EXCLUDE_BOTTOM_RATIO = 0.80
+PUNCHHOLE_THRESHOLD_EXCLUDE_LEFT_RATIO = 0.10
+PUNCHHOLE_THRESHOLD_EXCLUDE_RIGHT_RATIO = 0.90
+PUNCHHOLE_SCORE_PERCENTILE = 98.5
+PUNCHHOLE_CLOSE_RADIUS = 4
+PUNCHHOLE_OPEN_RADIUS = 2
+PUNCHHOLE_MIN_AREA = 150
+PUNCHHOLE_MIN_CIRCULARITY = 0.18
+PUNCHHOLE_MIN_ASPECT_RATIO = 0.4
+PUNCHHOLE_MIN_EXTENT = 0.2
+PUNCHHOLE_MAX_COMPONENTS = 2
+PUNCHHOLE_ROW_BLUR_KERNEL = 101
+PUNCHHOLE_ROW_DARK_THRESHOLD_MIX = 0.35
+PUNCHHOLE_ROW_MIN_FRACTION = 0.08
+PUNCHHOLE_ROW_PAD = 12
+PUNCHHOLE_LEAF_V_OFFSET = 30.0
+PUNCHHOLE_LEAF_S_SCALE = 0.5
+PUNCHHOLE_FILL_EXPAND_AREA_RATIO = 1.8
+
 
 def loadImage(img_file):
     img = io.imread(img_file)           # RGB order
@@ -19,6 +39,183 @@ def loadImage(img_file):
     img = np.array(img)
 
     return img
+
+
+def largest_true_run(mask):
+    best_start = 0
+    best_end = -1
+    current_start = None
+    for idx, flag in enumerate(mask):
+        if flag and current_start is None:
+            current_start = idx
+        elif not flag and current_start is not None:
+            if (idx - current_start) > (best_end - best_start + 1):
+                best_start, best_end = current_start, idx - 1
+            current_start = None
+    if current_start is not None and (len(mask) - current_start) > (best_end - best_start + 1):
+        best_start, best_end = current_start, len(mask) - 1
+    return best_start, best_end
+
+
+def detect_leaf_row_bounds(gray_image, x1, x2):
+    row_brightness = gray_image[:, x1:x2].mean(axis=1).astype(np.float32)
+    blur_kernel = PUNCHHOLE_ROW_BLUR_KERNEL
+    if blur_kernel % 2 == 0:
+        blur_kernel += 1
+    row_profile = cv2.GaussianBlur(row_brightness[:, None], (1, blur_kernel), 0).ravel()
+
+    low = float(np.percentile(row_profile, 10))
+    high = float(np.percentile(row_profile, 90))
+    threshold = low + ((high - low) * PUNCHHOLE_ROW_DARK_THRESHOLD_MIX)
+    dark_rows = row_profile <= threshold
+
+    start, end = largest_true_run(dark_rows)
+    min_rows = max(1, int(round(gray_image.shape[0] * PUNCHHOLE_ROW_MIN_FRACTION)))
+    if end < start or ((end - start + 1) < min_rows):
+        start = int(round(gray_image.shape[0] * PUNCHHOLE_THRESHOLD_EXCLUDE_TOP_RATIO))
+        end = int(round(gray_image.shape[0] * PUNCHHOLE_THRESHOLD_EXCLUDE_BOTTOM_RATIO)) - 1
+
+    start = max(0, start - PUNCHHOLE_ROW_PAD)
+    end = min(gray_image.shape[0] - 1, end + PUNCHHOLE_ROW_PAD)
+    return start, end + 1
+
+
+def contour_shape_metrics(contour):
+    area = float(cv2.contourArea(contour))
+    perimeter = float(cv2.arcLength(contour, True))
+    circularity = 0.0 if perimeter <= 0.0 else float(4.0 * np.pi * area / (perimeter ** 2))
+    x, y, w, h = cv2.boundingRect(contour)
+    extent = area / max(w * h, 1)
+    aspect_ratio = min(w, h) / max(w, h, 1)
+    return {
+        "area": area,
+        "perimeter": perimeter,
+        "extent": float(extent),
+        "aspect_ratio": float(aspect_ratio),
+        "circularity": float(circularity),
+    }
+
+
+def detect_punchhole_mask(page_image):
+    if page_image.ndim == 2:
+        gray_image = page_image
+        color_image = cv2.cvtColor(page_image, cv2.COLOR_GRAY2BGR)
+    else:
+        color_image = page_image
+        gray_image = cv2.cvtColor(page_image, cv2.COLOR_BGR2GRAY)
+
+    page_height, page_width = gray_image.shape
+    threshold_x0 = int(page_width * PUNCHHOLE_THRESHOLD_EXCLUDE_LEFT_RATIO)
+    threshold_x1 = int(page_width * PUNCHHOLE_THRESHOLD_EXCLUDE_RIGHT_RATIO)
+    threshold_y0, threshold_y1 = detect_leaf_row_bounds(gray_image, threshold_x0, threshold_x1)
+
+    hsv_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
+    saturation = hsv_image[:, :, 1].astype(np.float32)
+    value = hsv_image[:, :, 2].astype(np.float32)
+
+    blur_kernel = PUNCHHOLE_ROW_BLUR_KERNEL
+    if blur_kernel % 2 == 0:
+        blur_kernel += 1
+    blur_saturation = cv2.GaussianBlur(saturation, (blur_kernel, blur_kernel), 0)
+    blur_value = cv2.GaussianBlur(value, (blur_kernel, blur_kernel), 0)
+
+    rel_value = value - blur_value
+    rel_saturation = saturation - blur_saturation
+    hole_score = rel_value - rel_saturation
+
+    roi_score = hole_score[threshold_y0:threshold_y1, threshold_x0:threshold_x1]
+    if roi_score.size == 0:
+        return np.zeros_like(gray_image, dtype=np.uint8)
+
+    thresh = np.percentile(roi_score, PUNCHHOLE_SCORE_PERCENTILE)
+    saturation_roi = saturation[threshold_y0:threshold_y1, threshold_x0:threshold_x1]
+    value_roi = value[threshold_y0:threshold_y1, threshold_x0:threshold_x1]
+    leaf_mean_v = float(np.mean(value_roi))
+    leaf_mean_s = float(np.mean(saturation_roi))
+    saturation_gate = saturation_roi < max(leaf_mean_s * PUNCHHOLE_LEAF_S_SCALE, 1.0)
+    absolute_gate_roi = (
+        (value_roi > (leaf_mean_v + PUNCHHOLE_LEAF_V_OFFSET)) &
+        saturation_gate
+    )
+    mask_roi = ((roi_score > thresh) | absolute_gate_roi).astype(np.uint8) * 255
+
+    close_kernel_size = 2 * PUNCHHOLE_CLOSE_RADIUS + 1
+    open_kernel_size = 2 * PUNCHHOLE_OPEN_RADIUS + 1
+    kernel_close = np.ones((close_kernel_size, close_kernel_size), dtype=np.uint8)
+    kernel_open = np.ones((open_kernel_size, open_kernel_size), dtype=np.uint8)
+    mask_roi = cv2.morphologyEx(mask_roi, cv2.MORPH_CLOSE, kernel_close)
+    mask_roi = cv2.morphologyEx(mask_roi, cv2.MORPH_OPEN, kernel_open)
+
+    contours, _ = cv2.findContours(mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    selected_contours = []
+    for contour in contours:
+        metrics = contour_shape_metrics(contour)
+        if metrics["area"] < PUNCHHOLE_MIN_AREA:
+            continue
+        if metrics["perimeter"] <= 0:
+            continue
+        if metrics["circularity"] < PUNCHHOLE_MIN_CIRCULARITY:
+            continue
+        if metrics["aspect_ratio"] < PUNCHHOLE_MIN_ASPECT_RATIO:
+            continue
+        if metrics["extent"] < PUNCHHOLE_MIN_EXTENT:
+            continue
+        selected_contours.append((metrics["area"], contour))
+
+    if not selected_contours:
+        return np.zeros_like(gray_image, dtype=np.uint8)
+
+    selected_contours.sort(key=lambda item: item[0], reverse=True)
+    selected_contours = selected_contours[:PUNCHHOLE_MAX_COMPONENTS]
+
+    final_mask = np.zeros_like(gray_image, dtype=np.uint8)
+    roi_mask = np.zeros_like(mask_roi)
+    for _, contour in selected_contours:
+        cv2.drawContours(roi_mask, [contour], -1, 255, -1)
+    final_mask[threshold_y0:threshold_y1, threshold_x0:threshold_x1] = roi_mask
+    return final_mask
+
+
+def fill_punchholes_from_neighbors(gray_image, punchhole_mask):
+    if not np.any(punchhole_mask):
+        return gray_image.copy()
+
+    filled_image = gray_image.copy()
+    contours, _ = cv2.findContours(punchhole_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    expanded_mask = np.zeros_like(punchhole_mask)
+
+    for contour in contours:
+        blob_mask = np.zeros_like(punchhole_mask)
+        cv2.drawContours(blob_mask, [contour], -1, 255, -1)
+        area = cv2.contourArea(contour)
+        perimeter = cv2.arcLength(contour, True)
+        if perimeter <= 0:
+            continue
+        expand_radius = max(1, int(round(PUNCHHOLE_FILL_EXPAND_AREA_RATIO * area / perimeter)))
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE,
+            (2 * expand_radius + 1, 2 * expand_radius + 1),
+        )
+        expanded_mask = cv2.bitwise_or(expanded_mask, cv2.dilate(blob_mask, kernel, iterations=1))
+
+    ring_mask = cv2.dilate(expanded_mask, np.ones((5, 5), dtype=np.uint8), iterations=2)
+    ring_mask = cv2.subtract(ring_mask, expanded_mask)
+    ring_values = gray_image[ring_mask > 0]
+    fill_value = int(np.median(ring_values)) if ring_values.size else int(np.median(gray_image))
+    filled_image[expanded_mask > 0] = fill_value
+
+    return filled_image
+
+
+def prepare_image_for_line_extraction(page_image):
+    if page_image.ndim == 2:
+        gray_image = page_image
+    else:
+        gray_image = cv2.cvtColor(page_image, cv2.COLOR_BGR2GRAY)
+    punchhole_mask = detect_punchhole_mask(page_image)
+    if not np.any(punchhole_mask):
+        return gray_image
+    return fill_punchholes_from_neighbors(gray_image, punchhole_mask)
 
 def resize_with_padding(image, target_size, background_color=(0, 0, 0)):
     """
@@ -244,11 +441,20 @@ def extract_line_images_with_local_fill(image, polygon):
     grayscale_img = np.ones(cropped_line_image.shape, dtype=np.uint8) * line_bg_color
     grayscale_img[mask_polygon == 255] = polygon_pixels
 
-    binary_img = grayscale_img.copy()
-    dark_mask = binary_img <= np.percentile(binary_img, 15)
+    # Clip the brightest outliers before thresholding so glare-heavy pixels do not
+    # dominate the dynamic range of the line crop.
+    binary_source = grayscale_img.astype(np.float32)
+    bright_cutoff = float(np.percentile(binary_source, 98))
+    if bright_cutoff > 0:
+        binary_source = np.clip(binary_source, 0, bright_cutoff)
+        binary_source = (binary_source / bright_cutoff) * 255.0
+    binary_source = np.clip(binary_source, 0, 255).astype(np.uint8)
+
+    binary_img = binary_source.copy()
+    dark_mask = binary_source <= np.percentile(binary_source, 15)
     if np.any(dark_mask):
-        threshold = np.percentile(binary_img[dark_mask], 72)
-        binary_img = np.where(binary_img <= threshold, 0, 255).astype(np.uint8)
+        threshold = np.percentile(binary_source[dark_mask], 72)
+        binary_img = np.where(binary_source <= threshold, 0, 255).astype(np.uint8)
 
     return {
         "binary": binary_img,
@@ -514,6 +720,8 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
         det_resized = det
         processing_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+    line_extraction_image = prepare_image_for_line_extraction(cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+
     CONFIG = {
         'BINARIZE_THRESHOLD': BINARIZE_THRESHOLD,
         'CC_SIZE_THRESHOLD_RATIO': CC_SIZE_THRESHOLD_RATIO,
@@ -618,7 +826,7 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
                 cv2.drawContours(poly_viz_page_img, [polygon], -1, color, 2)
             
             # Generate the image content
-            line_images = extract_line_images_with_local_fill(processing_image, polygon)
+            line_images = extract_line_images_with_local_fill(line_extraction_image, polygon)
             
             # --- MODIFIED: Return Image Data instead of Saving ---
             polygon_points_xy = [point[0].tolist() for point in polygon]

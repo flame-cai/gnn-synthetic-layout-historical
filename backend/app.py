@@ -42,6 +42,7 @@ from os.path import isdir, join
 import collections
 import math
 import difflib
+import re
 from dotenv import load_dotenv
 import concurrent.futures
 load_dotenv() 
@@ -62,7 +63,7 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 from inference import process_new_manuscript
 from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
 from scale_config import load_scale_config, restore_x, restore_y, save_scale_config
-from segment_from_point_clusters import extract_line_images_with_local_fill
+from segment_from_point_clusters import extract_line_images_with_local_fill, prepare_image_for_line_extraction
 from segmentation.utils import load_images_from_folder
 
 app = Flask(__name__)
@@ -76,6 +77,8 @@ UPLOAD_JOBS = {}
 UPLOAD_JOBS_LOCK = threading.Lock()
 WORD_EXPORT_HEIGHT = 101
 MAX_WORD_EXPORT_WORKERS = min(8, max(1, (os.cpu_count() or 1)))
+PREPARED_PAGE_CACHE = {}
+MAX_PREPARED_PAGE_CACHE_ITEMS = 8
 
 
 def set_upload_job(job_id, **updates):
@@ -243,6 +246,19 @@ def build_line_entries(text_by_line):
     return [normalized[line_id] for line_id in sort_line_ids(normalized.keys())]
 
 
+def natural_page_key(value):
+    parts = re.split(r'(\d+)', str(value))
+    key = []
+    for part in parts:
+        if not part:
+            continue
+        if part.isdigit():
+            key.append((0, int(part)))
+        else:
+            key.append((1, part.lower()))
+    return key
+
+
 def save_text_annotations(manuscript_path, page, text_by_line):
     text_dir = Path(manuscript_path) / "text"
     text_dir.mkdir(parents=True, exist_ok=True)
@@ -376,11 +392,13 @@ def save_word_mode_exports(manuscript_path, page, word_cuts, word_text_content, 
     xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     page_image_path = manuscript_path / "images_resized" / f"{page}.jpg"
     polygons = parse_page_xml_polygons(str(xml_path))
-    page_image = cv2.imread(str(page_image_path), cv2.IMREAD_GRAYSCALE)
+    page_image = cv2.imread(str(page_image_path), cv2.IMREAD_COLOR)
 
     if page_image is None:
         print(f"[{page}] Could not load resized page image for word export: {page_image_path}")
         return {"saved": True, "wordCount": 0}
+
+    page_image = prepare_image_for_line_extraction(page_image)
 
     line_ids_sorted = sort_line_ids(line_entries.keys())
 
@@ -449,6 +467,29 @@ def save_word_mode_exports(manuscript_path, page, word_cuts, word_text_content, 
                 total_words += future.result()
 
     return {"saved": True, "wordCount": total_words}
+
+
+def get_prepared_page_image(page_image_path):
+    page_image_path = Path(page_image_path)
+    if not page_image_path.exists():
+        return None
+
+    cache_key = (str(page_image_path), page_image_path.stat().st_mtime_ns)
+    cached_image = PREPARED_PAGE_CACHE.get(cache_key)
+    if cached_image is not None:
+        return cached_image
+
+    page_image = cv2.imread(str(page_image_path), cv2.IMREAD_COLOR)
+    if page_image is None:
+        return None
+
+    prepared_image = prepare_image_for_line_extraction(page_image)
+    PREPARED_PAGE_CACHE[cache_key] = prepared_image
+
+    while len(PREPARED_PAGE_CACHE) > MAX_PREPARED_PAGE_CACHE_ITEMS:
+        PREPARED_PAGE_CACHE.pop(next(iter(PREPARED_PAGE_CACHE)))
+
+    return prepared_image
 
 
 def load_word_annotation_data(manuscript_path, page):
@@ -734,7 +775,10 @@ def get_pages(name):
     if not dataset_path.exists():
         return jsonify({"pages": [], "last_edited": None}), 404
     
-    pages = sorted([f.name.replace("_dims.txt", "") for f in dataset_path.glob("*_dims.txt")])
+    pages = sorted(
+        [f.name.replace("_dims.txt", "") for f in dataset_path.glob("*_dims.txt")],
+        key=natural_page_key,
+    )
     
     # Determine last edited page
     xml_dir = manuscript_path / "layout_analysis_output" / "page-xml-format"
@@ -798,6 +842,51 @@ def get_page_prediction(manuscript, page):
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/binary-overlay/<manuscript>/<page>/<line_id>', methods=['GET'])
+def get_binary_overlay(manuscript, page, line_id):
+    manuscript_path = Path(UPLOAD_FOLDER) / manuscript
+    xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    page_image_path = manuscript_path / "images_resized" / f"{page}.jpg"
+
+    if not xml_path.exists():
+        return jsonify({"error": f"XML not found for page {page}"}), 404
+
+    polygons = parse_page_xml_polygons(str(xml_path))
+    polygon = polygons.get(str(line_id))
+    if not polygon:
+        return jsonify({"error": f"Polygon not found for line {line_id}"}), 404
+
+    prepared_page_image = get_prepared_page_image(page_image_path)
+    if prepared_page_image is None:
+        return jsonify({"error": f"Image not found for page {page}"}), 404
+
+    polygon_np = np.array(polygon, dtype=np.int32)
+    line_images = extract_line_images_with_local_fill(prepared_page_image, polygon_np)
+    binary_line_image = line_images.get("binary")
+    if binary_line_image is None or binary_line_image.size == 0:
+        return jsonify({"error": "Could not generate binary overlay"}), 500
+
+    x, y, w, h = cv2.boundingRect(polygon_np)
+    polygon_shifted = polygon_np - [x, y]
+    polygon_mask = np.zeros((h, w), dtype=np.uint8)
+    cv2.drawContours(polygon_mask, [polygon_shifted], -1, 255, -1)
+
+    if len(binary_line_image.shape) == 3:
+        binary_line_image = cv2.cvtColor(binary_line_image, cv2.COLOR_BGR2GRAY)
+
+    rgba_image = np.zeros((h, w, 4), dtype=np.uint8)
+    rgba_image[:, :, 0] = binary_line_image
+    rgba_image[:, :, 1] = binary_line_image
+    rgba_image[:, :, 2] = binary_line_image
+    rgba_image[:, :, 3] = polygon_mask
+
+    success, encoded = cv2.imencode('.png', rgba_image)
+    if not success:
+        return jsonify({"error": "Could not encode binary overlay"}), 500
+
+    return jsonify({"image": base64.b64encode(encoded.tobytes()).decode('utf-8')})
 
 
 def ensemble_text_samples(samples):

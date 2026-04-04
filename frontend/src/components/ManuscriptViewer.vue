@@ -46,7 +46,7 @@
                 <span class="slider"></span>
               </label>
               <span class="center-control-label auto-recog-icon" title="Auto-Recognize" aria-label="Auto-Recognize">
-                <i class="fa-solid fa-glasses" aria-hidden="true"></i>
+                <span>OCR</span>
               </span>
               <div v-if="autoRecogEnabled" class="auto-recog-options">
                 <select v-model="recognitionEngine" class="auto-recog-select" title="Auto-Recognition Engine">
@@ -122,7 +122,7 @@
           </button>
 
           <button class="action-btn" @click="saveCurrentPage" :disabled="loading || isProcessingSave">
-            Save (S)
+            Save
           </button>
           <button class="action-btn primary" @click="saveAndGoNext" :disabled="loading || isProcessingSave">
             Save & Next
@@ -133,6 +133,98 @@
 
     <!-- MAIN CONTENT: Visualization Area -->
     <div class="visualization-container" ref="container" :style="visualizationContainerStyle" @wheel="handleViewerWheel">
+      <button
+        v-if="recognitionModeActive"
+        class="transcription-help-btn"
+        :class="{ active: showTranscriptionHelp }"
+        @click="showTranscriptionHelp = !showTranscriptionHelp"
+        title="Transcription Help"
+        aria-label="Transcription Help"
+      >
+        <i class="fas fa-language" aria-hidden="true"></i>
+      </button>
+
+      <div v-if="recognitionModeActive && showTranscriptionHelp" class="transcription-help-modal">
+        <div class="transcription-help-backdrop" @click="showTranscriptionHelp = false"></div>
+        <div class="transcription-help-panel">
+          <div class="transcription-help-header">
+            <strong>{{ recognitionScriptMode === 'grantha' ? 'Grantha Transliteration Map' : 'Transcription Help' }}</strong>
+            <button class="transcription-help-close" @click="showTranscriptionHelp = false" aria-label="Close transcription help">×</button>
+          </div>
+          <template v-if="recognitionScriptMode === 'grantha'">
+            <div class="transcription-help-body">
+              <table class="transcription-char-table large">
+                <tr class="meta-row">
+                  <th>Key</th><td>a</td><td>aa / A</td><td>i</td><td>ii / I</td><td>u</td><td>uu / U</td><td>e</td><td>ai</td><td>o</td><td>au</td><td>ri</td>
+                </tr>
+                <tr><th class="meta-row-title">Indep.</th>
+                  <td>𑌅</td><td>𑌆</td><td>𑌇</td><td>𑌈</td><td>𑌉</td><td>𑌊</td><td>𑌏</td><td>𑌐</td><td>𑌓</td><td>𑌔</td><td>𑌋</td></tr>
+                <tr><th class="meta-row-title">Mark</th>
+                  <td>-</td><td>𑌾</td><td>𑌿</td><td>𑍀</td><td>𑍁</td><td>𑍂</td><td>𑍇</td><td>𑍈</td><td>𑍋</td><td>𑍌</td><td>𑍃</td></tr>
+                <tr><th class="meta-row-title">Ex. (k)</th>
+                  <td>𑌕</td><td>𑌕𑌾</td><td>𑌕𑌿</td><td>𑌕𑍀</td><td>𑌕𑍁</td><td>𑌕𑍂</td><td>𑌕𑍇</td><td>𑌕𑍈</td><td>𑌕𑍋</td><td>𑌕𑍌</td><td>𑌕𑍃</td></tr>
+              </table>
+
+              <table class="transcription-char-table">
+                <tr><th class="meta-row-title">Guttural</th><td>k (𑌕)</td><td>kh (𑌖)</td><td>g (𑌗)</td><td>gh (𑌘)</td><td>G (𑌙)</td></tr>
+                <tr><th class="meta-row-title">Palatal</th><td>c (𑌚)</td><td>ch (𑌛)</td><td>j (𑌜)</td><td>jh (𑌝)</td><td>J (𑌞)</td></tr>
+                <tr><th class="meta-row-title">Retroflex</th><td>T (𑌟)</td><td>Th (𑌠)</td><td>D (𑌡)</td><td>Dh (𑌢)</td><td>N (𑌣)</td></tr>
+                <tr><th class="meta-row-title">Dental</th><td>t (𑌤)</td><td>th (𑌥)</td><td>d (𑌦)</td><td>dh (𑌧)</td><td>n (𑌨)</td></tr>
+                <tr><th class="meta-row-title">Labial</th><td>p (𑌪)</td><td>ph (𑌫)</td><td>b (𑌬)</td><td>bh (𑌭)</td><td>m (𑌮)</td></tr>
+              </table>
+
+              <table class="transcription-char-table small-rows">
+                <tr><td>𑌕𑍍𑌷 (kṣa)</td><td>𑌜𑍍𑌞 (jña)</td><td>𑌙𑍍𑌗 (ṅga)</td><td>𑌞𑍍𑌚 (ñca)</td><td>𑌤𑍍𑌰 (tra)</td></tr>
+                <tr><td>𑌦𑍍𑌧 (ddha)</td><td>𑌨𑍍𑌤 (nta)</td><td>𑌶𑍍𑌚 (śca)</td><td>𑌷𑍍𑌟 (ṣṭa)</td><td>𑌹𑍍𑌮 (hma)</td></tr>
+              </table>
+
+              <table class="transcription-char-table small-rows">
+                <tr><td>𑌤𑍍𑌤 (tta)</td><td>𑌤𑍍𑌤𑍍𑌵 (ttva)</td><td>𑌕𑍍𑌷𑍍𑌵 (kṣva)</td><td>𑌸𑍍𑌤𑍍𑌵 (stva)</td><td>𑌤𑍍𑌸𑍍𑌨 (tsna)</td></tr>
+                <tr><td>𑌨𑍍𑌤𑍍𑌵 (ntva)</td><td>𑌨𑍍𑌤𑍍𑌸 (ntsa)</td><td>𑌗𑍍𑌧𑍍𑌵 (gdhva)</td><td>𑌨𑍍𑌨 (nna)</td><td>𑌦𑍍𑌵 (dva)</td></tr>
+              </table>
+
+              <table class="transcription-char-table small-rows">
+                <tr><td>𑌕𑍍𑌯 (kya)</td><td>𑌕𑍍𑌰 (kra)</td><td>𑌰𑍍𑌕 (rka)</td><td>𑌰𑍍𑌮 (rma)</td><td>𑰨𑍍𑌣 (rṇa)</td></tr>
+                <tr><td>𑌦𑍍𑌧𑍍𑌯 (ddhya)</td><td>𑌙𑍍𑌗𑍍𑌰𑍍𑌯 (ṅgrya)</td><td>𑰨𑍍𑌦𑍍𑌧 (rddha)</td><td>𑰨𑍍𑌦𑍍𑌵𑍍𑌯 (rdvya)</td><td>𑰨𑍍𑌕𑍍𑌷 (rkṣa)</td></tr>
+              </table>
+
+              <div class="transcription-help-split">
+                <div class="transcription-help-column wide">
+                  <table class="transcription-char-table">
+                    <tr class="meta-row compact"><td>y (𑌯)</td><td>r (𑌰)</td><td>l (𑌲)</td><td>v / w (𑌵)</td></tr>
+                    <tr class="meta-row compact"><td>sh / z (𑌶)</td><td>S (𑌷)</td><td>s (𑌸)</td><td>h (𑌹)</td></tr>
+                    <tr><td>L (𑌳)</td><td colspan="3" class="note-cell">Use <strong>&amp;</strong> for Halant (𑍍)</td></tr>
+                  </table>
+                </div>
+                <div class="transcription-help-column narrow">
+                  <table class="transcription-char-table">
+                    <tr class="meta-row compact"><td>M (𑌂)</td><td>H (𑌃)</td><td>' (𑌽)</td><td>/ (।)</td></tr>
+                  </table>
+                  <div class="transcription-help-alert">
+                    <strong>Cluster Tip:</strong> Type <code>k&amp;ta</code> to get 𑌕𑍍𑌤. The <code>&amp;</code> force-closes a consonant.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template v-else-if="recognitionScriptMode === 'devanagari'">
+            <div class="transcription-help-subtitle">Script Input Notes</div>
+            <div class="transcription-help-body transcription-help-notes">
+              <p>Type in Roman input and use the preview strip to confirm the reading.</p>
+              <p>Examples: <code>ka</code>, <code>kha</code>, <code>ṭa</code>/<code>Ta</code>, <code>aa</code>, <code>ii</code>.</p>
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="transcription-help-subtitle">Roman Input Notes</div>
+            <div class="transcription-help-body transcription-help-notes">
+              <p>Roman mode saves exactly what you type.</p>
+              <p>Use this when no script transliteration is needed.</p>
+            </div>
+          </template>
+        </div>
+      </div>
       
       <!-- 1. Unified Overlay for Saving OR Mode Switching (Foreground) -->
       <div v-if="isProcessingSave" class="processing-save-notice">
@@ -173,8 +265,8 @@
             No image available
           </div>
 
-        <!-- NEW: Wrapper to hide everything when 'v' is pressed -->
-        <div :style="{ opacity: recognitionModeActive ? 1 : (isVKeyPressed ? 0 : 1), transition: 'opacity 0.1s' }">
+        <!-- Wrapper to hide overlays/graph when Ctrl/Cmd+H is pressed -->
+        <div :style="{ opacity: isVKeyPressed ? 0 : 1, transition: 'opacity 0.1s' }">
             <img
               v-if="recognitionModeActive && focusedBinaryOverlayUrl && focusedLineBounds"
               :src="focusedBinaryOverlayUrl"
@@ -241,7 +333,8 @@
                 stroke="rgba(255, 255, 255, 0.2)"
                 stroke-width="1"
                 class="polygon-inactive"
-                @click="activateInput(lineId)"
+                :style="{ pointerEvents: wordCutModeActive ? 'none' : 'auto' }"
+                @click="handleRecognitionPolygonClick(lineId, $event)"
               />
 
               <polygon
@@ -251,6 +344,7 @@
                 :stroke="wordCutModeActive ? 'rgba(196, 196, 196, 0.9)' : '#00e5ff'"
                 :stroke-width="wordCutModeActive ? 1.5 : 0"
                 class="polygon-active"
+                :style="{ pointerEvents: wordCutModeActive ? 'none' : 'auto' }"
               />
 
               <template v-if="wordCutModeActive && focusedLineBounds">
@@ -435,35 +529,71 @@
 
           <!-- Hotkey Footer -->
           <div class="hotkey-footer">
-            <span class="key-hint"><span class="key-badge">V</span> Hold to Hide Graph</span>
+            <span class="key-hint"><span class="key-badge">Ctrl+H</span> Hold to Hide Graph</span>
           </div>
 
         </div>
 
         <!-- RECOGNITION MODE HELP -->
-        <div v-if="recognitionModeActive" class="help-section">
-           <div class="media-container">
-             <div class="webm-placeholder" style="flex-direction:column; gap:10px;">
-              <span>Recognition Mode</span>
-              <span
-                v-if="recognitionScriptMode === 'grantha' || recognitionScriptMode === 'devanagari'"
-                style="color:var(--success); font-size:0.8rem;"
-              >
-                {{ recognitionScriptMode === 'grantha' ? 'Grantha Transliteration ON' : 'Devanagari Transliteration ON' }}
-              </span>
-            </div>
+        <div v-if="recognitionModeActive" class="help-section recognition-help">
+           <div class="help-grid recognition-help-grid" style="height: auto; flex: 1; min-height: 0;">
+             <div class="help-card horizontal-layout four-card">
+               <div class="media-container-square">
+                 <div class="webm-placeholder help-gif-placeholder">
+                   <span>GIF Slot</span>
+                 </div>
+               </div>
+               <div class="card-text">
+                 <h4>Navigate</h4>
+                 <p><span class="key-badge">↑</span> <span class="key-badge">↓</span> Move Between Lines</p>
+                 <p>Type Directly on the Focused Overlay</p>
+               </div>
+             </div>
+
+             <div class="help-card horizontal-layout four-card">
+               <div class="media-container-square">
+                 <div class="webm-placeholder help-gif-placeholder">
+                   <span>GIF Slot</span>
+                 </div>
+               </div>
+               <div class="card-text">
+                 <h4>Scripts</h4>
+                 <p>Use Roman, Devanagari, or Grantha</p>
+                 <p v-if="recognitionScriptMode === 'grantha' || recognitionScriptMode === 'devanagari'">
+                   {{ recognitionScriptMode === 'grantha' ? 'Grantha Transliteration ON' : 'Devanagari Transliteration ON' }}
+                 </p>
+                 <p v-else>Choose Script from the Top Bar</p>
+               </div>
+             </div>
+
+             <div class="help-card horizontal-layout four-card">
+               <div class="media-container-square">
+                 <div class="webm-placeholder help-gif-placeholder">
+                   <span>GIF Slot</span>
+                 </div>
+               </div>
+               <div class="card-text">
+                 <h4>Word Cuts</h4>
+                 <p><span aria-hidden="true">✂</span> Click the Active Overlay to Add Splits</p>
+                 <p><span class="key-badge">Delete</span> Hold to Remove</p>
+               </div>
+             </div>
+
+             <div v-if="wordCutModeActive" class="help-card horizontal-layout four-card">
+               <div class="media-container-square">
+                 <div class="webm-placeholder help-gif-placeholder">
+                   <span>GIF Slot</span>
+                 </div>
+               </div>
+               <div class="card-text">
+                 <h4>Preview</h4>
+                 <p><i class="fas fa-eye" aria-hidden="true"></i> Preview Split Words</p>
+                 <p><span class="key-badge">Ctrl+P</span> Preview Split Words</p>
+               </div>
+             </div>
            </div>
-           <div class="instructions-container">
-             <h3>Recognition Mode</h3>
-             <p>Transcribe line-by-line on the focused binary overlay. Auto-save is active every 20 seconds.</p>
-             <ul>
-               <li><strong>Navigate:</strong> Use <code>↑</code> or <code>↓</code> to move between lines.</li>
-               <li><strong>Save:</strong> Press <code>Ctrl+S</code> or use the top-bar save button.</li>
-               <li v-if="recognitionScriptMode === 'devanagari'"><strong>Devanagari:</strong> Type with Devanagari selected and use the preview strip to confirm the roman reading.</li>
-               <li><strong>OCR:</strong> Turn on the bolt toggle to use either <code>Local OCR</code> or <code>Gemini</code> during save.</li>
-               <li><strong>Word Cuts:</strong> Click the scissor to enter cut mode, click inside the active line to place cuts, and hold <code>Delete</code> to remove a cut with the hand cursor.</li>
-               <li><strong>Preview:</strong> In word-cut mode, use the eye button or <code>Ctrl+P</code> to preview the split word images.</li>
-             </ul>
+           <div class="hotkey-footer">
+             <span class="key-hint"><span class="key-badge">Ctrl+H</span> Hold to Hide Text Boxes</span>
            </div>
         </div>
         
@@ -507,7 +637,7 @@ const props = defineProps({
 const emit = defineEmits(['page-changed', 'back'])
 
 // UI State
-const isPanelCollapsed = ref(false)
+const isPanelCollapsed = ref(true)
 const activeInput = ref(null) 
 
 const setMode = (mode) => {
@@ -525,7 +655,6 @@ const setMode = (mode) => {
     recognitionModeActive.value = true
     nextTick(() => ensureFocusedRecognitionLine())
   }
-  isPanelCollapsed.value = false
 }
 // --- DATA ---
 const layoutModeActive = ref(true) // Default to true now
@@ -560,6 +689,8 @@ const svgOverlayRef = ref(null)
 const recognitionOverlayRef = ref(null)
 const pageImageRef = ref(null)
 const focusedBinaryOverlayUrl = ref('')
+const binaryOverlayCache = reactive({})
+const focusedBinaryOverlayRequestId = ref(0)
 const viewerResizeObserver = ref(null)
 
 // Labeling Data
@@ -586,6 +717,7 @@ const wordCutModeActive = ref(false)
 const wordCutDeleteMode = ref(false)
 const wordCutHoverX = ref(null)
 const hoveredWordCutIndex = ref(null)
+const wordCutHoverInActiveRegion = ref(false)
 const wordPreviewVisible = ref(false)
 const focusedWordPreviewItems = ref([])
 const lastSavedRecognitionSignature = ref('')
@@ -597,6 +729,7 @@ watch(geminiKey, (val) => localStorage.setItem('gemini_key', val))
 watch(recognitionScriptMode, (val) => localStorage.setItem('recognition_script_mode', val))
 const localTextConfidence = reactive({}) 
 const autoSaveInterval = ref(null) // NEW
+const showTranscriptionHelp = ref(false)
 
 const fitScale = ref(1)
 const zoomLevel = ref(1)
@@ -653,8 +786,13 @@ const currentFocusedLineIndex = computed(() => sortedLineIds.value.indexOf(focus
 const hasPreviousLine = computed(() => currentFocusedLineIndex.value > 0)
 const hasNextLine = computed(() => currentFocusedLineIndex.value > -1 && currentFocusedLineIndex.value < sortedLineIds.value.length - 1)
 const recognitionOverlayCursor = computed(() => {
-  if (!recognitionModeActive.value || !wordCutModeActive.value || wordCutHoverX.value === null) return 'default'
-  return wordCutDeleteMode.value ? 'pointer' : 'cell'
+  if (!recognitionModeActive.value) return 'default'
+  if (!wordCutModeActive.value) return 'default'
+  if (!wordCutHoverInActiveRegion.value) return 'default'
+  if (wordCutDeleteMode.value) {
+    return hoveredWordCutIndex.value !== null ? 'pointer' : 'crosshair'
+  }
+  return 'crosshair'
 })
 
 const updateViewerScale = () => {
@@ -711,6 +849,13 @@ const getRecognitionTranscription = (value) => {
     }
 
     return ''
+}
+
+const syncActiveInputScroll = () => {
+    nextTick(() => {
+        if (!activeInput.value) return
+        activeInput.value.scrollLeft = activeInput.value.scrollWidth
+    })
 }
 
 
@@ -909,9 +1054,22 @@ const buildFocusedBinaryCanvas = () => {
       filledGray[index] = maskData[pixelOffset + 3] > 0 ? grayscale[index] : medianValue
     }
 
+    const normalizedGray = new Uint8ClampedArray(filledGray.length)
     const sortedFilled = Array.from(filledGray).sort((a, b) => a - b)
-    const darkCutoff = sortedFilled[Math.max(0, Math.floor(sortedFilled.length * 0.15) - 1)]
-    const darkPixels = Array.from(filledGray).filter((value) => value <= darkCutoff)
+    const brightCutoff = sortedFilled[Math.min(sortedFilled.length - 1, Math.floor(sortedFilled.length * 0.98))]
+
+    for (let index = 0; index < filledGray.length; index += 1) {
+      const value = filledGray[index]
+      if (brightCutoff > 0) {
+        normalizedGray[index] = Math.max(0, Math.min(255, Math.round((Math.min(value, brightCutoff) / brightCutoff) * 255)))
+      } else {
+        normalizedGray[index] = value
+      }
+    }
+
+    const sortedNormalized = Array.from(normalizedGray).sort((a, b) => a - b)
+    const darkCutoff = sortedNormalized[Math.max(0, Math.floor(sortedNormalized.length * 0.15) - 1)]
+    const darkPixels = Array.from(normalizedGray).filter((value) => value <= darkCutoff)
     const sortedDarkPixels = darkPixels.sort((a, b) => a - b)
     const binaryThreshold = sortedDarkPixels.length > 0
       ? sortedDarkPixels[Math.min(sortedDarkPixels.length - 1, Math.floor(sortedDarkPixels.length * 0.72))]
@@ -935,7 +1093,7 @@ const buildFocusedBinaryCanvas = () => {
         continue
       }
 
-      const binaryValue = filledGray[index] <= binaryThreshold ? 0 : 255
+      const binaryValue = normalizedGray[index] <= binaryThreshold ? 0 : 255
       overlayPixels[pixelOffset] = binaryValue
       overlayPixels[pixelOffset + 1] = binaryValue
       overlayPixels[pixelOffset + 2] = binaryValue
@@ -947,12 +1105,48 @@ const buildFocusedBinaryCanvas = () => {
 }
 
 const buildFocusedBinaryOverlay = () => {
-    const overlayCanvas = buildFocusedBinaryCanvas()
-    if (!overlayCanvas) {
+    if (
+      !recognitionModeActive.value ||
+      !focusedLineId.value ||
+      !focusedLineBounds.value ||
+      !localManuscriptName.value ||
+      !localCurrentPage.value
+    ) {
       focusedBinaryOverlayUrl.value = ''
       return
     }
-    focusedBinaryOverlayUrl.value = overlayCanvas.toDataURL('image/png')
+
+    const lineId = focusedLineId.value
+    const requestId = ++focusedBinaryOverlayRequestId.value
+    const cacheKey = `${localManuscriptName.value}::${localCurrentPage.value}::${lineId}`
+    const cachedOverlay = binaryOverlayCache[cacheKey]
+    if (cachedOverlay) {
+      focusedBinaryOverlayUrl.value = cachedOverlay
+      return
+    }
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/binary-overlay/${localManuscriptName.value}/${localCurrentPage.value}/${lineId}`)
+      .then(async (response) => {
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load binary overlay')
+        }
+        return data
+      })
+      .then((data) => {
+        const overlayUrl = data.image ? `data:image/png;base64,${data.image}` : ''
+        binaryOverlayCache[cacheKey] = overlayUrl
+        if (requestId === focusedBinaryOverlayRequestId.value) {
+          focusedBinaryOverlayUrl.value = overlayUrl
+        }
+      })
+      .catch(() => {
+        const overlayCanvas = buildFocusedBinaryCanvas()
+        const fallbackOverlayUrl = overlayCanvas ? overlayCanvas.toDataURL('image/png') : ''
+        if (requestId === focusedBinaryOverlayRequestId.value) {
+          focusedBinaryOverlayUrl.value = fallbackOverlayUrl
+        }
+      })
 }
 
 const sortLinesTopToBottom = () => {
@@ -1058,10 +1252,13 @@ const activateInput = (lineId) => {
     focusedLineId.value = lineId;
     wordPreviewVisible.value = false
     focusedWordPreviewItems.value = []
-    wordCutDeleteMode.value = false
+    if (!wordCutModeActive.value) {
+      wordCutDeleteMode.value = false
+    }
     nextTick(() => {
         if(activeInput.value) {
             activeInput.value.focus();
+            syncActiveInputScroll()
         }
     });
 }
@@ -1078,6 +1275,16 @@ const handleInputBlur = () => {
        focusedLineId.value = null; 
        wordPreviewVisible.value = false
     }, 200);
+}
+
+const handleRecognitionPolygonClick = (lineId, event) => {
+    if (event) {
+      event.stopPropagation()
+    }
+    if (wordCutModeActive.value) return
+    if (!lineId || !pagePolygons.value[lineId]) return
+    if (focusedLineId.value === lineId) return
+    activateInput(lineId)
 }
 
 const focusNextLine = (reverse = false) => {
@@ -1168,36 +1375,46 @@ const setWordCutsForLine = (lineId, cuts) => {
     wordCuts[lineId] = uniqueCuts
 }
 
-const syncWordLabelSegmentsForLine = (lineId) => {
-    if (!lineId) return
+const getRecognitionOverlayPageCoordinates = (event) => {
+    if (!recognitionOverlayRef.value || !dimensions.value[0] || !dimensions.value[1]) return null
+    const rect = recognitionOverlayRef.value.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) return null
 
-    const desiredSegments = Math.max(getWordCutsForLine(lineId).length + 1, 1)
-    const currentValue = localTextContent[lineId] || ''
-    let segments = currentValue.split('_')
+    const normalizedX = (event.clientX - rect.left) / rect.width
+    const normalizedY = (event.clientY - rect.top) / rect.height
 
-    if (segments.length < desiredSegments) {
-      while (segments.length < desiredSegments) {
-        segments.push('')
-      }
-    } else if (segments.length > desiredSegments) {
-      const preservedSegments = segments.slice(0, desiredSegments - 1)
-      const mergedTail = segments.slice(desiredSegments - 1).join('')
-      segments = [...preservedSegments, mergedTail]
-    }
-
-    const nextValue = segments.join('_')
-    if (nextValue !== currentValue) {
-      localTextContent[lineId] = nextValue
+    return {
+      pageX: normalizedX * dimensions.value[0],
+      pageY: normalizedY * dimensions.value[1],
     }
 }
 
-const syncWordLabelSegmentsForAllLines = () => {
-    const lineIds = new Set([
-      ...Object.keys(localTextContent),
-      ...Object.keys(wordCuts),
-    ])
+const getRecognitionOverlayPageThreshold = (screenPixels = 12) => {
+    if (!recognitionOverlayRef.value || !dimensions.value[0]) {
+      return screenPixels / Math.max(scaleFactor.value, 1e-6)
+    }
+    const rect = recognitionOverlayRef.value.getBoundingClientRect()
+    if (rect.width <= 0) {
+      return screenPixels / Math.max(scaleFactor.value, 1e-6)
+    }
+    const renderedPixelsPerPageUnit = rect.width / dimensions.value[0]
+    return screenPixels / Math.max(renderedPixelsPerPageUnit, 1e-6)
+}
 
-    lineIds.forEach((lineId) => syncWordLabelSegmentsForLine(lineId))
+const getHoveredWordCutIndexAtPosition = (pageX) => {
+    const cuts = getWordCutsForLine(focusedLineId.value)
+    if (!cuts.length) return null
+    const pageThreshold = getRecognitionOverlayPageThreshold(8)
+    let nearestIndex = null
+    let nearestDistance = Infinity
+    cuts.forEach((cut, index) => {
+      const distance = Math.abs(cut - pageX)
+      if (distance <= pageThreshold && distance < nearestDistance) {
+        nearestIndex = index
+        nearestDistance = distance
+      }
+    })
+    return nearestIndex
 }
 
 const toggleWordCutMode = () => {
@@ -1207,43 +1424,34 @@ const toggleWordCutMode = () => {
       ensureFocusedRecognitionLine()
     }
     loadLocalTextContentForCurrentMode()
-    if (wordCutModeActive.value) {
-      syncWordLabelSegmentsForAllLines()
-    }
     wordCutDeleteMode.value = false
     wordPreviewVisible.value = false
     focusedWordPreviewItems.value = []
     wordCutHoverX.value = null
     hoveredWordCutIndex.value = null
+    wordCutHoverInActiveRegion.value = false
 }
 
 const clearFocusedWordCuts = () => {
     if (!focusedLineId.value) return
     wordCuts[focusedLineId.value] = []
-    syncWordLabelSegmentsForLine(focusedLineId.value)
     wordPreviewVisible.value = false
     focusedWordPreviewItems.value = []
     hoveredWordCutIndex.value = null
+    wordCutHoverX.value = null
+    wordCutHoverInActiveRegion.value = false
 }
 
 const syncHoveredWordCutIndex = (pageX) => {
-    const cuts = getWordCutsForLine(focusedLineId.value)
-    if (cuts.length === 0) {
-        hoveredWordCutIndex.value = null
-        return
-    }
-
-    const pageThreshold = 10 / scaleFactor.value
-    const nearestIndex = cuts.findIndex((cut) => Math.abs(cut - pageX) <= pageThreshold)
-    hoveredWordCutIndex.value = nearestIndex === -1 ? null : nearestIndex
+    hoveredWordCutIndex.value = getHoveredWordCutIndexAtPosition(pageX)
 }
 
 const handleRecognitionOverlayMove = (event) => {
     if (!wordCutModeActive.value || !focusedLineBounds.value || !recognitionOverlayRef.value) return
 
-    const rect = recognitionOverlayRef.value.getBoundingClientRect()
-    const pageX = (event.clientX - rect.left) / scaleFactor.value
-    const pageY = (event.clientY - rect.top) / scaleFactor.value
+    const coordinates = getRecognitionOverlayPageCoordinates(event)
+    if (!coordinates) return
+    const { pageX, pageY } = coordinates
 
     if (
       pageX < focusedLineBounds.value.minX ||
@@ -1251,16 +1459,19 @@ const handleRecognitionOverlayMove = (event) => {
       pageY < focusedLineBounds.value.minY ||
       pageY > focusedLineBounds.value.maxY
     ) {
+      wordCutHoverInActiveRegion.value = false
       wordCutHoverX.value = null
       hoveredWordCutIndex.value = null
       return
     }
 
+    wordCutHoverInActiveRegion.value = true
     wordCutHoverX.value = pageX
     syncHoveredWordCutIndex(pageX)
 }
 
 const handleRecognitionOverlayLeave = () => {
+    wordCutHoverInActiveRegion.value = false
     wordCutHoverX.value = null
     hoveredWordCutIndex.value = null
 }
@@ -1268,9 +1479,9 @@ const handleRecognitionOverlayLeave = () => {
 const handleRecognitionOverlayClick = (event) => {
     if (!wordCutModeActive.value || !focusedLineId.value || !focusedLineBounds.value || !recognitionOverlayRef.value) return
 
-    const rect = recognitionOverlayRef.value.getBoundingClientRect()
-    const pageX = (event.clientX - rect.left) / scaleFactor.value
-    const pageY = (event.clientY - rect.top) / scaleFactor.value
+    const coordinates = getRecognitionOverlayPageCoordinates(event)
+    if (!coordinates) return
+    const { pageX, pageY } = coordinates
 
     if (
       pageX < focusedLineBounds.value.minX ||
@@ -1282,19 +1493,20 @@ const handleRecognitionOverlayClick = (event) => {
     }
 
     const cuts = [...getWordCutsForLine(focusedLineId.value)]
-    const pageThreshold = 10 / scaleFactor.value
+    const hoveredCutIndex = getHoveredWordCutIndexAtPosition(pageX)
 
     if (wordCutDeleteMode.value) {
-      const cutIndex = cuts.findIndex((cut) => Math.abs(cut - pageX) <= pageThreshold)
-      if (cutIndex !== -1) {
-        cuts.splice(cutIndex, 1)
+      if (hoveredCutIndex !== null) {
+        cuts.splice(hoveredCutIndex, 1)
         setWordCutsForLine(focusedLineId.value, cuts)
-        syncWordLabelSegmentsForLine(focusedLineId.value)
       }
     } else {
+      if (hoveredCutIndex !== null) {
+        syncHoveredWordCutIndex(pageX)
+        return
+      }
       cuts.push(pageX)
       setWordCutsForLine(focusedLineId.value, cuts)
-      syncWordLabelSegmentsForLine(focusedLineId.value)
     }
 
     syncHoveredWordCutIndex(pageX)
@@ -1489,6 +1701,9 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
 
   error.value = null
   modifications.value = []
+  focusedBinaryOverlayUrl.value = ''
+  focusedBinaryOverlayRequestId.value += 1
+  Object.keys(binaryOverlayCache).forEach((key) => delete binaryOverlayCache[key])
   
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
   Object.keys(localTextContent).forEach(k => delete localTextContent[k])
@@ -1774,17 +1989,13 @@ const handleGlobalKeyDown = (e) => {
     return
   }
 
-  if (key === 's' && !e.repeat && !isInput) {
-    e.preventDefault()
-    saveCurrentPage()
-    return
-  }
-  
   if (key === 'w' && !e.repeat && !isInput) { e.preventDefault(); setMode('layout'); return }
   if (key === 't' && !e.repeat && !isInput) { e.preventDefault(); requestSwitchToRecognition(); return }
   
-  // NEW: Visibility Hotkey 'v'
-  if (key === 'v' && !isInput && !recognitionModeActive.value) {
+  // Visibility hotkey: Ctrl/Cmd+H
+  if ((e.ctrlKey || e.metaKey) && key === 'h') {
+      e.preventDefault()
+      e.stopPropagation()
       isVKeyPressed.value = true
       return
   }
@@ -1805,7 +2016,7 @@ const handleGlobalKeyDown = (e) => {
 
 const handleGlobalKeyUp = (e) => {
   const key = e.key.toLowerCase()
-  if (key === 'v') { isVKeyPressed.value = false }
+  if ((e.ctrlKey || e.metaKey) && key === 'h') { isVKeyPressed.value = false }
   if (key === 'delete') { wordCutDeleteMode.value = false }
 
   if (layoutModeActive.value) {
@@ -2186,6 +2397,7 @@ watch(recognitionModeActive, (val) => {
         resetSelection();
         nextTick(() => ensureFocusedRecognitionLine())
     } else {
+        focusedBinaryOverlayRequestId.value += 1
         focusedBinaryOverlayUrl.value = ''
         wordCutModeActive.value = false
         wordCutDeleteMode.value = false
@@ -2196,6 +2408,7 @@ watch(recognitionModeActive, (val) => {
 
 watch(localTextContent, () => {
     syncLocalTextContentToActiveStore()
+    syncActiveInputScroll()
     if (wordPreviewVisible.value && focusedLineId.value) {
       focusedWordPreviewItems.value = buildWordPreviewItems(focusedLineId.value)
     }
@@ -2432,6 +2645,163 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   position: relative; overflow: auto; flex-grow: 1; display: flex;
   justify-content: center; align-items: center; padding: 1rem; background-color: var(--viewer-canvas-bg);
 }
+.transcription-help-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 12;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--viewer-panel-alt-bg);
+  color: var(--viewer-text-primary);
+  border: 1px solid var(--viewer-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+.transcription-help-btn:hover {
+  background: var(--viewer-panel-hover);
+}
+.transcription-help-btn.active {
+  background: var(--viewer-toggle-active-bg);
+  color: var(--viewer-toggle-active-text);
+  border-color: var(--viewer-toggle-active-border);
+}
+.transcription-help-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.transcription-help-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.36);
+}
+.transcription-help-panel {
+  position: relative;
+  z-index: 221;
+  width: min(960px, calc(100vw - 48px));
+  max-height: min(80vh, calc(100vh - 48px));
+  overflow: auto;
+  background: #ffffff;
+  color: #212529;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  padding: 0;
+}
+.transcription-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+  padding: 12px 16px;
+  background: #212529;
+  color: #ffffff;
+  border-bottom: 1px solid #212529;
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+}
+.transcription-help-close {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  cursor: pointer;
+}
+.transcription-help-subtitle {
+  font-size: 0.88rem;
+  color: #495057;
+  margin: 14px 16px 8px;
+  font-family: Arial, sans-serif;
+}
+.transcription-help-body {
+  padding: 16px;
+}
+.transcription-char-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 16px;
+  font-family: 'Noto Serif Grantha', serif;
+  font-size: 0.98rem;
+}
+.transcription-char-table.large {
+  font-size: 1rem;
+}
+.transcription-char-table td,
+.transcription-char-table th {
+  border: 1px solid #dee2e6;
+  padding: 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+.transcription-char-table th,
+.transcription-char-table .meta-row td,
+.transcription-char-table .meta-row {
+  font-family: Arial, sans-serif;
+  font-size: 0.8rem;
+  color: #6c757d;
+  background: #f8f9fa;
+  font-weight: 700;
+}
+.transcription-char-table .meta-row-title {
+  font-family: Arial, sans-serif;
+  font-size: 0.75rem;
+  color: #495057;
+  background: #f8f9fa;
+  font-weight: 700;
+}
+.transcription-char-table.small-rows td {
+  font-size: 0.92rem;
+}
+.transcription-char-table .compact td {
+  font-family: Arial, sans-serif;
+  font-size: 0.7rem;
+  background: #f8f9fa;
+  font-weight: 700;
+}
+.transcription-help-split {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 12px;
+}
+.transcription-help-column {
+  min-width: 0;
+}
+.transcription-help-column.wide .transcription-char-table,
+.transcription-help-column.narrow .transcription-char-table {
+  margin-bottom: 10px;
+}
+.note-cell {
+  font-family: Arial, sans-serif;
+  font-size: 0.78rem;
+  color: #6c757d;
+}
+.transcription-help-alert {
+  background: #fff3cd;
+  border: 1px solid #ffe69c;
+  color: #664d03;
+  border-radius: 0;
+  padding: 8px 10px;
+  font-family: Arial, sans-serif;
+  font-size: 0.76rem;
+}
+.transcription-help-notes p {
+  margin: 0 0 12px;
+  font-size: 0.84rem;
+  color: #495057;
+  font-family: Arial, sans-serif;
+}
 .visualization-stage {
   display: flex;
   flex: 0 0 auto;
@@ -2462,6 +2832,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     font-family: monospace;
     outline: none;
     transition: font-size 0.2s;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
 }
 .line-input:focus {
     border-color: var(--viewer-border);
@@ -2631,6 +3004,14 @@ input:checked + .slider:before { transform: translateX(14px); }
 .help-section.full-width {
   width: 100%;
 }
+.recognition-help {
+  flex-direction: column;
+  width: 100%;
+}
+
+.recognition-help-grid {
+  justify-content: space-between;
+}
 
 .help-grid {
   display: flex;
@@ -2710,12 +3091,28 @@ input:checked + .slider:before { transform: translateX(14px); }
   width: 32%; /* Ensure 3 cards fit side-by-side */
 }
 
+.help-card.horizontal-layout.four-card {
+  width: 24%;
+}
+
 .media-container-square {
   height: 100%;
   aspect-ratio: 1 / 1; /* Forces square shape based on container height */
   background: var(--viewer-media-bg);
   border-right: 1px solid var(--viewer-border);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-gif-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--viewer-media-bg);
+  color: var(--viewer-text-muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2729,15 +3126,15 @@ input:checked + .slider:before { transform: translateX(14px); }
 
 /* Hotkey Footer Strip */
 .hotkey-footer {
-  height: 40px; /* Fixed height for footer */
+  height: 40px;
   border-top: 1px solid var(--viewer-border);
-  width: 100%;
+  width: calc(100% + 48px);
   display: flex;
   justify-content: center;
   align-items: center;
   background: var(--viewer-highlight-soft);
-  border-radius: 4px;
-  margin-top: 8px;
+  border-radius: 0;
+  margin: 8px -24px -16px;
 }
 
 .key-hint {
@@ -2768,6 +3165,10 @@ input:checked + .slider:before { transform: translateX(14px); }
   .recognition-controls-group {
     flex-wrap: wrap;
     justify-content: flex-start;
+  }
+
+  .help-card.horizontal-layout.four-card {
+    width: 100%;
   }
 }
 </style>
