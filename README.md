@@ -81,15 +81,15 @@ conda activate gnn_layout
 python app.py
 ```
 
-The server runs on `http://localhost:5000`.
+The server runs on `http://localhost:4317`.
 
 #### 🔵 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
-Create a .env file in `frontend/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
+Create a .env file in `frontend/` with the following content, replacing the backend URL if different from `http://localhost:4317`:
 
 ```env
-VITE_BACKEND_URL="http://localhost:5000"
+VITE_BACKEND_URL="http://localhost:4317"
 ```
 
 Then run:
@@ -99,7 +99,7 @@ cd frontend
 npm install
 npm run dev
 ```
-Access the UI at `http://localhost:5173`.
+Access the UI at `http://localhost:5387`.
 
 ```npm install``` only needs to be run once for the first time. To launch the front-end subsequently, we need to only need to run ```npm run dev```.
 
