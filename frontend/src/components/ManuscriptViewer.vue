@@ -157,54 +157,68 @@
           <button class="transcription-help-close" @click="showTranscriptionHelp = false" aria-label="Close transcription help">×</button>
         </div>
         <template v-if="recognitionScriptMode === 'grantha'">
-          <div class="transcription-help-body">
-            <table class="transcription-char-table large">
-              <tr class="meta-row">
-                <th>Key</th><td>a</td><td>aa / A</td><td>i</td><td>ii / I</td><td>u</td><td>uu / U</td><td>e</td><td>ai</td><td>o</td><td>au</td><td>ri</td>
-              </tr>
-              <tr><th class="meta-row-title">Indep.</th>
-                <td>𑌅</td><td>𑌆</td><td>𑌇</td><td>𑌈</td><td>𑌉</td><td>𑌊</td><td>𑌏</td><td>𑌐</td><td>𑌓</td><td>𑌔</td><td>𑌋</td></tr>
-              <tr><th class="meta-row-title">Mark</th>
-                <td>-</td><td>𑌾</td><td>𑌿</td><td>𑍀</td><td>𑍁</td><td>𑍂</td><td>𑍇</td><td>𑍈</td><td>𑍋</td><td>𑍌</td><td>𑍃</td></tr>
-              <tr><th class="meta-row-title">Ex. (k)</th>
-                <td>𑌕</td><td>𑌕𑌾</td><td>𑌕𑌿</td><td>𑌕𑍀</td><td>𑌕𑍁</td><td>𑌕𑍂</td><td>𑌕𑍇</td><td>𑌕𑍈</td><td>𑌕𑍋</td><td>𑌕𑍌</td><td>𑌕𑍃</td></tr>
-            </table>
+            <div class="transcription-help-body">
+              <table class="transcription-char-table large">
+                <tbody>
+                  <tr class="meta-row">
+                    <th>Key</th><td>a</td><td>aa / A</td><td>i</td><td>ii / I</td><td>u</td><td>uu / U</td><td>e</td><td>ai</td><td>o</td><td>au</td><td>ri</td>
+                  </tr>
+                  <tr><th class="meta-row-title">Indep.</th>
+                    <td>𑌅</td><td>𑌆</td><td>𑌇</td><td>𑌈</td><td>𑌉</td><td>𑌊</td><td>𑌏</td><td>𑌐</td><td>𑌓</td><td>𑌔</td><td>𑌋</td></tr>
+                  <tr><th class="meta-row-title">Mark</th>
+                    <td>-</td><td>𑌾</td><td>𑌿</td><td>𑍀</td><td>𑍁</td><td>𑍂</td><td>𑍇</td><td>𑍈</td><td>𑍋</td><td>𑍌</td><td>𑍃</td></tr>
+                  <tr><th class="meta-row-title">Ex. (k)</th>
+                    <td>𑌕</td><td>𑌕𑌾</td><td>𑌕𑌿</td><td>𑌕𑍀</td><td>𑌕𑍁</td><td>𑌕𑍂</td><td>𑌕𑍇</td><td>𑌕𑍈</td><td>𑌕𑍋</td><td>𑌕𑍌</td><td>𑌕𑍃</td></tr>
+                </tbody>
+              </table>
 
-            <table class="transcription-char-table">
-              <tr><th class="meta-row-title">Guttural</th><td>k (𑌕)</td><td>kh (𑌖)</td><td>g (𑌗)</td><td>gh (𑌘)</td><td>G (𑌙)</td></tr>
-              <tr><th class="meta-row-title">Palatal</th><td>c (𑌚)</td><td>ch (𑌛)</td><td>j (𑌜)</td><td>jh (𑌝)</td><td>J (𑌞)</td></tr>
-              <tr><th class="meta-row-title">Retroflex</th><td>T (𑌟)</td><td>Th (𑌠)</td><td>D (𑌡)</td><td>Dh (𑌢)</td><td>N (𑌣)</td></tr>
-              <tr><th class="meta-row-title">Dental</th><td>t (𑌤)</td><td>th (𑌥)</td><td>d (𑌦)</td><td>dh (𑌧)</td><td>n (𑌨)</td></tr>
-              <tr><th class="meta-row-title">Labial</th><td>p (𑌪)</td><td>ph (𑌫)</td><td>b (𑌬)</td><td>bh (𑌭)</td><td>m (𑌮)</td></tr>
-            </table>
+              <table class="transcription-char-table">
+                <tbody>
+                  <tr><th class="meta-row-title">Guttural</th><td>k (𑌕)</td><td>kh (𑌖)</td><td>g (𑌗)</td><td>gh (𑌘)</td><td>G (𑌙)</td></tr>
+                  <tr><th class="meta-row-title">Palatal</th><td>c (𑌚)</td><td>ch (𑌛)</td><td>j (𑌜)</td><td>jh (𑌝)</td><td>J (𑌞)</td></tr>
+                  <tr><th class="meta-row-title">Retroflex</th><td>T (𑌟)</td><td>Th (𑌠)</td><td>D (𑌡)</td><td>Dh (𑌢)</td><td>N (𑌣)</td></tr>
+                  <tr><th class="meta-row-title">Dental</th><td>t (𑌤)</td><td>th (𑌥)</td><td>d (𑌦)</td><td>dh (𑌧)</td><td>n (𑌨)</td></tr>
+                  <tr><th class="meta-row-title">Labial</th><td>p (𑌪)</td><td>ph (𑌫)</td><td>b (𑌬)</td><td>bh (𑌭)</td><td>m (𑌮)</td></tr>
+                </tbody>
+              </table>
 
-            <table class="transcription-char-table small-rows">
-              <tr><td>𑌕𑍍𑌷 (kṣa)</td><td>𑌜𑍍𑌞 (jña)</td><td>𑌙𑍍𑌗 (ṅga)</td><td>𑌞𑍍𑌚 (ñca)</td><td>𑌤𑍍𑌰 (tra)</td></tr>
-              <tr><td>𑌦𑍍𑌧 (ddha)</td><td>𑌨𑍍𑌤 (nta)</td><td>𑌶𑍍𑌚 (śca)</td><td>𑌷𑍍𑌟 (ṣṭa)</td><td>𑌹𑍍𑌮 (hma)</td></tr>
-            </table>
+              <table class="transcription-char-table small-rows">
+                <tbody>
+                  <tr><td>𑌕𑍍𑌷 (kṣa)</td><td>𑌜𑍍𑌞 (jña)</td><td>𑌙𑍍𑌗 (ṅga)</td><td>𑌞𑍍𑌚 (ñca)</td><td>𑌤𑍍𑌰 (tra)</td></tr>
+                  <tr><td>𑌦𑍍𑌧 (ddha)</td><td>𑌨𑍍𑌤 (nta)</td><td>𑌶𑍍𑌚 (śca)</td><td>𑌷𑍍𑌟 (ṣṭa)</td><td>𑌹𑍍𑌮 (hma)</td></tr>
+                </tbody>
+              </table>
 
-            <table class="transcription-char-table small-rows">
-              <tr><td>𑌤𑍍𑌤 (tta)</td><td>𑌤𑍍𑌤𑍍𑌵 (ttva)</td><td>𑌕𑍍𑌷𑍍𑌵 (kṣva)</td><td>𑌸𑍍𑌤𑍍𑌵 (stva)</td><td>𑌤𑍍𑌸𑍍𑌨 (tsna)</td></tr>
-              <tr><td>𑌨𑍍𑌤𑍍𑌵 (ntva)</td><td>𑌨𑍍𑌤𑍍𑌸 (ntsa)</td><td>𑌗𑍍𑌧𑍍𑌵 (gdhva)</td><td>𑌨𑍍𑌨 (nna)</td><td>𑌦𑍍𑌵 (dva)</td></tr>
-            </table>
+              <table class="transcription-char-table small-rows">
+                <tbody>
+                  <tr><td>𑌤𑍍𑌤 (tta)</td><td>𑌤𑍍𑌤𑍍𑌵 (ttva)</td><td>𑌕𑍍𑌷𑍍𑌵 (kṣva)</td><td>𑌸𑍍𑌤𑍍𑌵 (stva)</td><td>𑌤𑍍𑌸𑍍𑌨 (tsna)</td></tr>
+                  <tr><td>𑌨𑍍𑌤𑍍𑌵 (ntva)</td><td>𑌨𑍍𑌤𑍍𑌸 (ntsa)</td><td>𑌗𑍍𑌧𑍍𑌵 (gdhva)</td><td>𑌨𑍍𑌨 (nna)</td><td>𑌦𑍍𑌵 (dva)</td></tr>
+                </tbody>
+              </table>
 
-            <table class="transcription-char-table small-rows">
-              <tr><td>𑌕𑍍𑌯 (kya)</td><td>𑌕𑍍𑌰 (kra)</td><td>𑌰𑍍𑌕 (rka)</td><td>𑌰𑍍𑌮 (rma)</td><td>𑰨𑍍𑌣 (rṇa)</td></tr>
-              <tr><td>𑌦𑍍𑌧𑍍𑌯 (ddhya)</td><td>𑌙𑍍𑌗𑍍𑌰𑍍𑌯 (ṅgrya)</td><td>𑰨𑍍𑌦𑍍𑌧 (rddha)</td><td>𑰨𑍍𑌦𑍍𑌵𑍍𑌯 (rdvya)</td><td>𑰨𑍍𑌕𑍍𑌷 (rkṣa)</td></tr>
-            </table>
+              <table class="transcription-char-table small-rows">
+                <tbody>
+                  <tr><td>𑌕𑍍𑌯 (kya)</td><td>𑌕𑍍𑌰 (kra)</td><td>𑌰𑍍𑌕 (rka)</td><td>𑌰𑍍𑌮 (rma)</td><td>𑰨𑍍𑌣 (rṇa)</td></tr>
+                  <tr><td>𑌦𑍍𑌧𑍍𑌯 (ddhya)</td><td>𑌙𑍍𑌗𑍍𑌰𑍍𑌯 (ṅgrya)</td><td>𑰨𑍍𑌦𑍍𑌧 (rddha)</td><td>𑰨𑍍𑌦𑍍𑌵𑍍𑌯 (rdvya)</td><td>𑰨𑍍𑌕𑍍𑌷 (rkṣa)</td></tr>
+                </tbody>
+              </table>
 
             <div class="transcription-help-split">
-              <div class="transcription-help-column wide">
-                <table class="transcription-char-table">
-                  <tr class="meta-row compact"><td>y (𑌯)</td><td>r (𑌰)</td><td>l (𑌲)</td><td>v / w (𑌵)</td></tr>
-                  <tr class="meta-row compact"><td>sh / z (𑌶)</td><td>S (𑌷)</td><td>s (𑌸)</td><td>h (𑌹)</td></tr>
-                  <tr><td>L (𑌳)</td><td colspan="3" class="note-cell">Use <strong>&amp;</strong> for Halant (𑍍)</td></tr>
-                </table>
-              </div>
-              <div class="transcription-help-column narrow">
-                <table class="transcription-char-table">
-                  <tr class="meta-row compact"><td>M (𑌂)</td><td>H (𑌃)</td><td>' (𑌽)</td><td>/ (।)</td></tr>
-                </table>
+                <div class="transcription-help-column wide">
+                  <table class="transcription-char-table">
+                    <tbody>
+                      <tr class="meta-row compact"><td>y (𑌯)</td><td>r (𑌰)</td><td>l (𑌲)</td><td>v / w (𑌵)</td></tr>
+                      <tr class="meta-row compact"><td>sh / z (𑌶)</td><td>S (𑌷)</td><td>s (𑌸)</td><td>h (𑌹)</td></tr>
+                      <tr><td>L (𑌳)</td><td colspan="3" class="note-cell">Use <strong>&amp;</strong> for Halant (𑍍)</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="transcription-help-column narrow">
+                  <table class="transcription-char-table">
+                    <tbody>
+                      <tr class="meta-row compact"><td>M (𑌂)</td><td>H (𑌃)</td><td>' (𑌽)</td><td>/ (।)</td></tr>
+                    </tbody>
+                  </table>
                 <div class="transcription-help-alert">
                   <strong>Cluster Tip:</strong> Type <code>k&amp;ta</code> to get 𑌕𑍍𑌤. The <code>&amp;</code> force-closes a consonant.
                 </div>
@@ -216,40 +230,50 @@
         <template v-else-if="recognitionScriptMode === 'devanagari'">
           <div class="transcription-help-body">
             <table class="transcription-char-table large">
-              <tr class="meta-row">
-                <th>Key</th><td>a / A</td><td>aa</td><td>i / I</td><td>ii / ee</td><td>u / U</td><td>uu / oo</td><td>e / E</td><td>ai / AI</td><td>o / O</td><td>au / AU</td><td>RRi</td>
-              </tr>
-              <tr><th class="meta-row-title">Indep.</th>
-                <td>अ</td><td>आ</td><td>इ</td><td>ई</td><td>उ</td><td>ऊ</td><td>ए</td><td>ऐ</td><td>ओ</td><td>औ</td><td>ऋ</td></tr>
-              <tr><th class="meta-row-title">Mark</th>
-                <td>-</td><td>ा</td><td>ि</td><td>ी</td><td>ु</td><td>ू</td><td>े</td><td>ै</td><td>ो</td><td>ौ</td><td>ृ</td></tr>
-              <tr><th class="meta-row-title">Ex. (k)</th>
-                <td>क</td><td>का</td><td>कि</td><td>की</td><td>कु</td><td>कू</td><td>के</td><td>कै</td><td>को</td><td>कौ</td><td>कृ</td></tr>
+              <tbody>
+                <tr class="meta-row">
+                  <th>Key</th><td>a / A</td><td>aa</td><td>i / I</td><td>ii / ee</td><td>u / U</td><td>uu / oo</td><td>e / E</td><td>ai / AI</td><td>o / O</td><td>au / AU</td><td>RRi</td>
+                </tr>
+                <tr><th class="meta-row-title">Indep.</th>
+                  <td>अ</td><td>आ</td><td>इ</td><td>ई</td><td>उ</td><td>ऊ</td><td>ए</td><td>ऐ</td><td>ओ</td><td>औ</td><td>ऋ</td></tr>
+                <tr><th class="meta-row-title">Mark</th>
+                  <td>-</td><td>ा</td><td>ि</td><td>ी</td><td>ु</td><td>ू</td><td>े</td><td>ै</td><td>ो</td><td>ौ</td><td>ृ</td></tr>
+                <tr><th class="meta-row-title">Ex. (k)</th>
+                  <td>क</td><td>का</td><td>कि</td><td>की</td><td>कु</td><td>कू</td><td>के</td><td>कै</td><td>को</td><td>कौ</td><td>कृ</td></tr>
+              </tbody>
             </table>
 
             <table class="transcription-char-table">
-              <tr><th class="meta-row-title">Guttural</th><td>k (क)</td><td>kh (ख)</td><td>g (ग)</td><td>gh (घ)</td><td>V (ङ)</td></tr>
-              <tr><th class="meta-row-title">Palatal</th><td>c (च)</td><td>ch (छ)</td><td>j (ज)</td><td>jh (झ)</td><td>Y (ञ)</td></tr>
-              <tr><th class="meta-row-title">Retroflex</th><td>T (ट)</td><td>Th (ठ)</td><td>D (ड)</td><td>Dh (ढ)</td><td>N (ण)</td></tr>
-              <tr><th class="meta-row-title">Dental</th><td>t (त)</td><td>th (थ)</td><td>d (द)</td><td>dh (ध)</td><td>n (न)</td></tr>
-              <tr><th class="meta-row-title">Labial</th><td>p (प)</td><td>f / ph (फ)</td><td>b (ब)</td><td>bh (भ)</td><td>m (म)</td></tr>
+              <tbody>
+                <tr><th class="meta-row-title">Guttural</th><td>k (क)</td><td>kh (ख)</td><td>g (ग)</td><td>gh (घ)</td><td>V (ङ)</td></tr>
+                <tr><th class="meta-row-title">Palatal</th><td>c (च)</td><td>ch (छ)</td><td>j (ज)</td><td>jh (झ)</td><td>Y (ञ)</td></tr>
+                <tr><th class="meta-row-title">Retroflex</th><td>T (ट)</td><td>Th (ठ)</td><td>D (ड)</td><td>Dh (ढ)</td><td>N (ण)</td></tr>
+                <tr><th class="meta-row-title">Dental</th><td>t (त)</td><td>th (थ)</td><td>d (द)</td><td>dh (ध)</td><td>n (न)</td></tr>
+                <tr><th class="meta-row-title">Labial</th><td>p (प)</td><td>f / ph (फ)</td><td>b (ब)</td><td>bh (भ)</td><td>m (म)</td></tr>
+              </tbody>
             </table>
 
             <table class="transcription-char-table small-rows">
-              <tr><td>y (य)</td><td>r (र)</td><td>l (ल)</td><td>v (व)</td><td>L (ळ)</td></tr>
-              <tr><td>sh (श)</td><td>S (ष)</td><td>s (स)</td><td>h (ह)</td><td>z / j (ज)</td></tr>
+              <tbody>
+                <tr><td>y (य)</td><td>r (र)</td><td>l (ल)</td><td>v (व)</td><td>L (ळ)</td></tr>
+                <tr><td>sh (श)</td><td>S (ष)</td><td>s (स)</td><td>h (ह)</td><td>z / j (ज)</td></tr>
+              </tbody>
             </table>
 
             <table class="transcription-char-table small-rows">
-              <tr><td>kS / ks (क्ष)</td><td>dny / gYy / gny (ज्ञ)</td><td>shr (श्र)</td><td>M (ं)</td><td>H (ः)</td></tr>
-              <tr><td>F (ऽ)</td><td>f (।)</td><td>ff (॥)</td><td>om (ॐ)</td><td>.N (़)</td></tr>
+              <tbody>
+                <tr><td>kS / ks (क्ष)</td><td>dny / gYy / gny (ज्ञ)</td><td>shr (श्र)</td><td>M (ं)</td><td>H (ः)</td></tr>
+                <tr><td>F (ऽ)</td><td>f (।)</td><td>ff (॥)</td><td>om (ॐ)</td><td>.N (़)</td></tr>
+              </tbody>
             </table>
 
             <div class="transcription-help-split">
               <div class="transcription-help-column wide">
                 <table class="transcription-char-table">
-                  <tr class="meta-row compact"><td>q = ्</td><td>` = ् + ZWNJ</td><td>W = ZWJ</td><td>w = ZWNJ</td></tr>
-                  <tr class="meta-row compact"><td>0 1 2 ... = ० १ २ ...</td><td colspan="3">Type in Roman input and the app converts it as you type.</td></tr>
+                  <tbody>
+                    <tr class="meta-row compact"><td>q = ्</td><td>` = ् + ZWNJ</td><td>W = ZWJ</td><td>w = ZWNJ</td></tr>
+                    <tr class="meta-row compact"><td>0 1 2 ... = ० १ २ ...</td><td colspan="3">Type in Roman input and the app converts it as you type.</td></tr>
+                  </tbody>
                 </table>
               </div>
               <div class="transcription-help-column narrow">
@@ -321,6 +345,7 @@
               class="focused-binary-overlay"
               :style="getFocusedBinaryOverlayStyle()"
               alt="Focused binary line overlay"
+              ref="focusedBinaryOverlayImgRef"
             />
             
             <!-- SVG Graph Layer (Visible in Layout Mode) -->
@@ -733,6 +758,7 @@ const container = ref(null)
 const svgOverlayRef = ref(null)
 const recognitionOverlayRef = ref(null)
 const pageImageRef = ref(null)
+const focusedBinaryOverlayImgRef = ref(null)
 const focusedBinaryOverlayUrl = ref('')
 const binaryOverlayCache = reactive({})
 const focusedBinaryOverlayRequestId = ref(0)
@@ -1194,6 +1220,53 @@ const buildFocusedBinaryOverlay = () => {
       })
 }
 
+const getCurrentBinaryPreviewSource = () => {
+    const overlayImg = focusedBinaryOverlayImgRef.value
+    if (overlayImg && overlayImg.complete && overlayImg.naturalWidth > 0 && overlayImg.naturalHeight > 0) {
+      return overlayImg
+    }
+    return buildFocusedBinaryCanvas()
+}
+
+const captureRecognitionTextStateByOrder = () => {
+    const orderedLineIds = [...sortedLineIds.value]
+    const focusedIndex = focusedLineId.value ? orderedLineIds.indexOf(focusedLineId.value) : -1
+    return {
+      focusedIndex,
+      wordCutModeActive: wordCutModeActive.value,
+      normalTexts: orderedLineIds.map((lineId) => normalTextContent[lineId] || ''),
+      wordTexts: orderedLineIds.map((lineId) => wordModeTextContent[lineId] || ''),
+    }
+}
+
+const restoreRecognitionTextStateByOrder = (savedState) => {
+    if (!savedState || sortedLineIds.value.length === 0) return
+
+    const nextNormal = {}
+    const nextWord = {}
+
+    sortedLineIds.value.forEach((lineId, index) => {
+      if (index < savedState.normalTexts.length) {
+        nextNormal[lineId] = savedState.normalTexts[index] || ''
+      }
+      if (index < savedState.wordTexts.length) {
+        nextWord[lineId] = savedState.wordTexts[index] || ''
+      }
+    })
+
+    replaceReactiveTextMap(normalTextContent, nextNormal)
+    replaceReactiveTextMap(wordModeTextContent, nextWord)
+    wordCutModeActive.value = !!savedState.wordCutModeActive
+    loadLocalTextContentForCurrentMode()
+
+    const nextFocusIndex = savedState.focusedIndex >= 0
+      ? Math.min(savedState.focusedIndex, sortedLineIds.value.length - 1)
+      : 0
+    if (sortedLineIds.value[nextFocusIndex]) {
+      activateInput(sortedLineIds.value[nextFocusIndex])
+    }
+}
+
 const sortLinesTopToBottom = () => {
     const ids = Object.keys(pagePolygons.value);
     if(ids.length === 0) {
@@ -1574,8 +1647,8 @@ const buildWordPreviewItems = (lineId) => {
       .split('_')
       .map((label) => label.trim())
 
-    const binaryCanvas = buildFocusedBinaryCanvas()
-    if (!binaryCanvas) return []
+    const binarySource = getCurrentBinaryPreviewSource()
+    if (!binarySource) return []
 
     const previewItems = []
     for (let index = 0; index < boundaries.length - 1; index += 1) {
@@ -1589,7 +1662,7 @@ const buildWordPreviewItems = (lineId) => {
       if (!sliceContext) continue
 
       sliceContext.drawImage(
-        binaryCanvas,
+        binarySource,
         boundaries[index],
         0,
         sliceWidth,
@@ -2019,7 +2092,11 @@ const handleGlobalKeyDown = (e) => {
   if ((e.ctrlKey || e.metaKey) && key === 's' && !e.repeat) {
     e.preventDefault()
     e.stopPropagation()
-    saveCurrentPage()
+    if (layoutModeActive.value) {
+      requestSwitchToRecognition()
+    } else {
+      saveCurrentPage()
+    }
     return
   }
   if (wordCutModeActive.value && (e.ctrlKey || e.metaKey) && key === 'p') {
@@ -2206,6 +2283,12 @@ const buildRecognitionSaveSignature = () => JSON.stringify({
 })
 
 const saveModifications = async (background = false) => {
+  const hadGraphEdits = modifications.value.length > 0
+  const shouldRefreshRecognitionOverlays = recognitionModeActive.value && hadGraphEdits && !background
+  const savedRecognitionTextState = shouldRefreshRecognitionOverlays
+    ? captureRecognitionTextStateByOrder()
+    : null
+
   const numNodes = workingGraph.nodes.length
   const labelsToSend = new Array(numNodes).fill(0) 
   for (const nodeIndex in textlineLabels) {
@@ -2267,6 +2350,12 @@ const saveModifications = async (background = false) => {
     modifications.value = []
     lastSavedRecognitionSignature.value = buildRecognitionSaveSignature()
     error.value = null
+
+    if (shouldRefreshRecognitionOverlays) {
+      await fetchPageData(localManuscriptName.value, localCurrentPage.value, true)
+      restoreRecognitionTextStateByOrder(savedRecognitionTextState)
+      buildFocusedBinaryOverlay()
+    }
   } catch (err) {
     error.value = err.message
     throw err
