@@ -39,7 +39,8 @@ conda activate gnn_layout
 pip install -r requirements.txt
 ```
 
-## 🧩 **Semi Automatic Annotation Tool**
+## 🧩 **Semi Automatic Annotation Tool ```app/```**
+
 Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
 Further more, automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes. Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming.
 
@@ -123,8 +124,8 @@ Access the UI at `http://localhost:5173`.
 
 
 
-##  💻 **Automatic Out of the Box Inference**
-Run the entire layout analysis pipeline in fully automatic mode on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images.
+##  💻 **Graph Neural Network based Text-Line Segmentation Core ```src/```**
+Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. This section also allows generating synthetic layout data, augmenting real layout data, preparing data for training GNNs, and the training recipe for GNNs.
 
 #### 🔵 Run Inference (fully automatic)
 ```bash
@@ -237,6 +238,22 @@ python -m gnn_training.training.main_train_eval \
 This will create a new folder `src/gnn_training/training_runs/gnn_experiment_1/`.
 
 ---
+
+## Cross-Platform Notes
+
+Windows:
+- Prefer PowerShell commands and Windows path separators when giving examples to Windows users.
+- `wget` may not be available; use browser download, `curl -L -o`, or PowerShell alternatives.
+- `rsync` commands in the README are Unix-oriented. On Windows, use File Explorer, `Copy-Item`, or a Python copy script if absolutely necessary.
+
+macOS/Linux:
+- Shell examples from the README will usually work directly.
+- Ensure `conda` is initialized in the shell.
+
+GPU considerations:
+- If CUDA is available, the code will usually use it automatically.
+- If CUDA is unavailable, tell the user inference and training may be much slower.
+- Do not assume multi-GPU support is stable everywhere just because a helper exists.
 
 ## ♥️ Acknowledgements
 This is work done at the Centre for Interdisciplinary Artificial Intelligence (CAI), FLAME University and is based on the following papers:

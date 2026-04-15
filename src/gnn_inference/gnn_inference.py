@@ -1,6 +1,7 @@
 # inference_with_eval.py
 
 
+import sys
 import torch
 import numpy as np
 import yaml
@@ -19,12 +20,17 @@ import xml.etree.ElementTree as ET
 from sklearn.linear_model import RANSACRegressor, HuberRegressor
 from segment_from_point_clusters import segmentLinesFromPointClusters
 
+SRC_ROOT = Path(__file__).resolve().parents[1]
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
-
-from gnn_data_preparation.config_models import DatasetCreationConfig
-from gnn_data_preparation.graph_constructor import create_input_graph_edges
-from gnn_data_preparation.feature_engineering import get_node_features, get_edge_features
-from gnn_data_preparation.utils import setup_logging
+from gnn_training.gnn_data_preparation.config_models import DatasetCreationConfig
+from gnn_training.gnn_data_preparation.graph_constructor import create_input_graph_edges
+from gnn_training.gnn_data_preparation.feature_engineering import (
+    get_edge_features,
+    get_node_features,
+)
+from gnn_training.gnn_data_preparation.utils import setup_logging
 from torch_geometric.data import Data
 
 
