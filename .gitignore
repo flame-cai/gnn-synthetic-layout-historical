@@ -8,10 +8,10 @@
 app/recognition/pretrained_model/devanagari.pth
 app/recognition/pretrained_model/vadakautuhala.pth
 
-# Vue app (app/my-app)
-app/my-app/node_modules/
-app/my-app/dist/
-app/my-app/.vite/
+# Vue app (app/frontend)
+app/frontend/node_modules/
+app/frontend/dist/
+app/frontend/.vite/
 
 # all folders inside app/
 app/input_manuscripts/*/
@@ -19,14 +19,14 @@ app/manuscript_recognition.log
 
 
 # Env files
-app/my-app/.env
-app/my-app/.env.*
+app/frontend/.env
+app/frontend/.env.*
 app/.env
 app/.env.*
 downstream_eval/.env.*
 downstream_eval/.env
 
 # Logs
-app/my-app/npm-debug.log*
+app/frontend/npm-debug.log*
 
 
