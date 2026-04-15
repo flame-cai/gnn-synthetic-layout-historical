@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${SKIP_EVAL_HOOK:-0}" = "1" ]; then
+  echo "[pre-commit] SKIP_EVAL_HOOK=1, skipping evaluation test."
+  exit 0
+fi
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+if command -v py >/dev/null 2>&1; then
+  py -3 "$repo_root/scripts/run_precommit_eval.py"
+elif command -v python3 >/dev/null 2>&1; then
+  python3 "$repo_root/scripts/run_precommit_eval.py"
+elif command -v python >/dev/null 2>&1; then
+  python "$repo_root/scripts/run_precommit_eval.py"
+else
+  echo "[pre-commit] Could not find a Python launcher to start scripts/run_precommit_eval.py." >&2
+  echo "[pre-commit] Install Python or run 'git commit --no-verify' only if you intentionally need to bypass the hook." >&2
+  exit 1
+fi

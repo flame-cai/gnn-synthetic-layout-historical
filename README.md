@@ -124,6 +124,29 @@ Access the UI at `http://localhost:5173`.
 
 
 
+#### Automated Evaluation Check (GUI-free)
+To run the same end-to-end validation flow without opening the GUI, use the dedicated integration test from the `app/` directory:
+
+```bash
+cd app
+conda activate gnn_layout
+python -m unittest discover -s tests -p "test_ci_e2e.py" -v
+```
+
+To make this test run automatically before every commit in a fresh clone, configure the repository hooks once from the repository root:
+
+```bash
+python scripts/install_git_hooks.py
+```
+
+This test automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`, and writes reports to:
+- `app/tests/logs/ci_eval_results_latest.txt`
+- `app/tests/logs/ci_eval_results_latest.json`
+
+By default the temporary manuscript artifacts are deleted after the test. Set `KEEP_CI_ARTIFACTS=1` before the command if you want to inspect the generated manuscript outputs under `app/input_manuscripts/_ci_root/`.
+
+The longer-term evaluation blueprint for automatic tests, GUI tests, and future human-in-the-loop active-learning studies lives in `EVAL.md`.
+
 ##  💻 **Graph Neural Network based Text-Line Segmentation Core ```src/```**
 Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. This section also allows generating synthetic layout data, augmenting real layout data, preparing data for training GNNs, and the training recipe for GNNs.
 
@@ -316,4 +339,3 @@ This poster presents an annotation tool which allows the user to extract text fr
 
 The authors also wish to express their thanks to [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/), DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
 The authors also wish to express their gratitude to the anonymous reviewers, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, and Dr. Oliver Hellwig for their invaluable guidance and support.
-
