@@ -1094,3 +1094,92 @@
 2026-04-15 16:56:38,415 - INFO - Loading model from ./recognition/pretrained_model/vadakautuhala.pth...
 2026-04-15 16:56:39,257 - INFO - 127.0.0.1 - - [15/Apr/2026 16:56:39] "GET /semi-segment/temp_manuscript/233_0003 HTTP/1.1" 200 -
 2026-04-15 17:11:45,344 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\evaluate.py', reloading
+2026-04-15 17:11:50,215 - INFO -  * Restarting with stat
+2026-04-15 17:12:15,684 - WARNING -  * Debugger is active!
+2026-04-15 17:12:15,691 - INFO -  * Debugger PIN: 518-507-830
+2026-04-15 17:13:43,768 - INFO - 127.0.0.1 - - [15/Apr/2026 17:13:43] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-15 17:14:44,392 - INFO - 127.0.0.1 - - [15/Apr/2026 17:14:44] "POST /upload HTTP/1.1" 200 -
+2026-04-15 17:14:44,759 - INFO - 127.0.0.1 - - [15/Apr/2026 17:14:44] "GET /manuscript/temp_manuscript/pages HTTP/1.1" 200 -
+2026-04-15 17:14:46,225 - INFO - 127.0.0.1 - - [15/Apr/2026 17:14:46] "GET /semi-segment/temp_manuscript/233_0002 HTTP/1.1" 200 -
+2026-04-15 17:14:56,740 - INFO - 127.0.0.1 - - [15/Apr/2026 17:14:56] "OPTIONS /semi-segment/temp_manuscript/233_0002 HTTP/1.1" 200 -
+2026-04-15 17:14:58,000 - INFO - 127.0.0.1 - - [15/Apr/2026 17:14:58] "POST /semi-segment/temp_manuscript/233_0002 HTTP/1.1" 200 -
+2026-04-15 17:14:58,001 - INFO - Loading model from ./recognition/pretrained_model/vadakautuhala.pth...
+2026-04-15 17:14:58,828 - INFO - 127.0.0.1 - - [15/Apr/2026 17:14:58] "GET /semi-segment/temp_manuscript/233_0003 HTTP/1.1" 200 -
+2026-04-15 17:14:59,529 - INFO - Model loaded successfully.
+2026-04-15 17:15:03,311 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0002.xml: 20 lines recognized.
+2026-04-15 17:15:09,137 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:09] "OPTIONS /semi-segment/temp_manuscript/233_0003 HTTP/1.1" 200 -
+2026-04-15 17:15:10,180 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:10] "POST /semi-segment/temp_manuscript/233_0003 HTTP/1.1" 200 -
+2026-04-15 17:15:11,037 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:11] "GET /semi-segment/temp_manuscript/233_0004 HTTP/1.1" 200 -
+2026-04-15 17:15:12,325 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:12] "OPTIONS /semi-segment/temp_manuscript/233_0004 HTTP/1.1" 200 -
+2026-04-15 17:15:13,466 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:13] "POST /semi-segment/temp_manuscript/233_0004 HTTP/1.1" 200 -
+2026-04-15 17:15:14,215 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:14] "GET /semi-segment/temp_manuscript/233_0005 HTTP/1.1" 200 -
+2026-04-15 17:15:15,354 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:15] "OPTIONS /semi-segment/temp_manuscript/233_0005 HTTP/1.1" 200 -
+2026-04-15 17:15:16,420 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:16] "POST /semi-segment/temp_manuscript/233_0005 HTTP/1.1" 200 -
+2026-04-15 17:15:17,529 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:17] "GET /semi-segment/temp_manuscript/233_0006 HTTP/1.1" 200 -
+2026-04-15 17:15:17,925 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0003.xml: 20 lines recognized.
+2026-04-15 17:15:18,691 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:18] "OPTIONS /semi-segment/temp_manuscript/233_0006 HTTP/1.1" 200 -
+2026-04-15 17:15:19,197 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0004.xml: 10 lines recognized.
+2026-04-15 17:15:19,845 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:19] "POST /semi-segment/temp_manuscript/233_0006 HTTP/1.1" 200 -
+2026-04-15 17:15:20,474 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:20] "GET /semi-segment/temp_manuscript/233_0007 HTTP/1.1" 200 -
+2026-04-15 17:15:21,863 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:21] "OPTIONS /semi-segment/temp_manuscript/233_0007 HTTP/1.1" 200 -
+2026-04-15 17:15:22,911 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:22] "POST /semi-segment/temp_manuscript/233_0007 HTTP/1.1" 200 -
+2026-04-15 17:15:24,109 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:24] "GET /semi-segment/temp_manuscript/233_0008 HTTP/1.1" 200 -
+2026-04-15 17:15:26,220 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0005.xml: 16 lines recognized.
+2026-04-15 17:15:27,791 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:27] "OPTIONS /semi-segment/temp_manuscript/233_0008 HTTP/1.1" 200 -
+2026-04-15 17:15:28,970 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:28] "POST /semi-segment/temp_manuscript/233_0008 HTTP/1.1" 200 -
+2026-04-15 17:15:30,136 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:30] "GET /semi-segment/temp_manuscript/233_0009 HTTP/1.1" 200 -
+2026-04-15 17:15:30,629 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0006.xml: 20 lines recognized.
+2026-04-15 17:15:30,954 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0007.xml: 12 lines recognized.
+2026-04-15 17:15:32,513 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:32] "OPTIONS /semi-segment/temp_manuscript/233_0009 HTTP/1.1" 200 -
+2026-04-15 17:15:33,428 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0008.xml: 15 lines recognized.
+2026-04-15 17:15:33,787 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:33] "POST /semi-segment/temp_manuscript/233_0009 HTTP/1.1" 200 -
+2026-04-15 17:15:34,477 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:34] "GET /semi-segment/temp_manuscript/233_0010 HTTP/1.1" 200 -
+2026-04-15 17:15:36,735 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:36] "OPTIONS /semi-segment/temp_manuscript/233_0010 HTTP/1.1" 200 -
+2026-04-15 17:15:37,809 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:37] "POST /semi-segment/temp_manuscript/233_0010 HTTP/1.1" 200 -
+2026-04-15 17:15:38,776 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:38] "GET /semi-segment/temp_manuscript/233_0011 HTTP/1.1" 200 -
+2026-04-15 17:15:39,601 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0009.xml: 20 lines recognized.
+2026-04-15 17:15:40,488 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:40] "OPTIONS /semi-segment/temp_manuscript/233_0011 HTTP/1.1" 200 -
+2026-04-15 17:15:41,583 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:41] "POST /semi-segment/temp_manuscript/233_0011 HTTP/1.1" 200 -
+2026-04-15 17:15:42,528 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:42] "GET /semi-segment/temp_manuscript/233_0012 HTTP/1.1" 200 -
+2026-04-15 17:15:44,133 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:44] "OPTIONS /semi-segment/temp_manuscript/233_0012 HTTP/1.1" 200 -
+2026-04-15 17:15:45,569 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:45] "POST /semi-segment/temp_manuscript/233_0012 HTTP/1.1" 200 -
+2026-04-15 17:15:46,968 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:46] "GET /semi-segment/temp_manuscript/233_0013 HTTP/1.1" 200 -
+2026-04-15 17:15:48,576 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:48] "OPTIONS /semi-segment/temp_manuscript/233_0013 HTTP/1.1" 200 -
+2026-04-15 17:15:48,801 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0010.xml: 22 lines recognized.
+2026-04-15 17:15:50,075 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:50] "POST /semi-segment/temp_manuscript/233_0013 HTTP/1.1" 200 -
+2026-04-15 17:15:51,161 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:51] "GET /semi-segment/temp_manuscript/233_0014 HTTP/1.1" 200 -
+2026-04-15 17:15:52,315 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0011.xml: 18 lines recognized.
+2026-04-15 17:15:52,676 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:52] "OPTIONS /semi-segment/temp_manuscript/233_0014 HTTP/1.1" 200 -
+2026-04-15 17:15:54,016 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:54] "POST /semi-segment/temp_manuscript/233_0014 HTTP/1.1" 200 -
+2026-04-15 17:15:55,146 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:55] "GET /semi-segment/temp_manuscript/233_0015 HTTP/1.1" 200 -
+2026-04-15 17:15:57,412 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:57] "OPTIONS /semi-segment/temp_manuscript/233_0015 HTTP/1.1" 200 -
+2026-04-15 17:15:58,862 - INFO - 127.0.0.1 - - [15/Apr/2026 17:15:58] "POST /semi-segment/temp_manuscript/233_0015 HTTP/1.1" 200 -
+2026-04-15 17:16:00,260 - INFO - 127.0.0.1 - - [15/Apr/2026 17:16:00] "GET /semi-segment/temp_manuscript/233_0016 HTTP/1.1" 200 -
+2026-04-15 17:16:00,836 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0012.xml: 22 lines recognized.
+2026-04-15 17:16:01,711 - INFO - 127.0.0.1 - - [15/Apr/2026 17:16:01] "OPTIONS /semi-segment/temp_manuscript/233_0016 HTTP/1.1" 200 -
+2026-04-15 17:16:03,021 - INFO - 127.0.0.1 - - [15/Apr/2026 17:16:03] "POST /semi-segment/temp_manuscript/233_0016 HTTP/1.1" 200 -
+2026-04-15 17:16:07,655 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0013.xml: 23 lines recognized.
+2026-04-15 17:16:11,146 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0015.xml: 19 lines recognized.
+2026-04-15 17:16:11,448 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0014.xml: 26 lines recognized.
+2026-04-15 17:16:13,408 - INFO - Updated input_manuscripts\temp_manuscript\layout_analysis_output\page-xml-format\233_0016.xml: 25 lines recognized.
+2026-04-15 17:32:57,662 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\evaluate.py', reloading
+2026-04-15 17:33:01,206 - INFO -  * Restarting with stat
+2026-04-15 17:33:27,413 - WARNING -  * Debugger is active!
+2026-04-15 17:33:27,420 - INFO -  * Debugger PIN: 518-507-830
+2026-04-15 17:37:08,617 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-15 17:37:09,912 - INFO - Model loaded successfully.
+2026-04-15 17:37:14,243 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0002.xml: 20 lines recognized.
+2026-04-15 17:37:19,325 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0003.xml: 20 lines recognized.
+2026-04-15 17:37:22,303 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0004.xml: 10 lines recognized.
+2026-04-15 17:37:26,268 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0005.xml: 16 lines recognized.
+2026-04-15 17:37:31,100 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0006.xml: 20 lines recognized.
+2026-04-15 17:37:34,484 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0007.xml: 12 lines recognized.
+2026-04-15 17:37:38,628 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0008.xml: 15 lines recognized.
+2026-04-15 17:37:43,592 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0009.xml: 20 lines recognized.
+2026-04-15 17:37:49,389 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0010.xml: 22 lines recognized.
+2026-04-15 17:37:54,966 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0011.xml: 18 lines recognized.
+2026-04-15 17:38:00,942 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0012.xml: 22 lines recognized.
+2026-04-15 17:38:07,121 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0013.xml: 23 lines recognized.
+2026-04-15 17:38:13,491 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0014.xml: 26 lines recognized.
+2026-04-15 17:38:18,425 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0015.xml: 19 lines recognized.
+2026-04-15 17:38:24,458 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0016.xml: 25 lines recognized.

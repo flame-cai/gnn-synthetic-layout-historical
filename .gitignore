@@ -28,5 +28,5 @@ downstream_eval/.env
 
 # Logs
 app/frontend/npm-debug.log*
-
-
+app/tests/ci_eval_*/
+app/tests/manuscript_recognition.log
