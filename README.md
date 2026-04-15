@@ -104,7 +104,7 @@ The server runs on `http://localhost:5000`.
 #### 🔵 Start Frontend
 First install npm from [Node.js official website](https://nodejs.org/en/download/). 
 
-Create a .env file in `app/my-app/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
+Create a .env file in `app/frontend/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
 
 ```env
 VITE_BACKEND_URL="http://localhost:5000"
@@ -113,7 +113,7 @@ VITE_BACKEND_URL="http://localhost:5000"
 Then run:
 
 ```bash
-cd app/my-app
+cd app/frontend
 npm install
 npm run dev
 ```

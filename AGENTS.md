@@ -87,11 +87,11 @@ Backend:
 - `app/segmentation/segment_graph.py`
 
 Frontend:
-- `app/my-app/`
+- `app/frontend/`
 
 Semi-automatic annotation logic:
 - UI-side graph generation and DBSCAN-style majority cluster filtering are in:
-  - `app/my-app/src/layout-analysis-utils/LayoutGraphGenerator.js`
+  - `app/frontend/src/layout-analysis-utils/LayoutGraphGenerator.js`
 
 ### What each core module does
 
@@ -186,7 +186,7 @@ npm -v
 Then install frontend dependencies:
 
 ```bash
-cd app/my-app
+cd app/frontend
 npm install
 ```
 
@@ -194,7 +194,7 @@ npm install
 
 Frontend env file:
 
-Create `app/my-app/.env` with:
+Create `app/frontend/.env` with:
 
 ```env
 VITE_BACKEND_URL="http://localhost:5000"
@@ -295,7 +295,7 @@ python app.py
 Start frontend in another shell:
 
 ```bash
-cd app/my-app
+cd app/frontend
 npm run dev
 ```
 
@@ -305,8 +305,8 @@ Default URLs:
 
 The semi-automatic experience relies on:
 - backend API in `app/app.py`
-- frontend graph editing in `app/my-app`
-- heuristic + DBSCAN-style graph proposal logic in `app/my-app/src/layout-analysis-utils/LayoutGraphGenerator.js`
+- frontend graph editing in `app/frontend`
+- heuristic + DBSCAN-style graph proposal logic in `app/frontend/src/layout-analysis-utils/LayoutGraphGenerator.js`
 
 ## 8. Cross-Platform Notes
 
@@ -334,7 +334,7 @@ Agents should proactively check for these issues and guide the user clearly:
   - `src/gnn_inference/pretrained_gnn/v2.pt`
   - CRAFT weights
   - optional OCR weights
-- Missing frontend env file `app/my-app/.env`
+- Missing frontend env file `app/frontend/.env`
 - Missing Gemini key in `app/.env`
 - Port conflicts on `5000` or `5173`
 - Very low-resolution images
@@ -366,7 +366,7 @@ pip install -r requirements.txt
 Install frontend dependencies:
 
 ```bash
-cd app/my-app
+cd app/frontend
 npm install
 ```
 
@@ -381,7 +381,7 @@ python app.py
 Run frontend:
 
 ```bash
-cd app/my-app
+cd app/frontend
 npm run dev
 ```
 
