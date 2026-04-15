@@ -1,3 +1,4 @@
+import sys
 import torch
 import numpy as np
 import yaml
@@ -11,19 +12,23 @@ from torch_geometric.data import Data
 import cv2
 from datetime import datetime
 
-# gnn_inference.py
 import os
 from collections import defaultdict
-from gnn_data_preparation.utils import setup_logging
-from torch_geometric.data import Data
-from scipy.sparse import csr_matrix
-from scipy.sparse.csgraph import connected_components
 import xml.etree.ElementTree as ET
 
 from segment_from_point_clusters import segmentLinesFromPointClusters
-from gnn_data_preparation.config_models import DatasetCreationConfig
-from gnn_data_preparation.graph_constructor import create_input_graph_edges
-from gnn_data_preparation.feature_engineering import get_node_features, get_edge_features
+
+SRC_ROOT = Path(__file__).resolve().parents[1] / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from gnn_training.gnn_data_preparation.utils import setup_logging
+from gnn_training.gnn_data_preparation.config_models import DatasetCreationConfig
+from gnn_training.gnn_data_preparation.graph_constructor import create_input_graph_edges
+from gnn_training.gnn_data_preparation.feature_engineering import (
+    get_edge_features,
+    get_node_features,
+)
 
 # Global Cache
 LOADED_MODEL = None

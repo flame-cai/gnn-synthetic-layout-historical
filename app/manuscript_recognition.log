@@ -1014,3 +1014,83 @@
 2026-04-01 13:05:01,811 - INFO - 127.0.0.1 - - [01/Apr/2026 13:05:01] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_003 HTTP/1.1" 200 -
 2026-04-01 13:05:10,985 - INFO - 127.0.0.1 - - [01/Apr/2026 13:05:10] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_004 HTTP/1.1" 200 -
 2026-04-01 13:05:17,127 - INFO - 127.0.0.1 - - [01/Apr/2026 13:05:17] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_005 HTTP/1.1" 200 -
+2026-04-15 16:42:57,584 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.44.0.92:5000
+2026-04-15 16:42:57,585 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-15 16:42:57,590 - INFO -  * Restarting with stat
+2026-04-15 16:43:17,777 - WARNING -  * Debugger is active!
+2026-04-15 16:43:17,783 - INFO -  * Debugger PIN: 518-507-830
+2026-04-15 16:43:46,690 - INFO - 127.0.0.1 - - [15/Apr/2026 16:43:46] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-15 16:47:13,779 - INFO - 127.0.0.1 - - [15/Apr/2026 16:47:13] "POST /upload HTTP/1.1" 200 -
+2026-04-15 16:47:13,841 - INFO - 127.0.0.1 - - [15/Apr/2026 16:47:13] "GET /manuscript/my_manuscript_1/pages HTTP/1.1" 200 -
+2026-04-15 16:47:15,429 - INFO - 127.0.0.1 - - [15/Apr/2026 16:47:15] "GET /semi-segment/my_manuscript_1/233_0002 HTTP/1.1" 200 -
+2026-04-15 16:48:03,669 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:03] "OPTIONS /semi-segment/my_manuscript_1/233_0002 HTTP/1.1" 200 -
+2026-04-15 16:48:04,902 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:04] "POST /semi-segment/my_manuscript_1/233_0002 HTTP/1.1" 200 -
+2026-04-15 16:48:05,650 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:05] "GET /semi-segment/my_manuscript_1/233_0003 HTTP/1.1" 200 -
+2026-04-15 16:48:06,945 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:06] "OPTIONS /semi-segment/my_manuscript_1/233_0003 HTTP/1.1" 200 -
+2026-04-15 16:48:07,950 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:07] "POST /semi-segment/my_manuscript_1/233_0003 HTTP/1.1" 200 -
+2026-04-15 16:48:08,390 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:08] "GET /semi-segment/my_manuscript_1/233_0004 HTTP/1.1" 200 -
+2026-04-15 16:48:09,465 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:09] "OPTIONS /semi-segment/my_manuscript_1/233_0004 HTTP/1.1" 200 -
+2026-04-15 16:48:10,383 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:10] "POST /semi-segment/my_manuscript_1/233_0004 HTTP/1.1" 200 -
+2026-04-15 16:48:10,826 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:10] "GET /semi-segment/my_manuscript_1/233_0005 HTTP/1.1" 200 -
+2026-04-15 16:48:11,829 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:11] "OPTIONS /semi-segment/my_manuscript_1/233_0005 HTTP/1.1" 200 -
+2026-04-15 16:48:12,826 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:12] "POST /semi-segment/my_manuscript_1/233_0005 HTTP/1.1" 200 -
+2026-04-15 16:48:13,520 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:13] "GET /semi-segment/my_manuscript_1/233_0006 HTTP/1.1" 200 -
+2026-04-15 16:48:14,585 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:14] "OPTIONS /semi-segment/my_manuscript_1/233_0006 HTTP/1.1" 200 -
+2026-04-15 16:48:15,623 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:15] "POST /semi-segment/my_manuscript_1/233_0006 HTTP/1.1" 200 -
+2026-04-15 16:48:16,186 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:16] "GET /semi-segment/my_manuscript_1/233_0007 HTTP/1.1" 200 -
+2026-04-15 16:48:17,286 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:17] "OPTIONS /semi-segment/my_manuscript_1/233_0007 HTTP/1.1" 200 -
+2026-04-15 16:48:18,223 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:18] "POST /semi-segment/my_manuscript_1/233_0007 HTTP/1.1" 200 -
+2026-04-15 16:48:18,853 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:18] "GET /semi-segment/my_manuscript_1/233_0008 HTTP/1.1" 200 -
+2026-04-15 16:48:19,940 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:19] "OPTIONS /semi-segment/my_manuscript_1/233_0008 HTTP/1.1" 200 -
+2026-04-15 16:48:20,999 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:20] "POST /semi-segment/my_manuscript_1/233_0008 HTTP/1.1" 200 -
+2026-04-15 16:48:21,624 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:21] "GET /semi-segment/my_manuscript_1/233_0009 HTTP/1.1" 200 -
+2026-04-15 16:48:22,691 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:22] "OPTIONS /semi-segment/my_manuscript_1/233_0009 HTTP/1.1" 200 -
+2026-04-15 16:48:23,799 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:23] "POST /semi-segment/my_manuscript_1/233_0009 HTTP/1.1" 200 -
+2026-04-15 16:48:24,419 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:24] "GET /semi-segment/my_manuscript_1/233_0010 HTTP/1.1" 200 -
+2026-04-15 16:48:25,418 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:25] "OPTIONS /semi-segment/my_manuscript_1/233_0010 HTTP/1.1" 200 -
+2026-04-15 16:48:26,470 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:26] "POST /semi-segment/my_manuscript_1/233_0010 HTTP/1.1" 200 -
+2026-04-15 16:48:27,224 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:27] "GET /semi-segment/my_manuscript_1/233_0011 HTTP/1.1" 200 -
+2026-04-15 16:48:28,246 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:28] "OPTIONS /semi-segment/my_manuscript_1/233_0011 HTTP/1.1" 200 -
+2026-04-15 16:48:29,268 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:29] "POST /semi-segment/my_manuscript_1/233_0011 HTTP/1.1" 200 -
+2026-04-15 16:48:29,914 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:29] "GET /semi-segment/my_manuscript_1/233_0012 HTTP/1.1" 200 -
+2026-04-15 16:48:30,988 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:30] "OPTIONS /semi-segment/my_manuscript_1/233_0012 HTTP/1.1" 200 -
+2026-04-15 16:48:32,142 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:32] "POST /semi-segment/my_manuscript_1/233_0012 HTTP/1.1" 200 -
+2026-04-15 16:48:33,180 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:33] "GET /semi-segment/my_manuscript_1/233_0013 HTTP/1.1" 200 -
+2026-04-15 16:48:34,378 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:34] "OPTIONS /semi-segment/my_manuscript_1/233_0013 HTTP/1.1" 200 -
+2026-04-15 16:48:35,665 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:35] "POST /semi-segment/my_manuscript_1/233_0013 HTTP/1.1" 200 -
+2026-04-15 16:48:36,419 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:36] "GET /semi-segment/my_manuscript_1/233_0014 HTTP/1.1" 200 -
+2026-04-15 16:48:37,594 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:37] "OPTIONS /semi-segment/my_manuscript_1/233_0014 HTTP/1.1" 200 -
+2026-04-15 16:48:38,760 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:38] "POST /semi-segment/my_manuscript_1/233_0014 HTTP/1.1" 200 -
+2026-04-15 16:48:39,376 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:39] "GET /semi-segment/my_manuscript_1/233_0015 HTTP/1.1" 200 -
+2026-04-15 16:48:40,436 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:40] "OPTIONS /semi-segment/my_manuscript_1/233_0015 HTTP/1.1" 200 -
+2026-04-15 16:48:41,524 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:41] "POST /semi-segment/my_manuscript_1/233_0015 HTTP/1.1" 200 -
+2026-04-15 16:48:42,068 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:42] "GET /semi-segment/my_manuscript_1/233_0016 HTTP/1.1" 200 -
+2026-04-15 16:48:43,267 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:43] "OPTIONS /semi-segment/my_manuscript_1/233_0016 HTTP/1.1" 200 -
+2026-04-15 16:48:44,341 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:44] "POST /semi-segment/my_manuscript_1/233_0016 HTTP/1.1" 200 -
+2026-04-15 16:48:44,988 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:44] "GET /semi-segment/my_manuscript_1/233_0017 HTTP/1.1" 200 -
+2026-04-15 16:48:46,164 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:46] "OPTIONS /semi-segment/my_manuscript_1/233_0017 HTTP/1.1" 200 -
+2026-04-15 16:48:47,168 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:47] "POST /semi-segment/my_manuscript_1/233_0017 HTTP/1.1" 200 -
+2026-04-15 16:48:47,841 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:47] "GET /semi-segment/my_manuscript_1/233_0018 HTTP/1.1" 200 -
+2026-04-15 16:48:49,428 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:49] "OPTIONS /semi-segment/my_manuscript_1/233_0018 HTTP/1.1" 200 -
+2026-04-15 16:48:50,657 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:50] "POST /semi-segment/my_manuscript_1/233_0018 HTTP/1.1" 200 -
+2026-04-15 16:48:51,394 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:51] "GET /semi-segment/my_manuscript_1/233_0019 HTTP/1.1" 200 -
+2026-04-15 16:48:53,961 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:53] "OPTIONS /semi-segment/my_manuscript_1/233_0019 HTTP/1.1" 200 -
+2026-04-15 16:48:55,113 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:55] "POST /semi-segment/my_manuscript_1/233_0019 HTTP/1.1" 200 -
+2026-04-15 16:48:55,757 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:55] "GET /semi-segment/my_manuscript_1/233_0020 HTTP/1.1" 200 -
+2026-04-15 16:48:57,165 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:57] "OPTIONS /semi-segment/my_manuscript_1/233_0020 HTTP/1.1" 200 -
+2026-04-15 16:48:58,247 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:58] "POST /semi-segment/my_manuscript_1/233_0020 HTTP/1.1" 200 -
+2026-04-15 16:48:58,965 - INFO - 127.0.0.1 - - [15/Apr/2026 16:48:58] "GET /semi-segment/my_manuscript_1/233_0021 HTTP/1.1" 200 -
+2026-04-15 16:49:37,954 - INFO - 127.0.0.1 - - [15/Apr/2026 16:49:37] "OPTIONS /semi-segment/my_manuscript_1/233_0021 HTTP/1.1" 200 -
+2026-04-15 16:49:38,928 - INFO - 127.0.0.1 - - [15/Apr/2026 16:49:38] "POST /semi-segment/my_manuscript_1/233_0021 HTTP/1.1" 200 -
+2026-04-15 16:55:21,981 - INFO - 127.0.0.1 - - [15/Apr/2026 16:55:21] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-15 16:56:11,330 - INFO - 127.0.0.1 - - [15/Apr/2026 16:56:11] "POST /upload HTTP/1.1" 200 -
+2026-04-15 16:56:11,712 - INFO - 127.0.0.1 - - [15/Apr/2026 16:56:11] "GET /manuscript/temp_manuscript/pages HTTP/1.1" 200 -
+2026-04-15 16:56:12,456 - INFO - 127.0.0.1 - - [15/Apr/2026 16:56:12] "GET /semi-segment/temp_manuscript/233_0002 HTTP/1.1" 200 -
+2026-04-15 16:56:37,183 - INFO - 127.0.0.1 - - [15/Apr/2026 16:56:37] "OPTIONS /semi-segment/temp_manuscript/233_0002 HTTP/1.1" 200 -
+2026-04-15 16:56:38,413 - INFO - 127.0.0.1 - - [15/Apr/2026 16:56:38] "POST /semi-segment/temp_manuscript/233_0002 HTTP/1.1" 200 -
+2026-04-15 16:56:38,415 - INFO - Loading model from ./recognition/pretrained_model/vadakautuhala.pth...
+2026-04-15 16:56:39,257 - INFO - 127.0.0.1 - - [15/Apr/2026 16:56:39] "GET /semi-segment/temp_manuscript/233_0003 HTTP/1.1" 200 -
+2026-04-15 17:11:45,344 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\evaluate.py', reloading
