@@ -139,11 +139,17 @@ To make this test run automatically before every commit in a fresh clone, config
 python scripts/install_git_hooks.py
 ```
 
+On Windows, `py -3 scripts/install_git_hooks.py` is also fine.
+
 This test automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`, and writes reports to:
 - `app/tests/logs/ci_eval_results_latest.txt`
 - `app/tests/logs/ci_eval_results_latest.json`
 
 By default the temporary manuscript artifacts are deleted after the test. Set `KEEP_CI_ARTIFACTS=1` before the command if you want to inspect the generated manuscript outputs under `app/input_manuscripts/_ci_root/`.
+
+The pre-commit launcher tries to find the `gnn_layout` Python automatically. If your environment lives in a non-standard location, set `GNN_LAYOUT_PYTHON` to the full path of that environment's Python executable before committing.
+
+If you intentionally need to bypass the pre-commit evaluation once, use standard git bypass with `git commit --no-verify`. The hook also supports `SKIP_EVAL_HOOK=1` for one-off local debugging.
 
 The longer-term evaluation blueprint for automatic tests, GUI tests, and future human-in-the-loop active-learning studies lives in `EVAL.md`.
 

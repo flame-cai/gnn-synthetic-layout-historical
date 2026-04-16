@@ -42,7 +42,7 @@ Pipeline:
 
 # Documentation References:
 
-'./README.md': This section provides additional introduction and outlines how to setup and install a) the Graph Neural Network based Text-Line Segmentation Core and b) The Semi Automatic Annotation Tool. Please run tests and verifications using the conda environment gnn_layout. If you cannot find the conda environment 'gnn_layout', please install it as mentioned in README.md
+'./README.md': This section provides additional introduction and outlines how to setup and install a) the Graph Neural Network based Text-Line Segmentation Core and b) The Semi Automatic Annotation Tool. Please run tests and verifications using the conda environment gnn_layout. If you cannot find the conda environment 'gnn_layout', please install it as mentioned in README.md. The repository also contains a tracked pre-commit hook installer at `scripts/install_git_hooks.py`, and the current automatic gate is the headless evaluation test in `app/tests/test_ci_e2e.py`.
 
 './ENGINEERING_DOCTRINE.md': This file describes how Agents working on the code base should behave like.
 
@@ -50,8 +50,9 @@ Pipeline:
 
 './PLANS.md': When writing complex features or significant refactors, use an ExecPlan from design to implementation. Use `PLANS.md` for ExecPlan structure and standards. Use only `docs/exec-plans/active/`, `docs/exec-plans/completed/`, and `docs/exec-plans/proposed/`. Keep proposed plans rollout-ordered and blocker-first.
 
-'./docs/exec-plans/tech-debt-tracker.md': current short list of the highest-priority debts
+'./EVAL.md': This is the general reference for continuous integration, regression checks, GUI evaluation, and future active-learning evaluation design. Consult it before changing evaluation thresholds, adding new test datasets, or building human-in-the-loop experiments.
 
+'./docs/exec-plans/tech-debt-tracker.md': current short list of the highest-priority debts
 
 
 

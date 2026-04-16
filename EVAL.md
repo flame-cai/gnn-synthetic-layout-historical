@@ -280,6 +280,10 @@ The hook is versioned in `.githooks/pre-commit`. The local repository should be 
 python scripts/install_git_hooks.py
 ```
 
+The hook delegates to `scripts/run_precommit_eval.py`. That launcher first tries to find the `gnn_layout` interpreter directly, then falls back to `conda run -n gnn_layout python` if needed. If a contributor keeps the environment in a non-standard location, they should set `GNN_LAYOUT_PYTHON` to the full path of the desired interpreter.
+
+The hook is meant to be the normal gate before commit, not a source of mystery failures. If someone intentionally needs to bypass it for one local commit, they can use `git commit --no-verify`. For one-off debugging of the hook wrapper itself, `SKIP_EVAL_HOOK=1` is also supported.
+
 The gate currently checks these aggregate thresholds against the 15-page evaluation dataset:
 
 - page CER <= 0.40
@@ -411,5 +415,6 @@ For this repository, evaluation maturity means:
 - every research claim can be tied to saved artifacts and exact settings
 - human-in-the-loop experiments can measure effort, not just accuracy
 - active-learning experiments can prove that manual effort drops from early pages to later pages after fine-tuning
+- time taken for the entire pipeline to run end-to-end (eg: optimize the GNN pipeline for speed)
 
 That is the standard future evaluation should be built to.
