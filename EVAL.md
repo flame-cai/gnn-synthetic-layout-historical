@@ -30,7 +30,10 @@ The first question is covered today by an automatic pre-commit test. The second 
 The current automatic evaluation flow lives in these files:
 
 - `app/tests/test_ci_e2e.py`
+- `app/tests/test_recognition_finetuning_e2e.py`
 - `app/tests/evaluate.py`
+- `app/tests/recognition_finetuning_experiment.py`
+- `app/tests/recognition_finetuning_config.py`
 - `app/tests/eval_dataset/images/`
 - `app/tests/eval_dataset/labels/PAGE-XML/`
 - `app/tests/logs/`
@@ -47,6 +50,16 @@ The current pre-commit gate runs the following workflow without the GUI:
 6. Fail the commit if aggregate quality falls below the defined thresholds.
 
 This is a regression gate. Its purpose is to catch breakage in the existing prototype path before code is committed.
+
+There is now also a slower OCR-only active-learning-style experiment path. It does not use CRAFT or GNN segmentation. Instead, it prepares perfect line crops from ground-truth PAGE-XML, fine-tunes the local OCR checkpoint sequentially across earlier pages, and evaluates later pages after each update. That experiment currently lives in:
+
+- `app/tests/test_recognition_finetuning_e2e.py`
+- `app/tests/recognition_finetuning_experiment.py`
+- `app/tests/recognition_finetuning_config.py`
+- `app/recognition/active_learning.py`
+- `app/recognition/pagexml_line_dataset.py`
+
+Current reality check: this OCR fine-tuning experiment is implemented and writes full timestamped artifacts, but it is not yet a passing gate. The current known blocker is checkpoint selection and model-promotion logic, not data preparation.
 
 ## Evaluation Principles
 
@@ -129,6 +142,13 @@ The target experiment looks like this:
 7. Repeat for the rest of the manuscript.
 
 Success is not only lower CER or better segmentation metrics. Success is a downward trend in human effort while quality remains stable or improves.
+
+Current status:
+
+- an OCR-only offline prototype for this level now exists
+- it uses GT PAGE-XML line crops, sequential fine-tuning, versioned checkpoints, and saved artifacts
+- it is not yet integrated into the GUI save flow
+- it should still be treated as experimental until checkpoint selection and model-promotion safety are fixed
 
 ## Metrics By Task
 
@@ -213,7 +233,7 @@ Metrics to track:
 
 Reality check:
 
-The current automatic evaluator measures CER from recognized PAGE-XML output. It does not yet measure manual OCR correction effort.
+The current automatic evaluator measures CER from recognized PAGE-XML output. The repository now also has a sequential OCR fine-tuning experiment, but it does not yet measure manual OCR correction effort from real user sessions and it does not yet safely promote fine-tuned checkpoints into the app.
 
 ## Human Effort Metrics
 
@@ -262,7 +282,7 @@ Where each file means:
 - `manual_events.jsonl`: timestamped user actions for GUI or human-in-the-loop experiments
 - `fine_tune_metadata.json`: what model was fine-tuned, on what data, for how long, using what checkpoint lineage
 
-The current automatic test only writes `ci_eval_results_latest.txt` and `ci_eval_results_latest.json`. That is enough for the current regression gate, but future evaluations should graduate to the fuller structure above.
+The current automatic pre-commit test only writes `ci_eval_results_latest.txt` and `ci_eval_results_latest.json`. The newer OCR fine-tuning experiment already writes a fuller timestamped artifact structure under `app/tests/logs/<timestamp>_recognition_finetune_eval_<dataset>/`. That OCR artifact layout should be treated as the reference shape for future active-learning experiments.
 
 ## Current Pre-Commit Gate
 
@@ -358,6 +378,13 @@ That means future active-learning experiments must report at least:
 - fine-tune duration
 - next-page quality after fine-tune
 
+For OCR specifically, the next acceptance milestone should be narrower before the full GUI loop is attempted:
+
+1. the offline sequential OCR experiment must pass monotonically on `eval_dataset`
+2. the chosen checkpoint after each fine-tuning step must be selected by a CER-aligned rule
+3. the repository must distinguish between a candidate checkpoint and the currently active checkpoint
+4. a worse candidate must be rejected without changing the active checkpoint
+
 ## Evaluation Templates
 
 Every new evaluation effort should begin by filling out the following template.
@@ -401,11 +428,12 @@ To keep evaluation honest, avoid the following:
 
 The following are the next high-value evaluation improvements, in order:
 
-1. Add structured logging for edge edits, textbox edits, and OCR text edits.
-2. Save timestamped run folders instead of only `latest` reports.
-3. Add a scripted GUI smoke test for upload, save, and page navigation.
-4. Add a formal region-grouping evaluation dataset and metrics.
-5. Add a manuscript-sequential active-learning benchmark protocol.
+1. Fix OCR checkpoint selection so the sequential fine-tuning evaluator chooses the lowest-CER candidate checkpoint rather than relying on internal training metrics alone.
+2. Add model-promotion guardrails so active-learning experiments can distinguish between candidate checkpoints and the currently active OCR model.
+3. Add structured logging for edge edits, textbox edits, and OCR text edits.
+4. Add a scripted GUI smoke test for upload, save, and page navigation.
+5. Add a formal region-grouping evaluation dataset and metrics.
+6. Extend the OCR active-learning benchmark from one dataset to multiple manuscript sequences and annotation budgets.
 
 ## Definition Of Success
 
