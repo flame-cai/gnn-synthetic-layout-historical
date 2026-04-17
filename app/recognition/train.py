@@ -87,6 +87,23 @@ def _seed_everything(opt):
         opt.batch_size = opt.batch_size * opt.num_gpu
 
 
+def _build_scheduler(optimizer, opt):
+    scheduler_name = getattr(opt, "lr_scheduler", "none")
+    if scheduler_name == "none":
+        return None
+    if scheduler_name == "step":
+        step_size_override = int(getattr(opt, "lr_step_size", 0) or 0)
+        step_size = step_size_override if step_size_override > 0 else max(opt.num_iter // 3, 1)
+        gamma = float(getattr(opt, "lr_step_gamma", 0.5))
+        return optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
+    if scheduler_name == "cosine":
+        cosine_t_max_override = int(getattr(opt, "lr_cosine_t_max", 0) or 0)
+        t_max = cosine_t_max_override if cosine_t_max_override > 0 else max(opt.num_iter, 1)
+        eta_min = float(getattr(opt, "lr_cosine_eta_min", 0.0))
+        return optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=t_max, eta_min=eta_min)
+    raise ValueError(f"Unsupported lr scheduler: {scheduler_name}")
+
+
 def train(opt):
     device = get_device()
     experiment_dir = _prepare_options(opt)
@@ -100,7 +117,12 @@ def train(opt):
 
     dataset_log_path = experiment_dir / "log_dataset.txt"
     with dataset_log_path.open("a", encoding="utf-8") as log:
-        align_collate_valid = AlignCollate(imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD)
+        align_collate_valid = AlignCollate(
+            imgH=opt.imgH,
+            imgW=opt.imgW,
+            keep_ratio_with_pad=opt.PAD,
+            width_policy=getattr(opt, "width_policy", "global_2000_pad"),
+        )
         valid_dataset, valid_dataset_log = hierarchical_dataset(root=opt.valid_data, opt=opt)
         valid_loader = torch.utils.data.DataLoader(
             valid_dataset,
@@ -159,8 +181,10 @@ def train(opt):
         optimizer = optim.Adam(filtered_parameters, lr=opt.lr, betas=(opt.beta1, 0.999))
     else:
         optimizer = optim.Adadelta(filtered_parameters, lr=opt.lr, rho=opt.rho, eps=opt.eps)
+    scheduler = _build_scheduler(optimizer, opt)
     print("Optimizer:")
     print(optimizer)
+    print(f"LR scheduler: {getattr(opt, 'lr_scheduler', 'none')}")
 
     opt_path = experiment_dir / "opt.txt"
     with opt_path.open("a", encoding="utf-8") as opt_file:
@@ -209,6 +233,8 @@ def train(opt):
         cost.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), opt.grad_clip)
         optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
 
         loss_avg.add(cost)
 
@@ -237,7 +263,8 @@ def train(opt):
 
                 current_model_log = (
                     f"{'Current_accuracy':17s}: {current_accuracy:0.3f}, "
-                    f"{'Current_norm_ED':17s}: {current_norm_ed:0.2f}"
+                    f"{'Current_norm_ED':17s}: {current_norm_ed:0.2f}, "
+                    f"{'Current_lr':17s}: {optimizer.param_groups[0]['lr']:0.6f}"
                 )
 
                 if current_accuracy > best_accuracy:
@@ -280,6 +307,8 @@ def train(opt):
                 "experiment_dir": str(experiment_dir.resolve()),
                 "best_accuracy_path": str((experiment_dir / "best_accuracy.pth").resolve()),
                 "best_norm_ED_path": str((experiment_dir / "best_norm_ED.pth").resolve()),
+                "lr_scheduler": getattr(opt, "lr_scheduler", "none"),
+                "final_lr": optimizer.param_groups[0]["lr"],
             }
 
         iteration += 1
@@ -320,7 +349,23 @@ def build_arg_parser():
     parser.add_argument("--character", type=str, default=SANSKRIT_OCR_CHARACTER_SET, help="character label")
     parser.add_argument("--sensitive", action="store_true", help="for sensitive character mode")
     parser.add_argument("--PAD", action="store_true", help="whether to keep ratio then pad for image resize")
+    parser.add_argument(
+        "--width_policy",
+        choices=["global_2000_pad", "batch_max_pad"],
+        default="global_2000_pad",
+        help="Width padding policy for OCR crops when PAD is enabled.",
+    )
     parser.add_argument("--data_filtering_off", action="store_true", help="for data_filtering_off mode")
+    parser.add_argument(
+        "--lr_scheduler",
+        choices=["none", "step", "cosine"],
+        default="none",
+        help="Learning-rate schedule for OCR fine-tuning.",
+    )
+    parser.add_argument("--lr_step_size", type=int, default=0, help="Optional StepLR step size override.")
+    parser.add_argument("--lr_step_gamma", type=float, default=0.5, help="StepLR decay factor.")
+    parser.add_argument("--lr_cosine_t_max", type=int, default=0, help="Optional CosineAnnealingLR T_max override.")
+    parser.add_argument("--lr_cosine_eta_min", type=float, default=0.0, help="CosineAnnealingLR minimum LR.")
     parser.add_argument("--Transformation", type=str, required=True, help="Transformation stage. None|TPS")
     parser.add_argument("--FeatureExtraction", type=str, required=True, help="FeatureExtraction stage. VGG|RCNN|ResNet")
     parser.add_argument("--SequenceModeling", type=str, required=True, help="SequenceModeling stage. None|BiLSTM")

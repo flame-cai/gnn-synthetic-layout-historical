@@ -21,6 +21,9 @@ class RecognitionFineTuningEndToEndTest(unittest.TestCase):
         dataset_name = os.getenv("RECOGNITION_FINETUNE_DATASET", "eval_dataset")
         result = run_recognition_finetuning_experiment(dataset_name=dataset_name)
         self.assertEqual(len(result["steps"]), 6, "Expected step 0 through step 5 in the sequential fine-tuning run.")
+        self.assertGreaterEqual(len(result["policy_runs"]), 2, "Expected blocker-first policy comparisons to run.")
+        self.assertIn("curve_metric_value", result["curve_metrics"])
+        self.assertIn("winning_policy", result)
 
 
 if __name__ == "__main__":
