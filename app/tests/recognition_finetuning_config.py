@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 
@@ -19,6 +19,12 @@ class RecognitionEvalDatasetConfig:
     training_policy: str = "cumulative"
     validation_ratio: float = 0.0
     split_seed: int = 42
+    width_policy: str = "global_2000_pad"
+    oversampling_policy: str = "none"
+    augmentation_policy: str = "none"
+    lr_scheduler: str = "none"
+    regression_guard_abs: float = 0.005
+    curve_metric: str = "early_weighted_page_cer"
     training_overrides: dict = field(
         default_factory=lambda: {
             "num_iter": 60,
@@ -49,6 +55,9 @@ class RecognitionEvalDatasetConfig:
         payload["fine_tune_page_ids"] = self.fine_tune_page_ids()
         payload["evaluation_page_ids"] = self.evaluation_page_ids()
         return payload
+
+    def with_updates(self, **changes):
+        return replace(self, **changes)
 
 
 DATASET_CONFIGS = {

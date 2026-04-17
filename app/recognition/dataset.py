@@ -16,6 +16,42 @@ from itertools import accumulate as _accumulate
 import torchvision.transforms as transforms
 
 
+SUPPORTED_WIDTH_POLICIES = {"global_2000_pad", "batch_max_pad"}
+
+
+def compute_resized_width(image_or_size, imgH, imgW):
+    if hasattr(image_or_size, "size"):
+        width, height = image_or_size.size
+    else:
+        width, height = image_or_size
+
+    if height <= 0:
+        return max(1, imgW)
+
+    ratio = width / float(height)
+    return max(1, min(imgW, math.ceil(imgH * ratio)))
+
+
+def build_resize_metadata(image_or_size, imgH, imgW, padded_width):
+    if hasattr(image_or_size, "size"):
+        width, height = image_or_size.size
+    else:
+        width, height = image_or_size
+
+    resized_width = compute_resized_width((width, height), imgH, imgW)
+    pad_fraction = 0.0
+    if padded_width > 0:
+        pad_fraction = max(padded_width - resized_width, 0) / float(padded_width)
+
+    return {
+        "original_width": int(width),
+        "original_height": int(height),
+        "resized_width": int(resized_width),
+        "padded_width": int(padded_width),
+        "pad_fraction": float(pad_fraction),
+    }
+
+
 class Batch_Balanced_Dataset(object):
 
     def __init__(self, opt):
@@ -34,7 +70,12 @@ class Batch_Balanced_Dataset(object):
         log.write(f'dataset_root: {opt.train_data}\nopt.select_data: {opt.select_data}\nopt.batch_ratio: {opt.batch_ratio}\n')
         assert len(opt.select_data) == len(opt.batch_ratio)
         
-        _AlignCollate = AlignCollate(imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD)
+        _AlignCollate = AlignCollate(
+            imgH=opt.imgH,
+            imgW=opt.imgW,
+            keep_ratio_with_pad=opt.PAD,
+            width_policy=getattr(opt, "width_policy", "global_2000_pad"),
+        )
         self.data_loader_list = []
         self.dataloader_iter_list = []
         batch_size_list = []
@@ -299,32 +340,42 @@ class NormalizePAD(object):
 
 class AlignCollate(object):
 
-    def __init__(self, imgH=32, imgW=100, keep_ratio_with_pad=False):
+    def __init__(
+        self,
+        imgH=32,
+        imgW=100,
+        keep_ratio_with_pad=False,
+        width_policy="global_2000_pad",
+        return_metadata=False,
+    ):
         self.imgH = imgH
         self.imgW = imgW
         self.keep_ratio_with_pad = keep_ratio_with_pad
+        self.width_policy = width_policy
+        self.return_metadata = return_metadata
+
+        if self.width_policy not in SUPPORTED_WIDTH_POLICIES:
+            raise ValueError(f"Unsupported width policy: {self.width_policy}")
 
     def __call__(self, batch):
-        batch = filter(lambda x: x is not None, batch)
+        batch = [item for item in batch if item is not None]
         images, labels = zip(*batch)
 
         if self.keep_ratio_with_pad:  # same concept with 'Rosetta' paper
-            resized_max_w = self.imgW
+            resized_widths = [compute_resized_width(image, self.imgH, self.imgW) for image in images]
+            if self.width_policy == "batch_max_pad":
+                resized_max_w = max(resized_widths) if resized_widths else self.imgW
+            else:
+                resized_max_w = self.imgW
             input_channel = 3 if images[0].mode == 'RGB' else 1
             transform = NormalizePAD((input_channel, self.imgH, resized_max_w))
 
             resized_images = []
-            for image in images:
-                w, h = image.size
-                ratio = w / float(h)
-                if math.ceil(self.imgH * ratio) > self.imgW:
-                    resized_w = self.imgW
-                else:
-                    resized_w = math.ceil(self.imgH * ratio)
-
+            resize_metadata = []
+            for image, resized_w in zip(images, resized_widths):
                 resized_image = image.resize((resized_w, self.imgH), Image.BICUBIC)
                 resized_images.append(transform(resized_image))
-                # resized_image.save('./image_test/%d_test.jpg' % w)
+                resize_metadata.append(build_resize_metadata(image, self.imgH, self.imgW, resized_max_w))
 
             image_tensors = torch.cat([t.unsqueeze(0) for t in resized_images], 0)
 
@@ -332,6 +383,10 @@ class AlignCollate(object):
             transform = ResizeNormalize((self.imgW, self.imgH))
             image_tensors = [transform(image) for image in images]
             image_tensors = torch.cat([t.unsqueeze(0) for t in image_tensors], 0)
+            resize_metadata = [build_resize_metadata(image, self.imgH, self.imgW, self.imgW) for image in images]
+
+        if self.return_metadata:
+            return image_tensors, labels, resize_metadata
 
         return image_tensors, labels
 

@@ -46,6 +46,7 @@ def build_ocr_config(saved_model_path: str | Path | None = None, **overrides):
         "character": SANSKRIT_OCR_CHARACTER_SET,
         "sensitive": False,
         "PAD": True,
+        "width_policy": "global_2000_pad",
         "num_fiducial": 20,
         "input_channel": 1,
         "output_channel": 512,
@@ -145,7 +146,13 @@ def load_inference_model(saved_model_path: str | Path, device=None, **overrides)
 
 def run_line_image_inference_from_loaded_model(image_root: str | Path, model, converter, opt, device):
     dataset = RawDataset(root=str(image_root), opt=opt)
-    align_collate = AlignCollate(imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD)
+    align_collate = AlignCollate(
+        imgH=opt.imgH,
+        imgW=opt.imgW,
+        keep_ratio_with_pad=opt.PAD,
+        width_policy=getattr(opt, "width_policy", "global_2000_pad"),
+        return_metadata=True,
+    )
     data_loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=opt.batch_size,
@@ -157,7 +164,7 @@ def run_line_image_inference_from_loaded_model(image_root: str | Path, model, co
 
     predictions = []
     with torch.no_grad():
-        for image_tensors, image_paths in data_loader:
+        for image_tensors, image_paths, resize_metadata in data_loader:
             image = image_tensors.to(device)
             batch_size = image.size(0)
             text_for_pred = torch.LongTensor(batch_size, opt.batch_max_length + 1).fill_(0).to(device)
@@ -176,7 +183,12 @@ def run_line_image_inference_from_loaded_model(image_root: str | Path, model, co
             preds_prob = F.softmax(preds, dim=2)
             preds_max_prob, _ = preds_prob.max(dim=2)
 
-            for img_path, pred_text, pred_max_prob in zip(image_paths, preds_str, preds_max_prob):
+            for img_path, pred_text, pred_max_prob, resize_info in zip(
+                image_paths,
+                preds_str,
+                preds_max_prob,
+                resize_metadata,
+            ):
                 if "Attn" in str(opt.Prediction):
                     pred_eos = pred_text.find("[s]")
                     pred_text = pred_text[:pred_eos]
@@ -192,6 +204,9 @@ def run_line_image_inference_from_loaded_model(image_root: str | Path, model, co
                         "image_path": img_path,
                         "predicted_label": pred_text,
                         "confidence_score": confidence,
+                        "resized_width": resize_info["resized_width"],
+                        "padded_width": resize_info["padded_width"],
+                        "pad_fraction": resize_info["pad_fraction"],
                     }
                 )
 
