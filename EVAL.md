@@ -1,448 +1,336 @@
 # EVAL.md
 
-This document is the blueprint for evaluation in this repository. It is meant to guide both the current automatic checks and the future human-in-the-loop and active-learning evaluations described in [VISION.md](./VISION.md).
+This document is the evaluation blueprint for the repository. It covers both the current regression gate and the slower OCR active-learning research harness. It should be treated as the source of truth when changing evaluation thresholds, adding datasets, or extending the fine-tuning workflow.
 
-The short version is this: evaluation in this codebase is not only about model accuracy on a fixed dataset. The long-term goal is to reduce total human effort required to digitize a manuscript page-by-page while preserving or improving output quality. That means future evaluation must measure both output quality and correction effort across repeated fine-tuning cycles.
+The short version is this: evaluation in this repository is not just about model accuracy on a fixed benchmark. The long-term goal is to reduce the total human effort required to digitize a manuscript page by page while preserving or improving output quality.
 
 ## Why Evaluation Exists Here
 
-This repository has two connected products:
+The repository has two connected products:
 
 1. The GNN layout analysis core in `src/`
 2. The semi-automatic annotation and recognition tool in `app/`
 
-The current tool already supports human correction of:
+The app already lets a human correct:
 
-- character detection failures by adding or deleting nodes
-- text-line graph errors by adding or deleting edges
+- character-detection failures by adding and deleting nodes
+- graph mistakes by adding and deleting edges
 - text-region grouping by assigning textbox labels
-- OCR errors by editing recognized text
+- OCR mistakes by editing text
 
-That makes the repository naturally suited to active learning. The evaluation system therefore needs to answer two different questions:
+That means evaluation here has to answer two different questions:
 
 1. Does the automatic pipeline still work after a code change?
-2. Are we reducing manual effort over time as corrections are fed back into fine-tuning loops?
+2. Are we reducing manual effort over time as corrections are fed back into model updates?
 
-The first question is covered today by an automatic pre-commit test. The second question is the main future direction.
+The first question is covered by the existing headless regression gate. The second question is the main active-learning direction.
 
 ## Current Source Of Truth
 
-The current automatic evaluation flow lives in these files:
+The current evaluation code lives in:
 
 - `app/tests/test_ci_e2e.py`
+- `app/tests/test_recognition_active_learning_unit.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
 - `app/tests/evaluate.py`
-- `app/tests/recognition_finetuning_experiment.py`
 - `app/tests/recognition_finetuning_config.py`
-- `app/tests/eval_dataset/images/`
-- `app/tests/eval_dataset/labels/PAGE-XML/`
+- `app/tests/recognition_finetuning_experiment.py`
+- `app/recognition/active_learning.py`
+- `app/recognition/pagexml_line_dataset.py`
+- `app/tests/eval_dataset/`
 - `app/tests/logs/`
 - `.githooks/pre-commit`
 - `scripts/run_precommit_eval.py`
 
-The current pre-commit gate runs the following workflow without the GUI:
+## Evaluation Layers
 
-1. Upload the 15-page evaluation manuscript.
-2. Run CRAFT plus GNN inference.
-3. Save PAGE-XML for each page.
-4. Run local OCR on each page.
-5. Compare predicted PAGE-XML against ground-truth PAGE-XML.
-6. Fail the commit if aggregate quality falls below the defined thresholds.
-
-This is a regression gate. Its purpose is to catch breakage in the existing prototype path before code is committed.
-
-There is now also a slower OCR-only active-learning-style experiment path. It does not use CRAFT or GNN segmentation. Instead, it prepares perfect line crops from ground-truth PAGE-XML, fine-tunes the local OCR checkpoint sequentially across earlier pages, and evaluates later pages after each update. That experiment currently lives in:
-
-- `app/tests/test_recognition_finetuning_e2e.py`
-- `app/tests/recognition_finetuning_experiment.py`
-- `app/tests/recognition_finetuning_config.py`
-- `app/recognition/active_learning.py`
-- `app/recognition/pagexml_line_dataset.py`
-
-Current reality check: this OCR fine-tuning experiment is implemented and writes full timestamped artifacts, but it is not yet a passing gate. The current known blocker is checkpoint selection and model-promotion logic, not data preparation.
-
-## Evaluation Principles
-
-All evaluation added to this repository should follow these principles:
-
-- Prefer end-to-end behavior over isolated metric theater.
-- Measure the user-visible output, not only internal tensors.
-- Keep every evaluation reproducible: same inputs, same settings, same logged artifacts.
-- Separate automatic regression gates from slower exploratory experiments.
-- When human interaction is involved, log the human effort explicitly.
-- When active learning is involved, evaluate improvement page-by-page, not only before-vs-after on a static test split.
-- Store enough metadata to explain why a run passed, failed, improved, or regressed.
-
-## Evaluation Ladder
-
-Evaluation should grow in layers. Not every change needs every layer, but the layers define the target architecture for the repository.
-
-### Level 0: Fast Structural Checks
+### Level 0: Fast structural checks
 
 Purpose: catch obvious breakage cheaply.
 
 Examples:
 
-- parser tests
-- PAGE-XML read/write tests
-- graph serialization tests
-- feature-shape tests
+- PAGE-XML parsing checks
+- OCR selector unit tests
+- padding-policy tests
+- oversampling and augmentation tests
 
-These should be fast and narrow. They are useful, but they are not sufficient because they do not prove the user workflow still works.
+These checks are necessary but not sufficient. They prove that narrow mechanics still behave correctly.
 
-### Level 1: Automatic End-To-End Regression
+### Level 1: Automatic end-to-end regression
 
-Purpose: verify that the full automatic path still works on a fixed evaluation set.
+Purpose: verify that the full automatic path still works on a fixed dataset.
 
-This is the current baseline. It runs:
+Current entrypoint:
 
-- upload
-- layout analysis
-- PAGE-XML generation
-- OCR
-- evaluation against ground truth
+- `app/tests/test_ci_e2e.py`
 
-This level should remain the required pre-commit quality gate for changes that can affect `app/`, `src/gnn_inference`, recognition, PAGE-XML generation, or evaluation code.
+This gate runs:
 
-### Level 2: Scripted GUI Workflow Tests
+1. manuscript upload
+2. CRAFT plus GNN inference
+3. PAGE-XML generation
+4. OCR
+5. evaluation against PAGE-XML ground truth
 
-Purpose: verify that the browser-facing workflow still works when driven like a real user.
+This remains the required pre-commit quality gate for changes that can affect the app, OCR, PAGE-XML generation, evaluation code, or GNN inference.
 
-These tests should eventually cover:
+### Level 2: Offline OCR active-learning research harness
 
-- manuscript upload through the UI
-- page navigation
-- save and recognize flows
-- toggling recognition modes
-- visibility of predicted overlays
-- export flows
+Purpose: evaluate whether sequential OCR fine-tuning improves later pages in a reproducible way.
 
-These tests are slower and more fragile than backend-only tests, so they should usually run in CI on pull request or nightly schedules rather than before every commit.
+Current entrypoint:
 
-### Level 3: Human-In-The-Loop Evaluation
+- `app/tests/test_recognition_finetuning_e2e.py`
 
-Purpose: measure how much manual intervention is still needed when a human uses the tool to correct model output.
+This harness does not use CRAFT or GNN segmentation. Instead it:
 
-This is essential for the repository vision. A layout model that is slightly less accurate but drastically easier to correct may be better for this product than one that scores better on a static benchmark but is painful to repair in the GUI.
+1. prepares perfect line crops from PAGE-XML ground truth
+2. fine-tunes the local OCR checkpoint sequentially on earlier pages
+3. evaluates later pages after each update
+4. writes full run artifacts under `app/tests/logs/`
 
-### Level 4: Active-Learning Cycle Evaluation
+This harness is offline-first and research-oriented. It is not yet the GUI fine-tuning loop.
 
-Purpose: measure whether repeated correction plus fine-tuning actually reduces human effort over successive pages.
+### Level 3: Future GUI and human-in-the-loop evaluation
 
-This is the evaluation level most closely tied to `VISION.md`.
+Purpose: measure whether real user correction effort drops as the system learns.
 
-The target experiment looks like this:
+This layer is still future work. It will require structured logging from the UI and the backend, not just model outputs.
 
-1. Run the current model on page 1.
-2. Let a human correct the result.
-3. Convert the corrections into fine-tuning data.
-4. Fine-tune one or more models.
-5. Run the updated model on page 2.
-6. Measure whether correction effort decreases.
-7. Repeat for the rest of the manuscript.
+## Current OCR Harness State
 
-Success is not only lower CER or better segmentation metrics. Success is a downward trend in human effort while quality remains stable or improves.
+As of 2026-04-17, the OCR active-learning harness has the following implemented features:
 
-Current status:
+- CER-aligned sibling checkpoint selection between `best_accuracy.pth` and `best_norm_ED.pth`
+- explicit width policies: `global_2000_pad` and `batch_max_pad`
+- bounded CER-weighted oversampling
+- OCR-only augmentation policies
+- LR scheduler plumbing
+- richer artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, and plots
+- focused unit coverage for selector choice, width policy, oversampling, and augmentation
 
-- an OCR-only offline prototype for this level now exists
-- it uses GT PAGE-XML line crops, sequential fine-tuning, versioned checkpoints, and saved artifacts
-- it is not yet integrated into the GUI save flow
-- it should still be treated as experimental until checkpoint selection and model-promotion safety are fixed
+Relevant files:
+
+- `app/recognition/active_learning.py`
+- `app/recognition/dataset.py`
+- `app/recognition/ocr_defaults.py`
+- `app/recognition/train.py`
+- `app/tests/recognition_finetuning_config.py`
+- `app/tests/recognition_finetuning_experiment.py`
+
+## Latest Completed OCR Study
+
+The latest completed study is:
+
+- `app/tests/logs/20260417_155737_ocrft_eval_dataset/`
+
+Dataset setup in that run:
+
+- ordered pages: `233_0002` through `233_0016`
+- sequential fine-tune pages: `233_0002` through `233_0006`
+- evaluation pages: `233_0011` through `233_0016`
+- batch size: `1`
+- optimizer: `Adadelta`
+
+Primary metric:
+
+- `early_weighted_page_cer`
+- formula: `sum((K - s + 1) * page_CER_s) / sum(K - s + 1)` over steps `s = 0..K`
+- in the 5-page study, `K = 5`
+
+Regression guard:
+
+- no step may worsen aggregate page CER by more than `0.005` absolute versus the previous step
+
+Important results from the 2026-04-17 study:
+
+- Primary-metric winner: `wb_oc_an_sn020`
+  Meaning: `width_policy=batch_max_pad`, `oversampling_policy=cer_weighted`, `augmentation_policy=none`, `lr_scheduler=none`, `lr=0.2`
+  Evidence: `curve_metric_value=0.25063928319742274`
+- Best `final_page_cer`: `wb_on_an_sn020`
+  Evidence: `final_page_cer=0.18266384778012684`
+- Best `first_step_gain`: `wb_on_an_sn020`
+  Evidence: `first_step_gain=0.05433403805496828`
+
+The canonical human-readable summary files are:
+
+- `app/tests/logs/recognition_finetune_results_latest.md`
+- `app/tests/logs/recognition_finetune_results_latest.json`
+
+## Required Artifacts
+
+Serious evaluation runs should write a dedicated artifact folder under `app/tests/logs/`.
+
+The current OCR study shape is:
+
+    app/tests/logs/<timestamp>_ocrft_<dataset>/
+      config.json
+      summary.md
+      metrics.json
+      gt_eval_subset/
+      prepared_pages/
+      policies/
+        <policy_slug>/
+          config.json
+          summary.md
+          metrics.json
+          curve_metrics.json
+          per_page.csv
+          per_line.csv
+          selector_metrics.json
+          fine_tune_metadata.json
+          predicted_page_xml/
+          plots/
+
+Interpretation:
+
+- `config.json`: dataset setup, device info, and policy values
+- `summary.md`: readable summary of the run
+- `metrics.json`: machine-readable aggregate metrics
+- `curve_metrics.json`: primary curve metric and regression-guard outcome
+- `per_page.csv`: page-level metrics for each fine-tune step
+- `per_line.csv`: per-line OCR detail including width and padding metadata
+- `selector_metrics.json`: sibling checkpoint ranking evidence
+- `fine_tune_metadata.json`: training options, selected checkpoint, and timing
+
+This OCR artifact layout should be preserved unless there is a strong reason to change it.
+
+## Current Commands
+
+### Fast regression gate
+
+From repository root:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+
+### OCR unit tests
+
+From repository root:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_unit -v
+
+### Slow OCR study verifier
+
+On Windows, prefer an activated `gnn_layout` shell or the direct environment Python for this command. Very long Unicode-heavy output can trigger a `conda run` printing failure even after the study itself has finished and written artifacts.
+
+Preferred forms:
+
+    conda activate gnn_layout
+    python -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
+
+or:
+
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
+
+If the wrapper crashes after artifact creation, inspect the newest timestamped folder under `app/tests/logs/` before assuming the study itself failed.
 
 ## Metrics By Task
 
-Future evaluation should be organized by the four tasks implied by the tool.
+### 1. Character detection or a future surrogate CRAFT task
 
-### 1. Character Detection Or Surrogate CRAFT Task
-
-What we care about:
+What matters:
 
 - missing character centers
 - false character centers
-- downstream effect on line segmentation quality
-- amount of node correction needed by the human
+- downstream effect on text-line segmentation
+- amount of manual node correction required
 
-Metrics to track:
+Current reality:
 
-- nodes added by human
-- nodes deleted by human
-- final node count
-- precision and recall if node-level ground truth exists
-- downstream line-level CER and segmentation metrics after correction
+- the app logs node corrections in `app/app.py`
+- there is no formal node-level benchmark yet
 
-Reality check:
+### 2. GNN edge classification for text-line segmentation
 
-The repository currently logs node corrections in `app/app.py` to `node_corrections/`. This is useful but incomplete. It does not yet provide a full character-detection benchmark with node-level ground truth.
+What matters:
 
-### 2. GNN Edge Classification For Text-Line Segmentation
-
-What we care about:
-
-- whether text lines are segmented correctly
-- whether the graph is easy to correct when wrong
-
-Metrics to track:
-
-- line-level CER using PAGE-XML polygon matching
 - PAGE-level CER
-- line IoU thresholds
-- edge additions by human
-- edge deletions by human
-- connected-component purity
-- split and merge error counts
+- line-level CER at polygon IoU thresholds
+- how easy graph mistakes are to repair
 
-Reality check:
+Current reality:
 
-The current automatic evaluator already measures PAGE-level and line-level CER via `app/tests/evaluate.py`. Human edge corrections are not yet logged as first-class evaluation artifacts and should be added before claiming strong human-in-the-loop results.
+- automatic evaluation already computes PAGE-level and line-level CER through `app/tests/evaluate.py`
+- edge-edit telemetry is not yet a first-class evaluation artifact
 
-### 3. Text-Region Grouping
+### 3. Text-region grouping
 
-What we care about:
+What matters:
 
-- whether text lines are grouped into the correct text region
-- whether region labeling can be corrected quickly
+- correct region assignment
+- how often users need to merge or split regions manually
 
-Metrics to track:
+Current reality:
 
-- region assignment accuracy when region labels exist
-- region split count
-- region merge count
-- textbox label edits by human
-- downstream export correctness in PAGE-XML
+- the UI supports region grouping
+- there is no formal region-grouping evaluation dataset yet
 
-Reality check:
+### 4. Text recognition
 
-This task is supported in the UI, but there is no formal evaluation pipeline for it yet. Future work should add region-level ground truth and region-edit logging.
+What matters:
 
-### 4. Text Recognition
+- OCR CER
+- confidence summaries
+- first-step gain
+- final-page CER
+- early-weighted curve quality across sequential fine-tuning steps
+- eventually, human text-correction effort
 
-What we care about:
+Current reality:
 
-- OCR quality on automatically segmented lines
-- OCR quality after human corrections
-- whether fine-tuning lowers correction burden
-
-Metrics to track:
-
-- character error rate
-- optional word error rate if appropriate for the script and corpus
-- per-line confidence summaries
-- number of text edits made by the human
-- time spent correcting text
-
-Reality check:
-
-The current automatic evaluator measures CER from recognized PAGE-XML output. The repository now also has a sequential OCR fine-tuning experiment, but it does not yet measure manual OCR correction effort from real user sessions and it does not yet safely promote fine-tuned checkpoints into the app.
+- automatic OCR evaluation exists
+- an offline sequential OCR fine-tuning harness exists
+- the GUI still does not promote fine-tuned OCR checkpoints
 
 ## Human Effort Metrics
 
-Because the vision is active learning, human effort is a first-class metric. Every future human-in-the-loop evaluation should try to capture:
+Because the long-term goal is active learning, human effort must eventually become a first-class metric.
 
-- total session time
-- time per page
+Future human-in-the-loop evaluation should log, per page:
+
+- total correction time
 - nodes added
 - nodes deleted
 - edges added
 - edges deleted
-- textbox label changes
-- text edits
-- number of save cycles
-- whether recognition had to be re-run
-- whether model fine-tuning was triggered after the page
+- textbox edits
+- OCR text edits
+- save cycles
+- fine-tune triggers
+- active checkpoint id and candidate checkpoint id
 
-These effort metrics should be recorded per page, not only per manuscript.
+## Current Evaluation Limits
 
-## Required Artifacts For Every Evaluation Run
+The repository has meaningful OCR research infrastructure now, but the current benchmark is still narrow.
 
-Each serious evaluation run should produce a dedicated artifact folder. The exact root can change, but the contents should be consistent.
+Current limits:
 
-Recommended structure:
-
-```text
-app/tests/logs/<timestamp>_<run_name>/
-  config.json
-  summary.md
-  metrics.json
-  per_page.csv
-  stdout.log
-  predicted_page_xml/
-  manual_events.jsonl
-  fine_tune_metadata.json
-```
-
-Where each file means:
-
-- `config.json`: dataset paths, model checkpoints, thresholds, resize settings, min-distance, commit SHA
-- `summary.md`: short human-readable summary of the run
-- `metrics.json`: machine-readable aggregate and per-task metrics
-- `per_page.csv`: one row per page
-- `stdout.log`: raw execution transcript
-- `predicted_page_xml/`: frozen prediction outputs for auditability
-- `manual_events.jsonl`: timestamped user actions for GUI or human-in-the-loop experiments
-- `fine_tune_metadata.json`: what model was fine-tuned, on what data, for how long, using what checkpoint lineage
-
-The current automatic pre-commit test only writes `ci_eval_results_latest.txt` and `ci_eval_results_latest.json`. The newer OCR fine-tuning experiment already writes a fuller timestamped artifact structure under `app/tests/logs/<timestamp>_recognition_finetune_eval_<dataset>/`. That OCR artifact layout should be treated as the reference shape for future active-learning experiments.
-
-## Current Pre-Commit Gate
-
-The repository currently uses a local git pre-commit hook to run the headless automatic evaluation:
-
-```bash
-cd app
-conda activate gnn_layout
-python -m unittest discover -s tests -p "test_ci_e2e.py" -v
-```
-
-The hook is versioned in `.githooks/pre-commit`. The local repository should be configured once with:
-
-```bash
-python scripts/install_git_hooks.py
-```
-
-The hook delegates to `scripts/run_precommit_eval.py`. That launcher first tries to find the `gnn_layout` interpreter directly, then falls back to `conda run -n gnn_layout python` if needed. If a contributor keeps the environment in a non-standard location, they should set `GNN_LAYOUT_PYTHON` to the full path of the desired interpreter.
-
-The hook is meant to be the normal gate before commit, not a source of mystery failures. If someone intentionally needs to bypass it for one local commit, they can use `git commit --no-verify`. For one-off debugging of the hook wrapper itself, `SKIP_EVAL_HOOK=1` is also supported.
-
-The gate currently checks these aggregate thresholds against the 15-page evaluation dataset:
-
-- page CER <= 0.40
-- line CER at IoU 0.50 <= 0.40
-- line CER at IoU 0.75 <= 0.45
-- line CER range <= 0.48
-- worst single-page line CER at IoU 0.50 <= 0.55
-
-These are regression thresholds, not research targets. They should only be tightened deliberately and with baseline evidence.
-
-## Blueprint For Future GUI Evaluation
-
-Future GUI evaluation should use a scripted browser driver and, when needed, a human operator protocol.
-
-### Scripted GUI Evaluation Should Log
-
-- page load time
-- upload completion time
-- save completion time
-- recognition completion time
-- any frontend error banners
-- exported artifact paths
-
-### Human-Guided GUI Evaluation Should Log
-
-- operator identifier or anonymized operator code
-- page start timestamp
-- page end timestamp
-- node edits
-- edge edits
-- region edits
-- text edits
-- model version shown to the operator
-- whether a fine-tune happened before the page
-
-### Files That Will Likely Need Instrumentation
-
-- `app/frontend/src/components/ManuscriptViewer.vue`
-- `app/app.py`
-
-These are the files that currently mediate most user actions and save flows. If we want reliable human-effort evaluation, these files will need structured event logging rather than only ad hoc side effects.
-
-## Blueprint For Active-Learning Evaluation
-
-The core active-learning evaluation unit should be a manuscript ordered page sequence.
-
-The protocol should look like this:
-
-1. Choose a manuscript and freeze page order.
-2. Run the current model on the first page.
-3. Record automatic quality metrics.
-4. Let the human correct the output in the GUI.
-5. Record human-effort metrics.
-6. Convert corrections into training data.
-7. Fine-tune one or more target models.
-8. Record training metadata.
-9. Run the updated model on the next page.
-10. Repeat until the manuscript ends.
-
-The main expected curve is:
-
-- human effort per page should trend downward
-- output quality should remain stable or improve
-- fine-tuning latency must be low enough to be practical between pages
-
-That means future active-learning experiments must report at least:
-
-- page index
-- pre-correction quality
-- post-correction quality
-- correction effort
-- fine-tune duration
-- next-page quality after fine-tune
-
-For OCR specifically, the next acceptance milestone should be narrower before the full GUI loop is attempted:
-
-1. the offline sequential OCR experiment must pass monotonically on `eval_dataset`
-2. the chosen checkpoint after each fine-tuning step must be selected by a CER-aligned rule
-3. the repository must distinguish between a candidate checkpoint and the currently active checkpoint
-4. a worse candidate must be rejected without changing the active checkpoint
-
-## Evaluation Templates
-
-Every new evaluation effort should begin by filling out the following template.
-
-### Evaluation Spec Template
-
-- Name:
-- Goal:
-- Task scope:
-- Dataset:
-- Human involved:
-- Fine-tuning involved:
-- Primary metrics:
-- Secondary metrics:
-- Acceptance rule:
-- Artifacts written:
-- Owner files:
-
-### Per-Run Checklist
-
-- Record commit SHA.
-- Record model checkpoint paths.
-- Record dataset paths.
-- Record resize and preprocessing settings.
-- Record whether GPU or CPU was used.
-- Record the exact command used.
-- Save outputs and logs in one folder.
-- Save aggregate and per-page metrics.
-
-## What We Should Not Do
-
-To keep evaluation honest, avoid the following:
-
-- do not claim active-learning improvement from one isolated before-vs-after comparison
-- do not report only automatic quality without correction effort for human-in-the-loop workflows
-- do not overwrite prediction outputs without saving a run artifact
-- do not tighten regression thresholds without recording the baseline that justified it
-- do not mix datasets, settings, or model checkpoints without saving metadata
+- only one OCR evaluation dataset is wired into the harness
+- the latest completed broad search used 5 fine-tune pages
+- there is still no GUI-triggered fine-tuning
+- there is still no formal model registry or promotion rule
+- human correction effort is not yet logged as structured data
 
 ## Near-Term Recommended Additions
 
-The following are the next high-value evaluation improvements, in order:
+The next high-value steps are:
 
-1. Fix OCR checkpoint selection so the sequential fine-tuning evaluator chooses the lowest-CER candidate checkpoint rather than relying on internal training metrics alone.
-2. Add model-promotion guardrails so active-learning experiments can distinguish between candidate checkpoints and the currently active OCR model.
-3. Add structured logging for edge edits, textbox edits, and OCR text edits.
-4. Add a scripted GUI smoke test for upload, save, and page navigation.
-5. Add a formal region-grouping evaluation dataset and metrics.
-6. Extend the OCR active-learning benchmark from one dataset to multiple manuscript sequences and annotation budgets.
+1. Run a focused 9-page OCR follow-up study comparing only `wb_oc_ar_sn020`, `wb_oc_an_sn020`, and `wb_on_an_sn020` across learning rates `{0.01, 0.2, 0.8}`.
+2. Harden the Windows OCR-study execution path so long test output is captured safely without the `conda run` Unicode printing failure.
+3. Add a small OCR model registry with active, candidate, and rollback metadata.
+4. Add structured OCR text-edit and fine-tune-trigger logging from the save and recognition flows in `app/app.py`.
+5. Add GUI-safe background job orchestration so training and inference do not contend for the same device.
+6. Extend the OCR benchmark to multiple manuscript sequences after the focused 9-page study stabilizes.
 
 ## Definition Of Success
 
-For this repository, evaluation maturity means:
+Evaluation maturity in this repository means:
 
-- every code change can be screened by an automatic end-to-end gate
-- every research claim can be tied to saved artifacts and exact settings
-- human-in-the-loop experiments can measure effort, not just accuracy
-- active-learning experiments can prove that manual effort drops from early pages to later pages after fine-tuning
-- time taken for the entire pipeline to run end-to-end (eg: optimize the GNN pipeline for speed)
-
-That is the standard future evaluation should be built to.
+- every significant code change can be screened by an automatic headless gate
+- every OCR research claim can be tied to a saved artifact folder and exact settings
+- the OCR verifier can rank policies by the repository's chosen primary metric
+- GUI fine-tuning, when added, promotes models only through a recorded verifier-backed rule
+- human correction burden is eventually measured directly rather than inferred indirectly
