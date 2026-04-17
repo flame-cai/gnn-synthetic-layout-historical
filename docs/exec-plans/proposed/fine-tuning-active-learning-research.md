@@ -1,63 +1,170 @@
-# Local OCR Active-Learning Optimization, Verifier Stabilization, and Corpus Policy Study
+# Focused 9-Page OCR Policy Follow-Up
 
-## Summary
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
 
-This plan replaces the older proposed OCR fine-tuning plans and keeps scope offline-first. It builds on the already-implemented pipeline in `app/recognition/active_learning.py`, `app/recognition/pagexml_line_dataset.py`, and `app/tests/recognition_finetuning_experiment.py`, then turns that pipeline into a reliable research harness for reducing manual OCR correction effort page by page.
+This document is maintained in accordance with `PLANS.md` from the repository root.
 
-The first task is to stabilize the verifier, because the current blocker is still checkpoint selection: `active_learning.py` hard-prefers `best_norm_ED.pth`, while the 2026-04-16 session report shows `best_accuracy.pth` can be better on the actual page-CER objective. Only after that selector is CER-aligned should new width, sampling, augmentation, and scheduler experiments be compared.
+## Purpose / Big Picture
 
-A width audit on the current `eval_dataset` already justifies the padding work. On fine-tune pages `233_0002` through `233_0006`, the current `imgH=50`, `imgW=2000`, `PAD=True` path yields median resized width about `254` pixels and median padding fraction about `0.8805`; `32/92` lines are `<=10` characters. With batch size fixed to `1`, the correct “width bucketing” implementation for this phase is batch-max padding, which degenerates to true per-sample arbitrary-width handling instead of padding every line to 2000 pixels.
+After this change, the OCR verifier will no longer rerun the full broad 5-page policy sweep as its main research mode. Instead, it will run a focused 9-page follow-up study that builds directly on the 2026-04-17 findings. The user-visible proof is that one slow verifier command will compare only the three shortlisted policy stacks `wb_oc_ar_sn020`, `wb_oc_an_sn020`, and `wb_on_an_sn020`, each at learning rates `0.01`, `0.2`, and `0.8`, write a clean artifact folder under `app/tests/logs/`, and do so without hitting the same Windows Unicode printing failure that affected the earlier `conda run` execution.
 
-The primary success metric will be an early-weighted page-CER learning-curve score, lower-is-better: `sum((K-s+1) * page_CER_s) / sum(K-s+1)` over steps `s=0..K`, with `K=5`. The verifier will also enforce a regression guard: no fine-tune step may worsen aggregate page CER by more than `0.005` absolute versus the previous step. Secondary metrics will be final page CER, first-step gain, per-step train time, and length-stratified line CER for short (`<=10` chars), medium (`11-30`), and long (`>30`) lines.
+## Progress
 
-## Implementation Changes
+- [x] (2026-04-17 18:45 IST) Recorded the completed 5-page broad OCR study as the baseline for this follow-up plan.
+- [x] (2026-04-17 18:46 IST) Narrowed the next study scope to the three shortlisted policy stacks requested by the user.
+- [ ] Add a focused-study mode to `app/tests/recognition_finetuning_experiment.py` so it runs only the shortlisted policy stacks instead of the full axis-by-axis policy search.
+- [ ] Update `app/tests/recognition_finetuning_config.py` so the focused study uses 9 sequential fine-tune pages and keeps evaluation on the remaining later pages.
+- [ ] Add a fixed shortlist policy map that expands `wb_oc_ar_sn020`, `wb_oc_an_sn020`, and `wb_on_an_sn020` into explicit policy fields so there is no ambiguity in future runs.
+- [ ] Extend the focused study to sweep learning rates `0.01`, `0.2`, and `0.8` while keeping `lr_scheduler=none`.
+- [ ] Emit summary rankings for primary metric, final-page CER, and first-step gain, because the 2026-04-17 study showed those leaders are not necessarily the same.
+- [ ] Make the slow-study execution path Windows-safe by avoiding the `conda run` output trap and by capturing UTF-8 logs in the artifact folder.
+- [ ] Re-run the targeted OCR unit tests and the slow OCR verifier in the updated focused-study mode.
 
-- In `app/recognition/active_learning.py`, replace the static checkpoint preference with CER-aligned sibling checkpoint selection. After every fine-tune run, evaluate `best_accuracy.pth` and `best_norm_ED.pth` on the full current fine-tune corpus, choose the lower-CER checkpoint, and write `selector_metrics.json` with both scores, the chosen file, and the reason. Keep `validation_ratio=0.0` for training in this phase; the selector corpus is only for ranking sibling checkpoints, not for reporting the main benchmark.
+## Surprises & Discoveries
 
-- In `app/tests/recognition_finetuning_experiment.py` and `app/tests/recognition_finetuning_config.py`, add explicit experiment-policy fields: `width_policy`, `oversampling_policy`, `augmentation_policy`, `lr_scheduler`, `regression_guard_abs`, and `curve_metric`. Extend artifacts to include `curve_metrics.json`, `per_line.csv`, and `selector_metrics.json`. `per_line.csv` must log page id, line id, gt length, predicted text, edit distance, line CER, confidence, resized width, and pad fraction.
+- Observation: the broad 5-page study already reduced the large search space substantially.
+  Evidence: `app/tests/logs/20260417_155737_ocrft_eval_dataset/summary.md` ranks `wb_oc_an_sn020` first on the primary curve metric, while `wb_on_an_sn020` is best on both `final_page_cer` and `first_step_gain`.
 
-- In `app/recognition/dataset.py` and `app/recognition/ocr_defaults.py`, add `width_policy` with exactly two modes for this phase: `global_2000_pad` for the current baseline and `batch_max_pad` for the experimental path. `batch_max_pad` must resize to `imgH=50`, cap only when natural width exceeds `imgW=2000`, and otherwise pad only to the batch max width. Because batch size is fixed at `1`, this removes the global-width padding while preserving CTC-compatible variable sequence lengths.
+- Observation: `batch_max_pad` was the only width policy worth carrying forward.
+  Evidence: `wg_on_an_sn020` had `curve_metric_value=0.27947246551897714`, while `wb_on_an_sn020` improved that to `0.2510721836303232` and also cut train time materially.
 
-- In `app/tests/recognition_finetuning_experiment.py`, make the first ablation a locked two-way comparison between `global_2000_pad` and `batch_max_pad`, both using the same checkpoint selector and current baseline training setup `Adadelta`, `lr=0.2`, `num_iter=60`, `batch_size=1`, `workers=0`. Promote `batch_max_pad` only if it improves the primary learning-curve metric and passes the regression guard.
+- Observation: CER-weighted oversampling helps the repository's chosen primary metric, but not every secondary metric.
+  Evidence: `wb_oc_an_sn020` beat `wb_on_an_sn020` on `curve_metric_value`, but `wb_on_an_sn020` remained better on `final_page_cer` and `first_step_gain`.
 
-- In `app/recognition/active_learning.py`, add difficulty scoring for the newly corrected page before each fine-tune step. Score every line with the current base checkpoint, using `line_cer = edit_distance(pred, gt) / max(len(gt), 1)`. Materialize oversampling by bounded duplication in the fine-tune corpus with `replication = 1 + floor(3 * min(line_cer, 1.0))`, capped at `4`. This keeps perfect lines at `1x`, hardest lines at `4x`, and normalizes for short-line length automatically.
+- Observation: the most aggressive augmentation in the current shortlist did not collapse quality, but it also did not win the primary metric.
+  Evidence: `wb_oc_ar_sn020` stayed regression-guard safe and finished with `final_page_cer=0.1835095137420719`, but its primary `curve_metric_value=0.259710057384476` remained worse than `wb_oc_an_sn020`.
 
-- Keep oversampling policy deliberately narrow in this phase: compare only `none` versus `cer_weighted`, under the best width policy. Report the primary curve metric plus short/medium/long line CER so we can detect whether hard-line oversampling helps overall without damaging short-line learning.
+- Observation: the previous slow-study command can finish the actual work and still fail at the wrapper layer on Windows.
+  Evidence: the 2026-04-17 run wrote valid artifacts under `app/tests/logs/20260417_155737_ocrft_eval_dataset/`, but the shell surfaced a `UnicodeEncodeError` from the `conda run` wrapper while printing long output.
 
-- Add OCR-only augmentation during corpus materialization, never to evaluation crops. Background augmentation must jitter the page median fill by `delta` in `{-8, -4, 0, 4, 8}`, clipped to `[0,255]`. Rotation augmentation must use fixed-canvas affine rotation inside the existing crop rectangle, with requested angle sampled in `[-5°, 5°]`; if the foreground bbox would clip outside the crop, reduce the angle or skip rotation. Compare `none`, `background_only`, and `background_plus_rotation` only after width policy and oversampling are settled.
+## Decision Log
 
-- In `app/recognition/train.py`, add scheduler plumbing with exactly `none`, `step`, and `cosine`. Keep optimizer fixed to `Adadelta` in this phase and keep `batch_size=1` fixed. Search `lr` over `{0.05, 0.1, 0.2}` for `none`, and initial `lr` over `{0.1, 0.2}` for `step` and `cosine`, with `num_iter=60` unchanged. Only run this schedule study on the best width/sampling/augmentation stack.
+- Decision: keep the current broad 5-page study as historical evidence, but make the next implementation target a focused 9-page follow-up rather than another full policy sweep.
+  Rationale: the broad sweep already did its job by pruning the search space to three meaningful contenders.
+  Date/Author: 2026-04-17 / Codex
 
-- Keep the experiment order fixed and blocker-first: selector fix and verifier artifacts, width-policy comparison, CER-weighted oversampling comparison, augmentation comparison, then LR/scheduler comparison. Do not mix axes before the previous one has a winner.
+- Decision: compare only `wb_oc_ar_sn020`, `wb_oc_an_sn020`, and `wb_on_an_sn020` in this phase.
+  Rationale: those are the three stacks the user explicitly wants to carry forward, and they preserve the important trade-off between early curve quality, final-page CER, and augmentation.
+  Date/Author: 2026-04-17 / Codex
 
-- Keep all experiment outputs inside repo-local artifact directories under `app/tests/logs/`, keep run names short to avoid Windows path-length issues under OneDrive, and continue using repo-local JSON/CSV/plot writes only. Do not add any writes outside the repository for this phase.
+- Decision: keep `lr_scheduler=none` fixed in this focused follow-up and sweep only `lr in {0.01, 0.2, 0.8}`.
+  Rationale: the broader scheduler study did not beat the current best stack, so the next uncertainty is learning-rate sensitivity under the shortlisted policy stacks, not scheduler shape.
+  Date/Author: 2026-04-17 / Codex
 
-- When this plan is executed outside Plan Mode, remove only the superseded proposed plans `docs/exec-plans/proposed/fine-tuning-easyOCR.md` and `docs/exec-plans/proposed/local-ocr-active-learning-next-steps.md`. Keep `docs/exec-plans/active/old-recognition-finetuning-session-report-2026-04-16.md` and `docs/exec-plans/active/old-recognition-finetuning-failure-log.md` as historical evidence.
+- Decision: change the canonical long-study command on Windows away from `conda run`.
+  Rationale: the encoding failure happened after the study work completed, which makes it a tooling problem rather than a model problem. The repository should stop treating the fragile wrapper as the preferred path for long OCR runs.
+  Date/Author: 2026-04-17 / Codex
 
-## Test Plan
+## Outcomes & Retrospective
 
-- Add a targeted checkpoint-selector test that creates sibling candidates and verifies the lower-CER checkpoint is selected, regardless of whether it is `best_accuracy.pth` or `best_norm_ED.pth`.
+This plan starts from a completed milestone rather than a blank slate. The 2026-04-17 broad study turned the OCR verifier from a design idea into a working research harness with policy search, selector evidence, and reproducible artifacts. The remaining work is now focused and practical: extend the study to 9 fine-tune pages, compare only the three shortlisted stacks, sweep the three requested learning rates, and harden the Windows execution path so future runs fail only when the study itself fails.
 
-- Add a width-policy test for `AlignCollate` that proves `global_2000_pad` still pads to 2000 and `batch_max_pad` pads only to the current batch max width.
+Nothing in this plan should discard or overwrite the 2026-04-17 artifacts. Those artifacts are now part of the repository's research evidence chain.
 
-- Add an oversampling-materialization test that verifies replication counts are derived from normalized line CER and are capped at `4`.
+## Context and Orientation
 
-- Add an augmentation test that verifies output size is unchanged, the foreground remains non-empty, and rotation never spills outside the fixed crop rectangle.
+The current OCR research harness lives mainly in `app/tests/recognition_finetuning_experiment.py`, `app/tests/recognition_finetuning_config.py`, `app/recognition/active_learning.py`, and `app/tests/test_recognition_finetuning_e2e.py`.
 
-- Keep `app/tests/test_recognition_finetuning_e2e.py` as the slow verifier entrypoint, but make it emit the new curve metric, regression-guard result, and length-bucket metrics for every policy run.
+The dataset ordering in `app/tests/eval_dataset/images/` is:
 
-- Run all commands from PowerShell using the `gnn_layout` environment. The canonical command for the slow verifier remains: `$env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v`.
+- `233_0002`
+- `233_0003`
+- `233_0004`
+- `233_0005`
+- `233_0006`
+- `233_0007`
+- `233_0008`
+- `233_0009`
+- `233_0010`
+- `233_0011`
+- `233_0012`
+- `233_0013`
+- `233_0014`
+- `233_0015`
+- `233_0016`
 
-- Acceptance for the new baseline is: CER-aligned selector enabled, reproducible artifacts written, and the current baseline beats the old failing selector behavior. Acceptance for each new policy axis is: improved early-weighted page-CER curve, no regression-guard failure, and no harmful shift in short-line CER.
+The current default config fine-tunes on the first 5 pages and evaluates on pages `233_0011` through `233_0016`. This follow-up plan changes the fine-tune span to the first 9 pages, which means the focused study should fine-tune sequentially on `233_0002` through `233_0010` and continue evaluating on `233_0011` through `233_0016`. The curve metric therefore changes from `K=5` to `K=9`.
 
-## Assumptions and Defaults
+The three shortlisted policy slugs expand to:
 
-- Scope stays offline-first in this phase. No GUI-triggered background fine-tuning, telemetry integration, or model-promotion work is included here.
+- `wb_oc_ar_sn020`: `width_policy=batch_max_pad`, `oversampling_policy=cer_weighted`, `augmentation_policy=background_plus_rotation`, `lr_scheduler=none`, `lr=0.2`
+- `wb_oc_an_sn020`: `width_policy=batch_max_pad`, `oversampling_policy=cer_weighted`, `augmentation_policy=none`, `lr_scheduler=none`, `lr=0.2`
+- `wb_on_an_sn020`: `width_policy=batch_max_pad`, `oversampling_policy=none`, `augmentation_policy=none`, `lr_scheduler=none`, `lr=0.2`
 
-- Training and inference batch size stay fixed at `1` everywhere. Width bucketing for this phase therefore means batch-max padding, which is equivalent to per-sample arbitrary-width handling.
+For this follow-up, each of those stacks must be rerun at `lr=0.01`, `lr=0.2`, and `lr=0.8`. That produces exactly 9 policy runs.
 
-- The main benchmark remains `eval_dataset` with pages `1-5` used for sequential fine-tuning and pages `10-15` used for evaluation, matching the current experiment structure.
+## Plan of Work
 
-- `vadakautuhala.pth` remains immutable; every fine-tuned checkpoint stays versioned in the experiment artifact folder.
+First, update `app/tests/recognition_finetuning_config.py` so the focused study can express a 9-page setup without destroying the current broad-study baseline. The safest path is to add a second explicit config or study mode rather than changing the existing default in place. The new mode should set `fine_tune_page_count=9`, keep `eval_page_start_index=9` and `eval_page_end_index=15`, keep `validation_ratio=0.0`, and continue using cumulative training.
 
-- Windows/OneDrive stability is a first-class constraint. Keep `workers=0`, keep artifact paths short, and keep all reads and writes inside the repository while running through the `gnn_layout` PowerShell environment.
+Next, update `app/tests/recognition_finetuning_experiment.py` so the study runner can accept an explicit shortlist of policy descriptors instead of always rebuilding the full width, oversampling, augmentation, and scheduler search tree. The implementation should keep the existing broad-search path intact for historical reproducibility, then add a focused path that expands the three fixed slugs above and sweeps only the requested learning rates. The focused study summary must rank policy runs on:
+
+1. the primary curve metric
+2. `final_page_cer`
+3. `first_step_gain`
+
+This ranking split is required because the current best-by-curve run is not the same as the best-by-final-CER run.
+
+Then, update the study artifact writer so the focused mode writes a direct shortlist manifest. The top-level run summary should name the 9-page setup, the exact pages used for fine-tuning and evaluation, the 9 compared policy runs, the winner on the primary metric, the winner on `final_page_cer`, and the winner on `first_step_gain`.
+
+After the policy matrix is narrowed, fix the Windows execution path. Do not keep `conda run` as the preferred command for long OCR study output. Add a repo-local runner or explicit helper command that uses the already-selected interpreter and writes stdout and stderr to UTF-8 artifact files. The implementation can be a small Python or PowerShell helper, but it must keep all writes inside the repository and must not require any external logging service. The important behavioral guarantee is that long verifier output can be printed or saved without the wrapper crashing on Unicode encoding.
+
+Finally, update `app/tests/test_recognition_finetuning_e2e.py` so the slow verifier exercises the focused study mode instead of the old broad policy sweep. Keep `app/tests/test_recognition_active_learning_unit.py` as the fast coverage layer for selector, padding, oversampling, and augmentation mechanics.
+
+## Concrete Steps
+
+From the repository root, inspect the current OCR study artifacts before making changes:
+
+    Get-Content app\tests\logs\recognition_finetune_results_latest.md
+    Get-Content app\tests\logs\recognition_finetune_results_latest.json
+
+Expected result: the files show `wb_oc_an_sn020` as the primary winner and `wb_on_an_sn020` as the best `final_page_cer` and `first_step_gain` policy in the 5-page study.
+
+After implementing the focused-study mode, run the fast OCR unit tests:
+
+    conda activate gnn_layout
+    python -m unittest app.tests.test_recognition_active_learning_unit -v
+
+Expected result: selector, width-policy, oversampling, and augmentation tests all pass.
+
+Then run the slow focused OCR study without `conda run`:
+
+    conda activate gnn_layout
+    python -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
+
+Equivalent direct-interpreter form:
+
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
+
+Expected result: a new timestamped folder appears under `app/tests/logs/`, the top-level summary names 9 focused policy runs, and the study completes without the earlier `UnicodeEncodeError` wrapper failure.
+
+## Validation and Acceptance
+
+Acceptance for this plan is behavioral:
+
+1. The OCR verifier can run a 9-page focused follow-up study on `eval_dataset` without re-running the old full policy tree.
+2. The focused study compares exactly 9 runs: the three shortlisted policy stacks at learning rates `0.01`, `0.2`, and `0.8`.
+3. The focused run summary reports separate winners for the primary curve metric, `final_page_cer`, and `first_step_gain`.
+4. Every focused run writes the standard OCR artifacts, including `curve_metrics.json`, `per_line.csv`, `selector_metrics.json`, and plots.
+5. The slow-study execution path is Windows-safe: long output does not fail because of the earlier `conda run` Unicode printing problem.
+6. The current broad-study code path remains available for historical reproduction unless it is explicitly retired in a later plan.
+
+## Idempotence and Recovery
+
+The focused-study code path should be additive. If the new 9-page mode fails, the previous broad-study harness should still be runnable. Artifact folders must remain timestamped and append-only so failed exploratory runs do not destroy earlier evidence.
+
+If the Windows-safe runner is introduced and it fails, the fallback is an activated `gnn_layout` shell running the direct `python -m unittest ...` command, not `conda run`.
+
+## Artifacts and Notes
+
+Key evidence that must remain available while implementing this plan:
+
+- `app/tests/logs/20260417_155737_ocrft_eval_dataset/summary.md`
+- `app/tests/logs/20260417_155737_ocrft_eval_dataset/metrics.json`
+- `app/tests/logs/20260417_155737_ocrft_eval_dataset/policies/wb_oc_an_sn020/summary.md`
+- `app/tests/logs/20260417_155737_ocrft_eval_dataset/policies/wb_on_an_sn020/summary.md`
+- `app/tests/logs/20260417_155737_ocrft_eval_dataset/policies/wb_oc_ar_sn020/summary.md`
+
+Those files are the baseline for the shortlist and should be cited in later summaries instead of being paraphrased from memory.
+
+Revision note, 2026-04-17: this document was rewritten from the earlier broad-search proposal after the 5-page OCR study completed. The new version narrows the search to the three shortlisted policies, extends the study to 9 fine-tune pages, adds the requested learning-rate sweep, and explicitly addresses the Windows output-encoding failure seen in the previous long run.
