@@ -5,6 +5,7 @@ import six
 import math
 import lmdb
 import torch
+from pathlib import Path
 
 from natsort import natsorted
 from PIL import Image
@@ -23,7 +24,9 @@ class Batch_Balanced_Dataset(object):
         For example, when select_data is "MJ-ST" and batch_ratio is "0.5-0.5",
         the 50% of the batch is filled with MJ and the other 50% of the batch is filled with ST.
         """
-        log = open(f'./saved_models/{opt.exp_name}/log_dataset.txt', 'a')
+        experiment_dir = Path(getattr(opt, 'experiment_dir', Path('saved_models') / opt.exp_name))
+        experiment_dir.mkdir(parents=True, exist_ok=True)
+        log = open(experiment_dir / 'log_dataset.txt', 'a', encoding='utf-8')
         dashed_line = '-' * 80
         print(dashed_line)
         log.write(dashed_line + '\n')
@@ -103,6 +106,8 @@ class Batch_Balanced_Dataset(object):
 
 def hierarchical_dataset(root, opt, select_data='/'):
     """ select_data='/' contains all sub-directory of root directory """
+    if isinstance(select_data, str):
+        select_data = [select_data]
     dataset_list = []
     dataset_log = f'dataset_root:    {root}\t dataset: {select_data[0]}'
     print(dataset_log)
@@ -112,8 +117,10 @@ def hierarchical_dataset(root, opt, select_data='/'):
         
         if not dirnames:
             select_flag = False
+            dirpath_normalized = dirpath.replace('\\', '/')
             for selected_d in select_data:
-                if selected_d in dirpath:
+                selected_normalized = selected_d.replace('\\', '/')
+                if selected_normalized == '/' or selected_normalized in dirpath_normalized:
                     select_flag = True
                     break
 

@@ -16,10 +16,16 @@ limitations under the License.
 
 import torch.nn as nn
 
-from modules.transformation import TPS_SpatialTransformerNetwork
-from modules.feature_extraction import VGG_FeatureExtractor, RCNN_FeatureExtractor, ResNet_FeatureExtractor
-from modules.sequence_modeling import BidirectionalLSTM
-from modules.prediction import Attention
+try:
+    from .modules.transformation import TPS_SpatialTransformerNetwork
+    from .modules.feature_extraction import VGG_FeatureExtractor, RCNN_FeatureExtractor, ResNet_FeatureExtractor
+    from .modules.sequence_modeling import BidirectionalLSTM
+    from .modules.prediction import Attention
+except ImportError:  # pragma: no cover - script execution fallback
+    from modules.transformation import TPS_SpatialTransformerNetwork
+    from modules.feature_extraction import VGG_FeatureExtractor, RCNN_FeatureExtractor, ResNet_FeatureExtractor
+    from modules.sequence_modeling import BidirectionalLSTM
+    from modules.prediction import Attention
 
 
 class Model(nn.Module):
