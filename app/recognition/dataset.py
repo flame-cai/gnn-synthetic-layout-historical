@@ -76,8 +76,12 @@ class Batch_Balanced_Dataset(object):
             keep_ratio_with_pad=opt.PAD,
             width_policy=getattr(opt, "width_policy", "global_2000_pad"),
         )
+        self.shuffle_train_each_epoch = bool(getattr(opt, "shuffle_train_each_epoch", True))
         self.data_loader_list = []
         self.dataloader_iter_list = []
+        self.train_loader_generators = []
+        self.train_loader_metadata = []
+        self.iterator_recreation_counts = []
         batch_size_list = []
         Total_batch_size = 0
         for selected_d, batch_ratio_d in zip(opt.select_data, opt.batch_ratio):
@@ -104,13 +108,28 @@ class Batch_Balanced_Dataset(object):
             log.write(selected_d_log + '\n')
             batch_size_list.append(str(_batch_size))
             Total_batch_size += _batch_size
+            generator_seed = int(getattr(opt, "manualSeed", 1111)) + len(self.data_loader_list)
+            generator = torch.Generator()
+            generator.manual_seed(generator_seed)
 
             _data_loader = torch.utils.data.DataLoader(
                 _dataset, batch_size=_batch_size,
-                shuffle=True,
+                shuffle=self.shuffle_train_each_epoch,
                 num_workers=int(opt.workers),
-                collate_fn=_AlignCollate, pin_memory=True)
+                collate_fn=_AlignCollate,
+                pin_memory=True,
+                generator=generator)
             self.data_loader_list.append(_data_loader)
+            self.train_loader_generators.append(generator)
+            self.train_loader_metadata.append(
+                {
+                    "selected_data": selected_d,
+                    "shuffle": self.shuffle_train_each_epoch,
+                    "generator_seed": generator_seed,
+                    "batch_size": int(_batch_size),
+                }
+            )
+            self.iterator_recreation_counts.append(0)
             self.dataloader_iter_list.append(iter(_data_loader))
 
         Total_batch_size_log = f'{dashed_line}\n'
@@ -133,6 +152,7 @@ class Batch_Balanced_Dataset(object):
                 balanced_batch_images.append(image)
                 balanced_batch_texts += text
             except StopIteration:
+                self.iterator_recreation_counts[i] += 1
                 self.dataloader_iter_list[i] = iter(self.data_loader_list[i])
                 image, text = next(self.dataloader_iter_list[i])
                 balanced_batch_images.append(image)

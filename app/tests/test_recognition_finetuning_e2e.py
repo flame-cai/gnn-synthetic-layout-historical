@@ -20,10 +20,16 @@ class RecognitionFineTuningEndToEndTest(unittest.TestCase):
     def test_eval_dataset_sequential_fine_tuning(self):
         dataset_name = os.getenv("RECOGNITION_FINETUNE_DATASET", "eval_dataset")
         result = run_recognition_finetuning_experiment(dataset_name=dataset_name)
-        self.assertEqual(len(result["steps"]), 6, "Expected step 0 through step 5 in the sequential fine-tuning run.")
-        self.assertGreaterEqual(len(result["policy_runs"]), 2, "Expected blocker-first policy comparisons to run.")
+        self.assertEqual(result["study_mode"], "focused_followup_matrix")
+        self.assertEqual(len(result["steps"]), 10, "Expected pretrained baseline plus 9 cumulative fine-tune steps.")
+        self.assertEqual(len(result["policy_runs"]), 24, "Expected the focused 24-run policy matrix.")
         self.assertIn("curve_metric_value", result["curve_metrics"])
         self.assertIn("winning_policy", result)
+        self.assertIn("winning_policies_by_metric", result)
+        self.assertEqual(
+            sorted(result["winning_policies_by_metric"].keys()),
+            ["final_page_cer", "first_step_gain", "primary_curve_metric"],
+        )
 
 
 if __name__ == "__main__":

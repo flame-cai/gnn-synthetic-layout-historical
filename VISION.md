@@ -22,27 +22,33 @@ By active learning here, we mean the user corrects model mistakes, those correct
 
 The repository does not yet provide production-ready GUI fine-tuning for any of the four tasks.
 
-However, the OCR side is no longer only aspirational. As of 2026-04-17, the repository has a real offline OCR active-learning research harness in:
+However, the OCR side is no longer only aspirational. As of 2026-04-19, the repository has a real offline OCR active-learning research harness in:
 
 - `app/recognition/active_learning.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
+- `app/tests/test_recognition_finetuning_page_only_e2e.py`
+- `app/tests/test_recognition_finetuning_page_plus_history_e2e.py`
 
-The latest completed study is:
+The key completed study artifacts are:
 
-- `app/tests/logs/20260417_155737_ocrft_eval_dataset/`
+- `app/tests/logs/20260418_231746_ocrft_eval_dataset/`
+- `app/tests/logs/20260419_123216_ocrft_pageonly_eval_dataset/`
+- `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`
 
-That study established three important facts:
+Those studies establish five important facts:
 
-1. `batch_max_pad` is materially better than global padding for the current OCR verifier.
-2. CER-weighted oversampling helps the primary early-weighted curve metric, even though it does not win on final-page CER.
-3. The current best overall 5-page stack by the repository's primary metric is `wb_oc_an_sn020`, while `wb_on_an_sn020` is still the best on final-page CER and first-step gain.
+1. The default slow OCR verifier can now run a focused 9-page, 24-run matrix rather than the older blocker-first search path.
+2. The harness now supports explicit optimizer sweeps, page-only continuation, and a page-plus-random-history continuation mode that replays 10 sampled lines from earlier pages at each step.
+3. In the completed focused cumulative follow-up, the best passed policy on the repository's primary metric, final-page CER, and first-step gain is `wb_on_an_sn_optd_lr0200`.
+4. In the completed page-only follow-up, strict single-page continuation is viable, but only one of the four tested policies passed the regression guard all the way through the 9-page continuation.
+5. In the completed page-plus-random-history follow-up, `wb_on_an_hist10_sn_optd_lr200000u` beat both the focused cumulative winner and the page-only winner on the primary metric and final-page CER, while Adam still failed the regression guard.
 
 So the repository is now in a transitional state:
 
 - the OCR verifier is real
-- the OCR research harness is useful
+- the OCR research harness is useful and can compare cumulative, page-only, and replay-buffer-like continuation regimes
 - the GUI fine-tuning loop is still future work
 
 ## Desired End State
@@ -64,16 +70,17 @@ Success is not defined by a single accuracy number. Success means:
 
 ## Immediate Direction
 
-The next OCR milestone is narrower than full GUI integration.
+The next OCR milestone is no longer proving that continuation-style verifier runs are feasible. The repository now has three working offline regimes: cumulative training, strict page-only continuation, and page-plus-random-history continuation. The next uncertainty is which continuation regime is strong enough and stable enough to deserve promotion toward GUI-backed workflows.
 
-Before the frontend is allowed to trigger OCR fine-tuning, the repository should complete a focused verifier-driven follow-up study that:
+Before the frontend is allowed to trigger OCR fine-tuning, the repository should:
 
-- increases sequential fine-tuning from 5 pages to 9 pages
-- compares only the three shortlisted policies `wb_oc_ar_sn020`, `wb_oc_an_sn020`, and `wb_on_an_sn020`
-- sweeps learning rates `{0.01, 0.2, 0.8}`
-- hardens the Windows execution path so long verifier output does not fail because of `conda run` encoding issues
+- validate the page-plus-random-history regime on more than one manuscript sequence and more than one history replay size
+- decide whether page-plus-random-history is the right default successor to page-only continuation
+- investigate why Adam remains regression-guard-sensitive in the continuation follow-ups
+- add a small OCR model registry with active, candidate, and rollback metadata
+- keep the Windows-safe direct-interpreter execution path first-class for long OCR verifier runs
 
-Only after that follow-up study should the repository promote GUI integration work for OCR fine-tuning.
+Only after those pieces exist should the repository promote GUI integration work for OCR fine-tuning.
 
 ## Broader Research Direction
 
