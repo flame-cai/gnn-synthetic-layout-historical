@@ -108,6 +108,7 @@ def train(opt):
     device = get_device()
     experiment_dir = _prepare_options(opt)
     _seed_everything(opt)
+    shuffle_train_each_epoch = bool(getattr(opt, "shuffle_train_each_epoch", True))
 
     if not opt.data_filtering_off:
         print("Filtering the images containing characters which are not in opt.character")
@@ -178,13 +179,17 @@ def train(opt):
     print("Trainable params num : ", sum(params_num))
 
     if opt.adam:
+        optimizer_name = "adam"
         optimizer = optim.Adam(filtered_parameters, lr=opt.lr, betas=(opt.beta1, 0.999))
     else:
+        optimizer_name = "adadelta"
         optimizer = optim.Adadelta(filtered_parameters, lr=opt.lr, rho=opt.rho, eps=opt.eps)
     scheduler = _build_scheduler(optimizer, opt)
     print("Optimizer:")
     print(optimizer)
+    print(f"Optimizer name: {optimizer_name}")
     print(f"LR scheduler: {getattr(opt, 'lr_scheduler', 'none')}")
+    print(f"Shuffle train each epoch-equivalent pass: {shuffle_train_each_epoch}")
 
     opt_path = experiment_dir / "opt.txt"
     with opt_path.open("a", encoding="utf-8") as opt_file:
@@ -307,8 +312,12 @@ def train(opt):
                 "experiment_dir": str(experiment_dir.resolve()),
                 "best_accuracy_path": str((experiment_dir / "best_accuracy.pth").resolve()),
                 "best_norm_ED_path": str((experiment_dir / "best_norm_ED.pth").resolve()),
+                "optimizer_name": optimizer_name,
                 "lr_scheduler": getattr(opt, "lr_scheduler", "none"),
                 "final_lr": optimizer.param_groups[0]["lr"],
+                "shuffle_train_each_epoch": shuffle_train_each_epoch,
+                "train_loader_metadata": getattr(train_dataset, "train_loader_metadata", []),
+                "iterator_recreation_counts": getattr(train_dataset, "iterator_recreation_counts", []),
             }
 
         iteration += 1

@@ -51,6 +51,14 @@ LENGTH_BUCKETS = {
     "medium": lambda length: 11 <= length <= 30,
     "long": lambda length: length > 30,
 }
+SUPPORTED_OPTIMIZERS = {"adadelta", "adam"}
+
+
+def _normalize_optimizer_name(value: str) -> str:
+    normalized = str(value).strip().lower()
+    if normalized not in SUPPORTED_OPTIMIZERS:
+        raise ValueError(f"Unsupported optimizer: {value}")
+    return normalized
 
 
 @dataclass
@@ -75,6 +83,17 @@ class FineTuneRunResult:
     oversampling_policy: str
     augmentation_policy: str
     lr_scheduler: str
+    optimizer_name: str
+    background_plus_rotation_variant_count: int
+    shuffle_train_each_epoch: bool
+    logical_train_sample_count: int
+    logical_val_sample_count: int
+    train_materialized_count: int
+    val_materialized_count: int
+    train_variant_labels: list[str]
+    val_variant_labels: list[str]
+    dataset_manifest_path: str
+    dataset_manifest: dict
     train_options: dict
     training_summary: dict
 
@@ -159,6 +178,9 @@ def _build_finetune_options(base_checkpoint, lmdb_root, experiment_dir, **overri
         "width_policy": "global_2000_pad",
         "data_filtering_off": True,
         "lr_scheduler": "none",
+        "optimizer_name": "adadelta",
+        "background_plus_rotation_variant_count": 1,
+        "shuffle_train_each_epoch": True,
         "Transformation": None,
         "FeatureExtraction": "ResNet",
         "SequenceModeling": "BiLSTM",
@@ -358,6 +380,73 @@ def _collect_corpus_samples(prepared_pages: list[PreparedPageDataset]):
     return samples
 
 
+def _select_incremental_training_samples(
+    prepared_pages: list[PreparedPageDataset],
+    history_source_pages: list[PreparedPageDataset] | None = None,
+    history_sample_line_count: int = 0,
+    split_seed: int = 42,
+):
+    current_pages = _normalize_prepared_pages(prepared_pages)
+    current_samples = [
+        {**sample, "sample_origin": "current_page"}
+        for sample in _collect_corpus_samples(current_pages)
+    ]
+
+    history_pages = _normalize_prepared_pages(history_source_pages or [])
+    history_source_samples = []
+    if history_pages:
+        history_source_samples = _collect_corpus_samples(history_pages)
+
+    requested_history_count = max(0, int(history_sample_line_count))
+    history_sample_seed = None
+    sampled_history_samples = []
+    if requested_history_count > 0 and history_source_samples:
+        history_sample_seed = _stable_seed(
+            split_seed,
+            "history_sample",
+            current_pages[-1].page_id,
+            requested_history_count,
+            "|".join(page.page_id for page in history_pages),
+        )
+        sample_rng = random.Random(history_sample_seed)
+        sampled_history_samples = sample_rng.sample(
+            history_source_samples,
+            min(requested_history_count, len(history_source_samples)),
+        )
+
+    selected_history_samples = [
+        {**sample, "sample_origin": "history_sample"}
+        for sample in sampled_history_samples
+    ]
+    selected_samples = current_samples + selected_history_samples
+    if not selected_samples:
+        raise ValueError("No prepared line samples were found for OCR fine-tuning.")
+
+    selected_page_ids = list(dict.fromkeys(sample["page_id"] for sample in selected_samples))
+    sampled_history_page_ids = list(dict.fromkeys(sample["page_id"] for sample in selected_history_samples))
+
+    return selected_samples, {
+        "page_ids": selected_page_ids,
+        "current_page_ids": [page.page_id for page in current_pages],
+        "current_page_line_count": len(current_samples),
+        "history_source_page_ids": [page.page_id for page in history_pages],
+        "history_source_line_count": len(history_source_samples),
+        "history_sample_requested_count": requested_history_count,
+        "history_sample_line_count": len(selected_history_samples),
+        "history_sample_seed": history_sample_seed,
+        "history_sample_page_ids": sampled_history_page_ids,
+        "history_sample_line_refs": [
+            {
+                "page_id": sample["page_id"],
+                "line_id": sample["line_id"],
+                "line_custom": sample["line_custom"],
+                "target_name": sample["target_name"],
+            }
+            for sample in selected_history_samples
+        ],
+    }
+
+
 def _split_corpus_samples(samples, validation_ratio, split_seed):
     shuffled = list(samples)
     random.Random(split_seed).shuffle(shuffled)
@@ -405,11 +494,14 @@ def _materialize_split_dataset(
     augmentation_policy: str = "none",
     augmentation_seed: int = 0,
     apply_augmentation: bool = False,
+    background_plus_rotation_variant_count: int = 1,
 ):
     split_dir = dataset_root / split_name
     split_dir.mkdir(parents=True, exist_ok=True)
     gt_lines = []
     materialized_rows = []
+    variant_labels = []
+    variant_counts = {}
 
     for sample in samples:
         replications = int((replication_lookup or {}).get(sample["target_name"], 1))
@@ -420,13 +512,20 @@ def _materialize_split_dataset(
             if apply_augmentation and augmentation_policy == "background_only":
                 variant_specs.append(("bg", "background_only"))
             elif apply_augmentation and augmentation_policy == "background_plus_rotation":
-                variant_specs.append(("bgrot", "background_plus_rotation"))
+                extra_variant_count = max(0, int(background_plus_rotation_variant_count))
+                variant_specs.extend(
+                    (f"bgrot{variant_index:02d}", "background_plus_rotation")
+                    for variant_index in range(1, extra_variant_count + 1)
+                )
 
             for variant_label, variant_policy in variant_specs:
                 target_name = _build_materialized_name(sample, replication_index, variant_label)
                 target_rel_path = Path(split_name) / target_name
                 target_abs_path = dataset_root / target_rel_path
                 target_abs_path.parent.mkdir(parents=True, exist_ok=True)
+                if variant_label not in variant_labels:
+                    variant_labels.append(variant_label)
+                variant_counts[variant_label] = variant_counts.get(variant_label, 0) + 1
 
                 augmentation_metadata = None
                 if variant_policy is None:
@@ -453,6 +552,7 @@ def _materialize_split_dataset(
                         "page_id": sample["page_id"],
                         "line_id": sample["line_id"],
                         "line_custom": sample["line_custom"],
+                        "sample_origin": sample.get("sample_origin", "current_page"),
                         "label": sample["label"],
                         "target_rel_path": target_rel_path.as_posix(),
                         "replication_index": replication_index,
@@ -467,6 +567,8 @@ def _materialize_split_dataset(
         "gt_path": gt_path,
         "rows": materialized_rows,
         "count": len(materialized_rows),
+        "variant_labels": variant_labels,
+        "variant_counts": variant_counts,
     }
 
 
@@ -685,19 +787,31 @@ def prepare_incremental_finetune_dataset(
     split_seed: int = 42,
     oversampling_policy: str = "none",
     augmentation_policy: str = "none",
+    background_plus_rotation_variant_count: int = 1,
+    shuffle_train_each_epoch: bool = True,
+    optimizer_name: str = "adadelta",
+    history_source_pages: list[PreparedPageDataset] | None = None,
+    history_sample_line_count: int = 0,
     **inference_overrides,
 ):
     if oversampling_policy not in {"none", "cer_weighted"}:
         raise ValueError(f"Unsupported oversampling policy: {oversampling_policy}")
     if augmentation_policy not in {"none", "background_only", "background_plus_rotation"}:
         raise ValueError(f"Unsupported augmentation policy: {augmentation_policy}")
+    optimizer_name = _normalize_optimizer_name(optimizer_name)
+    background_plus_rotation_variant_count = max(0, int(background_plus_rotation_variant_count))
 
     output_root = Path(output_root)
     if output_root.exists():
         shutil.rmtree(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
 
-    samples = _collect_corpus_samples(prepared_pages)
+    samples, selection_metadata = _select_incremental_training_samples(
+        prepared_pages,
+        history_source_pages=history_source_pages,
+        history_sample_line_count=history_sample_line_count,
+        split_seed=split_seed,
+    )
     replication_lookup = {sample["target_name"]: 1 for sample in samples}
     difficulty_scores = {}
 
@@ -720,6 +834,7 @@ def prepare_incremental_finetune_dataset(
         augmentation_policy=augmentation_policy,
         augmentation_seed=split_seed,
         apply_augmentation=True,
+        background_plus_rotation_variant_count=background_plus_rotation_variant_count,
     )
     val_materialized = _materialize_split_dataset(
         output_root,
@@ -729,31 +844,60 @@ def prepare_incremental_finetune_dataset(
         augmentation_policy="none",
         augmentation_seed=split_seed,
         apply_augmentation=False,
+        background_plus_rotation_variant_count=background_plus_rotation_variant_count,
     )
 
     manifest = {
-        "page_ids": [page.page_id for page in prepared_pages],
+        "page_ids": selection_metadata["page_ids"],
+        "current_page_ids": selection_metadata["current_page_ids"],
+        "current_page_line_count": selection_metadata["current_page_line_count"],
+        "history_source_page_ids": selection_metadata["history_source_page_ids"],
+        "history_source_line_count": selection_metadata["history_source_line_count"],
+        "history_sample_requested_count": selection_metadata["history_sample_requested_count"],
+        "history_sample_line_count": selection_metadata["history_sample_line_count"],
+        "history_sample_seed": selection_metadata["history_sample_seed"],
+        "history_sample_page_ids": selection_metadata["history_sample_page_ids"],
+        "history_sample_line_refs": selection_metadata["history_sample_line_refs"],
         "num_samples": len(samples),
+        "logical_train_sample_count": len(train_samples),
+        "logical_val_sample_count": len(val_samples),
         "train_sample_count": len(train_samples),
         "val_sample_count": len(val_samples),
         "train_materialized_count": train_materialized["count"],
         "val_materialized_count": val_materialized["count"],
+        "effective_train_materialized_count": train_materialized["count"],
+        "effective_val_materialized_count": val_materialized["count"],
         "validation_ratio": validation_ratio,
         "split_seed": split_seed,
         "oversampling_policy": oversampling_policy,
         "augmentation_policy": augmentation_policy,
+        "background_plus_rotation_variant_count": background_plus_rotation_variant_count,
+        "shuffle_train_each_epoch": bool(shuffle_train_each_epoch),
+        "optimizer_name": optimizer_name,
         "train_gt_path": str(train_materialized["gt_path"].resolve()),
         "val_gt_path": str(val_materialized["gt_path"].resolve()),
+        "train_variant_labels": train_materialized["variant_labels"],
+        "val_variant_labels": val_materialized["variant_labels"],
+        "train_variant_counts": train_materialized["variant_counts"],
+        "val_variant_counts": val_materialized["variant_counts"],
         "difficulty_scores": difficulty_scores,
         "replication_lookup": replication_lookup,
     }
-    (output_root / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    manifest_path = output_root / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     return {
         "dataset_root": output_root,
+        "manifest_path": manifest_path,
         "train_gt_path": train_materialized["gt_path"],
         "val_gt_path": val_materialized["gt_path"],
         "train_sample_count": train_materialized["count"],
         "val_sample_count": val_materialized["count"],
+        "logical_train_sample_count": len(train_samples),
+        "logical_val_sample_count": len(val_samples),
+        "train_materialized_count": train_materialized["count"],
+        "val_materialized_count": val_materialized["count"],
+        "train_variant_labels": train_materialized["variant_labels"],
+        "val_variant_labels": val_materialized["variant_labels"],
         "manifest": manifest,
     }
 
@@ -767,6 +911,8 @@ def fine_tune_checkpoint_on_pages(
     split_seed: int = 42,
     oversampling_policy: str = "none",
     augmentation_policy: str = "none",
+    history_source_pages: list[PreparedPageDataset] | None = None,
+    history_sample_line_count: int = 0,
     **training_overrides,
 ):
     output_root = Path(output_root)
@@ -774,8 +920,21 @@ def fine_tune_checkpoint_on_pages(
         shutil.rmtree(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
 
+    training_overrides = dict(training_overrides)
     width_policy = training_overrides.get("width_policy", "global_2000_pad")
     lr_scheduler = training_overrides.get("lr_scheduler", "none")
+    optimizer_name = _normalize_optimizer_name(
+        training_overrides.get("optimizer_name", "adam" if training_overrides.get("adam") else "adadelta")
+    )
+    background_plus_rotation_variant_count = max(
+        0,
+        int(training_overrides.get("background_plus_rotation_variant_count", 1)),
+    )
+    shuffle_train_each_epoch = bool(training_overrides.get("shuffle_train_each_epoch", True))
+    training_overrides["optimizer_name"] = optimizer_name
+    training_overrides["adam"] = optimizer_name == "adam"
+    training_overrides["background_plus_rotation_variant_count"] = background_plus_rotation_variant_count
+    training_overrides["shuffle_train_each_epoch"] = shuffle_train_each_epoch
 
     dataset_bundle = prepare_incremental_finetune_dataset(
         prepared_pages,
@@ -785,6 +944,11 @@ def fine_tune_checkpoint_on_pages(
         split_seed=split_seed,
         oversampling_policy=oversampling_policy,
         augmentation_policy=augmentation_policy,
+        background_plus_rotation_variant_count=background_plus_rotation_variant_count,
+        shuffle_train_each_epoch=shuffle_train_each_epoch,
+        optimizer_name=optimizer_name,
+        history_source_pages=history_source_pages,
+        history_sample_line_count=history_sample_line_count,
         width_policy=width_policy,
     )
     dataset_root = Path(dataset_bundle["dataset_root"])
@@ -809,7 +973,7 @@ def fine_tune_checkpoint_on_pages(
         width_policy=width_policy,
     )
 
-    training_page_ids = [prepared_page.page_id for prepared_page in prepared_pages]
+    training_page_ids = list(dataset_bundle["manifest"]["page_ids"])
     metadata = FineTuneRunResult(
         step_index=step_index,
         training_page_id=prepared_pages[-1].page_id,
@@ -831,6 +995,17 @@ def fine_tune_checkpoint_on_pages(
         oversampling_policy=oversampling_policy,
         augmentation_policy=augmentation_policy,
         lr_scheduler=lr_scheduler,
+        optimizer_name=optimizer_name,
+        background_plus_rotation_variant_count=background_plus_rotation_variant_count,
+        shuffle_train_each_epoch=shuffle_train_each_epoch,
+        logical_train_sample_count=dataset_bundle["logical_train_sample_count"],
+        logical_val_sample_count=dataset_bundle["logical_val_sample_count"],
+        train_materialized_count=dataset_bundle["train_materialized_count"],
+        val_materialized_count=dataset_bundle["val_materialized_count"],
+        train_variant_labels=dataset_bundle["train_variant_labels"],
+        val_variant_labels=dataset_bundle["val_variant_labels"],
+        dataset_manifest_path=str(Path(dataset_bundle["manifest_path"]).resolve()),
+        dataset_manifest=dataset_bundle["manifest"],
         train_options={key: value for key, value in vars(options).items()},
         training_summary=training_summary,
     )

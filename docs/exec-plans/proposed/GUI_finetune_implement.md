@@ -1,3 +1,58 @@
+Please write a proposed plan which will implement a new pre-commit hook for this repo based on this fine-tuning recipe we have found in our experiments (using hybrid continuation regime): 
+
+- training_policy=page_plus_random_history
+- history_sample_line_count=10
+- width_policy=batch_max_pad
+- oversampling_policy=none
+- augmentation_policy=none
+- lr_scheduler=none
+- optimizer=adadelta
+- lr=0.2
+- num_iter=60
+- curve_metric=early_weighted_page_cer
+- regression_guard_abs=0.005
+- background_plus_rotation_variant_count=10
+- shuffle_train_each_epoch=True
+
+
+we already have a pre-commit git hook, which checks if the entire pipeline (using pre-trained CRAFT, GNN and recognition model) is working end-to-end using the fine PAGE level CER on the eval_dataset.
+
+In this new pre-commit test, we would be using the ground-truth segmented text-lines and text pairs to fine-tune the recognition model - just like we did right now. We want to use the same metrics we used: 
+curve_metric_value, final_page_cer, first_step_gain, Regression guard (but regression guard failure should not mean pre-commit check failure. Make this more lenient.)
+
+This new pre-commit test too, should not use the GUI. Also right now, both pre-commit test work with a single dataset 'eval_dataset', but please write in a way such that we can configure more datasets in the future.
+
+Any type of change we make to this code base (eg: Recognition Model Fine-tuning recipe change, GNN architecture changes, scaffolding code changes, etc) should pass the older pre-commit check, and this new pre-commit check. 
+
+However, it is important to keep in mind this new pre-commit check is not how the real pipeline works (with the GUI interface, and the human in the loop). In the real pipeline, we get text-line segments from the upstream pipeline code which uses CRAFT, a GNN, and scaffolding code. In the future we want to fine-tune CRAFT and the GNN also. We would also want to make changes to the pipeline scaffolding code also to optimize it. 
+
+Right now we are iteratively fine-tuning only the text-line recogntion model - to get a final page level CER score on the fixed validation pages. 
+However in the future, we would want to interatively fine-tune all three (CRAFT, GNN and Recogntion Model) and aim to see drastically higher drop in page-level CER on the validation pages. So later, we would like to fine tune all three: CRAFT, GNN or Recognition Model, everytime a human manually makes corrections and saves a page by manually adding/deleting nodes (this data can be used to fine-tune CRAFT), or by adding/deleting edges (this data can be used to fine-tune the GNN), or by making corrections to the recognized text (this data can be used to fine-tune the recognition model as we did right now).
+
+With this in mind, please also update and sync the VISION.md and EVAL.md and other relevant files with more nuance and details. 
+
+
+
+
+
+GUI Implementation:
+- implement the best fine-tuning recipie till now. But keep scope to configure this is the future.
+- keep the entire pipeline in mind. When the user uploads a 200 page manuscript, CRAFT first needs to process all 200. Then a graph is constructed on the CRAFT output, which a GNN does binary edge classification on, to get segmented textlines. The human can manually make corrections to this by adding/deleting nodes (this data can be used to fine-tune CRAFT), or by adding/deleting edges (this data can be used to fine-tune the GNN. Once they save the page, or go the recognition model, a page-XML is created. This is where the recognition model fine-tuning recipie we have optimized will come in - to iteratively self-imporve on the task of recognizing text-content from the segmented text-lines.
+
+
+- 
+
+- do basic CUDA profiling to check how much GPU it take for finetuning and inference, and time taken per page, for iterative finetuning for a manuscript.
+- prepare a meta plan for all future optimizations according to the vision.
+
+
+Roll-out
+- do the same, but with real CRAFT+GNN inference (instead of directly cropping text-line segments using Ground Truth XML.
+- GNN hyper parameter search (better model, faster inference), reduce training time!!! MPNN+Algorithm best bet.
+- GNN multi-task learning (text-boxes)..
+- the CRAFT fine-tuning...
+
+
 # Bring OCR Fine-Tuning Into The GUI Safely
 
 This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
@@ -17,7 +72,8 @@ This plan is intentionally future-facing. It should be implemented only after th
 - [ ] Add a per-manuscript OCR model registry with active, candidate, and previous-active checkpoint metadata.
 - [ ] Add backend APIs for requesting fine-tuning, checking job status, inspecting candidate metrics, promoting a candidate, and rolling back.
 - [ ] Add a background OCR fine-tuning worker that reuses the offline research utilities instead of inventing a second training stack.
-- [ ] Add coordination so OCR inference and OCR fine-tuning do not contend for the same device at the same time.
+- [ ] Add coordination so OCR inference and OCR fine-tuning do not contend for the same device at the same time. 
+- [ ] Add coordination so OCR inference and OCR fine-tuning can happen on consumer grade GPU's. Do GPU optimization in this direction, without affecting the functioning.
 - [ ] Add frontend status surfaces in `app/frontend/src/components/ManuscriptViewer.vue` so the user can see model status, pending jobs, promotion results, and failures.
 - [ ] Add structured logging for OCR edits, save cycles, fine-tune triggers, job durations, candidate outcomes, and promotions.
 - [ ] Add verifier-gated promotion rules so a newly trained checkpoint never silently replaces the active checkpoint without evidence.
