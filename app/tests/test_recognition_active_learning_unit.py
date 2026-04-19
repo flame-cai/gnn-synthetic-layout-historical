@@ -30,8 +30,8 @@ from recognition.active_learning import (
 from recognition.dataset import AlignCollate, Batch_Balanced_Dataset
 from recognition.lmdb_tools import create_lmdb_dataset
 from recognition.pagexml_line_dataset import PreparedLineRecord, PreparedPageDataset
-from tests.recognition_finetuning_config import get_dataset_config
-from tests.recognition_finetuning_experiment import _policy_slug, run_recognition_finetuning_experiment
+from tests.recognition_finetuning_config import get_page_plus_random_history_policy_configs
+from tests.recognition_finetuning_experiment import _page_plus_history_policy_slug, run_recognition_finetuning_experiment
 
 
 def _make_workspace_tmp(name: str) -> Path:
@@ -245,33 +245,26 @@ class RecognitionActiveLearningUnitTest(unittest.TestCase):
         self.assertEqual(train_rows["base"], 1)
         self.assertEqual(train_rows["bgrot10"], 1)
 
-    def test_focused_policy_slug_distinguishes_optimizer_and_lr0001(self):
-        dataset_config = get_dataset_config("eval_dataset")
-        structural_config = dataset_config.with_structural_policy(dataset_config.focused_structural_policies[0])
+    def test_hybrid_policy_slug_distinguishes_retained_optimizer_and_micro_lr(self):
+        configs = get_page_plus_random_history_policy_configs("eval_dataset")
+        slugs = [_page_plus_history_policy_slug(config) for config in configs]
 
-        slugs = {
-            _policy_slug(structural_config.with_optimizer(optimizer).with_learning_rate(lr))
-            for optimizer in ("adadelta", "adam")
-            for lr in (0.001, 0.01, 0.2, 0.5)
-        }
+        self.assertEqual(
+            slugs,
+            [
+                "wb_on_an_hist10_sn_opta_lr000050u",
+                "wb_on_an_hist10_sn_optd_lr200000u",
+            ],
+        )
+        self.assertEqual(len(set(slugs)), 2)
 
-        self.assertEqual(len(slugs), 8)
-        self.assertIn("wb_oc_ar_sn_optd_lr0001", slugs)
-        self.assertIn("wb_oc_ar_sn_opta_lr0001", slugs)
-        self.assertIn("wb_oc_ar_sn_optd_lr0010", slugs)
+    def test_hybrid_runner_returns_followup_results_even_when_one_policy_fails(self):
+        root = _make_workspace_tmp("hybrid_runner")
+        policy_matrix = list(get_page_plus_random_history_policy_configs("eval_dataset"))
+        failed_config = policy_matrix[0]
+        passed_config = policy_matrix[1]
 
-    def test_focused_runner_returns_matrix_results_even_when_some_policies_fail(self):
-        root = _make_workspace_tmp("focused_runner")
-        dataset_config = get_dataset_config("eval_dataset")
-        passed_config = dataset_config.with_structural_policy(dataset_config.focused_structural_policies[2]).with_optimizer(
-            "adadelta"
-        ).with_learning_rate(0.2)
-        failed_config = dataset_config.with_structural_policy(dataset_config.focused_structural_policies[0]).with_optimizer(
-            "adam"
-        ).with_learning_rate(0.001)
-        policy_matrix = [passed_config, failed_config]
-
-        def fake_prepare(_dataset_config):
+        def fake_prepare(_dataset_config, study_slug=None):
             run_dir = root / "study"
             run_dir.mkdir(parents=True, exist_ok=True)
             return run_dir, {}, {}, run_dir
@@ -323,20 +316,21 @@ class RecognitionActiveLearningUnitTest(unittest.TestCase):
             }
 
         with patch("tests.recognition_finetuning_experiment._prepare_study_inputs", side_effect=fake_prepare), patch(
-            "tests.recognition_finetuning_experiment._build_focused_policy_matrix",
-            return_value=policy_matrix,
+            "tests.recognition_finetuning_experiment.get_page_plus_random_history_policy_configs",
+            return_value=tuple(policy_matrix),
         ), patch(
             "tests.recognition_finetuning_experiment._run_single_policy_run",
             side_effect=fake_run,
         ), patch("tests.recognition_finetuning_experiment._copy_latest_artifacts", return_value=None):
             result = run_recognition_finetuning_experiment(dataset_name="eval_dataset")
 
+        self.assertEqual(result["study_mode"], "page_plus_random_history_followup")
         self.assertEqual(len(result["policy_runs"]), 2)
-        self.assertEqual(result["winning_policy"], _policy_slug(passed_config))
-        self.assertEqual(result["failed_policy_runs"], [_policy_slug(failed_config)])
+        self.assertEqual(result["winning_policy"], _page_plus_history_policy_slug(passed_config))
+        self.assertEqual(result["failed_policy_runs"], [_page_plus_history_policy_slug(failed_config)])
         self.assertEqual(
             result["winning_policies_by_metric"]["primary_curve_metric"]["policy_slug"],
-            _policy_slug(passed_config),
+            _page_plus_history_policy_slug(passed_config),
         )
 
     def test_loader_shuffle_contract_recreates_iterator_with_seeded_generator(self):

@@ -23,16 +23,16 @@ if str(REPO_ROOT) not in sys.path:
 
 from recognition.active_learning import fine_tune_checkpoint_on_pages, generate_prediction_pagexmls, prepare_page_datasets
 from tests.evaluate import evaluate_dataset
+from tests.precommit_gate_config import get_recognition_precommit_dataset
 from tests.recognition_finetuning_config import (
     RecognitionEvalDatasetConfig,
-    get_dataset_config,
-    get_historical_broad_search_config,
-    get_page_only_followup_policy_configs,
     get_page_plus_random_history_policy_configs,
+    get_precommit_hybrid_recognition_gate_config,
 )
 
 
 PRETRAINED_OCR_CHECKPOINT = APP_ROOT / "recognition" / "pretrained_model" / "vadakautuhala.pth"
+RECOGNITION_PRECOMMIT_LATEST_BASENAME = "recognition_finetune_precommit_latest"
 
 
 def _timestamp_slug():
@@ -64,61 +64,8 @@ def _format_lr(value: float) -> str:
     return format(float(value), "g")
 
 
-def _short_float_token(value: float) -> str:
-    return f"{int(round(value * 100)):03d}"
-
-
-def _historical_policy_slug(config: RecognitionEvalDatasetConfig) -> str:
-    width_token = {"global_2000_pad": "wg", "batch_max_pad": "wb"}[config.width_policy]
-    oversampling_token = {"none": "on", "cer_weighted": "oc"}[config.oversampling_policy]
-    augmentation_token = {
-        "none": "an",
-        "background_only": "ab",
-        "background_plus_rotation": "ar",
-    }[config.augmentation_policy]
-    scheduler_token = {"none": "sn", "step": "ss", "cosine": "sc"}[config.lr_scheduler]
-    lr_token = _short_float_token(float(config.training_overrides["lr"]))
-    return f"{width_token}_{oversampling_token}_{augmentation_token}_{scheduler_token}{lr_token}"
-
-
-def _lr_token(value: float) -> str:
-    return f"lr{int(round(float(value) * 1000)):04d}"
-
-
-def _policy_slug(config: RecognitionEvalDatasetConfig) -> str:
-    width_token = {"global_2000_pad": "wg", "batch_max_pad": "wb"}[config.width_policy]
-    oversampling_token = {"none": "on", "cer_weighted": "oc"}[config.oversampling_policy]
-    augmentation_token = {
-        "none": "an",
-        "background_only": "ab",
-        "background_plus_rotation": "ar",
-    }[config.augmentation_policy]
-    scheduler_token = {"none": "sn", "step": "ss", "cosine": "sc"}[config.lr_scheduler]
-    optimizer_token = {"adadelta": "optd", "adam": "opta"}[config.optimizer]
-    return (
-        f"{width_token}_{oversampling_token}_{augmentation_token}_{scheduler_token}_"
-        f"{optimizer_token}_{_lr_token(float(config.training_overrides['lr']))}"
-    )
-
-
-def _page_only_lr_token(value: float) -> str:
+def _micro_lr_token(value: float) -> str:
     return f"lr{int(round(float(value) * 1_000_000)):06d}u"
-
-
-def _page_only_policy_slug(config: RecognitionEvalDatasetConfig) -> str:
-    width_token = {"global_2000_pad": "wg", "batch_max_pad": "wb"}[config.width_policy]
-    oversampling_token = {"none": "on", "cer_weighted": "oc"}[config.oversampling_policy]
-    augmentation_token = {
-        "none": "an",
-        "background_only": "ab",
-        "background_plus_rotation": "ar",
-    }[config.augmentation_policy]
-    scheduler_token = {"none": "sn", "step": "ss", "cosine": "sc"}[config.lr_scheduler]
-    optimizer_token = {"adadelta": "optd", "adam": "opta"}[config.optimizer]
-    return (
-        f"{width_token}_{oversampling_token}_{augmentation_token}_{scheduler_token}_"
-        f"{optimizer_token}_{_page_only_lr_token(float(config.training_overrides['lr']))}"
-    )
 
 
 def _page_plus_history_policy_slug(config: RecognitionEvalDatasetConfig) -> str:
@@ -134,7 +81,7 @@ def _page_plus_history_policy_slug(config: RecognitionEvalDatasetConfig) -> str:
     history_token = f"hist{int(config.history_sample_line_count):02d}"
     return (
         f"{width_token}_{oversampling_token}_{augmentation_token}_{history_token}_{scheduler_token}_"
-        f"{optimizer_token}_{_page_only_lr_token(float(config.training_overrides['lr']))}"
+        f"{optimizer_token}_{_micro_lr_token(float(config.training_overrides['lr']))}"
     )
 
 
@@ -244,8 +191,9 @@ def _summarize_checkpoint_path(path, run_dir: Path) -> str:
         return str(resolved_path)
 
 
-def _write_policy_summary(path, status, policy_slug, dataset_config, steps, curve_metrics, failure_message):
+def _write_policy_summary(path, status, policy_slug, dataset_config, steps, curve_metrics, failure_message, warnings=None):
     run_dir = path.parent
+    warnings = list(warnings or [])
     lines = [
         f"# Recognition Fine-Tuning Policy Run: {policy_slug}",
         "",
@@ -305,6 +253,10 @@ def _write_policy_summary(path, status, policy_slug, dataset_config, steps, curv
             f"output_checkpoint={_summarize_checkpoint_path(step['output_checkpoint'], run_dir)}"
         )
 
+    if warnings:
+        lines.extend(["", "## Warnings", ""])
+        lines.extend(f"- {warning}" for warning in warnings)
+
     if failure_message:
         lines.extend(["", "## Failure", "", failure_message])
 
@@ -341,8 +293,12 @@ def _run_single_policy_run(
     prepared_pages,
     evaluation_pages,
     gt_subset_dir: Path,
-    slug_builder=_policy_slug,
+    slug_builder=_page_plus_history_policy_slug,
+    regression_guard_mode: str = "fail",
 ):
+    if regression_guard_mode not in {"fail", "warn"}:
+        raise ValueError(f"Unsupported regression_guard_mode: {regression_guard_mode}")
+
     run_dir.mkdir(parents=True, exist_ok=True)
     policy_slug = slug_builder(dataset_config)
     config_payload = {
@@ -365,6 +321,7 @@ def _run_single_policy_run(
     selector_metrics = []
     status = "passed"
     failure_message = ""
+    warnings = []
     current_checkpoint = PRETRAINED_OCR_CHECKPOINT
     previous_page_cer = None
 
@@ -399,23 +356,12 @@ def _run_single_policy_run(
             else:
                 train_page_id = fine_tune_page_ids[step_index - 1]
                 step_label = f"page_{train_page_id}"
-                if dataset_config.training_policy == "cumulative":
-                    training_page_ids = fine_tune_page_ids[:step_index]
-                    history_source_page_ids = []
-                    history_source_pages = None
-                    history_sample_line_count = 0
-                elif dataset_config.training_policy == "page_only":
-                    training_page_ids = [train_page_id]
-                    history_source_page_ids = []
-                    history_source_pages = None
-                    history_sample_line_count = 0
-                elif dataset_config.training_policy == "page_plus_random_history":
-                    training_page_ids = [train_page_id]
-                    history_source_page_ids = fine_tune_page_ids[: step_index - 1]
-                    history_source_pages = [prepared_pages[page_id] for page_id in history_source_page_ids]
-                    history_sample_line_count = dataset_config.history_sample_line_count
-                else:
+                if dataset_config.training_policy != "page_plus_random_history":
                     raise ValueError(f"Unsupported training policy: {dataset_config.training_policy}")
+                training_page_ids = [train_page_id]
+                history_source_page_ids = fine_tune_page_ids[: step_index - 1]
+                history_source_pages = [prepared_pages[page_id] for page_id in history_source_page_ids]
+                history_sample_line_count = dataset_config.history_sample_line_count
 
                 train_dataset_page_count = len(training_page_ids)
                 train_dataset_current_page_line_count = 0
@@ -590,9 +536,14 @@ def _run_single_policy_run(
                 )
 
             if not regression_guard_passed:
-                raise AssertionError(
+                warning_message = (
                     f"Step {step_index} ({step_label}) regressed aggregate page CER by "
                     f"{delta_page_cer:.6f}, exceeding {dataset_config.regression_guard_abs:.6f}."
+                )
+                if regression_guard_mode == "fail":
+                    raise AssertionError(warning_message)
+                warnings.append(
+                    f"Regression guard warning only: {warning_message}"
                 )
 
             previous_page_cer = aggregate_page_cer
@@ -611,12 +562,22 @@ def _run_single_policy_run(
     selector_metrics_path = run_dir / "selector_metrics.json"
     plot_path = run_dir / "plots" / "page_cer_vs_finetune_pages.png"
 
-    _write_policy_summary(summary_path, status, policy_slug, dataset_config, steps, curve_metrics, failure_message)
+    _write_policy_summary(
+        summary_path,
+        status,
+        policy_slug,
+        dataset_config,
+        steps,
+        curve_metrics,
+        failure_message,
+        warnings=warnings,
+    )
     _write_json(
         metrics_path,
         {
             "status": status,
             "failure_message": failure_message,
+            "warnings": warnings,
             "run_dir": str(run_dir.resolve()),
             "config": config_payload,
             "policy": _policy_descriptor(dataset_config),
@@ -674,6 +635,7 @@ def _run_single_policy_run(
     return {
         "status": status,
         "failure_message": failure_message,
+        "warnings": warnings,
         "run_dir": run_dir,
         "summary_path": summary_path,
         "metrics_path": metrics_path,
@@ -688,23 +650,6 @@ def _run_single_policy_run(
         "policy": _policy_descriptor(dataset_config),
         "policy_slug": policy_slug,
     }
-
-
-def _choose_better_run(current_best, candidate_result):
-    if candidate_result["status"] != "passed":
-        return current_best, False, "candidate failed"
-
-    candidate_curve = candidate_result["curve_metrics"]["curve_metric_value"]
-    current_curve = current_best["curve_metrics"]["curve_metric_value"]
-    candidate_guard = candidate_result["curve_metrics"]["regression_guard_passed"]
-    current_guard = current_best["curve_metrics"]["regression_guard_passed"]
-
-    if candidate_guard and (not current_guard or candidate_curve < current_curve):
-        return candidate_result, True, "candidate improved curve metric and passed regression guard"
-
-    if not candidate_guard:
-        return current_best, False, "candidate failed the regression guard"
-    return current_best, False, "baseline remained better on the primary curve metric"
 
 
 def _winning_policy_entry(policy_result, metric_key, metric_name):
@@ -776,36 +721,6 @@ def _select_winning_policies_by_metric(policy_results, dataset_config: Recogniti
     }
 
 
-def _write_historical_study_summary(path, dataset_name, policy_results, decisions, winning_result):
-    lines = [
-        f"# Recognition Fine-Tuning Study: {dataset_name}",
-        "",
-        "Study mode: `historical_blocker_first`",
-        "",
-        f"Winning policy: `{winning_result['policy_slug']}`",
-        "",
-        "## Decisions",
-        "",
-    ]
-    for decision in decisions:
-        lines.append(
-            f"- {decision['axis']}: baseline `{decision['baseline_policy']}` vs challenger "
-            f"`{decision['challenger_policy']}` ({decision['reason']})."
-        )
-
-    lines.extend(["", "## Policy Runs", ""])
-    for policy_result in policy_results:
-        curve_metrics = policy_result["curve_metrics"]
-        lines.append(
-            f"- `{policy_result['policy_slug']}`: status={policy_result['status']}, "
-            f"curve_metric={curve_metrics['curve_metric_value']}, "
-            f"guard={curve_metrics['regression_guard_passed']}, "
-            f"final_page_cer={curve_metrics['final_page_cer']}"
-        )
-
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 def _write_policy_study_summary(path, dataset_config, policy_results, winning_policies_by_metric, study_mode):
     primary_winner = winning_policies_by_metric.get("primary_curve_metric", {})
     lines = [
@@ -865,365 +780,209 @@ def _copy_latest_artifacts(
     )
 
 
-def _build_focused_policy_matrix(dataset_config: RecognitionEvalDatasetConfig):
-    policy_matrix = []
-    for structural_policy in dataset_config.focused_structural_policies:
-        structural_config = dataset_config.with_structural_policy(structural_policy).with_updates(lr_scheduler="none")
-        for optimizer in dataset_config.focused_optimizers:
-            optimizer_config = structural_config.with_optimizer(optimizer)
-            for lr in dataset_config.focused_learning_rates:
-                policy_matrix.append(optimizer_config.with_learning_rate(lr))
-    return policy_matrix
-
-
-def run_historical_blocker_first_experiment(dataset_name="eval_dataset"):
-    dataset_config = get_historical_broad_search_config(dataset_name)
-    run_dir, prepared_pages, evaluation_pages, gt_subset_dir = _prepare_study_inputs(dataset_config)
-
-    policy_results = []
-    decisions = []
-
-    baseline_result = _run_single_policy_run(
-        run_dir / "policies" / _historical_policy_slug(dataset_config),
-        dataset_config,
-        prepared_pages,
-        evaluation_pages,
-        gt_subset_dir,
-        slug_builder=_historical_policy_slug,
-    )
-    policy_results.append(baseline_result)
-    if baseline_result["status"] != "passed":
-        raise AssertionError(baseline_result["failure_message"])
-
-    best_config = dataset_config
-    best_result = baseline_result
-
-    width_candidate = best_config.with_updates(width_policy="batch_max_pad")
-    width_result = _run_single_policy_run(
-        run_dir / "policies" / _historical_policy_slug(width_candidate),
-        width_candidate,
-        prepared_pages,
-        evaluation_pages,
-        gt_subset_dir,
-        slug_builder=_historical_policy_slug,
-    )
-    policy_results.append(width_result)
-    previous_best_slug = best_result["policy_slug"]
-    best_result, promoted, reason = _choose_better_run(best_result, width_result)
-    if promoted:
-        best_config = width_candidate
-    decisions.append(
-        {
-            "axis": "width_policy",
-            "baseline_policy": previous_best_slug,
-            "kept_policy": best_result["policy_slug"],
-            "challenger_policy": width_result["policy_slug"],
-            "reason": reason,
-        }
-    )
-
-    oversampling_candidate = best_config.with_updates(oversampling_policy="cer_weighted")
-    oversampling_result = _run_single_policy_run(
-        run_dir / "policies" / _historical_policy_slug(oversampling_candidate),
-        oversampling_candidate,
-        prepared_pages,
-        evaluation_pages,
-        gt_subset_dir,
-        slug_builder=_historical_policy_slug,
-    )
-    policy_results.append(oversampling_result)
-    previous_best_slug = best_result["policy_slug"]
-    best_result, promoted, reason = _choose_better_run(best_result, oversampling_result)
-    if promoted:
-        best_config = oversampling_candidate
-    decisions.append(
-        {
-            "axis": "oversampling_policy",
-            "baseline_policy": previous_best_slug,
-            "kept_policy": best_result["policy_slug"],
-            "challenger_policy": oversampling_result["policy_slug"],
-            "reason": reason,
-        }
-    )
-
-    for augmentation_policy in ("background_only", "background_plus_rotation"):
-        augmentation_candidate = best_config.with_updates(augmentation_policy=augmentation_policy)
-        augmentation_result = _run_single_policy_run(
-            run_dir / "policies" / _historical_policy_slug(augmentation_candidate),
-            augmentation_candidate,
-            prepared_pages,
-            evaluation_pages,
-            gt_subset_dir,
-            slug_builder=_historical_policy_slug,
-        )
-        policy_results.append(augmentation_result)
-        previous_best_slug = best_result["policy_slug"]
-        best_result, promoted, reason = _choose_better_run(best_result, augmentation_result)
-        if promoted:
-            best_config = augmentation_candidate
-        decisions.append(
-            {
-                "axis": f"augmentation_policy:{augmentation_policy}",
-                "baseline_policy": previous_best_slug,
-                "kept_policy": best_result["policy_slug"],
-                "challenger_policy": augmentation_result["policy_slug"],
-                "reason": reason,
-            }
-        )
-
-    scheduler_candidates = [
-        best_config.with_updates(lr_scheduler="none").with_learning_rate(0.05),
-        best_config.with_updates(lr_scheduler="none").with_learning_rate(0.1),
-        best_config.with_updates(lr_scheduler="step").with_learning_rate(0.1),
-        best_config.with_updates(lr_scheduler="step").with_learning_rate(0.2),
-        best_config.with_updates(lr_scheduler="cosine").with_learning_rate(0.1),
-        best_config.with_updates(lr_scheduler="cosine").with_learning_rate(0.2),
-    ]
-
-    for scheduler_candidate in scheduler_candidates:
-        scheduler_result = _run_single_policy_run(
-            run_dir / "policies" / _historical_policy_slug(scheduler_candidate),
-            scheduler_candidate,
-            prepared_pages,
-            evaluation_pages,
-            gt_subset_dir,
-            slug_builder=_historical_policy_slug,
-        )
-        policy_results.append(scheduler_result)
-        previous_best_slug = best_result["policy_slug"]
-        best_result, promoted, reason = _choose_better_run(best_result, scheduler_result)
-        if promoted:
-            best_config = scheduler_candidate
-        decisions.append(
-            {
-                "axis": f"lr_scheduler:{scheduler_candidate.lr_scheduler}:{scheduler_candidate.training_overrides['lr']}",
-                "baseline_policy": previous_best_slug,
-                "kept_policy": best_result["policy_slug"],
-                "challenger_policy": scheduler_result["policy_slug"],
-                "reason": reason,
-            }
-        )
-
-    study_summary_path = run_dir / "summary.md"
-    study_metrics_path = run_dir / "metrics.json"
-    _write_historical_study_summary(study_summary_path, dataset_name, policy_results, decisions, best_result)
-    _write_json(
-        study_metrics_path,
-        {
-            "study_mode": "historical_blocker_first",
-            "dataset_name": dataset_name,
-            "run_dir": str(run_dir.resolve()),
-            "winning_policy": best_result["policy_slug"],
-            "winning_curve_metrics": best_result["curve_metrics"],
-            "policy_run_count": len(policy_results),
-            "policy_runs": [
-                {
-                    "policy_slug": policy_result["policy_slug"],
-                    "status": policy_result["status"],
-                    "policy": policy_result["policy"],
-                    "curve_metrics": policy_result["curve_metrics"],
-                    "metrics_path": str(policy_result["metrics_path"].resolve()),
-                }
-                for policy_result in policy_results
-            ],
-            "decisions": decisions,
-        },
-    )
-    _copy_latest_artifacts(run_dir, study_summary_path, study_metrics_path, best_result["plot_path"])
+def _threshold_result(metric_name: str, observed, operator: str, threshold: float) -> dict:
+    if operator == "<=":
+        passed = observed is not None and observed <= threshold
+    elif operator == ">=":
+        passed = observed is not None and observed >= threshold
+    else:
+        raise ValueError(f"Unsupported threshold operator: {operator}")
 
     return {
-        "study_mode": "historical_blocker_first",
-        "run_dir": run_dir,
-        "summary_path": study_summary_path,
-        "metrics_path": study_metrics_path,
-        "policy_runs": policy_results,
-        "winning_policy": best_result["policy_slug"],
-        "curve_metrics": best_result["curve_metrics"],
-        "steps": best_result["steps"],
-        "decisions": decisions,
+        "metric_name": metric_name,
+        "observed": observed,
+        "operator": operator,
+        "threshold": threshold,
+        "passed": passed,
+    }
+
+
+def _build_recognition_precommit_threshold_results(curve_metrics: dict, gate_config) -> dict:
+    return {
+        "curve_metric_value": _threshold_result(
+            gate_config.recipe.curve_metric,
+            curve_metrics.get("curve_metric_value"),
+            "<=",
+            gate_config.max_curve_metric_value,
+        ),
+        "final_page_cer": _threshold_result(
+            "final_page_cer",
+            curve_metrics.get("final_page_cer"),
+            "<=",
+            gate_config.max_final_page_cer,
+        ),
+        "first_step_gain": _threshold_result(
+            "first_step_gain",
+            curve_metrics.get("first_step_gain"),
+            ">=",
+            gate_config.min_first_step_gain,
+        ),
+    }
+
+
+def _recognition_precommit_threshold_failure_message(threshold_results: dict) -> str:
+    failed_checks = []
+    for result in threshold_results.values():
+        if result["passed"]:
+            continue
+        failed_checks.append(
+            f"{result['metric_name']}={result['observed']} must be {result['operator']} {result['threshold']}"
+        )
+    if not failed_checks:
+        return ""
+    return "Recognition fine-tuning gate threshold failure: " + "; ".join(failed_checks)
+
+
+def _build_recognition_precommit_dataset_result(dataset_name: str, policy_result: dict) -> dict:
+    gate_config = get_recognition_precommit_dataset(dataset_name)
+    curve_metrics = policy_result["curve_metrics"]
+    threshold_results = _build_recognition_precommit_threshold_results(curve_metrics, gate_config)
+    blocking_thresholds_passed = all(result["passed"] for result in threshold_results.values())
+    warnings = list(policy_result.get("warnings", []))
+
+    if gate_config.regression_guard_warning_only and not curve_metrics.get("regression_guard_passed", False):
+        warning_summary = (
+            f"Regression guard warning only: max_regression={curve_metrics.get('max_regression')} "
+            f"exceeded {gate_config.recipe.regression_guard_abs}."
+        )
+        if warning_summary not in warnings:
+            warnings.append(warning_summary)
+
+    if policy_result["status"] != "passed":
+        status = "failed"
+        failure_message = policy_result["failure_message"] or "Recognition fine-tuning policy run failed."
+    elif blocking_thresholds_passed:
+        status = "passed"
+        failure_message = ""
+    else:
+        status = "failed"
+        failure_message = _recognition_precommit_threshold_failure_message(threshold_results)
+
+    return {
+        "study_mode": "recognition_precommit_gate",
+        "dataset_name": dataset_name,
+        "status": status,
+        "passed": status == "passed",
+        "failure_message": failure_message,
+        "policy_slug": policy_result["policy_slug"],
+        "policy": policy_result["policy"],
+        "curve_metrics": curve_metrics,
+        "threshold_results": threshold_results,
+        "blocking_thresholds_passed": blocking_thresholds_passed,
+        "regression_guard_warning_only": gate_config.regression_guard_warning_only,
+        "warnings": warnings,
+        "policy_run_dir": policy_result["run_dir"],
+        "policy_summary_path": policy_result["summary_path"],
+        "policy_metrics_path": policy_result["metrics_path"],
+        "curve_metrics_path": policy_result["curve_metrics_path"],
+        "per_page_csv_path": policy_result["per_page_csv_path"],
+        "per_line_csv_path": policy_result["per_line_csv_path"],
+        "fine_tune_metadata_path": policy_result["fine_tune_metadata_path"],
+        "selector_metrics_path": policy_result["selector_metrics_path"],
+        "plot_path": policy_result["plot_path"],
+    }
+
+
+def _write_recognition_precommit_summary(path: Path, dataset_result: dict) -> None:
+    policy = dataset_result["policy"]
+    curve_metrics = dataset_result["curve_metrics"]
+    threshold_results = dataset_result["threshold_results"]
+
+    lines = [
+        f"# Recognition Fine-Tuning Pre-Commit Gate: {dataset_result['dataset_name']}",
+        "",
+        f"Status: **{dataset_result['status'].upper()}**",
+        "",
+        f"Policy slug: `{dataset_result['policy_slug']}`",
+        "",
+        "## Policy",
+        "",
+        f"- training_policy={policy['training_policy']}",
+        f"- history_sample_line_count={policy['history_sample_line_count']}",
+        f"- width_policy={policy['width_policy']}",
+        f"- oversampling_policy={policy['oversampling_policy']}",
+        f"- augmentation_policy={policy['augmentation_policy']}",
+        f"- lr_scheduler={policy['lr_scheduler']}",
+        f"- optimizer={policy['optimizer']}",
+        f"- lr={_format_lr(policy['lr'])}",
+        f"- num_iter={policy['num_iter']}",
+        f"- curve_metric={policy['curve_metric']}",
+        f"- regression_guard_abs={policy['regression_guard_abs']}",
+        f"- regression_guard_warning_only={dataset_result['regression_guard_warning_only']}",
+        "",
+        "## Metrics",
+        "",
+        f"- curve_metric_value={curve_metrics['curve_metric_value']}",
+        f"- final_page_cer={curve_metrics['final_page_cer']}",
+        f"- first_step_gain={curve_metrics['first_step_gain']}",
+        f"- regression_guard_passed={curve_metrics['regression_guard_passed']}",
+        f"- max_regression={curve_metrics['max_regression']}",
+        "",
+        "## Thresholds",
+        "",
+    ]
+
+    for threshold_name, result in threshold_results.items():
+        lines.append(
+            f"- {threshold_name}: observed={result['observed']}, "
+            f"required {result['operator']} {result['threshold']}, "
+            f"passed={result['passed']}"
+        )
+
+    if dataset_result["warnings"]:
+        lines.extend(["", "## Warnings", ""])
+        lines.extend(f"- {warning}" for warning in dataset_result["warnings"])
+
+    if dataset_result["failure_message"]:
+        lines.extend(["", "## Failure", "", dataset_result["failure_message"]])
+
+    lines.extend(
+        [
+            "",
+            "## Artifacts",
+            "",
+            f"- policy_summary={dataset_result['policy_summary_path'].resolve()}",
+            f"- policy_metrics={dataset_result['policy_metrics_path'].resolve()}",
+            f"- fine_tune_metadata={dataset_result['fine_tune_metadata_path'].resolve()}",
+        ]
+    )
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _jsonable_recognition_precommit_dataset_result(dataset_result: dict) -> dict:
+    return {
+        "study_mode": dataset_result["study_mode"],
+        "dataset_name": dataset_result["dataset_name"],
+        "status": dataset_result["status"],
+        "passed": dataset_result["passed"],
+        "failure_message": dataset_result["failure_message"],
+        "policy_slug": dataset_result["policy_slug"],
+        "policy": dataset_result["policy"],
+        "curve_metrics": dataset_result["curve_metrics"],
+        "threshold_results": dataset_result["threshold_results"],
+        "blocking_thresholds_passed": dataset_result["blocking_thresholds_passed"],
+        "regression_guard_warning_only": dataset_result["regression_guard_warning_only"],
+        "warnings": dataset_result["warnings"],
+        "policy_run_dir": str(dataset_result["policy_run_dir"].resolve()),
+        "policy_summary_path": str(dataset_result["policy_summary_path"].resolve()),
+        "policy_metrics_path": str(dataset_result["policy_metrics_path"].resolve()),
+        "curve_metrics_path": str(dataset_result["curve_metrics_path"].resolve()),
+        "per_page_csv_path": str(dataset_result["per_page_csv_path"].resolve()),
+        "per_line_csv_path": str(dataset_result["per_line_csv_path"].resolve()),
+        "fine_tune_metadata_path": str(dataset_result["fine_tune_metadata_path"].resolve()),
+        "selector_metrics_path": str(dataset_result["selector_metrics_path"].resolve()),
+        "plot_path": str(dataset_result["plot_path"].resolve()),
     }
 
 
 def run_recognition_finetuning_experiment(dataset_name="eval_dataset"):
-    dataset_config = get_dataset_config(dataset_name)
-    run_dir, prepared_pages, evaluation_pages, gt_subset_dir = _prepare_study_inputs(dataset_config)
-
-    policy_results = []
-    for policy_config in _build_focused_policy_matrix(dataset_config):
-        policy_slug = _policy_slug(policy_config)
-        policy_results.append(
-            _run_single_policy_run(
-                run_dir / "policies" / policy_slug,
-                policy_config,
-                prepared_pages,
-                evaluation_pages,
-                gt_subset_dir,
-                slug_builder=_policy_slug,
-            )
-        )
-
-    winning_policies_by_metric = _select_winning_policies_by_metric(policy_results, dataset_config)
-    primary_winner_slug = winning_policies_by_metric.get("primary_curve_metric", {}).get("policy_slug")
-    primary_result = next(
-        (policy_result for policy_result in policy_results if policy_result["policy_slug"] == primary_winner_slug),
-        None,
-    )
-
-    study_summary_path = run_dir / "summary.md"
-    study_metrics_path = run_dir / "metrics.json"
-    _write_policy_study_summary(
-        study_summary_path,
-        dataset_config,
-        policy_results,
-        winning_policies_by_metric,
-        study_mode="focused_followup_matrix",
-    )
-
-    metrics_payload = {
-        "study_mode": "focused_followup_matrix",
-        "dataset_name": dataset_name,
-        "run_dir": str(run_dir.resolve()),
-        "winning_policy": primary_winner_slug,
-        "winning_curve_metrics": primary_result["curve_metrics"] if primary_result else None,
-        "winning_policies_by_metric": winning_policies_by_metric,
-        "policy_run_count": len(policy_results),
-        "failed_policy_runs": [
-            policy_result["policy_slug"]
-            for policy_result in policy_results
-            if policy_result["status"] != "passed"
-        ],
-        "policy_runs": [
-            {
-                "policy_slug": policy_result["policy_slug"],
-                "status": policy_result["status"],
-                "policy": policy_result["policy"],
-                "curve_metrics": policy_result["curve_metrics"],
-                "metrics_path": str(policy_result["metrics_path"].resolve()),
-                "summary_path": str(policy_result["summary_path"].resolve()),
-            }
-            for policy_result in policy_results
-        ],
-    }
-    _write_json(study_metrics_path, metrics_payload)
-    if primary_result is not None:
-        _copy_latest_artifacts(run_dir, study_summary_path, study_metrics_path, primary_result["plot_path"])
-
-    if primary_result is None:
-        raise AssertionError("Focused study did not produce any passed policy runs.")
-
-    return {
-        "study_mode": "focused_followup_matrix",
-        "run_dir": run_dir,
-        "summary_path": study_summary_path,
-        "metrics_path": study_metrics_path,
-        "policy_runs": policy_results,
-        "winning_policy": primary_winner_slug,
-        "winning_policies_by_metric": winning_policies_by_metric,
-        "curve_metrics": primary_result["curve_metrics"],
-        "steps": primary_result["steps"],
-        "failed_policy_runs": metrics_payload["failed_policy_runs"],
-    }
-
-
-def run_page_only_continuation_experiment(dataset_name="eval_dataset"):
-    policy_configs = get_page_only_followup_policy_configs(dataset_name)
-    if not policy_configs:
-        raise AssertionError("Page-only continuation study requires at least one explicit policy config.")
-
-    dataset_config = policy_configs[0]
-    run_dir, prepared_pages, evaluation_pages, gt_subset_dir = _prepare_study_inputs(
-        dataset_config,
-        study_slug="pageonly",
-    )
-
-    policy_results = []
-    for policy_config in policy_configs:
-        policy_slug = _page_only_policy_slug(policy_config)
-        policy_results.append(
-            _run_single_policy_run(
-                run_dir / "policies" / policy_slug,
-                policy_config,
-                prepared_pages,
-                evaluation_pages,
-                gt_subset_dir,
-                slug_builder=_page_only_policy_slug,
-            )
-        )
-
-    winning_policies_by_metric = _select_winning_policies_by_metric(policy_results, dataset_config)
-    primary_winner_slug = winning_policies_by_metric.get("primary_curve_metric", {}).get("policy_slug")
-    primary_result = next(
-        (policy_result for policy_result in policy_results if policy_result["policy_slug"] == primary_winner_slug),
-        None,
-    )
-
-    study_summary_path = run_dir / "summary.md"
-    study_metrics_path = run_dir / "metrics.json"
-    _write_policy_study_summary(
-        study_summary_path,
-        dataset_config,
-        policy_results,
-        winning_policies_by_metric,
-        study_mode="page_only_policy_continuation",
-    )
-
-    metrics_payload = {
-        "study_mode": "page_only_policy_continuation",
-        "dataset_name": dataset_name,
-        "run_dir": str(run_dir.resolve()),
-        "winning_policy": primary_winner_slug,
-        "winning_curve_metrics": primary_result["curve_metrics"] if primary_result else None,
-        "winning_policies_by_metric": winning_policies_by_metric,
-        "policy_run_count": len(policy_results),
-        "failed_policy_runs": [
-            policy_result["policy_slug"]
-            for policy_result in policy_results
-            if policy_result["status"] != "passed"
-        ],
-        "policy_runs": [
-            {
-                "policy_slug": policy_result["policy_slug"],
-                "status": policy_result["status"],
-                "policy": policy_result["policy"],
-                "curve_metrics": policy_result["curve_metrics"],
-                "metrics_path": str(policy_result["metrics_path"].resolve()),
-                "summary_path": str(policy_result["summary_path"].resolve()),
-                "fine_tune_metadata_path": str(policy_result["fine_tune_metadata_path"].resolve()),
-            }
-            for policy_result in policy_results
-        ],
-    }
-    _write_json(study_metrics_path, metrics_payload)
-    if primary_result is not None:
-        _copy_latest_artifacts(
-            run_dir,
-            study_summary_path,
-            study_metrics_path,
-            primary_result["plot_path"],
-            latest_basename="recognition_finetune_page_only_latest",
-        )
-
-    if primary_result is None:
-        raise AssertionError("Page-only continuation study did not produce any passed policy runs.")
-
-    return {
-        "study_mode": "page_only_policy_continuation",
-        "run_dir": run_dir,
-        "summary_path": study_summary_path,
-        "metrics_path": study_metrics_path,
-        "policy_runs": policy_results,
-        "winning_policy": primary_winner_slug,
-        "winning_policies_by_metric": winning_policies_by_metric,
-        "curve_metrics": primary_result["curve_metrics"],
-        "steps": primary_result["steps"],
-        "failed_policy_runs": metrics_payload["failed_policy_runs"],
-    }
+    return run_page_plus_random_history_experiment(dataset_name=dataset_name)
 
 
 def run_page_plus_random_history_experiment(dataset_name="eval_dataset"):
     policy_configs = get_page_plus_random_history_policy_configs(dataset_name)
     if not policy_configs:
-        raise AssertionError("Page-plus-history study requires at least one explicit policy config.")
+        raise AssertionError("Hybrid page-plus-history study requires at least one explicit policy config.")
 
     dataset_config = policy_configs[0]
     run_dir, prepared_pages, evaluation_pages, gt_subset_dir = _prepare_study_inputs(
@@ -1295,7 +1054,7 @@ def run_page_plus_random_history_experiment(dataset_name="eval_dataset"):
             study_summary_path,
             study_metrics_path,
             primary_result["plot_path"],
-            latest_basename="recognition_finetune_page_plus_history_latest",
+            latest_basename="recognition_finetune_results_latest",
         )
 
     if primary_result is None:
@@ -1313,3 +1072,54 @@ def run_page_plus_random_history_experiment(dataset_name="eval_dataset"):
         "steps": primary_result["steps"],
         "failed_policy_runs": metrics_payload["failed_policy_runs"],
     }
+
+
+def run_recognition_precommit_gate(dataset_name="eval_dataset"):
+    gate_config = get_recognition_precommit_dataset(dataset_name)
+    dataset_config = get_precommit_hybrid_recognition_gate_config(dataset_name)
+    run_dir, prepared_pages, evaluation_pages, gt_subset_dir = _prepare_study_inputs(
+        dataset_config,
+        study_slug="precommit",
+    )
+
+    policy_slug = _page_plus_history_policy_slug(dataset_config)
+    policy_result = _run_single_policy_run(
+        run_dir / "policy" / policy_slug,
+        dataset_config,
+        prepared_pages,
+        evaluation_pages,
+        gt_subset_dir,
+        slug_builder=_page_plus_history_policy_slug,
+        regression_guard_mode="warn" if gate_config.regression_guard_warning_only else "fail",
+    )
+    dataset_result = _build_recognition_precommit_dataset_result(dataset_name, policy_result)
+
+    summary_path = run_dir / "summary.md"
+    metrics_path = run_dir / "metrics.json"
+    dataset_result["run_dir"] = run_dir
+    dataset_result["summary_path"] = summary_path
+    dataset_result["metrics_path"] = metrics_path
+
+    _write_recognition_precommit_summary(summary_path, dataset_result)
+    jsonable_dataset_result = _jsonable_recognition_precommit_dataset_result(dataset_result)
+    jsonable_dataset_result["run_dir"] = str(run_dir.resolve())
+    jsonable_dataset_result["summary_path"] = str(summary_path.resolve())
+    jsonable_dataset_result["metrics_path"] = str(metrics_path.resolve())
+    _write_json(
+        metrics_path,
+        {
+            "study_mode": "recognition_precommit_gate",
+            "run_dir": str(run_dir.resolve()),
+            "dataset_results": {dataset_name: jsonable_dataset_result},
+            "failed_datasets": [] if dataset_result["passed"] else [dataset_name],
+            "passed_dataset_count": 1 if dataset_result["passed"] else 0,
+        },
+    )
+    _copy_latest_artifacts(
+        run_dir,
+        summary_path,
+        metrics_path,
+        policy_result["plot_path"],
+        latest_basename=RECOGNITION_PRECOMMIT_LATEST_BASENAME,
+    )
+    return dataset_result

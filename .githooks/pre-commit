@@ -1,13 +1,6 @@
 #!/bin/sh
-
 exit 0
-
 set -eu
-
-if [ "${SKIP_EVAL_HOOK:-0}" = "1" ]; then
-  echo "[pre-commit] SKIP_EVAL_HOOK=1, skipping evaluation test."
-  exit 0
-fi
 
 repo_root="$(git rev-parse --show-toplevel)"
 

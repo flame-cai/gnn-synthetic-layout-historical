@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
+from tests.precommit_gate_config import get_recognition_precommit_dataset
+
 
 TESTS_ROOT = Path(__file__).resolve().parent
 
@@ -14,43 +16,6 @@ def _normalize_optimizer_name(value: str) -> str:
     return normalized
 
 
-@dataclass(frozen=True)
-class FocusedStructuralPolicy:
-    slug: str
-    width_policy: str
-    oversampling_policy: str
-    augmentation_policy: str
-
-    def apply(self, config: "RecognitionEvalDatasetConfig") -> "RecognitionEvalDatasetConfig":
-        return config.with_updates(
-            width_policy=self.width_policy,
-            oversampling_policy=self.oversampling_policy,
-            augmentation_policy=self.augmentation_policy,
-        )
-
-
-DEFAULT_FOCUSED_STRUCTURAL_POLICIES = (
-    FocusedStructuralPolicy(
-        slug="wb_oc_ar",
-        width_policy="batch_max_pad",
-        oversampling_policy="cer_weighted",
-        augmentation_policy="background_plus_rotation",
-    ),
-    FocusedStructuralPolicy(
-        slug="wb_oc_an",
-        width_policy="batch_max_pad",
-        oversampling_policy="cer_weighted",
-        augmentation_policy="none",
-    ),
-    FocusedStructuralPolicy(
-        slug="wb_on_an",
-        width_policy="batch_max_pad",
-        oversampling_policy="none",
-        augmentation_policy="none",
-    ),
-)
-
-
 DEFAULT_TRAINING_OVERRIDES = {
     "num_iter": 60,
     "valInterval": 5,
@@ -59,14 +24,6 @@ DEFAULT_TRAINING_OVERRIDES = {
     "batch_size": 1,
     "workers": 0,
 }
-
-
-PAGE_ONLY_FOLLOWUP_POLICIES = (
-    {"optimizer": "adam", "lr": 0.00005, "num_iter": 60},
-    {"optimizer": "adam", "lr": 0.00001, "num_iter": 200},
-    {"optimizer": "adadelta", "lr": 0.2, "num_iter": 60},
-    {"optimizer": "adadelta", "lr": 0.05, "num_iter": 200},
-)
 
 
 PAGE_PLUS_RANDOM_HISTORY_POLICIES = (
@@ -84,8 +41,8 @@ class RecognitionEvalDatasetConfig:
     fine_tune_page_count: int = 9
     eval_page_start_index: int = 9
     eval_page_end_index: int = 15
-    training_policy: str = "cumulative"
-    history_sample_line_count: int = 0
+    training_policy: str = "page_plus_random_history"
+    history_sample_line_count: int = 10
     validation_ratio: float = 0.0
     split_seed: int = 42
     width_policy: str = "batch_max_pad"
@@ -95,11 +52,6 @@ class RecognitionEvalDatasetConfig:
     optimizer: str = "adadelta"
     regression_guard_abs: float = 0.005
     curve_metric: str = "early_weighted_page_cer"
-    focused_learning_rates: tuple[float, ...] = (0.001, 0.01, 0.2, 0.5)
-    focused_optimizers: tuple[str, ...] = ("adadelta", "adam")
-    focused_structural_policies: tuple[FocusedStructuralPolicy, ...] = field(
-        default_factory=lambda: DEFAULT_FOCUSED_STRUCTURAL_POLICIES
-    )
     background_plus_rotation_variant_count: int = 10
     shuffle_train_each_epoch: bool = True
     training_overrides: dict = field(default_factory=lambda: dict(DEFAULT_TRAINING_OVERRIDES))
@@ -111,18 +63,18 @@ class RecognitionEvalDatasetConfig:
         object.__setattr__(self, "optimizer", normalized_optimizer)
         object.__setattr__(self, "training_overrides", normalized_overrides)
 
-    def ordered_page_ids(self):
+    def ordered_page_ids(self) -> list[str]:
         return sorted(path.stem for path in self.images_dir.glob("*.jpg"))
 
-    def fine_tune_page_ids(self):
+    def fine_tune_page_ids(self) -> list[str]:
         ordered = self.ordered_page_ids()
         return ordered[: self.fine_tune_page_count]
 
-    def evaluation_page_ids(self):
+    def evaluation_page_ids(self) -> list[str]:
         ordered = self.ordered_page_ids()
         return ordered[self.eval_page_start_index : self.eval_page_end_index]
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         payload = asdict(self)
         payload["images_dir"] = str(self.images_dir.resolve())
         payload["pagexml_dir"] = str(self.pagexml_dir.resolve())
@@ -131,7 +83,7 @@ class RecognitionEvalDatasetConfig:
         payload["evaluation_page_ids"] = self.evaluation_page_ids()
         return payload
 
-    def with_updates(self, **changes):
+    def with_updates(self, **changes) -> "RecognitionEvalDatasetConfig":
         normalized_changes = dict(changes)
         updated_overrides = dict(normalized_changes.get("training_overrides", self.training_overrides))
         if "optimizer" in normalized_changes:
@@ -146,16 +98,13 @@ class RecognitionEvalDatasetConfig:
         normalized_changes["training_overrides"] = updated_overrides
         return replace(self, **normalized_changes)
 
-    def with_learning_rate(self, lr: float):
+    def with_learning_rate(self, lr: float) -> "RecognitionEvalDatasetConfig":
         updated_overrides = dict(self.training_overrides)
         updated_overrides["lr"] = float(lr)
         return self.with_updates(training_overrides=updated_overrides)
 
-    def with_optimizer(self, optimizer: str):
+    def with_optimizer(self, optimizer: str) -> "RecognitionEvalDatasetConfig":
         return self.with_updates(optimizer=optimizer)
-
-    def with_structural_policy(self, policy: FocusedStructuralPolicy):
-        return policy.apply(self)
 
 
 DATASET_CONFIGS = {
@@ -167,41 +116,20 @@ DATASET_CONFIGS = {
 }
 
 
-def get_dataset_config(name="eval_dataset"):
+def get_dataset_config(name: str = "eval_dataset") -> RecognitionEvalDatasetConfig:
     if name not in DATASET_CONFIGS:
         raise KeyError(f"Unknown recognition evaluation dataset config: {name}")
     return DATASET_CONFIGS[name]
-
-
-def get_historical_broad_search_config(name="eval_dataset"):
-    return get_dataset_config(name).with_updates(
-        fine_tune_page_count=5,
-        width_policy="global_2000_pad",
-        oversampling_policy="none",
-        augmentation_policy="none",
-        optimizer="adadelta",
-        background_plus_rotation_variant_count=1,
-    )
-
-
-def get_page_only_followup_policy_configs(name: str = "eval_dataset") -> tuple[RecognitionEvalDatasetConfig, ...]:
-    base_config = get_dataset_config(name).with_updates(training_policy="page_only")
-    configs = []
-
-    for policy in PAGE_ONLY_FOLLOWUP_POLICIES:
-        policy_config = base_config.with_optimizer(policy["optimizer"])
-        training_overrides = dict(policy_config.training_overrides)
-        training_overrides["lr"] = float(policy["lr"])
-        training_overrides["num_iter"] = int(policy["num_iter"])
-        configs.append(policy_config.with_updates(training_overrides=training_overrides))
-
-    return tuple(configs)
 
 
 def get_page_plus_random_history_policy_configs(name: str = "eval_dataset") -> tuple[RecognitionEvalDatasetConfig, ...]:
     base_config = get_dataset_config(name).with_updates(
         training_policy="page_plus_random_history",
         history_sample_line_count=10,
+        width_policy="batch_max_pad",
+        oversampling_policy="none",
+        augmentation_policy="none",
+        lr_scheduler="none",
     )
     configs = []
 
@@ -213,3 +141,25 @@ def get_page_plus_random_history_policy_configs(name: str = "eval_dataset") -> t
         configs.append(policy_config.with_updates(training_overrides=training_overrides))
 
     return tuple(configs)
+
+
+def get_precommit_hybrid_recognition_gate_config(name: str = "eval_dataset") -> RecognitionEvalDatasetConfig:
+    gate_config = get_recognition_precommit_dataset(name)
+    recipe = gate_config.recipe
+    base_config = get_dataset_config(gate_config.recognition_dataset_config_name).with_updates(
+        training_policy=recipe.training_policy,
+        history_sample_line_count=int(recipe.history_sample_line_count),
+        width_policy=recipe.width_policy,
+        oversampling_policy=recipe.oversampling_policy,
+        augmentation_policy=recipe.augmentation_policy,
+        lr_scheduler=recipe.lr_scheduler,
+        optimizer=recipe.optimizer,
+        curve_metric=recipe.curve_metric,
+        regression_guard_abs=float(recipe.regression_guard_abs),
+        background_plus_rotation_variant_count=int(recipe.background_plus_rotation_variant_count),
+        shuffle_train_each_epoch=bool(recipe.shuffle_train_each_epoch),
+    )
+    training_overrides = dict(base_config.training_overrides)
+    training_overrides["lr"] = float(recipe.lr)
+    training_overrides["num_iter"] = int(recipe.num_iter)
+    return base_config.with_updates(training_overrides=training_overrides)

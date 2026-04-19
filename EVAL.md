@@ -29,13 +29,13 @@ The first question is covered by the existing headless regression gate. The seco
 
 The current evaluation code lives in:
 
+- `app/tests/precommit_gate_config.py`
 - `app/tests/test_ci_e2e.py`
 - `app/tests/test_recognition_active_learning_unit.py`
+- `app/tests/test_recognition_finetuning_precommit_unit.py`
+- `app/tests/test_recognition_finetuning_precommit_e2e.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
-- `app/tests/test_recognition_finetuning_page_only_unit.py`
-- `app/tests/test_recognition_finetuning_page_only_e2e.py`
 - `app/tests/test_recognition_finetuning_page_plus_history_unit.py`
-- `app/tests/test_recognition_finetuning_page_plus_history_e2e.py`
 - `app/tests/evaluate.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
@@ -61,15 +61,17 @@ Examples:
 
 These checks are necessary but not sufficient. They prove that narrow mechanics still behave correctly.
 
-### Level 1: Automatic end-to-end regression
+### Level 1: Pre-commit regression gates
 
-Purpose: verify that the full automatic path still works on a fixed dataset.
+Purpose: screen normal commits with two complementary GUI-free checks.
 
-Current entrypoint:
+Current entrypoints:
 
 - `app/tests/test_ci_e2e.py`
+- `app/tests/test_recognition_finetuning_precommit_e2e.py`
+- `app/tests/precommit_gate_config.py`
 
-This gate runs:
+The first gate runs:
 
 1. manuscript upload
 2. CRAFT plus GNN inference
@@ -77,7 +79,9 @@ This gate runs:
 4. OCR
 5. evaluation against PAGE-XML ground truth
 
-This remains the required pre-commit quality gate for changes that can affect the app, OCR, PAGE-XML generation, evaluation code, or GNN inference.
+The second gate runs one explicit hybrid OCR continuation recipe on perfect PAGE-XML-derived line crops and ground-truth text pairs, records `curve_metric_value`, `final_page_cer`, `first_step_gain`, `regression_guard_passed`, and `max_regression`, and compares only the three blocking metrics against checked-in thresholds. Regression-guard failure is preserved as a warning, not a hard failure, for this gate.
+
+These two checks intentionally validate different failure surfaces. The first remains the required pretrained full-pipeline gate for changes that can affect the app, OCR, PAGE-XML generation, evaluation code, or GNN inference. The second is a surrogate guard for the OCR fine-tuning subsystem while the repository still lacks a true GUI-triggered human-in-the-loop training loop.
 
 ### Level 2: Offline OCR active-learning research harness
 
@@ -110,14 +114,14 @@ As of 2026-04-19, the OCR active-learning harness has the following implemented 
 - explicit width policies: `global_2000_pad` and `batch_max_pad`
 - bounded CER-weighted oversampling
 - OCR-only augmentation policies, including 10 extra `background_plus_rotation` variants per logical train sample or oversampled replica
-- a default focused 24-run follow-up matrix over the three shortlisted structural stacks, learning rates `{0.001, 0.01, 0.2, 0.5}`, and optimizers `{Adadelta, Adam}`
-- a dedicated page-only continuation path where each post-baseline step fine-tunes only on the newly added page while loading the previous step's checkpoint
-- a dedicated page-plus-random-history continuation path where each post-baseline step fine-tunes on the newly added page plus up to 10 randomly sampled lines from earlier fine-tune pages, with deterministic sampling metadata and a first-page fallback to current-page-only training
+- one retained page-plus-random-history continuation path where each post-baseline step fine-tunes on the newly added page plus up to 10 randomly sampled lines from earlier fine-tune pages, with deterministic sampling metadata and a first-page fallback to current-page-only training
 - deterministic loader-level train reshuffling using a seeded `torch.Generator`, with shuffle policy recorded in metadata
 - additive train-dataset metadata that separates `current_page_ids`, `history_source_page_ids`, `history_sample_page_ids`, `history_sample_line_refs`, and per-sample origin markers
 - richer artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, winners-by-metric metadata, and plots
-- dedicated "latest" aliases for the cumulative, page-only, and page-plus-history study families
-- focused unit coverage for selector choice, width policy, oversampling, augmentation multiplicity, slug encoding, shuffle behavior, page-only continuation, and page-plus-history sampling
+- one canonical "latest" alias family for the retained hybrid study: `recognition_finetune_results_latest.*`
+- a shared checked-in pre-commit gate registry in `app/tests/precommit_gate_config.py` so dataset membership and thresholds are no longer buried in unittest bodies
+- a dedicated surrogate OCR fine-tuning pre-commit runner in `app/tests/recognition_finetuning_experiment.py` exposed through `run_recognition_precommit_gate(...)`
+- focused unit coverage for selector choice, width policy, oversampling, augmentation multiplicity, slug encoding, shuffle behavior, and page-plus-history sampling
 
 Relevant files:
 
@@ -125,12 +129,11 @@ Relevant files:
 - `app/recognition/dataset.py`
 - `app/recognition/ocr_defaults.py`
 - `app/recognition/train.py`
+- `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
 
 ## Latest Completed OCR Studies
-
-All three OCR study families currently have completed artifacts on disk.
 
 The shared dataset assumptions are still:
 
@@ -141,64 +144,39 @@ The shared dataset assumptions are still:
 - primary metric: `early_weighted_page_cer`
 - regression guard: no step may worsen aggregate page CER by more than `0.005` absolute versus the previous step
 
-The latest completed default cumulative study remains:
+The retained live study family is the hybrid page-plus-random-history follow-up. Its stable checked-in summary lives at:
 
-- `app/tests/logs/20260418_231746_ocrft_eval_dataset/`
-
-Important results from that 24-run focused matrix:
-
-- Primary-metric winner: `wb_on_an_sn_optd_lr0200`
-  Meaning: `width_policy=batch_max_pad`, `oversampling_policy=none`, `augmentation_policy=none`, `lr_scheduler=none`, `optimizer=Adadelta`, `lr=0.2`
-  Evidence: `curve_metric_value=0.22700365173938108`
-- Best `final_page_cer`: `wb_on_an_sn_optd_lr0200`
-  Evidence: `final_page_cer=0.15137420718816066`
-- Best `first_step_gain`: `wb_on_an_sn_optd_lr0200`
-  Evidence: `first_step_gain=0.05433403805496828`
-
-The latest completed page-only continuation study is:
-
-- `app/tests/logs/20260419_123216_ocrft_pageonly_eval_dataset/`
-
-Important results from that 4-policy follow-up:
-
-- Primary-metric winner: `wb_on_an_sn_opta_lr000010u`
-  Meaning: `training_policy=page_only`, `width_policy=batch_max_pad`, `oversampling_policy=none`, `augmentation_policy=none`, `lr_scheduler=none`, `optimizer=Adam`, `lr=0.00001`, `num_iter=200`
-  Evidence: `curve_metric_value=0.24025369978858352`
-- Best `final_page_cer`: `wb_on_an_sn_opta_lr000010u`
-  Evidence: `final_page_cer=0.17061310782241015`
-- Best `first_step_gain`: `wb_on_an_sn_opta_lr000010u`
-  Evidence: `first_step_gain=0.04439746300211417`
-- Three of the four page-only policies failed the regression guard and were preserved as recorded evidence rather than deleted.
-  Evidence: `failed_policy_runs = ["wb_on_an_sn_opta_lr000050u", "wb_on_an_sn_optd_lr200000u", "wb_on_an_sn_optd_lr050000u"]`
-
-The latest completed page-plus-random-history follow-up is:
-
-- `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`
+- `app/tests/logs/recognition_finetune_results_latest.json`
 
 Important results from that 2-policy hybrid follow-up:
 
 - Primary-metric winner: `wb_on_an_hist10_sn_optd_lr200000u`
   Meaning: `training_policy=page_plus_random_history`, `history_sample_line_count=10`, `width_policy=batch_max_pad`, `oversampling_policy=none`, `augmentation_policy=none`, `lr_scheduler=none`, `optimizer=Adadelta`, `lr=0.2`, `num_iter=60`
-  Evidence: `curve_metric_value=0.22191428022294832`
+  Evidence: `curve_metric_value=0.22151451085911972`
 - Best `final_page_cer`: `wb_on_an_hist10_sn_optd_lr200000u`
-  Evidence: `final_page_cer=0.14735729386892177`
+  Evidence: `final_page_cer=0.13784355179704016`
 - Best `first_step_gain`: `wb_on_an_hist10_sn_optd_lr200000u`
-  Evidence: `first_step_gain=0.05137420718816066`
+  Evidence: `first_step_gain=0.0572938689217759`
 - The first page correctly used no history lines, while later steps recorded both the candidate history pool and the 10 sampled history lines in metadata.
   Evidence: step 1 stores `history_source_page_ids=[]` and `history_sample_line_count=0`; step 2 stores `history_source_page_ids=["233_0002"]` and `history_sample_line_count=10`
 
-The earlier broad 5-page study remains important historical evidence:
+The earlier broad and page-only studies are no longer live code paths, but their conclusions still matter:
 
-- `app/tests/logs/20260417_155737_ocrft_eval_dataset/`
+- the broad and focused sweeps established `batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2` as the strongest stable structural stack worth keeping
+- the best retained cumulative result reached `curve_metric_value=0.22700365173938108` and `final_page_cer=0.15137420718816066`
+- the best page-only result reached `curve_metric_value=0.24025369978858352` and `final_page_cer=0.17061310782241015`, but three of the four page-only policies failed the regression guard
+- the hybrid replay recipe improved on both earlier baselines on the primary curve metric and final-page CER, while the Adam hybrid candidate still failed the regression guard
 
 The canonical human-readable summary files are now:
 
 - `app/tests/logs/recognition_finetune_results_latest.md`
 - `app/tests/logs/recognition_finetune_results_latest.json`
-- `app/tests/logs/recognition_finetune_page_only_latest.md`
-- `app/tests/logs/recognition_finetune_page_only_latest.json`
-- `app/tests/logs/recognition_finetune_page_plus_history_latest.md`
-- `app/tests/logs/recognition_finetune_page_plus_history_latest.json`
+- `app/tests/logs/recognition_finetune_results_latest.txt`
+- `app/tests/logs/recognition_finetune_precommit_latest.md`
+- `app/tests/logs/recognition_finetune_precommit_latest.json`
+- `app/tests/logs/recognition_finetune_precommit_latest.txt`
+
+The pre-commit OCR aliases are intentionally narrower than the broader study aliases. They always represent one explicit best-known hybrid recipe and one thresholded dataset result, not a policy sweep.
 
 ## Required Artifacts
 
@@ -240,7 +218,7 @@ This OCR artifact layout should be preserved unless there is a strong reason to 
 
 ## Current Commands
 
-### Fast regression gate
+### Full-pipeline pre-commit gate
 
 From repository root:
 
@@ -254,15 +232,37 @@ From repository root:
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_unit -v
 
-Page-only continuation unit coverage:
-
-    $env:CONDA_NO_PLUGINS='true'
-    conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_page_only_unit -v
-
-Page-plus-random-history unit coverage:
+Hybrid continuation unit coverage:
 
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_page_plus_history_unit -v
+
+Hybrid OCR pre-commit unit coverage:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
+
+### OCR fine-tuning surrogate pre-commit gate
+
+From repository root:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
+
+This gate uses perfect PAGE-XML-derived line crops and ground-truth text pairs. It does not validate upstream CRAFT or GNN behavior, and it should not be described as if it were the final interactive active-learning loop.
+
+### Two-phase launcher
+
+From repository root:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python scripts/run_precommit_eval.py
+
+or:
+
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe scripts/run_precommit_eval.py
+
+The launcher runs the full-pipeline gate first and the OCR fine-tuning surrogate gate second. `SKIP_EVAL_HOOK=1` skips both phases. `SKIP_PIPELINE_EVAL_HOOK=1` skips only the pretrained full-pipeline phase. `SKIP_RECOGNITION_FT_HOOK=1` skips only the OCR fine-tuning surrogate phase.
 
 ### Slow OCR study verifiers
 
@@ -273,19 +273,9 @@ Preferred forms:
     conda activate gnn_layout
     python -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
 
-    conda activate gnn_layout
-    python -m unittest app.tests.test_recognition_finetuning_page_only_e2e -v
-
-    conda activate gnn_layout
-    python -m unittest app.tests.test_recognition_finetuning_page_plus_history_e2e -v
-
 or:
 
     C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
-
-    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_finetuning_page_only_e2e -v
-
-    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_finetuning_page_plus_history_e2e -v
 
 If the wrapper crashes after artifact creation, inspect the newest timestamped folder under `app/tests/logs/` before assuming the study itself failed.
 
@@ -396,7 +386,7 @@ The next high-value steps are:
 
 Evaluation maturity in this repository means:
 
-- every significant code change can be screened by an automatic headless gate
+- every significant code change can be screened by automatic headless gates that cover both the pretrained full pipeline and the current OCR fine-tuning subsystem
 - every OCR research claim can be tied to a saved artifact folder and exact settings
 - the OCR verifier can rank policies by the repository's chosen primary metric
 - GUI fine-tuning, when added, promotes models only through a recorded verifier-backed rule
