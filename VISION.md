@@ -25,30 +25,35 @@ The repository does not yet provide production-ready GUI fine-tuning for any of 
 However, the OCR side is no longer only aspirational. As of 2026-04-19, the repository has a real offline OCR active-learning research harness in:
 
 - `app/recognition/active_learning.py`
+- `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
+- `app/tests/test_recognition_finetuning_precommit_e2e.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
-- `app/tests/test_recognition_finetuning_page_only_e2e.py`
-- `app/tests/test_recognition_finetuning_page_plus_history_e2e.py`
 
 The key completed study artifacts are:
 
-- `app/tests/logs/20260418_231746_ocrft_eval_dataset/`
-- `app/tests/logs/20260419_123216_ocrft_pageonly_eval_dataset/`
-- `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`
+- `app/tests/logs/recognition_finetune_results_latest.json`
+- `app/tests/logs/recognition_finetune_precommit_latest.json`
 
 Those studies establish five important facts:
 
-1. The default slow OCR verifier can now run a focused 9-page, 24-run matrix rather than the older blocker-first search path.
-2. The harness now supports explicit optimizer sweeps, page-only continuation, and a page-plus-random-history continuation mode that replays 10 sampled lines from earlier pages at each step.
-3. In the completed focused cumulative follow-up, the best passed policy on the repository's primary metric, final-page CER, and first-step gain is `wb_on_an_sn_optd_lr0200`.
-4. In the completed page-only follow-up, strict single-page continuation is viable, but only one of the four tested policies passed the regression guard all the way through the 9-page continuation.
-5. In the completed page-plus-random-history follow-up, `wb_on_an_hist10_sn_optd_lr200000u` beat both the focused cumulative winner and the page-only winner on the primary metric and final-page CER, while Adam still failed the regression guard.
+1. Earlier broad and focused sweeps were enough to identify the structural stack worth keeping: `batch_max_pad + no oversampling + no augmentation`.
+2. Strict page-only continuation is viable, but it was materially weaker and more regression-guard-sensitive than the retained hybrid recipe on `eval_dataset`.
+3. The live slow OCR verifier now keeps only the hybrid `page_plus_random_history` regime rather than carrying all earlier study modes in active code.
+4. In the completed page-plus-random-history follow-up, `wb_on_an_hist10_sn_optd_lr200000u` beat both the earlier cumulative winner and the page-only winner on the primary metric and final-page CER.
+5. Adam remained regression-guard-sensitive even in the hybrid regime, so the trusted recipe remains Adadelta `lr=0.2`, `num_iter=60`.
+
+The repository now also has a two-phase pre-commit screen:
+
+- a pretrained full-pipeline gate that verifies CRAFT plus GNN plus OCR still work together on the fixed evaluation manuscript
+- a surrogate OCR fine-tuning gate that runs the best-known hybrid continuation recipe on perfect PAGE-XML-derived line crops and blocks commits only on `curve_metric_value`, `final_page_cer`, and `first_step_gain`
 
 So the repository is now in a transitional state:
 
 - the OCR verifier is real
-- the OCR research harness is useful and can compare cumulative, page-only, and replay-buffer-like continuation regimes
+- the pre-commit path now protects both the pretrained full pipeline and the current OCR fine-tuning subsystem
+- the OCR research harness now keeps one replay-buffer-like continuation regime in active code while preserving the earlier cumulative and page-only conclusions in docs
 - the GUI fine-tuning loop is still future work
 
 ## Desired End State
@@ -70,14 +75,14 @@ Success is not defined by a single accuracy number. Success means:
 
 ## Immediate Direction
 
-The next OCR milestone is no longer proving that continuation-style verifier runs are feasible. The repository now has three working offline regimes: cumulative training, strict page-only continuation, and page-plus-random-history continuation. The next uncertainty is which continuation regime is strong enough and stable enough to deserve promotion toward GUI-backed workflows.
+The next OCR milestone is no longer deciding which offline continuation regime to keep. That decision is already made in the live harness: the retained path is `page_plus_random_history` plus the dedicated surrogate pre-commit gate for the trusted Adadelta recipe. The next uncertainty is whether that retained hybrid recipe generalizes strongly enough to deserve promotion into GUI-backed workflows.
 
 Before the frontend is allowed to trigger OCR fine-tuning, the repository should:
 
-- validate the page-plus-random-history regime on more than one manuscript sequence and more than one history replay size
-- decide whether page-plus-random-history is the right default successor to page-only continuation
+- validate the retained page-plus-random-history regime on more than one manuscript sequence and more than one history replay size
 - investigate why Adam remains regression-guard-sensitive in the continuation follow-ups
 - add a small OCR model registry with active, candidate, and rollback metadata
+- keep the surrogate pre-commit gate honest about its scope: it validates OCR fine-tuning under perfect segmentation inputs, not the full future human correction loop
 - keep the Windows-safe direct-interpreter execution path first-class for long OCR verifier runs
 
 Only after those pieces exist should the repository promote GUI integration work for OCR fine-tuning.

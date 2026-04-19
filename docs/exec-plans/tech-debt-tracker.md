@@ -14,12 +14,12 @@ This file is the short list of the highest-priority technical debts that are cur
   Recommended next action: make the slow-study entrypoint or its helper script capture UTF-8 output safely and document a direct-interpreter fallback as a first-class execution path.
 
 - The OCR study benchmark is still too narrow.
-  Why it matters: the current broad study used one dataset and 5 sequential fine-tune pages. That is good enough for development guidance, but not yet strong enough for product or research claims.
-  Recommended next action: run the focused 9-page follow-up study on `eval_dataset` comparing only `wb_oc_ar_sn020`, `wb_oc_an_sn020`, and `wb_on_an_sn020` across learning rates `0.01`, `0.2`, and `0.8`, then extend to additional manuscript sequences.
+  Why it matters: the retained hybrid verifier on `eval_dataset` is good enough for development guidance, but one manuscript sequence is still not strong enough for product or research claims.
+  Recommended next action: rerun the retained hybrid `page_plus_random_history` recipe on additional manuscript sequences and a small set of history replay sizes before treating the current recipe as generally stable.
 
 - The GUI still has no safe OCR fine-tuning integration path.
   Why it matters: the backend can recognize text and the offline verifier can fine-tune checkpoints, but the app has no job queue, no training-versus-inference coordination, and no status model for candidate checkpoints.
-  Recommended next action: implement GUI integration only after the focused 9-page OCR study stabilizes the policy choice, then add a background job manager that prevents training and inference from contending for the same device.
+  Recommended next action: implement GUI integration only after the retained hybrid recipe is validated on more than one manuscript, then add a background job manager that prevents training and inference from contending for the same device.
 
 - Human correction effort is still not logged as structured evaluation data.
   Why it matters: `VISION.md` and `EVAL.md` define success in terms of reducing manual effort, but the current backend only logs node corrections and does not yet log OCR text edits, fine-tune triggers, or checkpoint ids per page.

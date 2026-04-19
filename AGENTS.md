@@ -50,7 +50,7 @@ Important app paths:
 
 ## Current OCR Research Harness
 
-As of 2026-04-17, the repository has an offline OCR active-learning research harness. It does not yet fine-tune from the GUI, but it is no longer just a concept.
+As of 2026-04-19, the repository has an offline OCR active-learning research harness and a surrogate OCR fine-tuning pre-commit gate. The GUI still does not trigger live fine-tuning, but the OCR stack is no longer just a concept and it now has automatic regression coverage for both the pretrained full pipeline and the current best hybrid continuation recipe.
 
 The source-of-truth files are:
 
@@ -59,10 +59,16 @@ The source-of-truth files are:
 - `app/recognition/dataset.py`
 - `app/recognition/ocr_defaults.py`
 - `app/recognition/train.py`
+- `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
 - `app/tests/test_recognition_active_learning_unit.py`
+- `app/tests/test_recognition_finetuning_page_plus_history_unit.py`
+- `app/tests/test_recognition_finetuning_precommit_unit.py`
+- `app/tests/test_recognition_finetuning_precommit_e2e.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
+- `scripts/run_precommit_eval.py`
+- `.githooks/pre-commit`
 
 The current harness supports:
 
@@ -71,21 +77,40 @@ The current harness supports:
 - bounded CER-weighted oversampling
 - OCR-only augmentation policies: `none`, `background_only`, `background_plus_rotation`
 - LR scheduler plumbing: `none`, `step`, `cosine`
+- one retained continuation regime: `page_plus_random_history`
+- deterministic history replay metadata with `history_sample_line_count=10`
+- a shared checked-in pre-commit gate registry for dataset membership and thresholds
+- a dedicated surrogate OCR pre-commit gate using the exact hybrid recipe `page_plus_random_history + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`
 - run artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, and plots
 
-The latest completed OCR study artifact is:
+Earlier cumulative and page-only studies are now treated as preserved conclusions rather than live code paths. The retained conclusions are:
 
-- `app/tests/logs/20260417_155737_ocrft_eval_dataset/`
+- the broad and focused sweeps established `batch_max_pad + no oversampling + no augmentation` as the stable structural stack worth keeping
+- strict page-only continuation was viable but weaker and substantially more guard-sensitive on `eval_dataset`
+- the hybrid replay recipe beat both earlier baselines on the primary curve metric and final-page CER
+- Adam remained guard-sensitive even after replaying historical lines, so the trusted recipe remains Adadelta `lr=0.2`, `num_iter=60`
 
-That study ran 11 policy combinations on `eval_dataset` with 5 sequential fine-tune pages and recorded these important results:
+The canonical hybrid study aliases are:
 
-- Primary metric winner: `wb_oc_an_sn020`
-  Meaning: `batch_max_pad`, `cer_weighted`, `none`, `lr_scheduler=none`, `lr=0.2`
-  Evidence: `curve_metric_value=0.25063928319742274`
-- Best `final_page_cer`: `wb_on_an_sn020`
-  Evidence: `final_page_cer=0.18266384778012684`
-- Best `first_step_gain`: `wb_on_an_sn020`
-  Evidence: `first_step_gain=0.05433403805496828`
+- `app/tests/logs/recognition_finetune_results_latest.md`
+- `app/tests/logs/recognition_finetune_results_latest.json`
+- `app/tests/logs/recognition_finetune_results_latest.txt`
+
+The current checked-in hybrid summary records these important results:
+
+- Primary metric winner: `wb_on_an_hist10_sn_optd_lr200000u`
+  Meaning: `page_plus_random_history`, `history_sample_line_count=10`, `batch_max_pad`, `none`, `none`, `optimizer=Adadelta`, `lr=0.2`, `num_iter=60`
+  Evidence: `curve_metric_value=0.22151451085911972`
+- Best `final_page_cer`: `wb_on_an_hist10_sn_optd_lr200000u`
+  Evidence: `final_page_cer=0.13784355179704016`
+- Best `first_step_gain`: `wb_on_an_hist10_sn_optd_lr200000u`
+  Evidence: `first_step_gain=0.0572938689217759`
+
+The latest dedicated surrogate pre-commit aliases are:
+
+- `app/tests/logs/recognition_finetune_precommit_latest.md`
+- `app/tests/logs/recognition_finetune_precommit_latest.json`
+- `app/tests/logs/recognition_finetune_precommit_latest.txt`
 
 See:
 
@@ -96,7 +121,14 @@ See:
 
 Run verification in the `gnn_layout` environment.
 
-Fast automatic gate:
+Two-phase pre-commit launcher:
+
+From repository root:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python scripts/run_precommit_eval.py
+
+Fast pretrained full-pipeline gate:
 
 From repository root:
 
@@ -110,6 +142,20 @@ From repository root:
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_unit -v
 
+Hybrid OCR pre-commit unit tests:
+
+From repository root:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
+
+Slow surrogate OCR pre-commit gate:
+
+From repository root:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
+
 Slow OCR verifier and policy-study entrypoint:
 
 Prefer an activated `gnn_layout` shell or the environment Python directly. On Windows, very long Unicode-heavy output printed through `conda run` can hit a `cp1252` encoding bug even when the test itself completes and writes artifacts.
@@ -122,6 +168,8 @@ Recommended PowerShell forms:
 Or, if you want to bypass `conda run` entirely:
 
     C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
+
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
 
 If you use the direct interpreter form, update the path to match the local machine if needed.
 
@@ -138,8 +186,9 @@ Read these before changing behavior:
 
 Current OCR-related proposed plans:
 
-- `docs/exec-plans/proposed/fine-tuning-active-learning-research.md`
+- `docs/exec-plans/proposed/fine-tuning-page-plus-random-history-research.md`
 - `docs/exec-plans/proposed/GUI_finetune_implement.md`
+- `docs/exec-plans/proposed/hybrid-recognition-finetune-precommit-gate.md`
 
 Historical OCR evidence should be preserved, not deleted casually:
 

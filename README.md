@@ -125,12 +125,32 @@ Access the UI at `http://localhost:5173`.
 
 
 #### Automated Evaluation Check (GUI-free)
-To run the same end-to-end validation flow without opening the GUI, use the dedicated integration test from the `app/` directory:
+The repository now has two GUI-free pre-commit phases:
+
+- a pretrained full-pipeline gate that runs upload plus CRAFT plus GNN plus OCR end to end on `app/tests/eval_dataset/`
+- a surrogate OCR fine-tuning gate that uses perfect line crops and ground-truth text pairs to verify the current best hybrid continuation recipe
+
+To run only the pretrained full-pipeline validation flow without opening the GUI, use the dedicated integration test from the `app/` directory:
 
 ```bash
 cd app
 conda activate gnn_layout
 python -m unittest discover -s tests -p "test_ci_e2e.py" -v
+```
+
+To run only the OCR fine-tuning surrogate gate, use:
+
+```bash
+cd app
+conda activate gnn_layout
+python -m unittest tests.test_recognition_finetuning_precommit_e2e -v
+```
+
+To run the same two-phase sequence the hook uses, run from the repository root:
+
+```bash
+conda activate gnn_layout
+python scripts/run_precommit_eval.py
 ```
 
 To make this test run automatically before every commit in a fresh clone, configure the repository hooks once from the repository root:
@@ -141,15 +161,23 @@ python scripts/install_git_hooks.py
 
 On Windows, `py -3 scripts/install_git_hooks.py` is also fine.
 
-This test automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`, and writes reports to:
+The full-pipeline gate automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`, and writes reports to:
 - `app/tests/logs/ci_eval_results_latest.txt`
 - `app/tests/logs/ci_eval_results_latest.json`
+
+The OCR fine-tuning surrogate gate runs the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`, evaluates the held-out pages, and writes reports to:
+- `app/tests/logs/recognition_finetune_precommit_latest.md`
+- `app/tests/logs/recognition_finetune_precommit_latest.json`
+- `app/tests/logs/recognition_finetune_precommit_latest.txt`
 
 By default the temporary manuscript artifacts are deleted after the test. Set `KEEP_CI_ARTIFACTS=1` before the command if you want to inspect the generated manuscript outputs under `app/input_manuscripts/_ci_root/`.
 
 The pre-commit launcher tries to find the `gnn_layout` Python automatically. If your environment lives in a non-standard location, set `GNN_LAYOUT_PYTHON` to the full path of that environment's Python executable before committing.
 
-If you intentionally need to bypass the pre-commit evaluation once, use standard git bypass with `git commit --no-verify`. The hook also supports `SKIP_EVAL_HOOK=1` for one-off local debugging.
+If you intentionally need to bypass the pre-commit evaluation once, use standard git bypass with `git commit --no-verify`. The hook also supports:
+- `SKIP_EVAL_HOOK=1` to skip both phases
+- `SKIP_PIPELINE_EVAL_HOOK=1` to skip only the pretrained full-pipeline phase
+- `SKIP_RECOGNITION_FT_HOOK=1` to skip only the OCR fine-tuning surrogate phase
 
 The longer-term evaluation blueprint for automatic tests, GUI tests, and future human-in-the-loop active-learning studies lives in `EVAL.md`.
 
