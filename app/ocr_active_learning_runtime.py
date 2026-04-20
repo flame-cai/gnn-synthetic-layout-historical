@@ -148,6 +148,7 @@ def record_prediction(
     checkpoint_id: str | None,
     checkpoint_path: str | Path | None,
     confidences: dict | None = None,
+    layout_fingerprint: str | None = None,
     base_checkpoint_path: str | Path | None = None,
 ) -> dict:
     registry = _load_registry_for_manuscript(manuscript_root, base_checkpoint_path=base_checkpoint_path)
@@ -158,6 +159,7 @@ def record_prediction(
         checkpoint_path=str(checkpoint_path) if checkpoint_path else None,
         confidences=confidences,
     )
+    payload["layout_fingerprint"] = str(layout_fingerprint) if layout_fingerprint else None
     registry.remember_prediction(page_id, payload)
     return payload
 
@@ -178,12 +180,140 @@ def _build_status_payload(registry: ManuscriptOcrRegistry) -> dict:
     }
 
 
+def _reconcile_pending_jobs_with_orchestrator(
+    registry: ManuscriptOcrRegistry,
+    orchestrator: JobOrchestrator | None = None,
+) -> None:
+    orchestrator = _get_orchestrator(orchestrator)
+    if orchestrator is None:
+        return
+
+    removed_any = False
+    for pending_job in registry.pending_ocr_work():
+        job_id = str(pending_job.get("job_id"))
+        status = orchestrator.get_job_status(job_id)
+        state = str(status.get("state") or "")
+        if not status or state in {"completed", "failed", "canceled"}:
+            registry.remove_pending_job(job_id)
+            removed_any = True
+            continue
+        if state and state != str(pending_job.get("state") or ""):
+            registry.update_pending_job(job_id, state=state, started_at=status.get("started_at"))
+
+    if removed_any and not registry.pending_ocr_work():
+        current_status_code = str((registry.get_status() or {}).get("code") or "")
+        if current_status_code in {"queued", "running", "paused_for_ocr"}:
+            if registry.data.get("needs_rebase"):
+                registry.set_status("needs_rebase", "AL: needs rebase")
+            else:
+                registry.set_status("idle", "AL: idle")
+
+
 def summarize_manuscript_active_learning(
     manuscript_root: str | Path,
     base_checkpoint_path: str | Path | None = None,
+    orchestrator: JobOrchestrator | None = None,
 ) -> dict:
     registry = _load_registry_for_manuscript(manuscript_root, base_checkpoint_path=base_checkpoint_path)
+    _reconcile_pending_jobs_with_orchestrator(registry, orchestrator=orchestrator)
     return _build_status_payload(registry)
+
+
+def _prediction_source_label(prediction: dict | None) -> str | None:
+    payload = dict(prediction or {})
+    engine = str(payload.get("recognition_engine") or "").strip().lower()
+    checkpoint_id = str(payload.get("checkpoint_id") or "").strip()
+    if not engine:
+        return None
+    if engine == "local":
+        if checkpoint_id and checkpoint_id != "base":
+            return f"Local OCR checkpoint {checkpoint_id}"
+        return "Pretrained local OCR"
+    if engine == "gemini":
+        return "Gemini OCR"
+    return engine
+
+
+def summarize_page_active_learning(
+    manuscript_root: str | Path,
+    page_id: str,
+    current_text_payload: dict | None = None,
+    current_layout_fingerprint: str | None = None,
+    base_checkpoint_path: str | Path | None = None,
+) -> dict:
+    registry = _load_registry_for_manuscript(manuscript_root, base_checkpoint_path=base_checkpoint_path)
+    current_text_payload = dict(current_text_payload or {})
+    non_empty_text_line_count = sum(1 for value in current_text_payload.values() if str(value or "").strip())
+    has_text = non_empty_text_line_count > 0
+    latest_revision = registry.latest_revision(page_id)
+    latest_supervised_commit = registry.latest_supervised_commit_revision(page_id)
+    last_prediction = registry.get_last_prediction(page_id) or {}
+    prediction_layout_fingerprint = last_prediction.get("layout_fingerprint")
+    layout_match_known = bool(current_layout_fingerprint and prediction_layout_fingerprint)
+    prediction_matches_current_layout = None
+    if layout_match_known:
+        prediction_matches_current_layout = str(prediction_layout_fingerprint) == str(current_layout_fingerprint)
+
+    correction_metrics = compute_text_edit_metrics(last_prediction.get("predicted_lines", {}), current_text_payload)
+    prediction_source_label = _prediction_source_label(last_prediction)
+
+    if last_prediction and prediction_matches_current_layout is False:
+        state = "stale_layout"
+        label = "OCR stale after layout change"
+        hint = "Run OCR again before correcting this page."
+        can_edit_text = False
+        needs_recognition = True
+    elif not has_text:
+        state = "missing_ocr"
+        label = "OCR not prepared"
+        hint = "Run OCR to prepare this page for correction."
+        can_edit_text = False
+        needs_recognition = True
+    elif last_prediction:
+        state = "ready"
+        label = "Ready for correction"
+        hint = "Correct the latest OCR prediction, then commit the page."
+        can_edit_text = True
+        needs_recognition = False
+    else:
+        state = "manual_only"
+        label = "Manual text only"
+        hint = "This page has text, but no prediction provenance was recorded."
+        can_edit_text = True
+        needs_recognition = False
+
+    return {
+        "page_id": str(page_id),
+        "state": state,
+        "label": label,
+        "hint": hint,
+        "needs_recognition": bool(needs_recognition),
+        "can_edit_text": bool(can_edit_text),
+        "has_text": bool(has_text),
+        "text_line_count": len(current_text_payload),
+        "text_non_empty_line_count": int(non_empty_text_line_count),
+        "latest_revision_number": int(latest_revision.revision_number) if latest_revision else None,
+        "latest_revision_save_intent": latest_revision.save_intent if latest_revision else None,
+        "latest_supervised_commit_revision_number": (
+            int(latest_supervised_commit["revision_number"]) if latest_supervised_commit else None
+        ),
+        "prediction": {
+            "available": bool(last_prediction),
+            "engine": last_prediction.get("recognition_engine"),
+            "checkpoint_id": last_prediction.get("checkpoint_id"),
+            "checkpoint_path": last_prediction.get("checkpoint_path"),
+            "recorded_at": last_prediction.get("recorded_at"),
+            "source_label": prediction_source_label,
+            "layout_fingerprint": prediction_layout_fingerprint,
+            "matches_current_layout": prediction_matches_current_layout,
+            "layout_match_known": bool(layout_match_known),
+        },
+        "correction_summary": {
+            "changed_line_count": int(correction_metrics.get("changed_line_count", 0)),
+            "total_edit_distance": int(correction_metrics.get("total_edit_distance", 0)),
+            "normalized_edit_distance": float(correction_metrics.get("normalized_edit_distance", 0.0)),
+        },
+    }
 
 
 def _job_summary_label(job_type: str, payload: dict, state: str) -> str:
@@ -580,8 +710,11 @@ def _train_candidate_step(job_payload: dict) -> dict:
 
 
 def run_ocr_finetune_job(job_payload: dict) -> dict:
-    registry = _load_registry_for_manuscript(job_payload["manuscript_root"], base_checkpoint_path=job_payload.get("base_checkpoint_path"))
     step_result = _train_candidate_step(job_payload)
+    registry = _load_registry_for_manuscript(
+        job_payload["manuscript_root"],
+        base_checkpoint_path=job_payload.get("base_checkpoint_path"),
+    )
     verification = step_result["verification"]
     if verification["passed"]:
         registry.promote_candidate(step_result["candidate_id"], verification)
@@ -628,6 +761,10 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
             }
         )
         if not step_result["verification"]["passed"]:
+            registry = _load_registry_for_manuscript(
+                job_payload["manuscript_root"],
+                base_checkpoint_path=job_payload.get("base_checkpoint_path"),
+            )
             registry.reject_candidate(step_result["candidate_id"], step_result["verification"])
             registry.set_status("needs_rebase", "AL: needs rebase", failed_candidate=step_result["candidate_id"])
             return {
@@ -645,6 +782,10 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
         "reason": "rebase_complete",
         "rebuilt_revision_refs": approved_revision_refs,
     }
+    registry = _load_registry_for_manuscript(
+        job_payload["manuscript_root"],
+        base_checkpoint_path=job_payload.get("base_checkpoint_path"),
+    )
     registry.promote_candidate(final_candidate_id, final_verification)
     for revision_ref in approved_revision_refs:
         registry.mark_revision_consumed(revision_ref["page_id"], revision_ref["revision_number"], final_candidate_id)
