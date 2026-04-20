@@ -31,15 +31,15 @@ This plan intentionally implements only OCR active learning now, but it does so 
 - [x] (2026-04-17 19:00 IST) Preserved the original seed intent: do not let background training degrade the annotation workflow, keep per-document model lineage, and keep the UX smooth.
 - [x] (2026-04-17 19:02 IST) Confirmed the current backend already supports local OCR, Gemini OCR, PAGE-XML generation on save, and lightweight background recognition threads, but not fine-tuning orchestration.
 - [x] (2026-04-19 17:59 IST) Rewrote this plan around the current best hybrid OCR recipe, save-triggered background training, manuscript-specific checkpoint lineage, future-proof backend orchestration, structured edit telemetry, CUDA profiling, and the requirement that existing headless pre-commit checks must remain green.
-- [ ] Extract one canonical OCR active-learning recipe definition into production code so runtime code and pre-commit evaluation cannot drift on optimizer, LR, padding, replay history, or guard settings.
-- [ ] Add a generic app-level job orchestrator and device-lease manager that can schedule OCR jobs now and future CRAFT/GNN jobs later.
-- [ ] Add a per-manuscript OCR registry and page-revision ledger that survive app restarts and can answer "which checkpoint is active for this manuscript right now?" deterministically.
-- [ ] Add save-triggered OCR active-learning jobs, manuscript-local verifier-backed automatic promotion, and rebase handling when an already-consumed page is edited again later.
-- [ ] Replace the single global OCR model assumption with a manuscript-aware recognition model manager that loads the active checkpoint for the current manuscript on demand.
-- [ ] Add structured telemetry for node edits, edge edits, OCR text edits, save intents, checkpoint lineage, queue delays, and active-learning outcomes.
-- [ ] Add coarse always-on GPU and timing metrics plus sampled CUDA traces so bottlenecks during real manuscript digitization can be measured instead of guessed.
-- [ ] Keep frontend changes minimal: add the `Active Learning` toggle, small status text, and the save-intent wiring, without adding a large new control surface.
-- [ ] Add new headless backend tests for orchestration, registry, telemetry, and recovery, and rerun the existing pre-commit gates unchanged.
+- [x] (2026-04-20 10:06 IST) Extracted one canonical OCR active-learning recipe into `app/recognition/active_learning_recipe.py` and pointed the runtime and pre-commit config helpers at that shared source.
+- [x] (2026-04-20 10:06 IST) Added a generic app-level job orchestrator and device-lease manager in `app/job_orchestrator.py` and `app/device_leases.py`.
+- [x] (2026-04-20 10:06 IST) Added a per-manuscript OCR registry and page-revision ledger in `app/manuscript_ocr_registry.py`, including revision snapshots under each manuscript runtime root.
+- [x] (2026-04-20 10:06 IST) Added save-triggered OCR active-learning jobs, manuscript-local verifier-backed automatic promotion, and rebase detection/runtime queueing in `app/ocr_active_learning_runtime.py`.
+- [x] (2026-04-20 10:06 IST) Replaced the single global OCR model assumption on the live route path with `app/ocr_model_manager.py` and manuscript-aware checkpoint selection in `app/app.py`.
+- [x] (2026-04-20 10:06 IST) Added structured telemetry for node edits, edge edits, OCR text edits, save intents, checkpoint lineage, queue events, and active-learning outcomes in `app/telemetry.py` plus manuscript runtime logs.
+- [x] (2026-04-20 10:06 IST) Added coarse profiling summaries and optional sampled CUDA traces in `app/profiling.py`.
+- [x] (2026-04-20 10:06 IST) Kept the frontend changes minimal by adding the `Active Learning` toggle, status text, and explicit `saveIntent` wiring in `app/frontend/src/components/ManuscriptViewer.vue`.
+- [ ] (2026-04-20 10:06 IST) Added new headless backend tests and reran both unchanged gates individually: `test_ci_e2e.py` and `app.tests.test_recognition_finetuning_precommit_e2e`; the only remaining redundant rerun is `scripts/run_precommit_eval.py`.
 
 ## Surprises & Discoveries
 
@@ -63,6 +63,12 @@ This plan intentionally implements only OCR active learning now, but it does so 
 
 - Observation: the current repository already has the low-level OCR training and evaluation primitives needed for live integration.
   Evidence: `app/recognition/active_learning.py` exposes `prepare_page_datasets(...)`, `run_checkpoint_on_prepared_pages(...)`, and `fine_tune_checkpoint_on_pages(...)`, while `app/tests/precommit_gate_config.py` and `app/tests/recognition_finetuning_config.py` already encode the trusted hybrid recipe.
+
+- Observation: the existing save path overwrote the newest PAGE-XML in place, so safe rebase support required explicit revision snapshots rather than only a ledger row.
+  Evidence: the implemented runtime now copies each non-duplicate saved page into `input_manuscripts/<manuscript>/active_learning/recognition/revisions/<page>/rev_<n>/` before queueing OCR work.
+
+- Observation: backward compatibility for the existing GUI-free tests was preserved by treating a missing `activeLearningEnabled` field as false and a missing `saveIntent` field as `commit`.
+  Evidence: the unchanged pretrained full-pipeline gate `app/tests/test_ci_e2e.py` still passed after the route wiring moved onto the new runtime modules.
 
 ## Decision Log
 
@@ -110,11 +116,17 @@ This plan intentionally implements only OCR active learning now, but it does so 
   Rationale: the user wants bottleneck visibility during real digitization, but full tracing on every request would itself become a bottleneck. Always-on summaries plus sampled traces preserve observability without making the UI sluggish.
   Date/Author: 2026-04-19 / Codex
 
+- Decision: the first pass should surface active-learning state through the existing save and page-load responses instead of adding a larger new management route or UI panel.
+  Rationale: the request explicitly asked for minimal frontend churn. Reusing `save_correction(...)` and `get_page_prediction(...)` for the `AL: ...` status line kept the UI change small while still exposing manuscript-local runtime state.
+  Date/Author: 2026-04-20 / Codex
+
 ## Outcomes & Retrospective
 
-This plan has not been implemented yet. The important change in this revision is conceptual, not cosmetic: the work is no longer framed as "manual fine-tune request plus manual promotion." It is now framed as a save-triggered, manuscript-specific, verifier-backed active-learning loop that must preserve UI responsiveness, survive restarts, and fit the broader future pipeline where CRAFT, GNN, and OCR will all want the GPU at different times.
+This plan is now implemented in a first-pass form. The backend has a shared production OCR recipe, a generic orchestrator plus GPU lease manager, a manuscript-local OCR registry with revision snapshots, save-triggered fine-tune and rebase jobs, manuscript-aware checkpoint loading for local OCR, structured telemetry, and coarse profiling. The frontend gained only the requested `Active Learning` toggle, status text, and explicit save-intent wiring.
 
-The main lesson from the current codebase is that the difficult part is not the OCR trainer. The difficult part is stable orchestration: deciding which save events create durable training data, which model a page should use at inference time, how to recover from interrupted jobs, how to keep the frontend responsive, and how to measure whether manual correction effort is actually dropping.
+The main lesson from implementation matched the earlier design expectation: the hard part was not the OCR trainer itself. The hard part was durable orchestration and provenance. The route changes were straightforward only after the registry, revision snapshotting, and queue/event plumbing existed.
+
+The main remaining work is validation depth rather than feature absence. New focused unit coverage is in place and both unchanged gates still passed when rerun directly, but the two-phase launcher `scripts/run_precommit_eval.py` was not rerun because it would only repeat those same two checks.
 
 ## Context and Orientation
 
@@ -499,3 +511,5 @@ In `app/profiling.py`, define helpers equivalent to:
 In `app/app.py`, the routes must keep their existing HTTP purpose but gain the new orchestration semantics. `save_correction(...)` must remain the save entrypoint. `recognize_text(...)` must remain the manual OCR entrypoint. Both should delegate to the new orchestration and model-manager modules rather than continuing to own ad hoc global OCR state directly.
 
 Revision note, 2026-04-19 17:59 IST: this ExecPlan was rewritten to incorporate the requested save-triggered active-learning workflow, the exact best hybrid OCR recipe, manuscript-specific checkpoint lineage, restart-safe automatic promotion, future-proof orchestration for CRAFT/GNN/OCR resource contention, structured edit telemetry, CUDA profiling, and the requirement that the existing headless pre-commit checks remain unaffected.
+
+Revision note, 2026-04-20 10:06 IST: this ExecPlan was updated after implementation to record the shipped first-pass runtime, the added backend/test files, the revision-snapshot discovery, the preserved backward-compatibility contract, and the exact validation that was completed versus still pending.

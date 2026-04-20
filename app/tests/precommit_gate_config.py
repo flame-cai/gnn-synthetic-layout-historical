@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+from recognition.active_learning_recipe import OcrActiveLearningRecipe
 
 TESTS_ROOT = Path(__file__).resolve().parent
 
@@ -34,21 +35,7 @@ class PipelinePrecommitDatasetConfig:
         return payload
 
 
-@dataclass(frozen=True)
-class RecognitionPrecommitRecipe:
-    training_policy: str = "page_plus_random_history"
-    history_sample_line_count: int = 10
-    width_policy: str = "batch_max_pad"
-    oversampling_policy: str = "none"
-    augmentation_policy: str = "none"
-    lr_scheduler: str = "none"
-    optimizer: str = "adadelta"
-    lr: float = 0.2
-    num_iter: int = 60
-    curve_metric: str = "early_weighted_page_cer"
-    regression_guard_abs: float = 0.005
-    background_plus_rotation_variant_count: int = 10
-    shuffle_train_each_epoch: bool = True
+RecognitionPrecommitRecipe = OcrActiveLearningRecipe
 
 
 @dataclass(frozen=True)

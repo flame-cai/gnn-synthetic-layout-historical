@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
+from recognition.active_learning_recipe import DEFAULT_OCR_ACTIVE_LEARNING_RECIPE
 from tests.precommit_gate_config import get_recognition_precommit_dataset
 
 
@@ -17,9 +18,9 @@ def _normalize_optimizer_name(value: str) -> str:
 
 
 DEFAULT_TRAINING_OVERRIDES = {
-    "num_iter": 60,
+    "num_iter": int(DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.num_iter),
     "valInterval": 5,
-    "lr": 0.2,
+    "lr": float(DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.lr),
     "adam": False,
     "batch_size": 1,
     "workers": 0,
@@ -41,19 +42,21 @@ class RecognitionEvalDatasetConfig:
     fine_tune_page_count: int = 9
     eval_page_start_index: int = 9
     eval_page_end_index: int = 15
-    training_policy: str = "page_plus_random_history"
-    history_sample_line_count: int = 10
+    training_policy: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.training_policy
+    history_sample_line_count: int = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.history_sample_line_count
     validation_ratio: float = 0.0
     split_seed: int = 42
-    width_policy: str = "batch_max_pad"
-    oversampling_policy: str = "none"
-    augmentation_policy: str = "none"
-    lr_scheduler: str = "none"
-    optimizer: str = "adadelta"
-    regression_guard_abs: float = 0.005
-    curve_metric: str = "early_weighted_page_cer"
-    background_plus_rotation_variant_count: int = 10
-    shuffle_train_each_epoch: bool = True
+    width_policy: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.width_policy
+    oversampling_policy: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.oversampling_policy
+    augmentation_policy: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.augmentation_policy
+    lr_scheduler: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.lr_scheduler
+    optimizer: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.optimizer
+    regression_guard_abs: float = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.regression_guard_abs
+    curve_metric: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.curve_metric
+    background_plus_rotation_variant_count: int = (
+        DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.background_plus_rotation_variant_count
+    )
+    shuffle_train_each_epoch: bool = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.shuffle_train_each_epoch
     training_overrides: dict = field(default_factory=lambda: dict(DEFAULT_TRAINING_OVERRIDES))
 
     def __post_init__(self):

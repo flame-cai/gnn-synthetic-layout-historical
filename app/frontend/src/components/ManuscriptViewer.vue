@@ -30,6 +30,16 @@
               </div>
           </div>
 
+          <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
+          <label class="toggle-switch">
+             <input type="checkbox" v-model="activeLearningEnabled">
+             <span class="slider"></span>
+          </label>
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px;">
+              <span style="font-size: 0.8rem; color: #ccc; line-height: 1;">Active Learning</span>
+              <span style="font-size: 0.7rem; color: #9fd4ff; line-height: 1;">{{ activeLearningStatus }}</span>
+          </div>
+
           <!-- Devanagari Keyboard Toggle -->
           <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
           <label class="toggle-switch">
@@ -466,11 +476,14 @@ const pagePolygons = ref({})
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
 const autoRecogEnabled = ref(false)
+const activeLearningEnabled = ref(localStorage.getItem('active_learning_enabled') !== 'false')
+const activeLearningStatus = ref('AL: idle')
 const recognitionEngine = ref(localStorage.getItem('recognition_engine') || 'local') // NEW
 const devanagariModeEnabled = ref(true) 
 
 // NEW: Persist keys/settings to local storage
 watch(recognitionEngine, (val) => localStorage.setItem('recognition_engine', val))
+watch(activeLearningEnabled, (val) => localStorage.setItem('active_learning_enabled', String(val)))
 watch(geminiKey, (val) => localStorage.setItem('gemini_key', val))
 const localTextConfidence = reactive({}) 
 const autoSaveInterval = ref(null) // NEW
@@ -979,6 +992,9 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
     if (data.textConfidences) {
         Object.assign(localTextConfidence, data.textConfidences);
     }
+    if (data.activeLearning?.label) {
+      activeLearningStatus.value = data.activeLearning.label
+    }
 
     updatePageDynamicSizing(graph.value?.nodes || [], graph.value?.edges || [])
     resetWorkingGraph()
@@ -1374,7 +1390,9 @@ const saveModifications = async (background = false) => {
     textContent: localTextContent,
     runRecognition: autoRecogEnabled.value && !background, // Don't run GNN/AI on auto-save
     apiKey: geminiKey.value,
-    recognitionEngine: recognitionEngine.value // <--- NEW PARAMETER
+    recognitionEngine: recognitionEngine.value, // <--- NEW PARAMETER
+    activeLearningEnabled: activeLearningEnabled.value,
+    saveIntent: background ? 'draft' : 'commit',
   }
   try {
     const res = await fetch(
@@ -1391,6 +1409,9 @@ const saveModifications = async (background = false) => {
     const data = await res.json()
     if (data.recognizedText) {
         Object.assign(localTextContent, data.recognizedText)
+    }
+    if (data.activeLearning?.label) {
+      activeLearningStatus.value = data.activeLearning.label
     }
 
     modifications.value = []
