@@ -2,9 +2,16 @@ from __future__ import annotations
 
 import copy
 import json
+import os
+import threading
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+_ATOMIC_WRITE_RETRIES = 10
+_ATOMIC_WRITE_RETRY_DELAY_SECONDS = 0.05
 
 
 def _utc_now_iso() -> str:
@@ -79,11 +86,34 @@ class ManuscriptOcrRegistry:
         self.profiling_root.mkdir(parents=True, exist_ok=True)
         self.prepared_pages_root.mkdir(parents=True, exist_ok=True)
 
+    def _replace_atomic_with_retry(self, tmp_path: Path) -> None:
+        last_error = None
+        for attempt in range(_ATOMIC_WRITE_RETRIES):
+            try:
+                tmp_path.replace(self.registry_path)
+                return
+            except PermissionError as exc:
+                last_error = exc
+                if attempt == (_ATOMIC_WRITE_RETRIES - 1):
+                    break
+                time.sleep(_ATOMIC_WRITE_RETRY_DELAY_SECONDS)
+        if last_error is not None:
+            raise last_error
+
     def _write_atomic(self) -> None:
         self._ensure_directories()
-        tmp_path = self.registry_path.with_suffix(".json.tmp")
-        tmp_path.write_text(json.dumps(self.data, indent=2, ensure_ascii=False), encoding="utf-8")
-        tmp_path.replace(self.registry_path)
+        tmp_path = self.runtime_root / (
+            f"{self.registry_path.name}.{os.getpid()}.{threading.get_ident()}.tmp"
+        )
+        try:
+            tmp_path.write_text(json.dumps(self.data, indent=2, ensure_ascii=False), encoding="utf-8")
+            self._replace_atomic_with_retry(tmp_path)
+        finally:
+            try:
+                if tmp_path.exists():
+                    tmp_path.unlink()
+            except FileNotFoundError:
+                pass
 
     def save(self) -> None:
         self._write_atomic()
@@ -179,24 +209,50 @@ class ManuscriptOcrRegistry:
             is_duplicate=bool(latest.get("is_duplicate", False)),
         )
 
+    def _latest_commit_revision(self, page_id: str) -> dict | None:
+        revisions = self.data.setdefault("page_revisions", {}).get(str(page_id), [])
+        for revision in reversed(revisions):
+            if str(revision.get("save_intent", "commit")) == "commit":
+                return revision
+        return None
+
+    def _duplicate_source_revision(self, page_id: str, content_hash: str, save_intent: str) -> dict | None:
+        revisions = self.data.setdefault("page_revisions", {}).get(str(page_id), [])
+        latest = revisions[-1] if revisions else None
+        if latest is None or str(latest.get("content_hash")) != str(content_hash):
+            return None
+
+        latest_save_intent = str(latest.get("save_intent", "commit"))
+        if str(save_intent) != "commit":
+            return latest
+        if latest_save_intent == "commit":
+            return latest
+
+        latest_commit = self._latest_commit_revision(page_id)
+        if latest_commit is not None and str(latest_commit.get("content_hash")) == str(content_hash):
+            return latest_commit
+        return None
+
     def record_page_revision(self, page_id: str, revision_payload: dict) -> PageRevision:
         page_id = str(page_id)
         payload = dict(revision_payload or {})
         revisions = self.data.setdefault("page_revisions", {}).setdefault(page_id, [])
         latest = revisions[-1] if revisions else None
         content_hash = str(payload["content_hash"])
-        if latest and str(latest.get("content_hash")) == content_hash:
+        save_intent = str(payload.get("save_intent", "commit"))
+        duplicate_source = self._duplicate_source_revision(page_id, content_hash, save_intent)
+        if duplicate_source is not None:
             duplicate = PageRevision(
                 page_id=page_id,
-                revision_number=int(latest["revision_number"]),
+                revision_number=int(duplicate_source["revision_number"]),
                 content_hash=content_hash,
-                save_intent=str(latest["save_intent"]),
-                supervision_present=bool(latest["supervision_present"]),
-                recognition_engine=str(latest.get("recognition_engine", "unknown")),
-                text_line_count=int(latest.get("text_line_count", 0)),
-                text_non_empty_line_count=int(latest.get("text_non_empty_line_count", 0)),
-                created_at=str(latest["created_at"]),
-                consumed_into_checkpoint_id=latest.get("consumed_into_checkpoint_id"),
+                save_intent=str(duplicate_source["save_intent"]),
+                supervision_present=bool(duplicate_source["supervision_present"]),
+                recognition_engine=str(duplicate_source.get("recognition_engine", "unknown")),
+                text_line_count=int(duplicate_source.get("text_line_count", 0)),
+                text_non_empty_line_count=int(duplicate_source.get("text_non_empty_line_count", 0)),
+                created_at=str(duplicate_source["created_at"]),
+                consumed_into_checkpoint_id=duplicate_source.get("consumed_into_checkpoint_id"),
                 is_duplicate=True,
             )
             return duplicate
@@ -205,7 +261,7 @@ class ManuscriptOcrRegistry:
             page_id=page_id,
             revision_number=(int(latest["revision_number"]) + 1) if latest else 1,
             content_hash=content_hash,
-            save_intent=str(payload.get("save_intent", "commit")),
+            save_intent=save_intent,
             supervision_present=bool(payload.get("supervision_present", False)),
             recognition_engine=str(payload.get("recognition_engine", "unknown")),
             text_line_count=int(payload.get("text_line_count", 0)),

@@ -3,82 +3,150 @@
     
     <!-- TOP RAIL: Navigation & Global Actions -->
     <div class="top-bar fixed-ui-compensated" :style="fixedUiCompensationStyle">
-      <div class="top-bar-left">
-        <button class="nav-btn secondary" @click="$emit('back')">Back</button>
-        <span class="page-title">{{ manuscriptNameForDisplay }} <span class="divider">/</span></span>
-        
-        <!-- NEW: Page Dropdown -->
-        <select class="page-select" :value="currentPageForDisplay" @change="handlePageSelect">
-           <option v-for="pg in localPageList" :key="pg" :value="pg">Page {{ pg }}</option>
-        </select>
-      </div>
-
-      <!-- Auto-Recognition Controls in Center -->
-      <div class="top-bar-center" style="display:flex; align-items:center; gap: 10px; margin-left: 20px;">
-          <!-- Auto-Recog Toggle & Options -->
-          <label class="toggle-switch">
-             <input type="checkbox" v-model="autoRecogEnabled">
-             <span class="slider"></span>
-          </label>
-          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px;">
-              <span style="font-size: 0.8rem; color: #ccc; line-height: 1;">Auto-Recognize on Save</span>
-              <div v-if="autoRecogEnabled" style="display:flex; gap: 5px; align-items:center;">
-                  <select v-model="recognitionEngine" style="font-size:0.7rem; padding:2px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; outline:none; cursor:pointer;">
-                      <option value="local">Local OCR</option>
-                      <option value="gemini">Gemini API</option>
-                  </select>
-              </div>
+      <div class="top-bar-left top-bar-section">
+        <div class="page-context">
+          <button class="nav-btn secondary" @click="$emit('back')">Back</button>
+          <div class="page-meta">
+            <span class="page-eyebrow">Manuscript</span>
+            <div class="page-title-row">
+              <span class="page-title">{{ manuscriptNameForDisplay }}</span>
+              <span class="page-divider">/</span>
+              <span class="page-current">Page {{ currentPageForDisplay }}</span>
+            </div>
           </div>
-
-          <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
-          <label class="toggle-switch">
-             <input type="checkbox" v-model="activeLearningEnabled">
-             <span class="slider"></span>
-          </label>
-          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px;">
-              <span style="font-size: 0.8rem; color: #ccc; line-height: 1;">Active Learning</span>
-              <span style="font-size: 0.7rem; color: #9fd4ff; line-height: 1;">{{ activeLearningStatus }}</span>
-          </div>
-
-          <!-- Devanagari Keyboard Toggle -->
-          <div class="divider-vertical" style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
-          <label class="toggle-switch">
-             <input type="checkbox" v-model="devanagariModeEnabled">
-             <span class="slider"></span>
-          </label>
-          <span style="font-size: 0.8rem; color: #ccc;">Devanagari Keyboard</span>
-      </div>
-
-      <div class="top-bar-right">
-        <div class="action-group">
-           <button class="nav-btn" @click="previousPage" :disabled="loading || isProcessingSave || isFirstPage">
-            Previous
-          </button>
-          <button class="nav-btn" @click="nextPage" :disabled="loading || isProcessingSave || isLastPage">
-            Next
-          </button>
         </div>
 
-        <div class="separator"></div>
+        <div class="page-controls">
+          <label class="page-picker">
+            <span class="page-picker-label">Jump To</span>
+            <select class="page-select" :value="currentPageForDisplay" @change="handlePageSelect">
+               <option v-for="pg in localPageList" :key="pg" :value="pg">Page {{ pg }}</option>
+            </select>
+          </label>
 
-        <div class="action-group">
-           <!-- NEW: Simple Save Button -->
-           <button class="action-btn" @click="saveCurrentPage" :disabled="loading || isProcessingSave">
-             Save (S)
-           </button>
-           <button class="action-btn" @click="saveOverlay" :disabled="loading || isProcessingSave || recognitionModeActive" title="Save image with graph to backend">
-             Export Image
-           </button>
+          <div class="page-stepper">
+            <span class="control-shell" :class="{ 'is-disabled': previousPageDisabled }" :title="previousPageButtonTitle">
+              <button class="nav-btn" @click="previousPage" :disabled="previousPageDisabled">
+                Previous ([)
+              </button>
+            </span>
+            <span class="control-shell" :class="{ 'is-disabled': nextPageDisabled }" :title="nextPageButtonTitle">
+              <button class="nav-btn" @click="nextPage" :disabled="nextPageDisabled">
+                Next (])
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
 
-           <button class="action-btn primary" @click="saveAndGoNext" :disabled="loading || isProcessingSave">
-            {{ autoRecogEnabled ? 'Save, Recog & Next' : 'Save & Next' }}
-          </button>
-          <button class="action-btn" @click="downloadResults" :disabled="loading || isProcessingSave">
-            Download PAGE-XMLs
-          </button>
-          <button class="action-btn" @click="runHeuristic" :disabled="loading || recognitionModeActive">
+      <div class="top-bar-center workflow-panel">
+        <div class="workflow-summary">
+          <span class="workflow-eyebrow">{{ workflowPanelEyebrow }}</span>
+          <div class="workflow-pill-row">
+            <span class="workflow-pill" :class="workflowStateClass">{{ effectivePageWorkflow.label }}</span>
+            <span v-if="effectivePageWorkflow.prediction.source_label" class="workflow-pill subtle">
+              {{ effectivePageWorkflow.prediction.source_label }}
+            </span>
+            <span v-if="effectivePageWorkflow.correction_summary.changed_line_count > 0" class="workflow-pill subtle">
+              {{ effectivePageWorkflow.correction_summary.changed_line_count }} corrected
+            </span>
+          </div>
+          <span class="workflow-hint">{{ workflowPanelHint }}</span>
+        </div>
+
+        <div class="workflow-controls">
+          <div class="workflow-toggle-group">
+            <label class="toggle-switch">
+              <input type="checkbox" v-model="activeLearningEnabled">
+              <span class="slider"></span>
+            </label>
+            <div class="workflow-toggle-copy">
+              <span class="workflow-toggle-label">Active Learning</span>
+              <span class="workflow-toggle-subcopy">{{ activeLearningStatus }}</span>
+            </div>
+          </div>
+
+          <div class="workflow-toggle-group compact">
+            <label class="toggle-switch">
+              <input type="checkbox" v-model="devanagariModeEnabled">
+              <span class="slider"></span>
+            </label>
+            <div class="workflow-toggle-copy">
+              <span class="workflow-toggle-label">Keyboard</span>
+              <span class="workflow-toggle-subcopy">Devanagari</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="top-bar-right top-bar-section">
+        <div class="action-summary">
+          <span class="action-eyebrow">{{ topBarActionState.eyebrow }}</span>
+          <div class="action-title-row">
+            <span class="action-title">{{ topBarActionState.title }}</span>
+            <span v-if="topBarActionState.recommendedAction" class="action-badge">Recommended</span>
+          </div>
+          <span class="action-hint">{{ topBarActionState.hint }}</span>
+        </div>
+
+        <div v-if="recognitionModeActive" class="recognition-engine-panel">
+          <span class="recognition-engine-label">OCR Engine</span>
+          <div class="recognition-engine-controls">
+            <select
+              v-model="recognitionEngine"
+              class="workflow-select recognition-engine-select"
+              :disabled="isProcessingSave || recognitionInFlight"
+              :title="recognitionEngineSelectTitle"
+            >
+              <option value="local">Local OCR</option>
+              <option value="gemini">Gemini API</option>
+            </select>
+            <span class="recognition-engine-hint">{{ recognitionEngineDescription }}</span>
+          </div>
+        </div>
+
+        <div class="action-group primary-actions">
+          <span class="control-shell" :class="{ 'is-disabled': recognizeActionDisabled }" :title="recognizeButtonTitle">
+            <button
+              class="action-btn"
+              :class="{ recommended: topBarActionState.recommendedAction === 'recognize' }"
+              @click="runRecognitionAction"
+              :disabled="recognizeActionDisabled"
+            >
+              {{ recognizeButtonLabel }} (R)
+            </button>
+          </span>
+          <span class="control-shell" :class="{ 'is-disabled': commitActionDisabled }" :title="commitButtonTitle">
+            <button
+              class="action-btn"
+              :class="{ recommended: topBarActionState.recommendedAction === 'commit' }"
+              @click="saveCurrentPage"
+              :disabled="commitActionDisabled"
+            >
+              Commit (S)
+            </button>
+          </span>
+          <span class="control-shell" :class="{ 'is-disabled': commitAndNextDisabled }" :title="commitAndNextButtonTitle">
+            <button class="action-btn forward-action" @click="saveAndGoNext" :disabled="commitAndNextDisabled">
+              Commit & Next (Shift+S)
+            </button>
+          </span>
+        </div>
+
+        <div class="action-group secondary-actions">
+          <span class="control-shell" :class="{ 'is-disabled': exportImageDisabled }" :title="exportImageButtonTitle">
+            <button class="action-btn secondary-action" @click="saveOverlay" :disabled="exportImageDisabled">
+              Export Image
+            </button>
+          </span>
+          <span class="control-shell" :class="{ 'is-disabled': downloadResultsDisabled }" :title="downloadResultsButtonTitle">
+            <button class="action-btn secondary-action" @click="downloadResults" :disabled="downloadResultsDisabled">
+              Download PAGE-XMLs
+            </button>
+          </span>
+          <!-- <button class="action-btn" @click="runHeuristic" :disabled="loading || recognitionInFlight || recognitionModeActive">
             Auto-Link
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
@@ -87,8 +155,8 @@
     <div class="visualization-container" ref="container">
       
       <!-- 1. Unified Overlay for Saving OR Mode Switching (Foreground) -->
-      <div v-if="isProcessingSave" class="processing-save-notice">
-        Processing... Please wait.
+      <div v-if="isProcessingSave || recognitionInFlight" class="processing-save-notice">
+        {{ recognitionInFlight ? recognitionBusyLabel : 'Processing... Please wait.' }}
       </div>
 
       <div v-if="error" class="error-message">
@@ -210,9 +278,30 @@
               />
             </svg>
 
+            <div
+              v-if="recognitionModeActive && !effectivePageWorkflow.can_edit_text && !isProcessingSave && !recognitionInFlight"
+              class="recognition-guard-card"
+            >
+              <span class="recognition-guard-badge">{{ effectivePageWorkflow.label }}</span>
+              <h3>{{ effectivePageWorkflow.hint }}</h3>
+              <p v-if="effectivePageWorkflow.prediction.source_label">
+                Latest visible text came from {{ effectivePageWorkflow.prediction.source_label }}.
+              </p>
+              <p v-else>
+                This page needs OCR before annotation can continue.
+              </p>
+              <button
+                class="action-btn primary"
+                @click="runRecognitionAction"
+                :disabled="loading || isProcessingSave || recognitionInFlight || !canRecognizePage"
+              >
+                {{ recognizeButtonLabel }} (R)
+              </button>
+            </div>
+
             <!-- Recognition Input Overlay Layer -->
             <div
-                v-if="recognitionModeActive && focusedLineId && pagePolygons[focusedLineId]"
+                v-if="recognitionModeActive && effectivePageWorkflow.can_edit_text && focusedLineId && pagePolygons[focusedLineId]"
                 class="input-floater"
                 :style="getActiveInputStyle()"
             >
@@ -347,13 +436,29 @@
            </div>
            <div class="instructions-container">
              <h3>Recognition Mode</h3>
-             <p>Transcribe line-by-line. Auto-save is active (every 20s).</p>
+             <p>{{ effectivePageWorkflow.hint }}</p>
              <ul>
-               <li><strong>Navigate:</strong> Press <code>Tab</code> to move to the next line.</li>
+               <li><strong>Prepare OCR:</strong> Press <code>R</code> to recognize or refresh the current page.</li>
+               <li><strong>Commit:</strong> Press <code>S</code> to commit, or <code>Shift+S</code>/<code>Ctrl+Enter</code> to commit and open the next page.</li>
+               <li><strong>Navigate:</strong> Press <code>Tab</code> for the next line, <code>Shift+Tab</code> for the previous line, and <code>[</code>/<code>]</code> for page navigation.</li>
                <li><strong>Visibility:</strong> Hold <code>V</code> to hide polygons (if not typing).</li>
                <li v-if="devanagariModeEnabled"><strong>Keys:</strong> Type phonetically (e.g., 'k' -> 'क'). Use '`' for Halant.</li>
              </ul>
-             
+             <div class="recognition-status-grid">
+               <div class="recognition-status-card">
+                 <span class="recognition-status-label">Current State</span>
+                 <strong>{{ effectivePageWorkflow.label }}</strong>
+               </div>
+               <div class="recognition-status-card">
+                 <span class="recognition-status-label">Prediction Source</span>
+                 <strong>{{ effectivePageWorkflow.prediction.source_label || 'Not prepared yet' }}</strong>
+               </div>
+               <div class="recognition-status-card">
+                 <span class="recognition-status-label">Next OCR Will Use</span>
+                 <strong>{{ nextRecognitionSourceLabel }}</strong>
+               </div>
+             </div>
+
              <div v-if="devanagariModeEnabled" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
                  <CharacterPalette />
              </div>
@@ -475,13 +580,44 @@ const localTextContent = reactive({})
 const pagePolygons = ref({}) 
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
-const autoRecogEnabled = ref(false)
+const autoRecogEnabled = ref(localStorage.getItem('auto_prepare_next_page') === 'true')
 const activeLearningEnabled = ref(localStorage.getItem('active_learning_enabled') !== 'false')
 const activeLearningStatus = ref('AL: idle')
 const recognitionEngine = ref(localStorage.getItem('recognition_engine') || 'local') // NEW
 const devanagariModeEnabled = ref(true) 
+const recognitionInFlight = ref(false)
+const recognitionDraftDirty = ref(false)
+const suppressTextDirtyTracking = ref(false)
+const activeLearningMeta = reactive({
+  label: 'AL: idle',
+  active_checkpoint_id: 'base',
+  active_checkpoint_path: null,
+  pending_jobs: [],
+  needs_rebase: false,
+})
+const pageWorkflow = reactive({
+  state: 'missing_ocr',
+  label: 'OCR not prepared',
+  hint: 'Run OCR to prepare this page for correction.',
+  needs_recognition: true,
+  can_edit_text: false,
+  has_text: false,
+  correction_summary: { changed_line_count: 0, total_edit_distance: 0, normalized_edit_distance: 0 },
+  prediction: {
+    available: false,
+    engine: null,
+    checkpoint_id: null,
+    checkpoint_path: null,
+    recorded_at: null,
+    source_label: null,
+    layout_fingerprint: null,
+    matches_current_layout: null,
+    layout_match_known: false,
+  },
+})
 
 // NEW: Persist keys/settings to local storage
+watch(autoRecogEnabled, (val) => localStorage.setItem('auto_prepare_next_page', String(val)))
 watch(recognitionEngine, (val) => localStorage.setItem('recognition_engine', val))
 watch(activeLearningEnabled, (val) => localStorage.setItem('active_learning_enabled', String(val)))
 watch(geminiKey, (val) => localStorage.setItem('gemini_key', val))
@@ -524,6 +660,322 @@ const scaledHeight = computed(() => Math.floor(dimensions.value[1] * scaleFactor
 const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
+const hasUnsavedLayoutChanges = computed(() => modifications.value.length > 0)
+
+const describeLocalCheckpoint = (checkpointId) => {
+  if (!checkpointId || checkpointId === 'base') {
+    return {
+      modelLabel: 'pretrained local OCR model',
+      fineTunedPagesLabel: '0 manuscript pages fine-tuned',
+      fullLabel: 'pretrained local OCR model (0 manuscript pages fine-tuned)',
+      detailLabel: 'Uses the pretrained local OCR model. Fine-tuned manuscript pages: 0.',
+    }
+  }
+
+  return {
+    modelLabel: `local OCR checkpoint ${checkpointId}`,
+    fineTunedPagesLabel: null,
+    fullLabel: `local OCR checkpoint ${checkpointId}`,
+    detailLabel: `Uses local OCR checkpoint ${checkpointId}. Exact manuscript fine-tune page count is not available in this view.`,
+  }
+}
+
+const localCheckpointDescriptor = computed(() => describeLocalCheckpoint(activeLearningMeta.active_checkpoint_id))
+
+const nextRecognitionSourceLabel = computed(() => {
+  if (recognitionEngine.value === 'gemini') return 'Gemini OCR'
+  return `Local OCR using ${localCheckpointDescriptor.value.fullLabel}`
+})
+
+const recognitionEngineLabel = computed(() => nextRecognitionSourceLabel.value)
+const canRecognizePage = computed(() => recognitionEngine.value !== 'gemini' || Boolean(geminiKey.value))
+const recognitionBusyLabel = computed(() => {
+  if (recognitionEngine.value === 'gemini') return 'Preparing page with Gemini OCR...'
+  return `Preparing page with Local OCR using ${localCheckpointDescriptor.value.fullLabel}...`
+})
+const effectivePageWorkflow = computed(() => {
+  const prediction = { ...pageWorkflow.prediction }
+  const correctionSummary = { ...pageWorkflow.correction_summary }
+  if (recognitionInFlight.value) {
+    return {
+      ...pageWorkflow,
+      prediction,
+      correction_summary: correctionSummary,
+      state: 'refreshing_ocr',
+      label: 'Preparing OCR',
+      hint: `Running ${recognitionEngineLabel.value} for the current layout.`,
+      needs_recognition: false,
+      can_edit_text: false,
+    }
+  }
+  if (hasUnsavedLayoutChanges.value) {
+    return {
+      ...pageWorkflow,
+      prediction,
+      correction_summary: correctionSummary,
+      state: 'layout_dirty',
+      label: 'Layout changed',
+      hint: 'Commit the layout and rerun OCR before correcting text.',
+      needs_recognition: true,
+      can_edit_text: false,
+    }
+  }
+  return {
+    ...pageWorkflow,
+    prediction,
+    correction_summary: correctionSummary,
+  }
+})
+
+const workflowStateClass = computed(() => `state-${effectivePageWorkflow.value.state}`)
+const workflowPanelEyebrow = computed(() => {
+  if (layoutModeActive.value) return 'Layout First'
+  if (recognitionModeActive.value) return 'Recognition Workflow'
+  return 'Page Workflow'
+})
+const workflowPanelHint = computed(() => {
+  if (layoutModeActive.value) {
+    if (hasUnsavedLayoutChanges.value) {
+      return 'Save structural edits here before moving to Recognize.'
+    }
+    return 'Adjust line structure in Layout Mode first. OCR and text correction happen after you switch to Recognize.'
+  }
+  if (recognitionModeActive.value && effectivePageWorkflow.value.needs_recognition) {
+    return 'Choose an OCR engine here, then run OCR for this page.'
+  }
+  return effectivePageWorkflow.value.hint
+})
+const recognizeButtonLabel = computed(() => {
+  if (hasUnsavedLayoutChanges.value) return 'Commit Layout & Recognize'
+  if (effectivePageWorkflow.value.needs_recognition) return 'Recognize Page'
+  return 'Refresh OCR'
+})
+const recognitionEngineDescription = computed(() => {
+  if (recognitionEngine.value === 'gemini') {
+    return canRecognizePage.value
+      ? 'Uses Gemini for OCR on this page.'
+      : 'Gemini requires an API key before OCR can run.'
+  }
+  return localCheckpointDescriptor.value.detailLabel
+})
+const topBarActionState = computed(() => {
+  if (recognitionInFlight.value) {
+    return {
+      eyebrow: 'Working',
+      title: 'Preparing OCR for this page',
+      hint: recognitionBusyLabel.value,
+      recommendedAction: 'recognize',
+    }
+  }
+  if (isProcessingSave.value) {
+    return {
+      eyebrow: 'Working',
+      title: 'Saving current page',
+      hint: 'Wait for the save to finish before navigating or exporting.',
+      recommendedAction: 'commit',
+    }
+  }
+  if (layoutModeActive.value) {
+    if (hasUnsavedLayoutChanges.value) {
+      return {
+        eyebrow: 'Layout Mode',
+        title: 'Commit layout changes',
+        hint: 'Save node, edge, and region edits before switching to Recognize.',
+        recommendedAction: 'commit',
+      }
+    }
+    if (recognitionDraftDirty.value) {
+      return {
+        eyebrow: 'Layout Mode',
+        title: 'Commit text corrections',
+        hint: 'Save your text edits before making more structural changes or rerunning OCR.',
+        recommendedAction: 'commit',
+      }
+    }
+    return {
+      eyebrow: 'Layout Mode',
+      title: 'Refine page structure first',
+      hint: 'Adjust nodes, edges, and regions here. When the layout looks right, switch to Recognize to run OCR.',
+      recommendedAction: null,
+    }
+  }
+  if (recognitionModeActive.value) {
+    if (effectivePageWorkflow.value.needs_recognition) {
+      return {
+        eyebrow: 'Recognition Mode',
+        title: 'Run OCR for this layout',
+        hint: 'Choose an OCR engine here, then prepare text before making line-by-line corrections.',
+        recommendedAction: 'recognize',
+      }
+    }
+    if (recognitionDraftDirty.value) {
+      return {
+        eyebrow: 'Recognition Mode',
+        title: 'Commit current corrections',
+        hint: 'Save this page so your text edits stay attached to the latest OCR result.',
+        recommendedAction: 'commit',
+      }
+    }
+    if (effectivePageWorkflow.value.can_edit_text) {
+      return {
+        eyebrow: 'Recognition Mode',
+        title: 'Review and correct text lines',
+        hint: 'Edit line text here, then commit when this page is ready to keep.',
+        recommendedAction: null,
+      }
+    }
+  }
+  if (effectivePageWorkflow.value.can_edit_text) {
+    return {
+      eyebrow: 'Ready',
+      title: 'Page ready for review',
+      hint: 'You can edit line text now and commit when you finish this page.',
+      recommendedAction: null,
+    }
+  }
+  return {
+    eyebrow: 'Ready',
+    title: 'Workspace ready',
+    hint: 'Review the current page, export assets, or move to another page.',
+    recommendedAction: null,
+  }
+})
+
+const getBusyDisabledReason = (label) => {
+  if (loading.value) return `${label} is unavailable while the page is loading.`
+  if (recognitionInFlight.value) return `${label} is unavailable while OCR is running.`
+  if (isProcessingSave.value) return `${label} is unavailable while changes are saving.`
+  return ''
+}
+
+const previousPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || isFirstPage.value)
+const nextPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || isLastPage.value)
+const recognizeActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || !canRecognizePage.value)
+const commitActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value)
+const commitAndNextDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value)
+const exportImageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeActive.value)
+const downloadResultsDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value)
+
+const previousPageButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Previous page')
+  if (busyReason) return busyReason
+  if (isFirstPage.value) return 'Already at the first page.'
+  return 'Go to the previous page ([).'
+})
+
+const nextPageButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Next page')
+  if (busyReason) return busyReason
+  if (isLastPage.value) return 'Already at the last page.'
+  return 'Go to the next page (]).'
+})
+
+const recognizeButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason(recognizeButtonLabel.value)
+  if (busyReason) return busyReason
+  if (!canRecognizePage.value) {
+    return recognitionEngine.value === 'gemini'
+      ? 'Add a Gemini API key or switch to Local OCR before running recognition.'
+      : 'Recognition is not available right now.'
+  }
+  if (layoutModeActive.value && hasUnsavedLayoutChanges.value) {
+    return 'Commit the updated layout, switch to Recognize, and prepare OCR for this page (R).'
+  }
+  if (layoutModeActive.value) {
+    return 'Switch to Recognize and prepare OCR for this page (R).'
+  }
+  if (effectivePageWorkflow.value.needs_recognition) return 'Prepare OCR text for this page (R).'
+  return 'Refresh OCR using the current engine and layout (R).'
+})
+
+const commitButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Commit')
+  if (busyReason) return busyReason
+  if (hasUnsavedLayoutChanges.value) return 'Commit the current layout changes on this page (S).'
+  if (recognitionDraftDirty.value) return 'Commit the current text corrections on this page (S).'
+  return 'Commit the current page state (S).'
+})
+
+const commitAndNextButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Commit & Next')
+  if (busyReason) return busyReason
+  if (isLastPage.value) return 'Commit the current page. This manuscript is already on its last page.'
+  return 'Commit the current page and open the next one (Shift+S).'
+})
+
+const exportImageButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Export Image')
+  if (busyReason) return busyReason
+  if (recognitionModeActive.value) return 'Export Image is only available in Layout Mode.'
+  return 'Save an image of the current page with the graph overlay.'
+})
+
+const downloadResultsButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Download PAGE-XMLs')
+  if (busyReason) return busyReason
+  return 'Download the PAGE-XML output for this manuscript.'
+})
+const recognitionEngineSelectTitle = computed(() => {
+  if (recognitionInFlight.value) return 'OCR engine cannot be changed while OCR is running.'
+  if (isProcessingSave.value) return 'OCR engine cannot be changed while changes are saving.'
+  return 'Choose the OCR engine used when you run or refresh recognition on this page.'
+})
+
+const replaceLocalRecognitionData = (textPayload = {}, confidencePayload = {}) => {
+  suppressTextDirtyTracking.value = true
+  Object.keys(localTextContent).forEach((key) => delete localTextContent[key])
+  Object.keys(localTextConfidence).forEach((key) => delete localTextConfidence[key])
+  Object.assign(localTextContent, textPayload || {})
+  Object.assign(localTextConfidence, confidencePayload || {})
+  recognitionDraftDirty.value = false
+  nextTick(() => {
+    suppressTextDirtyTracking.value = false
+  })
+}
+
+const applyActiveLearningState = (payload = {}) => {
+  activeLearningStatus.value = payload.label || 'AL: idle'
+  activeLearningMeta.label = activeLearningStatus.value
+  activeLearningMeta.active_checkpoint_id = payload.active_checkpoint_id || 'base'
+  activeLearningMeta.active_checkpoint_path = payload.active_checkpoint_path || null
+  activeLearningMeta.pending_jobs = Array.isArray(payload.pending_jobs) ? payload.pending_jobs : []
+  activeLearningMeta.needs_rebase = Boolean(payload.needs_rebase)
+}
+
+const applyPageWorkflow = (payload = {}) => {
+  pageWorkflow.state = payload.state || 'missing_ocr'
+  pageWorkflow.label = payload.label || 'OCR not prepared'
+  pageWorkflow.hint = payload.hint || 'Run OCR to prepare this page for correction.'
+  pageWorkflow.needs_recognition = Boolean(payload.needs_recognition)
+  pageWorkflow.can_edit_text = Boolean(payload.can_edit_text)
+  pageWorkflow.has_text = Boolean(payload.has_text)
+  pageWorkflow.correction_summary = {
+    changed_line_count: Number(payload?.correction_summary?.changed_line_count || 0),
+    total_edit_distance: Number(payload?.correction_summary?.total_edit_distance || 0),
+    normalized_edit_distance: Number(payload?.correction_summary?.normalized_edit_distance || 0),
+  }
+  pageWorkflow.prediction = {
+    available: Boolean(payload?.prediction?.available),
+    engine: payload?.prediction?.engine || null,
+    checkpoint_id: payload?.prediction?.checkpoint_id || null,
+    checkpoint_path: payload?.prediction?.checkpoint_path || null,
+    recorded_at: payload?.prediction?.recorded_at || null,
+    source_label: payload?.prediction?.source_label || null,
+    layout_fingerprint: payload?.prediction?.layout_fingerprint || null,
+    matches_current_layout: payload?.prediction?.matches_current_layout ?? null,
+    layout_match_known: Boolean(payload?.prediction?.layout_match_known),
+  }
+}
+
+watch(
+  localTextContent,
+  () => {
+    if (!suppressTextDirtyTracking.value) {
+      recognitionDraftDirty.value = true
+    }
+  },
+  { deep: true }
+)
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
 
@@ -802,6 +1254,7 @@ const getDynamicFontSize = () => {
 }
 
 const activateInput = (lineId) => {
+    if (!effectivePageWorkflow.value.can_edit_text) return;
     focusedLineId.value = lineId;
     nextTick(() => {
         if(activeInput.value) {
@@ -819,6 +1272,7 @@ const handleInputBlur = () => {
 }
 
 const focusNextLine = (reverse = false) => {
+    if (!effectivePageWorkflow.value.can_edit_text) return;
     if(sortedLineIds.value.length === 0) return;
     let currentIdx = sortedLineIds.value.indexOf(focusedLineId.value);
     let nextIdx;
@@ -936,7 +1390,7 @@ const computeTextlines = () => {
   nodeToTextlineMap.value = newNodeToTextlineMap
 }
 
-const fetchPageData = async (manuscript, page, isRefresh = false) => {
+const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRecognition = false) => {
   if (!manuscript || !page) return;
   
   if (!isRefresh) {
@@ -948,10 +1402,10 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
   modifications.value = []
   
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
-  Object.keys(localTextContent).forEach(k => delete localTextContent[k])
-  Object.keys(localTextConfidence).forEach(k => delete localTextConfidence[k]) 
+  replaceLocalRecognitionData({}, {})
   pagePolygons.value = {}
   sortedLineIds.value = []
+  let shouldAutoPrepareCurrentPage = false
 
   try {
     const response = await fetch(
@@ -986,15 +1440,19 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
     }
     
     if (data.polygons) pagePolygons.value = data.polygons;
-    if (data.textContent) {
-        Object.assign(localTextContent, data.textContent);
+    replaceLocalRecognitionData(data.textContent || {}, data.textConfidences || {})
+    if (data.activeLearning) {
+      applyActiveLearningState(data.activeLearning)
     }
-    if (data.textConfidences) {
-        Object.assign(localTextConfidence, data.textConfidences);
+    if (data.pageWorkflow) {
+      applyPageWorkflow(data.pageWorkflow)
     }
-    if (data.activeLearning?.label) {
-      activeLearningStatus.value = data.activeLearning.label
-    }
+    shouldAutoPrepareCurrentPage = Boolean(
+      autoPrepareRecognition &&
+      recognitionModeActive.value &&
+      data?.pageWorkflow?.needs_recognition &&
+      canRecognizePage.value
+    )
 
     updatePageDynamicSizing(graph.value?.nodes || [], graph.value?.edges || [])
     resetWorkingGraph()
@@ -1005,6 +1463,9 @@ const fetchPageData = async (manuscript, page, isRefresh = false) => {
   } finally {
     loading.value = false
   }
+  if (!error.value && shouldAutoPrepareCurrentPage) {
+    await recognizeCurrentPage({ focusAfter: true, suppressErrors: true })
+  }
 }
 
 const getConfidenceColor = (score) => {
@@ -1012,6 +1473,63 @@ const getConfidenceColor = (score) => {
     if (score >= 0.8) return '#4CAF50'; 
     if (score >= 0.5) return '#FFC107'; 
     return '#FF5252';                   
+}
+
+const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false } = {}) => {
+  if (!localManuscriptName.value || !localCurrentPage.value || recognitionInFlight.value || isProcessingSave.value) {
+    return false
+  }
+  if (!canRecognizePage.value) {
+    const message = recognitionEngine.value === 'gemini'
+      ? 'Gemini OCR requires an API key before this page can be prepared.'
+      : 'Recognition is not available right now.'
+    error.value = message
+    if (!suppressErrors) alert(message)
+    return false
+  }
+
+  recognitionInFlight.value = true
+  error.value = null
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recognize-text`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        manuscript: localManuscriptName.value,
+        page: localCurrentPage.value,
+        apiKey: geminiKey.value,
+        recognitionEngine: recognitionEngine.value,
+      }),
+    })
+    if (!response.ok) {
+      const payload = await response.json()
+      throw new Error(payload.error || 'Recognition failed')
+    }
+
+    const data = await response.json()
+    replaceLocalRecognitionData(data.text || {}, data.confidences || {})
+    if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
+    sortLinesTopToBottom()
+    if (focusAfter && sortedLineIds.value.length > 0) {
+      activateInput(sortedLineIds.value[0])
+    }
+    return true
+  } catch (err) {
+    error.value = err.message
+    if (!suppressErrors) alert(`Recognition failed: ${err.message}`)
+    return false
+  } finally {
+    recognitionInFlight.value = false
+  }
+}
+
+const runRecognitionAction = async () => {
+  if (recognitionModeActive.value && !hasUnsavedLayoutChanges.value) {
+    await recognizeCurrentPage({ focusAfter: true })
+    return
+  }
+  await requestSwitchToRecognition(true)
 }
 
 const fetchPageList = async (manuscript) => {
@@ -1229,6 +1747,7 @@ const labelTextline = () => {
 const handleGlobalKeyDown = (e) => {
   const tagName = e.target.tagName.toLowerCase();
   const isInput = tagName === 'input' || tagName === 'textarea';
+  if (recognitionInFlight.value) return
 
   const key = e.key.toLowerCase()
   const isZoomShortcut = (e.ctrlKey || e.metaKey) &&
@@ -1237,14 +1756,39 @@ const handleGlobalKeyDown = (e) => {
     schedulePostZoomShortcutUpdate()
   }
 
+  if ((key === 's' && e.shiftKey && !e.repeat && !isInput) || ((e.ctrlKey || e.metaKey) && key === 'enter' && !isInput)) {
+    e.preventDefault()
+    saveAndGoNext()
+    return
+  }
+
   if (key === 's' && !e.repeat && !isInput) {
     e.preventDefault()
     saveCurrentPage()
     return
   }
+
+  if (key === 'r' && !e.repeat && !isInput) {
+    e.preventDefault()
+    runRecognitionAction()
+    return
+  }
+
+  if (key === '[' && !e.repeat && !isInput) {
+    e.preventDefault()
+    previousPage()
+    return
+  }
+
+  if (key === ']' && !e.repeat && !isInput) {
+    e.preventDefault()
+    nextPage()
+    return
+  }
   
   if (key === 'w' && !e.repeat && !isInput) { e.preventDefault(); setMode('layout'); return }
   if (key === 't' && !e.repeat && !isInput) { e.preventDefault(); requestSwitchToRecognition(); return }
+  if (key === 'escape' && recognitionModeActive.value && isInput) { e.preventDefault(); focusedLineId.value = null; return }
   
   // NEW: Visibility Hotkey 'v'
   if (key === 'v' && !isInput) {
@@ -1382,13 +1926,14 @@ const saveModifications = async (background = false) => {
     if (nodeIndex < numNodes) labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
   }
   const dummyTextlineLabels = new Array(numNodes).fill(-1);
+  const textContentForSave = hasUnsavedLayoutChanges.value ? {} : { ...localTextContent }
   const requestBody = {
     graph: workingGraph, 
     modifications: modifications.value,
     textlineLabels: dummyTextlineLabels, 
     textboxLabels: labelsToSend,
-    textContent: localTextContent,
-    runRecognition: autoRecogEnabled.value && !background, // Don't run GNN/AI on auto-save
+    textContent: textContentForSave,
+    runRecognition: false,
     apiKey: geminiKey.value,
     recognitionEngine: recognitionEngine.value, // <--- NEW PARAMETER
     activeLearningEnabled: activeLearningEnabled.value,
@@ -1407,14 +1952,11 @@ const saveModifications = async (background = false) => {
 
     // If auto-recog was run, update text
     const data = await res.json()
-    if (data.recognizedText) {
-        Object.assign(localTextContent, data.recognizedText)
-    }
-    if (data.activeLearning?.label) {
-      activeLearningStatus.value = data.activeLearning.label
-    }
+    if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
 
     modifications.value = []
+    recognitionDraftDirty.value = false
     error.value = null
   } catch (err) {
     error.value = err.message
@@ -1423,27 +1965,34 @@ const saveModifications = async (background = false) => {
 }
 
 
-const requestSwitchToRecognition = async () => {
-    if (recognitionModeActive.value) return;
+const requestSwitchToRecognition = async (forceRecognition = false) => {
+    if (recognitionInFlight.value) return;
+    if (recognitionModeActive.value && !forceRecognition && !hasUnsavedLayoutChanges.value) return;
 
     isProcessingSave.value = true;
     try {
-        if (modifications.value.length > 0) {
+        if (hasUnsavedLayoutChanges.value) {
             await saveModifications(); 
+            await fetchPageData(localManuscriptName.value, localCurrentPage.value, true, false);
         }
-        await fetchPageData(localManuscriptName.value, localCurrentPage.value, true);
         setMode('recognition');
     } catch (e) {
         alert("Error switching mode: " + e.message);
     } finally {
         isProcessingSave.value = false;
     }
+    if (error.value) return;
+    if (forceRecognition || effectivePageWorkflow.value.needs_recognition) {
+      await recognizeCurrentPage({ focusAfter: true });
+    } else if (effectivePageWorkflow.value.can_edit_text && sortedLineIds.value.length > 0) {
+      activateInput(sortedLineIds.value[0]);
+    }
 }
 
 
 const confirmAndNavigate = async (navAction) => {
-  if (isProcessingSave.value) return
-  if (modifications.value.length > 0 || (recognitionModeActive.value && Object.keys(localTextContent).length > 0)) {
+  if (isProcessingSave.value || recognitionInFlight.value) return
+  if (hasUnsavedLayoutChanges.value || recognitionDraftDirty.value) {
     if (confirm('Do you want to save changes before navigating?')) {
       isProcessingSave.value = true
       try {
@@ -1456,6 +2005,7 @@ const confirmAndNavigate = async (navAction) => {
       }
     } else {
       modifications.value = []
+      recognitionDraftDirty.value = false
       navAction()
     }
   } else {
@@ -1484,7 +2034,7 @@ const handlePageSelect = (event) => {
 
 // NEW: Save current page logic (no nav)
 const saveCurrentPage = async () => {
-  if (loading.value || isProcessingSave.value) return
+  if (loading.value || isProcessingSave.value || recognitionInFlight.value) return
   isProcessingSave.value = true
   try {
     await saveModifications()
@@ -1494,7 +2044,7 @@ const saveCurrentPage = async () => {
 }
 
 const saveAndGoNext = async () => {
-  if (loading.value || isProcessingSave.value) return
+  if (loading.value || isProcessingSave.value || recognitionInFlight.value) return
   isProcessingSave.value = true
   try {
     await saveModifications()
@@ -1519,7 +2069,7 @@ watch(recognitionModeActive, (active) => {
     if (active) {
         if(autoSaveInterval.value) clearInterval(autoSaveInterval.value);
         autoSaveInterval.value = setInterval(async () => {
-            // Background save only
+            if (recognitionInFlight.value || isProcessingSave.value || !recognitionDraftDirty.value) return;
             try {
                 await saveModifications(true);
                 console.log("Auto-save completed");
@@ -1553,7 +2103,7 @@ onMounted(async () => {
          emit('page-changed', lastEdited) // Sync with parent
     }
 
-    await fetchPageData(props.manuscriptName, localCurrentPage.value)
+    await fetchPageData(props.manuscriptName, localCurrentPage.value, false, false)
   }
   window.addEventListener('resize', scheduleBrowserZoomLevelUpdate, { passive: true })
   window.addEventListener('wheel', handleCtrlWheelZoom, { passive: true })
@@ -1591,7 +2141,12 @@ onBeforeUnmount(() => {
 watch(() => props.pageName, (newPageName) => {
     if (newPageName && newPageName !== localCurrentPage.value) {
       localCurrentPage.value = newPageName
-      fetchPageData(localManuscriptName.value, newPageName)
+      fetchPageData(
+        localManuscriptName.value,
+        newPageName,
+        false,
+        recognitionModeActive.value && autoRecogEnabled.value,
+      )
     }
 })
 
@@ -1612,8 +2167,16 @@ watch(recognitionModeActive, (val) => {
 
 /* Top Bar */
 .top-bar {
-  display: flex; justify-content: space-between; align-items: center; padding: 0 16px;
-  height: 60px; background-color: #2c2c2c; border-bottom: 1px solid #3d3d3d; flex-shrink: 0; z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.78fr) minmax(420px, 1.5fr) minmax(320px, 1.05fr);
+  align-items: stretch;
+  gap: 14px;
+  padding: 10px 14px;
+  min-height: 96px;
+  background-color: #2c2c2c;
+  border-bottom: 1px solid #3d3d3d;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
 .fixed-ui-compensated {
@@ -1628,7 +2191,120 @@ watch(recognitionModeActive, (val) => {
   }
 }
 .top-bar-left, .top-bar-right, .action-group { display: flex; align-items: center; gap: 16px; }
-.page-title { font-size: 1.1rem; color: #fff; white-space: nowrap; }
+.top-bar-left, .top-bar-right {
+  min-width: 0;
+  flex-shrink: 0;
+}
+.top-bar-center { flex: 1; min-width: 0; }
+.top-bar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #3b3b3b;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+  min-width: 0;
+}
+
+.top-bar-left {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.page-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.page-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.page-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8cb8a7;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.page-title {
+  font-size: 1rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.page-divider {
+  color: #5f5f5f;
+}
+
+.page-current {
+  font-size: 0.86rem;
+  color: #cfd9ff;
+  white-space: nowrap;
+}
+
+.page-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.page-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.03);
+  min-width: 0;
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.page-picker-label {
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  white-space: nowrap;
+}
+
+.page-stepper {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.page-stepper .nav-btn {
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid #4a4a4a;
+  background: rgba(255,255,255,0.035);
+  color: #e7e7e7;
+}
+
 .separator { width: 1px; height: 24px; background-color: #555; margin: 0 4px; }
 button { border: none; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: all 0.2s; }
 .nav-btn { background: transparent; color: #aaa; padding: 8px 12px; display: flex; align-items: center; }
@@ -1644,13 +2320,296 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     background: #333;
     color: #fff;
     border: 1px solid #444;
-    padding: 6px 12px;
+    padding: 5px 10px;
     border-radius: 4px;
     outline: none;
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     cursor: pointer;
+    min-width: 102px;
 }
 .page-select:hover { border-color: #666; }
+
+.workflow-panel {
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(23, 23, 23, 0.95), rgba(41, 41, 41, 0.92));
+  border: 1px solid #3b3b3b;
+  border-radius: 12px;
+  min-width: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.workflow-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.workflow-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8cb8a7;
+}
+
+.workflow-pill-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.workflow-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  border: 1px solid #4d4d4d;
+  background: rgba(255,255,255,0.06);
+  color: #f4f4f4;
+}
+
+.workflow-pill.subtle {
+  color: #d3d3d3;
+  background: rgba(255,255,255,0.04);
+}
+
+.workflow-pill.state-ready,
+.workflow-pill.state-manual_only {
+  background: rgba(64, 145, 108, 0.2);
+  border-color: rgba(97, 201, 149, 0.45);
+  color: #bff0d7;
+}
+
+.workflow-pill.state-layout_dirty,
+.workflow-pill.state-stale_layout {
+  background: rgba(191, 111, 59, 0.18);
+  border-color: rgba(240, 152, 94, 0.4);
+  color: #ffd2b6;
+}
+
+.workflow-pill.state-missing_ocr,
+.workflow-pill.state-refreshing_ocr {
+  background: rgba(48, 116, 170, 0.18);
+  border-color: rgba(108, 181, 240, 0.4);
+  color: #c8e8ff;
+}
+
+.workflow-hint {
+  color: #bababa;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workflow-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: center;
+}
+
+.workflow-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.03);
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.workflow-toggle-group.compact {
+  padding-right: 2px;
+}
+
+.workflow-toggle-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workflow-toggle-label {
+  font-size: 0.78rem;
+  color: #efefef;
+  line-height: 1;
+}
+
+.workflow-toggle-subcopy {
+  font-size: 0.68rem;
+  color: #9fd4ff;
+  line-height: 1;
+}
+
+.workflow-select {
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.top-bar-right {
+  justify-content: center;
+}
+
+.action-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.action-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8cb8a7;
+}
+
+.action-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-title {
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(97, 201, 149, 0.14);
+  border: 1px solid rgba(97, 201, 149, 0.32);
+  color: #c6f5da;
+  font-size: 0.72rem;
+}
+
+.action-hint {
+  color: #bababa;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.recognition-engine-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(108, 181, 240, 0.16);
+  background: linear-gradient(180deg, rgba(48, 116, 170, 0.14), rgba(48, 116, 170, 0.06));
+}
+
+.recognition-engine-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9fd4ff;
+  white-space: nowrap;
+}
+
+.recognition-engine-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.recognition-engine-select {
+  min-width: 132px;
+}
+
+.recognition-engine-hint {
+  color: #c6d7e6;
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.top-bar-right .action-group {
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.control-shell {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.control-shell.is-disabled {
+  cursor: not-allowed;
+}
+
+.control-shell > button:disabled {
+  pointer-events: none;
+}
+
+.primary-actions {
+  justify-content: flex-end;
+}
+
+.secondary-actions {
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.top-bar-right .action-btn {
+  min-height: 40px;
+}
+
+.top-bar-right .action-btn.recommended {
+  background: linear-gradient(180deg, #59ab6c, #458a57);
+  border-color: #66c37d;
+  color: #f5fff7;
+  box-shadow: 0 0 0 1px rgba(102, 195, 125, 0.18), 0 12px 24px rgba(46, 92, 58, 0.22);
+}
+
+.top-bar-right .action-btn.forward-action {
+  background: rgba(99, 123, 173, 0.12);
+  border-color: rgba(132, 161, 223, 0.32);
+  color: #dde7ff;
+}
+
+.secondary-action {
+  background: transparent;
+  color: #d0d0d0;
+  border-color: #4c4c4c;
+}
+
+.top-bar .nav-btn:hover:not(:disabled),
+.top-bar .action-btn:hover:not(:disabled),
+.workflow-toggle-group:hover,
+.page-picker:hover {
+  transform: translateY(-1px);
+}
+
+.workflow-toggle-group:hover,
+.page-picker:hover {
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+}
 
 /* Main Visualization */
 .visualization-container {
@@ -1711,6 +2670,46 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .error-message { background: #c62828; color: white; }
 .loading { font-size: 1.2rem; color: #aaa; background: rgba(0,0,0,0.5); }
 
+.recognition-guard-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  width: min(440px, calc(100% - 40px));
+  padding: 22px 24px;
+  border-radius: 16px;
+  background: rgba(13, 13, 13, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  text-align: left;
+  backdrop-filter: blur(10px);
+}
+
+.recognition-guard-card h3 {
+  margin: 10px 0 8px;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.recognition-guard-card p {
+  margin: 0 0 16px;
+  color: #c8c8c8;
+  line-height: 1.45;
+}
+
+.recognition-guard-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  min-height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(108, 181, 240, 0.35);
+  background: rgba(48, 116, 170, 0.18);
+  color: #c8e8ff;
+  font-size: 0.78rem;
+}
+
 /* Bottom Rail */
 .bottom-panel {
   background-color: #2c2c2c; border-top: 1px solid #3d3d3d; flex-shrink: 0; display: flex; flex-direction: column;
@@ -1734,6 +2733,30 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .instructions-container h4 { color: #ddd; margin-bottom: 5px; margin-top: 0; }
 code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
 .webm-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #777; background: #3a3a3a; }
+
+.recognition-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.recognition-status-card {
+  background: #252525;
+  border: 1px solid #3d3d3d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recognition-status-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8cb8a7;
+}
 
 /* Sidebar Log */
 .log-sidebar { width: 200px; background: #222; border: 1px solid #444; display: flex; flex-direction: column; }
@@ -1894,5 +2917,69 @@ input:checked + .slider:before { transform: translateX(14px); }
   gap: 10px;
   font-size: 0.9rem;
   color: #ccc;
+}
+
+@media (max-width: 1380px) {
+  .top-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .top-bar-left {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  .page-controls {
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+
+  .top-bar-center.workflow-panel {
+    grid-column: 1 / -1;
+  }
+
+  .workflow-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workflow-controls {
+    justify-content: flex-start;
+  }
+
+  .top-bar-right .action-group {
+    justify-content: flex-start;
+  }
+
+  .primary-actions {
+    justify-content: flex-start;
+  }
+
+  .secondary-actions {
+    justify-content: flex-start;
+  }
+
+  .recognition-engine-panel {
+    align-items: flex-start;
+  }
+
+  .recognition-status-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .top-bar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .top-bar-center.workflow-panel {
+    grid-column: auto;
+  }
+
+  .page-stepper {
+    width: 100%;
+  }
 }
 </style>

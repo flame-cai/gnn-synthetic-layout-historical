@@ -2,6 +2,7 @@
 import os
 import sys
 import torch
+import hashlib
 
 # --- NEW IMPORTS FOR LOCAL OCR ---
 # Ensure we can import from the recognition folder
@@ -66,6 +67,7 @@ from ocr_active_learning_runtime import (
     handle_post_save,
     prepare_for_interactive_ocr,
     record_prediction,
+    summarize_page_active_learning,
     summarize_manuscript_active_learning,
 )
 from ocr_model_manager import ManuscriptAwareOcrModelManager
@@ -91,6 +93,7 @@ def _get_manuscript_active_learning_state(manuscript):
     return summarize_manuscript_active_learning(
         manuscript_root,
         base_checkpoint_path=OCR_MODEL_PATH,
+        orchestrator=JOB_ORCHESTRATOR,
     )
 
 
@@ -171,6 +174,60 @@ def get_existing_text_content(xml_path):
     return {"text": text_content, "confidences": confidences}
 
 
+def compute_page_layout_fingerprint(xml_path):
+    if not os.path.exists(xml_path):
+        return None
+
+    try:
+        ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        line_records = []
+
+        for textline in root.findall(".//p:TextLine", ns):
+            custom_attr = textline.get('custom', '')
+            if 'structure_line_id_' not in custom_attr:
+                continue
+            try:
+                line_id = str(custom_attr.split('structure_line_id_')[1])
+            except IndexError:
+                continue
+
+            coords_elem = textline.find('p:Coords', ns)
+            baseline_elem = textline.find('p:Baseline', ns)
+            line_records.append(
+                {
+                    "line_id": line_id,
+                    "coords": (coords_elem.get('points', '').strip() if coords_elem is not None else ''),
+                    "baseline": (baseline_elem.get('points', '').strip() if baseline_elem is not None else ''),
+                }
+            )
+
+        serialized = json.dumps(sorted(line_records, key=lambda record: record["line_id"]), ensure_ascii=False, sort_keys=True)
+        return hashlib.sha1(serialized.encode("utf-8")).hexdigest()
+    except Exception as e:
+        print(f"Error computing page layout fingerprint for {xml_path}: {e}")
+        return None
+
+
+def _build_page_workflow(manuscript_path, page, text_payload=None, active_learning=None):
+    xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    layout_fingerprint = compute_page_layout_fingerprint(str(xml_path))
+    if text_payload is None:
+        text_payload = get_existing_text_content(str(xml_path)).get("text", {}) if xml_path.exists() else {}
+
+    workflow = summarize_page_active_learning(
+        manuscript_path,
+        page,
+        current_text_payload=text_payload,
+        current_layout_fingerprint=layout_fingerprint,
+        base_checkpoint_path=OCR_MODEL_PATH,
+    )
+    if active_learning:
+        workflow["active_checkpoint_id"] = active_learning.get("active_checkpoint_id")
+    return workflow
+
+
 def get_ocr_context():
     """
     Singleton to load the OCR model and config only once.
@@ -222,7 +279,12 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
     if interactive:
         prepare_for_interactive_ocr(base_path, orchestrator=JOB_ORCHESTRATOR)
 
+    if checkpoint_path is None:
+        checkpoint_path, checkpoint_id, _ = _get_manuscript_local_checkpoint(manuscript)
+
     checkpoint_path = str(Path(checkpoint_path or OCR_MODEL_PATH).resolve())
+    effective_checkpoint_id = checkpoint_id or ("base" if checkpoint_path == str(Path(OCR_MODEL_PATH).resolve()) else None)
+    print(f"[{page}] Using Local OCR checkpoint: {effective_checkpoint_id or 'unknown'} @ {checkpoint_path}")
     ctx = get_ocr_context() if checkpoint_path == str(Path(OCR_MODEL_PATH).resolve()) else OCR_MODEL_MANAGER.get_context(checkpoint_path)
     if not ctx:
         return {"error": "OCR Model could not be loaded"}
@@ -243,19 +305,27 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
         # 4. Read back the results from the updated XML
         # We reuse your existing helper function
         result = get_existing_text_content(str(xml_path))
+        layout_fingerprint = compute_page_layout_fingerprint(str(xml_path))
         record_prediction(
             manuscript_root=base_path,
             page_id=page,
             predicted_lines=result.get("text", {}),
             recognition_engine="local",
-            checkpoint_id=checkpoint_id or ("base" if checkpoint_path == str(Path(OCR_MODEL_PATH).resolve()) else None),
+            checkpoint_id=effective_checkpoint_id,
             checkpoint_path=checkpoint_path,
             confidences=result.get("confidences", {}),
+            layout_fingerprint=layout_fingerprint,
             base_checkpoint_path=OCR_MODEL_PATH,
         )
-        result["checkpointId"] = checkpoint_id or ("base" if checkpoint_path == str(Path(OCR_MODEL_PATH).resolve()) else None)
+        result["checkpointId"] = effective_checkpoint_id
         result["checkpointPath"] = checkpoint_path
         result["activeLearning"] = _get_manuscript_active_learning_state(manuscript)
+        result["pageWorkflow"] = _build_page_workflow(
+            base_path,
+            page,
+            text_payload=result.get("text", {}),
+            active_learning=result["activeLearning"],
+        )
         return result
 
     except Exception as e:
@@ -362,6 +432,12 @@ def get_page_prediction(manuscript, page):
             "textContent": existing_data["text"],
             "textConfidences": existing_data["confidences"],
             "activeLearning": active_learning,
+            "pageWorkflow": _build_page_workflow(
+                manuscript_path,
+                page,
+                text_payload=existing_data["text"],
+                active_learning=active_learning,
+            ),
         }
         return jsonify(response)
         
@@ -731,6 +807,11 @@ def save_correction(manuscript, page):
         result['activeLearning'] = active_learning_result['active_learning']
         result['activeLearningRevision'] = active_learning_result['revision']
         result['activeLearningQueuedJobIds'] = active_learning_result['queued_job_ids']
+        result['pageWorkflow'] = _build_page_workflow(
+            manuscript_path,
+            page,
+            active_learning=active_learning_result['active_learning'],
+        )
 
         if run_recognition: 
             # --- MODIFIED: Robust background task with engine switch & logging ---
@@ -752,6 +833,9 @@ def save_correction(manuscript, page):
                             checkpoint_id=None,
                             checkpoint_path=None,
                             confidences=gemini_result.get("confidences", {}),
+                            layout_fingerprint=compute_page_layout_fingerprint(
+                                str(Path(UPLOAD_FOLDER) / m / "layout_analysis_output" / "page-xml-format" / f"{p}.xml")
+                            ),
                             base_checkpoint_path=OCR_MODEL_PATH,
                         )
                     else:
@@ -807,16 +891,24 @@ def recognize_text():
             checkpoint_id=None,
             checkpoint_path=None,
             confidences=result.get("confidences", {}),
+            layout_fingerprint=compute_page_layout_fingerprint(
+                str(Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output" / "page-xml-format" / f"{page}.xml")
+            ),
             base_checkpoint_path=OCR_MODEL_PATH,
         )
         result["activeLearning"] = _get_manuscript_active_learning_state(manuscript)
+        result["pageWorkflow"] = _build_page_workflow(
+            Path(UPLOAD_FOLDER) / manuscript,
+            page,
+            text_payload=result.get("text", {}),
+            active_learning=result["activeLearning"],
+        )
     else:
-        checkpoint_path, checkpoint_id, _ = _get_manuscript_local_checkpoint(manuscript)
         result = _run_local_recognition_internal(
             manuscript,
             page,
-            checkpoint_path=checkpoint_path,
-            checkpoint_id=checkpoint_id,
+            checkpoint_path=None,
+            checkpoint_id=None,
             interactive=True,
         )
 

@@ -93,6 +93,42 @@ class JobOrchestratorUnitTest(unittest.TestCase):
         self.assertTrue(status["cancel_requested"])
         self.assertTrue(status["requeue_on_cancel"])
 
+    def test_listener_exception_does_not_kill_worker_thread(self):
+        completed = threading.Event()
+        orchestrator = JobOrchestrator()
+
+        def handler(_payload):
+            completed.set()
+            return {"ok": True}
+
+        def flaky_listener(event_name, _status):
+            if event_name == "started":
+                raise RuntimeError("listener boom")
+
+        orchestrator.register_handler(JobType.OCR_VERIFY.value, handler)
+        orchestrator.set_state_listener(flaky_listener)
+        job = QueuedJob(
+            job_type=JobType.OCR_VERIFY.value,
+            manuscript="m",
+            manuscript_root="m",
+            payload={"name": "listener_safe"},
+            priority=int(JobPriority.SAVE_FOLLOWUP),
+            resource_name="cpu",
+        )
+
+        job_id = orchestrator.enqueue(job)
+        orchestrator.start_workers()
+        self.assertTrue(completed.wait(timeout=2.0))
+
+        deadline = time.time() + 5.0
+        while time.time() < deadline:
+            if orchestrator.get_job_status(job_id).get("state") == "completed":
+                break
+            time.sleep(0.05)
+        orchestrator.shutdown_workers()
+
+        self.assertEqual(orchestrator.get_job_status(job_id).get("state"), "completed")
+
 
 if __name__ == "__main__":
     unittest.main()

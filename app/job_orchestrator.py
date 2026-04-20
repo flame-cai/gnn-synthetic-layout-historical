@@ -96,7 +96,10 @@ class JobOrchestrator:
     def _notify(self, event_name: str, job_id: str) -> None:
         if self._listener is None:
             return
-        self._listener(event_name, self.get_job_status(job_id))
+        try:
+            self._listener(event_name, self.get_job_status(job_id))
+        except Exception:  # pragma: no cover - defensive isolation for background listeners
+            traceback.print_exc()
 
     def _store_job(self, job: QueuedJob) -> dict:
         payload = asdict(job)

@@ -1183,3 +1183,577 @@
 2026-04-15 17:38:13,491 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0014.xml: 26 lines recognized.
 2026-04-15 17:38:18,425 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0015.xml: 19 lines recognized.
 2026-04-15 17:38:24,458 - INFO - Updated C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\_ci_root\ci_eval_dataset\layout_analysis_output\page-xml-format\233_0016.xml: 25 lines recognized.
+2026-04-20 10:59:53,582 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-04-20 10:59:53,583 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 10:59:53,587 - INFO -  * Restarting with stat
+2026-04-20 11:00:06,182 - WARNING -  * Debugger is active!
+2026-04-20 11:00:06,186 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 11:00:37,436 - INFO - 127.0.0.1 - - [20/Apr/2026 11:00:37] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 11:01:20,108 - INFO - 127.0.0.1 - - [20/Apr/2026 11:01:20] "POST /upload HTTP/1.1" 200 -
+2026-04-20 11:01:20,464 - INFO - 127.0.0.1 - - [20/Apr/2026 11:01:20] "GET /manuscript/testing-active-learning/pages HTTP/1.1" 200 -
+2026-04-20 11:01:21,661 - INFO - 127.0.0.1 - - [20/Apr/2026 11:01:21] "GET /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:01:43,975 - INFO - 127.0.0.1 - - [20/Apr/2026 11:01:43] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:01:45,192 - INFO - 127.0.0.1 - - [20/Apr/2026 11:01:45] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:01:45,328 - INFO - 127.0.0.1 - - [20/Apr/2026 11:01:45] "GET /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:02:05,714 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:05] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:02:06,796 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:06] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:02:15,895 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:15] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:02:16,973 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:16] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:02:16,975 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 11:02:17,663 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:17] "GET /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:02:18,062 - INFO - Model loaded successfully.
+2026-04-20 11:02:21,771 - INFO - Updated input_manuscripts\testing-active-learning\layout_analysis_output\page-xml-format\233_0002.xml: 23 lines recognized.
+2026-04-20 11:02:25,943 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:25] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:02:26,990 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:26] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:02:30,073 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:30] "GET /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:02:45,712 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:45] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:02:46,869 - INFO - 127.0.0.1 - - [20/Apr/2026 11:02:46] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:03:05,402 - INFO - 127.0.0.1 - - [20/Apr/2026 11:03:05] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:03:06,665 - INFO - 127.0.0.1 - - [20/Apr/2026 11:03:06] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:03:25,403 - INFO - 127.0.0.1 - - [20/Apr/2026 11:03:25] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:03:26,710 - INFO - 127.0.0.1 - - [20/Apr/2026 11:03:26] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:03:45,399 - INFO - 127.0.0.1 - - [20/Apr/2026 11:03:45] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:03:46,638 - INFO - 127.0.0.1 - - [20/Apr/2026 11:03:46] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:04:05,398 - INFO - 127.0.0.1 - - [20/Apr/2026 11:04:05] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:04:06,598 - INFO - 127.0.0.1 - - [20/Apr/2026 11:04:06] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:04:25,397 - INFO - 127.0.0.1 - - [20/Apr/2026 11:04:25] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:04:26,785 - INFO - 127.0.0.1 - - [20/Apr/2026 11:04:26] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:04:45,402 - INFO - 127.0.0.1 - - [20/Apr/2026 11:04:45] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:04:46,653 - INFO - 127.0.0.1 - - [20/Apr/2026 11:04:46] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:05:05,403 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:05] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:05:06,661 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:06] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:05:25,407 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:25] "OPTIONS /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:05:26,856 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:26] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:05:27,233 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:27] "POST /semi-segment/testing-active-learning/233_0002 HTTP/1.1" 200 -
+2026-04-20 11:05:27,368 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:27] "GET /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:05:30,825 - INFO - Updated input_manuscripts\testing-active-learning\layout_analysis_output\page-xml-format\233_0002.xml: 23 lines recognized.
+2026-04-20 11:05:45,934 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:45] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:05:46,962 - INFO - 127.0.0.1 - - [20/Apr/2026 11:05:46] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:06:05,407 - INFO - 127.0.0.1 - - [20/Apr/2026 11:06:05] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:06:06,666 - INFO - 127.0.0.1 - - [20/Apr/2026 11:06:06] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:06:25,628 - INFO - 127.0.0.1 - - [20/Apr/2026 11:06:25] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:06:26,761 - INFO - 127.0.0.1 - - [20/Apr/2026 11:06:26] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:06:45,637 - INFO - 127.0.0.1 - - [20/Apr/2026 11:06:45] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:06:46,724 - INFO - 127.0.0.1 - - [20/Apr/2026 11:06:46] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:20:29,205 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\manuscript_ocr_registry.py', reloading
+2026-04-20 11:20:31,109 - INFO -  * Restarting with stat
+2026-04-20 11:20:46,678 - WARNING -  * Debugger is active!
+2026-04-20 11:20:46,683 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 11:31:24,389 - INFO - 127.0.0.1 - - [20/Apr/2026 11:31:24] "GET /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:31:44,482 - INFO - 127.0.0.1 - - [20/Apr/2026 11:31:44] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:31:45,635 - INFO - 127.0.0.1 - - [20/Apr/2026 11:31:45] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:32:04,623 - INFO - 127.0.0.1 - - [20/Apr/2026 11:32:04] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:32:05,673 - INFO - 127.0.0.1 - - [20/Apr/2026 11:32:05] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:32:24,725 - INFO - 127.0.0.1 - - [20/Apr/2026 11:32:24] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:32:25,839 - INFO - 127.0.0.1 - - [20/Apr/2026 11:32:25] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:32:44,635 - INFO - 127.0.0.1 - - [20/Apr/2026 11:32:44] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:32:45,724 - INFO - 127.0.0.1 - - [20/Apr/2026 11:32:45] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:37:56,215 - INFO - 127.0.0.1 - - [20/Apr/2026 11:37:56] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:37:57,415 - INFO - 127.0.0.1 - - [20/Apr/2026 11:37:57] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:37:57,418 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 11:37:57,534 - INFO - 127.0.0.1 - - [20/Apr/2026 11:37:57] "GET /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:37:58,380 - INFO - Model loaded successfully.
+2026-04-20 11:38:02,091 - INFO - Updated input_manuscripts\testing-active-learning\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 11:38:17,900 - INFO - 127.0.0.1 - - [20/Apr/2026 11:38:17] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:38:19,159 - INFO - 127.0.0.1 - - [20/Apr/2026 11:38:19] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:38:37,595 - INFO - 127.0.0.1 - - [20/Apr/2026 11:38:37] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:38:38,839 - INFO - 127.0.0.1 - - [20/Apr/2026 11:38:38] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:38:57,589 - INFO - 127.0.0.1 - - [20/Apr/2026 11:38:57] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:38:58,726 - INFO - 127.0.0.1 - - [20/Apr/2026 11:38:58] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:39:17,590 - INFO - 127.0.0.1 - - [20/Apr/2026 11:39:17] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:39:18,748 - INFO - 127.0.0.1 - - [20/Apr/2026 11:39:18] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:39:37,586 - INFO - 127.0.0.1 - - [20/Apr/2026 11:39:37] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:39:38,759 - INFO - 127.0.0.1 - - [20/Apr/2026 11:39:38] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:39:57,585 - INFO - 127.0.0.1 - - [20/Apr/2026 11:39:57] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:39:58,776 - INFO - 127.0.0.1 - - [20/Apr/2026 11:39:58] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:40:17,587 - INFO - 127.0.0.1 - - [20/Apr/2026 11:40:17] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:40:18,816 - INFO - 127.0.0.1 - - [20/Apr/2026 11:40:18] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:40:37,599 - INFO - 127.0.0.1 - - [20/Apr/2026 11:40:37] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:40:38,787 - INFO - 127.0.0.1 - - [20/Apr/2026 11:40:38] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:40:57,596 - INFO - 127.0.0.1 - - [20/Apr/2026 11:40:57] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:40:58,768 - INFO - 127.0.0.1 - - [20/Apr/2026 11:40:58] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:41:17,594 - INFO - 127.0.0.1 - - [20/Apr/2026 11:41:17] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:41:18,777 - INFO - 127.0.0.1 - - [20/Apr/2026 11:41:18] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:41:37,628 - INFO - 127.0.0.1 - - [20/Apr/2026 11:41:37] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:41:38,657 - INFO - 127.0.0.1 - - [20/Apr/2026 11:41:38] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:41:57,631 - INFO - 127.0.0.1 - - [20/Apr/2026 11:41:57] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:41:58,702 - INFO - 127.0.0.1 - - [20/Apr/2026 11:41:58] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:42:17,622 - INFO - 127.0.0.1 - - [20/Apr/2026 11:42:17] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:42:18,754 - INFO - 127.0.0.1 - - [20/Apr/2026 11:42:18] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:42:59,650 - INFO - 127.0.0.1 - - [20/Apr/2026 11:42:59] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:43:00,782 - INFO - 127.0.0.1 - - [20/Apr/2026 11:43:00] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:43:59,739 - INFO - 127.0.0.1 - - [20/Apr/2026 11:43:59] "OPTIONS /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 11:44:00,787 - INFO - 127.0.0.1 - - [20/Apr/2026 11:44:00] "POST /semi-segment/testing-active-learning/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:09:10,212 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-04-20 12:09:10,212 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 12:09:10,218 - INFO -  * Restarting with stat
+2026-04-20 12:09:22,600 - WARNING -  * Debugger is active!
+2026-04-20 12:09:22,605 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 12:09:29,873 - INFO - 127.0.0.1 - - [20/Apr/2026 12:09:29] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 12:10:00,412 - INFO - 127.0.0.1 - - [20/Apr/2026 12:10:00] "POST /upload HTTP/1.1" 200 -
+2026-04-20 12:10:00,768 - INFO - 127.0.0.1 - - [20/Apr/2026 12:10:00] "GET /manuscript/test-active/pages HTTP/1.1" 200 -
+2026-04-20 12:10:01,711 - INFO - 127.0.0.1 - - [20/Apr/2026 12:10:01] "GET /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:11:11,296 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:11] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:11:12,388 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:12] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:11:12,497 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:12] "GET /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:11:12,849 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:12] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:11:13,120 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 12:11:14,215 - INFO - Model loaded successfully.
+2026-04-20 12:11:17,697 - INFO - Updated input_manuscripts\test-active\layout_analysis_output\page-xml-format\233_0002.xml: 23 lines recognized.
+2026-04-20 12:11:17,786 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:17] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:11:32,563 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:32] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:11:33,835 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:33] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:11:52,563 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:52] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:11:53,822 - INFO - 127.0.0.1 - - [20/Apr/2026 12:11:53] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:12:12,558 - INFO - 127.0.0.1 - - [20/Apr/2026 12:12:12] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:12:13,761 - INFO - 127.0.0.1 - - [20/Apr/2026 12:12:13] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:12:32,559 - INFO - 127.0.0.1 - - [20/Apr/2026 12:12:32] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:12:33,857 - INFO - 127.0.0.1 - - [20/Apr/2026 12:12:33] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:12:52,557 - INFO - 127.0.0.1 - - [20/Apr/2026 12:12:52] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:12:53,793 - INFO - 127.0.0.1 - - [20/Apr/2026 12:12:53] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:14:12,882 - INFO - 127.0.0.1 - - [20/Apr/2026 12:14:12] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:14:14,117 - INFO - 127.0.0.1 - - [20/Apr/2026 12:14:14] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:14:31,874 - INFO - 127.0.0.1 - - [20/Apr/2026 12:14:31] "OPTIONS /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:14:33,039 - INFO - 127.0.0.1 - - [20/Apr/2026 12:14:33] "POST /semi-segment/test-active/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:14:33,538 - INFO - 127.0.0.1 - - [20/Apr/2026 12:14:33] "GET /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:18:58,954 - INFO - 127.0.0.1 - - [20/Apr/2026 12:18:58] "OPTIONS /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:19:03,139 - INFO - 127.0.0.1 - - [20/Apr/2026 12:19:03] "POST /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:19:03,679 - INFO - 127.0.0.1 - - [20/Apr/2026 12:19:03] "GET /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:19:04,432 - INFO - 127.0.0.1 - - [20/Apr/2026 12:19:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:19:09,329 - INFO - Updated input_manuscripts\test-active\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 12:19:09,425 - INFO - 127.0.0.1 - - [20/Apr/2026 12:19:09] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:24:42,744 - INFO - 127.0.0.1 - - [20/Apr/2026 12:24:42] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:24:46,335 - INFO - Updated input_manuscripts\test-active\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 12:24:46,435 - INFO - 127.0.0.1 - - [20/Apr/2026 12:24:46] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:25:04,139 - INFO - 127.0.0.1 - - [20/Apr/2026 12:25:04] "OPTIONS /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:25:05,471 - INFO - 127.0.0.1 - - [20/Apr/2026 12:25:05] "POST /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:25:11,721 - INFO - 127.0.0.1 - - [20/Apr/2026 12:25:11] "OPTIONS /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:25:13,028 - INFO - 127.0.0.1 - - [20/Apr/2026 12:25:13] "POST /semi-segment/test-active/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:25:13,458 - INFO - 127.0.0.1 - - [20/Apr/2026 12:25:13] "GET /semi-segment/test-active/233_0004 HTTP/1.1" 200 -
+2026-04-20 12:27:51,864 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\manuscript_ocr_registry.py', reloading
+2026-04-20 12:27:54,143 - INFO -  * Restarting with stat
+2026-04-20 12:28:08,674 - WARNING -  * Debugger is active!
+2026-04-20 12:28:08,679 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 12:46:29,965 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-04-20 12:46:29,965 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 12:46:29,971 - INFO -  * Restarting with stat
+2026-04-20 12:46:42,311 - WARNING -  * Debugger is active!
+2026-04-20 12:46:42,318 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 12:46:42,373 - INFO - 127.0.0.1 - - [20/Apr/2026 12:46:42] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 12:46:55,600 - INFO - 127.0.0.1 - - [20/Apr/2026 12:46:55] "POST /upload HTTP/1.1" 200 -
+2026-04-20 12:46:55,959 - INFO - 127.0.0.1 - - [20/Apr/2026 12:46:55] "GET /manuscript/my_manuscript_testt/pages HTTP/1.1" 200 -
+2026-04-20 12:46:57,124 - INFO - 127.0.0.1 - - [20/Apr/2026 12:46:57] "GET /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:06,271 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:06] "OPTIONS /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:07,283 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:07] "POST /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:07,387 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:07] "GET /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:07,745 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:07] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:49:08,014 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 12:49:09,021 - INFO - Model loaded successfully.
+2026-04-20 12:49:12,423 - INFO - Updated input_manuscripts\my_manuscript_testt\layout_analysis_output\page-xml-format\233_0002.xml: 23 lines recognized.
+2026-04-20 12:49:12,505 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:12] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:49:27,449 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:27] "OPTIONS /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:28,752 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:28] "POST /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:37,997 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:37] "OPTIONS /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:39,237 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:39] "POST /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:49:39,881 - INFO - 127.0.0.1 - - [20/Apr/2026 12:49:39] "GET /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:50:07,913 - INFO - 127.0.0.1 - - [20/Apr/2026 12:50:07] "OPTIONS /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:50:09,122 - INFO - 127.0.0.1 - - [20/Apr/2026 12:50:09] "POST /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:50:09,218 - INFO - 127.0.0.1 - - [20/Apr/2026 12:50:09] "GET /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:50:09,577 - INFO - 127.0.0.1 - - [20/Apr/2026 12:50:09] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:50:44,491 - INFO - Updated input_manuscripts\my_manuscript_testt\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 12:50:44,595 - INFO - 127.0.0.1 - - [20/Apr/2026 12:50:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:51:01,973 - INFO - 127.0.0.1 - - [20/Apr/2026 12:51:01] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:51:37,086 - INFO - Updated input_manuscripts\my_manuscript_testt\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 12:51:37,174 - INFO - 127.0.0.1 - - [20/Apr/2026 12:51:37] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:52:22,295 - INFO - 127.0.0.1 - - [20/Apr/2026 12:52:22] "OPTIONS /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:52:23,609 - INFO - 127.0.0.1 - - [20/Apr/2026 12:52:23] "POST /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:53:42,409 - INFO - 127.0.0.1 - - [20/Apr/2026 12:53:42] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:53:45,975 - INFO - Updated input_manuscripts\my_manuscript_testt\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 12:53:46,075 - INFO - 127.0.0.1 - - [20/Apr/2026 12:53:46] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:53:56,780 - INFO - 127.0.0.1 - - [20/Apr/2026 12:53:56] "OPTIONS /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:53:58,197 - INFO - 127.0.0.1 - - [20/Apr/2026 12:53:58] "POST /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:53:58,638 - INFO - 127.0.0.1 - - [20/Apr/2026 12:53:58] "GET /semi-segment/my_manuscript_testt/233_0004 HTTP/1.1" 200 -
+2026-04-20 12:54:20,802 - INFO - 127.0.0.1 - - [20/Apr/2026 12:54:20] "OPTIONS /semi-segment/my_manuscript_testt/233_0004 HTTP/1.1" 200 -
+2026-04-20 12:54:21,792 - INFO - 127.0.0.1 - - [20/Apr/2026 12:54:21] "POST /semi-segment/my_manuscript_testt/233_0004 HTTP/1.1" 200 -
+2026-04-20 12:54:21,970 - INFO - 127.0.0.1 - - [20/Apr/2026 12:54:21] "GET /semi-segment/my_manuscript_testt/233_0004 HTTP/1.1" 200 -
+2026-04-20 12:54:22,318 - INFO - 127.0.0.1 - - [20/Apr/2026 12:54:22] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:54:54,746 - INFO - Updated input_manuscripts\my_manuscript_testt\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 12:54:54,824 - INFO - 127.0.0.1 - - [20/Apr/2026 12:54:54] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:55:47,699 - INFO - 127.0.0.1 - - [20/Apr/2026 12:55:47] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:55:49,931 - INFO - Updated input_manuscripts\my_manuscript_testt\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 12:55:50,049 - INFO - 127.0.0.1 - - [20/Apr/2026 12:55:50] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 12:56:54,745 - INFO - 127.0.0.1 - - [20/Apr/2026 12:56:54] "OPTIONS /semi-segment/my_manuscript_testt/233_0004 HTTP/1.1" 200 -
+2026-04-20 12:56:55,824 - INFO - 127.0.0.1 - - [20/Apr/2026 12:56:55] "POST /semi-segment/my_manuscript_testt/233_0004 HTTP/1.1" 200 -
+2026-04-20 12:57:00,607 - INFO - 127.0.0.1 - - [20/Apr/2026 12:57:00] "GET /semi-segment/my_manuscript_testt/233_0003 HTTP/1.1" 200 -
+2026-04-20 12:57:02,184 - INFO - 127.0.0.1 - - [20/Apr/2026 12:57:02] "GET /semi-segment/my_manuscript_testt/233_0002 HTTP/1.1" 200 -
+2026-04-20 12:57:34,292 - INFO - 127.0.0.1 - - [20/Apr/2026 12:57:34] "POST /upload HTTP/1.1" 200 -
+2026-04-20 12:57:34,634 - INFO - 127.0.0.1 - - [20/Apr/2026 12:57:34] "GET /manuscript/checking%20new%20manuscript/pages HTTP/1.1" 200 -
+2026-04-20 12:57:35,397 - INFO - 127.0.0.1 - - [20/Apr/2026 12:57:35] "GET /semi-segment/checking%20new%20manuscript/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:09:28,535 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-04-20 13:09:28,536 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 13:09:28,541 - INFO -  * Restarting with stat
+2026-04-20 13:09:40,926 - WARNING -  * Debugger is active!
+2026-04-20 13:09:40,930 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 13:09:40,965 - INFO - 127.0.0.1 - - [20/Apr/2026 13:09:40] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 13:09:56,628 - INFO - 127.0.0.1 - - [20/Apr/2026 13:09:56] "POST /upload HTTP/1.1" 200 -
+2026-04-20 13:09:56,973 - INFO - 127.0.0.1 - - [20/Apr/2026 13:09:56] "GET /manuscript/kartik_active/pages HTTP/1.1" 200 -
+2026-04-20 13:09:58,061 - INFO - 127.0.0.1 - - [20/Apr/2026 13:09:58] "GET /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:10:46,523 - INFO - 127.0.0.1 - - [20/Apr/2026 13:10:46] "OPTIONS /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:10:47,714 - INFO - 127.0.0.1 - - [20/Apr/2026 13:10:47] "POST /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:10:47,837 - INFO - 127.0.0.1 - - [20/Apr/2026 13:10:47] "GET /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:10:48,194 - INFO - 127.0.0.1 - - [20/Apr/2026 13:10:48] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:10:48,467 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 13:10:49,279 - INFO - Model loaded successfully.
+2026-04-20 13:10:52,386 - INFO - Updated input_manuscripts\kartik_active\layout_analysis_output\page-xml-format\233_0002.xml: 22 lines recognized.
+2026-04-20 13:10:52,451 - INFO - 127.0.0.1 - - [20/Apr/2026 13:10:52] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:11:27,890 - INFO - 127.0.0.1 - - [20/Apr/2026 13:11:27] "OPTIONS /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:11:29,135 - INFO - 127.0.0.1 - - [20/Apr/2026 13:11:29] "POST /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:11:47,903 - INFO - 127.0.0.1 - - [20/Apr/2026 13:11:47] "OPTIONS /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:11:49,042 - INFO - 127.0.0.1 - - [20/Apr/2026 13:11:49] "POST /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:12:30,809 - INFO - 127.0.0.1 - - [20/Apr/2026 13:12:30] "OPTIONS /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:12:32,111 - INFO - 127.0.0.1 - - [20/Apr/2026 13:12:32] "POST /semi-segment/kartik_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:12:32,698 - INFO - 127.0.0.1 - - [20/Apr/2026 13:12:32] "GET /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:13:03,128 - INFO - 127.0.0.1 - - [20/Apr/2026 13:13:03] "OPTIONS /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:13:04,299 - INFO - 127.0.0.1 - - [20/Apr/2026 13:13:04] "POST /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:13:04,389 - INFO - 127.0.0.1 - - [20/Apr/2026 13:13:04] "GET /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:13:04,764 - INFO - 127.0.0.1 - - [20/Apr/2026 13:13:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:13:39,618 - INFO - Updated input_manuscripts\kartik_active\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 13:13:39,691 - INFO - 127.0.0.1 - - [20/Apr/2026 13:13:39] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:15:40,413 - INFO - 127.0.0.1 - - [20/Apr/2026 13:15:40] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:15:44,031 - INFO - Updated input_manuscripts\kartik_active\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 13:15:44,113 - INFO - 127.0.0.1 - - [20/Apr/2026 13:15:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:17:04,161 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:04] "OPTIONS /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:17:05,278 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:05] "POST /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:17:05,411 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:05] "GET /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:17:05,762 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:05] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:17:09,349 - INFO - Updated input_manuscripts\kartik_active\layout_analysis_output\page-xml-format\233_0003.xml: 23 lines recognized.
+2026-04-20 13:17:09,434 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:09] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:17:39,295 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:39] "OPTIONS /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:17:40,502 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:40] "POST /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:17:40,618 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:40] "GET /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:17:40,979 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:40] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:17:44,661 - INFO - Updated input_manuscripts\kartik_active\layout_analysis_output\page-xml-format\233_0003.xml: 23 lines recognized.
+2026-04-20 13:17:44,740 - INFO - 127.0.0.1 - - [20/Apr/2026 13:17:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:21:44,344 - INFO - 127.0.0.1 - - [20/Apr/2026 13:21:44] "GET /manuscript/kartik_active/pages HTTP/1.1" 200 -
+2026-04-20 13:21:44,677 - INFO - 127.0.0.1 - - [20/Apr/2026 13:21:44] "GET /semi-segment/kartik_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:25:33,371 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-04-20 13:25:33,372 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 13:25:33,374 - INFO -  * Restarting with stat
+2026-04-20 13:25:44,516 - WARNING -  * Debugger is active!
+2026-04-20 13:25:44,520 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 13:25:48,160 - INFO - 127.0.0.1 - - [20/Apr/2026 13:25:48] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 13:26:13,313 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:13] "POST /upload HTTP/1.1" 200 -
+2026-04-20 13:26:13,663 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:13] "GET /manuscript/my_manuscript_active/pages HTTP/1.1" 200 -
+2026-04-20 13:26:14,646 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:14] "GET /semi-segment/my_manuscript_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:26:44,908 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:44] "OPTIONS /semi-segment/my_manuscript_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:26:46,050 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:46] "POST /semi-segment/my_manuscript_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:26:46,144 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:46] "GET /semi-segment/my_manuscript_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:26:46,499 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:46] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:26:46,768 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 13:26:47,842 - INFO - Model loaded successfully.
+2026-04-20 13:26:51,182 - INFO - Updated input_manuscripts\my_manuscript_active\layout_analysis_output\page-xml-format\233_0002.xml: 23 lines recognized.
+2026-04-20 13:26:51,246 - INFO - 127.0.0.1 - - [20/Apr/2026 13:26:51] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:28:15,729 - INFO - 127.0.0.1 - - [20/Apr/2026 13:28:15] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:28:19,393 - INFO - Updated input_manuscripts\my_manuscript_active\layout_analysis_output\page-xml-format\233_0002.xml: 23 lines recognized.
+2026-04-20 13:28:19,478 - INFO - 127.0.0.1 - - [20/Apr/2026 13:28:19] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:29:28,389 - INFO - 127.0.0.1 - - [20/Apr/2026 13:29:28] "OPTIONS /semi-segment/my_manuscript_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:29:29,495 - INFO - 127.0.0.1 - - [20/Apr/2026 13:29:29] "POST /semi-segment/my_manuscript_active/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:29:30,100 - INFO - 127.0.0.1 - - [20/Apr/2026 13:29:30] "GET /semi-segment/my_manuscript_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:30:28,265 - INFO - 127.0.0.1 - - [20/Apr/2026 13:30:28] "OPTIONS /semi-segment/my_manuscript_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:30:29,522 - INFO - 127.0.0.1 - - [20/Apr/2026 13:30:29] "POST /semi-segment/my_manuscript_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:30:29,663 - INFO - 127.0.0.1 - - [20/Apr/2026 13:30:29] "GET /semi-segment/my_manuscript_active/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:30:30,026 - INFO - 127.0.0.1 - - [20/Apr/2026 13:30:30] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:31:04,662 - INFO - Updated input_manuscripts\my_manuscript_active\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 13:31:04,749 - INFO - 127.0.0.1 - - [20/Apr/2026 13:31:04] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:32:21,473 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:21] "GET /semi-segment/my_manuscript_active/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:32:31,777 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:31] "OPTIONS /semi-segment/my_manuscript_active/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:32:32,815 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:32] "POST /semi-segment/my_manuscript_active/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:32:32,917 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:32] "GET /semi-segment/my_manuscript_active/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:32:33,308 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:33] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:32:35,495 - INFO - Updated input_manuscripts\my_manuscript_active\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 13:32:35,572 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:35] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:32:51,293 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:51] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:32:53,471 - INFO - Updated input_manuscripts\my_manuscript_active\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 13:32:53,543 - INFO - 127.0.0.1 - - [20/Apr/2026 13:32:53] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:33:07,339 - INFO - 127.0.0.1 - - [20/Apr/2026 13:33:07] "OPTIONS /semi-segment/my_manuscript_active/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:33:08,450 - INFO - 127.0.0.1 - - [20/Apr/2026 13:33:08] "POST /semi-segment/my_manuscript_active/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:33:08,980 - INFO - 127.0.0.1 - - [20/Apr/2026 13:33:08] "GET /semi-segment/my_manuscript_active/233_0005 HTTP/1.1" 200 -
+2026-04-20 13:33:24,456 - INFO - 127.0.0.1 - - [20/Apr/2026 13:33:24] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:33:24,725 - INFO - 127.0.0.1 - - [20/Apr/2026 13:33:24] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:00,040 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:00] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:00,398 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:00] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:01,757 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:01] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:03,323 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:03] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:09,295 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:09] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:09,605 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:09] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:11,183 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:11] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:12,309 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:12] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:13,099 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:13] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:14,464 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:14] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:15,725 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:15] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:16,052 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:16] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:17,147 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:17] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:18,229 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:18] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:23,186 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:23] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:34:23,507 - INFO - 127.0.0.1 - - [20/Apr/2026 13:34:23] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:36:52,940 - INFO - 127.0.0.1 - - [20/Apr/2026 13:36:52] "POST /upload HTTP/1.1" 200 -
+2026-04-20 13:36:53,010 - INFO - 127.0.0.1 - - [20/Apr/2026 13:36:53] "GET /manuscript/my_manuscript_activess/pages HTTP/1.1" 200 -
+2026-04-20 13:36:53,881 - INFO - 127.0.0.1 - - [20/Apr/2026 13:36:53] "GET /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:37:03,231 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:03] "OPTIONS /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:37:04,378 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:04] "POST /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:37:04,530 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:04] "GET /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:37:04,886 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:37:08,443 - INFO - Updated input_manuscripts\my_manuscript_activess\layout_analysis_output\page-xml-format\233_0002.xml: 22 lines recognized.
+2026-04-20 13:37:08,519 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:08] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:37:24,576 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:24] "OPTIONS /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:37:25,844 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:25] "POST /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:37:44,576 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:44] "OPTIONS /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:37:45,828 - INFO - 127.0.0.1 - - [20/Apr/2026 13:37:45] "POST /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:38:04,580 - INFO - 127.0.0.1 - - [20/Apr/2026 13:38:04] "OPTIONS /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:38:05,850 - INFO - 127.0.0.1 - - [20/Apr/2026 13:38:05] "POST /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:38:24,577 - INFO - 127.0.0.1 - - [20/Apr/2026 13:38:24] "OPTIONS /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:38:25,926 - INFO - 127.0.0.1 - - [20/Apr/2026 13:38:25] "POST /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:38:40,264 - INFO - 127.0.0.1 - - [20/Apr/2026 13:38:40] "OPTIONS /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:38:41,516 - INFO - 127.0.0.1 - - [20/Apr/2026 13:38:41] "POST /semi-segment/my_manuscript_activess/233_0002 HTTP/1.1" 200 -
+2026-04-20 13:38:42,291 - INFO - 127.0.0.1 - - [20/Apr/2026 13:38:42] "GET /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:40:52,971 - INFO - 127.0.0.1 - - [20/Apr/2026 13:40:52] "OPTIONS /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:40:54,864 - INFO - 127.0.0.1 - - [20/Apr/2026 13:40:54] "POST /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:40:55,083 - INFO - 127.0.0.1 - - [20/Apr/2026 13:40:55] "GET /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:40:55,451 - INFO - 127.0.0.1 - - [20/Apr/2026 13:40:55] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:41:29,793 - INFO - Updated input_manuscripts\my_manuscript_activess\layout_analysis_output\page-xml-format\233_0003.xml: 23 lines recognized.
+2026-04-20 13:41:29,859 - INFO - 127.0.0.1 - - [20/Apr/2026 13:41:29] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:43:04,763 - INFO - 127.0.0.1 - - [20/Apr/2026 13:43:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:43:08,780 - INFO - Updated input_manuscripts\my_manuscript_activess\layout_analysis_output\page-xml-format\233_0003.xml: 23 lines recognized.
+2026-04-20 13:43:08,872 - INFO - 127.0.0.1 - - [20/Apr/2026 13:43:08] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:43:55,887 - INFO - 127.0.0.1 - - [20/Apr/2026 13:43:55] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:43:59,799 - INFO - Updated input_manuscripts\my_manuscript_activess\layout_analysis_output\page-xml-format\233_0003.xml: 23 lines recognized.
+2026-04-20 13:43:59,886 - INFO - 127.0.0.1 - - [20/Apr/2026 13:43:59] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:44:24,437 - INFO - 127.0.0.1 - - [20/Apr/2026 13:44:24] "OPTIONS /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:44:25,782 - INFO - 127.0.0.1 - - [20/Apr/2026 13:44:25] "POST /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:44:44,444 - INFO - 127.0.0.1 - - [20/Apr/2026 13:44:44] "OPTIONS /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:44:45,781 - INFO - 127.0.0.1 - - [20/Apr/2026 13:44:45] "POST /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:45:04,438 - INFO - 127.0.0.1 - - [20/Apr/2026 13:45:04] "OPTIONS /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:45:05,671 - INFO - 127.0.0.1 - - [20/Apr/2026 13:45:05] "POST /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:45:24,441 - INFO - 127.0.0.1 - - [20/Apr/2026 13:45:24] "OPTIONS /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:45:25,758 - INFO - 127.0.0.1 - - [20/Apr/2026 13:45:25] "POST /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:45:29,937 - INFO - 127.0.0.1 - - [20/Apr/2026 13:45:29] "OPTIONS /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:45:31,180 - INFO - 127.0.0.1 - - [20/Apr/2026 13:45:31] "POST /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:45:31,847 - INFO - 127.0.0.1 - - [20/Apr/2026 13:45:31] "GET /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:47:03,157 - INFO - 127.0.0.1 - - [20/Apr/2026 13:47:03] "OPTIONS /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:47:04,151 - INFO - 127.0.0.1 - - [20/Apr/2026 13:47:04] "POST /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:47:04,225 - INFO - 127.0.0.1 - - [20/Apr/2026 13:47:04] "GET /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:47:04,578 - INFO - 127.0.0.1 - - [20/Apr/2026 13:47:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:47:06,690 - INFO - Updated input_manuscripts\my_manuscript_activess\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 13:47:06,755 - INFO - 127.0.0.1 - - [20/Apr/2026 13:47:06] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:47:44,274 - INFO - 127.0.0.1 - - [20/Apr/2026 13:47:44] "OPTIONS /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:47:45,452 - INFO - 127.0.0.1 - - [20/Apr/2026 13:47:45] "POST /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:48:04,274 - INFO - 127.0.0.1 - - [20/Apr/2026 13:48:04] "OPTIONS /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:48:05,440 - INFO - 127.0.0.1 - - [20/Apr/2026 13:48:05] "POST /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:48:24,271 - INFO - 127.0.0.1 - - [20/Apr/2026 13:48:24] "OPTIONS /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:48:25,361 - INFO - 127.0.0.1 - - [20/Apr/2026 13:48:25] "POST /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:48:34,519 - INFO - 127.0.0.1 - - [20/Apr/2026 13:48:34] "OPTIONS /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:48:35,651 - INFO - 127.0.0.1 - - [20/Apr/2026 13:48:35] "POST /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:49:30,664 - INFO - 127.0.0.1 - - [20/Apr/2026 13:49:30] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:49:33,018 - INFO - Updated input_manuscripts\my_manuscript_activess\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 13:49:33,112 - INFO - 127.0.0.1 - - [20/Apr/2026 13:49:33] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:49:55,657 - INFO - 127.0.0.1 - - [20/Apr/2026 13:49:55] "GET /semi-segment/my_manuscript_activess/233_0003 HTTP/1.1" 200 -
+2026-04-20 13:50:01,423 - INFO - 127.0.0.1 - - [20/Apr/2026 13:50:01] "GET /semi-segment/my_manuscript_activess/233_0004 HTTP/1.1" 200 -
+2026-04-20 13:50:03,376 - INFO - 127.0.0.1 - - [20/Apr/2026 13:50:03] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:50:05,539 - INFO - Updated input_manuscripts\my_manuscript_activess\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 13:50:05,621 - INFO - 127.0.0.1 - - [20/Apr/2026 13:50:05] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 13:51:15,392 - INFO - 127.0.0.1 - - [20/Apr/2026 13:51:15] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 14:04:11,527 - INFO - 127.0.0.1 - - [20/Apr/2026 14:04:11] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 14:11:01,290 - INFO - 127.0.0.1 - - [20/Apr/2026 14:11:01] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 14:27:16,739 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-04-20 14:27:21,634 - INFO -  * Restarting with stat
+2026-04-20 14:27:38,299 - WARNING -  * Debugger is active!
+2026-04-20 14:27:38,305 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 14:27:44,599 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-04-20 14:27:47,700 - INFO -  * Restarting with stat
+2026-04-20 14:28:49,859 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.19.80:5000
+2026-04-20 14:28:49,860 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 14:28:49,865 - INFO -  * Restarting with stat
+2026-04-20 14:29:03,337 - WARNING -  * Debugger is active!
+2026-04-20 14:29:03,344 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 14:29:03,389 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:03] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 14:29:24,932 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:24] "POST /upload HTTP/1.1" 200 -
+2026-04-20 14:29:25,282 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:25] "GET /manuscript/my_manuscript_actiity/pages HTTP/1.1" 200 -
+2026-04-20 14:29:26,504 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:26] "GET /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:29:51,445 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:51] "OPTIONS /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:29:52,667 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:52] "POST /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:29:52,740 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:52] "GET /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:29:53,101 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:53] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:29:53,359 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 14:29:55,519 - INFO - Model loaded successfully.
+2026-04-20 14:29:58,968 - INFO - Updated input_manuscripts\my_manuscript_actiity\layout_analysis_output\page-xml-format\233_0002.xml: 23 lines recognized.
+2026-04-20 14:29:59,043 - INFO - 127.0.0.1 - - [20/Apr/2026 14:29:59] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:30:12,795 - INFO - 127.0.0.1 - - [20/Apr/2026 14:30:12] "OPTIONS /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:30:14,475 - INFO - 127.0.0.1 - - [20/Apr/2026 14:30:14] "POST /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:30:32,795 - INFO - 127.0.0.1 - - [20/Apr/2026 14:30:32] "OPTIONS /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:30:34,396 - INFO - 127.0.0.1 - - [20/Apr/2026 14:30:34] "POST /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:30:52,807 - INFO - 127.0.0.1 - - [20/Apr/2026 14:30:52] "OPTIONS /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:30:54,371 - INFO - 127.0.0.1 - - [20/Apr/2026 14:30:54] "POST /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:31:12,808 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:12] "OPTIONS /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:31:14,516 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:14] "POST /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:31:20,286 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:20] "OPTIONS /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:31:21,887 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:21] "POST /semi-segment/my_manuscript_actiity/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:31:23,360 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:23] "GET /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:31:49,917 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:49] "OPTIONS /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:31:50,991 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:50] "POST /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:31:51,075 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:51] "GET /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:31:51,440 - INFO - 127.0.0.1 - - [20/Apr/2026 14:31:51] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:32:26,859 - INFO - Updated input_manuscripts\my_manuscript_actiity\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 14:32:26,935 - INFO - 127.0.0.1 - - [20/Apr/2026 14:32:26] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:33:02,660 - INFO - 127.0.0.1 - - [20/Apr/2026 14:33:02] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:33:06,350 - INFO - Updated input_manuscripts\my_manuscript_actiity\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 14:33:06,442 - INFO - 127.0.0.1 - - [20/Apr/2026 14:33:06] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:33:31,149 - INFO - 127.0.0.1 - - [20/Apr/2026 14:33:31] "OPTIONS /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:33:32,804 - INFO - 127.0.0.1 - - [20/Apr/2026 14:33:32] "POST /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:33:51,189 - INFO - 127.0.0.1 - - [20/Apr/2026 14:33:51] "OPTIONS /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:33:52,754 - INFO - 127.0.0.1 - - [20/Apr/2026 14:33:52] "POST /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:34:11,141 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:11] "OPTIONS /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:34:12,825 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:12] "POST /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:34:23,086 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:23] "OPTIONS /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:34:24,627 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:24] "POST /semi-segment/my_manuscript_actiity/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:34:26,138 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:26] "GET /semi-segment/my_manuscript_actiity/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:34:36,080 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:36] "OPTIONS /semi-segment/my_manuscript_actiity/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:34:37,129 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:37] "POST /semi-segment/my_manuscript_actiity/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:34:37,211 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:37] "GET /semi-segment/my_manuscript_actiity/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:34:37,569 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:37] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:34:40,026 - INFO - Updated input_manuscripts\my_manuscript_actiity\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 14:34:40,166 - INFO - 127.0.0.1 - - [20/Apr/2026 14:34:40] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:35:03,249 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:03] "GET /semi-segment/my_manuscript_actiity/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:35:05,000 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:05] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:35:05,268 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:05] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:35:07,240 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:07] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:35:21,489 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:21] "OPTIONS /semi-segment/my_manuscript_actiity/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:35:22,601 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:22] "POST /semi-segment/my_manuscript_actiity/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:35:22,718 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:22] "GET /semi-segment/my_manuscript_actiity/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:35:23,072 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:23] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:35:25,804 - INFO - Updated input_manuscripts\my_manuscript_actiity\layout_analysis_output\page-xml-format\233_0005.xml: 15 lines recognized.
+2026-04-20 14:35:25,908 - INFO - 127.0.0.1 - - [20/Apr/2026 14:35:25] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:45:49,264 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-20 14:45:52,437 - INFO -  * Restarting with stat
+2026-04-20 14:46:07,896 - WARNING -  * Debugger is active!
+2026-04-20 14:46:07,902 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 14:46:22,461 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-04-20 14:46:25,177 - INFO -  * Restarting with stat
+2026-04-20 14:46:40,286 - WARNING -  * Debugger is active!
+2026-04-20 14:46:40,291 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 14:47:07,258 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-04-20 14:47:10,101 - INFO -  * Restarting with stat
+2026-04-20 14:47:24,438 - WARNING -  * Debugger is active!
+2026-04-20 14:47:24,443 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 14:49:00,615 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.19.80:5000
+2026-04-20 14:49:00,616 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 14:49:00,619 - INFO -  * Restarting with stat
+2026-04-20 14:49:15,031 - WARNING -  * Debugger is active!
+2026-04-20 14:49:15,037 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 14:49:23,842 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:23] "POST /upload HTTP/1.1" 200 -
+2026-04-20 14:49:23,909 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:23] "GET /manuscript/my_manuscript_test_test/pages HTTP/1.1" 200 -
+2026-04-20 14:49:25,388 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:25] "GET /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:49:44,501 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:44] "OPTIONS /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:49:45,929 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:45] "POST /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:49:46,036 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:46] "GET /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:49:46,400 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:46] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:49:46,671 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 14:49:49,036 - INFO - Model loaded successfully.
+2026-04-20 14:49:52,710 - INFO - Updated input_manuscripts\my_manuscript_test_test\layout_analysis_output\page-xml-format\233_0002.xml: 22 lines recognized.
+2026-04-20 14:49:52,776 - INFO - 127.0.0.1 - - [20/Apr/2026 14:49:52] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:50:06,101 - INFO - 127.0.0.1 - - [20/Apr/2026 14:50:06] "OPTIONS /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:50:07,439 - INFO - 127.0.0.1 - - [20/Apr/2026 14:50:07] "POST /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:50:26,107 - INFO - 127.0.0.1 - - [20/Apr/2026 14:50:26] "OPTIONS /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:50:27,779 - INFO - 127.0.0.1 - - [20/Apr/2026 14:50:27] "POST /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:50:46,106 - INFO - 127.0.0.1 - - [20/Apr/2026 14:50:46] "OPTIONS /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:50:47,417 - INFO - 127.0.0.1 - - [20/Apr/2026 14:50:47] "POST /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:51:06,101 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:06] "OPTIONS /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:51:07,793 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:07] "POST /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:51:26,098 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:26] "OPTIONS /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:51:28,000 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:28] "POST /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:51:33,125 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:33] "OPTIONS /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:51:34,629 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:34] "POST /semi-segment/my_manuscript_test_test/233_0002 HTTP/1.1" 200 -
+2026-04-20 14:51:36,318 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:36] "GET /semi-segment/my_manuscript_test_test/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:51:52,225 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:52] "OPTIONS /semi-segment/my_manuscript_test_test/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:51:53,465 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:53] "POST /semi-segment/my_manuscript_test_test/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:51:53,562 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:53] "GET /semi-segment/my_manuscript_test_test/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:51:53,921 - INFO - 127.0.0.1 - - [20/Apr/2026 14:51:53] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:52:28,814 - INFO - Updated input_manuscripts\my_manuscript_test_test\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 14:52:28,905 - INFO - 127.0.0.1 - - [20/Apr/2026 14:52:28] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:53:13,323 - INFO - 127.0.0.1 - - [20/Apr/2026 14:53:13] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:53:13,618 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscript_test_test\active_learning\recognition\checkpoints\ocr_233_0002_r0007\training_run\best_accuracy.pth...
+2026-04-20 14:53:14,684 - INFO - Model loaded successfully.
+2026-04-20 14:53:18,951 - INFO - Updated input_manuscripts\my_manuscript_test_test\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 14:53:19,044 - INFO - 127.0.0.1 - - [20/Apr/2026 14:53:19] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:53:49,842 - INFO - 127.0.0.1 - - [20/Apr/2026 14:53:49] "GET /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:54:02,151 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:02] "OPTIONS /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:54:03,315 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:03] "POST /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:54:03,438 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:03] "GET /semi-segment/my_manuscript_test_test/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:54:05,664 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:05] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:54:11,300 - INFO - Updated input_manuscripts\my_manuscript_test_test\layout_analysis_output\page-xml-format\233_0003.xml: 22 lines recognized.
+2026-04-20 14:54:11,425 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:11] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:54:16,606 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:16] "OPTIONS /semi-segment/my_manuscript_test_test/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:54:18,271 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:18] "POST /semi-segment/my_manuscript_test_test/233_0003 HTTP/1.1" 200 -
+2026-04-20 14:54:18,382 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:18] "GET /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:54:27,336 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:27] "OPTIONS /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:54:28,341 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:28] "POST /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:54:28,496 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:28] "GET /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:54:28,849 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:28] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:54:31,675 - INFO - Updated input_manuscripts\my_manuscript_test_test\layout_analysis_output\page-xml-format\233_0004.xml: 12 lines recognized.
+2026-04-20 14:54:31,798 - INFO - 127.0.0.1 - - [20/Apr/2026 14:54:31] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:56:50,600 - INFO - 127.0.0.1 - - [20/Apr/2026 14:56:50] "OPTIONS /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:56:52,257 - INFO - 127.0.0.1 - - [20/Apr/2026 14:56:52] "POST /semi-segment/my_manuscript_test_test/233_0004 HTTP/1.1" 200 -
+2026-04-20 14:56:53,937 - INFO - 127.0.0.1 - - [20/Apr/2026 14:56:53] "GET /semi-segment/my_manuscript_test_test/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:57:01,463 - INFO - 127.0.0.1 - - [20/Apr/2026 14:57:01] "OPTIONS /semi-segment/my_manuscript_test_test/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:57:02,511 - INFO - 127.0.0.1 - - [20/Apr/2026 14:57:02] "POST /semi-segment/my_manuscript_test_test/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:57:02,611 - INFO - 127.0.0.1 - - [20/Apr/2026 14:57:02] "GET /semi-segment/my_manuscript_test_test/233_0005 HTTP/1.1" 200 -
+2026-04-20 14:57:02,966 - INFO - 127.0.0.1 - - [20/Apr/2026 14:57:02] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:57:03,474 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscript_test_test\active_learning\recognition\checkpoints\ocr_233_0003_r0002\training_run\best_norm_ED.pth...
+2026-04-20 14:57:04,529 - INFO - Model loaded successfully.
+2026-04-20 14:57:07,358 - INFO - Updated input_manuscripts\my_manuscript_test_test\layout_analysis_output\page-xml-format\233_0005.xml: 15 lines recognized.
+2026-04-20 14:57:07,469 - INFO - 127.0.0.1 - - [20/Apr/2026 14:57:07] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 14:58:42,113 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.19.80:5000
+2026-04-20 14:58:42,113 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 14:58:42,117 - INFO -  * Restarting with stat
+2026-04-20 14:58:53,720 - WARNING -  * Debugger is active!
+2026-04-20 14:58:53,725 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 14:58:58,352 - INFO - 127.0.0.1 - - [20/Apr/2026 14:58:58] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 14:59:17,844 - INFO - 127.0.0.1 - - [20/Apr/2026 14:59:17] "POST /upload HTTP/1.1" 200 -
+2026-04-20 14:59:18,239 - INFO - 127.0.0.1 - - [20/Apr/2026 14:59:18] "GET /manuscript/my_manuscript_fsad/pages HTTP/1.1" 200 -
+2026-04-20 14:59:19,334 - INFO - 127.0.0.1 - - [20/Apr/2026 14:59:19] "GET /semi-segment/my_manuscript_fsad/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:04:49,741 - INFO - 127.0.0.1 - - [20/Apr/2026 15:04:49] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:04:50,009 - INFO - 127.0.0.1 - - [20/Apr/2026 15:04:50] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:05:00,315 - INFO - 127.0.0.1 - - [20/Apr/2026 15:05:00] "OPTIONS /semi-segment/my_manuscript_fsad/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:05:01,655 - INFO - 127.0.0.1 - - [20/Apr/2026 15:05:01] "POST /semi-segment/my_manuscript_fsad/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:05:01,727 - INFO - 127.0.0.1 - - [20/Apr/2026 15:05:01] "GET /semi-segment/my_manuscript_fsad/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:05:02,076 - INFO - 127.0.0.1 - - [20/Apr/2026 15:05:02] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:05:02,336 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 15:05:04,655 - INFO - Model loaded successfully.
+2026-04-20 15:05:07,859 - INFO - Updated input_manuscripts\my_manuscript_fsad\layout_analysis_output\page-xml-format\233_0002.xml: 22 lines recognized.
+2026-04-20 15:05:07,955 - INFO - 127.0.0.1 - - [20/Apr/2026 15:05:07] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:10:24,263 - INFO - 127.0.0.1 - - [20/Apr/2026 15:10:24] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:10:29,196 - INFO - Updated input_manuscripts\my_manuscript_fsad\layout_analysis_output\page-xml-format\233_0002.xml: 22 lines recognized.
+2026-04-20 15:10:29,293 - INFO - 127.0.0.1 - - [20/Apr/2026 15:10:29] "POST /recognize-text HTTP/1.1" 200 -
