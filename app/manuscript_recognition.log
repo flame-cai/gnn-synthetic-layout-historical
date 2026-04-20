@@ -1757,3 +1757,56 @@
 2026-04-20 15:10:24,263 - INFO - 127.0.0.1 - - [20/Apr/2026 15:10:24] "OPTIONS /recognize-text HTTP/1.1" 200 -
 2026-04-20 15:10:29,196 - INFO - Updated input_manuscripts\my_manuscript_fsad\layout_analysis_output\page-xml-format\233_0002.xml: 22 lines recognized.
 2026-04-20 15:10:29,293 - INFO - 127.0.0.1 - - [20/Apr/2026 15:10:29] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:21:27,021 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.19.80:5000
+2026-04-20 15:21:27,022 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-20 15:21:27,025 - INFO -  * Restarting with stat
+2026-04-20 15:21:41,870 - WARNING -  * Debugger is active!
+2026-04-20 15:21:41,875 - INFO -  * Debugger PIN: 410-667-261
+2026-04-20 15:21:41,939 - INFO - 127.0.0.1 - - [20/Apr/2026 15:21:41] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-20 15:21:50,547 - INFO - 127.0.0.1 - - [20/Apr/2026 15:21:50] "POST /upload HTTP/1.1" 200 -
+2026-04-20 15:21:50,925 - INFO - 127.0.0.1 - - [20/Apr/2026 15:21:50] "GET /manuscript/my_manuscriptsdasd/pages HTTP/1.1" 200 -
+2026-04-20 15:21:52,094 - INFO - 127.0.0.1 - - [20/Apr/2026 15:21:52] "GET /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:22:13,249 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:13] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:22:13,573 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:13] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:22:29,453 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:29] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:22:30,929 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:30] "POST /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:22:31,048 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:31] "GET /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:22:31,413 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:31] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:22:31,688 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-20 15:22:34,127 - INFO - Model loaded successfully.
+2026-04-20 15:22:37,694 - INFO - Updated input_manuscripts\my_manuscriptsdasd\layout_analysis_output\page-xml-format\233_0002.xml: 22 lines recognized.
+2026-04-20 15:22:37,788 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:37] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:22:51,114 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:51] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:22:52,602 - INFO - 127.0.0.1 - - [20/Apr/2026 15:22:52] "POST /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:23:11,111 - INFO - 127.0.0.1 - - [20/Apr/2026 15:23:11] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:23:12,773 - INFO - 127.0.0.1 - - [20/Apr/2026 15:23:12] "POST /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:23:31,108 - INFO - 127.0.0.1 - - [20/Apr/2026 15:23:31] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:23:32,666 - INFO - 127.0.0.1 - - [20/Apr/2026 15:23:32] "POST /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:23:49,653 - INFO - 127.0.0.1 - - [20/Apr/2026 15:23:49] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:23:51,271 - INFO - 127.0.0.1 - - [20/Apr/2026 15:23:51] "POST /semi-segment/my_manuscriptsdasd/233_0002 HTTP/1.1" 200 -
+2026-04-20 15:23:52,912 - INFO - 127.0.0.1 - - [20/Apr/2026 15:23:52] "GET /semi-segment/my_manuscriptsdasd/233_0003 HTTP/1.1" 200 -
+2026-04-20 15:24:55,095 - INFO - 127.0.0.1 - - [20/Apr/2026 15:24:55] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0003 HTTP/1.1" 200 -
+2026-04-20 15:24:56,415 - INFO - 127.0.0.1 - - [20/Apr/2026 15:24:56] "POST /semi-segment/my_manuscriptsdasd/233_0003 HTTP/1.1" 200 -
+2026-04-20 15:24:56,606 - INFO - 127.0.0.1 - - [20/Apr/2026 15:24:56] "GET /semi-segment/my_manuscriptsdasd/233_0003 HTTP/1.1" 200 -
+2026-04-20 15:24:56,951 - INFO - 127.0.0.1 - - [20/Apr/2026 15:24:56] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:25:31,797 - INFO - Updated input_manuscripts\my_manuscriptsdasd\layout_analysis_output\page-xml-format\233_0003.xml: 23 lines recognized.
+2026-04-20 15:25:31,887 - INFO - 127.0.0.1 - - [20/Apr/2026 15:25:31] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:26:32,635 - INFO - 127.0.0.1 - - [20/Apr/2026 15:26:32] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:26:32,925 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscriptsdasd\active_learning\recognition\checkpoints\ocr_233_0002_r0005\training_run\best_accuracy.pth...
+2026-04-20 15:26:34,984 - INFO - Model loaded successfully.
+2026-04-20 15:26:38,877 - INFO - Updated input_manuscripts\my_manuscriptsdasd\layout_analysis_output\page-xml-format\233_0003.xml: 23 lines recognized.
+2026-04-20 15:26:38,959 - INFO - 127.0.0.1 - - [20/Apr/2026 15:26:38] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:26:48,539 - INFO - 127.0.0.1 - - [20/Apr/2026 15:26:48] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0003 HTTP/1.1" 200 -
+2026-04-20 15:26:50,071 - INFO - 127.0.0.1 - - [20/Apr/2026 15:26:50] "POST /semi-segment/my_manuscriptsdasd/233_0003 HTTP/1.1" 200 -
+2026-04-20 15:26:50,935 - INFO - 127.0.0.1 - - [20/Apr/2026 15:26:50] "GET /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
+2026-04-20 15:26:59,976 - INFO - 127.0.0.1 - - [20/Apr/2026 15:26:59] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
+2026-04-20 15:27:01,003 - INFO - 127.0.0.1 - - [20/Apr/2026 15:27:01] "POST /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
+2026-04-20 15:27:01,091 - INFO - 127.0.0.1 - - [20/Apr/2026 15:27:01] "GET /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
+2026-04-20 15:27:01,456 - INFO - 127.0.0.1 - - [20/Apr/2026 15:27:01] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:27:03,987 - INFO - Updated input_manuscripts\my_manuscriptsdasd\layout_analysis_output\page-xml-format\233_0004.xml: 11 lines recognized.
+2026-04-20 15:27:04,072 - INFO - 127.0.0.1 - - [20/Apr/2026 15:27:04] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-20 15:28:20,566 - INFO - 127.0.0.1 - - [20/Apr/2026 15:28:20] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
+2026-04-20 15:28:21,585 - INFO - 127.0.0.1 - - [20/Apr/2026 15:28:21] "POST /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
