@@ -2,36 +2,34 @@
   <div class="manuscript-viewer">
     
     <!-- TOP RAIL: Navigation & Global Actions -->
+<!-- TOP RAIL: Navigation & Global Actions -->
     <div class="top-bar fixed-ui-compensated" :style="fixedUiCompensationStyle">
+      
+      <!-- 1) TOP BAR LEFT -->
       <div class="top-bar-left top-bar-section">
-        <div class="page-context">
-          <button class="nav-btn secondary" @click="$emit('back')">Back</button>
+        <div class="page-context" style="flex-direction: column; align-items: flex-start; gap: 4px;">
           <div class="page-meta">
             <span class="page-eyebrow">Manuscript</span>
-            <div class="page-title-row">
-              <span class="page-title">{{ manuscriptNameForDisplay }}</span>
-              <span class="page-divider">/</span>
-              <span class="page-current">Page {{ currentPageForDisplay }}</span>
-            </div>
+            <span class="page-title">{{ manuscriptNameForDisplay }}</span>
           </div>
+          <button class="nav-btn secondary" style="padding: 0; font-size: 0.85rem;" @click="$emit('back')">&larr; Back</button>
         </div>
 
-        <div class="page-controls">
-          <label class="page-picker">
-            <span class="page-picker-label">Jump To</span>
-            <select class="page-select" :value="currentPageForDisplay" @change="handlePageSelect">
+        <div class="page-controls" style="flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto;">
+          <label class="page-picker" style="padding: 4px 8px;">
+            <span class="page-picker-label">Jump</span>
+            <select class="page-select" :value="currentPageForDisplay" @change="handlePageSelect" style="min-width: 80px; padding: 2px 4px;">
                <option v-for="pg in localPageList" :key="pg" :value="pg">Page {{ pg }}</option>
             </select>
           </label>
-
-          <div class="page-stepper">
+          <div class="page-stepper" style="gap: 4px;">
             <span class="control-shell" :class="{ 'is-disabled': previousPageDisabled }" :title="previousPageButtonTitle">
-              <button class="nav-btn" @click="previousPage" :disabled="previousPageDisabled">
-                Previous ([)
+              <button class="nav-btn" style="min-height: 24px; padding: 2px 6px; font-size: 0.8rem;" @click="previousPage" :disabled="previousPageDisabled">
+                Prev ([)
               </button>
             </span>
             <span class="control-shell" :class="{ 'is-disabled': nextPageDisabled }" :title="nextPageButtonTitle">
-              <button class="nav-btn" @click="nextPage" :disabled="nextPageDisabled">
+              <button class="nav-btn" style="min-height: 24px; padding: 2px 6px; font-size: 0.8rem;" @click="nextPage" :disabled="nextPageDisabled">
                 Next (])
               </button>
             </span>
@@ -39,22 +37,11 @@
         </div>
       </div>
 
-      <div class="top-bar-center workflow-panel">
-        <div class="workflow-summary">
-          <span class="workflow-eyebrow">{{ workflowPanelEyebrow }}</span>
-          <div class="workflow-pill-row">
-            <span class="workflow-pill" :class="workflowStateClass">{{ effectivePageWorkflow.label }}</span>
-            <span v-if="effectivePageWorkflow.prediction.source_label" class="workflow-pill subtle">
-              {{ effectivePageWorkflow.prediction.source_label }}
-            </span>
-            <span v-if="effectivePageWorkflow.correction_summary.changed_line_count > 0" class="workflow-pill subtle">
-              {{ effectivePageWorkflow.correction_summary.changed_line_count }} corrected
-            </span>
-          </div>
-          <span class="workflow-hint">{{ workflowPanelHint }}</span>
-        </div>
-
-        <div class="workflow-controls">
+      <!-- 2) TOP BAR CENTER -->
+      <div class="top-bar-center workflow-panel" style="justify-content: center; align-items: center; padding: 8px;">
+        <div class="workflow-controls" style="justify-content: center; width: 100%; gap: 12px;">
+          
+          <!-- Active Learning Toggle (Always shown) -->
           <div class="workflow-toggle-group">
             <label class="toggle-switch">
               <input type="checkbox" v-model="activeLearningEnabled">
@@ -66,52 +53,60 @@
             </div>
           </div>
 
-          <div class="workflow-toggle-group compact">
-            <label class="toggle-switch">
-              <input type="checkbox" v-model="devanagariModeEnabled">
-              <span class="slider"></span>
-            </label>
-            <div class="workflow-toggle-copy">
-              <span class="workflow-toggle-label">Keyboard</span>
-              <span class="workflow-toggle-subcopy">Devanagari</span>
+          <!-- Recognition Mode Specific Controls -->
+          <template v-if="recognitionModeActive">
+            <!-- Keyboard Devnagari Toggle -->
+            <div class="workflow-toggle-group compact">
+              <label class="toggle-switch">
+                <input type="checkbox" v-model="devanagariModeEnabled">
+                <span class="slider"></span>
+              </label>
+              <div class="workflow-toggle-copy">
+                <span class="workflow-toggle-label">Keyboard</span>
+                <span class="workflow-toggle-subcopy">Devanagari</span>
+              </div>
             </div>
-          </div>
+
+            <!-- Moved Rare Character Palette -->
+            <CharacterPalette v-if="devanagariModeEnabled" />
+
+            <!-- Moved OCR Engine Dropdown -->
+            <div class="recognition-engine-panel" style="padding: 4px 10px; margin: 0; background: rgba(0,0,0,0.2); border-radius: 8px; gap: 8px;">
+              <span class="recognition-engine-label" style="font-size: 0.65rem;">OCR Engine</span>
+              <select
+                v-model="recognitionEngine"
+                class="workflow-select"
+                :disabled="isProcessingSave || recognitionInFlight"
+                :title="recognitionEngineSelectTitle"
+                style="padding: 2px 6px; font-size: 0.75rem;"
+              >
+                <option value="local">Local OCR</option>
+                <option value="gemini">Gemini API</option>
+              </select>
+            </div>
+          </template>
         </div>
       </div>
 
-      <div class="top-bar-right top-bar-section">
-        <div class="action-summary">
-          <span class="action-eyebrow">{{ topBarActionState.eyebrow }}</span>
-          <div class="action-title-row">
-            <span class="action-title">{{ topBarActionState.title }}</span>
-            <span v-if="topBarActionState.recommendedAction" class="action-badge">Recommended</span>
-          </div>
-          <span class="action-hint">{{ topBarActionState.hint }}</span>
+      <!-- 3) TOP BAR RIGHT -->
+      <div class="top-bar-right top-bar-section" style="justify-content: center; gap: 6px; padding: 8px 12px;">
+        <div class="action-summary" style="align-items: center; margin-bottom: 2px; width: 100%;">
+          <span class="action-eyebrow" style="font-size: 0.75rem; font-weight: bold; color: #8cb8a7;">
+            {{ layoutModeActive ? 'LAYOUT MODE' : 'RECOGNITION MODE' }}
+          </span>
+          <span class="action-title" style="font-size: 0.8rem; color: #ccc; text-align: center;">
+            {{ layoutModeActive ? 'Define document structure. Layout Mode is a prerequisite for Recognition Mode.' : 'Run OCR and manually correct text lines.' }}
+          </span>
         </div>
 
-        <div v-if="recognitionModeActive" class="recognition-engine-panel">
-          <span class="recognition-engine-label">OCR Engine</span>
-          <div class="recognition-engine-controls">
-            <select
-              v-model="recognitionEngine"
-              class="workflow-select recognition-engine-select"
-              :disabled="isProcessingSave || recognitionInFlight"
-              :title="recognitionEngineSelectTitle"
-            >
-              <option value="local">Local OCR</option>
-              <option value="gemini">Gemini API</option>
-            </select>
-            <span class="recognition-engine-hint">{{ recognitionEngineDescription }}</span>
-          </div>
-        </div>
-
-        <div class="action-group primary-actions">
+        <div class="action-group" style="flex-wrap: nowrap; justify-content: center; gap: 8px; width: 100%;">
           <span class="control-shell" :class="{ 'is-disabled': recognizeActionDisabled }" :title="recognizeButtonTitle">
             <button
               class="action-btn"
               :class="{ recommended: topBarActionState.recommendedAction === 'recognize' }"
               @click="runRecognitionAction"
               :disabled="recognizeActionDisabled"
+              style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
             >
               {{ recognizeButtonLabel }} (R)
             </button>
@@ -122,31 +117,28 @@
               :class="{ recommended: topBarActionState.recommendedAction === 'commit' }"
               @click="saveCurrentPage"
               :disabled="commitActionDisabled"
+              style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
             >
               Commit (S)
             </button>
           </span>
           <span class="control-shell" :class="{ 'is-disabled': commitAndNextDisabled }" :title="commitAndNextButtonTitle">
-            <button class="action-btn forward-action" @click="saveAndGoNext" :disabled="commitAndNextDisabled">
-              Commit & Next (Shift+S)
+            <button class="action-btn forward-action" @click="saveAndGoNext" :disabled="commitAndNextDisabled" style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;">
+              Commit & Next
             </button>
           </span>
-        </div>
-
-        <div class="action-group secondary-actions">
+          <!-- EXPORT IMAGE BUTTON COMMENTED OUT
           <span class="control-shell" :class="{ 'is-disabled': exportImageDisabled }" :title="exportImageButtonTitle">
-            <button class="action-btn secondary-action" @click="saveOverlay" :disabled="exportImageDisabled">
+            <button class="action-btn secondary-action" @click="saveOverlay" :disabled="exportImageDisabled" style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;">
               Export Image
             </button>
           </span>
+          -->
           <span class="control-shell" :class="{ 'is-disabled': downloadResultsDisabled }" :title="downloadResultsButtonTitle">
-            <button class="action-btn secondary-action" @click="downloadResults" :disabled="downloadResultsDisabled">
+            <button class="action-btn secondary-action" @click="downloadResults" :disabled="downloadResultsDisabled" style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;">
               Download PAGE-XMLs
             </button>
           </span>
-          <!-- <button class="action-btn" @click="runHeuristic" :disabled="loading || recognitionInFlight || recognitionModeActive">
-            Auto-Link
-          </button> -->
         </div>
       </div>
     </div>
@@ -459,9 +451,6 @@
                </div>
              </div>
 
-             <div v-if="devanagariModeEnabled" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
-                 <CharacterPalette />
-             </div>
            </div>
         </div>
         
@@ -2166,13 +2155,15 @@ watch(recognitionModeActive, (val) => {
 }
 
 /* Top Bar */
+/* Replace existing .top-bar */
 .top-bar {
   display: grid;
-  grid-template-columns: minmax(240px, 0.78fr) minmax(420px, 1.5fr) minmax(320px, 1.05fr);
+  /* Proportions: Left small, Center small, Right largest */
+  grid-template-columns: minmax(200px, 1fr) minmax(360px, 1.5fr) minmax(480px, 2.5fr);
   align-items: stretch;
-  gap: 14px;
-  padding: 10px 14px;
-  min-height: 96px;
+  gap: 10px;
+  padding: 8px 10px;
+  min-height: 72px; /* Reduced height */
   background-color: #2c2c2c;
   border-bottom: 1px solid #3d3d3d;
   flex-shrink: 0;
