@@ -50,28 +50,45 @@ Important app paths:
 
 ## Current OCR Research Harness
 
-As of 2026-04-19, the repository has an offline OCR active-learning research harness and a surrogate OCR fine-tuning pre-commit gate. The GUI still does not trigger live fine-tuning, but the OCR stack is no longer just a concept and it now has automatic regression coverage for both the pretrained full pipeline and the current best hybrid continuation recipe.
+As of 2026-04-20, the repository has three OCR layers that matter together:
+
+- the offline OCR active-learning research harness
+- the surrogate OCR fine-tuning pre-commit gate
+- a first-pass GUI-safe OCR active-learning runtime that records manuscript-local checkpoints, page revisions, telemetry, and profiling under `input_manuscripts/<manuscript>/active_learning/recognition/`
 
 The source-of-truth files are:
 
+- `app/device_leases.py`
+- `app/job_orchestrator.py`
+- `app/manuscript_ocr_registry.py`
+- `app/ocr_active_learning_runtime.py`
+- `app/ocr_model_manager.py`
+- `app/profiling.py`
 - `app/recognition/active_learning.py`
+- `app/recognition/active_learning_recipe.py`
 - `app/recognition/pagexml_line_dataset.py`
 - `app/recognition/dataset.py`
 - `app/recognition/ocr_defaults.py`
 - `app/recognition/train.py`
+- `app/telemetry.py`
 - `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
+- `app/tests/test_job_orchestrator_unit.py`
+- `app/tests/test_manuscript_ocr_registry_unit.py`
 - `app/tests/test_recognition_active_learning_unit.py`
+- `app/tests/test_recognition_active_learning_backend_unit.py`
 - `app/tests/test_recognition_finetuning_page_plus_history_unit.py`
 - `app/tests/test_recognition_finetuning_precommit_unit.py`
 - `app/tests/test_recognition_finetuning_precommit_e2e.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
+- `app/tests/test_recognition_telemetry_unit.py`
 - `scripts/run_precommit_eval.py`
 - `.githooks/pre-commit`
 
 The current harness supports:
 
+- one canonical production OCR recipe in `app/recognition/active_learning_recipe.py` shared by runtime and pre-commit config code
 - CER-aligned sibling checkpoint selection between `best_accuracy.pth` and `best_norm_ED.pth`
 - explicit OCR width policies: `global_2000_pad` and `batch_max_pad`
 - bounded CER-weighted oversampling
@@ -81,6 +98,11 @@ The current harness supports:
 - deterministic history replay metadata with `history_sample_line_count=10`
 - a shared checked-in pre-commit gate registry for dataset membership and thresholds
 - a dedicated surrogate OCR pre-commit gate using the exact hybrid recipe `page_plus_random_history + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`
+- manuscript-local OCR registries with durable page-revision snapshots, active/candidate checkpoint lineage, automatic fallback, and `needs_rebase` tracking
+- save-triggered OCR job queueing that distinguishes commit saves from draft autosaves through explicit `saveIntent`
+- a generic app-level job orchestrator with priorities, GPU device leases, and isolated OCR fine-tune/rebase jobs that can be canceled and requeued for interactive OCR
+- manuscript-aware local OCR inference that loads the current manuscript checkpoint instead of assuming one global active model forever
+- structured page/job telemetry and coarse profiling summaries, with optional sampled CUDA traces
 - run artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, and plots
 
 Earlier cumulative and page-only studies are now treated as preserved conclusions rather than live code paths. The retained conclusions are:

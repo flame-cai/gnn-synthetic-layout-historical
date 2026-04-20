@@ -40,6 +40,17 @@ The current evaluation code lives in:
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
 - `app/recognition/active_learning.py`
+- `app/recognition/active_learning_recipe.py`
+- `app/job_orchestrator.py`
+- `app/manuscript_ocr_registry.py`
+- `app/ocr_active_learning_runtime.py`
+- `app/ocr_model_manager.py`
+- `app/profiling.py`
+- `app/telemetry.py`
+- `app/tests/test_job_orchestrator_unit.py`
+- `app/tests/test_manuscript_ocr_registry_unit.py`
+- `app/tests/test_recognition_active_learning_backend_unit.py`
+- `app/tests/test_recognition_telemetry_unit.py`
 - `app/recognition/pagexml_line_dataset.py`
 - `app/tests/eval_dataset/`
 - `app/tests/logs/`
@@ -81,7 +92,7 @@ The first gate runs:
 
 The second gate runs one explicit hybrid OCR continuation recipe on perfect PAGE-XML-derived line crops and ground-truth text pairs, records `curve_metric_value`, `final_page_cer`, `first_step_gain`, `regression_guard_passed`, and `max_regression`, and compares only the three blocking metrics against checked-in thresholds. Regression-guard failure is preserved as a warning, not a hard failure, for this gate.
 
-These two checks intentionally validate different failure surfaces. The first remains the required pretrained full-pipeline gate for changes that can affect the app, OCR, PAGE-XML generation, evaluation code, or GNN inference. The second is a surrogate guard for the OCR fine-tuning subsystem while the repository still lacks a true GUI-triggered human-in-the-loop training loop.
+These two checks intentionally validate different failure surfaces. The first remains the required pretrained full-pipeline gate for changes that can affect the app, OCR, PAGE-XML generation, evaluation code, or GNN inference. The second is a surrogate guard for the OCR fine-tuning subsystem even now that the GUI has a first-pass live OCR active-learning runtime, because the live runtime promotes on manuscript-local verifier-bank evidence rather than the fixed held-out benchmark used by the surrogate gate.
 
 ### Level 2: Offline OCR active-learning research harness
 
@@ -98,18 +109,21 @@ This harness does not use CRAFT or GNN segmentation. Instead it:
 3. evaluates later pages after each update
 4. writes full run artifacts under `app/tests/logs/`
 
-This harness is offline-first and research-oriented. It is not yet the GUI fine-tuning loop.
+This harness is offline-first and research-oriented. It remains the slower policy-study path, separate from the live GUI runtime.
 
-### Level 3: Future GUI and human-in-the-loop evaluation
+### Level 3: Live GUI and human-in-the-loop evaluation
 
 Purpose: measure whether real user correction effort drops as the system learns.
 
-This layer is still future work. It will require structured logging from the UI and the backend, not just model outputs.
+As of 2026-04-20, the first pass of this layer exists. The save and recognition flows now record manuscript-local page revisions, checkpoint lineage, page/job telemetry, and profiling artifacts under `input_manuscripts/<manuscript>/active_learning/recognition/`. Commit saves with corrected text can enqueue OCR fine-tune or rebase jobs, and local OCR recognition loads the current manuscript checkpoint rather than assuming one global model forever.
+
+This layer is still early. The live runtime uses a manuscript-local verifier bank built from previously corrected pages, not the fixed benchmark used by the surrogate pre-commit gate, and it does not yet answer every human-effort question the long-term evaluation story will need.
 
 ## Current OCR Harness State
 
-As of 2026-04-19, the OCR active-learning harness has the following implemented features:
+As of 2026-04-20, the OCR active-learning harness has the following implemented features:
 
+- one canonical production OCR recipe in `app/recognition/active_learning_recipe.py`
 - CER-aligned sibling checkpoint selection between `best_accuracy.pth` and `best_norm_ED.pth`
 - explicit width policies: `global_2000_pad` and `batch_max_pad`
 - bounded CER-weighted oversampling
@@ -122,13 +136,24 @@ As of 2026-04-19, the OCR active-learning harness has the following implemented 
 - a shared checked-in pre-commit gate registry in `app/tests/precommit_gate_config.py` so dataset membership and thresholds are no longer buried in unittest bodies
 - a dedicated surrogate OCR fine-tuning pre-commit runner in `app/tests/recognition_finetuning_experiment.py` exposed through `run_recognition_precommit_gate(...)`
 - focused unit coverage for selector choice, width policy, oversampling, augmentation multiplicity, slug encoding, shuffle behavior, and page-plus-history sampling
+- a GUI-safe app runtime with `app/job_orchestrator.py`, `app/device_leases.py`, `app/manuscript_ocr_registry.py`, `app/ocr_active_learning_runtime.py`, `app/ocr_model_manager.py`, `app/telemetry.py`, and `app/profiling.py`
+- manuscript-local page-revision snapshots, active/candidate checkpoint lineage, verifier-backed automatic promotion, rebase detection, and active-checkpoint persistence across app restarts
+- structured save/recognition telemetry including save intent, node and edge edit counts, OCR text edit distance against the last prediction, checkpoint ids, and job queue events
+- coarse profiling summaries plus optional sampled CUDA traces saved under each manuscript runtime folder
 
 Relevant files:
 
 - `app/recognition/active_learning.py`
+- `app/recognition/active_learning_recipe.py`
 - `app/recognition/dataset.py`
 - `app/recognition/ocr_defaults.py`
 - `app/recognition/train.py`
+- `app/job_orchestrator.py`
+- `app/manuscript_ocr_registry.py`
+- `app/ocr_active_learning_runtime.py`
+- `app/ocr_model_manager.py`
+- `app/profiling.py`
+- `app/telemetry.py`
 - `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
@@ -306,7 +331,7 @@ What matters:
 Current reality:
 
 - automatic evaluation already computes PAGE-level and line-level CER through `app/tests/evaluate.py`
-- edge-edit telemetry is not yet a first-class evaluation artifact
+- edge-edit telemetry now lands in manuscript-local page events, but there is still no benchmarked graph-repair study tied to those logs
 
 ### 3. Text-region grouping
 
@@ -335,24 +360,30 @@ Current reality:
 
 - automatic OCR evaluation exists
 - an offline sequential OCR fine-tuning harness exists
-- the GUI still does not promote fine-tuned OCR checkpoints
+- the GUI now records manuscript-local checkpoints and promotes them through a recorded verifier-backed rule, but that live rule is manuscript-local and still much narrower than the offline study harness
 
 ## Human Effort Metrics
 
-Because the long-term goal is active learning, human effort must eventually become a first-class metric.
+Because the long-term goal is active learning, human effort has started to become a first-class metric.
 
-Future human-in-the-loop evaluation should log, per page:
+The current live runtime logs, per page:
 
-- total correction time
 - nodes added
 - nodes deleted
 - edges added
 - edges deleted
-- textbox edits
-- OCR text edits
-- save cycles
-- fine-tune triggers
+- OCR text edit distance against the last prediction the user saw
+- changed line count
+- save intent
+- whether the revision entered OCR active learning
+- prediction engine
 - active checkpoint id and candidate checkpoint id
+
+Important gaps remain:
+
+- total correction time is still not logged
+- textbox-edit telemetry is still not first-class
+- the repository does not yet summarize effort trends across a whole manuscript automatically
 
 ## Current Evaluation Limits
 
@@ -365,9 +396,9 @@ Current limits:
 - page-only continuation is now implemented, but many page-only policies terminate early on the regression guard, so "all policies reach all nine continuation pages" is not a realistic acceptance rule
 - page-plus-random-history has only been tested with `history_sample_line_count=10` and random line replay from prior pages; other replay sizes and sampling strategies are still unexplored
 - Adam remains guard-sensitive in both page-only and page-plus-random-history follow-ups, so optimizer-specific tuning is still unresolved
-- there is still no GUI-triggered fine-tuning
-- there is still no formal model registry or promotion rule
-- human correction effort is not yet logged as structured data
+- the live GUI runtime has only been exercised against the current local-manuscript flow, not a broad benchmark suite
+- the live verifier bank is intentionally local and lightweight, so it is not a replacement for the surrogate pre-commit gate
+- manuscript-local telemetry exists, but there is still no checked-in evaluator that turns those logs into cross-manuscript effort curves
 
 ## Near-Term Recommended Additions
 
@@ -376,11 +407,10 @@ The next high-value steps are:
 1. Compare `history_sample_line_count` values and replay-selection strategies now that the first page-plus-random-history study shows promise.
 2. Decide whether `page_plus_random_history` should replace page-only continuation as the default follow-up path after more evidence across datasets.
 3. Investigate why Adam remains regression-guard-sensitive in the continuation follow-ups and decide whether optimizer-specific LR ranges or optimizer-specific defaults are needed.
-4. Add a small OCR model registry with active, candidate, and rollback metadata.
-5. Add structured OCR text-edit and fine-tune-trigger logging from the save and recognition flows in `app/app.py`.
-6. Add GUI-safe background job orchestration so training and inference do not contend for the same device.
-7. Wrap the direct-interpreter OCR-study path in a small helper so Windows-safe UTF-8 execution is the easiest path, not just the documented path.
-8. Extend the OCR benchmark to multiple manuscript sequences now that the cumulative, page-only, and hybrid follow-up paths all exist.
+4. Harden the live manuscript registry and rebuild path with more restart and interrupted-job coverage.
+5. Add a checked-in evaluator that turns manuscript-local telemetry into manuscript-level effort summaries.
+6. Wrap the direct-interpreter OCR-study path in a small helper so Windows-safe UTF-8 execution is the easiest path, not just the documented path.
+7. Extend the OCR benchmark to multiple manuscript sequences now that the cumulative, page-only, hybrid follow-up, and live GUI runtime all exist.
 
 ## Definition Of Success
 
@@ -389,5 +419,5 @@ Evaluation maturity in this repository means:
 - every significant code change can be screened by automatic headless gates that cover both the pretrained full pipeline and the current OCR fine-tuning subsystem
 - every OCR research claim can be tied to a saved artifact folder and exact settings
 - the OCR verifier can rank policies by the repository's chosen primary metric
-- GUI fine-tuning, when added, promotes models only through a recorded verifier-backed rule
+- GUI OCR fine-tuning promotes models only through a recorded verifier-backed rule, and that rule remains explicit and recoverable
 - human correction burden is eventually measured directly rather than inferred indirectly

@@ -60,6 +60,15 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 from inference import process_new_manuscript
 from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
 from segmentation.utils import load_images_from_folder
+from job_orchestrator import JobOrchestrator
+from ocr_active_learning_runtime import (
+    configure_runtime,
+    handle_post_save,
+    prepare_for_interactive_ocr,
+    record_prediction,
+    summarize_manuscript_active_learning,
+)
+from ocr_model_manager import ManuscriptAwareOcrModelManager
 
 app = Flask(__name__)
 CORS(app)
@@ -68,6 +77,26 @@ CORS(app)
 UPLOAD_FOLDER = './input_manuscripts'
 MODEL_CHECKPOINT = "./pretrained_gnn/v2.pt"
 DATASET_CONFIG = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
+OCR_MODEL_MANAGER = ManuscriptAwareOcrModelManager()
+JOB_ORCHESTRATOR = JobOrchestrator()
+
+
+def _configure_active_learning_runtime():
+    configure_runtime(OCR_MODEL_PATH, JOB_ORCHESTRATOR)
+
+
+def _get_manuscript_active_learning_state(manuscript):
+    _configure_active_learning_runtime()
+    manuscript_root = Path(UPLOAD_FOLDER) / manuscript
+    return summarize_manuscript_active_learning(
+        manuscript_root,
+        base_checkpoint_path=OCR_MODEL_PATH,
+    )
+
+
+def _get_manuscript_local_checkpoint(manuscript):
+    active_learning = _get_manuscript_active_learning_state(manuscript)
+    return active_learning["active_checkpoint_path"], active_learning["active_checkpoint_id"], active_learning
 
 def parse_page_xml_polygons(xml_path):
     polygons = {}
@@ -146,6 +175,7 @@ def get_ocr_context():
     """
     Singleton to load the OCR model and config only once.
     """
+    _configure_active_learning_runtime()
     global OCR_GLOBAL_CONTEXT
     if OCR_GLOBAL_CONTEXT is not None:
         return OCR_GLOBAL_CONTEXT
@@ -156,16 +186,7 @@ def get_ocr_context():
 
     try:
         print("Loading Local OCR Model...")
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        config = get_model_config(OCR_MODEL_PATH)
-        model, converter = load_ocr_model(config, device)
-        
-        OCR_GLOBAL_CONTEXT = {
-            'model': model,
-            'converter': converter,
-            'config': config,
-            'device': device
-        }
+        OCR_GLOBAL_CONTEXT = OCR_MODEL_MANAGER.get_context(OCR_MODEL_PATH)
         print("Local OCR Model Loaded Successfully.")
         return OCR_GLOBAL_CONTEXT
     except Exception as e:
@@ -174,7 +195,7 @@ def get_ocr_context():
         traceback.print_exc()
         return None
 
-def _run_local_recognition_internal(manuscript, page):
+def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, checkpoint_id=None, interactive=False):
     """
     Drop-in replacement for Gemini OCR using local EasyOCR/PyTorch.
     1. Loads model (if not loaded).
@@ -198,7 +219,11 @@ def _run_local_recognition_internal(manuscript, page):
         return {}
 
     # 2. Get Model Context
-    ctx = get_ocr_context()
+    if interactive:
+        prepare_for_interactive_ocr(base_path, orchestrator=JOB_ORCHESTRATOR)
+
+    checkpoint_path = str(Path(checkpoint_path or OCR_MODEL_PATH).resolve())
+    ctx = get_ocr_context() if checkpoint_path == str(Path(OCR_MODEL_PATH).resolve()) else OCR_MODEL_MANAGER.get_context(checkpoint_path)
     if not ctx:
         return {"error": "OCR Model could not be loaded"}
 
@@ -217,7 +242,21 @@ def _run_local_recognition_internal(manuscript, page):
         
         # 4. Read back the results from the updated XML
         # We reuse your existing helper function
-        return get_existing_text_content(str(xml_path))
+        result = get_existing_text_content(str(xml_path))
+        record_prediction(
+            manuscript_root=base_path,
+            page_id=page,
+            predicted_lines=result.get("text", {}),
+            recognition_engine="local",
+            checkpoint_id=checkpoint_id or ("base" if checkpoint_path == str(Path(OCR_MODEL_PATH).resolve()) else None),
+            checkpoint_path=checkpoint_path,
+            confidences=result.get("confidences", {}),
+            base_checkpoint_path=OCR_MODEL_PATH,
+        )
+        result["checkpointId"] = checkpoint_id or ("base" if checkpoint_path == str(Path(OCR_MODEL_PATH).resolve()) else None)
+        result["checkpointPath"] = checkpoint_path
+        result["activeLearning"] = _get_manuscript_active_learning_state(manuscript)
+        return result
 
     except Exception as e:
         import traceback
@@ -311,6 +350,7 @@ def get_page_prediction(manuscript, page):
             polygons = parse_page_xml_polygons(str(xml_path))
             existing_data = get_existing_text_content(str(xml_path))
 
+        active_learning = _get_manuscript_active_learning_state(manuscript)
         response = {
             "image": encoded_string,
             "dimensions": graph_data['dimensions'],
@@ -320,7 +360,8 @@ def get_page_prediction(manuscript, page):
             "textbox_labels": graph_data.get('textbox_labels', []),
             "polygons": polygons, 
             "textContent": existing_data["text"],
-            "textConfidences": existing_data["confidences"]
+            "textConfidences": existing_data["confidences"],
+            "activeLearning": active_learning,
         }
         return jsonify(response)
         
@@ -650,6 +691,8 @@ def save_correction(manuscript, page):
     api_key = data.get('apiKey', None)
     # --- NEW: Get engine choice ---
     recognition_engine = data.get('recognitionEngine', 'local') 
+    save_intent = data.get('saveIntent', 'commit')
+    active_learning_enabled = bool(data.get('activeLearningEnabled', False))
 
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -671,24 +714,64 @@ def save_correction(manuscript, page):
             text_content=text_content 
         )
 
+        active_learning_result = handle_post_save(
+            manuscript=manuscript,
+            page=page,
+            save_intent=save_intent,
+            active_learning_enabled=active_learning_enabled,
+            recognition_engine=recognition_engine,
+            text_payload=text_content,
+            manuscript_root=manuscript_path,
+            base_checkpoint_path=OCR_MODEL_PATH,
+            graph_payload=graph_data,
+            textbox_labels=textbox_labels,
+            modifications=modifications,
+            orchestrator=JOB_ORCHESTRATOR,
+        )
+        result['activeLearning'] = active_learning_result['active_learning']
+        result['activeLearningRevision'] = active_learning_result['revision']
+        result['activeLearningQueuedJobIds'] = active_learning_result['queued_job_ids']
+
         if run_recognition: 
             # --- MODIFIED: Robust background task with engine switch & logging ---
-            def background_task(m, p, k, engine):
+            checkpoint_path, checkpoint_id, _ = _get_manuscript_local_checkpoint(manuscript)
+
+            def background_task(m, p, k, engine, local_checkpoint_path, local_checkpoint_id):
                 print(f"[{p}] Starting background auto-recognition. Engine: {engine}")
                 try:
                     if engine == 'gemini':
                         if not k:
                             print(f"[{p}] ERROR: Gemini API key is missing. Aborting recognition.")
                             return
-                        _run_gemini_recognition_internal(m, p, k)
+                        gemini_result = _run_gemini_recognition_internal(m, p, k)
+                        record_prediction(
+                            manuscript_root=Path(UPLOAD_FOLDER) / m,
+                            page_id=p,
+                            predicted_lines=gemini_result.get("text", {}),
+                            recognition_engine="gemini",
+                            checkpoint_id=None,
+                            checkpoint_path=None,
+                            confidences=gemini_result.get("confidences", {}),
+                            base_checkpoint_path=OCR_MODEL_PATH,
+                        )
                     else:
-                        _run_local_recognition_internal(m, p)
+                        _run_local_recognition_internal(
+                            m,
+                            p,
+                            checkpoint_path=local_checkpoint_path,
+                            checkpoint_id=local_checkpoint_id,
+                            interactive=False,
+                        )
                     print(f"[{p}] Background auto-recognition completed successfully.")
                 except Exception as e:
                     print(f"[{p}] ERROR in background auto-recognition: {e}")
                     traceback.print_exc()
 
-            thread = threading.Thread(target=background_task, args=(manuscript, page, api_key, recognition_engine), daemon=True)
+            thread = threading.Thread(
+                target=background_task,
+                args=(manuscript, page, api_key, recognition_engine, checkpoint_path, checkpoint_id),
+                daemon=True,
+            )
             thread.start()
             
             result['autoRecognitionStatus'] = f"processing_in_background_with_{recognition_engine}"
@@ -716,8 +799,26 @@ def recognize_text():
         if not api_key:
             return jsonify({"error": "API Key required for Gemini"}), 400
         result = _run_gemini_recognition_internal(manuscript, page, api_key)
+        record_prediction(
+            manuscript_root=Path(UPLOAD_FOLDER) / manuscript,
+            page_id=page,
+            predicted_lines=result.get("text", {}),
+            recognition_engine="gemini",
+            checkpoint_id=None,
+            checkpoint_path=None,
+            confidences=result.get("confidences", {}),
+            base_checkpoint_path=OCR_MODEL_PATH,
+        )
+        result["activeLearning"] = _get_manuscript_active_learning_state(manuscript)
     else:
-        result = _run_local_recognition_internal(manuscript, page)
+        checkpoint_path, checkpoint_id, _ = _get_manuscript_local_checkpoint(manuscript)
+        result = _run_local_recognition_internal(
+            manuscript,
+            page,
+            checkpoint_path=checkpoint_path,
+            checkpoint_id=checkpoint_id,
+            interactive=True,
+        )
 
     return jsonify(result)
     

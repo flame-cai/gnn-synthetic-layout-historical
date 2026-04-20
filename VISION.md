@@ -20,9 +20,22 @@ By active learning here, we mean the user corrects model mistakes, those correct
 
 ## Current Reality
 
-The repository does not yet provide production-ready GUI fine-tuning for any of the four tasks.
+The repository still does not provide production-ready GUI fine-tuning for all four tasks.
 
-However, the OCR side is no longer only aspirational. As of 2026-04-19, the repository has a real offline OCR active-learning research harness in:
+However, the OCR side is no longer only aspirational or GUI-free. As of 2026-04-20, the repository now has a first-pass save-triggered GUI OCR active-learning runtime on top of the existing offline harness.
+
+The relevant live runtime files are:
+
+- `app/recognition/active_learning_recipe.py`
+- `app/job_orchestrator.py`
+- `app/device_leases.py`
+- `app/manuscript_ocr_registry.py`
+- `app/ocr_active_learning_runtime.py`
+- `app/ocr_model_manager.py`
+- `app/telemetry.py`
+- `app/profiling.py`
+
+The relevant offline research and regression files remain:
 
 - `app/recognition/active_learning.py`
 - `app/tests/precommit_gate_config.py`
@@ -54,7 +67,8 @@ So the repository is now in a transitional state:
 - the OCR verifier is real
 - the pre-commit path now protects both the pretrained full pipeline and the current OCR fine-tuning subsystem
 - the OCR research harness now keeps one replay-buffer-like continuation regime in active code while preserving the earlier cumulative and page-only conclusions in docs
-- the GUI fine-tuning loop is still future work
+- the GUI now has a first-pass OCR active-learning loop with manuscript-local registry, promotion, rebase detection, telemetry, and profiling
+- the GUI runtime is still intentionally narrow and needs more hardening before it should be treated as fully mature product behavior
 
 ## Desired End State
 
@@ -75,17 +89,16 @@ Success is not defined by a single accuracy number. Success means:
 
 ## Immediate Direction
 
-The next OCR milestone is no longer deciding which offline continuation regime to keep. That decision is already made in the live harness: the retained path is `page_plus_random_history` plus the dedicated surrogate pre-commit gate for the trusted Adadelta recipe. The next uncertainty is whether that retained hybrid recipe generalizes strongly enough to deserve promotion into GUI-backed workflows.
+The next OCR milestone is no longer deciding which offline continuation regime to keep or whether the GUI may trigger OCR fine-tuning at all. Both decisions are now made in code: the retained path is `page_plus_random_history`, and the GUI save flow can trigger manuscript-local OCR fine-tuning through the recorded runtime recipe and verifier bank.
 
-Before the frontend is allowed to trigger OCR fine-tuning, the repository should:
+The next uncertainty is how robust that first-pass live runtime is across more manuscripts and longer annotation sessions. The highest-value follow-up work is:
 
 - validate the retained page-plus-random-history regime on more than one manuscript sequence and more than one history replay size
 - investigate why Adam remains regression-guard-sensitive in the continuation follow-ups
-- add a small OCR model registry with active, candidate, and rollback metadata
+- harden restart, interruption, and rebuild behavior in the live manuscript registry/orchestrator path
 - keep the surrogate pre-commit gate honest about its scope: it validates OCR fine-tuning under perfect segmentation inputs, not the full future human correction loop
+- turn the new manuscript-local telemetry into manuscript-level effort summaries and trend reports
 - keep the Windows-safe direct-interpreter execution path first-class for long OCR verifier runs
-
-Only after those pieces exist should the repository promote GUI integration work for OCR fine-tuning.
 
 ## Broader Research Direction
 
