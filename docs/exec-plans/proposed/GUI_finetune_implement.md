@@ -1,35 +1,4 @@
-do the test reuse the same code which the app uses? or will use?
-**IMPORTANT**
-1) fine-tuning happens after every page save. when user will be manually annotating the next page (by adding/deleting nodes/edges in layout mode, or by making correction to recognized text in recogntion mode), the fine-tuning of the recognition model should happen in the background, using the best fine-tuning recipe we have found 
-
-The best recipe ((with hybrid continuation regime):
-- training_policy=page_plus_random_history
-- history_sample_line_count=10
-- width_policy=batch_max_pad
-- oversampling_policy=none
-- augmentation_policy=none
-- lr_scheduler=none
-- optimizer=adadelta
-- lr=0.2
-- num_iter=60
-- curve_metric=early_weighted_page_cer
-- regression_guard_abs=0.005
-- background_plus_rotation_variant_count=10
-- shuffle_train_each_epoch=True
-
-2) Write code with the entire pipeline (including the human in the loop) in mind. In the pipeline, CRAFT, GNN, and the recogntion model require the GPU at different times. Also note that eventually we would want to fine-tune all three CRAFT, GNN, and the recognition model in the background after each page save. We will thus need good backend orchestration framework in place which handles all nuances. For example on nuance is that when the user uploads a 200 page manuscript, CRAFT first needs to process all 200 - this is a significant bottleneck. So in the future, to make the UX smooth we might want to process the 200 in batches of 10. Once CRAFT processing is done, a graph is constructed on the CRAFT output, which a GNN does binary edge classification on, to get segmented textlines. Then the human in the loop and frontend comes into play. In the frontend, the human can manually make corrections to by adding/deleting nodes (this data can be used to fine-tune CRAFT), or by adding/deleting edges (this data can be used to fine-tune the GNN). Once they save the page, or go the recognition model, a page-XML (without recognized text) is created. This is where the recognition model fine-tuning recipe we have optimized will come in - to iteratively self-improve on the task of recognizing text-content from the segmented text-lines.
-
-3) While digitizing a new target manuscript, help me track when GPU is being used the most, and what the bottle necks are, by CUDA profiling and logging. 
-
-4) Implement this Active learning mode (for iterative finetuning of only the recognition model), but make the integration future-proof, by refering to EVAL.md and VISION.md and other relevant files.
-
-5) Ensure the changes we do to the GUI and backend with this plan, do not fail the evaluation pre-commit checks.
-
-
-
-
-
-# Bring OCR Fine-Tuning Into The GUI Safely
+# Bring Save-Triggered OCR Active Learning Into The GUI Safely
 
 This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
 
@@ -37,194 +6,496 @@ This document is maintained in accordance with `PLANS.md` from the repository ro
 
 ## Purpose / Big Picture
 
-After this change, the semi-automatic app will be able to turn corrected OCR pages into background fine-tuning jobs without turning the annotation workflow into a fragile research demo. The user-visible proof will be that the UI can show OCR model status, queue fine-tuning for a manuscript, keep serving recognition from a stable active checkpoint, and promote a new candidate checkpoint only after a recorded verification step says it is safe to do so.
+After this change, the semi-automatic app will gain one minimal new user-facing control, `Active Learning`, and it will be on by default. When a user makes a real page save, the backend will persist a page revision, decide whether that revision contains usable OCR supervision, and, if it does, queue a background OCR fine-tuning job for that manuscript using the repository's current best hybrid recipe:
 
-This plan is intentionally future-facing. It should be implemented only after the OCR hyperparameter and policy search has stabilized enough to define a trusted background fine-tuning recipe.
+- `training_policy=page_plus_random_history`
+- `history_sample_line_count=10`
+- `width_policy=batch_max_pad`
+- `oversampling_policy=none`
+- `augmentation_policy=none`
+- `lr_scheduler=none`
+- `optimizer=adadelta`
+- `lr=0.2`
+- `num_iter=60`
+- `curve_metric=early_weighted_page_cer`
+- `regression_guard_abs=0.005`
+- `background_plus_rotation_variant_count=10`
+- `shuffle_train_each_epoch=True`
+
+The intended user-visible behavior is sequential and manuscript-specific. After page 1 is corrected and saved, the background worker fine-tunes a manuscript-local OCR checkpoint while the user annotates page 2. Recognition on page 3 should then use the best promoted checkpoint trained from page 1. After page 2 is corrected and saved, the next background job should produce the checkpoint used for page 4, and so on. If the user closes the app and returns later, the backend must load the best promoted checkpoint for that manuscript automatically rather than falling back to the global pretrained model.
+
+This plan intentionally implements only OCR active learning now, but it does so on top of a generic backend orchestrator. The same orchestration layer must be able to schedule future CRAFT preprocessing, future GNN work, and eventual CRAFT and GNN fine-tuning without redesigning the app a second time.
 
 ## Progress
 
-- [x] (2026-04-17 19:00 IST) Preserved the original intent of the seed notes: do not train and infer at the same time, understand what differs between offline research and GUI active learning, keep two rolling models per document, and keep the UX smooth.
-- [x] (2026-04-17 19:02 IST) Confirmed the current backend already supports local OCR, Gemini OCR, save flows, and background recognition threads, but not fine-tuning job orchestration.
-- [ ] Add a per-manuscript OCR model registry with active, candidate, and previous-active checkpoint metadata.
-- [ ] Add backend APIs for requesting fine-tuning, checking job status, inspecting candidate metrics, promoting a candidate, and rolling back.
-- [ ] Add a background OCR fine-tuning worker that reuses the offline research utilities instead of inventing a second training stack.
-- [ ] Add coordination so OCR inference and OCR fine-tuning do not contend for the same device at the same time. 
-- [ ] Add coordination so OCR inference and OCR fine-tuning can happen on consumer grade GPU's. Do GPU optimization in this direction, without affecting the functioning.
-- [ ] Add frontend status surfaces in `app/frontend/src/components/ManuscriptViewer.vue` so the user can see model status, pending jobs, promotion results, and failures.
-- [ ] Add structured logging for OCR edits, save cycles, fine-tune triggers, job durations, candidate outcomes, and promotions.
-- [ ] Add verifier-gated promotion rules so a newly trained checkpoint never silently replaces the active checkpoint without evidence.
+- [x] (2026-04-17 19:00 IST) Preserved the original seed intent: do not let background training degrade the annotation workflow, keep per-document model lineage, and keep the UX smooth.
+- [x] (2026-04-17 19:02 IST) Confirmed the current backend already supports local OCR, Gemini OCR, PAGE-XML generation on save, and lightweight background recognition threads, but not fine-tuning orchestration.
+- [x] (2026-04-19 17:59 IST) Rewrote this plan around the current best hybrid OCR recipe, save-triggered background training, manuscript-specific checkpoint lineage, future-proof backend orchestration, structured edit telemetry, CUDA profiling, and the requirement that existing headless pre-commit checks must remain green.
+- [ ] Extract one canonical OCR active-learning recipe definition into production code so runtime code and pre-commit evaluation cannot drift on optimizer, LR, padding, replay history, or guard settings.
+- [ ] Add a generic app-level job orchestrator and device-lease manager that can schedule OCR jobs now and future CRAFT/GNN jobs later.
+- [ ] Add a per-manuscript OCR registry and page-revision ledger that survive app restarts and can answer "which checkpoint is active for this manuscript right now?" deterministically.
+- [ ] Add save-triggered OCR active-learning jobs, manuscript-local verifier-backed automatic promotion, and rebase handling when an already-consumed page is edited again later.
+- [ ] Replace the single global OCR model assumption with a manuscript-aware recognition model manager that loads the active checkpoint for the current manuscript on demand.
+- [ ] Add structured telemetry for node edits, edge edits, OCR text edits, save intents, checkpoint lineage, queue delays, and active-learning outcomes.
+- [ ] Add coarse always-on GPU and timing metrics plus sampled CUDA traces so bottlenecks during real manuscript digitization can be measured instead of guessed.
+- [ ] Keep frontend changes minimal: add the `Active Learning` toggle, small status text, and the save-intent wiring, without adding a large new control surface.
+- [ ] Add new headless backend tests for orchestration, registry, telemetry, and recovery, and rerun the existing pre-commit gates unchanged.
 
 ## Surprises & Discoveries
 
-- Observation: the repository already has most of the offline mechanics needed for OCR fine-tuning.
-  Evidence: `app/recognition/active_learning.py`, `app/recognition/pagexml_line_dataset.py`, and `app/tests/recognition_finetuning_experiment.py` already prepare PAGE-XML line crops, fine-tune checkpoints, rank sibling checkpoints, and evaluate policy runs.
+- Observation: the current save route already writes the exact artifacts that the OCR active-learning path will need later.
+  Evidence: `app/app.py` route `save_correction(...)` already calls `generate_xml_and_images_for_page(...)`, which writes PAGE-XML and cropped line images before any background recognition is started.
 
-- Observation: the current Flask app is not structured as a job system yet.
-  Evidence: `app/app.py` uses direct request handlers and lightweight background threads for auto-recognition, but it has no model registry, queue, or verifier-backed promotion concept.
+- Observation: the current app already performs background OCR work after save, but it does so with an ad hoc thread and no persisted job state.
+  Evidence: `app/app.py` starts `threading.Thread(...)` inside `save_correction(...)` when `runRecognition` is true.
 
-- Observation: the UI already has a place where OCR controls live.
-  Evidence: `app/frontend/src/components/ManuscriptViewer.vue` already contains recognition-mode controls, auto-recognition toggles, save flows, and page navigation, so GUI fine-tuning should extend that component rather than inventing a separate screen first.
+- Observation: the current OCR runtime assumes one global loaded model, which is incompatible with manuscript-specific checkpoints.
+  Evidence: `app/app.py` owns a single `OCR_GLOBAL_CONTEXT` and `get_ocr_context()` loads only `OCR_MODEL_PATH`, not a manuscript-selected checkpoint.
 
-- Observation: training and inference cannot be treated as harmlessly concurrent on the same manuscript and device.
-  Evidence: the current OCR path uses a global loaded model in `app/app.py`, while the offline OCR study shows fine-tuning steps can take tens of seconds. Running recognition and training at the same time would create unpredictable device contention and a poor annotation experience.
+- Observation: the frontend already distinguishes between explicit save actions and background autosave behavior, and that distinction matters for active learning.
+  Evidence: `app/frontend/src/components/ManuscriptViewer.vue` calls `saveModifications(true)` every 20 seconds in recognition mode, while explicit actions such as `saveCurrentPage()` and `saveAndGoNext()` call `saveModifications()` without the background flag.
 
-- Observation: GUI promotion rules still cannot rely on one vague "best" label.
-  Evidence: the retained OCR verifier and the surrogate pre-commit gate both track `curve_metric_value`, `final_page_cer`, and `first_step_gain` separately, so the GUI will need an explicit promotion policy rather than a hand-wavy "use the latest trained model" rule.
+- Observation: treating every autosave as a training trigger would create pathological churn.
+  Evidence: the current recognition-mode autosave interval is 20 seconds, so blindly fine-tuning on every autosave would thrash the queue, waste GPU time, and make page revision lineage noisy.
+
+- Observation: the current backend logs node edits but not the other human-effort metrics that matter for active learning.
+  Evidence: `app/app.py` currently writes `node_corrections/<page>.json` with node counts, but there is no equivalent persisted log for edge edits, OCR text edits, save intents, checkpoint ids, or queue behavior.
+
+- Observation: the current repository already has the low-level OCR training and evaluation primitives needed for live integration.
+  Evidence: `app/recognition/active_learning.py` exposes `prepare_page_datasets(...)`, `run_checkpoint_on_prepared_pages(...)`, and `fine_tune_checkpoint_on_pages(...)`, while `app/tests/precommit_gate_config.py` and `app/tests/recognition_finetuning_config.py` already encode the trusted hybrid recipe.
 
 ## Decision Log
 
-- Decision: do not train and infer at the same time on the same OCR device for the same manuscript.
-  Rationale: this preserves responsiveness and prevents fine-tuning from degrading the page the user is actively working on.
-  Date/Author: 2026-04-17 / Codex
+- Decision: the GUI flow should trigger OCR active learning automatically after a real page save instead of asking the user to click a separate "fine-tune now" button.
+  Rationale: the requested workflow is page-by-page specialization with minimal UI churn. A manual promotion or fine-tune button would slow the operator and would not match the desired "save page N, benefit on page N+2" behavior.
+  Date/Author: 2026-04-19 / Codex
 
-- Decision: keep two rolling OCR models per target document.
-  Rationale: the app needs a stable active checkpoint and a separate candidate checkpoint so it can train, evaluate, promote, and roll back safely.
-  Date/Author: 2026-04-17 / Codex
+- Decision: the frontend will expose `Active Learning` as a small toggle that defaults to on, but the backend must treat a missing `activeLearningEnabled` field as false for backward compatibility.
+  Rationale: the real app should default to active learning, while existing tests and older clients should not accidentally start new behavior just because the backend changed.
+  Date/Author: 2026-04-19 / Codex
 
-- Decision: reuse the offline OCR fine-tuning utilities instead of creating a new GUI-specific training stack.
-  Rationale: the repository already has a verified offline pipeline for dataset preparation, checkpoint selection, and artifact writing. GUI integration should orchestrate that code, not fork it.
-  Date/Author: 2026-04-17 / Codex
+- Decision: OCR fine-tuning will trigger only on commit saves, not on draft autosaves.
+  Rationale: recognition-mode autosave exists for recoverability, not for model-lineage promotion. Training on every 20-second autosave would cause duplicate jobs and unstable provenance.
+  Date/Author: 2026-04-19 / Codex
 
-- Decision: require an explicit verifier-backed promotion step before a candidate becomes active.
-  Rationale: the app should never silently switch checkpoints based only on training completion.
-  Date/Author: 2026-04-17 / Codex
+- Decision: every save still enters the orchestration pipeline, but the OCR branch will enqueue work only when the saved page revision includes usable text supervision.
+  Rationale: layout-only saves should still be recorded for future CRAFT and GNN active learning, but OCR cannot fine-tune on a page that has polygons without corrected text.
+  Date/Author: 2026-04-19 / Codex
 
-- Decision: smooth UX is a hard requirement, not a nice-to-have.
-  Rationale: this is a human-in-the-loop product. If the UI becomes confusing or blocks annotation work, the active-learning story fails even if the underlying training code is correct.
-  Date/Author: 2026-04-17 / Codex
+- Decision: the local OCR model family remains the active-learning target even if the user chose Gemini for recognition on a given page.
+  Rationale: corrected PAGE-XML text and line crops are still valuable supervision for the local OCR model. Engine choice for prediction and the model family being improved should be decoupled.
+  Date/Author: 2026-04-19 / Codex
+
+- Decision: manuscript checkpoints must promote automatically through a recorded rule, not through an untracked implicit swap and not through a new manual promotion button.
+  Rationale: `VISION.md` requires that a newly trained model never silently replaces the active one without a recorded promotion rule. Automatic promotion is acceptable only when it is deterministic, logged, and recoverable.
+  Date/Author: 2026-04-19 / Codex
+
+- Decision: live GUI promotion will use a manuscript-local verifier bank rather than the offline study's future-page curve metric.
+  Rationale: `curve_metric=early_weighted_page_cer` is still the locked research recipe and the pre-commit source of truth, but the GUI cannot access future-page ground truth. The live app therefore needs a local non-regression rule built from previously corrected pages while still recording the original recipe metadata.
+  Date/Author: 2026-04-19 / Codex
+
+- Decision: editing a page that has already been consumed into the promoted manuscript lineage must mark the manuscript as needing an OCR rebase.
+  Rationale: if page 1 changes after checkpoints trained through page 5 already exist, the lineage is no longer semantically clean. The safe first implementation is to keep the current active checkpoint for inference, record divergence, and queue a rebuild from the nearest safe ancestor, typically the base checkpoint.
+  Date/Author: 2026-04-19 / Codex
+
+- Decision: the app needs one generic orchestration layer with job priorities and explicit device leases, even though only OCR active learning is implemented in the first pass.
+  Rationale: the long-term pipeline will need GPU time for CRAFT, GNN, and OCR at different stages. Designing a narrow OCR-only worker now would force a second scheduler rewrite later.
+  Date/Author: 2026-04-19 / Codex
+
+- Decision: interactive inference must outrank background training, and background training may be canceled and requeued if an interactive GPU request arrives.
+  Rationale: preserving the annotation experience matters more than squeezing every background training second out of the GPU. Requeueing a short 60-iteration OCR job is safer than blocking the user behind it.
+  Date/Author: 2026-04-19 / Codex
+
+- Decision: profiling must be two-tiered: coarse always-on metrics and sampled detailed CUDA traces.
+  Rationale: the user wants bottleneck visibility during real digitization, but full tracing on every request would itself become a bottleneck. Always-on summaries plus sampled traces preserve observability without making the UI sluggish.
+  Date/Author: 2026-04-19 / Codex
 
 ## Outcomes & Retrospective
 
-This plan has not been implemented yet. What exists today is the offline verifier and fine-tuning harness, not GUI-triggered OCR fine-tuning. The goal of this plan is to bridge that gap safely, after the OCR policy search has stabilized enough to choose a trusted recipe.
+This plan has not been implemented yet. The important change in this revision is conceptual, not cosmetic: the work is no longer framed as "manual fine-tune request plus manual promotion." It is now framed as a save-triggered, manuscript-specific, verifier-backed active-learning loop that must preserve UI responsiveness, survive restarts, and fit the broader future pipeline where CRAFT, GNN, and OCR will all want the GPU at different times.
 
-The main lesson from the current codebase is that GUI fine-tuning should be treated as orchestration, model registry, and UX work. The low-level OCR training loop already exists.
+The main lesson from the current codebase is that the difficult part is not the OCR trainer. The difficult part is stable orchestration: deciding which save events create durable training data, which model a page should use at inference time, how to recover from interrupted jobs, how to keep the frontend responsive, and how to measure whether manual correction effort is actually dropping.
 
 ## Context and Orientation
 
-The relevant backend file is `app/app.py`. It currently:
+The current backend lives primarily in `app/app.py`. It currently:
 
-- loads the local OCR model lazily
-- runs local OCR or Gemini OCR
-- saves PAGE-XML corrections
-- supports background auto-recognition threads
-- logs node corrections
+- uploads manuscripts under `input_manuscripts/<manuscript>/`
+- writes PAGE-XML and line images during `save_correction(...)`
+- runs manual recognition through `/recognize-text`
+- optionally starts background recognition threads after save
+- logs node corrections only
+- loads one global OCR checkpoint through `OCR_MODEL_PATH` and `OCR_GLOBAL_CONTEXT`
 
-The relevant frontend file is:
+The current frontend lives in `app/frontend/src/components/ManuscriptViewer.vue`. It currently:
 
-- `app/frontend/src/components/ManuscriptViewer.vue`
+- toggles layout mode and recognition mode
+- saves layout and text changes through `saveModifications(...)`
+- sends `runRecognition` and `recognitionEngine`
+- performs a recognition-mode autosave every 20 seconds
+- exposes only "Auto-Recognize on Save", not active learning
 
-That component already manages:
-
-- layout mode versus recognition mode
-- save and save-and-next actions
-- auto-recognition toggles
-- recognition engine choice
-- recognition text editing
-
-The relevant offline OCR fine-tuning files are:
+The OCR training and evaluation primitives already exist in:
 
 - `app/recognition/active_learning.py`
 - `app/recognition/pagexml_line_dataset.py`
+- `app/recognition/ocr_defaults.py`
+- `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
-- `app/tests/test_recognition_finetuning_e2e.py`
 
-The key architectural difference between the offline harness and the future GUI flow is this:
+The current regression guards that must continue to pass live in:
 
-- the offline harness is allowed to own the whole run and sweep many policies in sequence
-- the GUI flow must protect a human operator's current session, maintain a stable active model, and treat training as a background candidate-generation process
+- `app/tests/test_ci_e2e.py`
+- `app/tests/test_recognition_active_learning_unit.py`
+- `app/tests/test_recognition_finetuning_precommit_unit.py`
+- `app/tests/test_recognition_finetuning_precommit_e2e.py`
+- `scripts/run_precommit_eval.py`
+
+Several terms in this plan are precise and must be implemented that way.
+
+A "commit save" means an intentional user action that should create durable lineage. In this repository that includes `Save`, `Save & Next`, page-navigation saves, and mode-transition saves that the user explicitly requested. A "draft save" means recoverability-only autosave while the user is still editing. Draft saves must persist the page, but they must not enqueue OCR fine-tuning.
+
+A "supervised page revision" means one saved page version whose PAGE-XML line polygons and Unicode text are both available. OCR active learning can only train on supervised revisions.
+
+A "device lease" means the exclusive right for one job to use a scarce runtime resource, most importantly the GPU. Device leases must be explicit because CRAFT, GNN, and OCR will all eventually compete for the same GPU.
+
+A "verifier bank" means a held-out set of previously corrected manuscript lines that are excluded from the current OCR fine-tune step and used only to compare the active checkpoint and a newly trained candidate before promotion.
+
+A "rebase" means rebuilding the manuscript-specific OCR lineage because an already-consumed earlier page was edited again after later checkpoints had been trained.
+
+The best known OCR recipe remains the exact hybrid recipe summarized in `app/tests/logs/recognition_finetune_results_latest.json`. The GUI implementation must reuse those settings, but the live promotion rule will differ from the offline curve metric because the GUI does not have future-page ground truth during normal use.
 
 ## Plan of Work
 
-Start by adding a per-manuscript OCR registry in a repo-local directory under the manuscript root. The registry should record at least:
+Start by extracting the canonical OCR active-learning recipe into production code. The settings currently exist indirectly through `app/tests/precommit_gate_config.py` and `app/tests/recognition_finetuning_config.py`. That is acceptable for evaluation, but it is the wrong place for runtime code to depend on. Create a shared production module such as `app/recognition/active_learning_recipe.py` that defines the locked OCR recipe once. Then make both the runtime worker and the pre-commit config helpers import from that production definition. The tests should still own thresholds and datasets, but not a second copy of the runtime recipe.
 
-- manuscript id
-- immutable base checkpoint
-- current active checkpoint
-- current candidate checkpoint, if any
-- previous active checkpoint for rollback
-- model lineage and creation timestamps
-- verifier summary for each candidate
-- current job state such as idle, training, verifying, ready_for_promotion, failed
+Next, add a generic orchestration layer in the app root, not inside `app/recognition/`. The first-pass file split should be explicit:
 
-This registry must live inside the repository, not in an external database, because the current system is file-oriented and the evaluation artifacts already live on disk.
+- `app/job_orchestrator.py` for persisted job records, priorities, queueing, and worker coordination
+- `app/device_leases.py` for GPU and CPU lease acquisition and release
+- `app/manuscript_ocr_registry.py` for the per-manuscript OCR registry and page-revision ledger
+- `app/ocr_active_learning_runtime.py` for the OCR-specific glue that turns saved page revisions into fine-tune, verify, promote, and rebase jobs
+- `app/telemetry.py` for page-edit diffs, job events, and manuscript summaries
+- `app/profiling.py` for coarse timing and GPU summaries plus optional detailed traces
 
-Next, add a background fine-tuning worker. It should not live inside a request handler thread. It should consume explicit fine-tune jobs, call the existing OCR dataset-preparation and fine-tuning utilities, write artifacts under the manuscript or test-log root, and update the registry as the candidate progresses through training and verification. A single manuscript should never have more than one active OCR fine-tuning job at a time.
+Do not hide this state in memory. Each manuscript needs a durable OCR runtime directory under its own manuscript root, for example:
 
-Then, add concurrency control so training and inference do not run at the same time on the same OCR device. The core rule is simple: recognition requests should continue using the stable active checkpoint, while training runs only when the device lease is free and the user is not waiting on OCR inference for that manuscript. If the user requests recognition while a fine-tune job is holding the lease, the app must either defer the recognition request with clear UI status or cancel or pause the fine-tune job according to a documented rule. Do not rely on optimistic GPU sharing.
+- `input_manuscripts/<manuscript>/active_learning/recognition/registry.json`
+- `input_manuscripts/<manuscript>/active_learning/recognition/checkpoints/<checkpoint_id>/`
+- `input_manuscripts/<manuscript>/active_learning/recognition/telemetry/page_events.jsonl`
+- `input_manuscripts/<manuscript>/active_learning/recognition/telemetry/job_events.jsonl`
+- `input_manuscripts/<manuscript>/active_learning/recognition/profiling/`
 
-After that, add verifier-gated promotion. A completed training job should produce a candidate checkpoint and a verifier summary. Promotion should be a separate state transition, not an automatic side effect of training finishing. The initial rule can be conservative: only promote if the candidate passes the chosen verifier recipe and the registry update is written successfully. If promotion fails or verification regresses, keep the current active checkpoint unchanged and record the failure.
+The registry must be the source of truth. It should record:
 
-Once the backend state model exists, extend `app/frontend/src/components/ManuscriptViewer.vue` with OCR fine-tuning status surfaces. The minimum UI should show:
+- the immutable base checkpoint
+- the current active checkpoint
+- the previous active checkpoint for rollback
+- any in-flight candidate checkpoint
+- lineage metadata describing which page revisions were consumed
+- the most recent promoted page index or revision sequence
+- whether the manuscript currently needs a rebase
+- whether active learning is enabled for this manuscript
+- the last successful verification summary
+- the queue state or enough information to reconstruct pending work after restart
 
-- current OCR model state for the manuscript
-- whether a fine-tune job is idle, queued, training, verifying, ready, or failed
-- when the active checkpoint last changed
-- whether the current page save has produced new training data
-- a clear action to request fine-tuning when the feature is enabled
-- clear explanations when recognition is deferred because training owns the device
+The registry must also maintain a page-revision ledger. Every commit save should create or update a page-revision record that includes at least the page id, a monotonically increasing revision number, a content hash, whether text supervision is present, which engine produced the initial text, and whether that revision has already been consumed into the active OCR lineage. This ledger is what allows the backend to deduplicate repeated saves, to skip layout-only revisions for OCR training, and to detect when an already-consumed earlier page has changed and the manuscript now requires a rebase.
 
-Finally, add structured logging and evaluation hooks. The GUI flow must log OCR edits, save cycles, fine-tune requests, training durations, verifier outcomes, promotions, rollbacks, and the checkpoint id used for each page. Without that logging, the repository still cannot measure whether GUI fine-tuning actually reduces manual effort.
+Once the registry and queue exist, rework the save flow in `app/app.py`. The current `save_correction(...)` route should keep writing PAGE-XML and line images immediately, because that keeps the user-visible behavior stable. After persistence succeeds, it should classify the save as `draft` or `commit`, compute structured edit metrics, update the manuscript registry, and enqueue downstream jobs without waiting for them to finish. Save latency must remain bounded by normal file I/O plus queue insertion, not by OCR training.
+
+The save route must distinguish three important OCR cases. First, a layout-only commit save should persist the revision and maybe create future CRAFT/GNN training evidence, but it should not enqueue an OCR fine-tune because there is no text supervision yet. Second, a recognition commit save with text should enqueue one OCR active-learning step if active learning is enabled and this page revision has not already been consumed. Third, a draft autosave should update the draft page state and text recovery data, but it should not create OCR lineage or queue work. Add an explicit `saveIntent` field to the frontend payload so the backend does not have to infer this from timing or route shape.
+
+The OCR active-learning runtime should model the per-manuscript sequence explicitly. If page 1 is the newest supervised commit and no manuscript-local checkpoint exists yet, the runtime fine-tunes from the base checkpoint on page 1 and promotes the result if the bootstrap promotion rule passes. If page 2 later becomes supervised, the runtime fine-tunes from the currently active page-1 checkpoint using the locked hybrid recipe on the new page plus up to 10 sampled history lines from earlier approved pages. Later pages continue the same pattern. Each job must record which parent checkpoint it started from, which page revision it added, which history lines were replayed, and which verifier bank was used before promotion.
+
+The verifier-backed promotion rule must be automatic and recorded. The live GUI cannot use the offline `early_weighted_page_cer` curve metric directly because that metric depends on future held-out pages, but it can still use the same `regression_guard_abs=0.005` principle on a manuscript-local verifier bank. The runtime should therefore build a verifier bank from earlier approved page revisions, excluding the current training page and excluding any exact history lines sampled into the current training job. The promotion rule is:
+
+1. If no verifier bank exists yet, allow bootstrap promotion after the first successful fine-tune and record the reason `bootstrap_no_verifier_bank`.
+2. Otherwise, evaluate both the active checkpoint and the new candidate on the same verifier bank using `run_checkpoint_on_prepared_pages(...)`.
+3. Promote only if the candidate does not regress beyond `0.005` absolute CER against the active checkpoint on that bank and the registry update can be written atomically.
+4. If verification fails, keep the active checkpoint unchanged, mark the candidate as rejected, and preserve the artifact paths for later inspection.
+
+This automatic promotion rule satisfies the repository constraint that a new model must not silently replace the active model without a recorded rule, while also keeping the frontend simple. There should be no manual promotion button in the first implementation.
+
+The recognition runtime must stop assuming one global checkpoint. Replace `OCR_GLOBAL_CONTEXT` with a manuscript-aware recognition model manager that can answer "load the active checkpoint for manuscript X" deterministically. To control GPU memory pressure, the manager should keep only the currently needed local OCR model on the GPU and unload or replace it when another manuscript or checkpoint is requested. Recognition requests must always use the active checkpoint that was current when the request began. If a newer checkpoint is promoted while a recognition request is already running, the request should finish on its original checkpoint and the new checkpoint should only affect later requests.
+
+This change also needs explicit handling for layout-mode and recognition-mode edge cases. When the user switches from layout mode into recognition mode, the backend should ensure the latest layout save has already written PAGE-XML and line crops before running recognition. If the user edits nodes or edges on a page that already had corrected text, that page now has a new revision and its previous OCR training evidence is stale. If that page was already part of the promoted lineage, mark the manuscript as needing a rebase, keep the current active checkpoint for inference until the rebuild finishes, and queue a background rebuild job from the base checkpoint through the current approved pages in order. The first implementation should favor correctness and traceability over clever partial reuse.
+
+The backend orchestrator must be future-proof for the rest of the human-in-the-loop pipeline. Even though the first live implementation only adds OCR active learning, the job model must already support at least these families:
+
+- bulk upload preprocessing such as CRAFT on page batches of 10
+- graph construction and GNN inference after CRAFT results exist
+- OCR inference for recognition mode
+- OCR fine-tuning and OCR verification
+- future CRAFT fine-tuning from node edits
+- future GNN fine-tuning from edge edits
+
+Do not hardcode "one OCR queue." Introduce job priorities instead. Interactive recognition must outrank background fine-tuning, and background fine-tuning must outrank bulk preprocessing. A good initial rule is:
+
+- priority 0: user-blocking inference and page-open work
+- priority 1: save-followup work needed for the next human step
+- priority 2: OCR background fine-tuning and verification
+- priority 3: bulk upload preprocessing and future low-priority rebuilds
+
+Background OCR fine-tuning should not be allowed to bottleneck the user. The first implementation should therefore run fine-tune jobs in a child process or otherwise isolate them so they can be canceled cleanly if an interactive GPU job arrives. If cancellation happens, discard the partial candidate, record the interruption in telemetry, and requeue the exact same job from its original parent checkpoint rather than resuming from a half-trained intermediate state. This preserves the recipe semantics while keeping interactive behavior predictable.
+
+Add telemetry and profiling in parallel with the orchestration work, not after it. The telemetry layer should record per page:
+
+- save intent (`draft` or `commit`)
+- nodes added and deleted
+- edges added and deleted
+- whether text changed
+- OCR edit distance between the last machine prediction and the saved corrected text
+- changed line count
+- checkpoint id used for the prediction the user edited
+- recognition engine used to obtain that prediction
+- whether the page revision entered OCR active learning
+
+This is what will let later evaluation answer the real question in `EVAL.md`: whether manual effort is dropping over time. The per-page OCR edit metric should compare the saved text against the exact prediction the user saw, not only against the previous XML contents, so the app needs to preserve the last recognition payload per page revision.
+
+Profiling should record both queueing cost and actual model cost. Every OCR inference and OCR fine-tune job should emit a compact JSON summary with at least wall time, queue wait time, device, peak CUDA memory allocated, peak CUDA memory reserved, page counts or line counts, and whether the job was canceled or completed. In addition, `app/profiling.py` should support sampled `torch.profiler` traces when CUDA is available. Enable these traces for the first run of each job family per manuscript and under an explicit environment flag such as `ACTIVE_LEARNING_PROFILE_CUDA=1`. Save the traces under the manuscript profiling folder so real digitization runs can be inspected afterward without drowning the normal UX in trace overhead.
+
+The frontend changes should stay intentionally small. In `app/frontend/src/components/ManuscriptViewer.vue`, add:
+
+- an `Active Learning` toggle near the existing auto-recognition controls
+- `localStorage` persistence for that toggle
+- a `saveIntent` field in the save payload so the backend can distinguish draft autosave from commit save
+- a small status line such as `AL: idle`, `AL: training page 7`, `AL: paused for OCR`, `AL: needs rebase`, or `AL: failed`
+
+Do not add a new panel for candidate models, manual promotions, or profiling controls in this first pass. The user asked for minimal frontend changes, and the orchestration and telemetry complexity belongs in the backend.
+
+Finally, update the documentation that must move with behavior. If this plan is implemented, `EVAL.md`, `VISION.md`, `AGENTS.md`, and the relevant test-doc comments must all be updated in the same pass so the repository's stated evaluation story matches the code. `EVAL.md` in particular should describe the new GUI-safe OCR active-learning telemetry and should explicitly distinguish the live manuscript-local verifier bank from the fixed surrogate pre-commit gate. The pre-commit gate remains the headless code-regression guard; it is not replaced by the GUI runtime verifier.
 
 ## Concrete Steps
 
-Before implementation, inspect the current OCR research and UI touchpoints:
+From the repository root, inspect the current save, recognition, and OCR active-learning touchpoints before editing:
 
     Get-Content app\app.py
     Get-Content app\frontend\src\components\ManuscriptViewer.vue
     Get-Content app\recognition\active_learning.py
-    Get-Content app\tests\recognition_finetuning_experiment.py
+    Get-Content app\tests\precommit_gate_config.py
+    Get-Content app\tests\recognition_finetuning_config.py
 
-Expected result: you can trace the current save flow, recognition flow, OCR training utilities, and verifier artifact layout.
+Expected result: you can trace the current save flow, the current autosave behavior, the current single-global-model OCR assumption, and the current hybrid recipe definition.
 
-During implementation, add backend smoke coverage for the registry and queue logic. For example, add tests that:
+Implement the production recipe extraction first. After that change, confirm that both runtime and tests read the same recipe source:
 
-- create a candidate checkpoint entry without changing the active checkpoint
-- reject promotion when verifier status is not passing
-- promote successfully and preserve a rollback pointer
-- block or defer recognition when a manuscript-scoped OCR training job holds the device lease
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_active_learning_unit -v
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
 
-After backend implementation, run the existing OCR unit tests and any new registry or queue tests:
+Expected result: the OCR utility tests still pass, and the pre-commit config test proves that the trusted runtime recipe has not drifted.
 
-    conda activate gnn_layout
-    python -m unittest app.tests.test_recognition_active_learning_unit -v
+After the orchestration, registry, and telemetry modules exist, add new focused unit coverage. A reasonable first split is:
 
-After frontend implementation, add a small scripted smoke test or at minimum a documented manual test that:
+- `app/tests/test_job_orchestrator_unit.py`
+- `app/tests/test_manuscript_ocr_registry_unit.py`
+- `app/tests/test_recognition_active_learning_backend_unit.py`
+- `app/tests/test_recognition_telemetry_unit.py`
 
-1. opens a manuscript
-2. edits OCR text
-3. saves the page
-4. requests fine-tuning
-5. sees status change from idle to training to verifying to ready
-6. confirms that recognition still uses the active checkpoint until promotion
+Run them with:
+
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_job_orchestrator_unit -v
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_manuscript_ocr_registry_unit -v
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_active_learning_backend_unit -v
+    C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_telemetry_unit -v
+
+Expected result: these tests prove, without the GUI, that commit saves enqueue the right jobs, draft saves do not, the registry promotes and rolls back cleanly, rebase is detected when an older page changes, and telemetry captures edit-distance metrics and checkpoint ids.
+
+After the backend tests are passing, rerun the existing pre-commit gates unchanged:
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
+
+    $env:CONDA_NO_PLUGINS='true'
+    conda run -n gnn_layout python scripts/run_precommit_eval.py
+
+Expected result: the pretrained full-pipeline gate and the surrogate OCR pre-commit gate still pass without requiring the GUI or a live active-learning worker.
+
+Then run one manual end-to-end app scenario with a small manuscript:
+
+1. Start the Flask backend and frontend.
+2. Open a manuscript with `Active Learning` enabled.
+3. Correct page 1 in recognition mode and click `Save & Next`.
+4. Confirm that the save returns immediately, the next page opens, and a background OCR training job appears in the manuscript telemetry or status.
+5. While page 2 is being annotated, confirm that page-1 fine-tuning runs in the background.
+6. After page-1 promotion completes, open page 3 recognition and confirm that the backend reports the page-1-derived checkpoint id as the active inference checkpoint.
+7. Close the app, reopen it, and reopen the same manuscript. Confirm that the same promoted checkpoint is loaded.
+8. Edit page 1 again after later pages exist. Confirm that the manuscript is marked `needs rebase`, that the current active checkpoint remains stable for inference until rebuild, and that a rebuild job is queued.
+
+To inspect profiling output during that manual run, enable detailed CUDA traces once:
+
+    $env:ACTIVE_LEARNING_PROFILE_CUDA='1'
+
+Expected result: the manuscript profiling directory gains compact summary JSON files for OCR inference and OCR fine-tuning, plus sampled detailed traces when CUDA is available.
 
 ## Validation and Acceptance
 
-Acceptance is:
+Acceptance for this plan is behavioral.
 
-1. The app can create a fine-tuning job from corrected OCR pages without blocking the current save flow.
-2. The system keeps two rolling models per manuscript: a stable active model and a separate candidate model.
-3. OCR inference and OCR fine-tuning do not run at the same time on the same device lease.
-4. A finished training job does not silently replace the active checkpoint.
-5. Promotion and rollback are explicit, logged, and recoverable.
-6. The UI exposes enough status that a user can tell whether the model is training, waiting, ready, promoted, or failed.
-7. The implementation writes structured logs that later evaluation code can use to measure human effort and model lineage.
+First, the frontend change is minimal. The app gains an `Active Learning` option that defaults to on and a small status display, but it does not gain a large new training-management screen.
+
+Second, commit saves must be cheap. `save_correction(...)` must still write PAGE-XML and line images and return promptly. OCR fine-tuning must happen after the save in the background, not inline with the request.
+
+Third, the OCR active-learning path must use the exact trusted hybrid recipe listed at the top of this plan. The runtime and the pre-commit harness must share one canonical recipe definition so they cannot drift silently.
+
+Fourth, manuscript-specific sequential behavior must work. After page 1 is corrected and saved, the manuscript gets a promoted checkpoint derived from page 1. Page 3 recognition uses that checkpoint. After page 2 is corrected and saved, the next promoted checkpoint becomes the one used on page 4, and so on.
+
+Fifth, reopening the app must not lose manuscript progress. When the user comes back later, the backend must load the best promoted checkpoint for that manuscript automatically. If the latest active checkpoint is missing, the backend must fall back deterministically to the previous active checkpoint or the base checkpoint and record the degradation.
+
+Sixth, layout-mode and recognition-mode edge cases must be handled explicitly. Layout-only saves must not try to fine-tune OCR without text supervision. Recognition-mode autosaves must not create OCR lineage. Switching back to recognition after layout edits must use the latest saved PAGE-XML and the current active checkpoint.
+
+Seventh, edits to already-consumed earlier pages must trigger safe rebase behavior. The app must detect the divergence, record it, preserve current inference stability, and queue a rebuild rather than pretending the old lineage is still clean.
+
+Eighth, interactive recognition must outrank background training. Manual recognition requests and page-open OCR work must not sit behind a long background fine-tune job. Background training may be canceled and requeued to preserve UX.
+
+Ninth, the implementation must produce the human-effort telemetry needed by `EVAL.md`. For every page, the repository must be able to answer how many nodes and edges were edited, how much recognized text was changed, which checkpoint produced the original prediction, and whether edits are trending downward over the manuscript.
+
+Tenth, the implementation must emit coarse performance and resource metrics plus sampled CUDA traces so future work can identify whether bottlenecks are in CRAFT, GNN, OCR inference, OCR fine-tuning, queue delays, memory pressure, or upload-time batch preprocessing.
+
+Eleventh, the existing GUI-free pre-commit gates must still pass. This work must not break `test_ci_e2e.py`, the OCR active-learning unit tests, the surrogate OCR pre-commit gate, or `scripts/run_precommit_eval.py`.
 
 ## Idempotence and Recovery
 
-Registry updates must be idempotent and crash-safe. If the app dies mid-training, the active checkpoint must still be well-defined on restart. If promotion fails halfway through, the previous active checkpoint must remain available and the registry must make that clear.
+Registry writes must be atomic. Write to a temporary file and replace the target only after the new content is complete. The active checkpoint pointer must never reference a checkpoint directory that does not exist on disk.
 
-Fine-tuning jobs should be restartable or safely disposable. Never leave the app in a state where the UI believes a candidate is active but the checkpoint file or verifier evidence does not exist.
+Commit saves must be deduplicated by page revision hash. Saving the same recognized text and layout twice should not enqueue duplicate OCR jobs.
+
+Draft saves are repeatable and safe. They may refresh recovery state, but they must not mutate manuscript lineage or promotion state.
+
+If the app crashes during a background OCR fine-tune, the partial candidate must remain unpromoted. On restart, the registry scan should mark the interrupted job accordingly and requeue it from the original parent checkpoint if the triggering page revision is still the newest unconsumed supervised revision.
+
+If a candidate verification finishes but the promotion write fails, the registry must leave the old active checkpoint unchanged and record the candidate as `verify_passed_promotion_failed`.
+
+If the user disables `Active Learning` mid-manuscript, the backend should stop enqueueing new OCR jobs for that manuscript but must not delete existing checkpoints or telemetry. Re-enabling it later should continue from the last valid active checkpoint and the current page-revision ledger.
+
+If profiling is unavailable or CUDA is absent, the coarse profiling JSON should still be written with CPU-only fields and an explicit `cuda_available=false` marker rather than failing the page workflow.
 
 ## Artifacts and Notes
 
-The original seed notes that motivated this plan were:
+The key current sources of truth for the OCR recipe and evaluation constraints are:
 
-- do not train and infer at the same time; train when the human is annotating
-- check what is fundamentally different in offline research and GUI active learning
-- keep two models per target document rolling
-- UI and UX experience should be smooth
+- `EVAL.md`
+- `VISION.md`
+- `app/tests/precommit_gate_config.py`
+- `app/tests/recognition_finetuning_config.py`
+- `app/tests/logs/recognition_finetune_results_latest.json`
+- `app/tests/logs/recognition_finetune_precommit_latest.json`
 
-This rewritten ExecPlan preserves those requirements and expands them into concrete backend, frontend, verification, and recovery work.
+The runtime artifacts added by this plan should stay inside each manuscript root so they move with the manuscript and stay within the repository:
 
-Revision note, 2026-04-17: this document was rewritten from a four-line seed note into a full ExecPlan. The new version preserves the original intent while specifying the registry, job, promotion, rollback, concurrency, logging, and UI work needed to make GUI OCR fine-tuning safe after hyperparameter search stabilizes.
+- `input_manuscripts/<manuscript>/active_learning/recognition/registry.json`
+- `input_manuscripts/<manuscript>/active_learning/recognition/checkpoints/`
+- `input_manuscripts/<manuscript>/active_learning/recognition/telemetry/page_events.jsonl`
+- `input_manuscripts/<manuscript>/active_learning/recognition/telemetry/job_events.jsonl`
+- `input_manuscripts/<manuscript>/active_learning/recognition/telemetry/page_edit_summary.json`
+- `input_manuscripts/<manuscript>/active_learning/recognition/profiling/`
+
+The profiling summaries should make it possible to answer these concrete questions after a real manuscript run:
+
+- How much time did OCR inference spend waiting on the queue?
+- How much time did OCR fine-tuning spend training versus verifying?
+- Which jobs were canceled because the user needed the GPU?
+- What were peak CUDA memory usage and batch sizes?
+- Are OCR text-edit counts per page falling as the manuscript progresses?
+
+The orchestrator is deliberately broader than the first OCR-only implementation because the long-term pipeline is:
+
+1. upload manuscript
+2. run CRAFT on page batches
+3. construct graphs and run GNN inference
+4. let the human correct nodes and edges
+5. save PAGE-XML and recognition edits
+6. run OCR active learning now
+7. later add CRAFT and GNN active learning on the same orchestration substrate
+
+## Interfaces and Dependencies
+
+The exact file names may vary slightly, but the end state must provide stable interfaces equivalent to the following.
+
+In `app/recognition/active_learning_recipe.py`, define a shared production recipe object or dataclass equivalent to:
+
+    class OcrActiveLearningRecipe:
+        training_policy: str = "page_plus_random_history"
+        history_sample_line_count: int = 10
+        width_policy: str = "batch_max_pad"
+        oversampling_policy: str = "none"
+        augmentation_policy: str = "none"
+        lr_scheduler: str = "none"
+        optimizer: str = "adadelta"
+        lr: float = 0.2
+        num_iter: int = 60
+        curve_metric: str = "early_weighted_page_cer"
+        regression_guard_abs: float = 0.005
+        background_plus_rotation_variant_count: int = 10
+        shuffle_train_each_epoch: bool = True
+
+In `app/job_orchestrator.py`, define explicit job types and states, for example:
+
+    class JobType(str, Enum):
+        OCR_INFER = "ocr_infer"
+        OCR_FINE_TUNE = "ocr_fine_tune"
+        OCR_VERIFY = "ocr_verify"
+        OCR_REBASE = "ocr_rebase"
+        CRAFT_BATCH_INFER = "craft_batch_infer"
+        GNN_PAGE_INFER = "gnn_page_infer"
+
+    class JobPriority(IntEnum):
+        INTERACTIVE = 0
+        SAVE_FOLLOWUP = 1
+        BACKGROUND_TRAINING = 2
+        BULK_PREPROCESS = 3
+
+The orchestrator must provide stable operations equivalent to:
+
+    enqueue(job: QueuedJob) -> str
+    cancel(job_id: str, reason: str) -> None
+    start_workers() -> None
+    shutdown_workers() -> None
+    get_job_status(job_id: str) -> dict
+
+In `app/device_leases.py`, provide a small lease manager equivalent to:
+
+    acquire(resource_name: str, owner: str, priority: int) -> LeaseToken
+    release(token: LeaseToken) -> None
+    current_owner(resource_name: str) -> str | None
+
+In `app/manuscript_ocr_registry.py`, provide stable methods equivalent to:
+
+    load_registry(manuscript_root: Path) -> ManuscriptOcrRegistry
+    record_page_revision(page_id: str, revision_payload: dict) -> PageRevision
+    active_checkpoint() -> Path
+    mark_candidate(candidate_payload: dict) -> None
+    promote_candidate(candidate_id: str, verifier_summary: dict) -> None
+    mark_rebase_needed(reason: str, changed_page_id: str) -> None
+    pending_ocr_work() -> list[dict]
+
+In `app/ocr_active_learning_runtime.py`, provide stable glue functions equivalent to:
+
+    handle_post_save(manuscript: str, page: str, save_intent: str, active_learning_enabled: bool, recognition_engine: str, text_payload: dict | None) -> dict
+    run_ocr_finetune_job(job_payload: dict) -> dict
+    verify_candidate_against_bank(job_payload: dict) -> dict
+    rebuild_manuscript_lineage(job_payload: dict) -> dict
+
+These functions must reuse the existing OCR helpers in `app/recognition/active_learning.py`, especially:
+
+- `prepare_page_datasets(...)`
+- `run_checkpoint_on_prepared_pages(...)`
+- `fine_tune_checkpoint_on_pages(...)`
+
+In `app/telemetry.py`, define a stable helper equivalent to:
+
+    compute_text_edit_metrics(predicted_lines: dict[str, str], saved_lines: dict[str, str]) -> dict
+
+The result must include at least total edit distance, changed line count, and per-line diffs.
+
+In `app/profiling.py`, define helpers equivalent to:
+
+    summarize_gpu_job(job_name: str, metadata: dict, fn: Callable[[], T]) -> tuple[T, dict]
+    maybe_write_cuda_trace(job_name: str, output_dir: Path, enabled: bool, fn: Callable[[], T]) -> T
+
+In `app/app.py`, the routes must keep their existing HTTP purpose but gain the new orchestration semantics. `save_correction(...)` must remain the save entrypoint. `recognize_text(...)` must remain the manual OCR entrypoint. Both should delegate to the new orchestration and model-manager modules rather than continuing to own ad hoc global OCR state directly.
+
+Revision note, 2026-04-19 17:59 IST: this ExecPlan was rewritten to incorporate the requested save-triggered active-learning workflow, the exact best hybrid OCR recipe, manuscript-specific checkpoint lineage, restart-safe automatic promotion, future-proof orchestration for CRAFT/GNN/OCR resource contention, structured edit telemetry, CUDA profiling, and the requirement that the existing headless pre-commit checks remain unaffected.
