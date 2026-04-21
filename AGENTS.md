@@ -206,7 +206,7 @@ Read these before changing behavior:
 - `PLANS.md`: required format for execution plans
 - `docs/exec-plans/tech-debt-tracker.md`: current high-priority debts
 
-Current OCR-related proposed plans:
+Current OCR-related plan documents:
 
 - `docs/exec-plans/proposed/fine-tuning-page-plus-random-history-research.md`
 - `docs/exec-plans/proposed/GUI_finetune_implement.md`
@@ -214,8 +214,8 @@ Current OCR-related proposed plans:
 
 Historical OCR evidence should be preserved, not deleted casually:
 
-- `docs/exec-plans/active/old-recognition-finetuning-session-report-2026-04-16.md`
-- `docs/exec-plans/active/old-recognition-finetuning-failure-log.md`
+- `docs/exec-plans/completed/old-recognition-finetuning-session-report-2026-04-16.md`
+- `docs/exec-plans/completed/old-recognition-finetuning-failure-log.md`
 
 ## Guidance For Future Agents
 

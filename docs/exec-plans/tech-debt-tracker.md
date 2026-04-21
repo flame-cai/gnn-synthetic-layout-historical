@@ -4,9 +4,9 @@ This file is the short list of the highest-priority technical debts that are cur
 
 ## Highest-Priority Debts
 
-- The repository still has no formal OCR model registry or promotion rule.
-  Why it matters: the offline OCR verifier can now produce candidate checkpoints and rank them, but the app still has no safe concept of active model, candidate model, rollback target, or promotion decision.
-  Recommended next action: add a small JSON-backed OCR model registry per manuscript with active, candidate, previous-active, verifier summary, and rollback metadata.
+- The live OCR runtime exists, but restart, interruption, and rebuild hardening is still shallow.
+  Why it matters: manuscript-local registry, candidate promotion, GPU preemption, and rebase behavior now exist, but most coverage is still unit-scale and the runtime has not yet been stress-tested across longer real annotation sessions or broader missing-artifact recovery cases.
+  Recommended next action: expand restart/interruption/rebuild coverage around `app/job_orchestrator.py`, `app/manuscript_ocr_registry.py`, and `app/ocr_active_learning_runtime.py`, then validate the queue and fallback behavior on longer manuscript sessions.
 
 - The slow OCR study still has a Windows-specific output failure mode when run through `conda run`.
   Why it matters: the 2026-04-17 verifier completed and wrote correct artifacts, but the wrapper crashed while printing long Unicode-heavy output because of a `cp1252` encoding issue. That is a reliability problem for both humans and future agents.
@@ -17,13 +17,13 @@ This file is the short list of the highest-priority technical debts that are cur
   Why it matters: the retained hybrid verifier on `eval_dataset` is good enough for development guidance, but one manuscript sequence is still not strong enough for product or research claims.
   Recommended next action: rerun the retained hybrid `page_plus_random_history` recipe on additional manuscript sequences and a small set of history replay sizes before treating the current recipe as generally stable.
 
-- The GUI still has no safe OCR fine-tuning integration path.
-  Why it matters: the backend can recognize text and the offline verifier can fine-tune checkpoints, but the app has no job queue, no training-versus-inference coordination, and no status model for candidate checkpoints.
-  Recommended next action: implement GUI integration only after the retained hybrid recipe is validated on more than one manuscript, then add a background job manager that prevents training and inference from contending for the same device.
+- Manuscript-local telemetry is now recorded, but there is still no checked-in evaluator that turns it into effort curves.
+  Why it matters: the runtime writes page and job events, edit distances, queue transitions, and checkpoint lineage under `input_manuscripts/<manuscript>/active_learning/recognition/telemetry/`, but that data is not yet summarized into manuscript-level effort trends or cross-manuscript reports.
+  Recommended next action: add a small evaluator that consumes `page_events.jsonl` and `job_events.jsonl` and writes manuscript-level effort summaries for review.
 
-- Human correction effort is still not logged as structured evaluation data.
-  Why it matters: `VISION.md` and `EVAL.md` define success in terms of reducing manual effort, but the current backend only logs node corrections and does not yet log OCR text edits, fine-tune triggers, or checkpoint ids per page.
-  Recommended next action: add structured per-page logging in `app/app.py` for OCR edits, save cycles, recognition requests, fine-tune requests, and model lineage.
+- The save and recognition routes still mix legacy logging and new orchestration concerns in one module.
+  Why it matters: `app/app.py` still handles legacy `node_corrections/*.json` writes, PAGE-XML generation, OCR runtime queueing, and background recognition thread startup inside the same route handlers. That makes the next round of CRAFT or GNN workflow work harder to reason about safely.
+  Recommended next action: split route-level workflow helpers and decide whether the legacy `node_corrections` sidecar should remain alongside the newer structured telemetry.
 
 - The Flask app still relies on a direct `sys.path.append(...)` hack for local OCR imports.
   Why it matters: the offline OCR package has matured, but `app/app.py` still treats `app/recognition/` as an import side path instead of a clean package dependency. That makes future background workers and isolated job runners harder to build safely.
@@ -31,6 +31,18 @@ This file is the short list of the highest-priority technical debts that are cur
   Recommended next action: replace the path hack with package-safe imports and one consistent app-root import strategy.
 
 ## Recently Retired Debts
+
+- The repository previously had no formal OCR model registry or promotion rule.
+  Status: retired on 2026-04-20.
+  Evidence: `app/manuscript_ocr_registry.py` now persists the manuscript-local registry, and `app/ocr_active_learning_runtime.py` plus `app/tests/test_manuscript_ocr_registry_unit.py` exercise active, candidate, and previous-active behavior.
+
+- The GUI previously had no safe OCR fine-tuning integration path.
+  Status: retired on 2026-04-20.
+  Evidence: `app/job_orchestrator.py`, `app/device_leases.py`, `app/ocr_active_learning_runtime.py`, and `app/ocr_model_manager.py` now provide queueing, device coordination, manuscript-aware checkpoint loading, and rebase handling for the live runtime.
+
+- Human correction effort was previously not logged as structured evaluation data.
+  Status: retired on 2026-04-20.
+  Evidence: `app/telemetry.py` now writes structured page/job telemetry, `app/ocr_active_learning_runtime.py` writes `page_events.jsonl` and `job_events.jsonl`, and `app/tests/test_recognition_telemetry_unit.py` covers the core metric helpers.
 
 - OCR checkpoint selection was previously not CER-aligned.
   Status: retired on 2026-04-17.

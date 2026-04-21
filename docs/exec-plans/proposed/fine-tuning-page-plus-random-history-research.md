@@ -23,7 +23,7 @@ The user-visible proof is a timestamped artifact folder under `app/tests/logs/` 
 - [x] (2026-04-19 12:xx IST) Implemented deterministic history-line sampling and additive manifest metadata in `app/recognition/active_learning.py`.
 - [x] (2026-04-19 12:xx IST) Added the dedicated public entrypoint `run_page_plus_random_history_experiment(...)` plus hybrid-specific summary output and latest aliases in `app/tests/recognition_finetuning_experiment.py`.
 - [x] (2026-04-19 13:xx IST) Added fast unit coverage in `app/tests/test_recognition_finetuning_page_plus_history_unit.py` and kept the slow end-to-end coverage under the canonical verifier entrypoint `app/tests/test_recognition_finetuning_e2e.py`.
-- [x] (2026-04-19 13:28 IST) Ran the requested two-policy hybrid study and produced `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`.
+- [x] (2026-04-19 13:28 IST) Ran the requested two-policy hybrid study and produced the first artifact family, later refreshed in the checked-in latest aliases by `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/`.
 - [x] (2026-04-19 14:xx IST) Updated `EVAL.md`, `VISION.md`, and this ExecPlan so the documentation matches the implemented hybrid path and its saved artifacts.
 
 ## Surprises & Discoveries
@@ -41,7 +41,7 @@ The user-visible proof is a timestamped artifact folder under `app/tests/logs/` 
   Evidence: `app/recognition/active_learning.py` now records a stable `history_sample_seed` per step, and the winning artifact records concrete values such as `15930781408265787669` for step 2.
 
 - Observation: the Adadelta hybrid candidate outperformed both the focused cumulative winner and the page-only winner on this dataset.
-  Evidence: `wb_on_an_hist10_sn_optd_lr200000u` reached `curve_metric_value=0.22191428022294832` and `final_page_cer=0.14735729386892177`, compared with the cumulative winner `wb_on_an_sn_optd_lr0200` at `0.22700365173938108` and `0.15137420718816066`, and the page-only winner `wb_on_an_sn_opta_lr000010u` at `0.24025369978858352` and `0.17061310782241015`.
+  Evidence: the checked-in latest alias records `wb_on_an_hist10_sn_optd_lr200000u` at `curve_metric_value=0.22151451085911972` and `final_page_cer=0.13784355179704016`, compared with the cumulative winner `wb_on_an_sn_optd_lr0200` at `0.22700365173938108` and `0.15137420718816066`, and the page-only winner `wb_on_an_sn_opta_lr000010u` at `0.24025369978858352` and `0.17061310782241015`.
 
 - Observation: Adam remained guard-sensitive even after replaying earlier lines.
   Evidence: the requested Adam hybrid policy `wb_on_an_hist10_sn_opta_lr000050u` failed the regression guard with `max_regression=0.006131078224101472`.
@@ -79,15 +79,14 @@ The hybrid study now refreshes the canonical latest aliases:
 
 - `app/tests/logs/recognition_finetune_results_latest.md`
 - `app/tests/logs/recognition_finetune_results_latest.json`
-- `app/tests/logs/recognition_finetune_results_latest.png`
 - `app/tests/logs/recognition_finetune_results_latest.txt`
 
-The first completed artifact is `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`. Its winning passed policy is `wb_on_an_hist10_sn_optd_lr200000u`, meaning Adadelta with `lr=0.2`, `num_iter=60`, and `history_sample_line_count=10` on the `batch_max_pad / none / none / none` structural stack. That run achieved:
+The first completed artifact was `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`. The current checked-in latest alias points at `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/`. Its winning passed policy is `wb_on_an_hist10_sn_optd_lr200000u`, meaning Adadelta with `lr=0.2`, `num_iter=60`, and `history_sample_line_count=10` on the `batch_max_pad / none / none / none` structural stack. The current checked-in latest run records:
 
-- `curve_metric_value=0.22191428022294832`
-- `final_page_cer=0.14735729386892177`
-- `first_step_gain=0.05137420718816066`
-- `max_regression=0.001691331923890066`
+- `curve_metric_value=0.22151451085911972`
+- `final_page_cer=0.13784355179704016`
+- `first_step_gain=0.0572938689217759`
+- `max_regression=0.0`
 
 The saved metadata proves that the first step used only the new page and that later steps used the new page plus exactly 10 sampled earlier lines when available. This makes the hybrid study a reproducible bridge between strict continuation and replay-style stabilization.
 
@@ -195,7 +194,7 @@ Inspect the saved summaries:
 
     Get-Content app\tests\logs\recognition_finetune_results_latest.md
     Get-Content app\tests\logs\recognition_finetune_results_latest.json
-    Get-Content app\tests\logs\20260419_132843_ocrft_pagehist_eval_dataset\policies\wb_on_an_hist10_sn_optd_lr200000u\fine_tune_metadata.json
+    Get-Content app\tests\logs\20260419_163521_ocrft_pagehist_eval_dataset\policies\wb_on_an_hist10_sn_optd_lr200000u\fine_tune_metadata.json
 
 Expected result: the top-level summary reports exactly the two requested policy runs, the winning policy is `wb_on_an_hist10_sn_optd_lr200000u`, step 1 records zero history lines, and later steps record a non-empty historical replay sample whose size never exceeds 10.
 
@@ -230,8 +229,9 @@ Important evidence for this plan includes:
 - `app/tests/logs/20260418_231746_ocrft_eval_dataset/summary.md`
 - `app/tests/logs/20260419_123216_ocrft_pageonly_eval_dataset/summary.md`
 - `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/summary.md`
-- `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/metrics.json`
-- `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/policies/wb_on_an_hist10_sn_optd_lr200000u/fine_tune_metadata.json`
+- `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/summary.md`
+- `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/metrics.json`
+- `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/policies/wb_on_an_hist10_sn_optd_lr200000u/fine_tune_metadata.json`
 - `app/tests/logs/recognition_finetune_results_latest.md`
 - `app/tests/logs/recognition_finetune_results_latest.json`
 
@@ -289,4 +289,4 @@ The additive tests for this work live in:
 - `app/tests/test_recognition_finetuning_page_plus_history_unit.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
 
-Revision note, 2026-04-19: this ExecPlan records the implemented hybrid continuation path, the first completed artifact at `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`, and the result that `wb_on_an_hist10_sn_optd_lr200000u` outperformed both the focused cumulative winner and the page-only winner on `eval_dataset` while Adam remained regression-guard-sensitive.
+Revision note, 2026-04-19: this ExecPlan records the implemented hybrid continuation path, the initial artifact at `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`, the later checked-in latest artifact at `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/`, and the result that `wb_on_an_hist10_sn_optd_lr200000u` outperformed both the focused cumulative winner and the page-only winner on `eval_dataset` while Adam remained regression-guard-sensitive.
