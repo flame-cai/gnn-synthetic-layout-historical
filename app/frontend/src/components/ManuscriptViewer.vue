@@ -17,7 +17,7 @@
 
         <div class="page-controls" style="flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto;">
           <label class="page-picker" style="padding: 4px 8px;">
-            <span class="page-picker-label">Jump</span>
+            <span class="page-picker-label">Go to</span>
             <select class="page-select" :value="currentPageForDisplay" @change="handlePageSelect" style="min-width: 80px; padding: 2px 4px;">
                <option v-for="pg in localPageList" :key="pg" :value="pg">Page {{ pg }}</option>
             </select>
@@ -25,7 +25,7 @@
           <div class="page-stepper" style="gap: 4px;">
             <span class="control-shell" :class="{ 'is-disabled': previousPageDisabled }" :title="previousPageButtonTitle">
               <button class="nav-btn" style="min-height: 24px; padding: 2px 6px; font-size: 0.8rem;" @click="previousPage" :disabled="previousPageDisabled">
-                Prev Page
+                Previous Page
               </button>
             </span>
             <span class="control-shell" :class="{ 'is-disabled': nextPageDisabled }" :title="nextPageButtonTitle">
@@ -48,13 +48,17 @@
               <span class="slider"></span>
             </label>
             <div class="workflow-toggle-copy">
-              <span class="workflow-toggle-label">Active Learning</span>
+              <span class="workflow-toggle-label">Improve Future Reading</span>
               <span class="workflow-toggle-subcopy">{{ activeLearningStatus }}</span>
             </div>
           </div>
 
           <!-- Recognition Mode Specific Controls -->
-          <template v-if="recognitionModeActive">
+          <div
+            class="workflow-recognition-controls"
+            :class="{ 'is-inactive': !recognitionModeActive }"
+            :aria-hidden="!recognitionModeActive"
+          >
             <!-- Keyboard Devnagari Toggle -->
             <div class="workflow-toggle-group compact">
               <label class="toggle-switch">
@@ -68,11 +72,17 @@
             </div>
 
             <!-- Moved Rare Character Palette -->
-            <CharacterPalette v-if="devanagariModeEnabled" />
+            <div
+              class="workflow-palette-slot"
+              :class="{ 'is-inactive': !devanagariModeEnabled }"
+              :aria-hidden="!devanagariModeEnabled"
+            >
+              <CharacterPalette />
+            </div>
 
             <!-- Moved OCR Engine Dropdown -->
             <div class="recognition-engine-panel" style="padding: 4px 10px; margin: 0; background: rgba(0,0,0,0.2); border-radius: 8px; gap: 8px;">
-              <span class="recognition-engine-label" style="font-size: 0.65rem;">OCR Engine</span>
+              <span class="recognition-engine-label" style="font-size: 0.65rem;">Read Text With</span>
               <select
                 v-model="recognitionEngine"
                 class="workflow-select"
@@ -80,11 +90,11 @@
                 :title="recognitionEngineSelectTitle"
                 style="padding: 2px 6px; font-size: 0.75rem;"
               >
-                <option value="local">Local OCR</option>
-                <option value="gemini">Gemini API</option>
+                <option value="local">Built-in Reader</option>
+                <option value="gemini">Gemini</option>
               </select>
             </div>
-          </template>
+          </div>
         </div>
       </div>
 
@@ -92,26 +102,28 @@
       <div class="top-bar-right top-bar-section" style="justify-content: center; gap: 6px; padding: 8px 12px;">
         <div class="action-summary" style="align-items: center; margin-bottom: 2px; width: 100%;">
           <span class="action-eyebrow" style="font-size: 0.75rem; font-weight: bold; color: #8cb8a7;">
-            {{ layoutModeActive ? 'LAYOUT MODE' : 'RECOGNITION MODE' }}
+            {{ layoutModeActive ? 'Page Layout' : 'Text Review' }}
           </span>
           <span class="action-title" style="font-size: 0.8rem; color: #ccc; text-align: center;">
-            {{ layoutModeActive ? 'Define document structure. Layout Mode is a prerequisite for Recognition Mode.' : 'Run OCR and manually correct text lines.' }}
+            {{ layoutModeActive ? 'Mark the lines and structure of the page before reviewing the text.' : 'Review the text line by line and correct any reading mistakes.' }}
           </span>
         </div>
 
         <div class="action-group" style="flex-wrap: nowrap; justify-content: center; gap: 8px; width: 100%;">
-          <span class="control-shell" :class="{ 'is-disabled': recognizeActionDisabled }" :title="recognizeButtonTitle">
+          <span class="control-shell action-slot" :class="{ 'is-disabled': primaryTopBarActionDisabled, 'is-ghost': primaryTopBarActionHidden }" :title="primaryTopBarActionHidden ? '' : primaryTopBarActionTitle">
             <button
               class="action-btn"
-              :class="{ recommended: topBarActionState.recommendedAction === 'recognize' }"
-              @click="runRecognitionAction"
-              :disabled="recognizeActionDisabled"
+              :class="{ recommended: topBarActionState.recommendedAction === 'recognize' && !recognitionModeRequiresLayoutReturn }"
+              @click="handlePrimaryTopBarAction"
+              :disabled="primaryTopBarActionDisabled"
+              :tabindex="primaryTopBarActionHidden ? -1 : 0"
+              :aria-hidden="primaryTopBarActionHidden"
               style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
             >
-              {{ recognizeButtonLabel }}
+              {{ primaryTopBarActionLabel }}
             </button>
           </span>
-          <span class="control-shell" :class="{ 'is-disabled': commitActionDisabled }" :title="commitButtonTitle">
+          <span class="control-shell action-slot" :class="{ 'is-disabled': commitActionDisabled, 'is-ghost': recognitionModeRequiresLayoutReturn }" :title="recognitionModeRequiresLayoutReturn ? '' : commitButtonTitle">
             <button
               class="action-btn"
               :class="{ recommended: topBarActionState.recommendedAction === 'commit' }"
@@ -119,12 +131,12 @@
               :disabled="commitActionDisabled"
               style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
             >
-              Commit
+              Save Page
             </button>
           </span>
-          <span class="control-shell" :class="{ 'is-disabled': commitAndNextDisabled }" :title="commitAndNextButtonTitle">
+          <span class="control-shell action-slot" :class="{ 'is-disabled': commitAndNextDisabled, 'is-ghost': recognitionModeRequiresLayoutReturn }" :title="recognitionModeRequiresLayoutReturn ? '' : commitAndNextButtonTitle">
             <button class="action-btn forward-action" @click="saveAndGoNext" :disabled="commitAndNextDisabled" style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;">
-              Commit & Next
+              Save & Next Page
             </button>
           </span>
           <!-- EXPORT IMAGE BUTTON COMMENTED OUT
@@ -136,7 +148,7 @@
           -->
           <span class="control-shell" :class="{ 'is-disabled': downloadResultsDisabled }" :title="downloadResultsButtonTitle">
             <button class="action-btn secondary-action" @click="downloadResults" :disabled="downloadResultsDisabled" style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;">
-              Download PAGE-XMLs
+              Download Manuscript
             </button>
           </span>
         </div>
@@ -148,7 +160,7 @@
       
       <!-- 1. Unified Overlay for Saving OR Mode Switching (Foreground) -->
       <div v-if="isProcessingSave || recognitionInFlight" class="processing-save-notice">
-        {{ recognitionInFlight ? recognitionBusyLabel : 'Processing... Please wait.' }}
+        {{ recognitionInFlight ? recognitionBusyLabel : 'Saving your changes. Please wait.' }}
       </div>
 
       <div v-if="error" class="error-message">
@@ -156,7 +168,7 @@
       </div>
 
       <!-- 2. Loading Indicator (Only for initial page load) -->
-      <div v-if="loading" class="loading">Loading Page Data...</div>
+      <div v-if="loading" class="loading">Loading this page...</div>
 
       <!-- 3. Image Container -->
       <div
@@ -280,8 +292,15 @@
                 Latest visible text came from {{ effectivePageWorkflow.prediction.source_label }}.
               </p>
               <p v-else>
-                Layout Mode creates the PAGE-XML files with layout structure, which the Recognition Mode requires to populate text-line content.
+                Page Layout sets up the lines on the page. Text Review needs that page structure before it can show the text.
               </p>
+              <button
+                v-if="recognitionModeRequiresLayoutReturn"
+                class="action-btn primary"
+                @click="goToLayoutMode"
+              >
+                Open Page Layout
+              </button>
               <!-- <button
                 class="action-btn primary"
                 @click="runRecognitionAction"
@@ -347,21 +366,21 @@
            :class="{ active: layoutModeActive }"
            @click="setMode('layout')"
            :disabled="isProcessingSave || !graphIsLoaded">
-           Layout Mode (W)
+           Page Layout (W)
          </button>
          <button 
            class="mode-tab" 
            :class="{ active: recognitionModeActive }"
-           @click="requestSwitchToRecognition" 
+           @click="requestSwitchToRecognition()" 
            :disabled="isProcessingSave">
-           RECOGNITION MODE (T)
+           Text Review (T)
          </button>
 
          <div class="tab-spacer"></div>
 
-         <button class="panel-toggle-btn" @click="isPanelCollapsed = !isPanelCollapsed" title="Toggle Help Panel">
-            <span v-if="isPanelCollapsed">▲ Show Help</span>
-            <span v-else>▼ Hide</span>
+         <button class="panel-toggle-btn" @click="isPanelCollapsed = !isPanelCollapsed" :title="isPanelCollapsed ? 'Show help' : 'Hide help'">
+            <span v-if="isPanelCollapsed">Show Help</span>
+            <span v-else>Hide Help</span>
          </button>
       </div>
 
@@ -379,9 +398,9 @@
                 <video :src="nodeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
               </div>
               <div class="card-text">
-                <h4>Nodes</h4>
-                <p><span class="key-badge">L-Click</span> Add Node</p>
-                <p><span class="key-badge">R-Click</span> Delete Node</p>
+                <h4>Points</h4>
+                <p><span class="key-badge">L-Click</span> Add point</p>
+                <p><span class="key-badge">R-Click</span> Delete point</p>
               </div>
             </div>
 
@@ -391,9 +410,9 @@
                 <video :src="edgeWebm" autoplay loop muted playsinline preload="auto" class="tutorial-video"></video>
               </div>
               <div class="card-text">
-                <h4>Edges</h4>
-                <p>Hold <span class="key-badge">A</span> + Hover to Connect</p>
-                <p>Hold <span class="key-badge">D</span> + Hover to Delete</p>
+                <h4>Links</h4>
+                <p>Hold <span class="key-badge">A</span> and hover to connect points</p>
+                <p>Hold <span class="key-badge">D</span> and hover to remove a link</p>
               </div>
             </div>
 
@@ -404,8 +423,8 @@
               </div>
               <div class="card-text">
                 <h4>Regions</h4>
-                <p>Hold <span class="key-badge">E</span> + Hover to Label</p>
-                <p>Release & Repeat for New Box</p>
+                <p>Hold <span class="key-badge">E</span> and hover to mark a region</p>
+                <p>Release and repeat to start a new region</p>
               </div>
             </div>
 
@@ -420,35 +439,34 @@
 
         <!-- RECOGNITION MODE HELP -->
         <div v-if="recognitionModeActive" class="help-section">
-           <div class="media-container">
+           <!-- <div class="media-container">
              <div class="webm-placeholder" style="flex-direction:column; gap:10px;">
-              <span>Recognition Mode</span>
-              <span v-if="devanagariModeEnabled" style="color:#4CAF50; font-size:0.8rem;">Devanagari ON</span>
+              <span>Text Review</span>
+              <span v-if="devanagariModeEnabled" style="color:#4CAF50; font-size:0.8rem;">Devanagari keyboard on</span>
             </div>
-           </div>
+           </div> -->
            <div class="instructions-container">
-             <h3>Recognition Mode</h3>
+             <h3>Text Review</h3>
              <p>{{ effectivePageWorkflow.hint }}</p>
              <ul>
-               <li><strong>Prepare OCR:</strong> Press <code>R</code> to recognize or refresh the current page.</li>
-               <li><strong>Commit:</strong> Press <code>S</code> to commit, or <code>Shift+S</code>/<code>Ctrl+Enter</code> to commit and open the next page.</li>
-               <li><strong>Navigate:</strong> Press <code>Tab</code> for the next line, <code>Shift+Tab</code> for the previous line, and <code>[</code>/<code>]</code> for page navigation.</li>
-               <li><strong>Visibility:</strong> Hold <code>V</code> to hide polygons (if not typing).</li>
-               <li v-if="devanagariModeEnabled"><strong>Keys:</strong> Type phonetically (e.g., 'k' -> 'क'). Use '`' for Halant.</li>
+               <!-- <li><strong>Read Text:</strong> Press <code>R</code> to read the page or read it again.</li> -->
+               <!-- <li><strong>Save:</strong> Press <code>S</code> to save, or <code>Shift+S</code>/<code>Ctrl+Enter</code> to save and open the next page.</li> -->
+               <li><strong>Navigate:</strong> Press <code>Tab</code> for the next line, <code>Shift+Tab</code> for the previous line.</li>
+               <li v-if="devanagariModeEnabled"><strong>Keys:</strong> Type phonetically (for example, <code>k</code> gives <code>क</code>). Use <code>q</code> for halant.</li>
              </ul>
              <div class="recognition-status-grid">
                <div class="recognition-status-card">
-                 <span class="recognition-status-label">Current State</span>
+                 <span class="recognition-status-label">Page Status</span>
                  <strong>{{ effectivePageWorkflow.label }}</strong>
                </div>
                <div class="recognition-status-card">
-                 <span class="recognition-status-label">Prediction Source</span>
-                 <strong>{{ effectivePageWorkflow.prediction.source_label || 'Not prepared yet' }}</strong>
+                 <span class="recognition-status-label">Current Text Source</span>
+                 <strong>{{ effectivePageWorkflow.prediction.source_label || 'Not read yet' }}</strong>
                </div>
-               <div class="recognition-status-card">
-                 <span class="recognition-status-label">Next OCR Will Use</span>
+               <!-- <div class="recognition-status-card">
+                 <span class="recognition-status-label">Read Again Using</span>
                  <strong>{{ nextRecognitionSourceLabel }}</strong>
-               </div>
+               </div> -->
              </div>
 
            </div>
@@ -457,8 +475,8 @@
         <!-- Logs -->
         <div v-if="modifications.length > 0" class="log-sidebar">
             <div class="log-header">
-              <span>Changes: {{ modifications.length }}</span>
-              <button class="text-btn" @click="resetModifications" :disabled="loading">Reset All</button>
+              <span>Layout Changes: {{ modifications.length }}</span>
+              <button class="text-btn" @click="resetModifications" :disabled="loading">Clear All</button>
             </div>
             <ul class="log-list">
               <li v-for="(mod, index) in modifications.slice().reverse()" :key="index">
@@ -493,6 +511,8 @@ const props = defineProps({
 
 const emit = defineEmits(['page-changed', 'back'])
 const router = useRouter()
+const PAGE_ENTRY_LAYOUT = 'layout'
+const PAGE_ENTRY_RECOGNITION_IF_COMMITTED_TEXT = 'recognition_if_committed_text'
 
 // UI State
 const isPanelCollapsed = ref(false)
@@ -571,14 +591,15 @@ const focusedLineId = ref(null)
 const sortedLineIds = ref([])
 const autoRecogEnabled = ref(localStorage.getItem('auto_prepare_next_page') === 'true')
 const activeLearningEnabled = ref(localStorage.getItem('active_learning_enabled') !== 'false')
-const activeLearningStatus = ref('AL: idle')
+const activeLearningStatus = ref('Not updating right now')
 const recognitionEngine = ref(localStorage.getItem('recognition_engine') || 'local') // NEW
 const devanagariModeEnabled = ref(true) 
 const recognitionInFlight = ref(false)
 const recognitionDraftDirty = ref(false)
 const suppressTextDirtyTracking = ref(false)
+const pendingPageEntryPreference = ref(null)
 const activeLearningMeta = reactive({
-  label: 'AL: idle',
+  label: 'Not updating right now',
   active_checkpoint_id: 'base',
   active_checkpoint_path: null,
   pending_jobs: [],
@@ -586,11 +607,13 @@ const activeLearningMeta = reactive({
 })
 const pageWorkflow = reactive({
   state: 'missing_page_xml',
-  label: 'Layout Analysis Not Done',
-  hint: 'Make corrections in Layout Mode before using Recognition Mode.',
+  label: 'Set up the page first',
+  hint: 'Open Page Layout first, check the lines on the page, and then move to Text Review.',
   needs_recognition: true,
   can_edit_text: false,
+  can_resume_recognition: false,
   has_text: false,
+  latest_revision_save_intent: null,
   correction_summary: { changed_line_count: 0, total_edit_distance: 0, normalized_edit_distance: 0 },
   prediction: {
     available: false,
@@ -654,34 +677,36 @@ const hasUnsavedLayoutChanges = computed(() => modifications.value.length > 0)
 const describeLocalCheckpoint = (checkpointId) => {
   if (!checkpointId || checkpointId === 'base') {
     return {
-      modelLabel: 'pretrained local OCR model',
-      fineTunedPagesLabel: '0 manuscript pages fine-tuned',
-      fullLabel: 'pretrained local OCR model (0 manuscript pages fine-tuned)',
-      detailLabel: 'Uses the pretrained local OCR model. Fine-tuned manuscript pages: 0.',
+      modelLabel: 'Built-in Reader',
+      fineTunedPagesLabel: 'not yet trained on this manuscript',
+      fullLabel: 'the built-in reader',
+      detailLabel: 'Uses the built-in reader for this manuscript.',
     }
   }
 
   return {
-    modelLabel: `local OCR checkpoint ${checkpointId}`,
+    modelLabel: 'Saved Reader For This Manuscript',
     fineTunedPagesLabel: null,
-    fullLabel: `local OCR checkpoint ${checkpointId}`,
-    detailLabel: `Uses local OCR checkpoint ${checkpointId}. Exact manuscript fine-tune page count is not available in this view.`,
+    fullLabel: 'the saved reader for this manuscript',
+    detailLabel: 'Uses the saved reader learned from this manuscript.',
   }
 }
 
 const localCheckpointDescriptor = computed(() => describeLocalCheckpoint(activeLearningMeta.active_checkpoint_id))
 
 const nextRecognitionSourceLabel = computed(() => {
-  if (recognitionEngine.value === 'gemini') return 'Gemini OCR'
-  return `Local OCR using ${localCheckpointDescriptor.value.fullLabel}`
+  if (recognitionEngine.value === 'gemini') return 'Gemini'
+  return localCheckpointDescriptor.value.modelLabel
 })
 
 const recognitionEngineLabel = computed(() => nextRecognitionSourceLabel.value)
 const canRecognizePage = computed(() => recognitionEngine.value !== 'gemini' || Boolean(geminiKey.value))
 const recognitionBusyLabel = computed(() => {
-  if (recognitionEngine.value === 'gemini') return 'Preparing page with Gemini OCR...'
-  return `Preparing page with Local OCR using ${localCheckpointDescriptor.value.fullLabel}...`
+  if (recognitionEngine.value === 'gemini') return 'Reading the page with Gemini...'
+  return `Reading the page with ${localCheckpointDescriptor.value.fullLabel}...`
 })
+const pageWorkflowRequiresLayoutMode = (workflow) =>
+  Boolean(workflow?.state === 'missing_page_xml' && !workflow?.can_edit_text)
 const effectivePageWorkflow = computed(() => {
   const prediction = { ...pageWorkflow.prediction }
   const correctionSummary = { ...pageWorkflow.correction_summary }
@@ -691,8 +716,8 @@ const effectivePageWorkflow = computed(() => {
       prediction,
       correction_summary: correctionSummary,
       state: 'refreshing_ocr',
-      label: 'Preparing OCR',
-      hint: `Running ${recognitionEngineLabel.value} for the current layout.`,
+      label: 'Reading text',
+      hint: `Reading the page with ${recognitionEngineLabel.value}.`,
       needs_recognition: false,
       can_edit_text: false,
     }
@@ -703,8 +728,8 @@ const effectivePageWorkflow = computed(() => {
       prediction,
       correction_summary: correctionSummary,
       state: 'layout_dirty',
-      label: 'Layout changed',
-      hint: 'Commit the layout and rerun OCR before correcting text.',
+      label: 'Page layout changed',
+      hint: 'Save the page layout, then read the text again before correcting it.',
       needs_recognition: true,
       can_edit_text: false,
     }
@@ -715,35 +740,45 @@ const effectivePageWorkflow = computed(() => {
     correction_summary: correctionSummary,
   }
 })
+const recognitionModeRequiresLayoutReturn = computed(() =>
+  recognitionModeActive.value && pageWorkflowRequiresLayoutMode(effectivePageWorkflow.value)
+)
 
 const workflowStateClass = computed(() => `state-${effectivePageWorkflow.value.state}`)
 const workflowPanelEyebrow = computed(() => {
-  if (layoutModeActive.value) return 'Layout First'
-  if (recognitionModeActive.value) return 'Recognition Workflow'
-  return 'Page Workflow'
+  if (layoutModeActive.value) return 'Step 1'
+  if (recognitionModeActive.value) return 'Step 2'
+  return 'Page Progress'
 })
 const workflowPanelHint = computed(() => {
   if (layoutModeActive.value) {
     if (hasUnsavedLayoutChanges.value) {
-      return 'Save structural edits here before moving to Recognize.'
+      return 'Save your page layout changes here before opening Text Review.'
     }
-    return 'Adjust line structure in Layout Mode first. OCR and text correction happen after you switch to Recognize.'
+    return 'Check the lines and page structure here first. Then open Text Review to work on the text.'
+  }
+  if (recognitionModeRequiresLayoutReturn.value) {
+    return effectivePageWorkflow.value.hint
   }
   if (recognitionModeActive.value && effectivePageWorkflow.value.needs_recognition) {
-    return 'Choose an OCR engine here, then run OCR for this page.'
+    return 'Choose a text-reading method here, then read the page.'
   }
   return effectivePageWorkflow.value.hint
 })
 const recognizeButtonLabel = computed(() => {
-  if (hasUnsavedLayoutChanges.value) return 'Commit Layout & Recognize'
-  if (effectivePageWorkflow.value.needs_recognition) return 'Recognize Page'
-  return 'Refresh OCR'
+  if (hasUnsavedLayoutChanges.value) return 'Save Layout & Read Text'
+  if (layoutModeActive.value) {
+    if (effectivePageWorkflow.value.needs_recognition) return 'Read Text'
+    return 'Open Text Review'
+  }
+  if (effectivePageWorkflow.value.needs_recognition) return 'Read Text'
+  return 'Replace With New Reading'
 })
 const recognitionEngineDescription = computed(() => {
   if (recognitionEngine.value === 'gemini') {
     return canRecognizePage.value
-      ? 'Uses Gemini for OCR on this page.'
-      : 'Gemini requires an API key before OCR can run.'
+      ? 'Uses Gemini to read the text on this page.'
+      : 'Gemini needs an API key before it can read this page.'
   }
   return localCheckpointDescriptor.value.detailLabel
 })
@@ -751,7 +786,7 @@ const topBarActionState = computed(() => {
   if (recognitionInFlight.value) {
     return {
       eyebrow: 'Working',
-      title: 'Preparing OCR for this page',
+      title: 'Reading text on this page',
       hint: recognitionBusyLabel.value,
       recommendedAction: 'recognize',
     }
@@ -759,57 +794,65 @@ const topBarActionState = computed(() => {
   if (isProcessingSave.value) {
     return {
       eyebrow: 'Working',
-      title: 'Saving current page',
-      hint: 'Wait for the save to finish before navigating or exporting.',
+      title: 'Saving this page',
+      hint: 'Please wait until the save is finished before moving on.',
       recommendedAction: 'commit',
     }
   }
   if (layoutModeActive.value) {
     if (hasUnsavedLayoutChanges.value) {
       return {
-        eyebrow: 'Layout Mode',
-        title: 'Commit layout changes',
-        hint: 'Save node, edge, and region edits before switching to Recognize.',
+        eyebrow: 'Page Layout',
+        title: 'Save page layout changes',
+        hint: 'Save your line and region changes before opening Text Review.',
         recommendedAction: 'commit',
       }
     }
     if (recognitionDraftDirty.value) {
       return {
-        eyebrow: 'Layout Mode',
-        title: 'Commit text corrections',
-        hint: 'Save your text edits before making more structural changes or rerunning OCR.',
+        eyebrow: 'Page Layout',
+        title: 'Save text changes',
+        hint: 'Save your text changes before making more page layout changes or reading the page again.',
         recommendedAction: 'commit',
       }
     }
     return {
-      eyebrow: 'Layout Mode',
-      title: 'Refine page structure first',
-      hint: 'Adjust nodes, edges, and regions here. When the layout looks right, switch to Recognize to run OCR.',
+      eyebrow: 'Page Layout',
+      title: 'Check the page structure first',
+      hint: 'Adjust the lines and regions here. When the page structure looks right, open Text Review.',
       recommendedAction: null,
     }
   }
   if (recognitionModeActive.value) {
+    if (recognitionModeRequiresLayoutReturn.value) {
+      return {
+        eyebrow: 'Text Review',
+        title: 'Return to Page Layout',
+        hint: effectivePageWorkflow.value.hint,
+        recommendedAction: null,
+      }
+    }
     if (effectivePageWorkflow.value.needs_recognition) {
       return {
-        eyebrow: 'Recognition Mode',
-        title: 'Run OCR for this layout',
-        hint: 'Choose an OCR engine here, then prepare text before making line-by-line corrections.',
+        eyebrow: 'Text Review',
+        title: 'Read the text for this page',
+        hint: 'Choose a text-reading method here, then read the page before correcting the text.',
         recommendedAction: 'recognize',
       }
     }
     if (recognitionDraftDirty.value) {
       return {
-        eyebrow: 'Recognition Mode',
-        title: 'Commit current corrections',
-        hint: 'Save this page so your text edits stay attached to the latest OCR result.',
+        eyebrow: 'Text Review',
+        title: 'Save your current corrections',
+        hint: 'Save this page so your text corrections stay attached to the current page.',
         recommendedAction: 'commit',
       }
     }
     if (effectivePageWorkflow.value.can_edit_text) {
       return {
-        eyebrow: 'Recognition Mode',
-        title: 'Review and correct text lines',
-        hint: 'Edit line text here, then commit when this page is ready to keep.',
+        eyebrow: 'Text Review',
+        title: 'Review and correct the text',
+        hint: 'Edit the text line by line here, then save when you are done with this page.',
         recommendedAction: null,
       }
     }
@@ -817,46 +860,46 @@ const topBarActionState = computed(() => {
   if (effectivePageWorkflow.value.can_edit_text) {
     return {
       eyebrow: 'Ready',
-      title: 'Page ready for review',
-      hint: 'You can edit line text now and commit when you finish this page.',
+      title: 'Page is ready to review',
+      hint: 'You can correct the text now and save when you finish this page.',
       recommendedAction: null,
     }
   }
   return {
     eyebrow: 'Ready',
-    title: 'Workspace ready',
-    hint: 'Review the current page, export assets, or move to another page.',
+    title: 'Page is ready',
+    hint: 'Review this page, download the results, or move to another page.',
     recommendedAction: null,
   }
 })
 
 const getBusyDisabledReason = (label) => {
-  if (loading.value) return `${label} is unavailable while the page is loading.`
-  if (recognitionInFlight.value) return `${label} is unavailable while OCR is running.`
-  if (isProcessingSave.value) return `${label} is unavailable while changes are saving.`
+  if (loading.value) return `${label} is not available while the page is loading.`
+  if (recognitionInFlight.value) return `${label} is not available while the page is being read.`
+  if (isProcessingSave.value) return `${label} is not available while changes are being saved.`
   return ''
 }
 
 const previousPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || isFirstPage.value)
 const nextPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || isLastPage.value)
-const recognizeActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || !canRecognizePage.value)
-const commitActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value)
-const commitAndNextDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value)
+const recognizeActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || !canRecognizePage.value || recognitionModeRequiresLayoutReturn.value)
+const commitActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value)
+const commitAndNextDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value)
 const exportImageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeActive.value)
 const downloadResultsDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value)
 
 const previousPageButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Previous page')
   if (busyReason) return busyReason
-  if (isFirstPage.value) return 'Already at the first page.'
-  return 'Go to the previous page. Shortcut: [ '
+  if (isFirstPage.value) return 'You are already on the first page.'
+  return 'Open the previous page. Shortcut: [ '
 })
 
 const nextPageButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Next page')
   if (busyReason) return busyReason
-  if (isLastPage.value) return 'Already at the last page.'
-  return 'Go to the next page. Shortcut: ] '
+  if (isLastPage.value) return 'You are already on the last page.'
+  return 'Open the next page. Shortcut: ] '
 })
 
 const recognizeButtonTitle = computed(() => {
@@ -864,51 +907,95 @@ const recognizeButtonTitle = computed(() => {
   if (busyReason) return busyReason
   if (!canRecognizePage.value) {
     return recognitionEngine.value === 'gemini'
-      ? 'Add a Gemini API key or switch to Local OCR before running recognition.'
-      : 'Recognition is not available right now.'
+      ? 'Add a Gemini API key or switch to the built-in reader before reading the page.'
+      : 'Text reading is not available right now.'
   }
   if (layoutModeActive.value && hasUnsavedLayoutChanges.value) {
-    return 'Commit the updated layout, switch to Recognize, and prepare OCR for this page (R).'
+    return 'Save the updated page layout, open Text Review, and read the page text (R).'
   }
   if (layoutModeActive.value) {
-    return 'Switch to Recognize and prepare OCR for this page (R).'
+    if (effectivePageWorkflow.value.needs_recognition) {
+      return 'Open Text Review and read the page text (R).'
+    }
+    return 'Open Text Review and reopen the saved text for this page (R). Use Replace With New Reading there if you want to overwrite it with a fresh reading.'
   }
-  if (effectivePageWorkflow.value.needs_recognition) return 'Prepare OCR text for this page (R).'
-  return 'Refresh OCR using the current engine and layout (R).'
+  if (effectivePageWorkflow.value.needs_recognition) return 'Read the page text now (R).'
+  return 'Replace the current text on this page with a fresh reading using the current method and layout (R). Existing corrections will be overwritten.'
 })
 
 const commitButtonTitle = computed(() => {
-  const busyReason = getBusyDisabledReason('Commit')
+  const busyReason = getBusyDisabledReason('Save Page')
   if (busyReason) return busyReason
-  if (hasUnsavedLayoutChanges.value) return 'Commit the current layout changes on this page (S).'
-  if (recognitionDraftDirty.value) return 'Commit the current text corrections on this page (S).'
-  return 'Commit the current page state (S).'
+  if (hasUnsavedLayoutChanges.value) return 'Save the current page layout changes (S).'
+  if (recognitionDraftDirty.value) return 'Save the current text corrections on this page (S).'
+  return 'Save the current page (S).'
 })
 
 const commitAndNextButtonTitle = computed(() => {
-  const busyReason = getBusyDisabledReason('Commit & Next')
+  const busyReason = getBusyDisabledReason('Save & Next Page')
   if (busyReason) return busyReason
-  if (isLastPage.value) return 'Commit the current page. This manuscript is already on its last page.'
-  return 'Commit the current page and open the next one (Shift+S).'
+  if (isLastPage.value) return 'Save the current page. This manuscript is already on its last page.'
+  return 'Save the current page and open the next one (Shift+S).'
 })
 
 const exportImageButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Export Image')
   if (busyReason) return busyReason
-  if (recognitionModeActive.value) return 'Export Image is only available in Layout Mode.'
-  return 'Save an image of the current page with the graph overlay.'
+  if (recognitionModeActive.value) return 'Export Image is only available in Page Layout.'
+  return 'Save an image of the current page with the layout overlay.'
 })
 
 const downloadResultsButtonTitle = computed(() => {
-  const busyReason = getBusyDisabledReason('Download PAGE-XMLs')
+  const busyReason = getBusyDisabledReason('Download Manuscript')
   if (busyReason) return busyReason
-  return 'Download the PAGE-XML output for this manuscript.'
+  return 'Download the digitized manuscript in PAGE-XML format.'
 })
+const goToLayoutModeButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Open Page Layout')
+  if (busyReason) return busyReason
+  return 'Return to Page Layout for this page.'
+})
+const primaryTopBarActionHidden = computed(() =>
+  (
+    layoutModeActive.value &&
+    !recognitionModeRequiresLayoutReturn.value &&
+    !hasUnsavedLayoutChanges.value &&
+    !effectivePageWorkflow.value.needs_recognition
+  ) ||
+  rereadWillOverwriteExistingText.value
+)
+const primaryTopBarActionLabel = computed(() =>
+  recognitionModeRequiresLayoutReturn.value ? 'Open Page Layout' : recognizeButtonLabel.value
+)
+const primaryTopBarActionTitle = computed(() =>
+  recognitionModeRequiresLayoutReturn.value ? goToLayoutModeButtonTitle.value : recognizeButtonTitle.value
+)
+const primaryTopBarActionDisabled = computed(() =>
+  primaryTopBarActionHidden.value
+    ? true
+    : recognitionModeRequiresLayoutReturn.value
+    ? loading.value || isProcessingSave.value || recognitionInFlight.value
+    : recognizeActionDisabled.value
+)
+const rereadWillOverwriteExistingText = computed(() =>
+  recognitionModeActive.value &&
+  !effectivePageWorkflow.value.needs_recognition &&
+  effectivePageWorkflow.value.can_edit_text &&
+  effectivePageWorkflow.value.has_text
+)
 const recognitionEngineSelectTitle = computed(() => {
-  if (recognitionInFlight.value) return 'OCR engine cannot be changed while OCR is running.'
-  if (isProcessingSave.value) return 'OCR engine cannot be changed while changes are saving.'
-  return 'Choose the OCR engine used when you run or refresh recognition on this page.'
+  if (recognitionInFlight.value) return 'The text-reading method cannot be changed while the page is being read.'
+  if (isProcessingSave.value) return 'The text-reading method cannot be changed while changes are being saved.'
+  return 'Choose the method used when you read the text on this page.'
 })
+
+const confirmReplaceWithNewReading = () => {
+  if (!rereadWillOverwriteExistingText.value) return true
+  const warning = recognitionDraftDirty.value
+    ? 'This will replace the current text on this page with a new reading and overwrite your existing corrections, including unsaved changes. Continue?'
+    : 'This will replace the current text on this page with a new reading and overwrite the existing corrections on this page. Continue?'
+  return window.confirm(warning)
+}
 
 const replaceLocalRecognitionData = (textPayload = {}, confidencePayload = {}) => {
   suppressTextDirtyTracking.value = true
@@ -923,7 +1010,7 @@ const replaceLocalRecognitionData = (textPayload = {}, confidencePayload = {}) =
 }
 
 const applyActiveLearningState = (payload = {}) => {
-  activeLearningStatus.value = payload.label || 'AL: idle'
+  activeLearningStatus.value = payload.label || 'Not updating right now'
   activeLearningMeta.label = activeLearningStatus.value
   activeLearningMeta.active_checkpoint_id = payload.active_checkpoint_id || 'base'
   activeLearningMeta.active_checkpoint_path = payload.active_checkpoint_path || null
@@ -933,11 +1020,13 @@ const applyActiveLearningState = (payload = {}) => {
 
 const applyPageWorkflow = (payload = {}) => {
   pageWorkflow.state = payload.state || 'missing_page_xml'
-  pageWorkflow.label = payload.label || 'Layout Analysis Not Done'
-  pageWorkflow.hint = payload.hint || 'Make corrections in Layout Mode before using Recognition Mode.'
+  pageWorkflow.label = payload.label || 'Set up the page first'
+  pageWorkflow.hint = payload.hint || 'Open Page Layout first, check the lines on the page, and then move to Text Review.'
   pageWorkflow.needs_recognition = Boolean(payload.needs_recognition)
   pageWorkflow.can_edit_text = Boolean(payload.can_edit_text)
+  pageWorkflow.can_resume_recognition = Boolean(payload.can_resume_recognition)
   pageWorkflow.has_text = Boolean(payload.has_text)
+  pageWorkflow.latest_revision_save_intent = payload?.latest_revision_save_intent || null
   pageWorkflow.correction_summary = {
     changed_line_count: Number(payload?.correction_summary?.changed_line_count || 0),
     total_edit_distance: Number(payload?.correction_summary?.total_edit_distance || 0),
@@ -955,6 +1044,24 @@ const applyPageWorkflow = (payload = {}) => {
     layout_match_known: Boolean(payload?.prediction?.layout_match_known),
   }
 }
+
+const goToLayoutMode = () => {
+  if (isProcessingSave.value || recognitionInFlight.value) return
+  setMode('layout')
+}
+
+const handlePrimaryTopBarAction = () => {
+  if (recognitionModeRequiresLayoutReturn.value) {
+    goToLayoutMode()
+    return
+  }
+  runRecognitionAction()
+}
+
+const shouldResumeRecognitionForWorkflow = (workflow = {}) =>
+  Boolean(
+    workflow?.can_resume_recognition
+  )
 
 watch(
   localTextContent,
@@ -1395,6 +1502,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
   pagePolygons.value = {}
   sortedLineIds.value = []
   let shouldAutoPrepareCurrentPage = false
+  let pageData = null
 
   try {
     const response = await fetch(
@@ -1402,6 +1510,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
     )
     if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch page data')
     const data = await response.json()
+    pageData = data
 
     dimensions.value = data.dimensions
     
@@ -1455,6 +1564,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
   if (!error.value && shouldAutoPrepareCurrentPage) {
     await recognizeCurrentPage({ focusAfter: true, suppressErrors: true })
   }
+  return pageData
 }
 
 const getConfidenceColor = (score) => {
@@ -1470,8 +1580,8 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
   }
   if (!canRecognizePage.value) {
     const message = recognitionEngine.value === 'gemini'
-      ? 'Gemini OCR requires an API key before this page can be prepared.'
-      : 'Recognition is not available right now.'
+      ? 'Gemini needs an API key before it can read this page.'
+      : 'Text reading is not available right now.'
     error.value = message
     if (!suppressErrors) alert(message)
     return false
@@ -1492,7 +1602,7 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
     })
     if (!response.ok) {
       const payload = await response.json()
-      throw new Error(payload.error || 'Recognition failed')
+      throw new Error(payload.error || 'Could not read the page')
     }
 
     const data = await response.json()
@@ -1506,7 +1616,7 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
     return true
   } catch (err) {
     error.value = err.message
-    if (!suppressErrors) alert(`Recognition failed: ${err.message}`)
+    if (!suppressErrors) alert(`Could not read the page: ${err.message}`)
     return false
   } finally {
     recognitionInFlight.value = false
@@ -1514,11 +1624,18 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
 }
 
 const runRecognitionAction = async () => {
+  if (recognitionModeRequiresLayoutReturn.value) {
+    return
+  }
   if (recognitionModeActive.value && !hasUnsavedLayoutChanges.value) {
+    if (!confirmReplaceWithNewReading()) {
+      return
+    }
     await recognizeCurrentPage({ focusAfter: true })
     return
   }
-  await requestSwitchToRecognition(true)
+  const shouldRefreshOnEnter = hasUnsavedLayoutChanges.value || effectivePageWorkflow.value.needs_recognition
+  await requestSwitchToRecognition(shouldRefreshOnEnter)
 }
 
 const fetchPageList = async (manuscript) => {
@@ -1745,6 +1862,20 @@ const handleGlobalKeyDown = (e) => {
     schedulePostZoomShortcutUpdate()
   }
 
+  if (
+    recognitionModeRequiresLayoutReturn.value &&
+    !e.repeat &&
+    !isInput &&
+    (
+      key === 'r' ||
+      key === 's' ||
+      ((e.ctrlKey || e.metaKey) && key === 'enter')
+    )
+  ) {
+    e.preventDefault()
+    return
+  }
+
   if ((key === 's' && e.shiftKey && !e.repeat && !isInput) || ((e.ctrlKey || e.metaKey) && key === 'enter' && !isInput)) {
     e.preventDefault()
     saveAndGoNext()
@@ -1955,8 +2086,9 @@ const saveModifications = async (background = false) => {
 
 
 const requestSwitchToRecognition = async (forceRecognition = false) => {
+    const shouldForceRecognition = forceRecognition === true
     if (recognitionInFlight.value) return;
-    if (recognitionModeActive.value && !forceRecognition && !hasUnsavedLayoutChanges.value) return;
+    if (recognitionModeActive.value && !shouldForceRecognition && !hasUnsavedLayoutChanges.value) return;
 
     isProcessingSave.value = true;
     try {
@@ -1971,7 +2103,13 @@ const requestSwitchToRecognition = async (forceRecognition = false) => {
         isProcessingSave.value = false;
     }
     if (error.value) return;
-    if (forceRecognition || effectivePageWorkflow.value.needs_recognition) {
+    if (!hasUnsavedLayoutChanges.value && effectivePageWorkflow.value.can_resume_recognition && !shouldForceRecognition) {
+      if (sortedLineIds.value.length > 0) {
+        activateInput(sortedLineIds.value[0]);
+      }
+      return;
+    }
+    if (shouldForceRecognition || effectivePageWorkflow.value.needs_recognition) {
       await recognizeCurrentPage({ focusAfter: true });
     } else if (effectivePageWorkflow.value.can_edit_text && sortedLineIds.value.length > 0) {
       activateInput(sortedLineIds.value[0]);
@@ -2002,7 +2140,12 @@ const confirmAndNavigate = async (navAction) => {
   }
 }
 
-const navigateToPage = (page) => emit('page-changed', page)
+const navigateToPage = (page) => {
+  pendingPageEntryPreference.value = recognitionModeActive.value
+    ? PAGE_ENTRY_RECOGNITION_IF_COMMITTED_TEXT
+    : PAGE_ENTRY_LAYOUT
+  emit('page-changed', page)
+}
 const previousPage = () => confirmAndNavigate(() => {
     const idx = localPageList.value.indexOf(localCurrentPage.value)
     if (idx > 0) navigateToPage(localPageList.value[idx - 1])
@@ -2023,7 +2166,7 @@ const handlePageSelect = (event) => {
 
 // NEW: Save current page logic (no nav)
 const saveCurrentPage = async () => {
-  if (loading.value || isProcessingSave.value || recognitionInFlight.value) return
+  if (loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value) return
   isProcessingSave.value = true
   try {
     await saveModifications()
@@ -2033,7 +2176,7 @@ const saveCurrentPage = async () => {
 }
 
 const saveAndGoNext = async () => {
-  if (loading.value || isProcessingSave.value || recognitionInFlight.value) return
+  if (loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value) return
   isProcessingSave.value = true
   try {
     await saveModifications()
@@ -2127,15 +2270,27 @@ onBeforeUnmount(() => {
   if(autoSaveInterval.value) clearInterval(autoSaveInterval.value);
 })
 
-watch(() => props.pageName, (newPageName) => {
+watch(() => props.pageName, async (newPageName) => {
     if (newPageName && newPageName !== localCurrentPage.value) {
+      const entryPreference = pendingPageEntryPreference.value
+      pendingPageEntryPreference.value = null
+      const shouldEvaluateRecognitionResume = entryPreference === PAGE_ENTRY_RECOGNITION_IF_COMMITTED_TEXT
+      const shouldResetToLayoutMode = entryPreference === PAGE_ENTRY_LAYOUT || shouldEvaluateRecognitionResume
       localCurrentPage.value = newPageName
-      fetchPageData(
+      if (shouldResetToLayoutMode) {
+        setMode('layout')
+      }
+      const shouldAutoPrepareRecognition =
+        !shouldResetToLayoutMode && recognitionModeActive.value && autoRecogEnabled.value
+      const pageData = await fetchPageData(
         localManuscriptName.value,
         newPageName,
         false,
-        recognitionModeActive.value && autoRecogEnabled.value,
+        shouldAutoPrepareRecognition,
       )
+      if (shouldEvaluateRecognitionResume && shouldResumeRecognitionForWorkflow(pageData?.pageWorkflow)) {
+        setMode('recognition')
+      }
     }
 })
 
@@ -2410,6 +2565,28 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   align-content: center;
 }
 
+.workflow-recognition-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: center;
+  min-height: 44px;
+}
+
+.workflow-recognition-controls.is-inactive,
+.workflow-palette-slot.is-inactive {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.workflow-palette-slot {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+
 .workflow-toggle-group {
   display: flex;
   align-items: center;
@@ -2541,12 +2718,25 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .top-bar-right .action-group {
   width: 100%;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
 }
 
 .control-shell {
   display: inline-flex;
   max-width: 100%;
+}
+
+.action-slot {
+  width: 100%;
+  min-width: 0;
+}
+
+.action-slot.is-ghost {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .control-shell.is-disabled {
@@ -2568,6 +2758,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .top-bar-right .action-btn {
   min-height: 40px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .top-bar-right .action-btn.recommended {
@@ -2940,7 +3134,7 @@ input:checked + .slider:before { transform: translateX(14px); }
   }
 
   .top-bar-right .action-group {
-    justify-content: flex-start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .primary-actions {
@@ -2971,6 +3165,15 @@ input:checked + .slider:before { transform: translateX(14px); }
 
   .page-stepper {
     width: 100%;
+  }
+
+  .workflow-recognition-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .top-bar-right .action-group {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

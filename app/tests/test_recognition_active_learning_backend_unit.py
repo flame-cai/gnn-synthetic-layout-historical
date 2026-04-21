@@ -167,6 +167,20 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
     def test_page_summary_marks_page_ready_when_prediction_matches_layout(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("page_ready")
         configure_runtime(base_checkpoint, orchestrator=None)
+        handle_post_save(
+            manuscript="page_ready_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "rama"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
         record_prediction(
             manuscript_root=manuscript_root,
             page_id="233_0001",
@@ -189,8 +203,9 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 
         self.assertEqual(summary["state"], "ready")
         self.assertTrue(summary["can_edit_text"])
+        self.assertTrue(summary["can_resume_recognition"])
         self.assertFalse(summary["needs_recognition"])
-        self.assertEqual(summary["prediction"]["source_label"], "Pretrained local OCR")
+        self.assertEqual(summary["prediction"]["source_label"], "Built-in reader")
 
     def test_page_summary_marks_page_stale_when_layout_changes_after_prediction(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("page_stale")
@@ -234,7 +249,133 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 
         self.assertEqual(summary["state"], "missing_page_xml")
         self.assertFalse(summary["can_edit_text"])
+        self.assertFalse(summary["can_resume_recognition"])
         self.assertTrue(summary["needs_recognition"])
+
+    def test_page_summary_keeps_saved_text_editable_when_newer_checkpoint_becomes_active(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("page_checkpoint_advanced")
+        configure_runtime(base_checkpoint, orchestrator=None)
+        handle_post_save(
+            manuscript="page_checkpoint_advanced_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "rama corrected"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
+        record_prediction(
+            manuscript_root=manuscript_root,
+            page_id="233_0001",
+            predicted_lines={"1": "rama"},
+            recognition_engine="local",
+            checkpoint_id="base",
+            checkpoint_path=base_checkpoint,
+            confidences={},
+            layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+        registry = load_registry(manuscript_root, base_checkpoint)
+        newer_checkpoint = manuscript_root / "newer_step.pth"
+        newer_checkpoint.write_text("ckpt", encoding="utf-8")
+        registry.ensure_checkpoint_record("ocr_233_0001_r0001", newer_checkpoint, status="active")
+        registry.data["active_checkpoint_id"] = "ocr_233_0001_r0001"
+        registry.save()
+
+        summary = summarize_page_active_learning(
+            manuscript_root,
+            "233_0001",
+            current_text_payload={"1": "rama corrected"},
+            current_layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        self.assertEqual(summary["state"], "ready")
+        self.assertTrue(summary["can_edit_text"])
+        self.assertTrue(summary["can_resume_recognition"])
+        self.assertFalse(summary["needs_recognition"])
+        self.assertEqual(summary["prediction"]["checkpoint_id"], "base")
+
+    def test_page_summary_can_resume_recognition_after_draft_when_committed_text_exists(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("resume_after_draft")
+        configure_runtime(base_checkpoint, orchestrator=None)
+        handle_post_save(
+            manuscript="resume_after_draft_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "rama"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
+        handle_post_save(
+            manuscript="resume_after_draft_manuscript",
+            page="233_0001",
+            save_intent="draft",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "rama draft edit"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
+
+        summary = summarize_page_active_learning(
+            manuscript_root,
+            "233_0001",
+            current_text_payload={"1": "rama draft edit"},
+            current_layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        self.assertEqual(summary["latest_revision_save_intent"], "draft")
+        self.assertEqual(summary["latest_supervised_commit_revision_number"], 1)
+        self.assertTrue(summary["can_edit_text"])
+        self.assertTrue(summary["can_resume_recognition"])
+
+    def test_page_summary_resumes_recognition_for_draft_only_text(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("draft_only_text")
+        configure_runtime(base_checkpoint, orchestrator=None)
+        handle_post_save(
+            manuscript="draft_only_text_manuscript",
+            page="233_0001",
+            save_intent="draft",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "draft only"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
+
+        summary = summarize_page_active_learning(
+            manuscript_root,
+            "233_0001",
+            current_text_payload={"1": "draft only"},
+            current_layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        self.assertEqual(summary["latest_revision_save_intent"], "draft")
+        self.assertIsNone(summary["latest_supervised_commit_revision_number"])
+        self.assertTrue(summary["can_edit_text"])
+        self.assertTrue(summary["can_resume_recognition"])
 
     def test_manuscript_summary_clears_stale_pending_jobs_when_orchestrator_has_no_record(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("stale_pending_job")
