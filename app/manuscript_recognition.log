@@ -1810,3 +1810,221 @@
 2026-04-20 15:27:04,072 - INFO - 127.0.0.1 - - [20/Apr/2026 15:27:04] "POST /recognize-text HTTP/1.1" 200 -
 2026-04-20 15:28:20,566 - INFO - 127.0.0.1 - - [20/Apr/2026 15:28:20] "OPTIONS /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
 2026-04-20 15:28:21,585 - INFO - 127.0.0.1 - - [20/Apr/2026 15:28:21] "POST /semi-segment/my_manuscriptsdasd/233_0004 HTTP/1.1" 200 -
+2026-04-21 11:19:59,089 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-04-21 11:19:59,091 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-21 11:19:59,096 - INFO -  * Restarting with stat
+2026-04-21 11:20:14,350 - WARNING -  * Debugger is active!
+2026-04-21 11:20:14,355 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 11:26:49,965 - INFO - 127.0.0.1 - - [21/Apr/2026 11:26:49] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-21 11:35:43,111 - INFO - 127.0.0.1 - - [21/Apr/2026 11:35:43] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:35:43,377 - INFO - 127.0.0.1 - - [21/Apr/2026 11:35:43] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:35:46,864 - INFO - 127.0.0.1 - - [21/Apr/2026 11:35:46] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:37:49,306 - INFO - 127.0.0.1 - - [21/Apr/2026 11:37:49] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:37:50,721 - INFO - 127.0.0.1 - - [21/Apr/2026 11:37:50] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:37:50,820 - INFO - 127.0.0.1 - - [21/Apr/2026 11:37:50] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:37:51,182 - INFO - 127.0.0.1 - - [21/Apr/2026 11:37:51] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 11:37:51,452 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 11:37:52,683 - INFO - Model loaded successfully.
+2026-04-21 11:37:56,161 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0002.xml: 17 lines recognized.
+2026-04-21 11:37:56,224 - INFO - 127.0.0.1 - - [21/Apr/2026 11:37:56] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 11:39:11,186 - INFO - 127.0.0.1 - - [21/Apr/2026 11:39:11] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:39:12,782 - INFO - 127.0.0.1 - - [21/Apr/2026 11:39:12] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:39:30,882 - INFO - 127.0.0.1 - - [21/Apr/2026 11:39:30] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:39:32,501 - INFO - 127.0.0.1 - - [21/Apr/2026 11:39:32] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:39:50,879 - INFO - 127.0.0.1 - - [21/Apr/2026 11:39:50] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:39:52,274 - INFO - 127.0.0.1 - - [21/Apr/2026 11:39:52] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:40:10,892 - INFO - 127.0.0.1 - - [21/Apr/2026 11:40:10] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:40:12,304 - INFO - 127.0.0.1 - - [21/Apr/2026 11:40:12] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:40:30,875 - INFO - 127.0.0.1 - - [21/Apr/2026 11:40:30] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:40:32,319 - INFO - 127.0.0.1 - - [21/Apr/2026 11:40:32] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:41:10,887 - INFO - 127.0.0.1 - - [21/Apr/2026 11:41:10] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:41:12,285 - INFO - 127.0.0.1 - - [21/Apr/2026 11:41:12] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:41:30,884 - INFO - 127.0.0.1 - - [21/Apr/2026 11:41:30] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:41:32,339 - INFO - 127.0.0.1 - - [21/Apr/2026 11:41:32] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:50:11,192 - INFO - 127.0.0.1 - - [21/Apr/2026 11:50:11] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:50:12,799 - INFO - 127.0.0.1 - - [21/Apr/2026 11:50:12] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:50:30,879 - INFO - 127.0.0.1 - - [21/Apr/2026 11:50:30] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:50:32,383 - INFO - 127.0.0.1 - - [21/Apr/2026 11:50:32] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:51:51,423 - INFO - 127.0.0.1 - - [21/Apr/2026 11:51:51] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:51:52,620 - INFO - 127.0.0.1 - - [21/Apr/2026 11:51:52] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:52:52,598 - INFO - 127.0.0.1 - - [21/Apr/2026 11:52:52] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:52:53,832 - INFO - 127.0.0.1 - - [21/Apr/2026 11:52:53] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:52:54,417 - INFO - 127.0.0.1 - - [21/Apr/2026 11:52:54] "GET /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 11:54:48,844 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:48] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:54:49,172 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:49] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:54:49,532 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:49] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:54:49,922 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:49] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:54:55,944 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:55] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:54:56,321 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:56] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:54:59,398 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:59] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:54:59,773 - INFO - 127.0.0.1 - - [21/Apr/2026 11:54:59] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:55:01,612 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:01] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:55:01,987 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:01] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:55:03,387 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:03] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:55:03,767 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:03] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:55:06,509 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:06] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:55:06,885 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:06] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:55:09,288 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:09] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:55:09,670 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:09] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:55:12,100 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:12] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:55:12,474 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:12] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 11:55:15,073 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:15] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 11:55:15,445 - INFO - 127.0.0.1 - - [21/Apr/2026 11:55:15] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:02:07,506 - INFO - 127.0.0.1 - - [21/Apr/2026 12:02:07] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:02:07,799 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\ashirmanimala\active_learning\recognition\checkpoints\ocr_44_0002_r0012\training_run\best_accuracy.pth...
+2026-04-21 12:02:09,038 - INFO - Model loaded successfully.
+2026-04-21 12:02:11,928 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0002.xml: 17 lines recognized.
+2026-04-21 12:02:12,041 - INFO - 127.0.0.1 - - [21/Apr/2026 12:02:12] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:02:29,709 - INFO - 127.0.0.1 - - [21/Apr/2026 12:02:29] "GET /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:02:42,543 - INFO - 127.0.0.1 - - [21/Apr/2026 12:02:42] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:02:45,985 - INFO - 127.0.0.1 - - [21/Apr/2026 12:02:45] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:02:49,370 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0002.xml: 17 lines recognized.
+2026-04-21 12:02:49,455 - INFO - 127.0.0.1 - - [21/Apr/2026 12:02:49] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:04:30,391 - INFO - 127.0.0.1 - - [21/Apr/2026 12:04:30] "GET /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:04:38,315 - INFO - 127.0.0.1 - - [21/Apr/2026 12:04:38] "GET /semi-segment/ashirmanimala/44_0004 HTTP/1.1" 200 -
+2026-04-21 12:04:40,241 - INFO - 127.0.0.1 - - [21/Apr/2026 12:04:40] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:04:40,515 - INFO - 127.0.0.1 - - [21/Apr/2026 12:04:40] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:05:00,264 - INFO - 127.0.0.1 - - [21/Apr/2026 12:05:00] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:05:00,582 - INFO - 127.0.0.1 - - [21/Apr/2026 12:05:00] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:08:54,110 - INFO - 127.0.0.1 - - [21/Apr/2026 12:08:54] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 12:08:54,140 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 12:08:57,101 - INFO -  * Restarting with stat
+2026-04-21 12:09:16,908 - WARNING -  * Debugger is active!
+2026-04-21 12:09:16,914 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 12:09:17,008 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:17] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 12:09:17,091 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:17] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:09:18,538 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:18] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-21 12:09:20,805 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:20] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-21 12:09:26,542 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:26] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 12:09:26,914 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:26] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 12:09:27,256 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:27] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:09:33,219 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:33] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:09:33,539 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\ashirmanimala\active_learning\recognition\checkpoints\ocr_44_0002_r0012\training_run\best_accuracy.pth...
+2026-04-21 12:09:36,541 - INFO - Model loaded successfully.
+2026-04-21 12:09:40,075 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0002.xml: 17 lines recognized.
+2026-04-21 12:09:40,174 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:40] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:09:53,829 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:53] "OPTIONS /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:09:55,435 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:55] "POST /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:09:56,399 - INFO - 127.0.0.1 - - [21/Apr/2026 12:09:56] "GET /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:11:27,953 - INFO - 127.0.0.1 - - [21/Apr/2026 12:11:27] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:11:28,222 - INFO - 127.0.0.1 - - [21/Apr/2026 12:11:28] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:12:03,204 - INFO - 127.0.0.1 - - [21/Apr/2026 12:12:03] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:12:03,512 - INFO - 127.0.0.1 - - [21/Apr/2026 12:12:03] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:17:36,806 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-04-21 12:17:38,776 - INFO -  * Restarting with stat
+2026-04-21 12:17:51,997 - WARNING -  * Debugger is active!
+2026-04-21 12:17:52,003 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 12:17:52,079 - INFO - 127.0.0.1 - - [21/Apr/2026 12:17:52] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 12:17:52,230 - INFO - 127.0.0.1 - - [21/Apr/2026 12:17:52] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:18:26,189 - INFO - 127.0.0.1 - - [21/Apr/2026 12:18:26] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-04-21 12:18:26,221 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 12:18:29,723 - INFO -  * Restarting with stat
+2026-04-21 12:18:43,684 - WARNING -  * Debugger is active!
+2026-04-21 12:18:43,689 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 12:18:43,831 - INFO - 127.0.0.1 - - [21/Apr/2026 12:18:43] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:19:13,633 - INFO - 127.0.0.1 - - [21/Apr/2026 12:19:13] "GET /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:19:19,746 - INFO - 127.0.0.1 - - [21/Apr/2026 12:19:19] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:19:20,010 - INFO - 127.0.0.1 - - [21/Apr/2026 12:19:20] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:19:24,676 - INFO - 127.0.0.1 - - [21/Apr/2026 12:19:24] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:19:33,170 - INFO - 127.0.0.1 - - [21/Apr/2026 12:19:33] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:19:33,438 - INFO - 127.0.0.1 - - [21/Apr/2026 12:19:33] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:20:06,867 - INFO - 127.0.0.1 - - [21/Apr/2026 12:20:06] "OPTIONS /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:20:08,095 - INFO - 127.0.0.1 - - [21/Apr/2026 12:20:08] "POST /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:21:22,861 - INFO - 127.0.0.1 - - [21/Apr/2026 12:21:22] "OPTIONS /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:21:24,091 - INFO - 127.0.0.1 - - [21/Apr/2026 12:21:24] "POST /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:21:25,170 - INFO - 127.0.0.1 - - [21/Apr/2026 12:21:25] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:21:25,497 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\ashirmanimala\active_learning\recognition\checkpoints\rebase_001_44_0002_r0013\training_run\best_norm_ED.pth...
+2026-04-21 12:21:26,428 - INFO - Model loaded successfully.
+2026-04-21 12:21:29,507 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:21:29,587 - INFO - 127.0.0.1 - - [21/Apr/2026 12:21:29] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:21:44,875 - INFO - 127.0.0.1 - - [21/Apr/2026 12:21:44] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:21:48,241 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:21:48,320 - INFO - 127.0.0.1 - - [21/Apr/2026 12:21:48] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:21:54,809 - INFO - 127.0.0.1 - - [21/Apr/2026 12:21:54] "GET /semi-segment/ashirmanimala/44_0002 HTTP/1.1" 200 -
+2026-04-21 12:22:16,135 - INFO - 127.0.0.1 - - [21/Apr/2026 12:22:16] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:22:19,011 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0002.xml: 17 lines recognized.
+2026-04-21 12:22:19,114 - INFO - 127.0.0.1 - - [21/Apr/2026 12:22:19] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:22:25,671 - INFO - 127.0.0.1 - - [21/Apr/2026 12:22:25] "GET /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:23:02,765 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 12:23:04,785 - INFO -  * Restarting with stat
+2026-04-21 12:23:20,942 - WARNING -  * Debugger is active!
+2026-04-21 12:23:20,948 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 12:23:30,396 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 12:23:33,962 - INFO -  * Restarting with stat
+2026-04-21 12:23:48,467 - WARNING -  * Debugger is active!
+2026-04-21 12:23:48,471 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 12:23:52,857 - INFO - 127.0.0.1 - - [21/Apr/2026 12:23:52] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:23:53,130 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\ashirmanimala\active_learning\recognition\checkpoints\rebase_001_44_0002_r0013\training_run\best_norm_ED.pth...
+2026-04-21 12:23:54,858 - INFO - Model loaded successfully.
+2026-04-21 12:23:58,547 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:23:58,680 - INFO - 127.0.0.1 - - [21/Apr/2026 12:23:58] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:26:16,584 - INFO - 127.0.0.1 - - [21/Apr/2026 12:26:16] "OPTIONS /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:26:17,931 - INFO - 127.0.0.1 - - [21/Apr/2026 12:26:17] "POST /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:26:18,082 - INFO - 127.0.0.1 - - [21/Apr/2026 12:26:18] "GET /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:26:18,446 - INFO - 127.0.0.1 - - [21/Apr/2026 12:26:18] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:26:22,039 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:26:22,179 - INFO - 127.0.0.1 - - [21/Apr/2026 12:26:22] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:29:50,507 - INFO - 127.0.0.1 - - [21/Apr/2026 12:29:50] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:29:54,116 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:29:54,217 - INFO - 127.0.0.1 - - [21/Apr/2026 12:29:54] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:29:57,353 - INFO - 127.0.0.1 - - [21/Apr/2026 12:29:57] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:30:01,155 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:30:01,232 - INFO - 127.0.0.1 - - [21/Apr/2026 12:30:01] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:30:05,858 - INFO - 127.0.0.1 - - [21/Apr/2026 12:30:05] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:30:09,397 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:30:09,475 - INFO - 127.0.0.1 - - [21/Apr/2026 12:30:09] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:30:24,897 - INFO - 127.0.0.1 - - [21/Apr/2026 12:30:24] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:30:28,364 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:30:28,443 - INFO - 127.0.0.1 - - [21/Apr/2026 12:30:28] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:31:04,905 - INFO - 127.0.0.1 - - [21/Apr/2026 12:31:04] "OPTIONS /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:31:06,414 - INFO - 127.0.0.1 - - [21/Apr/2026 12:31:06] "POST /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:31:19,429 - INFO - 127.0.0.1 - - [21/Apr/2026 12:31:19] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:31:22,793 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:31:22,868 - INFO - 127.0.0.1 - - [21/Apr/2026 12:31:22] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:31:39,438 - INFO - 127.0.0.1 - - [21/Apr/2026 12:31:39] "OPTIONS /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:31:40,853 - INFO - 127.0.0.1 - - [21/Apr/2026 12:31:40] "POST /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:32:00,100 - INFO - 127.0.0.1 - - [21/Apr/2026 12:32:00] "OPTIONS /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:32:01,401 - INFO - 127.0.0.1 - - [21/Apr/2026 12:32:01] "POST /semi-segment/ashirmanimala/44_0003 HTTP/1.1" 200 -
+2026-04-21 12:32:18,030 - INFO - 127.0.0.1 - - [21/Apr/2026 12:32:18] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:32:21,604 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0003.xml: 20 lines recognized.
+2026-04-21 12:32:21,690 - INFO - 127.0.0.1 - - [21/Apr/2026 12:32:21] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:33:31,588 - INFO - 127.0.0.1 - - [21/Apr/2026 12:33:31] "GET /semi-segment/ashirmanimala/44_0005 HTTP/1.1" 200 -
+2026-04-21 12:33:37,876 - INFO - 127.0.0.1 - - [21/Apr/2026 12:33:37] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:33:38,187 - INFO - 127.0.0.1 - - [21/Apr/2026 12:33:38] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:33:55,232 - INFO - 127.0.0.1 - - [21/Apr/2026 12:33:55] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:33:55,557 - INFO - 127.0.0.1 - - [21/Apr/2026 12:33:55] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:33:58,976 - INFO - 127.0.0.1 - - [21/Apr/2026 12:33:58] "OPTIONS /semi-segment/ashirmanimala/44_0005 HTTP/1.1" 200 -
+2026-04-21 12:34:00,145 - INFO - 127.0.0.1 - - [21/Apr/2026 12:34:00] "POST /semi-segment/ashirmanimala/44_0005 HTTP/1.1" 200 -
+2026-04-21 12:34:02,469 - INFO - 127.0.0.1 - - [21/Apr/2026 12:34:02] "GET /download-results/ashirmanimala HTTP/1.1" 200 -
+2026-04-21 12:38:42,831 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:42] "OPTIONS /semi-segment/ashirmanimala/44_0005 HTTP/1.1" 200 -
+2026-04-21 12:38:44,052 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:44] "POST /semi-segment/ashirmanimala/44_0005 HTTP/1.1" 200 -
+2026-04-21 12:38:44,729 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:44] "GET /semi-segment/ashirmanimala/44_0006 HTTP/1.1" 200 -
+2026-04-21 12:38:52,309 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:52] "OPTIONS /semi-segment/ashirmanimala/44_0006 HTTP/1.1" 200 -
+2026-04-21 12:38:53,676 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:53] "POST /semi-segment/ashirmanimala/44_0006 HTTP/1.1" 200 -
+2026-04-21 12:38:54,297 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:54] "GET /semi-segment/ashirmanimala/44_0007 HTTP/1.1" 200 -
+2026-04-21 12:38:55,769 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:55] "OPTIONS /semi-segment/ashirmanimala/44_0007 HTTP/1.1" 200 -
+2026-04-21 12:38:57,055 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:57] "POST /semi-segment/ashirmanimala/44_0007 HTTP/1.1" 200 -
+2026-04-21 12:38:57,680 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:57] "GET /semi-segment/ashirmanimala/44_0008 HTTP/1.1" 200 -
+2026-04-21 12:38:58,994 - INFO - 127.0.0.1 - - [21/Apr/2026 12:38:58] "GET /semi-segment/ashirmanimala/44_0007 HTTP/1.1" 200 -
+2026-04-21 12:39:00,647 - INFO - 127.0.0.1 - - [21/Apr/2026 12:39:00] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:39:03,906 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0007.xml: 19 lines recognized.
+2026-04-21 12:39:03,973 - INFO - 127.0.0.1 - - [21/Apr/2026 12:39:03] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:39:38,054 - INFO - 127.0.0.1 - - [21/Apr/2026 12:39:38] "OPTIONS /semi-segment/ashirmanimala/44_0007 HTTP/1.1" 200 -
+2026-04-21 12:39:39,441 - INFO - 127.0.0.1 - - [21/Apr/2026 12:39:39] "POST /semi-segment/ashirmanimala/44_0007 HTTP/1.1" 200 -
+2026-04-21 12:40:14,007 - INFO - 127.0.0.1 - - [21/Apr/2026 12:40:14] "GET /semi-segment/ashirmanimala/44_0008 HTTP/1.1" 200 -
+2026-04-21 12:40:15,509 - INFO - 127.0.0.1 - - [21/Apr/2026 12:40:15] "GET /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:40:18,979 - INFO - 127.0.0.1 - - [21/Apr/2026 12:40:18] "OPTIONS /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:40:20,263 - INFO - 127.0.0.1 - - [21/Apr/2026 12:40:20] "POST /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:41:32,813 - INFO - 127.0.0.1 - - [21/Apr/2026 12:41:32] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:41:33,100 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\ashirmanimala\active_learning\recognition\checkpoints\ocr_44_0007_r0002\training_run\best_accuracy.pth...
+2026-04-21 12:41:34,091 - INFO - Model loaded successfully.
+2026-04-21 12:41:35,882 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0009.xml: 10 lines recognized.
+2026-04-21 12:41:35,964 - INFO - 127.0.0.1 - - [21/Apr/2026 12:41:35] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:41:47,775 - INFO - 127.0.0.1 - - [21/Apr/2026 12:41:47] "OPTIONS /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:41:49,148 - INFO - 127.0.0.1 - - [21/Apr/2026 12:41:49] "POST /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:41:50,206 - INFO - 127.0.0.1 - - [21/Apr/2026 12:41:50] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:42:23,181 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0009.xml: 10 lines recognized.
+2026-04-21 12:42:23,257 - INFO - 127.0.0.1 - - [21/Apr/2026 12:42:23] "POST /recognize-text HTTP/1.1" 200 -

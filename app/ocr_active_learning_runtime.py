@@ -259,14 +259,14 @@ def summarize_page_active_learning(
 
     if last_prediction and prediction_matches_current_layout is False:
         state = "stale_layout"
-        label = "OCR stale after layout change"
-        hint = "Run OCR again before correcting this page."
+        label = "Need to run Recognition again due to layout change"
+        hint = "Layout Change Detected: The layout of this page has changed. Please run Recognition Mode again to update the prediction based on the new layout before making corrections."
         can_edit_text = False
         needs_recognition = True
     elif not has_text:
-        state = "missing_ocr"
-        label = "OCR not prepared"
-        hint = "Run OCR to prepare this page for correction."
+        state = "missing_page_xml"
+        label = "Layout Analysis Not Done"
+        hint = "Make corrections in Layout Mode before using Recognition Mode."
         can_edit_text = False
         needs_recognition = True
     elif last_prediction:
