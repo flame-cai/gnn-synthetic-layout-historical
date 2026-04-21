@@ -25,12 +25,12 @@
           <div class="page-stepper" style="gap: 4px;">
             <span class="control-shell" :class="{ 'is-disabled': previousPageDisabled }" :title="previousPageButtonTitle">
               <button class="nav-btn" style="min-height: 24px; padding: 2px 6px; font-size: 0.8rem;" @click="previousPage" :disabled="previousPageDisabled">
-                Prev ([)
+                Prev Page
               </button>
             </span>
             <span class="control-shell" :class="{ 'is-disabled': nextPageDisabled }" :title="nextPageButtonTitle">
               <button class="nav-btn" style="min-height: 24px; padding: 2px 6px; font-size: 0.8rem;" @click="nextPage" :disabled="nextPageDisabled">
-                Next (])
+                Next Page
               </button>
             </span>
           </div>
@@ -108,7 +108,7 @@
               :disabled="recognizeActionDisabled"
               style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
             >
-              {{ recognizeButtonLabel }} (R)
+              {{ recognizeButtonLabel }}
             </button>
           </span>
           <span class="control-shell" :class="{ 'is-disabled': commitActionDisabled }" :title="commitButtonTitle">
@@ -119,7 +119,7 @@
               :disabled="commitActionDisabled"
               style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
             >
-              Commit (S)
+              Commit
             </button>
           </span>
           <span class="control-shell" :class="{ 'is-disabled': commitAndNextDisabled }" :title="commitAndNextButtonTitle">
@@ -280,15 +280,15 @@
                 Latest visible text came from {{ effectivePageWorkflow.prediction.source_label }}.
               </p>
               <p v-else>
-                This page needs OCR before annotation can continue.
+                Layout Mode creates the PAGE-XML files with layout structure, which the Recognition Mode requires to populate text-line content.
               </p>
-              <button
+              <!-- <button
                 class="action-btn primary"
                 @click="runRecognitionAction"
                 :disabled="loading || isProcessingSave || recognitionInFlight || !canRecognizePage"
               >
-                {{ recognizeButtonLabel }} (R)
-              </button>
+                {{ recognizeButtonLabel }}
+              </button> -->
             </div>
 
             <!-- Recognition Input Overlay Layer -->
@@ -354,7 +354,7 @@
            :class="{ active: recognitionModeActive }"
            @click="requestSwitchToRecognition" 
            :disabled="isProcessingSave">
-           Recognize (T)
+           RECOGNITION MODE (T)
          </button>
 
          <div class="tab-spacer"></div>
@@ -585,9 +585,9 @@ const activeLearningMeta = reactive({
   needs_rebase: false,
 })
 const pageWorkflow = reactive({
-  state: 'missing_ocr',
-  label: 'OCR not prepared',
-  hint: 'Run OCR to prepare this page for correction.',
+  state: 'missing_page_xml',
+  label: 'Layout Analysis Not Done',
+  hint: 'Make corrections in Layout Mode before using Recognition Mode.',
   needs_recognition: true,
   can_edit_text: false,
   has_text: false,
@@ -849,14 +849,14 @@ const previousPageButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Previous page')
   if (busyReason) return busyReason
   if (isFirstPage.value) return 'Already at the first page.'
-  return 'Go to the previous page ([).'
+  return 'Go to the previous page. Shortcut: [ '
 })
 
 const nextPageButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Next page')
   if (busyReason) return busyReason
   if (isLastPage.value) return 'Already at the last page.'
-  return 'Go to the next page (]).'
+  return 'Go to the next page. Shortcut: ] '
 })
 
 const recognizeButtonTitle = computed(() => {
@@ -932,9 +932,9 @@ const applyActiveLearningState = (payload = {}) => {
 }
 
 const applyPageWorkflow = (payload = {}) => {
-  pageWorkflow.state = payload.state || 'missing_ocr'
-  pageWorkflow.label = payload.label || 'OCR not prepared'
-  pageWorkflow.hint = payload.hint || 'Run OCR to prepare this page for correction.'
+  pageWorkflow.state = payload.state || 'missing_page_xml'
+  pageWorkflow.label = payload.label || 'Layout Analysis Not Done'
+  pageWorkflow.hint = payload.hint || 'Make corrections in Layout Mode before using Recognition Mode.'
   pageWorkflow.needs_recognition = Boolean(payload.needs_recognition)
   pageWorkflow.can_edit_text = Boolean(payload.can_edit_text)
   pageWorkflow.has_text = Boolean(payload.has_text)
@@ -2385,7 +2385,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   color: #ffd2b6;
 }
 
-.workflow-pill.state-missing_ocr,
+.workflow-pill.state-missing_page_xml,
 .workflow-pill.state-refreshing_ocr {
   background: rgba(48, 116, 170, 0.18);
   border-color: rgba(108, 181, 240, 0.4);

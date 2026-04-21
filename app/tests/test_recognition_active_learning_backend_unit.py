@@ -232,7 +232,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
             base_checkpoint_path=base_checkpoint,
         )
 
-        self.assertEqual(summary["state"], "missing_ocr")
+        self.assertEqual(summary["state"], "missing_page_xml")
         self.assertFalse(summary["can_edit_text"])
         self.assertTrue(summary["needs_recognition"])
 
