@@ -342,6 +342,29 @@ def _job_summary_label(job_type: str, payload: dict, state: str) -> str:
     return f"Learning status: {state.replace('_', ' ')}"
 
 
+def _completed_job_status(job_status: dict, registry: ManuscriptOcrRegistry) -> tuple[str, str]:
+    job_type = str(job_status.get("job_type") or "")
+    payload = dict(job_status.get("payload") or {})
+    result = dict(job_status.get("result") or {})
+    page_id = payload.get("page_id")
+
+    if job_type == JobType.OCR_FINE_TUNE.value:
+        if bool(result.get("promoted")):
+            return "idle", f"New active reader is now ready from page {page_id}"
+        return "idle", f"Kept the current active reader after checking page {page_id}"
+
+    if job_type == JobType.OCR_REBASE.value:
+        if bool(result.get("rebuilt")):
+            return "idle", "New active reader is now ready from saved pages"
+        if registry.data.get("needs_rebase"):
+            return "needs_rebase", "Saved pages still need to be merged into the active reader"
+        return "idle", "Finished checking saved pages"
+
+    if registry.data.get("needs_rebase"):
+        return "needs_rebase", "Saved pages still need to be merged into the active reader"
+    return "idle", "Not updating right now"
+
+
 def _record_job_event(registry: ManuscriptOcrRegistry, event_name: str, job_status: dict) -> None:
     payload = {
         "event": event_name,
@@ -396,8 +419,7 @@ def _handle_orchestrator_event(event_name: str, job_status: dict) -> None:
     elif event_name in {"completed", "failed", "canceled"}:
         registry.remove_pending_job(job_id)
         if event_name == "completed":
-            status_code = "needs_rebase" if registry.data.get("needs_rebase") else "idle"
-            label = "Ready to update from saved pages" if registry.data.get("needs_rebase") else "Not updating right now"
+            status_code, label = _completed_job_status(job_status, registry)
             registry.set_status(status_code, label, job_id=job_id)
         elif event_name == "failed":
             registry.set_status("failed", "Could not update from saved corrections", job_id=job_id, error=job_status.get("error"))
@@ -695,6 +717,12 @@ def _train_candidate_step(job_payload: dict) -> dict:
             "run_dir": str(candidate_root),
             "status": "candidate",
         }
+    )
+    registry.set_status(
+        "verifying_candidate",
+        f"Checking the new reader from page {training_revision_ref['page_id']} before making it active",
+        candidate_id=candidate_id,
+        page_id=training_revision_ref["page_id"],
     )
     verification = verify_candidate_against_bank(
         {
