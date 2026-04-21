@@ -40,7 +40,7 @@ The user-visible proof will be that one pre-commit hook invocation prints two na
   Evidence: `app/tests/test_ci_e2e.py` hardcodes `eval_dataset`, `ci_eval_dataset`, the dataset directories, and the expected page count in the test body and class constants.
 
 - Observation: the current best hybrid OCR artifact gives us a concrete source of truth for initial thresholds.
-  Evidence: `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/metrics.json` records `curve_metric_value=0.22191428022294832`, `final_page_cer=0.14735729386892177`, `first_step_gain=0.05137420718816066`, and `max_regression=0.001691331923890066` for `wb_on_an_hist10_sn_optd_lr200000u`.
+  Evidence: `app/tests/logs/recognition_finetune_results_latest.json` records `curve_metric_value=0.22151451085911972`, `final_page_cer=0.13784355179704016`, `first_step_gain=0.0572938689217759`, and `max_regression=0.0` for `wb_on_an_hist10_sn_optd_lr200000u`.
 
 - Observation: the easiest safe implementation path was to extend the existing single-policy runner rather than clone it.
   Evidence: `app/tests/recognition_finetuning_experiment.py` now lets `_run_single_policy_run(...)` switch between hard-fail and warning-only regression-guard modes, so the research studies keep strict behavior while the surrogate pre-commit gate can finish all steps and still report `max_regression`.
@@ -128,14 +128,14 @@ That harness prepares perfect line crops from PAGE-XML ground truth, fine-tunes 
 
 The best completed artifact for that recipe is:
 
-- `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/`
+- `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/`
 
 Its winning policy metrics are:
 
-- `curve_metric_value=0.22191428022294832`
-- `final_page_cer=0.14735729386892177`
-- `first_step_gain=0.05137420718816066`
-- `max_regression=0.001691331923890066`
+- `curve_metric_value=0.22151451085911972`
+- `final_page_cer=0.13784355179704016`
+- `first_step_gain=0.0572938689217759`
+- `max_regression=0.0`
 
 The new pre-commit gate must reuse this hybrid recipe, but it must not reuse the whole two-policy study shape. A commit gate should run one explicit policy, compare the resulting metrics to checked-in thresholds, and produce one clear pass or fail result per dataset.
 
@@ -290,7 +290,7 @@ Important current source-of-truth files and artifacts for this work are:
 - `app/tests/recognition_finetuning_experiment.py`
 - `app/tests/logs/ci_eval_results_latest.json`
 - `app/tests/logs/recognition_finetune_results_latest.json`
-- `app/tests/logs/20260419_132843_ocrft_pagehist_eval_dataset/metrics.json`
+- `app/tests/logs/20260419_163521_ocrft_pagehist_eval_dataset/metrics.json`
 
 The initial OCR gate thresholds in the registry should be seeded from the current hybrid artifact but with explicit headroom. The first checked-in values should be:
 

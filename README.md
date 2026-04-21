@@ -11,7 +11,7 @@ Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https
 
 
 **Version:** 3.0  
-**Last Updated:** March 26, 2026
+**Last Updated:** April 21, 2026
 
 ## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
@@ -121,6 +121,18 @@ npm run dev
 Access the UI at `http://localhost:5173`.
 
 ```npm install``` only needs to be run once for the first time. To launch the front-end subsequently, we need to only need to run ```npm run dev```.
+
+#### Current OCR Active Learning Runtime
+The app now exposes an `Active Learning` toggle in the top bar. It defaults to on, is persisted in browser `localStorage`, and controls the manuscript-local OCR fine-tuning runtime for the local checkpoint family.
+
+Current behavior:
+
+- commit saves record durable page revisions and can enqueue manuscript-local OCR fine-tune or rebase work
+- draft autosaves still persist the page, but they do not create OCR lineage or queue training
+- the UI surfaces runtime state inline as `AL: ...`
+- manuscript-local checkpoints, telemetry, and profiling are stored under `app/input_manuscripts/<manuscript>/active_learning/recognition/`
+
+Gemini can still be used for prediction, but the active-learning lineage is built around the local OCR checkpoint family and its manuscript-specific promotions.
 
 
 
