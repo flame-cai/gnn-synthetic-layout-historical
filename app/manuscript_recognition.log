@@ -2028,3 +2028,188 @@
 2026-04-21 12:41:50,206 - INFO - 127.0.0.1 - - [21/Apr/2026 12:41:50] "OPTIONS /recognize-text HTTP/1.1" 200 -
 2026-04-21 12:42:23,181 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0009.xml: 10 lines recognized.
 2026-04-21 12:42:23,257 - INFO - 127.0.0.1 - - [21/Apr/2026 12:42:23] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:43:22,512 - INFO - 127.0.0.1 - - [21/Apr/2026 12:43:22] "GET /semi-segment/ashirmanimala/44_0008 HTTP/1.1" 200 -
+2026-04-21 12:43:24,504 - INFO - 127.0.0.1 - - [21/Apr/2026 12:43:24] "GET /semi-segment/ashirmanimala/44_0007 HTTP/1.1" 200 -
+2026-04-21 12:43:47,029 - INFO - 127.0.0.1 - - [21/Apr/2026 12:43:47] "GET /semi-segment/ashirmanimala/44_0008 HTTP/1.1" 200 -
+2026-04-21 12:43:48,641 - INFO - 127.0.0.1 - - [21/Apr/2026 12:43:48] "GET /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:43:50,439 - INFO - 127.0.0.1 - - [21/Apr/2026 12:43:50] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:43:50,714 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\ashirmanimala\active_learning\recognition\checkpoints\ocr_44_0009_r0001\training_run\best_accuracy.pth...
+2026-04-21 12:43:51,839 - INFO - Model loaded successfully.
+2026-04-21 12:43:53,740 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0009.xml: 10 lines recognized.
+2026-04-21 12:43:53,838 - INFO - 127.0.0.1 - - [21/Apr/2026 12:43:53] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:44:23,111 - INFO - 127.0.0.1 - - [21/Apr/2026 12:44:23] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:44:25,318 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0009.xml: 10 lines recognized.
+2026-04-21 12:44:25,409 - INFO - 127.0.0.1 - - [21/Apr/2026 12:44:25] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:44:49,017 - INFO - 127.0.0.1 - - [21/Apr/2026 12:44:49] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:44:51,442 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0009.xml: 10 lines recognized.
+2026-04-21 12:44:51,544 - INFO - 127.0.0.1 - - [21/Apr/2026 12:44:51] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:45:09,028 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:09] "OPTIONS /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:45:10,482 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:10] "POST /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:45:29,102 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:29] "OPTIONS /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:45:30,248 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:30] "POST /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-04-21 12:45:53,525 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:53] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 12:45:53,883 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:53] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 12:45:54,349 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:54] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 12:45:59,349 - INFO - 127.0.0.1 - - [21/Apr/2026 12:45:59] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:46:00,790 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:00] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:46:01,057 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:01] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:46:08,846 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:08] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:46:10,339 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:10] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:46:10,513 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:10] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:46:10,882 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:10] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:46:11,153 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 12:46:12,131 - INFO - Model loaded successfully.
+2026-04-21 12:46:15,153 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 19 lines recognized.
+2026-04-21 12:46:15,250 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:15] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:46:30,599 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:30] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:46:32,343 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:32] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:46:48,035 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:48] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:46:51,685 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 19 lines recognized.
+2026-04-21 12:46:51,800 - INFO - 127.0.0.1 - - [21/Apr/2026 12:46:51] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 12:56:08,439 - INFO - 127.0.0.1 - - [21/Apr/2026 12:56:08] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 12:56:08,850 - INFO - 127.0.0.1 - - [21/Apr/2026 12:56:08] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:56:15,251 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 12:56:17,398 - INFO -  * Restarting with stat
+2026-04-21 12:56:35,956 - WARNING -  * Debugger is active!
+2026-04-21 12:56:35,963 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 12:59:24,143 - INFO - 127.0.0.1 - - [21/Apr/2026 12:59:24] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 12:59:24,513 - INFO - 127.0.0.1 - - [21/Apr/2026 12:59:24] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 12:59:33,511 - INFO - 127.0.0.1 - - [21/Apr/2026 12:59:33] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 12:59:33,929 - INFO - 127.0.0.1 - - [21/Apr/2026 12:59:33] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 13:01:48,929 - INFO - 127.0.0.1 - - [21/Apr/2026 13:01:48] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:01:49,199 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 13:01:52,152 - INFO - Model loaded successfully.
+2026-04-21 13:01:55,603 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 19 lines recognized.
+2026-04-21 13:01:55,689 - INFO - 127.0.0.1 - - [21/Apr/2026 13:01:55] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:15:50,646 - INFO - 127.0.0.1 - - [21/Apr/2026 13:15:50] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:15:53,029 - INFO - 127.0.0.1 - - [21/Apr/2026 13:15:53] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:15:56,055 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:15:56,118 - INFO - 127.0.0.1 - - [21/Apr/2026 13:15:56] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:17:23,149 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:23] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:17:23,434 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:23] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:17:33,972 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:33] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:17:34,350 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:34] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:17:44,854 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:44] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:17:45,196 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:45] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:17:52,283 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:52] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:17:52,636 - INFO - 127.0.0.1 - - [21/Apr/2026 13:17:52] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:18:01,080 - INFO - 127.0.0.1 - - [21/Apr/2026 13:18:01] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:18:01,437 - INFO - 127.0.0.1 - - [21/Apr/2026 13:18:01] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:18:09,758 - INFO - 127.0.0.1 - - [21/Apr/2026 13:18:09] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:18:10,123 - INFO - 127.0.0.1 - - [21/Apr/2026 13:18:10] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:19:55,998 - INFO - 127.0.0.1 - - [21/Apr/2026 13:19:55] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:19:58,935 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:19:59,017 - INFO - 127.0.0.1 - - [21/Apr/2026 13:19:59] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:22:36,409 - INFO - 127.0.0.1 - - [21/Apr/2026 13:22:36] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:22:37,614 - INFO - 127.0.0.1 - - [21/Apr/2026 13:22:37] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:22:48,249 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 13:22:50,606 - INFO -  * Restarting with stat
+2026-04-21 13:23:08,268 - WARNING -  * Debugger is active!
+2026-04-21 13:23:08,273 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:23:11,483 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-04-21 13:23:15,254 - INFO -  * Restarting with stat
+2026-04-21 13:23:33,102 - WARNING -  * Debugger is active!
+2026-04-21 13:23:33,110 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:23:33,182 - INFO - 127.0.0.1 - - [21/Apr/2026 13:23:33] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:23:33,340 - INFO - 127.0.0.1 - - [21/Apr/2026 13:23:33] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:23:37,067 - INFO - 127.0.0.1 - - [21/Apr/2026 13:23:37] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:23:37,356 - INFO - 127.0.0.1 - - [21/Apr/2026 13:23:37] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:23:51,720 - INFO - 127.0.0.1 - - [21/Apr/2026 13:23:51] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:23:52,084 - INFO - 127.0.0.1 - - [21/Apr/2026 13:23:52] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:24:04,439 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-04-21 13:24:06,793 - INFO -  * Restarting with stat
+2026-04-21 13:24:23,779 - WARNING -  * Debugger is active!
+2026-04-21 13:24:23,786 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:28:14,684 - INFO - 127.0.0.1 - - [21/Apr/2026 13:28:14] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:28:14,995 - INFO - 127.0.0.1 - - [21/Apr/2026 13:28:14] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:30:55,286 - INFO - 127.0.0.1 - - [21/Apr/2026 13:30:55] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:30:55,559 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 13:30:58,947 - INFO - Model loaded successfully.
+2026-04-21 13:31:02,440 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:31:02,537 - INFO - 127.0.0.1 - - [21/Apr/2026 13:31:02] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:38:39,426 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 13:38:41,711 - INFO -  * Restarting with stat
+2026-04-21 13:39:03,760 - WARNING -  * Debugger is active!
+2026-04-21 13:39:03,769 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:44:38,582 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 13:44:42,160 - INFO -  * Restarting with stat
+2026-04-21 13:44:57,943 - WARNING -  * Debugger is active!
+2026-04-21 13:44:57,953 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:47:11,881 - INFO - 127.0.0.1 - - [21/Apr/2026 13:47:11] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:47:12,171 - INFO - 127.0.0.1 - - [21/Apr/2026 13:47:12] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:47:33,559 - INFO - 127.0.0.1 - - [21/Apr/2026 13:47:33] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:47:33,934 - INFO - 127.0.0.1 - - [21/Apr/2026 13:47:33] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:48:04,954 - INFO - 127.0.0.1 - - [21/Apr/2026 13:48:04] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:48:05,327 - INFO - 127.0.0.1 - - [21/Apr/2026 13:48:05] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:48:54,474 - INFO - 127.0.0.1 - - [21/Apr/2026 13:48:54] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:48:54,833 - INFO - 127.0.0.1 - - [21/Apr/2026 13:48:54] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:49:01,626 - INFO - 127.0.0.1 - - [21/Apr/2026 13:49:01] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:49:01,981 - INFO - 127.0.0.1 - - [21/Apr/2026 13:49:01] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:49:06,652 - INFO - 127.0.0.1 - - [21/Apr/2026 13:49:06] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:49:07,003 - INFO - 127.0.0.1 - - [21/Apr/2026 13:49:07] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:49:32,097 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\manuscript_ocr_registry.py', reloading
+2026-04-21 13:49:35,734 - INFO -  * Restarting with stat
+2026-04-21 13:49:49,733 - WARNING -  * Debugger is active!
+2026-04-21 13:49:49,739 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:49:59,125 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 13:50:02,604 - INFO -  * Restarting with stat
+2026-04-21 13:50:16,197 - WARNING -  * Debugger is active!
+2026-04-21 13:50:16,203 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:50:19,393 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 13:50:21,594 - INFO -  * Restarting with stat
+2026-04-21 13:50:35,517 - WARNING -  * Debugger is active!
+2026-04-21 13:50:35,523 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:50:35,587 - INFO - 127.0.0.1 - - [21/Apr/2026 13:50:35] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:50:35,703 - INFO - 127.0.0.1 - - [21/Apr/2026 13:50:35] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:55:24,825 - INFO - 127.0.0.1 - - [21/Apr/2026 13:55:24] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:55:25,094 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 13:55:28,018 - INFO - Model loaded successfully.
+2026-04-21 13:55:30,867 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:55:30,953 - INFO - 127.0.0.1 - - [21/Apr/2026 13:55:30] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:56:04,936 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:56:07,963 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:56:08,031 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:08] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:56:11,737 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:11] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:56:14,709 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:56:14,787 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:14] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:56:17,341 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:17] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:56:20,295 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:56:20,385 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:20] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:56:38,658 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:38] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:56:39,025 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:39] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:56:41,875 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:41] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:56:42,217 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:42] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:56:44,890 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:44] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:56:45,241 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:45] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:56:48,645 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:48] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 13:56:48,993 - INFO - 127.0.0.1 - - [21/Apr/2026 13:56:48] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_001 HTTP/1.1" 200 -
+2026-04-21 13:57:39,370 - INFO - 127.0.0.1 - - [21/Apr/2026 13:57:39] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:57:42,364 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:57:42,435 - INFO - 127.0.0.1 - - [21/Apr/2026 13:57:42] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:58:25,555 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 13:58:27,191 - INFO -  * Restarting with stat
+2026-04-21 13:58:40,779 - WARNING -  * Debugger is active!
+2026-04-21 13:58:40,784 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:58:44,994 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\ocr_active_learning_runtime.py', reloading
+2026-04-21 13:58:48,412 - INFO -  * Restarting with stat
+2026-04-21 13:59:02,817 - WARNING -  * Debugger is active!
+2026-04-21 13:59:02,824 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:59:02,897 - INFO - 127.0.0.1 - - [21/Apr/2026 13:59:02] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:59:02,926 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 13:59:04,586 - INFO - Model loaded successfully.
+2026-04-21 13:59:07,178 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\manuscript_ocr_registry.py', reloading
+2026-04-21 13:59:08,984 - INFO -  * Restarting with stat
+2026-04-21 13:59:21,936 - WARNING -  * Debugger is active!
+2026-04-21 13:59:21,943 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 13:59:22,010 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 13:59:23,573 - INFO - Model loaded successfully.
+2026-04-21 13:59:26,282 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:59:26,392 - INFO - 127.0.0.1 - - [21/Apr/2026 13:59:26] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:59:41,254 - INFO - 127.0.0.1 - - [21/Apr/2026 13:59:41] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 13:59:44,497 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_001.xml: 15 lines recognized.
+2026-04-21 13:59:44,559 - INFO - 127.0.0.1 - - [21/Apr/2026 13:59:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:00:07,667 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\manuscript_ocr_registry.py', reloading
+2026-04-21 14:00:09,377 - INFO -  * Restarting with stat
+2026-04-21 14:00:23,668 - WARNING -  * Debugger is active!
+2026-04-21 14:00:23,672 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 14:01:32,305 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading

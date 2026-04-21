@@ -169,7 +169,7 @@ def _build_status_payload(registry: ManuscriptOcrRegistry) -> dict:
     active_checkpoint_path = str(registry.active_checkpoint())
     return {
         "code": status.get("code", "idle"),
-        "label": status.get("label", "AL: idle"),
+        "label": status.get("label", "Not updating right now"),
         "updated_at": status.get("updated_at"),
         "details": status.get("details", {}),
         "active_checkpoint_id": registry.active_checkpoint_id(),
@@ -204,9 +204,9 @@ def _reconcile_pending_jobs_with_orchestrator(
         current_status_code = str((registry.get_status() or {}).get("code") or "")
         if current_status_code in {"queued", "running", "paused_for_ocr"}:
             if registry.data.get("needs_rebase"):
-                registry.set_status("needs_rebase", "AL: needs rebase")
+                registry.set_status("needs_rebase", "Ready to update from saved pages")
             else:
-                registry.set_status("idle", "AL: idle")
+                registry.set_status("idle", "Not updating right now")
 
 
 def summarize_manuscript_active_learning(
@@ -227,10 +227,10 @@ def _prediction_source_label(prediction: dict | None) -> str | None:
         return None
     if engine == "local":
         if checkpoint_id and checkpoint_id != "base":
-            return f"Local OCR checkpoint {checkpoint_id}"
-        return "Pretrained local OCR"
+            return "Saved manuscript reader"
+        return "Built-in reader"
     if engine == "gemini":
-        return "Gemini OCR"
+        return "Gemini"
     return engine
 
 
@@ -257,30 +257,40 @@ def summarize_page_active_learning(
     correction_metrics = compute_text_edit_metrics(last_prediction.get("predicted_lines", {}), current_text_payload)
     prediction_source_label = _prediction_source_label(last_prediction)
 
+    # A newer active checkpoint alone does not invalidate saved page text.
+    # We only force OCR again when the recorded prediction no longer matches
+    # the current layout or when the page has no text to edit.
     if last_prediction and prediction_matches_current_layout is False:
         state = "stale_layout"
-        label = "Need to run Recognition again due to layout change"
-        hint = "Layout Change Detected: The layout of this page has changed. Please run Recognition Mode again to update the prediction based on the new layout before making corrections."
+        label = "Page structure changed"
+        hint = "The line structure on this page has changed. Open Text Review and read the page again before correcting the text."
         can_edit_text = False
         needs_recognition = True
     elif not has_text:
         state = "missing_page_xml"
-        label = "Layout Analysis Not Done"
-        hint = "Make corrections in Layout Mode before using Recognition Mode."
+        label = "Set up the page first"
+        hint = "Open Page Layout first, check the lines on the page, and then move to Text Review."
         can_edit_text = False
         needs_recognition = True
     elif last_prediction:
         state = "ready"
-        label = "Ready for correction"
-        hint = "Correct the latest OCR prediction, then commit the page."
+        label = "Ready to review"
+        hint = "Review the text line by line, make any corrections you need, and then save the page."
         can_edit_text = True
         needs_recognition = False
     else:
         state = "manual_only"
-        label = "Manual text only"
-        hint = "This page has text, but no prediction provenance was recorded."
+        label = "Saved text is available"
+        hint = "This page already has saved text. You can review it and save again when you are done."
         can_edit_text = True
         needs_recognition = False
+
+    # Reopening Recognition Mode should preserve any editable saved text,
+    # including draft-only text, as long as the current layout is still safe
+    # to edit without forcing a new OCR pass.
+    can_resume_recognition = bool(
+        can_edit_text and has_text
+    )
 
     return {
         "page_id": str(page_id),
@@ -289,6 +299,7 @@ def summarize_page_active_learning(
         "hint": hint,
         "needs_recognition": bool(needs_recognition),
         "can_edit_text": bool(can_edit_text),
+        "can_resume_recognition": bool(can_resume_recognition),
         "has_text": bool(has_text),
         "text_line_count": len(current_text_payload),
         "text_non_empty_line_count": int(non_empty_text_line_count),
@@ -320,15 +331,15 @@ def _job_summary_label(job_type: str, payload: dict, state: str) -> str:
     page_id = payload.get("page_id")
     if job_type == JobType.OCR_REBASE.value:
         if state == "running":
-            return "AL: rebuilding manuscript"
+            return "Updating from saved pages"
         if state == "queued":
-            return "AL: queued rebuild"
+            return "Waiting to update from saved pages"
     if job_type == JobType.OCR_FINE_TUNE.value:
         if state == "running":
-            return f"AL: training page {page_id}"
+            return f"Learning from page {page_id}"
         if state == "queued":
-            return f"AL: queued page {page_id}"
-    return f"AL: {state.replace('_', ' ')}"
+            return f"Waiting to learn from page {page_id}"
+    return f"Learning status: {state.replace('_', ' ')}"
 
 
 def _record_job_event(registry: ManuscriptOcrRegistry, event_name: str, job_status: dict) -> None:
@@ -381,17 +392,17 @@ def _handle_orchestrator_event(event_name: str, job_status: dict) -> None:
         )
     elif event_name == "requeued":
         registry.update_pending_job(job_id, state="queued", requeued_at=utc_now_iso())
-        registry.set_status("paused_for_ocr", "AL: paused for OCR", job_id=job_id)
+        registry.set_status("paused_for_ocr", "Paused while reading this page", job_id=job_id)
     elif event_name in {"completed", "failed", "canceled"}:
         registry.remove_pending_job(job_id)
         if event_name == "completed":
             status_code = "needs_rebase" if registry.data.get("needs_rebase") else "idle"
-            label = "AL: needs rebase" if registry.data.get("needs_rebase") else "AL: idle"
+            label = "Ready to update from saved pages" if registry.data.get("needs_rebase") else "Not updating right now"
             registry.set_status(status_code, label, job_id=job_id)
         elif event_name == "failed":
-            registry.set_status("failed", "AL: failed", job_id=job_id, error=job_status.get("error"))
+            registry.set_status("failed", "Could not update from saved corrections", job_id=job_id, error=job_status.get("error"))
         elif event_name == "canceled":
-            registry.set_status("paused_for_ocr", "AL: paused for OCR", job_id=job_id)
+            registry.set_status("paused_for_ocr", "Paused while reading this page", job_id=job_id)
     _record_job_event(registry, event_name, job_status)
 
 
@@ -407,7 +418,7 @@ def prepare_for_interactive_ocr(
     if not running_job_id:
         return
     registry = _load_registry_for_manuscript(manuscript_root)
-    registry.set_status("paused_for_ocr", "AL: paused for OCR", job_id=running_job_id)
+    registry.set_status("paused_for_ocr", "Paused while reading this page", job_id=running_job_id)
     deadline = time.time() + float(timeout_seconds)
     while time.time() < deadline:
         status = orchestrator.get_job_status(running_job_id)
@@ -554,9 +565,9 @@ def handle_post_save(
     )
 
     if save_intent == "draft":
-        registry.set_status("idle", "AL: idle")
+        registry.set_status("idle", "Not updating right now")
     elif registry.data.get("needs_rebase"):
-        registry.set_status("needs_rebase", "AL: needs rebase")
+        registry.set_status("needs_rebase", "Ready to update from saved pages")
 
     return {
         "revision": revision.to_dict(),
@@ -723,10 +734,10 @@ def run_ocr_finetune_job(job_payload: dict) -> dict:
             step_result["training_revision_ref"]["revision_number"],
             step_result["candidate_id"],
         )
-        registry.set_status("idle", "AL: idle", candidate_id=step_result["candidate_id"])
+        registry.set_status("idle", "Not updating right now", candidate_id=step_result["candidate_id"])
     else:
         registry.reject_candidate(step_result["candidate_id"], verification)
-        registry.set_status("idle", "AL: idle", candidate_id=step_result["candidate_id"])
+        registry.set_status("idle", "Not updating right now", candidate_id=step_result["candidate_id"])
     return {
         "candidate_id": step_result["candidate_id"],
         "checkpoint_path": step_result["checkpoint_path"],
@@ -740,7 +751,7 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
     approved_revision_refs = list(job_payload.get("approved_revision_refs") or [])
     if not approved_revision_refs:
         registry.clear_rebase()
-        registry.set_status("idle", "AL: idle")
+        registry.set_status("idle", "Not updating right now")
         return {"rebuilt": False, "reason": "no_supervised_pages"}
 
     parent_checkpoint_path = _base_checkpoint_path(job_payload.get("base_checkpoint_path"))
@@ -766,7 +777,7 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
                 base_checkpoint_path=job_payload.get("base_checkpoint_path"),
             )
             registry.reject_candidate(step_result["candidate_id"], step_result["verification"])
-            registry.set_status("needs_rebase", "AL: needs rebase", failed_candidate=step_result["candidate_id"])
+            registry.set_status("needs_rebase", "Ready to update from saved pages", failed_candidate=step_result["candidate_id"])
             return {
                 "rebuilt": False,
                 "reason": "verification_failed",
@@ -790,7 +801,7 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
     for revision_ref in approved_revision_refs:
         registry.mark_revision_consumed(revision_ref["page_id"], revision_ref["revision_number"], final_candidate_id)
     registry.clear_rebase()
-    registry.set_status("idle", "AL: idle", candidate_id=final_candidate_id)
+    registry.set_status("idle", "Not updating right now", candidate_id=final_candidate_id)
     return {"rebuilt": True, "candidate_id": final_candidate_id}
 
 

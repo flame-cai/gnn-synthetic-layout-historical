@@ -131,7 +131,7 @@ class ManuscriptOcrRegistry:
         self.save()
 
     def set_status(self, code: str, label: str | None = None, **details) -> None:
-        label = label or f"AL: {code.replace('_', ' ')}"
+        label = label or f"Learning status: {code.replace('_', ' ')}"
         status = {
             "code": str(code),
             "label": str(label),
@@ -142,7 +142,7 @@ class ManuscriptOcrRegistry:
         self.save()
 
     def get_status(self) -> dict:
-        return dict(self.data.get("status") or {"code": "idle", "label": "AL: idle", "updated_at": _utc_now_iso()})
+        return dict(self.data.get("status") or {"code": "idle", "label": "Not updating right now", "updated_at": _utc_now_iso()})
 
     def active_checkpoint_id(self) -> str:
         return str(self.data.get("active_checkpoint_id") or self.data["base_checkpoint"]["checkpoint_id"])
@@ -443,7 +443,7 @@ def _initial_registry_payload(manuscript_root: Path, base_checkpoint_path: str |
         "active_learning_enabled": False,
         "needs_rebase": False,
         "rebase": {"needed": False},
-        "status": {"code": "idle", "label": "AL: idle", "updated_at": _utc_now_iso(), "details": {}},
+        "status": {"code": "idle", "label": "Not updating right now", "updated_at": _utc_now_iso(), "details": {}},
         "base_checkpoint": {
             "checkpoint_id": "base",
             "path": str(base_checkpoint_path),
