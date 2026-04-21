@@ -395,6 +395,18 @@ def get_pages(name):
 
     return jsonify({"pages": pages, "last_edited": last_edited})
 
+
+@app.route('/manuscript/<name>/active-learning', methods=['GET'])
+def get_manuscript_active_learning(name):
+    manuscript_path = Path(UPLOAD_FOLDER) / name
+    if not manuscript_path.exists():
+        return jsonify({"error": "Manuscript not found"}), 404
+    try:
+        return jsonify(_get_manuscript_active_learning_state(name))
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/semi-segment/<manuscript>/<page>', methods=['GET'])
 def get_page_prediction(manuscript, page):
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript

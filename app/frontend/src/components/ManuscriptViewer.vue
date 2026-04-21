@@ -50,6 +50,7 @@
             <div class="workflow-toggle-copy">
               <span class="workflow-toggle-label">Improve Future Reading</span>
               <span class="workflow-toggle-subcopy">{{ activeLearningStatus }}</span>
+              <span class="workflow-toggle-meta">{{ activeReaderStatusLabel }}</span>
             </div>
           </div>
 
@@ -644,6 +645,8 @@ watch(activeLearningEnabled, (val) => localStorage.setItem('active_learning_enab
 watch(geminiKey, (val) => localStorage.setItem('gemini_key', val))
 const localTextConfidence = reactive({}) 
 const autoSaveInterval = ref(null) // NEW
+let activeLearningPollIntervalId = null
+let activeLearningPollInFlight = false
 
 const scaleFactor = 0.7
 const DEFAULT_MEDIAN_NEIGHBOR_DISTANCE_RAW = 20
@@ -702,6 +705,7 @@ const describeLocalCheckpoint = (checkpointId) => {
 }
 
 const localCheckpointDescriptor = computed(() => describeLocalCheckpoint(activeLearningMeta.active_checkpoint_id))
+const activeReaderStatusLabel = computed(() => `Active Reader: ${localCheckpointDescriptor.value.modelLabel}`)
 
 const nextRecognitionSourceLabel = computed(() => {
   if (recognitionEngine.value === 'gemini') return 'Gemini'
@@ -1025,6 +1029,34 @@ const applyActiveLearningState = (payload = {}) => {
   activeLearningMeta.active_checkpoint_path = payload.active_checkpoint_path || null
   activeLearningMeta.pending_jobs = Array.isArray(payload.pending_jobs) ? payload.pending_jobs : []
   activeLearningMeta.needs_rebase = Boolean(payload.needs_rebase)
+}
+
+const refreshActiveLearningState = async () => {
+  if (!localManuscriptName.value || activeLearningPollInFlight) return
+  activeLearningPollInFlight = true
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/manuscript/${localManuscriptName.value}/active-learning`)
+    if (!response.ok) return
+    const data = await response.json()
+    applyActiveLearningState(data)
+  } catch (err) {
+    console.warn('Active learning state refresh failed', err)
+  } finally {
+    activeLearningPollInFlight = false
+  }
+}
+
+const startActiveLearningPolling = () => {
+  if (activeLearningPollIntervalId !== null) return
+  activeLearningPollIntervalId = window.setInterval(() => {
+    refreshActiveLearningState()
+  }, 2000)
+}
+
+const stopActiveLearningPolling = () => {
+  if (activeLearningPollIntervalId === null) return
+  window.clearInterval(activeLearningPollIntervalId)
+  activeLearningPollIntervalId = null
 }
 
 const applyPageWorkflow = (payload = {}) => {
@@ -2245,6 +2277,8 @@ onMounted(async () => {
     }
 
     await fetchPageData(props.manuscriptName, localCurrentPage.value, false, false)
+    await refreshActiveLearningState()
+    startActiveLearningPolling()
   }
   window.addEventListener('resize', scheduleBrowserZoomLevelUpdate, { passive: true })
   window.addEventListener('wheel', handleCtrlWheelZoom, { passive: true })
@@ -2277,6 +2311,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleGlobalKeyDown)
   window.removeEventListener('keyup', handleGlobalKeyUp)
   if(autoSaveInterval.value) clearInterval(autoSaveInterval.value);
+  stopActiveLearningPolling()
 })
 
 watch(() => props.pageName, async (newPageName) => {
@@ -2627,6 +2662,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 0.68rem;
   color: #9fd4ff;
   line-height: 1;
+}
+
+.workflow-toggle-meta {
+  font-size: 0.66rem;
+  color: #c9d0d7;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .workflow-select {
