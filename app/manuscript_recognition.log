@@ -2213,3 +2213,62 @@
 2026-04-21 14:00:23,668 - WARNING -  * Debugger is active!
 2026-04-21 14:00:23,672 - INFO -  * Debugger PIN: 122-047-077
 2026-04-21 14:01:32,305 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-04-21 14:01:35,910 - INFO -  * Restarting with stat
+2026-04-21 14:01:53,547 - WARNING -  * Debugger is active!
+2026-04-21 14:01:53,552 - INFO -  * Debugger PIN: 122-047-077
+2026-04-21 14:01:58,735 - INFO - 127.0.0.1 - - [21/Apr/2026 14:01:58] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:02:01,356 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:01] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:02:01,671 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-21 14:02:03,399 - INFO - Model loaded successfully.
+2026-04-21 14:02:06,879 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 19 lines recognized.
+2026-04-21 14:02:06,979 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:06] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:02:12,945 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:12] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:02:16,993 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 19 lines recognized.
+2026-04-21 14:02:17,073 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:17] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:02:33,104 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:33] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:02:34,635 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:34] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:02:47,304 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:47] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:02:50,865 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 19 lines recognized.
+2026-04-21 14:02:50,951 - INFO - 127.0.0.1 - - [21/Apr/2026 14:02:50] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:03:07,322 - INFO - 127.0.0.1 - - [21/Apr/2026 14:03:07] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:03:08,795 - INFO - 127.0.0.1 - - [21/Apr/2026 14:03:08] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:03:14,689 - INFO - 127.0.0.1 - - [21/Apr/2026 14:03:14] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:03:18,293 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 19 lines recognized.
+2026-04-21 14:03:18,364 - INFO - 127.0.0.1 - - [21/Apr/2026 14:03:18] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:05:50,625 - INFO - 127.0.0.1 - - [21/Apr/2026 14:05:50] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:05:51,006 - INFO - 127.0.0.1 - - [21/Apr/2026 14:05:51] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:07:03,981 - INFO - 127.0.0.1 - - [21/Apr/2026 14:07:03] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:07:05,496 - INFO - 127.0.0.1 - - [21/Apr/2026 14:07:05] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:08:44,116 - INFO - 127.0.0.1 - - [21/Apr/2026 14:08:44] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:08:45,669 - INFO - 127.0.0.1 - - [21/Apr/2026 14:08:45] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:08:45,847 - INFO - 127.0.0.1 - - [21/Apr/2026 14:08:45] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:08:46,225 - INFO - 127.0.0.1 - - [21/Apr/2026 14:08:46] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:08:49,537 - INFO - Updated input_manuscripts\amaranathamahatmyam\layout_analysis_output\page-xml-format\amaranathamahatmyam_page_002.xml: 18 lines recognized.
+2026-04-21 14:08:49,618 - INFO - 127.0.0.1 - - [21/Apr/2026 14:08:49] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-21 14:09:01,244 - INFO - 127.0.0.1 - - [21/Apr/2026 14:09:01] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:09:01,643 - INFO - 127.0.0.1 - - [21/Apr/2026 14:09:01] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:09:08,459 - INFO - 127.0.0.1 - - [21/Apr/2026 14:09:08] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:09:08,869 - INFO - 127.0.0.1 - - [21/Apr/2026 14:09:08] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:09:12,832 - INFO - 127.0.0.1 - - [21/Apr/2026 14:09:12] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:09:13,237 - INFO - 127.0.0.1 - - [21/Apr/2026 14:09:13] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:10:43,417 - INFO - 127.0.0.1 - - [21/Apr/2026 14:10:43] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:10:43,790 - INFO - 127.0.0.1 - - [21/Apr/2026 14:10:43] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:18:38,966 - INFO - 127.0.0.1 - - [21/Apr/2026 14:18:38] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:18:39,309 - INFO - 127.0.0.1 - - [21/Apr/2026 14:18:39] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:19:43,007 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:43] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:19:43,345 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:43] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:19:46,548 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:46] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:19:47,073 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:47] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:19:52,021 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:52] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:19:52,418 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:52] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:19:53,908 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:53] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:19:54,320 - INFO - 127.0.0.1 - - [21/Apr/2026 14:19:54] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:20:01,312 - INFO - 127.0.0.1 - - [21/Apr/2026 14:20:01] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:20:01,719 - INFO - 127.0.0.1 - - [21/Apr/2026 14:20:01] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:20:05,341 - INFO - 127.0.0.1 - - [21/Apr/2026 14:20:05] "GET /manuscript/amaranathamahatmyam/pages HTTP/1.1" 200 -
+2026-04-21 14:20:05,742 - INFO - 127.0.0.1 - - [21/Apr/2026 14:20:05] "GET /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:21:00,084 - INFO - 127.0.0.1 - - [21/Apr/2026 14:21:00] "GET /download-results/amaranathamahatmyam HTTP/1.1" 200 -
+2026-04-21 14:23:09,754 - INFO - 127.0.0.1 - - [21/Apr/2026 14:23:09] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:23:11,098 - INFO - 127.0.0.1 - - [21/Apr/2026 14:23:11] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:26:25,417 - INFO - 127.0.0.1 - - [21/Apr/2026 14:26:25] "OPTIONS /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -
+2026-04-21 14:26:26,956 - INFO - 127.0.0.1 - - [21/Apr/2026 14:26:26] "POST /semi-segment/amaranathamahatmyam/amaranathamahatmyam_page_002 HTTP/1.1" 200 -

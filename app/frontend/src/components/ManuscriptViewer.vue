@@ -59,27 +59,6 @@
             :class="{ 'is-inactive': !recognitionModeActive }"
             :aria-hidden="!recognitionModeActive"
           >
-            <!-- Keyboard Devnagari Toggle -->
-            <div class="workflow-toggle-group compact">
-              <label class="toggle-switch">
-                <input type="checkbox" v-model="devanagariModeEnabled">
-                <span class="slider"></span>
-              </label>
-              <div class="workflow-toggle-copy">
-                <span class="workflow-toggle-label">Keyboard</span>
-                <span class="workflow-toggle-subcopy">Devanagari</span>
-              </div>
-            </div>
-
-            <!-- Moved Rare Character Palette -->
-            <div
-              class="workflow-palette-slot"
-              :class="{ 'is-inactive': !devanagariModeEnabled }"
-              :aria-hidden="!devanagariModeEnabled"
-            >
-              <CharacterPalette />
-            </div>
-
             <!-- Moved OCR Engine Dropdown -->
             <div class="recognition-engine-panel" style="padding: 4px 10px; margin: 0; background: rgba(0,0,0,0.2); border-radius: 8px; gap: 8px;">
               <span class="recognition-engine-label" style="font-size: 0.65rem;">Read Text With</span>
@@ -375,6 +354,36 @@
            :disabled="isProcessingSave">
            Text Review (T)
          </button>
+
+         <div
+           v-show="recognitionModeActive"
+           class="mode-tools-shell"
+           :aria-hidden="!recognitionModeActive"
+         >
+           <div class="mode-tools-section">
+             <div class="mode-tools-label">Typing Tools</div>
+             <div class="mode-tools-controls">
+               <div class="workflow-toggle-group compact bottom-tools-toggle">
+                 <label class="toggle-switch">
+                   <input type="checkbox" v-model="devanagariModeEnabled">
+                   <span class="slider"></span>
+                 </label>
+                 <div class="workflow-toggle-copy">
+                   <span class="workflow-toggle-label">Keyboard</span>
+                   <span class="workflow-toggle-subcopy">Devanagari</span>
+                 </div>
+               </div>
+
+               <div
+                 v-show="devanagariModeEnabled"
+                 class="bottom-palette-slot"
+                 :aria-hidden="!devanagariModeEnabled"
+               >
+                 <CharacterPalette />
+               </div>
+             </div>
+           </div>
+         </div>
 
          <div class="tab-spacer"></div>
 
@@ -2313,8 +2322,7 @@ watch(recognitionModeActive, (val) => {
 /* Replace existing .top-bar */
 .top-bar {
   display: grid;
-  /* Proportions: Left small, Center small, Right largest */
-  grid-template-columns: minmax(200px, 1fr) minmax(360px, 1.5fr) minmax(480px, 2.5fr);
+  grid-template-columns: minmax(240px, 1.2fr) minmax(320px, 1.05fr) minmax(520px, 2.15fr);
   align-items: stretch;
   gap: 10px;
   padding: 8px 10px;
@@ -2569,10 +2577,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   align-content: center;
   min-height: 44px;
+  min-width: 0;
 }
 
 .workflow-recognition-controls.is-inactive,
@@ -2905,6 +2914,54 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .mode-tab { flex: 1; border-bottom: 3px solid transparent; color: #888; text-transform: uppercase; display: flex; align-items: center; justify-content: center; background: transparent; }
 .mode-tab:hover:not(:disabled) { background: #2a2a2a; color: #bbb; }
 .mode-tab.active { background: #2c2c2c; color: #448aff; border-bottom-color: #448aff; font-weight: 500; }
+.mode-tools-shell {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  padding: 4px 10px;
+  background: #212121;
+  border-left: 1px solid #323232;
+}
+.mode-tools-shell.is-inactive {
+  visibility: hidden;
+  pointer-events: none;
+}
+.mode-tools-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.035);
+}
+.mode-tools-label {
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  white-space: nowrap;
+}
+.mode-tools-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.bottom-tools-toggle {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.04);
+}
+.bottom-palette-slot {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+}
+.bottom-palette-slot.is-inactive {
+  visibility: hidden;
+  pointer-events: none;
+}
 .tab-spacer { flex-grow: 1; background: #212121; }
 .panel-toggle-btn { background: #333; color: #aaa; border-left: 1px solid #444; padding: 0 16px; min-width: 100px; }
 
