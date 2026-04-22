@@ -156,6 +156,33 @@ class ManuscriptOcrRegistryUnitTest(unittest.TestCase):
         self.assertTrue(repeated_commit.is_duplicate)
         self.assertEqual(len(registry.data["page_revisions"]["233_0001"]), 3)
 
+    def test_supervised_revision_queries_handle_mixed_page_id_prefixes(self):
+        root = TESTS_ROOT / "_tmp_registry_unit" / "mixed_page_ids"
+        root.mkdir(parents=True, exist_ok=True)
+        base_checkpoint = root / "base.pth"
+        base_checkpoint.write_text("base", encoding="utf-8")
+        registry = load_registry(root / "manuscript", base_checkpoint)
+
+        for page_id in ("2", "10", "a", "b"):
+            revision = registry.record_page_revision(
+                page_id,
+                {
+                    "content_hash": f"hash-{page_id}",
+                    "save_intent": "commit",
+                    "supervision_present": True,
+                    "recognition_engine": "local",
+                    "text_line_count": 1,
+                    "text_non_empty_line_count": 1,
+                },
+            )
+            registry.mark_revision_consumed(page_id, revision.revision_number, f"ckpt-{page_id}")
+
+        latest = registry.latest_supervised_commit_revisions()
+        approved = registry.approved_supervised_revisions()
+
+        self.assertEqual([revision["page_id"] for revision in latest], ["2", "10", "a", "b"])
+        self.assertEqual([revision["page_id"] for revision in approved], ["2", "10", "a", "b"])
+
     def test_save_retries_when_atomic_replace_hits_temporary_windows_lock(self):
         root = TESTS_ROOT / "_tmp_registry_unit" / "atomic_retry"
         root.mkdir(parents=True, exist_ok=True)
