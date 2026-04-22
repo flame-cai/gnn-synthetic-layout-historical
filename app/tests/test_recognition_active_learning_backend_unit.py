@@ -3,6 +3,7 @@ import sys
 import unittest
 from unittest import mock
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 from PIL import Image
 
@@ -16,6 +17,7 @@ if str(APP_ROOT) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from app import app as backend_app_module
 from job_orchestrator import JobType
 from manuscript_ocr_registry import load_registry
 from ocr_active_learning_runtime import (
@@ -239,6 +241,134 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertFalse(summary["can_edit_text"])
         self.assertTrue(summary["needs_recognition"])
         self.assertFalse(summary["prediction"]["matches_current_layout"])
+
+    def test_compute_page_layout_fingerprint_ignores_equivalent_point_order_changes(self):
+        manuscript_root, _ = self._make_manuscript_root("layout_fingerprint_point_order")
+        xml_dir = manuscript_root / "layout_analysis_output" / "page-xml-format"
+        first_xml = xml_dir / "first.xml"
+        second_xml = xml_dir / "second.xml"
+
+        first_xml.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Page imageFilename="233_0001.jpg" imageWidth="100" imageHeight="100">
+    <TextRegion id="region_0">
+      <TextLine id="line_0" custom="structure_line_id_7">
+        <Coords points="10,10 40,10 40,20 10,20" />
+        <Baseline points="10,15 25,15 40,15" />
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+        second_xml.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Page imageFilename="233_0001.jpg" imageWidth="100" imageHeight="100">
+    <TextRegion id="region_0">
+      <TextLine id="line_0" custom="structure_line_id_7">
+        <Coords points="40,20 10,20 10,10 40,10" />
+        <Baseline points="40,15 25,15 10,15" />
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+
+        first_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(first_xml))
+        second_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(second_xml))
+
+        self.assertEqual(first_fingerprint, second_fingerprint)
+
+    def test_text_only_save_updates_text_without_regenerating_layout(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("text_only_save")
+        page_id = "233_0001"
+        xml_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}.xml"
+        xml_path.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Page imageFilename="233_0001.jpg" imageWidth="100" imageHeight="100">
+    <TextRegion id="region_0">
+      <TextLine id="line_0" custom="structure_line_id_7">
+        <Coords points="10,10 40,10 40,20 10,20" />
+        <Baseline points="10,15 25,15 40,15" />
+        <TextEquiv>
+          <Unicode>old text</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+
+        original_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(xml_path))
+        client = backend_app_module.app.test_client()
+        mock_active_learning_result = {
+            "active_learning": {"label": "Not updating right now"},
+            "revision": {
+                "page_id": page_id,
+                "revision_number": 1,
+                "save_intent": "draft",
+                "is_duplicate": False,
+            },
+            "queued_job_ids": [],
+        }
+
+        with (
+            mock.patch.object(backend_app_module, "UPLOAD_FOLDER", str(manuscript_root.parent)),
+            mock.patch.object(backend_app_module, "generate_xml_and_images_for_page") as mock_generate,
+            mock.patch.object(
+                backend_app_module,
+                "handle_post_save",
+                return_value=mock_active_learning_result,
+            ),
+            mock.patch.object(
+                backend_app_module,
+                "_build_page_workflow",
+                return_value={"state": "ready", "can_edit_text": True, "needs_recognition": False},
+            ),
+        ):
+            response = client.post(
+                f"/semi-segment/{manuscript_root.name}/{page_id}",
+                json={
+                    "graph": {"nodes": [{"x": 1, "y": 2, "s": 3}], "edges": []},
+                    "modifications": [],
+                    "textlineLabels": [-1],
+                    "textboxLabels": [0],
+                    "textContent": {"7": "corrected text"},
+                    "runRecognition": False,
+                    "recognitionEngine": "local",
+                    "saveIntent": "draft",
+                    "saveScope": "text_only",
+                    "activeLearningEnabled": False,
+                },
+            )
+
+        response_json = response.get_json()
+        self.assertEqual(response.status_code, 200, response_json)
+        self.assertEqual(response_json["status"], "success")
+        self.assertEqual(response_json["lines"], 1)
+        mock_generate.assert_not_called()
+
+        updated_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(xml_path))
+        self.assertEqual(updated_fingerprint, original_fingerprint)
+        self.assertEqual(
+            backend_app_module.get_existing_text_content(str(xml_path))["text"],
+            {"7": "corrected text"},
+        )
+
+        ns = {"p": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"}
+        root = ET.parse(xml_path).getroot()
+        textline = root.find(".//p:TextLine", ns)
+        self.assertIsNotNone(textline)
+        self.assertEqual(textline.find("./p:Coords", ns).get("points"), "10,10 40,10 40,20 10,20")
+        self.assertEqual(textline.find("./p:Baseline", ns).get("points"), "10,15 25,15 40,15")
 
     def test_page_summary_marks_page_missing_when_no_text_exists(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("page_missing")

@@ -592,6 +592,7 @@ const nodeToTextlineMap = ref({})
 const hoveredTextlineId = ref(null)
 const textboxLabels = ref(0) 
 const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] 
+const savedTextboxLabelsSnapshot = ref('[]')
 
 // Recognition Data
 const geminiKey = ref(localStorage.getItem('gemini_key') || '')
@@ -684,7 +685,33 @@ const scaledHeight = computed(() => Math.floor(dimensions.value[1] * scaleFactor
 const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
-const hasUnsavedLayoutChanges = computed(() => modifications.value.length > 0)
+
+const buildTextboxLabelsPayload = (numNodes = 0) => {
+  const safeNodeCount = Math.max(0, Number(numNodes) || 0)
+  const labels = new Array(safeNodeCount).fill(0)
+  Object.keys(textlineLabels).forEach((nodeIndex) => {
+    const parsedIndex = Number(nodeIndex)
+    if (!Number.isInteger(parsedIndex) || parsedIndex < 0 || parsedIndex >= safeNodeCount) return
+    labels[parsedIndex] = Number(textlineLabels[nodeIndex] ?? 0)
+  })
+  return labels
+}
+
+const syncSavedTextboxLabelsSnapshot = (numNodes = workingGraph.nodes?.length || graph.value?.nodes?.length || 0) => {
+  savedTextboxLabelsSnapshot.value = JSON.stringify(buildTextboxLabelsPayload(numNodes))
+}
+
+const hasUnsavedTextboxLabelChanges = computed(() => {
+  const nodeCount = workingGraph.nodes?.length || graph.value?.nodes?.length || 0
+  return JSON.stringify(buildTextboxLabelsPayload(nodeCount)) !== savedTextboxLabelsSnapshot.value
+})
+
+const hasUnsavedGraphChanges = computed(() => modifications.value.length > 0)
+const hasUnsavedLayoutChanges = computed(() => hasUnsavedGraphChanges.value || hasUnsavedTextboxLabelChanges.value)
+const currentSaveScope = computed(() => {
+  if (!hasUnsavedLayoutChanges.value && recognitionDraftDirty.value) return 'text_only'
+  return recognitionModeActive.value ? 'text_only' : 'layout'
+})
 
 const describeLocalCheckpoint = (checkpointId) => {
   if (!checkpointId || checkpointId === 'base') {
@@ -1595,6 +1622,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
 
     updatePageDynamicSizing(graph.value?.nodes || [], graph.value?.edges || [])
     resetWorkingGraph()
+    syncSavedTextboxLabelsSnapshot(graph.value?.nodes?.length || 0)
     sortLinesTopToBottom()
   } catch (err) {
     console.error(err)
@@ -2080,12 +2108,10 @@ const addMSTEdges = () => {
   })
 }
 
-const saveModifications = async (background = false) => {
+const saveModifications = async (background = false, options = {}) => {
+  const forceLayoutSave = options?.forceLayoutSave === true
   const numNodes = workingGraph.nodes.length
-  const labelsToSend = new Array(numNodes).fill(0) 
-  for (const nodeIndex in textlineLabels) {
-    if (nodeIndex < numNodes) labelsToSend[nodeIndex] = textlineLabels[nodeIndex]
-  }
+  const labelsToSend = buildTextboxLabelsPayload(numNodes)
   const dummyTextlineLabels = new Array(numNodes).fill(-1);
   const textContentForSave = hasUnsavedLayoutChanges.value ? {} : { ...localTextContent }
   const requestBody = {
@@ -2099,6 +2125,7 @@ const saveModifications = async (background = false) => {
     recognitionEngine: recognitionEngine.value, // <--- NEW PARAMETER
     activeLearningEnabled: activeLearningEnabled.value,
     saveIntent: background ? 'draft' : 'commit',
+    saveScope: forceLayoutSave ? 'layout' : currentSaveScope.value,
   }
   try {
     const res = await fetch(
@@ -2118,6 +2145,7 @@ const saveModifications = async (background = false) => {
 
     modifications.value = []
     recognitionDraftDirty.value = false
+    syncSavedTextboxLabelsSnapshot(numNodes)
     error.value = null
   } catch (err) {
     error.value = err.message
@@ -2128,13 +2156,14 @@ const saveModifications = async (background = false) => {
 
 const requestSwitchToRecognition = async (forceRecognition = false) => {
     const shouldForceRecognition = forceRecognition === true
+    const requiresSavedLayoutForRecognition = pageWorkflowRequiresLayoutMode(effectivePageWorkflow.value)
     if (recognitionInFlight.value) return;
     if (recognitionModeActive.value && !shouldForceRecognition && !hasUnsavedLayoutChanges.value) return;
 
     isProcessingSave.value = true;
     try {
-        if (hasUnsavedLayoutChanges.value) {
-            await saveModifications(); 
+        if (hasUnsavedLayoutChanges.value || requiresSavedLayoutForRecognition) {
+            await saveModifications(false, { forceLayoutSave: true }); 
             await fetchPageData(localManuscriptName.value, localCurrentPage.value, true, false);
         }
         setMode('recognition');

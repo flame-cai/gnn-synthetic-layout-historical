@@ -143,6 +143,13 @@ def _revision_ref(page_id: str, revision_number: int) -> dict:
     return {"page_id": str(page_id), "revision_number": int(revision_number)}
 
 
+def _revision_refs_from_revisions(revisions: list[dict]) -> list[dict]:
+    return [
+        _revision_ref(revision_payload["page_id"], revision_payload["revision_number"])
+        for revision_payload in revisions
+    ]
+
+
 def _prediction_payload(predicted_lines: dict, recognition_engine: str, checkpoint_id: str | None, checkpoint_path: str | None, confidences: dict | None = None) -> dict:
     return {
         "predicted_lines": dict(predicted_lines or {}),
@@ -463,6 +470,126 @@ def prepare_for_interactive_ocr(
         time.sleep(0.1)
 
 
+def _build_rebase_job(
+    manuscript: str,
+    manuscript_root: Path,
+    base_checkpoint_path: str,
+    approved_revision_refs: list[dict],
+    recipe: OcrActiveLearningRecipe,
+) -> QueuedJob:
+    return QueuedJob(
+        job_type=JobType.OCR_REBASE.value,
+        manuscript=manuscript,
+        manuscript_root=str(manuscript_root),
+        priority=int(JobPriority.BULK_PREPROCESS),
+        resource_name="gpu",
+        isolated=True,
+        payload={
+            "job_type": JobType.OCR_REBASE.value,
+            "manuscript": manuscript,
+            "manuscript_root": str(manuscript_root),
+            "base_checkpoint_path": base_checkpoint_path,
+            "approved_revision_refs": list(approved_revision_refs),
+            "recipe": recipe.to_dict(),
+        },
+    )
+
+
+def _build_fine_tune_job(
+    manuscript: str,
+    manuscript_root: Path,
+    page: str,
+    revision_number: int,
+    candidate_id: str,
+    parent_checkpoint_id: str,
+    parent_checkpoint_path: str,
+    base_checkpoint_path: str,
+    history_revision_refs: list[dict],
+    recipe: OcrActiveLearningRecipe,
+) -> QueuedJob:
+    return QueuedJob(
+        job_type=JobType.OCR_FINE_TUNE.value,
+        manuscript=manuscript,
+        manuscript_root=str(manuscript_root),
+        priority=int(JobPriority.BACKGROUND_TRAINING),
+        resource_name="gpu",
+        isolated=True,
+        payload={
+            "job_type": JobType.OCR_FINE_TUNE.value,
+            "manuscript": manuscript,
+            "manuscript_root": str(manuscript_root),
+            "page_id": str(page),
+            "revision_number": int(revision_number),
+            "training_revision_ref": _revision_ref(page, revision_number),
+            "history_revision_refs": list(history_revision_refs),
+            "candidate_id": candidate_id,
+            "parent_checkpoint_id": parent_checkpoint_id,
+            "parent_checkpoint_path": parent_checkpoint_path,
+            "base_checkpoint_path": base_checkpoint_path,
+            "recipe": recipe.to_dict(),
+        },
+    )
+
+
+def _record_page_save_event(
+    registry: ManuscriptOcrRegistry,
+    manuscript: str,
+    page: str,
+    revision_number: int,
+    save_intent: str,
+    active_learning_enabled: bool,
+    entered_active_learning: bool,
+    revision_is_duplicate: bool,
+    supervision_present: bool,
+    prediction_engine: str | None,
+    prediction_checkpoint_id: str | None,
+    recognition_engine: str,
+    layout_metrics: dict,
+    text_metrics: dict,
+) -> None:
+    page_event = {
+        "recorded_at": utc_now_iso(),
+        "manuscript": manuscript,
+        "page_id": page,
+        "revision_number": revision_number,
+        "save_intent": save_intent,
+        "active_learning_enabled": bool(active_learning_enabled),
+        "entered_active_learning": bool(entered_active_learning),
+        "revision_is_duplicate": bool(revision_is_duplicate),
+        "supervision_present": bool(supervision_present),
+        "prediction_engine": prediction_engine,
+        "prediction_checkpoint_id": prediction_checkpoint_id,
+        "recognition_engine": recognition_engine,
+        "layout_metrics": layout_metrics,
+        "text_metrics": text_metrics,
+    }
+    append_jsonl(registry.telemetry_root / "page_events.jsonl", page_event)
+    update_summary_json(
+        registry.telemetry_root / "page_edit_summary.json",
+        f"{page}#r{revision_number}",
+        page_event,
+    )
+
+
+def _finalize_promoted_candidate(
+    registry: ManuscriptOcrRegistry,
+    candidate_id: str,
+    promotion_summary: dict,
+    consumed_revision_refs: list[dict],
+    clear_rebase: bool = False,
+) -> None:
+    registry.promote_candidate(candidate_id, promotion_summary)
+    for revision_ref in consumed_revision_refs:
+        registry.mark_revision_consumed(
+            revision_ref["page_id"],
+            revision_ref["revision_number"],
+            candidate_id,
+        )
+    if clear_rebase:
+        registry.clear_rebase()
+    registry.set_status("idle", "Not updating right now", candidate_id=candidate_id)
+
+
 def handle_post_save(
     manuscript: str,
     page: str,
@@ -479,6 +606,7 @@ def handle_post_save(
 ) -> dict:
     manuscript_root = Path(manuscript_root or Path("input_manuscripts") / manuscript)
     registry = _load_registry_for_manuscript(manuscript_root, base_checkpoint_path=base_checkpoint_path)
+    orchestrator_instance = _get_orchestrator(orchestrator)
     registry.set_active_learning_enabled(bool(active_learning_enabled))
 
     text_payload = dict(text_payload or {})
@@ -519,82 +647,51 @@ def handle_post_save(
             registry.mark_rebase_needed("consumed_page_revision_changed", page)
             entered_active_learning = True
             existing_rebase_job = any(job.get("job_type") == JobType.OCR_REBASE.value for job in registry.pending_ocr_work())
-            if not existing_rebase_job and _get_orchestrator(orchestrator) is not None:
-                approved_refs = [
-                    _revision_ref(revision_payload["page_id"], revision_payload["revision_number"])
-                    for revision_payload in registry.latest_supervised_commit_revisions()
-                ]
-                rebase_job = QueuedJob(
-                    job_type=JobType.OCR_REBASE.value,
+            if not existing_rebase_job and orchestrator_instance is not None:
+                approved_refs = _revision_refs_from_revisions(registry.latest_supervised_commit_revisions())
+                rebase_job = _build_rebase_job(
                     manuscript=manuscript,
-                    manuscript_root=str(manuscript_root),
-                    priority=int(JobPriority.BULK_PREPROCESS),
-                    resource_name="gpu",
-                    isolated=True,
-                    payload={
-                        "job_type": JobType.OCR_REBASE.value,
-                        "manuscript": manuscript,
-                        "manuscript_root": str(manuscript_root),
-                        "base_checkpoint_path": _base_checkpoint_path(base_checkpoint_path),
-                        "approved_revision_refs": approved_refs,
-                        "recipe": runtime_recipe.to_dict(),
-                    },
+                    manuscript_root=manuscript_root,
+                    base_checkpoint_path=_base_checkpoint_path(base_checkpoint_path),
+                    approved_revision_refs=approved_refs,
+                    recipe=runtime_recipe,
                 )
-                queued_job_ids.append(_get_orchestrator(orchestrator).enqueue(rebase_job))
-        elif supervision_present and _get_orchestrator(orchestrator) is not None:
-            approved_history = registry.approved_supervised_revisions()
+                queued_job_ids.append(orchestrator_instance.enqueue(rebase_job))
+        elif supervision_present and orchestrator_instance is not None:
+            approved_history_refs = _revision_refs_from_revisions(registry.approved_supervised_revisions())
             candidate_id = f"ocr_{_safe_slug(page)}_r{revision.revision_number:04d}"
-            fine_tune_job = QueuedJob(
-                job_type=JobType.OCR_FINE_TUNE.value,
+            fine_tune_job = _build_fine_tune_job(
                 manuscript=manuscript,
-                manuscript_root=str(manuscript_root),
-                priority=int(JobPriority.BACKGROUND_TRAINING),
-                resource_name="gpu",
-                isolated=True,
-                payload={
-                    "job_type": JobType.OCR_FINE_TUNE.value,
-                    "manuscript": manuscript,
-                    "manuscript_root": str(manuscript_root),
-                    "page_id": str(page),
-                    "revision_number": int(revision.revision_number),
-                    "training_revision_ref": _revision_ref(page, revision.revision_number),
-                    "history_revision_refs": [
-                        _revision_ref(revision_payload["page_id"], revision_payload["revision_number"])
-                        for revision_payload in approved_history
-                    ],
-                    "candidate_id": candidate_id,
-                    "parent_checkpoint_id": registry.active_checkpoint_id(),
-                    "parent_checkpoint_path": str(registry.active_checkpoint()),
-                    "base_checkpoint_path": _base_checkpoint_path(base_checkpoint_path),
-                    "recipe": runtime_recipe.to_dict(),
-                },
+                manuscript_root=manuscript_root,
+                page=page,
+                revision_number=revision.revision_number,
+                candidate_id=candidate_id,
+                parent_checkpoint_id=registry.active_checkpoint_id(),
+                parent_checkpoint_path=str(registry.active_checkpoint()),
+                base_checkpoint_path=_base_checkpoint_path(base_checkpoint_path),
+                history_revision_refs=approved_history_refs,
+                recipe=runtime_recipe,
             )
-            queued_job_ids.append(_get_orchestrator(orchestrator).enqueue(fine_tune_job))
+            queued_job_ids.append(orchestrator_instance.enqueue(fine_tune_job))
             entered_active_learning = True
 
     text_edit_metrics = compute_text_edit_metrics(last_prediction.get("predicted_lines", {}), text_payload)
     layout_metrics = compute_layout_edit_metrics(modifications)
-    page_event = {
-        "recorded_at": utc_now_iso(),
-        "manuscript": manuscript,
-        "page_id": page,
-        "revision_number": revision.revision_number,
-        "save_intent": save_intent,
-        "active_learning_enabled": bool(active_learning_enabled),
-        "entered_active_learning": bool(entered_active_learning),
-        "revision_is_duplicate": bool(revision.is_duplicate),
-        "supervision_present": bool(supervision_present),
-        "prediction_engine": last_prediction.get("recognition_engine"),
-        "prediction_checkpoint_id": last_prediction.get("checkpoint_id"),
-        "recognition_engine": recognition_engine,
-        "layout_metrics": layout_metrics,
-        "text_metrics": text_edit_metrics,
-    }
-    append_jsonl(registry.telemetry_root / "page_events.jsonl", page_event)
-    update_summary_json(
-        registry.telemetry_root / "page_edit_summary.json",
-        f"{page}#r{revision.revision_number}",
-        page_event,
+    _record_page_save_event(
+        registry=registry,
+        manuscript=manuscript,
+        page=page,
+        revision_number=revision.revision_number,
+        save_intent=save_intent,
+        active_learning_enabled=bool(active_learning_enabled),
+        entered_active_learning=bool(entered_active_learning),
+        revision_is_duplicate=bool(revision.is_duplicate),
+        supervision_present=bool(supervision_present),
+        prediction_engine=last_prediction.get("recognition_engine"),
+        prediction_checkpoint_id=last_prediction.get("checkpoint_id"),
+        recognition_engine=recognition_engine,
+        layout_metrics=layout_metrics,
+        text_metrics=text_edit_metrics,
     )
 
     if save_intent == "draft":
@@ -691,10 +788,7 @@ def _train_candidate_step(job_payload: dict) -> dict:
         "passed": True,
         "reason": "direct_promote_after_training",
     }
-    checkpoint_record = registry._checkpoint_record(candidate_id)
-    if checkpoint_record is not None:
-        checkpoint_record["lineage_revision_refs"] = history_revision_refs + [training_revision_ref]
-        registry.save()
+    registry.set_checkpoint_lineage(candidate_id, history_revision_refs + [training_revision_ref])
     return {
         "candidate_id": candidate_id,
         "checkpoint_path": fine_tune_result.output_checkpoint,
@@ -715,13 +809,12 @@ def run_ocr_finetune_job(job_payload: dict) -> dict:
         base_checkpoint_path=job_payload.get("base_checkpoint_path"),
     )
     promotion_summary = step_result["promotion_summary"]
-    registry.promote_candidate(step_result["candidate_id"], promotion_summary)
-    registry.mark_revision_consumed(
-        step_result["training_revision_ref"]["page_id"],
-        step_result["training_revision_ref"]["revision_number"],
-        step_result["candidate_id"],
+    _finalize_promoted_candidate(
+        registry=registry,
+        candidate_id=step_result["candidate_id"],
+        promotion_summary=promotion_summary,
+        consumed_revision_refs=[step_result["training_revision_ref"]],
     )
-    registry.set_status("idle", "Not updating right now", candidate_id=step_result["candidate_id"])
     return {
         "candidate_id": step_result["candidate_id"],
         "checkpoint_path": step_result["checkpoint_path"],
@@ -767,11 +860,13 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
         job_payload["manuscript_root"],
         base_checkpoint_path=job_payload.get("base_checkpoint_path"),
     )
-    registry.promote_candidate(final_candidate_id, final_promotion_summary)
-    for revision_ref in approved_revision_refs:
-        registry.mark_revision_consumed(revision_ref["page_id"], revision_ref["revision_number"], final_candidate_id)
-    registry.clear_rebase()
-    registry.set_status("idle", "Not updating right now", candidate_id=final_candidate_id)
+    _finalize_promoted_candidate(
+        registry=registry,
+        candidate_id=final_candidate_id,
+        promotion_summary=final_promotion_summary,
+        consumed_revision_refs=approved_revision_refs,
+        clear_rebase=True,
+    )
     return {"rebuilt": True, "candidate_id": final_candidate_id}
 
 

@@ -174,11 +174,106 @@ def get_existing_text_content(xml_path):
     return {"text": text_content, "confidences": confidences}
 
 
+def update_page_text_content(xml_path, text_content=None, confidences=None):
+    xml_path = Path(xml_path)
+    if not xml_path.exists():
+        raise FileNotFoundError(f"PAGE XML not found: {xml_path}")
+
+    PAGE_XML_NAMESPACE = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
+    ns = {'p': PAGE_XML_NAMESPACE}
+    ET.register_namespace('', PAGE_XML_NAMESPACE)
+
+    normalized_text = {
+        str(line_id): ("" if value is None else str(value))
+        for line_id, value in dict(text_content or {}).items()
+    }
+    normalized_confidences = {
+        str(line_id): list(values or [])
+        for line_id, values in dict(confidences or {}).items()
+    }
+
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+    saved_line_count = 0
+
+    for textline in root.findall(".//p:TextLine", ns):
+        custom_attr = textline.get('custom', '')
+        if 'structure_line_id_' not in custom_attr:
+            continue
+
+        try:
+            line_id = str(custom_attr.split('structure_line_id_')[1])
+        except IndexError:
+            continue
+
+        for existing_equiv in textline.findall('./p:TextEquiv', ns):
+            textline.remove(existing_equiv)
+
+        line_text = normalized_text.get(line_id, "")
+        if not line_text:
+            continue
+
+        text_equiv = ET.SubElement(textline, f"{{{PAGE_XML_NAMESPACE}}}TextEquiv")
+        line_confidences = normalized_confidences.get(line_id, [])
+        if line_confidences:
+            text_equiv.set('custom', f"confidences:{','.join(map(str, line_confidences))}")
+
+        unicode_elem = ET.SubElement(text_equiv, f"{{{PAGE_XML_NAMESPACE}}}Unicode")
+        unicode_elem.text = line_text
+        saved_line_count += 1
+
+    if hasattr(ET, 'indent'):
+        ET.indent(tree, space="\t", level=0)
+    tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
+
+    return {"status": "success", "lines": saved_line_count}
+
+
 def compute_page_layout_fingerprint(xml_path):
     if not os.path.exists(xml_path):
         return None
 
     try:
+        def normalize_point_value(raw_value):
+            value = str(raw_value or "").strip()
+            try:
+                numeric_value = float(value)
+            except ValueError:
+                return value
+            if numeric_value.is_integer():
+                return int(numeric_value)
+            return round(numeric_value, 6)
+
+        def parse_points(points_str):
+            points = []
+            for raw_point in str(points_str or "").split():
+                if "," not in raw_point:
+                    continue
+                x_raw, y_raw = raw_point.split(",", 1)
+                points.append((normalize_point_value(x_raw), normalize_point_value(y_raw)))
+            return points
+
+        def canonicalize_polyline(points_str):
+            points = parse_points(points_str)
+            if not points:
+                return []
+            forward = tuple(points)
+            backward = tuple(reversed(points))
+            return list(min(forward, backward))
+
+        def canonicalize_polygon(points_str):
+            points = parse_points(points_str)
+            if not points:
+                return []
+
+            candidates = []
+            for point_order in (points, list(reversed(points))):
+                for start_index in range(len(point_order)):
+                    rotated = point_order[start_index:] + point_order[:start_index]
+                    candidates.append(tuple(rotated))
+
+            return list(min(candidates))
+
         ns = {'p': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}
         tree = ET.parse(xml_path)
         root = tree.getroot()
@@ -198,8 +293,10 @@ def compute_page_layout_fingerprint(xml_path):
             line_records.append(
                 {
                     "line_id": line_id,
-                    "coords": (coords_elem.get('points', '').strip() if coords_elem is not None else ''),
-                    "baseline": (baseline_elem.get('points', '').strip() if baseline_elem is not None else ''),
+                    "coords": canonicalize_polygon(coords_elem.get('points', '') if coords_elem is not None else ''),
+                    "baseline": canonicalize_polyline(
+                        baseline_elem.get('points', '') if baseline_elem is not None else ''
+                    ),
                 }
             )
 
@@ -780,27 +877,32 @@ def save_correction(manuscript, page):
     # --- NEW: Get engine choice ---
     recognition_engine = data.get('recognitionEngine', 'local') 
     save_intent = data.get('saveIntent', 'commit')
+    save_scope = str(data.get('saveScope') or 'layout')
     active_learning_enabled = bool(data.get('activeLearningEnabled', False))
 
     if not textline_labels or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
 
     try:
-        result = generate_xml_and_images_for_page(
-            str(manuscript_path),
-            page,
-            textline_labels,
-            graph_data['edges'],
-            { 
-                'BINARIZE_THRESHOLD': 0.5098,
-                'BBOX_PAD_V': 0.7,
-                'BBOX_PAD_H': 0.5,
-                'CC_SIZE_THRESHOLD_RATIO': 0.4
-            },
-            textbox_labels=textbox_labels,
-            nodes=nodes_data,
-            text_content=text_content 
-        )
+        xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+        if save_scope == 'text_only' and xml_path.exists():
+            result = update_page_text_content(xml_path, text_content=text_content)
+        else:
+            result = generate_xml_and_images_for_page(
+                str(manuscript_path),
+                page,
+                textline_labels,
+                graph_data['edges'],
+                { 
+                    'BINARIZE_THRESHOLD': 0.5098,
+                    'BBOX_PAD_V': 0.7,
+                    'BBOX_PAD_H': 0.5,
+                    'CC_SIZE_THRESHOLD_RATIO': 0.4
+                },
+                textbox_labels=textbox_labels,
+                nodes=nodes_data,
+                text_content=text_content 
+            )
 
         active_learning_result = handle_post_save(
             manuscript=manuscript,
