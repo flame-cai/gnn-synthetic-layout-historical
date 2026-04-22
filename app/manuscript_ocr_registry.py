@@ -358,7 +358,7 @@ class ManuscriptOcrRegistry:
         self.data["in_flight_candidate_id"] = checkpoint_id
         self.save()
 
-    def promote_candidate(self, candidate_id: str, verifier_summary: dict) -> None:
+    def promote_candidate(self, candidate_id: str, promotion_summary: dict) -> None:
         candidate_id = str(candidate_id)
         candidate = self._checkpoint_record(candidate_id)
         if candidate is None:
@@ -366,20 +366,20 @@ class ManuscriptOcrRegistry:
         previous_active = self.data.get("active_checkpoint_id")
         candidate["status"] = "active"
         candidate["promoted_at"] = _utc_now_iso()
-        candidate["verifier_summary"] = verifier_summary
+        candidate["promotion_summary"] = promotion_summary
         self.data["previous_active_checkpoint_id"] = previous_active
         self.data["active_checkpoint_id"] = candidate_id
         self.data["in_flight_candidate_id"] = None
-        self.data["last_successful_verification_summary"] = verifier_summary
+        self.data["last_successful_promotion_summary"] = promotion_summary
         self.save()
 
-    def reject_candidate(self, candidate_id: str, verifier_summary: dict) -> None:
+    def reject_candidate(self, candidate_id: str, promotion_summary: dict) -> None:
         candidate = self._checkpoint_record(candidate_id)
         if candidate is None:
             raise KeyError(f"Unknown candidate checkpoint: {candidate_id}")
         candidate["status"] = "rejected"
         candidate["rejected_at"] = _utc_now_iso()
-        candidate["verifier_summary"] = verifier_summary
+        candidate["promotion_summary"] = promotion_summary
         if self.data.get("in_flight_candidate_id") == candidate_id:
             self.data["in_flight_candidate_id"] = None
         self.save()
@@ -466,7 +466,7 @@ def _initial_registry_payload(manuscript_root: Path, base_checkpoint_path: str |
         "page_revisions": {},
         "pending_jobs": [],
         "last_prediction_by_page": {},
-        "last_successful_verification_summary": None,
+        "last_successful_promotion_summary": None,
         "last_checkpoint_fallback": None,
         "most_recent_promoted_page": None,
     }
@@ -478,8 +478,14 @@ def load_registry(manuscript_root: str | Path, base_checkpoint_path: str | Path 
     registry_path = runtime_root / "registry.json"
     if registry_path.exists():
         data = json.loads(registry_path.read_text(encoding="utf-8"))
+        if "last_successful_promotion_summary" not in data and "last_successful_verification_summary" in data:
+            data["last_successful_promotion_summary"] = data.pop("last_successful_verification_summary")
+        for checkpoint in (data.get("checkpoints") or {}).values():
+            if "promotion_summary" not in checkpoint and "verifier_summary" in checkpoint:
+                checkpoint["promotion_summary"] = checkpoint.pop("verifier_summary")
         registry = ManuscriptOcrRegistry(manuscript_root, data)
         registry.active_checkpoint()
+        registry.save()
         return registry
 
     if base_checkpoint_path is None:

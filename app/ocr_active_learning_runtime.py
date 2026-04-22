@@ -19,12 +19,10 @@ from profiling import (
 from recognition.active_learning import (
     fine_tune_checkpoint_on_pages,
     prepare_page_datasets,
-    run_checkpoint_on_prepared_pages,
 )
 from recognition.active_learning_recipe import (
     DEFAULT_OCR_ACTIVE_LEARNING_RECIPE,
     OcrActiveLearningRecipe,
-    normalize_promotion_guard_strategy,
     normalize_sibling_checkpoint_strategy,
 )
 from telemetry import append_jsonl, compute_layout_edit_metrics, compute_text_edit_metrics, update_summary_json, utc_now_iso
@@ -36,8 +34,6 @@ _RUNTIME_STATE = {
 }
 _RUNTIME_SIBLING_CHECKPOINT_STRATEGY_ENV = "OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY"
 _DEFAULT_RUNTIME_SIBLING_CHECKPOINT_STRATEGY = "best_norm_ed"
-_RUNTIME_PROMOTION_GUARD_STRATEGY_ENV = "OCR_RUNTIME_PROMOTION_GUARD_STRATEGY"
-_DEFAULT_RUNTIME_PROMOTION_GUARD_STRATEGY = "disabled"
 
 
 def configure_runtime(base_checkpoint_path: str | Path, orchestrator: JobOrchestrator | None = None) -> None:
@@ -90,14 +86,9 @@ def _runtime_recipe() -> OcrActiveLearningRecipe:
         _RUNTIME_SIBLING_CHECKPOINT_STRATEGY_ENV,
         _DEFAULT_RUNTIME_SIBLING_CHECKPOINT_STRATEGY,
     )
-    configured_guard = os.getenv(
-        _RUNTIME_PROMOTION_GUARD_STRATEGY_ENV,
-        _DEFAULT_RUNTIME_PROMOTION_GUARD_STRATEGY,
-    )
     return replace(
         DEFAULT_OCR_ACTIVE_LEARNING_RECIPE,
         sibling_checkpoint_strategy=normalize_sibling_checkpoint_strategy(configured_strategy),
-        promotion_guard_strategy=normalize_promotion_guard_strategy(configured_guard),
     )
 
 
@@ -571,10 +562,6 @@ def handle_post_save(
                         _revision_ref(revision_payload["page_id"], revision_payload["revision_number"])
                         for revision_payload in approved_history
                     ],
-                    "verifier_revision_refs": [
-                        _revision_ref(revision_payload["page_id"], revision_payload["revision_number"])
-                        for revision_payload in approved_history
-                    ],
                     "candidate_id": candidate_id,
                     "parent_checkpoint_id": registry.active_checkpoint_id(),
                     "parent_checkpoint_path": str(registry.active_checkpoint()),
@@ -621,71 +608,6 @@ def handle_post_save(
         "queued_job_ids": queued_job_ids,
         "entered_active_learning": entered_active_learning,
     }
-
-
-def verify_candidate_against_bank(job_payload: dict) -> dict:
-    registry = _load_registry_for_manuscript(job_payload["manuscript_root"], base_checkpoint_path=job_payload.get("base_checkpoint_path"))
-    recipe = _recipe_from_payload(job_payload)
-    verifier_refs = list(job_payload.get("verifier_revision_refs") or [])
-    candidate_checkpoint_path = str(job_payload["candidate_checkpoint_path"])
-
-    if not verifier_refs:
-        return {
-            "passed": True,
-            "reason": "bootstrap_no_verifier_bank",
-            "promotion_guard_strategy": recipe.promotion_guard_strategy,
-            "guard_abs": float(recipe.regression_guard_abs),
-            "candidate_page_cer": None,
-            "active_page_cer": None,
-        }
-
-    bank_pages = _prepare_revision_pages(
-        registry,
-        verifier_refs,
-        purpose_slug=f"verify_{_safe_slug(job_payload['candidate_id'])}",
-    )
-    active_checkpoint_path = str(job_payload.get("active_checkpoint_path") or registry.active_checkpoint())
-    active_result = run_checkpoint_on_prepared_pages(
-        active_checkpoint_path,
-        bank_pages,
-        output_root=None,
-        width_policy=recipe.width_policy,
-    )
-    candidate_result = run_checkpoint_on_prepared_pages(
-        candidate_checkpoint_path,
-        bank_pages,
-        output_root=None,
-        width_policy=recipe.width_policy,
-    )
-    active_page_cer = float(active_result.aggregate_metrics["page_cer"])
-    candidate_page_cer = float(candidate_result.aggregate_metrics["page_cer"])
-    passed = candidate_page_cer <= (active_page_cer + float(recipe.regression_guard_abs))
-    return {
-        "passed": passed,
-        "reason": "candidate_non_regressing" if passed else "candidate_regressed",
-        "promotion_guard_strategy": recipe.promotion_guard_strategy,
-        "guard_abs": float(recipe.regression_guard_abs),
-        "candidate_page_cer": candidate_page_cer,
-        "active_page_cer": active_page_cer,
-        "candidate_metrics": candidate_result.aggregate_metrics,
-        "active_metrics": active_result.aggregate_metrics,
-        "candidate_per_page": candidate_result.per_page_metrics,
-        "active_per_page": active_result.per_page_metrics,
-    }
-
-
-def verify_candidate_for_promotion(job_payload: dict) -> dict:
-    recipe = _recipe_from_payload(job_payload)
-    if recipe.promotion_guard_strategy == "disabled":
-        return {
-            "passed": True,
-            "reason": "promotion_guard_disabled_direct_promote",
-            "promotion_guard_strategy": recipe.promotion_guard_strategy,
-            "guard_abs": None,
-            "candidate_page_cer": None,
-            "active_page_cer": None,
-        }
-    return verify_candidate_against_bank(job_payload)
 
 
 def _train_candidate_step(job_payload: dict) -> dict:
@@ -760,22 +682,15 @@ def _train_candidate_step(job_payload: dict) -> dict:
         }
     )
     registry.set_status(
-        "verifying_candidate" if recipe.promotion_guard_strategy == "protected_bank" else "promoting_candidate",
-        (
-            f"Checking the new reader from page {training_revision_ref['page_id']} before making it active"
-            if recipe.promotion_guard_strategy == "protected_bank"
-            else f"Promoting the new reader from page {training_revision_ref['page_id']} without protected-page gating"
-        ),
+        "promoting_candidate",
+        f"Promoting the new reader from page {training_revision_ref['page_id']}",
         candidate_id=candidate_id,
         page_id=training_revision_ref["page_id"],
     )
-    verification = verify_candidate_for_promotion(
-        {
-            **job_payload,
-            "candidate_checkpoint_path": fine_tune_result.output_checkpoint,
-            "candidate_id": candidate_id,
-        }
-    )
+    promotion_summary = {
+        "passed": True,
+        "reason": "direct_promote_after_training",
+    }
     checkpoint_record = registry._checkpoint_record(candidate_id)
     if checkpoint_record is not None:
         checkpoint_record["lineage_revision_refs"] = history_revision_refs + [training_revision_ref]
@@ -788,7 +703,7 @@ def _train_candidate_step(job_payload: dict) -> dict:
             "metadata_path": str(candidate_root / "fine_tune_metadata.json"),
             "run_dir": str(candidate_root),
         },
-        "verification": verification,
+        "promotion_summary": promotion_summary,
         "training_revision_ref": training_revision_ref,
     }
 
@@ -799,29 +714,24 @@ def run_ocr_finetune_job(job_payload: dict) -> dict:
         job_payload["manuscript_root"],
         base_checkpoint_path=job_payload.get("base_checkpoint_path"),
     )
-    verification = step_result["verification"]
-    if verification["passed"]:
-        registry.promote_candidate(step_result["candidate_id"], verification)
-        registry.mark_revision_consumed(
-            step_result["training_revision_ref"]["page_id"],
-            step_result["training_revision_ref"]["revision_number"],
-            step_result["candidate_id"],
-        )
-        registry.set_status("idle", "Not updating right now", candidate_id=step_result["candidate_id"])
-    else:
-        registry.reject_candidate(step_result["candidate_id"], verification)
-        registry.set_status("idle", "Not updating right now", candidate_id=step_result["candidate_id"])
+    promotion_summary = step_result["promotion_summary"]
+    registry.promote_candidate(step_result["candidate_id"], promotion_summary)
+    registry.mark_revision_consumed(
+        step_result["training_revision_ref"]["page_id"],
+        step_result["training_revision_ref"]["revision_number"],
+        step_result["candidate_id"],
+    )
+    registry.set_status("idle", "Not updating right now", candidate_id=step_result["candidate_id"])
     return {
         "candidate_id": step_result["candidate_id"],
         "checkpoint_path": step_result["checkpoint_path"],
-        "promoted": bool(verification["passed"]),
-        "verification": verification,
+        "promoted": True,
+        "promotion_summary": promotion_summary,
     }
 
 
 def rebuild_manuscript_lineage(job_payload: dict) -> dict:
     registry = _load_registry_for_manuscript(job_payload["manuscript_root"], base_checkpoint_path=job_payload.get("base_checkpoint_path"))
-    recipe = _recipe_from_payload(job_payload)
     approved_revision_refs = list(job_payload.get("approved_revision_refs") or [])
     if not approved_revision_refs:
         registry.clear_rebase()
@@ -841,38 +751,23 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
                 "parent_checkpoint_path": parent_checkpoint_path,
                 "training_revision_ref": revision_ref,
                 "history_revision_refs": approved_revision_refs[: step_index - 1],
-                "verifier_revision_refs": approved_revision_refs[: step_index - 1],
                 "step_index": step_index,
             }
         )
-        if not step_result["verification"]["passed"]:
-            registry = _load_registry_for_manuscript(
-                job_payload["manuscript_root"],
-                base_checkpoint_path=job_payload.get("base_checkpoint_path"),
-            )
-            registry.reject_candidate(step_result["candidate_id"], step_result["verification"])
-            registry.set_status("needs_rebase", "Ready to update from saved pages", failed_candidate=step_result["candidate_id"])
-            return {
-                "rebuilt": False,
-                "reason": "verification_failed",
-                "candidate_id": step_result["candidate_id"],
-                "verification": step_result["verification"],
-            }
         parent_checkpoint_path = step_result["checkpoint_path"]
         parent_checkpoint_id = step_result["candidate_id"]
         final_candidate_id = step_result["candidate_id"]
 
-    final_verification = {
+    final_promotion_summary = {
         "passed": True,
         "reason": "rebase_complete",
-        "promotion_guard_strategy": recipe.promotion_guard_strategy,
         "rebuilt_revision_refs": approved_revision_refs,
     }
     registry = _load_registry_for_manuscript(
         job_payload["manuscript_root"],
         base_checkpoint_path=job_payload.get("base_checkpoint_path"),
     )
-    registry.promote_candidate(final_candidate_id, final_verification)
+    registry.promote_candidate(final_candidate_id, final_promotion_summary)
     for revision_ref in approved_revision_refs:
         registry.mark_revision_consumed(revision_ref["page_id"], revision_ref["revision_number"], final_candidate_id)
     registry.clear_rebase()
