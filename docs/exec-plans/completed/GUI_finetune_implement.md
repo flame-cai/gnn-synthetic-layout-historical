@@ -40,7 +40,7 @@ This plan intentionally implements only OCR active learning now, but it does so 
 - [x] (2026-04-20 10:06 IST) Added coarse profiling summaries and optional sampled CUDA traces in `app/profiling.py`.
 - [x] (2026-04-20 10:06 IST) Kept the frontend changes minimal by adding the `Active Learning` toggle, status text, and explicit `saveIntent` wiring in `app/frontend/src/components/ManuscriptViewer.vue`.
 - [x] (2026-04-22 10:23 IST) Added a configurable live-runtime sibling checkpoint strategy override so GUI-triggered OCR jobs now default to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`, while leaving the CER-based selector available in the shared OCR code path.
-- [x] (2026-04-22 10:23 IST) Added a configurable live-runtime promotion-guard override so GUI-triggered OCR jobs now default to direct promotion through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY=disabled`, while leaving the older protected-bank gate available as an opt-in.
+- [x] (2026-04-22 15:02 IST) Removed the stale manuscript-local protected-set promotion guard from the live runtime so GUI-triggered OCR jobs now promote directly after training and registry writes, without carrying dead verifier-bank code paths.
 - [ ] (2026-04-20 10:06 IST) Added new headless backend tests and reran both unchanged gates individually: `test_ci_e2e.py` and `app.tests.test_recognition_finetuning_precommit_e2e`; the only remaining redundant rerun is `scripts/run_precommit_eval.py`.
 
 ## Surprises & Discoveries
@@ -98,16 +98,12 @@ This plan intentionally implements only OCR active learning now, but it does so 
   Rationale: `VISION.md` requires that a newly trained model never silently replaces the active one without a recorded promotion rule. Automatic promotion is acceptable only when it is deterministic, logged, and recoverable.
   Date/Author: 2026-04-19 / Codex
 
-- Decision: live GUI promotion will use a manuscript-local verifier bank rather than the offline study's future-page curve metric.
-  Rationale: `curve_metric=early_weighted_page_cer` is still the locked research recipe and the pre-commit source of truth, but the GUI cannot access future-page ground truth. The live app therefore needs a local non-regression rule built from previously corrected pages while still recording the original recipe metadata.
-  Date/Author: 2026-04-19 / Codex
-
 - Decision: the live GUI runtime should hard-prefer `best_norm_ED.pth` after each OCR fine-tune step unless explicitly reconfigured back to the CER-based sibling selector.
   Rationale: the GUI request here is to skip the extra page-CER sibling-selection pass in the background training flow while keeping an explicit escape hatch for future reversal. Wiring the choice through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY` keeps the runtime change narrow and reversible without deleting the selector implementation used elsewhere.
   Date/Author: 2026-04-22 / Codex
 
-- Decision: the live GUI runtime should default to direct promotion after background OCR fine-tuning unless explicitly reconfigured back to the protected-bank non-regression gate.
-  Rationale: the GUI request here is to stop treating the manuscript-local protected-bank check as mandatory deployment policy. Wiring the choice through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY` keeps the promotion rule explicit and recoverable while making direct promotion the default runtime behavior.
+- Decision: the live GUI runtime should promote the trained candidate directly after a successful fine-tune step and registry write, without a manuscript-local protected-set guard.
+  Rationale: the protected-set gate was later judged to be stale deployment logic for this runtime. The retained live behavior is now intentionally simple: train with the recorded recipe, select the sibling checkpoint according to the configured sibling strategy, then promote and mark the revision consumed.
   Date/Author: 2026-04-22 / Codex
 
 - Decision: editing a page that has already been consumed into the promoted manuscript lineage must mark the manuscript as needing an OCR rebase.
@@ -132,7 +128,7 @@ This plan intentionally implements only OCR active learning now, but it does so 
 
 ## Outcomes & Retrospective
 
-This plan is now implemented in a first-pass form. The backend has a shared production OCR recipe, a generic orchestrator plus GPU lease manager, a manuscript-local OCR registry with revision snapshots, save-triggered fine-tune and rebase jobs, manuscript-aware checkpoint loading for local OCR, structured telemetry, and coarse profiling. The frontend gained only the requested `Active Learning` toggle, status text, and explicit save-intent wiring. The live runtime now also records which sibling checkpoint strategy and promotion-guard strategy it used for each OCR fine-tune step, currently defaulting those runtime-specific choices to `best_norm_ED.pth` and direct promotion.
+This plan is now implemented in a first-pass form. The backend has a shared production OCR recipe, a generic orchestrator plus GPU lease manager, a manuscript-local OCR registry with revision snapshots, save-triggered fine-tune and rebase jobs, manuscript-aware checkpoint loading for local OCR, structured telemetry, and coarse profiling. The frontend gained only the requested `Active Learning` toggle, status text, and explicit save-intent wiring. The live runtime now records which sibling checkpoint strategy it used for each OCR fine-tune step, currently defaulting that runtime-specific choice to `best_norm_ED.pth`, and it promotes directly after training.
 
 The main lesson from implementation matched the earlier design expectation: the hard part was not the OCR trainer itself. The hard part was durable orchestration and provenance. The route changes were straightforward only after the registry, revision snapshotting, and queue/event plumbing existed.
 
@@ -182,8 +178,6 @@ A "supervised page revision" means one saved page version whose PAGE-XML line po
 
 A "device lease" means the exclusive right for one job to use a scarce runtime resource, most importantly the GPU. Device leases must be explicit because CRAFT, GNN, and OCR will all eventually compete for the same GPU.
 
-A "verifier bank" means a held-out set of previously corrected manuscript lines that are excluded from the current OCR fine-tune step and used only to compare the active checkpoint and a newly trained candidate before promotion.
-
 A "rebase" means rebuilding the manuscript-specific OCR lineage because an already-consumed earlier page was edited again after later checkpoints had been trained.
 
 The best known OCR recipe remains the exact hybrid recipe summarized in `app/tests/logs/recognition_finetune_results_latest.json`. The GUI implementation must reuse those settings, but the live promotion rule will differ from the offline curve metric because the GUI does not have future-page ground truth during normal use.
@@ -219,7 +213,7 @@ The registry must be the source of truth. It should record:
 - the most recent promoted page index or revision sequence
 - whether the manuscript currently needs a rebase
 - whether active learning is enabled for this manuscript
-- the last successful verification summary
+- the last successful promotion summary
 - the queue state or enough information to reconstruct pending work after restart
 
 The registry must also maintain a page-revision ledger. Every commit save should create or update a page-revision record that includes at least the page id, a monotonically increasing revision number, a content hash, whether text supervision is present, which engine produced the initial text, and whether that revision has already been consumed into the active OCR lineage. This ledger is what allows the backend to deduplicate repeated saves, to skip layout-only revisions for OCR training, and to detect when an already-consumed earlier page has changed and the manuscript now requires a rebase.
@@ -228,16 +222,9 @@ Once the registry and queue exist, rework the save flow in `app/app.py`. The cur
 
 The save route must distinguish three important OCR cases. First, a layout-only commit save should persist the revision and maybe create future CRAFT/GNN training evidence, but it should not enqueue an OCR fine-tune because there is no text supervision yet. Second, a recognition commit save with text should enqueue one OCR active-learning step if active learning is enabled and this page revision has not already been consumed. Third, a draft autosave should update the draft page state and text recovery data, but it should not create OCR lineage or queue work. Add an explicit `saveIntent` field to the frontend payload so the backend does not have to infer this from timing or route shape.
 
-The OCR active-learning runtime should model the per-manuscript sequence explicitly. If page 1 is the newest supervised commit and no manuscript-local checkpoint exists yet, the runtime fine-tunes from the base checkpoint on page 1 and promotes the result if the bootstrap promotion rule passes. If page 2 later becomes supervised, the runtime fine-tunes from the currently active page-1 checkpoint using the locked hybrid recipe on the new page plus up to 10 sampled history lines from earlier approved pages. Later pages continue the same pattern. Each job must record which parent checkpoint it started from, which page revision it added, which history lines were replayed, and which verifier bank was used before promotion.
+The OCR active-learning runtime should model the per-manuscript sequence explicitly. If page 1 is the newest supervised commit and no manuscript-local checkpoint exists yet, the runtime fine-tunes from the base checkpoint on page 1 and promotes the result directly after a successful training step. If page 2 later becomes supervised, the runtime fine-tunes from the currently active page-1 checkpoint using the locked hybrid recipe on the new page plus up to 10 sampled history lines from earlier approved pages. Later pages continue the same pattern. Each job must record which parent checkpoint it started from, which page revision it added, and which history lines were replayed before promotion.
 
-The verifier-backed promotion rule must be automatic and recorded. The live GUI cannot use the offline `early_weighted_page_cer` curve metric directly because that metric depends on future held-out pages, but it can still use the same `regression_guard_abs=0.005` principle on a manuscript-local verifier bank. The runtime should therefore build a verifier bank from earlier approved page revisions, excluding the current training page and excluding any exact history lines sampled into the current training job. The promotion rule is:
-
-1. If no verifier bank exists yet, allow bootstrap promotion after the first successful fine-tune and record the reason `bootstrap_no_verifier_bank`.
-2. Otherwise, evaluate both the active checkpoint and the new candidate on the same verifier bank using `run_checkpoint_on_prepared_pages(...)`.
-3. Promote only if the candidate does not regress beyond `0.005` absolute CER against the active checkpoint on that bank and the registry update can be written atomically.
-4. If verification fails, keep the active checkpoint unchanged, mark the candidate as rejected, and preserve the artifact paths for later inspection.
-
-This automatic promotion rule satisfies the repository constraint that a new model must not silently replace the active model without a recorded rule, while also keeping the frontend simple. There should be no manual promotion button in the first implementation.
+The promotion rule must be automatic and recorded. The live GUI does not use the offline `early_weighted_page_cer` curve metric directly because that metric depends on future held-out pages, and it no longer carries a manuscript-local verifier-bank gate. The runtime records the candidate checkpoint metadata, promotes that candidate after the successful fine-tune step, and marks the triggering revision as consumed into the lineage. This automatic promotion rule satisfies the repository constraint that a new model must not silently replace the active model without a recorded rule, while also keeping the frontend simple. There should be no manual promotion button in the first implementation.
 
 The recognition runtime must stop assuming one global checkpoint. Replace `OCR_GLOBAL_CONTEXT` with a manuscript-aware recognition model manager that can answer "load the active checkpoint for manuscript X" deterministically. To control GPU memory pressure, the manager should keep only the currently needed local OCR model on the GPU and unload or replace it when another manuscript or checkpoint is requested. Recognition requests must always use the active checkpoint that was current when the request began. If a newer checkpoint is promoted while a recognition request is already running, the request should finish on its original checkpoint and the new checkpoint should only affect later requests.
 
@@ -248,7 +235,7 @@ The backend orchestrator must be future-proof for the rest of the human-in-the-l
 - bulk upload preprocessing such as CRAFT on page batches of 10
 - graph construction and GNN inference after CRAFT results exist
 - OCR inference for recognition mode
-- OCR fine-tuning and OCR verification
+- OCR fine-tuning and OCR rebase work
 - future CRAFT fine-tuning from node edits
 - future GNN fine-tuning from edge edits
 
@@ -256,7 +243,7 @@ Do not hardcode "one OCR queue." Introduce job priorities instead. Interactive r
 
 - priority 0: user-blocking inference and page-open work
 - priority 1: save-followup work needed for the next human step
-- priority 2: OCR background fine-tuning and verification
+- priority 2: OCR background fine-tuning and rebase work
 - priority 3: bulk upload preprocessing and future low-priority rebuilds
 
 Background OCR fine-tuning should not be allowed to bottleneck the user. The first implementation should therefore run fine-tune jobs in a child process or otherwise isolate them so they can be canceled cleanly if an interactive GPU job arrives. If cancellation happens, discard the partial candidate, record the interruption in telemetry, and requeue the exact same job from its original parent checkpoint rather than resuming from a half-trained intermediate state. This preserves the recipe semantics while keeping interactive behavior predictable.
@@ -286,7 +273,7 @@ The frontend changes should stay intentionally small. In `app/frontend/src/compo
 
 Do not add a new panel for candidate models, manual promotions, or profiling controls in this first pass. The user asked for minimal frontend changes, and the orchestration and telemetry complexity belongs in the backend.
 
-Finally, update the documentation that must move with behavior. If this plan is implemented, `EVAL.md`, `VISION.md`, `AGENTS.md`, and the relevant test-doc comments must all be updated in the same pass so the repository's stated evaluation story matches the code. `EVAL.md` in particular should describe the new GUI-safe OCR active-learning telemetry and should explicitly distinguish the live manuscript-local verifier bank from the fixed surrogate pre-commit gate. The pre-commit gate remains the headless code-regression guard; it is not replaced by the GUI runtime verifier.
+Finally, update the documentation that must move with behavior. If this plan is implemented, `EVAL.md`, `VISION.md`, `AGENTS.md`, and the relevant test-doc comments must all be updated in the same pass so the repository's stated evaluation story matches the code. `EVAL.md` in particular should describe the new GUI-safe OCR active-learning telemetry and should explicitly distinguish the live manuscript-local direct-promotion runtime from the fixed surrogate pre-commit gate. The pre-commit gate remains the headless code-regression guard; it is not replaced by the GUI runtime.
 
 ## Concrete Steps
 
@@ -389,7 +376,7 @@ Draft saves are repeatable and safe. They may refresh recovery state, but they m
 
 If the app crashes during a background OCR fine-tune, the partial candidate must remain unpromoted. On restart, the registry scan should mark the interrupted job accordingly and requeue it from the original parent checkpoint if the triggering page revision is still the newest unconsumed supervised revision.
 
-If a candidate verification finishes but the promotion write fails, the registry must leave the old active checkpoint unchanged and record the candidate as `verify_passed_promotion_failed`.
+If a candidate training step finishes but the promotion write fails, the registry must leave the old active checkpoint unchanged and record the candidate as a promotion failure without silently advancing the active checkpoint.
 
 If the user disables `Active Learning` mid-manuscript, the backend should stop enqueueing new OCR jobs for that manuscript but must not delete existing checkpoints or telemetry. Re-enabling it later should continue from the last valid active checkpoint and the current page-revision ledger.
 
@@ -459,7 +446,6 @@ In `app/job_orchestrator.py`, define explicit job types and states, for example:
     class JobType(str, Enum):
         OCR_INFER = "ocr_infer"
         OCR_FINE_TUNE = "ocr_fine_tune"
-        OCR_VERIFY = "ocr_verify"
         OCR_REBASE = "ocr_rebase"
         CRAFT_BATCH_INFER = "craft_batch_infer"
         GNN_PAGE_INFER = "gnn_page_infer"
@@ -490,7 +476,7 @@ In `app/manuscript_ocr_registry.py`, provide stable methods equivalent to:
     record_page_revision(page_id: str, revision_payload: dict) -> PageRevision
     active_checkpoint() -> Path
     mark_candidate(candidate_payload: dict) -> None
-    promote_candidate(candidate_id: str, verifier_summary: dict) -> None
+    promote_candidate(candidate_id: str, promotion_summary: dict) -> None
     mark_rebase_needed(reason: str, changed_page_id: str) -> None
     pending_ocr_work() -> list[dict]
 
@@ -498,7 +484,6 @@ In `app/ocr_active_learning_runtime.py`, provide stable glue functions equivalen
 
     handle_post_save(manuscript: str, page: str, save_intent: str, active_learning_enabled: bool, recognition_engine: str, text_payload: dict | None) -> dict
     run_ocr_finetune_job(job_payload: dict) -> dict
-    verify_candidate_against_bank(job_payload: dict) -> dict
     rebuild_manuscript_lineage(job_payload: dict) -> dict
 
 These functions must reuse the existing OCR helpers in `app/recognition/active_learning.py`, especially:

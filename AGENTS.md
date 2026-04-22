@@ -90,7 +90,6 @@ The current harness supports:
 
 - one canonical production OCR recipe in `app/recognition/active_learning_recipe.py` shared by runtime and pre-commit config code
 - configurable sibling checkpoint strategy support between `best_accuracy.pth` and `best_norm_ED.pth`, with the live GUI runtime defaulting to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY` and the CER-aligned selector still available
-- configurable live-runtime promotion-guard support, with the GUI defaulting to direct promotion through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY=disabled` and the older protected-bank gate still available as an opt-in
 - explicit OCR width policies: `global_2000_pad` and `batch_max_pad`
 - bounded CER-weighted oversampling
 - OCR-only augmentation policies: `none`, `background_only`, `background_plus_rotation`

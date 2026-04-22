@@ -24,7 +24,6 @@ def _utc_now_iso() -> str:
 class JobType(str, Enum):
     OCR_INFER = "ocr_infer"
     OCR_FINE_TUNE = "ocr_fine_tune"
-    OCR_VERIFY = "ocr_verify"
     OCR_REBASE = "ocr_rebase"
     CRAFT_BATCH_INFER = "craft_batch_infer"
     GNN_PAGE_INFER = "gnn_page_infer"

@@ -22,10 +22,10 @@ class JobOrchestratorUnitTest(unittest.TestCase):
     def test_higher_priority_job_runs_first_when_both_are_queued(self):
         order = []
         orchestrator = JobOrchestrator()
-        orchestrator.register_handler(JobType.OCR_VERIFY.value, lambda payload: order.append(payload["name"]) or {})
+        orchestrator.register_handler(JobType.OCR_FINE_TUNE.value, lambda payload: order.append(payload["name"]) or {})
 
         low_job = QueuedJob(
-            job_type=JobType.OCR_VERIFY.value,
+            job_type=JobType.OCR_FINE_TUNE.value,
             manuscript="m",
             manuscript_root="m",
             payload={"name": "low"},
@@ -33,7 +33,7 @@ class JobOrchestratorUnitTest(unittest.TestCase):
             resource_name="cpu",
         )
         high_job = QueuedJob(
-            job_type=JobType.OCR_VERIFY.value,
+            job_type=JobType.OCR_FINE_TUNE.value,
             manuscript="m",
             manuscript_root="m",
             payload={"name": "high"},
@@ -64,9 +64,9 @@ class JobOrchestratorUnitTest(unittest.TestCase):
             return {}
 
         orchestrator = JobOrchestrator()
-        orchestrator.register_handler(JobType.OCR_VERIFY.value, slow_handler)
+        orchestrator.register_handler(JobType.OCR_FINE_TUNE.value, slow_handler)
         job = QueuedJob(
-            job_type=JobType.OCR_VERIFY.value,
+            job_type=JobType.OCR_FINE_TUNE.value,
             manuscript="m",
             manuscript_root="m",
             payload={"name": "slow"},
@@ -105,10 +105,10 @@ class JobOrchestratorUnitTest(unittest.TestCase):
             if event_name == "started":
                 raise RuntimeError("listener boom")
 
-        orchestrator.register_handler(JobType.OCR_VERIFY.value, handler)
+        orchestrator.register_handler(JobType.OCR_FINE_TUNE.value, handler)
         orchestrator.set_state_listener(flaky_listener)
         job = QueuedJob(
-            job_type=JobType.OCR_VERIFY.value,
+            job_type=JobType.OCR_FINE_TUNE.value,
             manuscript="m",
             manuscript_root="m",
             payload={"name": "listener_safe"},

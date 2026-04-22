@@ -38,7 +38,6 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertEqual(config.lr_scheduler, "none")
         self.assertEqual(config.optimizer, "adadelta")
         self.assertEqual(config.sibling_checkpoint_strategy, "page_cer_selector")
-        self.assertEqual(config.promotion_guard_strategy, "protected_bank")
         self.assertEqual(float(config.training_overrides["lr"]), 0.2)
         self.assertEqual(int(config.training_overrides["num_iter"]), 60)
         self.assertEqual(config.curve_metric, "early_weighted_page_cer")
