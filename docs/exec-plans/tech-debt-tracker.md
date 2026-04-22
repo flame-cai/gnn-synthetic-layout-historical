@@ -46,7 +46,7 @@ This file is the short list of the highest-priority technical debts that are cur
 
 - OCR checkpoint selection was previously not CER-aligned.
   Status: retired on 2026-04-17.
-  Evidence: `app/recognition/active_learning.py` now evaluates sibling checkpoints and writes `selector_metrics.json`, and the broad OCR study used that selector successfully across policy runs.
+  Evidence: `app/recognition/active_learning.py` now supports both CER-aligned sibling evaluation and an explicit direct-preference mode, writes `selector_metrics.json`, and the broad OCR study used the selector successfully across policy runs.
 
 - The OCR verifier previously lacked policy metadata and per-line artifacts.
   Status: retired on 2026-04-17.

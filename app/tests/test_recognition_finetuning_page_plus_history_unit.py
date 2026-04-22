@@ -241,6 +241,7 @@ class RecognitionFineTuningPagePlusHistoryUnitTest(unittest.TestCase):
                 lmdb_root=str((output_root / "lmdb").resolve()),
                 train_seconds=0.1,
                 selected_best_model="best_accuracy.pth",
+                sibling_checkpoint_strategy="page_cer_selector",
                 selector_metrics_path=str(selector_metrics_path.resolve()),
                 selector_metrics={"winner": "best_accuracy.pth"},
                 train_sample_count=12,

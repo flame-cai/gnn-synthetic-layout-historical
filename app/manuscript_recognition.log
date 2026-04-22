@@ -2656,3 +2656,11 @@
 2026-04-21 15:11:48,393 - INFO - 127.0.0.1 - - [21/Apr/2026 15:11:48] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
 2026-04-21 15:11:50,100 - INFO - 127.0.0.1 - - [21/Apr/2026 15:11:50] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
 2026-04-21 15:11:52,417 - INFO - 127.0.0.1 - - [21/Apr/2026 15:11:52] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:12:43,117 - INFO - 127.0.0.1 - - [21/Apr/2026 15:12:43] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:13:43,418 - INFO - 127.0.0.1 - - [21/Apr/2026 15:13:43] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:14:43,108 - INFO - 127.0.0.1 - - [21/Apr/2026 15:14:43] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:15:43,402 - INFO - 127.0.0.1 - - [21/Apr/2026 15:15:43] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:16:43,104 - INFO - 127.0.0.1 - - [21/Apr/2026 15:16:43] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:17:17,065 - INFO - 127.0.0.1 - - [21/Apr/2026 15:17:17] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:17:17,319 - INFO - 127.0.0.1 - - [21/Apr/2026 15:17:17] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -
+2026-04-21 15:17:19,227 - INFO - 127.0.0.1 - - [21/Apr/2026 15:17:19] "GET /manuscript/testing2/active-learning HTTP/1.1" 200 -

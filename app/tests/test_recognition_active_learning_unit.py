@@ -24,6 +24,7 @@ from recognition.active_learning import (
     _foreground_mask,
     _rotated_bbox_fits,
     apply_ocr_training_augmentation,
+    choose_sibling_checkpoint,
     prepare_incremental_finetune_dataset,
     select_best_sibling_checkpoint,
 )
@@ -161,6 +162,26 @@ class RecognitionActiveLearningUnitTest(unittest.TestCase):
                 self.assertEqual(selected_name, expected_name)
                 self.assertEqual(selected_checkpoint.name, expected_name)
                 self.assertIn("lower than", selector_metrics["reason"])
+
+    def test_best_norm_ed_strategy_skips_page_cer_selector(self):
+        experiment_dir = _make_workspace_tmp("selector_skip_best_norm_ed")
+        (experiment_dir / "best_accuracy.pth").write_bytes(b"acc")
+        (experiment_dir / "best_norm_ED.pth").write_bytes(b"ned")
+
+        with patch(
+            "recognition.active_learning.run_checkpoint_on_prepared_pages",
+            side_effect=AssertionError("page-CER selector should be skipped"),
+        ):
+            selected_checkpoint, selected_name, selector_metrics = choose_sibling_checkpoint(
+                experiment_dir,
+                prepared_pages=[],
+                strategy="best_norm_ed",
+            )
+
+        self.assertEqual(selected_name, "best_norm_ED.pth")
+        self.assertEqual(selected_checkpoint.name, "best_norm_ED.pth")
+        self.assertEqual(selector_metrics["selection_strategy"], "best_norm_ed")
+        self.assertIn("prefers best_norm_ED.pth", selector_metrics["reason"])
 
     def test_align_collate_width_policy_uses_global_or_batch_max_padding(self):
         image_a = Image.fromarray(np.full((20, 40), 200, dtype=np.uint8), mode="L")

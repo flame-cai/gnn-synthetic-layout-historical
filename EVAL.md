@@ -117,14 +117,15 @@ Purpose: measure whether real user correction effort drops as the system learns.
 
 As of 2026-04-20, the first pass of this layer exists. The save and recognition flows now record manuscript-local page revisions, checkpoint lineage, page/job telemetry, and profiling artifacts under `input_manuscripts/<manuscript>/active_learning/recognition/`. Commit saves with corrected text can enqueue OCR fine-tune or rebase jobs, and local OCR recognition loads the current manuscript checkpoint rather than assuming one global model forever.
 
-This layer is still early. The live runtime uses a manuscript-local verifier bank built from previously corrected pages, not the fixed benchmark used by the surrogate pre-commit gate, and it does not yet answer every human-effort question the long-term evaluation story will need.
+This layer is still early. The live runtime now defaults to direct promotion after background OCR fine-tuning, with an optional manuscript-local protected-bank gate available through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY=protected_bank`. It still does not answer every human-effort question the long-term evaluation story will need.
 
 ## Current OCR Harness State
 
 As of 2026-04-20, the OCR active-learning harness has the following implemented features:
 
 - one canonical production OCR recipe in `app/recognition/active_learning_recipe.py`
-- CER-aligned sibling checkpoint selection between `best_accuracy.pth` and `best_norm_ED.pth`
+- configurable sibling checkpoint strategy support between `best_accuracy.pth` and `best_norm_ED.pth`; the live GUI runtime currently defaults to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`, while the CER-aligned selector remains available for research and gate runs
+- configurable promotion-guard strategy support; the live GUI runtime currently defaults to direct promotion through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY=disabled`, while the older protected-bank non-regression gate remains available as an opt-in
 - explicit width policies: `global_2000_pad` and `batch_max_pad`
 - bounded CER-weighted oversampling
 - OCR-only augmentation policies, including 10 extra `background_plus_rotation` variants per logical train sample or oversampled replica
@@ -137,7 +138,7 @@ As of 2026-04-20, the OCR active-learning harness has the following implemented 
 - a dedicated surrogate OCR fine-tuning pre-commit runner in `app/tests/recognition_finetuning_experiment.py` exposed through `run_recognition_precommit_gate(...)`
 - focused unit coverage for selector choice, width policy, oversampling, augmentation multiplicity, slug encoding, shuffle behavior, and page-plus-history sampling
 - a GUI-safe app runtime with `app/job_orchestrator.py`, `app/device_leases.py`, `app/manuscript_ocr_registry.py`, `app/ocr_active_learning_runtime.py`, `app/ocr_model_manager.py`, `app/telemetry.py`, and `app/profiling.py`
-- manuscript-local page-revision snapshots, active/candidate checkpoint lineage, verifier-backed automatic promotion, rebase detection, and active-checkpoint persistence across app restarts
+- manuscript-local page-revision snapshots, active/candidate checkpoint lineage, recorded automatic promotion, rebase detection, and active-checkpoint persistence across app restarts
 - structured save/recognition telemetry including save intent, node and edge edit counts, OCR text edit distance against the last prediction, checkpoint ids, and job queue events
 - coarse profiling summaries plus optional sampled CUDA traces saved under each manuscript runtime folder
 
@@ -236,7 +237,7 @@ Interpretation:
 - `curve_metrics.json`: primary curve metric and regression-guard outcome
 - `per_page.csv`: page-level metrics for each fine-tune step
 - `per_line.csv`: per-line OCR detail including width and padding metadata
-- `selector_metrics.json`: sibling checkpoint ranking evidence
+- `selector_metrics.json`: sibling checkpoint selection evidence, either CER ranking details or an explicit configured direct preference
 - `fine_tune_metadata.json`: training options, selected checkpoint, and timing
 
 This OCR artifact layout should be preserved unless there is a strong reason to change it.
@@ -360,7 +361,7 @@ Current reality:
 
 - automatic OCR evaluation exists
 - an offline sequential OCR fine-tuning harness exists
-- the GUI now records manuscript-local checkpoints and promotes them through a recorded verifier-backed rule, but that live rule is manuscript-local and still much narrower than the offline study harness
+- the GUI now records manuscript-local checkpoints and promotes them through a recorded runtime rule; by default that rule is direct promotion, while the older manuscript-local protected-bank gate remains optional and still much narrower than the offline study harness
 
 ## Human Effort Metrics
 
@@ -397,7 +398,7 @@ Current limits:
 - page-plus-random-history has only been tested with `history_sample_line_count=10` and random line replay from prior pages; other replay sizes and sampling strategies are still unexplored
 - Adam remains guard-sensitive in both page-only and page-plus-random-history follow-ups, so optimizer-specific tuning is still unresolved
 - the live GUI runtime has only been exercised against the current local-manuscript flow, not a broad benchmark suite
-- the live verifier bank is intentionally local and lightweight, so it is not a replacement for the surrogate pre-commit gate
+- when the optional live protected-bank gate is enabled, that bank is intentionally local and lightweight, so it is not a replacement for the surrogate pre-commit gate
 - manuscript-local telemetry exists, but there is still no checked-in evaluator that turns those logs into cross-manuscript effort curves
 
 ## Near-Term Recommended Additions
@@ -419,5 +420,5 @@ Evaluation maturity in this repository means:
 - every significant code change can be screened by automatic headless gates that cover both the pretrained full pipeline and the current OCR fine-tuning subsystem
 - every OCR research claim can be tied to a saved artifact folder and exact settings
 - the OCR verifier can rank policies by the repository's chosen primary metric
-- GUI OCR fine-tuning promotes models only through a recorded verifier-backed rule, and that rule remains explicit and recoverable
+- GUI OCR fine-tuning promotes models only through a recorded runtime rule, and that rule remains explicit and recoverable whether direct promotion or the optional protected-bank gate is enabled
 - human correction burden is eventually measured directly rather than inferred indirectly

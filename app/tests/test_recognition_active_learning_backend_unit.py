@@ -26,6 +26,7 @@ from ocr_active_learning_runtime import (
     run_ocr_finetune_job,
     summarize_manuscript_active_learning,
     summarize_page_active_learning,
+    verify_candidate_for_promotion,
 )
 
 
@@ -82,8 +83,41 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 
         self.assertEqual(len(orchestrator.jobs), 1)
         self.assertEqual(orchestrator.jobs[0].job_type, JobType.OCR_FINE_TUNE.value)
+        self.assertEqual(
+            orchestrator.jobs[0].payload["recipe"]["sibling_checkpoint_strategy"],
+            "best_norm_ed",
+        )
+        self.assertEqual(
+            orchestrator.jobs[0].payload["recipe"]["promotion_guard_strategy"],
+            "disabled",
+        )
         self.assertEqual(result["revision"]["revision_number"], 1)
         self.assertTrue(result["entered_active_learning"])
+
+    def test_verify_candidate_for_promotion_skips_protected_bank_check_when_disabled(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("skip_guard")
+        configure_runtime(base_checkpoint, orchestrator=None)
+        candidate_checkpoint = manuscript_root / "candidate_disabled_guard.pth"
+        candidate_checkpoint.write_text("candidate", encoding="utf-8")
+
+        with mock.patch(
+            "ocr_active_learning_runtime.run_checkpoint_on_prepared_pages",
+            side_effect=AssertionError("protected-bank verifier should be skipped"),
+        ):
+            result = verify_candidate_for_promotion(
+                {
+                    "manuscript_root": str(manuscript_root),
+                    "base_checkpoint_path": str(base_checkpoint),
+                    "candidate_checkpoint_path": str(candidate_checkpoint),
+                    "recipe": {
+                        "promotion_guard_strategy": "disabled",
+                    },
+                }
+            )
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["promotion_guard_strategy"], "disabled")
+        self.assertEqual(result["reason"], "promotion_guard_disabled_direct_promote")
 
     def test_draft_and_layout_only_saves_do_not_enqueue_ocr_training(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("draft")
