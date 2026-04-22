@@ -4469,3 +4469,70 @@
 2026-04-22 14:16:12,461 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:12] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
 2026-04-22 14:16:14,757 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:14] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
 2026-04-22 14:16:14,995 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_manuscript_ocr_registry_unit.py', reloading
+2026-04-22 14:16:18,318 - INFO -  * Restarting with stat
+2026-04-22 14:16:38,624 - WARNING -  * Debugger is active!
+2026-04-22 14:16:38,629 - INFO -  * Debugger PIN: 122-047-077
+2026-04-22 14:16:38,708 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:38] "OPTIONS /semi-segment/my_manuscriptsdasd/2 HTTP/1.1" 200 -
+2026-04-22 14:16:38,769 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:38] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:39,542 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:39] "POST /semi-segment/my_manuscriptsdasd/2 HTTP/1.1" 200 -
+2026-04-22 14:16:39,966 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:39] "GET /semi-segment/my_manuscriptsdasd/2 HTTP/1.1" 200 -
+2026-04-22 14:16:40,118 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:40] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-22 14:16:40,313 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscriptsdasd\active_learning\recognition\checkpoints\ocr_1_r0003\training_run\best_norm_ED.pth...
+2026-04-22 14:16:40,505 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:40] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:42,801 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:42] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:42,959 - INFO - Model loaded successfully.
+2026-04-22 14:16:44,045 - INFO - Updated input_manuscripts\my_manuscriptsdasd\layout_analysis_output\page-xml-format\2.xml: 4 lines recognized.
+2026-04-22 14:16:44,146 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-22 14:16:44,833 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:44] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:46,516 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:46] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:48,798 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:48] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:50,486 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:50] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:52,831 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:52] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:54,510 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:54] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:56,814 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:56] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:16:58,444 - INFO - 127.0.0.1 - - [22/Apr/2026 14:16:58] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:00,794 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:00] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:02,482 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:02] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:04,768 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:04] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:06,450 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:06] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:08,761 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:08] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:10,481 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:10] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:12,866 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:12] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:14,481 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:14] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:16,789 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:16] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:18,484 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:18] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:20,812 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:20] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:22,514 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:22] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:24,826 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:24] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:26,469 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:26] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:28,832 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:28] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:30,517 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:30] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:32,830 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:32] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:34,471 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:34] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:36,796 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:36] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:38,512 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:38] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:40,804 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:40] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:42,487 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:42] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:44,807 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:44] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:46,475 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:46] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:48,810 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:48] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:50,484 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:50] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:52,824 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:52] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:54,512 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:54] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:56,836 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:56] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:17:58,514 - INFO - 127.0.0.1 - - [22/Apr/2026 14:17:58] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:18:00,819 - INFO - 127.0.0.1 - - [22/Apr/2026 14:18:00] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:18:02,472 - INFO - 127.0.0.1 - - [22/Apr/2026 14:18:02] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:18:04,793 - INFO - 127.0.0.1 - - [22/Apr/2026 14:18:04] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:18:06,480 - INFO - 127.0.0.1 - - [22/Apr/2026 14:18:06] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:18:08,790 - INFO - 127.0.0.1 - - [22/Apr/2026 14:18:08] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:18:10,518 - INFO - 127.0.0.1 - - [22/Apr/2026 14:18:10] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:18:42,845 - INFO - 127.0.0.1 - - [22/Apr/2026 14:18:42] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:19:42,518 - INFO - 127.0.0.1 - - [22/Apr/2026 14:19:42] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:37:16,155 - INFO - 127.0.0.1 - - [22/Apr/2026 14:37:16] "GET /manuscript/my_manuscriptsdasd/active-learning HTTP/1.1" 200 -
+2026-04-22 14:48:39,418 - INFO - 127.0.0.1 - - [22/Apr/2026 14:48:39] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-22 14:56:58,948 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\active_learning_recipe.py', reloading
+2026-04-22 14:57:01,770 - INFO -  * Restarting with stat
+2026-04-22 14:57:18,779 - WARNING -  * Debugger is active!
+2026-04-22 14:57:18,786 - INFO -  * Debugger PIN: 122-047-077
+2026-04-22 15:07:17,503 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\active_learning_recipe.py', reloading
