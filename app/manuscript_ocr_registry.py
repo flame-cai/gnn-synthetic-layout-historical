@@ -358,6 +358,13 @@ class ManuscriptOcrRegistry:
         self.data["in_flight_candidate_id"] = checkpoint_id
         self.save()
 
+    def set_checkpoint_lineage(self, checkpoint_id: str, revision_refs: list[dict]) -> None:
+        checkpoint = self._checkpoint_record(checkpoint_id)
+        if checkpoint is None:
+            raise KeyError(f"Unknown checkpoint id: {checkpoint_id}")
+        checkpoint["lineage_revision_refs"] = copy.deepcopy(list(revision_refs or []))
+        self.save()
+
     def promote_candidate(self, candidate_id: str, promotion_summary: dict) -> None:
         candidate_id = str(candidate_id)
         candidate = self._checkpoint_record(candidate_id)
