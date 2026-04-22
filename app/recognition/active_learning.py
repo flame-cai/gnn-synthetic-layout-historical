@@ -14,6 +14,7 @@ import cv2
 import numpy as np
 
 try:
+    from .active_learning_recipe import normalize_sibling_checkpoint_strategy
     from .lmdb_tools import create_lmdb_dataset
     from .ocr_defaults import (
         SANSKRIT_OCR_CHARACTER_SET,
@@ -29,6 +30,7 @@ try:
     )
     from .train import train
 except ImportError:  # pragma: no cover - script execution fallback
+    from active_learning_recipe import normalize_sibling_checkpoint_strategy
     from lmdb_tools import create_lmdb_dataset
     from ocr_defaults import (
         SANSKRIT_OCR_CHARACTER_SET,
@@ -73,6 +75,7 @@ class FineTuneRunResult:
     lmdb_root: str
     train_seconds: float
     selected_best_model: str
+    sibling_checkpoint_strategy: str
     selector_metrics_path: str
     selector_metrics: dict
     train_sample_count: int
@@ -709,6 +712,26 @@ def score_page_difficulty(
     return difficulty_by_line
 
 
+def _list_sibling_checkpoint_candidates(experiment_dir: str | Path) -> list[tuple[str, Path]]:
+    experiment_dir = Path(experiment_dir)
+    candidate_files = []
+    for filename in ("best_accuracy.pth", "best_norm_ED.pth"):
+        checkpoint_path = experiment_dir / filename
+        if checkpoint_path.exists():
+            candidate_files.append((filename, checkpoint_path))
+    if not candidate_files:
+        raise FileNotFoundError(f"No fine-tuned checkpoint was written to {experiment_dir}")
+    return candidate_files
+
+
+def _write_selector_metrics(selector_output_path: str | Path | None, payload: dict) -> None:
+    if selector_output_path is None:
+        return
+    selector_output_path = Path(selector_output_path)
+    selector_output_path.parent.mkdir(parents=True, exist_ok=True)
+    selector_output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
 def select_best_sibling_checkpoint(
     experiment_dir: str | Path,
     prepared_pages,
@@ -717,17 +740,10 @@ def select_best_sibling_checkpoint(
 ):
     experiment_dir = Path(experiment_dir)
     ordered_pages = _normalize_prepared_pages(prepared_pages)
-
-    candidate_files = []
-    for filename in ("best_accuracy.pth", "best_norm_ED.pth"):
-        checkpoint_path = experiment_dir / filename
-        if checkpoint_path.exists():
-            candidate_files.append((filename, checkpoint_path))
-
-    if not candidate_files:
-        raise FileNotFoundError(f"No fine-tuned checkpoint was written to {experiment_dir}")
+    candidate_files = _list_sibling_checkpoint_candidates(experiment_dir)
 
     payload = {
+        "selection_strategy": "page_cer_selector",
         "selector_metric": "page_cer",
         "candidates": {},
     }
@@ -771,11 +787,53 @@ def select_best_sibling_checkpoint(
     payload["chosen_checkpoint"] = str(chosen_checkpoint.resolve())
     payload["reason"] = reason
 
-    if selector_output_path is not None:
-        selector_output_path = Path(selector_output_path)
-        selector_output_path.parent.mkdir(parents=True, exist_ok=True)
-        selector_output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    _write_selector_metrics(selector_output_path, payload)
+    return chosen_checkpoint, chosen_filename, payload
 
+
+def choose_sibling_checkpoint(
+    experiment_dir: str | Path,
+    prepared_pages,
+    strategy: str = "page_cer_selector",
+    selector_output_path: str | Path | None = None,
+    **inference_overrides,
+):
+    strategy = normalize_sibling_checkpoint_strategy(strategy)
+    if strategy == "page_cer_selector":
+        return select_best_sibling_checkpoint(
+            experiment_dir,
+            prepared_pages,
+            selector_output_path=selector_output_path,
+            **inference_overrides,
+        )
+
+    experiment_dir = Path(experiment_dir)
+    candidate_files = _list_sibling_checkpoint_candidates(experiment_dir)
+    candidate_lookup = {filename: checkpoint_path for filename, checkpoint_path in candidate_files}
+    chosen_filename = "best_norm_ED.pth" if "best_norm_ED.pth" in candidate_lookup else candidate_files[0][0]
+    chosen_checkpoint = candidate_lookup[chosen_filename]
+    if chosen_filename == "best_norm_ED.pth":
+        reason = (
+            "Configured sibling checkpoint strategy prefers best_norm_ED.pth "
+            "without running page-CER selection."
+        )
+    else:
+        reason = (
+            f"Configured sibling checkpoint strategy prefers best_norm_ED.pth, but that file was not present. "
+            f"Fell back to the only available sibling checkpoint {chosen_filename}."
+        )
+    payload = {
+        "selection_strategy": strategy,
+        "selector_metric": None,
+        "candidates": {
+            filename: {"checkpoint_path": str(checkpoint_path.resolve())}
+            for filename, checkpoint_path in candidate_files
+        },
+        "chosen_file": chosen_filename,
+        "chosen_checkpoint": str(chosen_checkpoint.resolve()),
+        "reason": reason,
+    }
+    _write_selector_metrics(selector_output_path, payload)
     return chosen_checkpoint, chosen_filename, payload
 
 
@@ -913,6 +971,7 @@ def fine_tune_checkpoint_on_pages(
     augmentation_policy: str = "none",
     history_source_pages: list[PreparedPageDataset] | None = None,
     history_sample_line_count: int = 0,
+    sibling_checkpoint_strategy: str = "page_cer_selector",
     **training_overrides,
 ):
     output_root = Path(output_root)
@@ -966,9 +1025,11 @@ def fine_tune_checkpoint_on_pages(
     train_seconds = time.perf_counter() - start_time
 
     selector_metrics_path = output_root / "selector_metrics.json"
-    selected_checkpoint, selected_best_model, selector_metrics = select_best_sibling_checkpoint(
+    sibling_checkpoint_strategy = normalize_sibling_checkpoint_strategy(sibling_checkpoint_strategy)
+    selected_checkpoint, selected_best_model, selector_metrics = choose_sibling_checkpoint(
         experiment_dir,
         prepared_pages,
+        strategy=sibling_checkpoint_strategy,
         selector_output_path=selector_metrics_path,
         width_policy=width_policy,
     )
@@ -985,6 +1046,7 @@ def fine_tune_checkpoint_on_pages(
         lmdb_root=str(lmdb_root.resolve()),
         train_seconds=train_seconds,
         selected_best_model=selected_best_model,
+        sibling_checkpoint_strategy=sibling_checkpoint_strategy,
         selector_metrics_path=str(selector_metrics_path.resolve()),
         selector_metrics=selector_metrics,
         train_sample_count=dataset_bundle["train_sample_count"],

@@ -3,6 +3,31 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 
+SUPPORTED_SIBLING_CHECKPOINT_STRATEGIES = {
+    "page_cer_selector",
+    "best_norm_ed",
+}
+
+SUPPORTED_PROMOTION_GUARD_STRATEGIES = {
+    "protected_bank",
+    "disabled",
+}
+
+
+def normalize_sibling_checkpoint_strategy(value: str) -> str:
+    normalized = str(value).strip().lower()
+    if normalized not in SUPPORTED_SIBLING_CHECKPOINT_STRATEGIES:
+        raise ValueError(f"Unsupported sibling checkpoint strategy: {value}")
+    return normalized
+
+
+def normalize_promotion_guard_strategy(value: str) -> str:
+    normalized = str(value).strip().lower()
+    if normalized not in SUPPORTED_PROMOTION_GUARD_STRATEGIES:
+        raise ValueError(f"Unsupported promotion guard strategy: {value}")
+    return normalized
+
+
 @dataclass(frozen=True)
 class OcrActiveLearningRecipe:
     training_policy: str = "page_plus_random_history"
@@ -18,6 +43,20 @@ class OcrActiveLearningRecipe:
     regression_guard_abs: float = 0.005
     background_plus_rotation_variant_count: int = 10
     shuffle_train_each_epoch: bool = True
+    sibling_checkpoint_strategy: str = "page_cer_selector"
+    promotion_guard_strategy: str = "protected_bank"
+
+    def __post_init__(self):
+        object.__setattr__(
+            self,
+            "sibling_checkpoint_strategy",
+            normalize_sibling_checkpoint_strategy(self.sibling_checkpoint_strategy),
+        )
+        object.__setattr__(
+            self,
+            "promotion_guard_strategy",
+            normalize_promotion_guard_strategy(self.promotion_guard_strategy),
+        )
 
     def to_training_overrides(self) -> dict:
         return {

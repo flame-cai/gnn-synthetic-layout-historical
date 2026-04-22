@@ -34,11 +34,13 @@ This plan intentionally implements only OCR active learning now, but it does so 
 - [x] (2026-04-20 10:06 IST) Extracted one canonical OCR active-learning recipe into `app/recognition/active_learning_recipe.py` and pointed the runtime and pre-commit config helpers at that shared source.
 - [x] (2026-04-20 10:06 IST) Added a generic app-level job orchestrator and device-lease manager in `app/job_orchestrator.py` and `app/device_leases.py`.
 - [x] (2026-04-20 10:06 IST) Added a per-manuscript OCR registry and page-revision ledger in `app/manuscript_ocr_registry.py`, including revision snapshots under each manuscript runtime root.
-- [x] (2026-04-20 10:06 IST) Added save-triggered OCR active-learning jobs, manuscript-local verifier-backed automatic promotion, and rebase detection/runtime queueing in `app/ocr_active_learning_runtime.py`.
+- [x] (2026-04-20 10:06 IST) Added save-triggered OCR active-learning jobs, recorded automatic promotion, and rebase detection/runtime queueing in `app/ocr_active_learning_runtime.py`.
 - [x] (2026-04-20 10:06 IST) Replaced the single global OCR model assumption on the live route path with `app/ocr_model_manager.py` and manuscript-aware checkpoint selection in `app/app.py`.
 - [x] (2026-04-20 10:06 IST) Added structured telemetry for node edits, edge edits, OCR text edits, save intents, checkpoint lineage, queue events, and active-learning outcomes in `app/telemetry.py` plus manuscript runtime logs.
 - [x] (2026-04-20 10:06 IST) Added coarse profiling summaries and optional sampled CUDA traces in `app/profiling.py`.
 - [x] (2026-04-20 10:06 IST) Kept the frontend changes minimal by adding the `Active Learning` toggle, status text, and explicit `saveIntent` wiring in `app/frontend/src/components/ManuscriptViewer.vue`.
+- [x] (2026-04-22 10:23 IST) Added a configurable live-runtime sibling checkpoint strategy override so GUI-triggered OCR jobs now default to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`, while leaving the CER-based selector available in the shared OCR code path.
+- [x] (2026-04-22 10:23 IST) Added a configurable live-runtime promotion-guard override so GUI-triggered OCR jobs now default to direct promotion through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY=disabled`, while leaving the older protected-bank gate available as an opt-in.
 - [ ] (2026-04-20 10:06 IST) Added new headless backend tests and reran both unchanged gates individually: `test_ci_e2e.py` and `app.tests.test_recognition_finetuning_precommit_e2e`; the only remaining redundant rerun is `scripts/run_precommit_eval.py`.
 
 ## Surprises & Discoveries
@@ -100,6 +102,14 @@ This plan intentionally implements only OCR active learning now, but it does so 
   Rationale: `curve_metric=early_weighted_page_cer` is still the locked research recipe and the pre-commit source of truth, but the GUI cannot access future-page ground truth. The live app therefore needs a local non-regression rule built from previously corrected pages while still recording the original recipe metadata.
   Date/Author: 2026-04-19 / Codex
 
+- Decision: the live GUI runtime should hard-prefer `best_norm_ED.pth` after each OCR fine-tune step unless explicitly reconfigured back to the CER-based sibling selector.
+  Rationale: the GUI request here is to skip the extra page-CER sibling-selection pass in the background training flow while keeping an explicit escape hatch for future reversal. Wiring the choice through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY` keeps the runtime change narrow and reversible without deleting the selector implementation used elsewhere.
+  Date/Author: 2026-04-22 / Codex
+
+- Decision: the live GUI runtime should default to direct promotion after background OCR fine-tuning unless explicitly reconfigured back to the protected-bank non-regression gate.
+  Rationale: the GUI request here is to stop treating the manuscript-local protected-bank check as mandatory deployment policy. Wiring the choice through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY` keeps the promotion rule explicit and recoverable while making direct promotion the default runtime behavior.
+  Date/Author: 2026-04-22 / Codex
+
 - Decision: editing a page that has already been consumed into the promoted manuscript lineage must mark the manuscript as needing an OCR rebase.
   Rationale: if page 1 changes after checkpoints trained through page 5 already exist, the lineage is no longer semantically clean. The safe first implementation is to keep the current active checkpoint for inference, record divergence, and queue a rebuild from the nearest safe ancestor, typically the base checkpoint.
   Date/Author: 2026-04-19 / Codex
@@ -122,7 +132,7 @@ This plan intentionally implements only OCR active learning now, but it does so 
 
 ## Outcomes & Retrospective
 
-This plan is now implemented in a first-pass form. The backend has a shared production OCR recipe, a generic orchestrator plus GPU lease manager, a manuscript-local OCR registry with revision snapshots, save-triggered fine-tune and rebase jobs, manuscript-aware checkpoint loading for local OCR, structured telemetry, and coarse profiling. The frontend gained only the requested `Active Learning` toggle, status text, and explicit save-intent wiring.
+This plan is now implemented in a first-pass form. The backend has a shared production OCR recipe, a generic orchestrator plus GPU lease manager, a manuscript-local OCR registry with revision snapshots, save-triggered fine-tune and rebase jobs, manuscript-aware checkpoint loading for local OCR, structured telemetry, and coarse profiling. The frontend gained only the requested `Active Learning` toggle, status text, and explicit save-intent wiring. The live runtime now also records which sibling checkpoint strategy and promotion-guard strategy it used for each OCR fine-tune step, currently defaulting those runtime-specific choices to `best_norm_ED.pth` and direct promotion.
 
 The main lesson from implementation matched the earlier design expectation: the hard part was not the OCR trainer itself. The hard part was durable orchestration and provenance. The route changes were straightforward only after the registry, revision snapshotting, and queue/event plumbing existed.
 

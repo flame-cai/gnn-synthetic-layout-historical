@@ -1,9 +1,9 @@
-Refresh OCR button not visible in layout mode.
+- minimize the time taken from fine-tuning job finish, to checkpoint promotion
+- understand checkpoint promotion and the "bank" verification. Do we compare performance of 1 page fine-tuned model vs 2 page fine-tuned model on a bank containing text-lines from page-1? that would give page 1 fine-tuned model an advantage!!
 
 
-2) Because not all buttons and elements are visible in each mode and the state, sometimes new elements appearing or disappearing can change the GUI a bit with jittery changes. Please don't let this happen. 
+Okay now I have doubt about step 6. You said the real promotion gate is a separate non-regression verifier. After the sibling selector picks one checkpoint (which is now always best_norm_ED.pth by default), the app compares that candidate against the current active checkpoint on the bank of already-approved pages, using page CER and allowing only a small regression margin (regression_guard_abs = 0.005). But my doubt is, do we really compare performance of 1 page fine-tuned model vs 2 page fine-tuned model on a bank containing text-lines from page-1 (which we are calling "already-approved pages"? wouldn't that give page 1 fine-tuned model an advantage, because it's trained on the "test" data is a way?
 
-3) please do a Maintainence pass to check different paths user can behave using the GUI, and how the backend will handle it and try to catch edge-cases. Use the good ENGINEERING_DOCTRINE.md, and make the code better written, but ensure the functionality does not change.
 
 
 

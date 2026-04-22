@@ -24,6 +24,8 @@ The repository still does not provide production-ready GUI fine-tuning for all f
 
 However, the OCR side is no longer only aspirational or GUI-free. As of 2026-04-20, the repository now has a first-pass save-triggered GUI OCR active-learning runtime on top of the existing offline harness.
 
+As of 2026-04-22, the live GUI runtime also carries two runtime-specific promotion knobs: it currently defaults the sibling checkpoint choice to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`, and it defaults the promotion guard to direct promotion through `OCR_RUNTIME_PROMOTION_GUARD_STRATEGY=disabled`. The offline harness and surrogate gate can still use the CER-aligned selector and the protected-bank-style guard when those are the better fit.
+
 The relevant live runtime files are:
 
 - `app/recognition/active_learning_recipe.py`
@@ -89,7 +91,7 @@ Success is not defined by a single accuracy number. Success means:
 
 ## Immediate Direction
 
-The next OCR milestone is no longer deciding which offline continuation regime to keep or whether the GUI may trigger OCR fine-tuning at all. Both decisions are now made in code: the retained path is `page_plus_random_history`, and the GUI save flow can trigger manuscript-local OCR fine-tuning through the recorded runtime recipe and verifier bank.
+The next OCR milestone is no longer deciding which offline continuation regime to keep or whether the GUI may trigger OCR fine-tuning at all. Both decisions are now made in code: the retained path is `page_plus_random_history`, and the GUI save flow can trigger manuscript-local OCR fine-tuning through the recorded runtime recipe. The live runtime now defaults to direct promotion and can opt back into a protected-bank gate when that tradeoff is wanted.
 
 The next uncertainty is how robust that first-pass live runtime is across more manuscripts and longer annotation sessions. The highest-value follow-up work is:
 

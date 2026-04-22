@@ -388,6 +388,7 @@ def _run_single_policy_run(
                     augmentation_policy=dataset_config.augmentation_policy,
                     history_source_pages=history_source_pages,
                     history_sample_line_count=history_sample_line_count,
+                    sibling_checkpoint_strategy=dataset_config.sibling_checkpoint_strategy,
                     **training_overrides,
                 )
                 selector_metrics.append(

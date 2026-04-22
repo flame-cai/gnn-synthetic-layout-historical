@@ -51,6 +51,8 @@ class RecognitionEvalDatasetConfig:
     augmentation_policy: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.augmentation_policy
     lr_scheduler: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.lr_scheduler
     optimizer: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.optimizer
+    sibling_checkpoint_strategy: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.sibling_checkpoint_strategy
+    promotion_guard_strategy: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.promotion_guard_strategy
     regression_guard_abs: float = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.regression_guard_abs
     curve_metric: str = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.curve_metric
     background_plus_rotation_variant_count: int = (
@@ -157,6 +159,8 @@ def get_precommit_hybrid_recognition_gate_config(name: str = "eval_dataset") -> 
         augmentation_policy=recipe.augmentation_policy,
         lr_scheduler=recipe.lr_scheduler,
         optimizer=recipe.optimizer,
+        sibling_checkpoint_strategy=recipe.sibling_checkpoint_strategy,
+        promotion_guard_strategy=recipe.promotion_guard_strategy,
         curve_metric=recipe.curve_metric,
         regression_guard_abs=float(recipe.regression_guard_abs),
         background_plus_rotation_variant_count=int(recipe.background_plus_rotation_variant_count),

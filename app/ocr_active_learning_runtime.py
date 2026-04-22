@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 import time
+from dataclasses import replace
 from pathlib import Path
 
 from job_orchestrator import JobOrchestrator, JobPriority, JobType, QueuedJob
@@ -23,6 +24,8 @@ from recognition.active_learning import (
 from recognition.active_learning_recipe import (
     DEFAULT_OCR_ACTIVE_LEARNING_RECIPE,
     OcrActiveLearningRecipe,
+    normalize_promotion_guard_strategy,
+    normalize_sibling_checkpoint_strategy,
 )
 from telemetry import append_jsonl, compute_layout_edit_metrics, compute_text_edit_metrics, update_summary_json, utc_now_iso
 
@@ -31,6 +34,10 @@ _RUNTIME_STATE = {
     "base_checkpoint_path": None,
     "orchestrator": None,
 }
+_RUNTIME_SIBLING_CHECKPOINT_STRATEGY_ENV = "OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY"
+_DEFAULT_RUNTIME_SIBLING_CHECKPOINT_STRATEGY = "best_norm_ed"
+_RUNTIME_PROMOTION_GUARD_STRATEGY_ENV = "OCR_RUNTIME_PROMOTION_GUARD_STRATEGY"
+_DEFAULT_RUNTIME_PROMOTION_GUARD_STRATEGY = "disabled"
 
 
 def configure_runtime(base_checkpoint_path: str | Path, orchestrator: JobOrchestrator | None = None) -> None:
@@ -76,6 +83,22 @@ def _recipe_from_payload(job_payload: dict | None = None) -> OcrActiveLearningRe
     if not recipe_payload:
         return DEFAULT_OCR_ACTIVE_LEARNING_RECIPE
     return OcrActiveLearningRecipe(**recipe_payload)
+
+
+def _runtime_recipe() -> OcrActiveLearningRecipe:
+    configured_strategy = os.getenv(
+        _RUNTIME_SIBLING_CHECKPOINT_STRATEGY_ENV,
+        _DEFAULT_RUNTIME_SIBLING_CHECKPOINT_STRATEGY,
+    )
+    configured_guard = os.getenv(
+        _RUNTIME_PROMOTION_GUARD_STRATEGY_ENV,
+        _DEFAULT_RUNTIME_PROMOTION_GUARD_STRATEGY,
+    )
+    return replace(
+        DEFAULT_OCR_ACTIVE_LEARNING_RECIPE,
+        sibling_checkpoint_strategy=normalize_sibling_checkpoint_strategy(configured_strategy),
+        promotion_guard_strategy=normalize_promotion_guard_strategy(configured_guard),
+    )
 
 
 def _snapshot_page_revision(registry: ManuscriptOcrRegistry, page_id: str, revision_number: int) -> Path:
@@ -498,6 +521,7 @@ def handle_post_save(
     entered_active_learning = False
     queued_job_ids = []
     save_intent = str(save_intent or "commit")
+    runtime_recipe = _runtime_recipe()
 
     if save_intent == "commit" and bool(active_learning_enabled) and not revision.is_duplicate:
         if registry.has_consumed_revision(page):
@@ -522,7 +546,7 @@ def handle_post_save(
                         "manuscript_root": str(manuscript_root),
                         "base_checkpoint_path": _base_checkpoint_path(base_checkpoint_path),
                         "approved_revision_refs": approved_refs,
-                        "recipe": DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.to_dict(),
+                        "recipe": runtime_recipe.to_dict(),
                     },
                 )
                 queued_job_ids.append(_get_orchestrator(orchestrator).enqueue(rebase_job))
@@ -555,7 +579,7 @@ def handle_post_save(
                     "parent_checkpoint_id": registry.active_checkpoint_id(),
                     "parent_checkpoint_path": str(registry.active_checkpoint()),
                     "base_checkpoint_path": _base_checkpoint_path(base_checkpoint_path),
-                    "recipe": DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.to_dict(),
+                    "recipe": runtime_recipe.to_dict(),
                 },
             )
             queued_job_ids.append(_get_orchestrator(orchestrator).enqueue(fine_tune_job))
@@ -609,6 +633,7 @@ def verify_candidate_against_bank(job_payload: dict) -> dict:
         return {
             "passed": True,
             "reason": "bootstrap_no_verifier_bank",
+            "promotion_guard_strategy": recipe.promotion_guard_strategy,
             "guard_abs": float(recipe.regression_guard_abs),
             "candidate_page_cer": None,
             "active_page_cer": None,
@@ -638,6 +663,7 @@ def verify_candidate_against_bank(job_payload: dict) -> dict:
     return {
         "passed": passed,
         "reason": "candidate_non_regressing" if passed else "candidate_regressed",
+        "promotion_guard_strategy": recipe.promotion_guard_strategy,
         "guard_abs": float(recipe.regression_guard_abs),
         "candidate_page_cer": candidate_page_cer,
         "active_page_cer": active_page_cer,
@@ -646,6 +672,20 @@ def verify_candidate_against_bank(job_payload: dict) -> dict:
         "candidate_per_page": candidate_result.per_page_metrics,
         "active_per_page": active_result.per_page_metrics,
     }
+
+
+def verify_candidate_for_promotion(job_payload: dict) -> dict:
+    recipe = _recipe_from_payload(job_payload)
+    if recipe.promotion_guard_strategy == "disabled":
+        return {
+            "passed": True,
+            "reason": "promotion_guard_disabled_direct_promote",
+            "promotion_guard_strategy": recipe.promotion_guard_strategy,
+            "guard_abs": None,
+            "candidate_page_cer": None,
+            "active_page_cer": None,
+        }
+    return verify_candidate_against_bank(job_payload)
 
 
 def _train_candidate_step(job_payload: dict) -> dict:
@@ -678,6 +718,7 @@ def _train_candidate_step(job_payload: dict) -> dict:
             augmentation_policy=recipe.augmentation_policy,
             history_source_pages=history_pages,
             history_sample_line_count=int(recipe.history_sample_line_count),
+            sibling_checkpoint_strategy=recipe.sibling_checkpoint_strategy,
             width_policy=recipe.width_policy,
             lr_scheduler=recipe.lr_scheduler,
             optimizer_name=recipe.optimizer,
@@ -719,12 +760,16 @@ def _train_candidate_step(job_payload: dict) -> dict:
         }
     )
     registry.set_status(
-        "verifying_candidate",
-        f"Checking the new reader from page {training_revision_ref['page_id']} before making it active",
+        "verifying_candidate" if recipe.promotion_guard_strategy == "protected_bank" else "promoting_candidate",
+        (
+            f"Checking the new reader from page {training_revision_ref['page_id']} before making it active"
+            if recipe.promotion_guard_strategy == "protected_bank"
+            else f"Promoting the new reader from page {training_revision_ref['page_id']} without protected-page gating"
+        ),
         candidate_id=candidate_id,
         page_id=training_revision_ref["page_id"],
     )
-    verification = verify_candidate_against_bank(
+    verification = verify_candidate_for_promotion(
         {
             **job_payload,
             "candidate_checkpoint_path": fine_tune_result.output_checkpoint,
@@ -776,6 +821,7 @@ def run_ocr_finetune_job(job_payload: dict) -> dict:
 
 def rebuild_manuscript_lineage(job_payload: dict) -> dict:
     registry = _load_registry_for_manuscript(job_payload["manuscript_root"], base_checkpoint_path=job_payload.get("base_checkpoint_path"))
+    recipe = _recipe_from_payload(job_payload)
     approved_revision_refs = list(job_payload.get("approved_revision_refs") or [])
     if not approved_revision_refs:
         registry.clear_rebase()
@@ -819,6 +865,7 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
     final_verification = {
         "passed": True,
         "reason": "rebase_complete",
+        "promotion_guard_strategy": recipe.promotion_guard_strategy,
         "rebuilt_revision_refs": approved_revision_refs,
     }
     registry = _load_registry_for_manuscript(
