@@ -27,11 +27,12 @@ def _page_sort_key(page_id: str) -> tuple:
         if is_digit is None or char_is_digit == is_digit:
             chunk += char
         else:
-            parts.append(int(chunk) if is_digit else chunk)
+            # Tag each chunk so mixed numeric/alphabetic page ids remain comparable.
+            parts.extend((0, int(chunk)) if is_digit else (1, chunk))
             chunk = char
         is_digit = char_is_digit
     if chunk:
-        parts.append(int(chunk) if is_digit else chunk)
+        parts.extend((0, int(chunk)) if is_digit else (1, chunk))
     return tuple(parts)
 
 
