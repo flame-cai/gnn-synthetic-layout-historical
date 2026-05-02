@@ -46,7 +46,7 @@ Important app paths:
 - `app/app.py`: Flask backend and current save and recognition routes.
 - `app/frontend/`: browser UI.
 - `app/recognition/`: local OCR code, training code, active-learning utilities, and pretrained checkpoint handling.
-- `app/tests/`: headless evaluation dataset, OCR fine-tuning verifier, unit tests, and logs.
+- `app/tests/`: headless evaluation dataset, OCR fine-tuning verifier, unit tests, and generated local run artifacts.
 
 ## Current OCR Research Harness
 
@@ -103,7 +103,7 @@ The current harness supports:
 - a generic app-level job orchestrator with priorities, GPU device leases, and isolated OCR fine-tune/rebase jobs that can be canceled and requeued for interactive OCR
 - manuscript-aware local OCR inference that loads the current manuscript checkpoint instead of assuming one global active model forever
 - structured page/job telemetry and coarse profiling summaries, with optional sampled CUDA traces
-- run artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, and plots
+- run artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, and plots. These artifacts are generated locally and should not be assumed to exist in a fresh GitHub checkout.
 
 Earlier cumulative and page-only studies are now treated as preserved conclusions rather than live code paths. The retained conclusions are:
 
@@ -112,13 +112,7 @@ Earlier cumulative and page-only studies are now treated as preserved conclusion
 - the hybrid replay recipe beat both earlier baselines on the primary curve metric and final-page CER
 - Adam remained guard-sensitive even after replaying historical lines, so the trusted recipe remains Adadelta `lr=0.2`, `num_iter=60`
 
-The canonical hybrid study aliases are:
-
-- `app/tests/logs/recognition_finetune_results_latest.md`
-- `app/tests/logs/recognition_finetune_results_latest.json`
-- `app/tests/logs/recognition_finetune_results_latest.txt`
-
-The current checked-in hybrid summary records these important results:
+The durable hybrid-study conclusions to preserve in checked-in docs are:
 
 - Primary metric winner: `wb_on_an_hist10_sn_optd_lr200000u`
   Meaning: `page_plus_random_history`, `history_sample_line_count=10`, `batch_max_pad`, `none`, `none`, `optimizer=Adadelta`, `lr=0.2`, `num_iter=60`
@@ -128,16 +122,7 @@ The current checked-in hybrid summary records these important results:
 - Best `first_step_gain`: `wb_on_an_hist10_sn_optd_lr200000u`
   Evidence: `first_step_gain=0.0572938689217759`
 
-The latest dedicated surrogate pre-commit aliases are:
-
-- `app/tests/logs/recognition_finetune_precommit_latest.md`
-- `app/tests/logs/recognition_finetune_precommit_latest.json`
-- `app/tests/logs/recognition_finetune_precommit_latest.txt`
-
-See:
-
-- `app/tests/logs/recognition_finetune_results_latest.md`
-- `app/tests/logs/recognition_finetune_results_latest.json`
+The dedicated surrogate pre-commit gate uses the same recipe shape but a fixed thresholded dataset result. Its blocking thresholds are checked in through `app/tests/precommit_gate_config.py`, not through generated artifact files.
 
 ## Verification Commands
 

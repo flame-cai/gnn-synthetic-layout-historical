@@ -53,7 +53,6 @@ The current evaluation code lives in:
 - `app/tests/test_recognition_telemetry_unit.py`
 - `app/recognition/pagexml_line_dataset.py`
 - `app/tests/eval_dataset/`
-- `app/tests/logs/`
 - `.githooks/pre-commit`
 - `scripts/run_precommit_eval.py`
 
@@ -107,7 +106,7 @@ This harness does not use CRAFT or GNN segmentation. Instead it:
 1. prepares perfect line crops from PAGE-XML ground truth
 2. fine-tunes the local OCR checkpoint sequentially on earlier pages
 3. evaluates later pages after each update
-4. writes full run artifacts under `app/tests/logs/`
+4. writes full local run artifacts for debugging and later review
 
 This harness is offline-first and research-oriented. It remains the slower policy-study path, separate from the live GUI runtime.
 
@@ -131,8 +130,7 @@ As of 2026-04-20, the OCR active-learning harness has the following implemented 
 - one retained page-plus-random-history continuation path where each post-baseline step fine-tunes on the newly added page plus up to 10 randomly sampled lines from earlier fine-tune pages, with deterministic sampling metadata and a first-page fallback to current-page-only training
 - deterministic loader-level train reshuffling using a seeded `torch.Generator`, with shuffle policy recorded in metadata
 - additive train-dataset metadata that separates `current_page_ids`, `history_source_page_ids`, `history_sample_page_ids`, `history_sample_line_refs`, and per-sample origin markers
-- richer artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, winners-by-metric metadata, and plots
-- one canonical "latest" alias family for the retained hybrid study: `recognition_finetune_results_latest.*`
+- richer local artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, winners-by-metric metadata, and plots
 - a shared checked-in pre-commit gate registry in `app/tests/precommit_gate_config.py` so dataset membership and thresholds are no longer buried in unittest bodies
 - a dedicated surrogate OCR fine-tuning pre-commit runner in `app/tests/recognition_finetuning_experiment.py` exposed through `run_recognition_precommit_gate(...)`
 - focused unit coverage for selector choice, width policy, oversampling, augmentation multiplicity, slug encoding, shuffle behavior, and page-plus-history sampling
@@ -169,11 +167,9 @@ The shared dataset assumptions are still:
 - primary metric: `early_weighted_page_cer`
 - regression guard: no step may worsen aggregate page CER by more than `0.005` absolute versus the previous step
 
-The retained live study family is the hybrid page-plus-random-history follow-up. Its stable checked-in summary lives at:
+The retained live study family is the hybrid page-plus-random-history follow-up. Generated study artifacts are local run outputs, so the durable findings are copied here instead of relying on artifact files being present in a GitHub checkout.
 
-- `app/tests/logs/recognition_finetune_results_latest.json`
-
-Important results from that 2-policy hybrid follow-up:
+Important results from the 2-policy hybrid follow-up:
 
 - Primary-metric winner: `wb_on_an_hist10_sn_optd_lr200000u`
   Meaning: `training_policy=page_plus_random_history`, `history_sample_line_count=10`, `width_policy=batch_max_pad`, `oversampling_policy=none`, `augmentation_policy=none`, `lr_scheduler=none`, `optimizer=Adadelta`, `lr=0.2`, `num_iter=60`
@@ -192,24 +188,15 @@ The earlier broad and page-only studies are no longer live code paths, but their
 - the best page-only result reached `curve_metric_value=0.24025369978858352` and `final_page_cer=0.17061310782241015`, but three of the four page-only policies failed the regression guard
 - the hybrid replay recipe improved on both earlier baselines on the primary curve metric and final-page CER, while the Adam hybrid candidate still failed the regression guard
 
-The canonical human-readable summary files are now:
-
-- `app/tests/logs/recognition_finetune_results_latest.md`
-- `app/tests/logs/recognition_finetune_results_latest.json`
-- `app/tests/logs/recognition_finetune_results_latest.txt`
-- `app/tests/logs/recognition_finetune_precommit_latest.md`
-- `app/tests/logs/recognition_finetune_precommit_latest.json`
-- `app/tests/logs/recognition_finetune_precommit_latest.txt`
-
-The pre-commit OCR aliases are intentionally narrower than the broader study aliases. They always represent one explicit best-known hybrid recipe and one thresholded dataset result, not a policy sweep.
+The pre-commit OCR result is intentionally narrower than the broader study. It always represents one explicit best-known hybrid recipe and one thresholded dataset result, not a policy sweep. The blocking thresholds are checked in through `app/tests/precommit_gate_config.py`: `curve_metric_value <= 0.26`, `final_page_cer <= 0.18`, and `first_step_gain >= 0.04`.
 
 ## Required Artifacts
 
-Serious evaluation runs should write a dedicated artifact folder under `app/tests/logs/`.
+Serious evaluation runs should write a dedicated local artifact folder. Those artifacts are evidence for a run, but they are generated outputs and should not be the only place a checked-in research conclusion is recorded.
 
 The current OCR study shape is:
 
-    app/tests/logs/<timestamp>_ocrft_<dataset>/
+    <local-artifact-root>/<timestamp>_ocrft_<dataset>/
       config.json
       summary.md
       metrics.json
@@ -302,7 +289,7 @@ or:
 
     C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
 
-If the wrapper crashes after artifact creation, inspect the newest timestamped folder under `app/tests/logs/` before assuming the study itself failed.
+If the wrapper crashes after artifact creation, inspect the artifact directory printed by the runner before assuming the study itself failed.
 
 ## Metrics By Task
 
@@ -413,7 +400,7 @@ The next high-value steps are:
 Evaluation maturity in this repository means:
 
 - every significant code change can be screened by automatic headless gates that cover both the pretrained full pipeline and the current OCR fine-tuning subsystem
-- every OCR research claim can be tied to a saved artifact folder and exact settings
+- every OCR research claim can be tied to an artifact-producing run and exact settings, with durable conclusions copied into checked-in docs when they matter beyond one local workspace
 - the OCR verifier can rank policies by the repository's chosen primary metric
 - GUI OCR fine-tuning promotes models only through a recorded direct-promotion runtime rule
 - human correction burden is eventually measured directly rather than inferred indirectly
