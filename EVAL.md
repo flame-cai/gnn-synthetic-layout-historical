@@ -403,14 +403,10 @@ Current limits:
 ## Near-Term Recommended Additions
 
 The next high-value steps are:
-
-1. Compare `history_sample_line_count` values and replay-selection strategies now that the first page-plus-random-history study shows promise.
-2. Decide whether `page_plus_random_history` should replace page-only continuation as the default follow-up path after more evidence across datasets.
-3. Investigate why Adam remains regression-guard-sensitive in the continuation follow-ups and decide whether optimizer-specific LR ranges or optimizer-specific defaults are needed.
-4. Harden the live manuscript registry and rebuild path with more restart and interrupted-job coverage.
-5. Add a checked-in evaluator that turns manuscript-local telemetry into manuscript-level effort summaries.
-6. Wrap the direct-interpreter OCR-study path in a small helper so Windows-safe UTF-8 execution is the easiest path, not just the documented path.
-7. Extend the OCR benchmark to multiple manuscript sequences now that the cumulative, page-only, hybrid follow-up, and live GUI runtime all exist.
+1. Harden the live manuscript registry and rebuild path with more restart and interrupted-job coverage.
+2. Add a checked-in evaluator that turns manuscript-local telemetry into manuscript-level effort summaries.
+3. Wrap the direct-interpreter OCR-study path in a small helper so Windows-safe UTF-8 execution is the easiest path, not just the documented path.
+4. Extend the OCR benchmark to multiple manuscript sequences now that the cumulative, page-only, hybrid follow-up, and live GUI runtime all exist.
 
 ## Definition Of Success
 

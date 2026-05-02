@@ -1,6 +1,7 @@
 # VISION.md
 
-This repository exists to reduce the total human effort required to digitize historical manuscripts while preserving or improving output quality. The tool is already useful as a semi-automatic annotation system. The long-term vision is to make it progressively better page by page through active learning.
+This repository exists to reduce the total human effort required to digitize historical manuscripts. The long-term vision is to make it progressively better page by page through active learning, by fine-tuning various parts of the pipeline the tool uses.
+The tool is already useful as a semi-automatic annotation system.
 
 ## Product Vision
 
@@ -11,10 +12,10 @@ The semi-automatic tool in `app/` digitizes manuscripts in two stages:
 
 That means the repository is naturally active-learning-friendly for four tasks:
 
-1. Character detection or a future CRAFT-like surrogate model.
-2. GNN edge classification for text-line grouping.
-3. Text-region grouping.
-4. Text recognition.
+1. Character detection or a future CRAFT-like surrogate model. (ACTIVE LEARNING NOT IMPLEMENTED YET)
+2. GNN edge classification for text-line grouping. (ACTIVE LEARNING NOT IMPLEMENTED YET)
+3. Text-region grouping. (ACTIVE LEARNING NOT IMPLEMENTED YET)
+4. Text recognition. (ACTIVE LEARNING IMPLEMENTED)
 
 By active learning here, we mean the user corrects model mistakes, those corrections become new training data, and later pages should require less manual work than earlier pages.
 
@@ -22,7 +23,7 @@ By active learning here, we mean the user corrects model mistakes, those correct
 
 The repository still does not provide production-ready GUI fine-tuning for all four tasks.
 
-However, the OCR side is no longer only aspirational or GUI-free. As of 2026-04-20, the repository now has a first-pass save-triggered GUI OCR active-learning runtime on top of the existing offline harness.
+However, the OCR side (Text recognition from the segmented text-lines) is no longer only aspirational or GUI-free. As of 2026-04-20, the repository now has a first-pass save-triggered GUI OCR active-learning runtime on top of the existing offline harness.
 
 As of 2026-04-22, the live GUI runtime carries one runtime-specific sibling-checkpoint knob: it currently defaults the sibling checkpoint choice to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`. The offline harness and surrogate gate can still use the CER-aligned selector when that is the better fit.
 
@@ -96,22 +97,23 @@ The next OCR milestone is no longer deciding which offline continuation regime t
 The next uncertainty is how robust that first-pass live runtime is across more manuscripts and longer annotation sessions. The highest-value follow-up work is:
 
 - validate the retained page-plus-random-history regime on more than one manuscript sequence and more than one history replay size
-- investigate why Adam remains regression-guard-sensitive in the continuation follow-ups
 - harden restart, interruption, and rebuild behavior in the live manuscript registry/orchestrator path
-- keep the surrogate pre-commit gate honest about its scope: it validates OCR fine-tuning under perfect segmentation inputs, not the full future human correction loop
+- keep the surrogate pre-commit gate honest about its scope: it validates OCR fine-tuning under perfect text-line segmentation inputs, not the full future human correction loop
 - turn the new manuscript-local telemetry into manuscript-level effort summaries and trend reports
 - keep the Windows-safe direct-interpreter execution path first-class for long OCR verifier runs
 
 ## Broader Research Direction
 
-Over time, the same active-learning pattern should apply to all major tasks:
+Over time, the same active-learning pattern should apply to all major task of the pipeline:
 
-- OCR text recognition
-- text-line segmentation
-- text-region grouping
-- eventually a trainable surrogate for character detection
+- active learning by finetuning OCR text recognition (Recognition Model - CNN-BiLSTM-CTC). This has been implemented in the Current Version.
+- active learning by finetuning text-line segmentation (GNN)
+- active learning by finetuning text-region grouping (GNN)
+- active learning by finetuning CRAFT (U-NET)
 
 CRAFT itself is not currently fine-tunable in this repository because the relevant training path is not available here. If active learning for character detection becomes important, the expected path is to introduce a surrogate model that can learn from user node additions and deletions.
+
+The GNN also is not currently fine-tunable in an active learning setting from the semi-automatic annotation tool. The GNN also currently only does the text-line segmentation task (as binary edge classification). It DOES NOT do text-region grouping yet, where text-lines (and the characters of the text-lines), belonging to the same text-box will have the same label. Thus Multi-task learning of the Graph Neural Network remains a research direction, which may need to be first implemented and test in the core GNN directory `src/` and then implemented in the semi-automatic annotation tool in `app/`.
 
 ## Non-Negotiable Product Constraints
 
@@ -119,4 +121,4 @@ CRAFT itself is not currently fine-tunable in this repository because the releva
 - A newly trained model must never silently replace the active model without a recorded promotion rule.
 - Training and inference must not fight each other for the same device in a way that degrades the user experience.
 - Every research claim should be backed by saved artifacts under `app/tests/logs/`.
-- Human correction burden must eventually become a logged first-class metric rather than an anecdotal claim.
+- Reduction in Human correction burden must eventually become a logged first-class metric rather than an anecdotal claim.
