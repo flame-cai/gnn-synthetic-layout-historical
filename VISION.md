@@ -1,7 +1,13 @@
 # VISION.md
 
-This repository exists to reduce the total human effort required to digitize historical manuscripts. The long-term vision is to make it progressively better page by page through active learning, by fine-tuning various parts of the pipeline the tool uses.
-The tool is already useful as a semi-automatic annotation system.
+This repository exists to reduce the total human effort required to digitize historical manuscripts. It provides a semi-automatic digitization tool to do the same. The long-term vision is to make this semi-digitization tool an active-learning, such that it progressively gets better page by page, by fine-tuning various parts of the pipeline the tool uses.
+
+Another core-vision of this repository is that we want this repo to Agentic AI friendly such that whenever we want to make improvements to any part of the historical manuscript digitization pipeline, we combine the generative capabilites of LLMs with appropriate external verifiers/evaluators.
+
+This repository currently has two main products:
+
+1. Graph Neural Network based Text-Line Segmentation Core in `src/`. This is where GNN experiments and research will happen. Right now the GNN only does text-line segmentation as a binary edge classification task, but we want to extend it's capabilities to enable Multi-task learning (text-region grouping along with text-line segmentation). We also want to run experiments such that we reduce the training, inference, and data-prepartion time for GNNs, have better model saving and loading, test new GNN architectures etc)
+2. Semi Automatic Annotation Tool in `app/`. This is full application, which has the entire manuscript digitization pipeline (CRAFT+GNN+OCR, along with allowing the human to make various types of post-correction (Add/delete nodes, add/delete edges, text-region labeling, OCR Recognized text correction). 
 
 ## Product Vision
 
@@ -19,7 +25,26 @@ That means the repository is naturally active-learning-friendly for four tasks:
 
 By active learning here, we mean the user corrects model mistakes, those corrections become new training data, and later pages should require less manual work than earlier pages.
 
-## Current Reality
+### Desired End State
+
+For a manuscript with multiple pages, the user should eventually experience the following:
+
+1. Page 1 requires the most manual corrections (add/delete nodes and edges, text-region grouping, corrections to recognized text (OCR'ed text) from segmented text lines)
+2. The corrected page is turned into fine-tuning data for various parts of the pipeline (CRAFT, GNN, Text-recognizer(OCR))
+3. Fine-tuning of various parts of the pipeline runs in the background at a safe time with good orchestration.
+4. The next model version performs better on the next unseen page, requiring less manual corrections (add/delete nodes and edges, text-region grouping, corrections to recognized text (OCR'ed text) from segmented text lines).
+5. Manual effort continues to drop over later pages.
+6. User exports the manuscript in PAGE-XML format.
+
+Success is not defined by a single accuracy number. Success means:
+
+- lower total manual effort
+- stable or improving output quality
+- predictable and reversible model promotion
+- a smooth annotation workflow that does not freeze or confuse the user
+- amazing background orchestration of fine-tuning/inference of various parts of the pipeline, while keeping the frontend User Experience Smooth.
+
+### Current Reality
 
 The repository still does not provide production-ready GUI fine-tuning for all four tasks.
 
@@ -73,24 +98,8 @@ So the repository is now in a transitional state:
 - the GUI now has a first-pass OCR active-learning loop with manuscript-local registry, promotion, rebase detection, telemetry, and profiling
 - the GUI runtime is still intentionally narrow and needs more hardening before it should be treated as fully mature product behavior
 
-## Desired End State
 
-For a manuscript with multiple pages, the user should eventually experience the following:
-
-1. Page 1 requires the most manual correction.
-2. The corrected page is turned into fine-tuning data.
-3. Fine-tuning runs in the background at a safe time.
-4. The next model version performs better on the next unseen page.
-5. Manual effort continues to drop over later pages.
-
-Success is not defined by a single accuracy number. Success means:
-
-- lower total manual effort
-- stable or improving output quality
-- predictable and reversible model promotion
-- a smooth annotation workflow that does not freeze or confuse the user
-
-## Immediate Direction
+### Immediate Direction
 
 The next OCR milestone is no longer deciding which offline continuation regime to keep or whether the GUI may trigger OCR fine-tuning at all. Both decisions are now made in code: the retained path is `page_plus_random_history`, and the GUI save flow can trigger manuscript-local OCR fine-tuning through the recorded runtime recipe with direct promotion after training.
 
@@ -113,7 +122,8 @@ Over time, the same active-learning pattern should apply to all major task of th
 
 CRAFT itself is not currently fine-tunable in this repository because the relevant training path is not available here. If active learning for character detection becomes important, the expected path is to introduce a surrogate model that can learn from user node additions and deletions.
 
-The GNN also is not currently fine-tunable in an active learning setting from the semi-automatic annotation tool. The GNN also currently only does the text-line segmentation task (as binary edge classification). It DOES NOT do text-region grouping yet, where text-lines (and the characters of the text-lines), belonging to the same text-box will have the same label. Thus Multi-task learning of the Graph Neural Network remains a research direction, which may need to be first implemented and test in the core GNN directory `src/` and then implemented in the semi-automatic annotation tool in `app/`.
+The GNN also is not currently fine-tunable in an active learning setting from the semi-automatic annotation tool. The GNN also currently only does the text-line segmentation task (as binary edge classification). It DOES NOT do text-region grouping yet, where text-lines (and the characters of the text-lines), belonging to the same text-box will have the same label. Thus Multi-task learning of the Graph Neural Network remains a research direction, which MUST be first implemented and tested in the core GNN directory `src/` and then implemented in the semi-automatic annotation tool in `app/`.
+
 
 ## Non-Negotiable Product Constraints
 

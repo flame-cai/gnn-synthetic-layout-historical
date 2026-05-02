@@ -1,27 +1,36 @@
 
 # Historical OCR Tool
 
-This tools digitizes text from historical manuscripts in two steps:  
+This tool digitizes text from historical manuscripts in two steps:  
 
-In step 1, text-lines of the the page are detected automatically (or semi-automatically for dense, complex layouts).  
-
-In step 2, the text content of the detected text-lines is OCR'ed (recognized) and converted to unicode text.
+In step 1, text-lines of the page are segmented automatically (or semi-automatically for dense, complex layouts).  
+In step 2, the text content of the segmented text-lines is OCR'ed (recognized) and converted to unicode text, which can then be manually post-corrected by the human.
 
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
 
-**Version:** 3.0  
-**Last Updated:** April 21, 2026
+
+**Version:** 4.0  
+**Last Updated:** May 02, 2026
 
 ## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
-*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** Segment text-lines from complex layouts using Graph Neural Networks, followed by manual corrections to the output if required - supporting annotations at `character level`, `text-line level` and `text-box level`.
-*   **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):** Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
-*   **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):** Train custom GNN architectures using synthetic data, augmented real data.
-*   **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):** Generate synthetic layout data simulating complex layouts in the graph based format
-*   **📂 Dataset:** The dataset used in the paper is currently available in the 
-  [`gram-submission`](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/gram-submission?tab=readme-ov-file) branch of this repository.
+*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** `app\`: This is the full semi-automatic application, which has the entire manuscript digitization pipeline, and  allows the human to make various types of post-corrections.
 
+* **🕸️ Graph Neural Network Based Text-line Segmentation**
+`src\`: This contains synthetic data generation, augmentation, data preparation, training, and inference code for GNN based text-lines segmentation.
+  * **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):**  
+    Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
+  
+  * **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):**  
+    Train custom GNN architectures using synthetic data, augmented real data.
+  
+  * **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):**  
+    Generate synthetic layout data simulating complex layouts in the graph-based format
+  
+  * **📂 Dataset:**  
+    The dataset used in the paper is currently available in the  
+    [`gram-submission`](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/gram-submission?tab=readme-ov-file) branch of this repository.
 
 ## 🚀 **Getting Started**
 
@@ -48,18 +57,21 @@ pip install -r requirements.txt
 
 ## 🧩 **Semi Automatic Annotation Tool ```app/```**
 
-Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset - which can require a significant amount of time and effort. 
-Further more, automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes. Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming.
+This tool enables digitization of historical manuscripts, in two steps:  
+In step 1, text-lines of the the page are segmented automatically (or semi-automatically for dense, complex layouts).  
+In step 2, the text content of the detected text-lines is OCR'ed (recognized) and converted to unicode text.
+
+Satisfactorily performing step 1, i.e the automatic text-line segmentation from diverse historical manuscripts with complex layouts necessitates annotation of a few pages from the target manuscript - which can require a significant amount of time and effort. 
+Further more, in low training data regimes, automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages. Manual correction of such **_automatically but incorrectly_** segmented text-lines can also be time consuming.
 
 ![OOD_performance](./app/ood_qualitative.png)
-***Figure:** When faced with **complex Out-of-Distribution layouts**, manually correcting _automatically but incorrectly_ segmented text-lines in a bounding polygon format, could perhaps be more time consuming than manually correcting predictions in a graph-based format (see the rightmost figure), as illustrated in the above figure. The out-of-the-box predictions of leading methods DocUFCN and SeamFormer are in a bounding polygon format, and the prediction of the proposed method is in the graph-based format (which we believe to be less time consuming to post-correct). The training data of the proposed method **DID NOT** contain any circular layouts, thus highlighting the generalizability of the proposed method to complex out-of-distribution layouts. Furthermore, the prediction of
-the Proposed-method seems to be **more salvageable**, allowing the user to manually correct mistakes by adding/deleting edges and nodes as required.*
+***Figure:** When faced with **complex Out-of-Distribution layouts**, manually correcting _automatically but incorrectly_ segmented text-lines in a **bounding polygon format**, could perhaps be more time consuming than manually correcting predictions in a **graph-based format**, as illustrated in the above figure. The out-of-the-box predictions of leading methods DocUFCN and SeamFormer are in a bounding polygon format (left and center), and the prediction of the proposed method is in the graph-based format (right). The training data of the proposed method **DID NOT** contain any circular layouts, hence this qualitative illustration highlights the generalizability of the proposed GNN based method to out-of-distribution layouts. Furthermore, the prediction of the Proposed-method seems to be **more salvageable**, allowing the user to manually correct mistakes by adding/deleting edges and nodes as required.*
 
 The semi-automatic annotation tool presented in this work natively supports graph-based labelling, treating character locations as nodes, with characters of the same text-lines being connected together.
 This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level` as illustrated in the GIF below.
 
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
-***Figure:** It took `~12 hours` by `1 annotator` to annotate complex layouts of all `481 pages` of the dataset presented. The version of the tool used to do this relied on a heuristic algorithm (more details in the paper) rather than a Graph Neural Network. Hence the annotation time is expected to be even lower with the current version of the tool, which uses a Graph Neural Network instead of the heuristic algorithm - demonstrating superior performance. Right now, the tool uses a pre-trained GNN to perform the task, however in the future, we expect the GNN to be **iteratively finetuned on any target manuscript** in an active learning setting. This will allow the GNN to learn from previously seen page layouts of a target manuscript, to make predictions on the subsequent pages, allowing **continuous improvement and rapid reduction in human effort.***
+***Figure:** It took `~12 hours` by `1 annotator` to annotate complex layouts of all `481 pages` of the dataset presented. The version of the tool used to do this relied on a heuristic algorithm (more details in the paper) rather than a Graph Neural Network (which demostrates superior performance). Hence the annotation time is expected to be even lower with the current version of the tool, which uses a Graph Neural Network. Right now, the tool uses a pre-trained GNN to perform the task, however in the future, we expect the GNN to be **iteratively finetuned on any target manuscript** in an active learning setting. This will allow the GNN to learn from previously seen page layouts of a target manuscript, to make predictions on the subsequent pages, allowing **rapid reduction in human effort and annotation time.***
 
 
 
