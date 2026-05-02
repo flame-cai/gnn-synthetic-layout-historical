@@ -199,10 +199,10 @@ If you use the direct interpreter form, update the path to match the local machi
 
 Read these before changing behavior:
 
-- `README.md`: install and usage instructions
+- `README.md`: introduction, install and usage instructions
 - `ENGINEERING_DOCTRINE.md`: repository working norms
 - `VISION.md`: long-term product and research direction
-- `EVAL.md`: current evaluation architecture and OCR verifier reality
+- `EVAL.md`: current evaluation architecture and OCR verifier (recognition model) reality
 - `PLANS.md`: required format for execution plans
 - `docs/exec-plans/tech-debt-tracker.md`: current high-priority debts
 

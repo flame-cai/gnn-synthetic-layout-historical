@@ -3,9 +3,9 @@
 
 This tools digitizes text from historical manuscripts in two steps:  
 
-In step 1, text-lines of the the page are detected automatically (or semi-automatically for complex layouts).  
+In step 1, text-lines of the the page are detected automatically (or semi-automatically for dense, complex layouts).  
 
-In step 2, the text content of the detected text-lines is recognized and converted to unicode text.
+In step 2, the text content of the detected text-lines is OCR'ed (recognized) and converted to unicode text.
 
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
@@ -24,7 +24,14 @@ Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https
 
 
 ## 🚀 **Getting Started**
-Clone the repository:
+
+#### Minimum Requirements
+
+- CPU: Modern multi-core processor  
+- RAM: ≥ 8 GB  
+- GPU: NVIDIA GPU with CUDA support (≥ 4 GB VRAM)
+
+#### Clone the repository:
 ```bash
 git clone --depth 1 https://github.com/flame-cai/gnn-synthetic-layout-historical.git
 ```
@@ -41,26 +48,35 @@ pip install -r requirements.txt
 
 ## 🧩 **Semi Automatic Annotation Tool ```app/```**
 
-Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset, which can require a significant amount of time and effort. 
+Satisfactorily performing automatic text-line segmentation from diverse historical manuscripts necessitates annotation of the target dataset - which can require a significant amount of time and effort. 
 Further more, automatically segmented text-lines using deep learning methods are often incorrectly predicted, especially on complex and dense pages, in low training data regimes. Manual correction of such _automatically but incorrectly_ segmented text-lines can also be time consuming.
 
+![OOD_performance](./app/ood_qualitative.png)
+***Figure:** When faced with **complex Out-of-Distribution layouts**, manually correcting _automatically but incorrectly_ segmented text-lines in a bounding polygon format, could perhaps be more time consuming than manually correcting predictions in a graph-based format (see the rightmost figure), as illustrated in the above figure. The out-of-the-box predictions of leading methods DocUFCN and SeamFormer are in a bounding polygon format, and the prediction of the proposed method is in the graph-based format (which we believe to be less time consuming to post-correct). The training data of the proposed method **DID NOT** contain any circular layouts, thus highlighting the generalizability of the proposed method to complex out-of-distribution layouts. Furthermore, the prediction of
+the Proposed-method seems to be **more salvageable**, allowing the user to manually correct mistakes by adding/deleting edges and nodes as required.*
+
 The semi-automatic annotation tool presented in this work natively supports graph-based labelling, treating character locations as nodes, with characters of the same text-lines being connected together.
-This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level`.
-
-![OOD_performance](./app/ood_performance.png)
-
-When faced with **complex Out-of-Distribution layouts**, manually correcting _automatically but incorrectly_ segmented text-lines in a bounding polygon format, could perhaps be more time consuming than manually correcting predictions in a graph-based format, as illustrated in the above figure. The out-of-the-box predictions of leading methods DocUFCN and SeamFormer are in a bounding polygon format, and the prediction of the proposed method is in the graph-based format (which we believe to be less time consuming to post-correct). **The training data of the proposed method did not contain any circular layouts, thus also highlighting the generalizability of the proposed method to complex out-of-distribution layouts.**
-
-It took `~12 hours` by `1 annotator` to label all `481 pages`  of the dataset presented. That version relied on a heuristic algorithm rather than a Graph Neural Network, so the annotation time is expected to be even lower with the current version of the tool, especially on Sanskrit manuscripts with complex layouts.
+This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level` as illustrated in the GIF below.
 
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
+***Figure:** It took `~12 hours` by `1 annotator` to annotate complex layouts of all `481 pages` of the dataset presented. The version of the tool used to do this relied on a heuristic algorithm (more details in the paper) rather than a Graph Neural Network. Hence the annotation time is expected to be even lower with the current version of the tool, which uses a Graph Neural Network instead of the heuristic algorithm - demonstrating superior performance. Right now, the tool uses a pre-trained GNN to perform the task, however in the future, we expect the GNN to be **iteratively finetuned on any target manuscript** in an active learning setting. This will allow the GNN to learn from previously seen page layouts of a target manuscript, to make predictions on the subsequent pages, allowing **continuous improvement and rapid reduction in human effort.***
+
 
 
 ### ⚙️ Setup Instructions
 
-#### 🔵 Setup Recognition Model (optional)
+#### 🔵 Setup Recognition Model (OCR Model)
 
-To recognize the unicode text-content from segmented text-line images, we need a text recognition model. To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recognition model.
+To recognize the unicode text-content from segmented text-line images, we need a text recognition model (OCR Model). To do this, the tool supports using **Gemini** (using API key), OR an **EasyOCR** based recognition model. As of now, we recommend using the EasyOCR based recognition model as it can be *iteratively fine-tuned* in an active learning setting, causing the model *to learn from previous mistakes to make better predictions of subsequent pages*.
+
+##### EasyOCR
+To use EasyOCR for recognizing devanagari text, you will need to download the model as follows (or use your own finetuned one for other scripts)
+```bash
+cd app/recognition/pretrained_model
+wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
+```
+The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025), and is specialized to recognize text from a common writing style found in the sanskrit manuscripts at the [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/). In the study, we observed that fine-tuning the recognition model to specific target manuscripts is always benificial (in terms of Character error rate), hence the semi-automatic tool supports this fine-tuning feature.
+
 
 ##### Gemini
 If you are using Gemini for text recognition, you may need to adjust the prompt within the `_run_gemini_recognition_internal` function located in `app/app.py` based on your use case and the language/script of the manuscript in question.
@@ -76,19 +92,6 @@ To configure your Gemini API key:
    ```env
    GEMINI_API_KEY="YOUR_API_KEY_HERE"
    ```
-
-
-
-
-##### EasyOCR
-To use EasyOCR for recognizing devanagari text, you will need to download the model as follows (or use your own finetuned one for other scripts)
-```bash
-cd app/recognition/pretrained_model
-wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
-```
-The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025), and is specialized to recognize text from a common writing style found in the sanskrit manuscripts at the [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/). In the study, we observed that fine-tuning the recognition model to specific manuscripts is always benificial (in terms of Character error rate).
-
-
 
 
 
@@ -123,7 +126,7 @@ Access the UI at `http://localhost:5173`.
 ```npm install``` only needs to be run once for the first time. To launch the front-end subsequently, we need to only need to run ```npm run dev```.
 
 #### Current OCR Active Learning Runtime
-The app now exposes an `Active Learning` toggle in the top bar. It defaults to on, is persisted in browser `localStorage`, and controls the manuscript-local OCR fine-tuning runtime for the local checkpoint family.
+The app now exposes an `Active Learning` toggle in the top bar. It defaults to on, is persisted in browser `localStorage`, and controls the manuscript-local OCR fine-tuning runtime (Recognition Model) for the local checkpoint family.
 
 Current behavior:
 
@@ -132,15 +135,15 @@ Current behavior:
 - the UI surfaces runtime state inline as `AL: ...`
 - manuscript-local checkpoints, telemetry, and profiling are stored under `app/input_manuscripts/<manuscript>/active_learning/recognition/`
 
-Gemini can still be used for prediction, but the active-learning lineage is built around the local OCR checkpoint family and its manuscript-specific promotions.
+Gemini can still be used for prediction, but the active-learning lineage is built around the local OCR checkpoint family (EasyOCR based recognition model 'vadakautuhala.pth') and its manuscript-specific promotions.
 
 
 
-#### Automated Evaluation Check (GUI-free)
+#### Automated Evaluation Checks (GUI-free)
 The repository now has two GUI-free pre-commit phases:
 
-- a pretrained full-pipeline gate that runs upload plus CRAFT plus GNN plus OCR end to end on `app/tests/eval_dataset/`
-- a surrogate OCR fine-tuning gate that uses perfect line crops and ground-truth text pairs to verify the current best hybrid continuation recipe
+- a pretrained full-pipeline gate that runs upload plus CRAFT plus GNN plus OCR end to end on `app/tests/eval_dataset/`. This check confirms that any changes to the pipeline, does not degrade performance on 'eval_dataset'. For this check, we use pretrained models only (CRAFT, GNN and Recognition OCR Model)
+- a surrogate OCR fine-tuning gate that uses perfect line crops and ground-truth text pairs to verify the current best hybrid continuation recipe. This check confirms that the Recognition OCR model is learning correctly when iteratively fine-tuned on previous pages, to make better predictions on held out pages of 'eval_data'. For this check, we assume CRAFT performs the character detection perfectly, and the GNN performs the text-line segmentation perfectly.
 
 To run only the pretrained full-pipeline validation flow without opening the GUI, use the dedicated integration test from the `app/` directory:
 
@@ -194,7 +197,9 @@ If you intentionally need to bypass the pre-commit evaluation once, use standard
 The longer-term evaluation blueprint for automatic tests, GUI tests, and future human-in-the-loop active-learning studies lives in `EVAL.md`.
 
 ##  💻 **Graph Neural Network based Text-Line Segmentation Core ```src/```**
-Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. This section also allows generating synthetic layout data, augmenting real layout data, preparing data for training GNNs, and the training recipe for GNNs.
+Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. 
+
+This section contains instructions on how to train the GNN (generating synthetic layout data, augmenting real layout data, data preparation for training GNNs, and the training recipe and configuration for GNNs)
 
 #### 🔵 Run Inference (fully automatic)
 ```bash
@@ -206,7 +211,7 @@ python inference.py --manuscript_path "./demo_manuscripts/sample_manuscript_1/"
 This will process all the manuscript images in sample_manuscript_1 and save the segmented line images in folder `sample_manuscript_1/layout_analysis_output/` in PAGE_XML format, GNN format, and as individual line images.
 
 > **NOTE 1:**  
-> This project is made for Handwritten Sanskrit Manuscripts in Devanagari script, however it will work reasonibly well on other scripts if they fit the following criteria:
+> This project is primarily tested Handwritten Sanskrit Manuscripts in Devanagari script, however it will work reasonibly well on other scripts if they fit the following criteria:
 > 1) [CRAFT](https://github.com/clovaai/CRAFT-pytorch) successfully detects the script characters  
 > 2) Character spacing is less than Line spacing. 
 >

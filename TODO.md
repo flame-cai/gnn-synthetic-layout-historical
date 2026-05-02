@@ -1,33 +1,30 @@
-1) While digitizing a manuscript using this app, some times while annotation text in text-lines in text review mode, I get a random note that the lines structure of the page has changed, which is incorrec - becasue how can I change the line structure in the text review mode. Please investigate.
-
-"The line structure on this page has changed. Open Text Review and read the page again before correcting the text.
-Latest visible text came from Built-in reader."
-
-2) if there are no modifications in layout mode, we cannot go to read mode? why this should be possibe as sometimes layout correction is flawless.
-
-3) I got his error:
-  File "C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\ocr_active_learning_runtime.py", line 661, in handle_post_save
-    approved_history_refs = _revision_refs_from_revisions(registry.approved_supervised_revisions())
-                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\manuscript_ocr_registry.py", line 311, in approved_supervised_revisions
-    for page_id in sorted(self.data.setdefault("page_revisions", {}), key=_page_sort_key):
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: '<' not supported between instances of 'str' and 'int'
+CIRCULAR LAYOUT TODO
+- annotate manuscripts in Tantra and alaṅkāra
+- fix vertical lines recognition bug
+- enable annotation, recognition (and fine-tuning) for circular and curved lines 
+- iteratively finetune both GNN and EasyOCR...measure hopefully rapid reduction in human effort
+- annotate all 481 pages (text regions and text..)
+- synthetically generate text-lines images (and gt annotations, with different white noise levels, texture, font) such that the text-lines are vertical, horizontal, curved, circular. GNN can be trained to detect the text-lines even if they are curved af. Then comes the magic - how to process curved lines, and iteratively finetune EasyOCR to get the recognition model working? we first need to train the GNN. We want a curved line recognition strategy which gives fast finetuning improvements, as quantified by the external evaluator. We have ground truth data as this is gonna be synthetic.
 
 
-
-- minimize the time taken from fine-tuning job finish, to checkpoint promotion
-- understand checkpoint promotion and the "bank" verification. Do we compare performance of 1 page fine-tuned model vs 2 page fine-tuned model on a bank containing text-lines from page-1? that would give page 1 fine-tuned model an advantage!!
-
-
-Okay now I have doubt about step 6. You said the real promotion gate is a separate non-regression verifier. After the sibling selector picks one checkpoint (which is now always best_norm_ED.pth by default), the app compares that candidate against the current active checkpoint on the bank of already-approved pages, using page CER and allowing only a small regression margin (regression_guard_abs = 0.005). But my doubt is, do we really compare performance of 1 page fine-tuned model vs 2 page fine-tuned model on a bank containing text-lines from page-1 (which we are calling "already-approved pages"? wouldn't that give page 1 fine-tuned model an advantage, because it's trained on the "test" data is a way?
-
-
+- try superhero skills
+step 0 finish the fine-tuning module..(clean up, update readme and installation guide, and docs)
+step 1 annotate real data and create synthetic data on the side.
+step 2 evolutionary vibe code to optimize for iterative fine tunes accuracy - as verifier. Fix layout to be perfect for this test. what's gonna be vibe coded would be the line processing strategy of any circular lines
+step 3 ask shagun to annotate and be coauthor
+- - automatically delete models finetuned as precommit checks. keep the base model.
 
 
-Roll-out
-- GNN hyper parameter search (better model, faster inference), reduce training time!!! MPNN+Algorithm best bet.
-- GNN multi-task learning (text-boxes)..
+OTHER TODO
+- fix GNN loading model - state_load_dict
+- end to end synthetic data generation, finetuning and evaluation (to improve any part of the pipeline! )
+- annotate eval_data for text-regions
+- annotate input manuscript with text-regions.
+- GNN augment + synthetic data -- setup experiment with verifier
+- GNN hyper parameter search (better model, faster inference), reduce training time!!! MPNN+Algorithm (no-algorithm) best bet?? faster data preparation
+- GNN multi-task learning (text-boxes)
+- traditional vs Gemma 4 fine-tuning comparison..
+- 
 - the CRAFT fine-tuning
 
 - latest fine-tuned model is not working

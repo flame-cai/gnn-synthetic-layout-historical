@@ -4536,3 +4536,143 @@
 2026-04-22 14:57:18,779 - WARNING -  * Debugger is active!
 2026-04-22 14:57:18,786 - INFO -  * Debugger PIN: 122-047-077
 2026-04-22 15:07:17,503 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\active_learning_recipe.py', reloading
+2026-04-22 15:07:20,569 - INFO -  * Restarting with stat
+2026-04-22 15:07:31,174 - WARNING -  * Debugger is active!
+2026-04-22 15:07:31,177 - INFO -  * Debugger PIN: 122-047-077
+2026-04-26 14:20:29,525 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.108:5000
+2026-04-26 14:20:29,527 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-26 14:20:29,528 - INFO -  * Restarting with stat
+2026-04-26 14:20:37,654 - WARNING -  * Debugger is active!
+2026-04-26 14:20:37,655 - INFO -  * Debugger PIN: 697-788-423
+2026-04-26 14:20:37,730 - INFO - 127.0.0.1 - - [26/Apr/2026 14:20:37] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-04-26 14:21:45,866 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:45] "POST /upload HTTP/1.1" 200 -
+2026-04-26 14:21:45,949 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:45] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-04-26 14:21:47,920 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:47] "GET /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:21:48,109 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:48] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:21:50,493 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:50] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:21:52,178 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:52] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:21:54,494 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:54] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:21:56,136 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:56] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:21:58,484 - INFO - 127.0.0.1 - - [26/Apr/2026 14:21:58] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:00,178 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:00] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:02,492 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:02] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:04,178 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:04] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:06,484 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:06] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:08,180 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:08] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:10,452 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:10] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:12,183 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:12] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:14,485 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:14] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:16,175 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:16] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:18,520 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:18] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:20,173 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:20] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:22,489 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:22] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:24,177 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:24] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:26,484 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:26] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:28,168 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:28] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:30,490 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:30] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:32,173 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:32] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:34,502 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:34] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:36,177 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:36] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:38,124 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:38] "OPTIONS /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:22:38,443 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:38] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:40,229 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:40] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:40,388 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:40] "POST /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:22:42,413 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:42] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:42,579 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:42] "POST /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:22:44,483 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:44] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:46,177 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:46] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:48,494 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:48] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:50,175 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:50] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:52,490 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:52] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:54,185 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:54] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:56,506 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:56] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:22:58,163 - INFO - 127.0.0.1 - - [26/Apr/2026 14:22:58] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:00,488 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:00] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:02,172 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:02] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:04,490 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:04] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:06,181 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:06] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:08,485 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:08] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:10,184 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:10] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:12,489 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:12] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:12,941 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:12] "OPTIONS /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:23:14,197 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:14] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:14,906 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:14] "POST /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:23:16,494 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:16] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:18,132 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:18] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:20,488 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:20] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:22,182 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:22] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:24,490 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:24] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:26,184 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:26] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:28,496 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:28] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:30,177 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:30] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:32,491 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:32] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:34,176 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:34] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:36,484 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:36] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:38,188 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:38] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:41,132 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:41] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:42,173 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:42] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:44,500 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:44] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:46,182 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:46] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:46,459 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:46] "OPTIONS /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:23:48,234 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:48] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:48,370 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:48] "POST /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:23:48,912 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:48] "GET /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:23:49,002 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:49] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-04-26 14:23:49,365 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-04-26 14:23:50,188 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:50] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:51,283 - INFO - Model loaded successfully.
+2026-04-26 14:23:52,495 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:52] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:54,491 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:54] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:55,312 - INFO - Updated input_manuscripts\my_manuscript\layout_analysis_output\page-xml-format\000037.xml: 23 lines recognized.
+2026-04-26 14:23:55,603 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:55] "POST /recognize-text HTTP/1.1" 200 -
+2026-04-26 14:23:56,500 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:56] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:23:58,147 - INFO - 127.0.0.1 - - [26/Apr/2026 14:23:58] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:00,492 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:00] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:02,191 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:02] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:04,503 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:04] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:06,183 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:06] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:08,511 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:08] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:09,027 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:09] "OPTIONS /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:24:09,765 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:09] "POST /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:24:10,195 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:10] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:12,501 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:12] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:14,194 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:14] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:16,507 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:16] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:18,156 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:18] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:20,514 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:20] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:22,146 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:22] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:24,469 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:24] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:26,177 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:26] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:28,467 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:28] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:29,023 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:29] "OPTIONS /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:24:29,744 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:29] "POST /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:24:30,193 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:30] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:32,500 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:32] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:34,189 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:34] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:36,502 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:36] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:38,152 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:38] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:40,500 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:40] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:42,190 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:42] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:44,481 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:44] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:46,193 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:46] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:48,508 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:48] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:49,018 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:49] "OPTIONS /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:24:49,744 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:49] "POST /semi-segment/my_manuscript/000037 HTTP/1.1" 200 -
+2026-04-26 14:24:50,185 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:50] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:52,348 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:52] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:54,184 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:54] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:54,250 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:54] "GET /semi-segment/my_manuscript/000038 HTTP/1.1" 200 -
+2026-04-26 14:24:56,501 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:56] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:24:58,154 - INFO - 127.0.0.1 - - [26/Apr/2026 14:24:58] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:00,492 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:00] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:02,196 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:02] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:04,504 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:04] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:06,193 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:06] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:08,502 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:08] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:10,188 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:10] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:12,491 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:12] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:14,185 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:14] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-04-26 14:25:16,470 - INFO - 127.0.0.1 - - [26/Apr/2026 14:25:16] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
