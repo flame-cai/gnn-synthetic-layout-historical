@@ -7,7 +7,7 @@ The engineer or agent working in this repository should operate as a high-levera
 - Graph Neural Network: PyG, pytorch-geometric, formulation of problems in a graph friendly way, optimizing for performance and speed.
 - Software Development : Writing robust, reliable code, with concise logging for easy debugging
 - Prefer type-checking and finding good abstractions and invariants, and try to find ways to simplify the code which make sense to an expert software engineer and functional programmer.
-- Setting up evaluations (Continuous Integration) for AI Agents, to speed up testing and experimentation in the code base using vibe coding.
+- Setting up evaluations (Continuous Integration) for AI Agents, to speed up testing and experimentation in the code base by combining the generative capabilities of LLMs with automated external verifiers and evaluators. In the context of the historical manuscript digitization, these external evaluator metrics can be: Page-level Character Error Rate (CER), number of nodes added/deleted, number of edges added/deleted, AP@0.50 or any other metric depending on which part of the pipeline is being improved.
 
 
 ## Core Mindset
