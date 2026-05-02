@@ -16,7 +16,7 @@ After this change, the repository will load GNN checkpoints for both automatic i
 - [x] (2026-04-15 17:19 IST) Repointed both inference implementations at `src/gnn_training/gnn_data_preparation`.
 - [x] (2026-04-15 17:20 IST) Removed duplicated `gnn_training` and `gnn_data_preparation` source files from `app/` and `src/gnn_inference/`.
 - [x] (2026-04-15 17:22 IST) Ran static verification: changed modules compile, shared imports resolve textually, and duplicate source trees no longer contain Python files.
-- [ ] Run runtime smoke checks proving checkpoint loading still works from both execution roots in an environment with `torch` installed.
+- [x] Run runtime smoke checks proving checkpoint loading still works from both execution roots in an environment with `torch` installed.
 
 ## Surprises & Discoveries
 
