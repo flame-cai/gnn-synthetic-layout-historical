@@ -1,13 +1,13 @@
 # VISION.md
 
-This repository exists to reduce the total human effort required to digitize historical manuscripts. It provides a semi-automatic digitization tool to do the same. The long-term vision is to make this semi-digitization tool an active-learning, such that it progressively gets better page by page, by fine-tuning various parts of the pipeline the tool uses.
+This repository exists to reduce the total human effort required to digitize historical manuscripts. It provides a semi-automatic digitization tool, and the long-term vision is for that tool to learn from each corrected page so later pages require fewer corrections.
 
-Another core-vision of this repository is that we want this repo to Agentic AI friendly such that whenever we want to make improvements to any part of the historical manuscript digitization pipeline, we combine the generative capabilites of LLMs with appropriate external verifiers/evaluators.
+Another core goal is to keep the repository friendly to coding agents and future researchers. Improvements to the manuscript digitization pipeline should pair generative coding assistance with concrete external verifiers: tests, evaluation scripts, PAGE-level CER, line-level CER, edit-distance summaries, correction counts, and other task-specific metrics.
 
 This repository currently has two main products:
 
-1. Graph Neural Network based Text-Line Segmentation Core in `src/`. This is where GNN experiments and research will happen. Right now the GNN only does text-line segmentation as a binary edge classification task, but we want to extend it's capabilities to enable Multi-task learning (text-region grouping along with text-line segmentation). We also want to run experiments such that we reduce the training, inference, and data-prepartion time for GNNs, have better model saving and loading, test new GNN architectures etc)
-2. Semi Automatic Annotation Tool in `app/`. This is full application, which has the entire manuscript digitization pipeline (CRAFT+GNN+OCR, along with allowing the human to make various types of post-correction (Add/delete nodes, add/delete edges, text-region labeling, OCR Recognized text correction). 
+1. Graph Neural Network based Text-Line Segmentation Core in `src/`. This is where GNN experiments and research happen. Right now the GNN performs text-line segmentation as a binary edge-classification task. The desired research extension is multi-task learning for text-region grouping alongside text-line segmentation, plus better training speed, inference speed, data preparation, checkpoint handling, and architecture experiments.
+2. Semi Automatic Annotation Tool in `app/`. This is the full application for manuscript digitization. It runs CRAFT, GNN layout analysis, and OCR, then lets a human correct nodes, edges, text-region labels, and recognized text.
 
 ## Product Vision
 
@@ -42,7 +42,7 @@ Success is not defined by a single accuracy number. Success means:
 - stable or improving output quality
 - predictable and reversible model promotion
 - a smooth annotation workflow that does not freeze or confuse the user
-- amazing background orchestration of fine-tuning/inference of various parts of the pipeline, while keeping the frontend User Experience Smooth.
+- background training and inference orchestration that keeps the frontend smooth and predictable.
 
 ### Current Reality
 
@@ -72,17 +72,12 @@ The relevant offline research and regression files remain:
 - `app/tests/test_recognition_finetuning_precommit_e2e.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
 
-The key completed study artifacts are:
-
-- `app/tests/logs/recognition_finetune_results_latest.json`
-- `app/tests/logs/recognition_finetune_precommit_latest.json`
-
-Those studies establish five important facts:
+The completed OCR studies produced local artifacts, but those generated files should not be required for a fresh GitHub checkout to understand the branch. The durable conclusions are:
 
 1. Earlier broad and focused sweeps were enough to identify the structural stack worth keeping: `batch_max_pad + no oversampling + no augmentation`.
 2. Strict page-only continuation is viable, but it was materially weaker and more regression-guard-sensitive than the retained hybrid recipe on `eval_dataset`.
 3. The live slow OCR verifier now keeps only the hybrid `page_plus_random_history` regime rather than carrying all earlier study modes in active code.
-4. In the completed page-plus-random-history follow-up, `wb_on_an_hist10_sn_optd_lr200000u` beat both the earlier cumulative winner and the page-only winner on the primary metric and final-page CER.
+4. In the completed page-plus-random-history follow-up, `wb_on_an_hist10_sn_optd_lr200000u` beat both the earlier cumulative winner and the page-only winner on the primary metric and final-page CER. Its recorded values were `curve_metric_value=0.22151451085911972`, `final_page_cer=0.13784355179704016`, and `first_step_gain=0.0572938689217759`.
 5. Adam remained regression-guard-sensitive even in the hybrid regime, so the trusted recipe remains Adadelta `lr=0.2`, `num_iter=60`.
 
 The repository now also has a two-phase pre-commit screen:
@@ -113,12 +108,12 @@ The next uncertainty is how robust that first-pass live runtime is across more m
 
 ## Broader Research Direction
 
-Over time, the same active-learning pattern should apply to all major task of the pipeline:
+Over time, the same active-learning pattern should apply to all major tasks in the pipeline:
 
-- active learning by finetuning OCR text recognition (Recognition Model - CNN-BiLSTM-CTC). This has been implemented in the Current Version.
-- active learning by finetuning text-line segmentation (GNN)
-- active learning by finetuning text-region grouping (GNN)
-- active learning by finetuning CRAFT (U-NET)
+- active learning by fine-tuning OCR text recognition, using the CNN-BiLSTM-CTC recognition model. This is implemented in the current version.
+- active learning by fine-tuning text-line segmentation, using the GNN
+- active learning by fine-tuning text-region grouping, likely using an extended GNN
+- active learning by fine-tuning CRAFT or a CRAFT-like surrogate for character detection
 
 CRAFT itself is not currently fine-tunable in this repository because the relevant training path is not available here. If active learning for character detection becomes important, the expected path is to introduce a surrogate model that can learn from user node additions and deletions.
 
@@ -130,5 +125,5 @@ The GNN also is not currently fine-tunable in an active learning setting from th
 - The app must remain usable even when research code is changing.
 - A newly trained model must never silently replace the active model without a recorded promotion rule.
 - Training and inference must not fight each other for the same device in a way that degrades the user experience.
-- Every research claim should be backed by saved artifacts under `app/tests/logs/`.
+- Every research claim should be backed by an artifact-producing run and exact settings, and any conclusion needed by future contributors should be copied into checked-in documentation rather than living only in generated local artifacts.
 - Reduction in Human correction burden must eventually become a logged first-class metric rather than an anecdotal claim.

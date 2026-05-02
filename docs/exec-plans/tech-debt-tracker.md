@@ -10,7 +10,7 @@ This file is the short list of the highest-priority technical debts that are cur
 
 - The slow OCR study still has a Windows-specific output failure mode when run through `conda run`.
   Why it matters: the 2026-04-17 verifier completed and wrote correct artifacts, but the wrapper crashed while printing long Unicode-heavy output because of a `cp1252` encoding issue. That is a reliability problem for both humans and future agents.
-  Evidence: the study artifacts were written under `app/tests/logs/20260417_155737_ocrft_eval_dataset/`, but the shell surfaced a `UnicodeEncodeError` from the `conda run` wrapper after completion.
+  Evidence: the study artifacts were created successfully, but the shell surfaced a `UnicodeEncodeError` from the `conda run` wrapper after completion.
   Recommended next action: make the slow-study entrypoint or its helper script capture UTF-8 output safely and document a direct-interpreter fallback as a first-class execution path.
 
 - The OCR study benchmark is still too narrow.

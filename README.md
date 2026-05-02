@@ -188,14 +188,9 @@ python scripts/install_git_hooks.py
 
 On Windows, `py -3 scripts/install_git_hooks.py` is also fine.
 
-The full-pipeline gate automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`, and writes reports to:
-- `app/tests/logs/ci_eval_results_latest.txt`
-- `app/tests/logs/ci_eval_results_latest.json`
+The full-pipeline gate automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, and evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`. The gate writes local run artifacts and prints their paths at the end of the run; those generated artifacts are useful for debugging but are not treated as checked-in documentation.
 
-The OCR fine-tuning surrogate gate runs the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`, evaluates the held-out pages, and writes reports to:
-- `app/tests/logs/recognition_finetune_precommit_latest.md`
-- `app/tests/logs/recognition_finetune_precommit_latest.json`
-- `app/tests/logs/recognition_finetune_precommit_latest.txt`
+The OCR fine-tuning surrogate gate runs the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60` and evaluates held-out pages under perfect PAGE-XML-derived line-crop assumptions. Its checked-in thresholds live in `app/tests/precommit_gate_config.py`: `curve_metric_value <= 0.26`, `final_page_cer <= 0.18`, and `first_step_gain >= 0.04`. Regression-guard failures are recorded as warnings for this gate rather than blocking failures.
 
 By default the temporary manuscript artifacts are deleted after the test. Set `KEEP_CI_ARTIFACTS=1` before the command if you want to inspect the generated manuscript outputs under `app/input_manuscripts/_ci_root/`.
 

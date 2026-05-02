@@ -36,6 +36,7 @@ When making changes:
 - Build structured, high-signal logging instead of noisy logging.
 - Capture important limitations in documentation rather than ignoring or obscuring them.
 - Keep source-of-truth references concrete by explicitly naming the file that owns the behavior.
+- Treat generated run artifacts as evidence, not durable documentation. If a result needs to survive a fresh checkout, copy the conclusion, settings, and thresholds into checked-in markdown or config.
 - Use proposed ExecPlans for non-trivial future work instead of burying roadmaps in TODO comments.
 
 
