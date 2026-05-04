@@ -15,6 +15,36 @@ step 3 ask shagun to annotate and be coauthor
 - - automatically delete models finetuned as precommit checks. keep the base model.
 
 
+TODO
+- vertical lines
+    - use uncertainty
+    - give option in GUI to decide the line orientation..
+    - collect this data too!!
+- curved and circular lines (metric tensor!)
+    - it just a converter from one map to another 
+        - simple (2x scale up)
+        - dynamic (earth to map) 
+    - cut at topmost point if closed.
+    - the metric tensor we used is tightly linked to the OCR model we finetune!
+    - we know the gnn based polyline
+- synthetic data generator inspired by
+    - colab notebook (for font rendering)
+    - curved and synthetic lines
+    - gnn format layout generator
+    - it should generate data in the same format as 'eval_data'.
+
+
+
+
+
+
+
+
+
+
+
+
+____________________________________
 OTHER TODO
 - fix GNN loading model - state_load_dict
 - end to end synthetic data generation, finetuning and evaluation (to improve any part of the pipeline! )
