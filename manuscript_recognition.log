@@ -1,0 +1,30 @@
+2026-05-04 20:05:53,237 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.44.1.90:5000
+2026-05-04 20:05:53,237 - INFO - [33mPress CTRL+C to quit[0m
+2026-05-04 20:05:53,241 - INFO -  * Restarting with stat
+2026-05-04 20:06:06,414 - WARNING -  * Debugger is active!
+2026-05-04 20:06:06,425 - INFO -  * Debugger PIN: 377-258-397
+2026-05-04 20:06:18,173 - INFO - 127.0.0.1 - - [04/May/2026 20:06:18] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-04 20:06:52,582 - INFO - 127.0.0.1 - - [04/May/2026 20:06:52] "POST /upload HTTP/1.1" 200 -
+2026-05-04 20:06:52,939 - INFO - 127.0.0.1 - - [04/May/2026 20:06:52] "GET /manuscript/circular/pages HTTP/1.1" 200 -
+2026-05-04 20:06:53,275 - INFO - 127.0.0.1 - - [04/May/2026 20:06:53] "[35m[1mGET /semi-segment/circular/page_1 HTTP/1.1[0m" 500 -
+2026-05-04 20:06:53,331 - INFO - 127.0.0.1 - - [04/May/2026 20:06:53] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:06:55,681 - INFO - 127.0.0.1 - - [04/May/2026 20:06:55] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:06:57,344 - INFO - 127.0.0.1 - - [04/May/2026 20:06:57] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:06:59,661 - INFO - 127.0.0.1 - - [04/May/2026 20:06:59] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:01,344 - INFO - 127.0.0.1 - - [04/May/2026 20:07:01] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:03,659 - INFO - 127.0.0.1 - - [04/May/2026 20:07:03] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:05,344 - INFO - 127.0.0.1 - - [04/May/2026 20:07:05] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:07,658 - INFO - 127.0.0.1 - - [04/May/2026 20:07:07] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:09,431 - INFO - 127.0.0.1 - - [04/May/2026 20:07:09] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:11,753 - INFO - 127.0.0.1 - - [04/May/2026 20:07:11] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:13,443 - INFO - 127.0.0.1 - - [04/May/2026 20:07:13] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:15,764 - INFO - 127.0.0.1 - - [04/May/2026 20:07:15] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:17,345 - INFO - 127.0.0.1 - - [04/May/2026 20:07:17] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:19,737 - INFO - 127.0.0.1 - - [04/May/2026 20:07:19] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:21,439 - INFO - 127.0.0.1 - - [04/May/2026 20:07:21] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:23,760 - INFO - 127.0.0.1 - - [04/May/2026 20:07:23] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:25,445 - INFO - 127.0.0.1 - - [04/May/2026 20:07:25] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -
+2026-05-04 20:07:27,752 - INFO - 127.0.0.1 - - [04/May/2026 20:07:27] "[35m[1mGET /manuscript/circular/active-learning HTTP/1.1[0m" 500 -

@@ -1,19 +1,13 @@
-CIRCULAR LAYOUT TODO
-- annotate manuscripts in Tantra and alaṅkāra
-- fix vertical lines recognition bug
-- enable annotation, recognition (and fine-tuning) for circular and curved lines 
-- iteratively finetune both GNN and EasyOCR...measure hopefully rapid reduction in human effort
-- annotate all 481 pages (text regions and text..)
-- synthetically generate text-lines images (and gt annotations, with different white noise levels, texture, font) such that the text-lines are vertical, horizontal, curved, circular. GNN can be trained to detect the text-lines even if they are curved af. Then comes the magic - how to process curved lines, and iteratively finetune EasyOCR to get the recognition model working? we first need to train the GNN. We want a curved line recognition strategy which gives fast finetuning improvements, as quantified by the external evaluator. We have ground truth data as this is gonna be synthetic.
-
-
-- try superhero skills
-step 0 finish the fine-tuning module..(clean up, update readme and installation guide, and docs)
-step 1 annotate real data and create synthetic data on the side.
-step 2 evolutionary vibe code to optimize for iterative fine tunes accuracy - as verifier. Fix layout to be perfect for this test. what's gonna be vibe coded would be the line processing strategy of any circular lines
-step 3 ask shagun to annotate and be coauthor
-- - automatically delete models finetuned as precommit checks. keep the base model.
-
+- annotate data
+- prepare dataset with the same format as eval_dataset
+- a new test using circular_dataset
+- LLM + verifier combo attack at:
+    - ENSURE ALL THESE CHANGES MAINTAIN INVARIANTS and FROM ABSTRACTIONS. A straight line, is a specific case of a curved line and a cut circle.
+    - how we crop the line using the graph polyline (but we must keep the heuristic metrics)
+    - how to cut, and how to unroll a circle
+    - how to unroll a curved "s" type line (metric tensor which uses the GNN polyline, but also keeps the heuristic logic)
+    - can we unrolled, by simply rotating the cropped square wrt to the polyline, and then do the square joining algo..
+    - when a circle is being unrolled, or if we have a vertical line - how do we know the orientation? use the uncertainty of OCR model to detect the orientation? this is actually reading order detection!!
 
 TODO
 - vertical lines
@@ -29,9 +23,15 @@ TODO
     - we know the gnn based polyline
 - synthetic data generator inspired by
     - colab notebook (for font rendering)
-    - curved and synthetic lines
+    - curved and circular synthetic lines
     - gnn format layout generator
-    - it should generate data in the same format as 'eval_data'.
+    - it should generate data in the same format as 'eval_data'
+    - appearance level augmentations, and layout level augmentation
+
+
+
+
+
 
 
 

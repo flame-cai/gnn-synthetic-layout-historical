@@ -287,12 +287,12 @@ def summarize_page_active_learning(
         hint = "The line structure on this page has changed. Open Text Review and read the page again before correcting the text."
         can_edit_text = False
         needs_recognition = True
-    elif not has_text:
-        state = "missing_page_xml"
-        label = "Set up the page first"
-        hint = "Open Page Layout first, check the lines on the page, and then move to Text Review."
-        can_edit_text = False
-        needs_recognition = True
+    # elif not has_text:
+    #     state = "missing_page_xml"
+    #     label = "Set up the page first"
+    #     hint = "Open Page Layout first, check the lines on the page, and then move to Text Review."
+    #     can_edit_text = False
+    #     needs_recognition = True
     elif last_prediction:
         state = "ready"
         label = "Ready to review"
