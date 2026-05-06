@@ -34,6 +34,7 @@ import zipfile
 import io
 import google.generativeai as genai
 import glob
+import re
 
 import xml.etree.ElementTree as ET
 import numpy as np
@@ -1032,30 +1033,128 @@ def recognize_text():
 def save_generated_graph(manuscript, page):
     return jsonify({"status": "ok"})
 
+
+def _zip_directory(zf, source_dir, archive_root):
+    source_dir = Path(source_dir)
+    if not source_dir.exists():
+        return
+
+    for root, dirs, files in os.walk(source_dir):
+        dirs.sort()
+        for file in sorted(files):
+            file_path = Path(root) / file
+            rel_path = file_path.relative_to(source_dir).as_posix()
+            zf.write(file_path, f"{archive_root}/{rel_path}")
+
+
+def _find_resized_page_image(manuscript_root, layout_output_root, page_id):
+    search_dirs = [
+        layout_output_root / "images_resized",
+        manuscript_root / "images_resized",
+    ]
+    extensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".JPG", ".JPEG", ".PNG", ".TIF", ".TIFF"]
+    for image_dir in search_dirs:
+        for ext in extensions:
+            candidate = image_dir / f"{page_id}{ext}"
+            if candidate.exists():
+                return candidate
+    return None
+
+
+def _write_resized_images_to_zip(zf, manuscript_root, layout_output_root, annotated_page_ids):
+    annotated_page_ids = set(annotated_page_ids)
+    written = set()
+    layout_resized_dir = layout_output_root / "images_resized"
+    if layout_resized_dir.exists():
+        for file_path in sorted(path for path in layout_resized_dir.iterdir() if path.is_file()):
+            if file_path.stem not in annotated_page_ids:
+                continue
+            arcname = f"images_resized/{file_path.name}"
+            zf.write(file_path, arcname)
+            written.add(file_path.stem)
+
+    for page_id in sorted(annotated_page_ids - written):
+        image_path = _find_resized_page_image(manuscript_root, layout_output_root, page_id)
+        if image_path is not None:
+            zf.write(image_path, f"images_resized/{image_path.name}")
+
+
+def _extract_structure_line_id(textline):
+    custom_attr = textline.get("custom", "")
+    match = re.search(r"structure_line_id_([^;\s]+)", custom_attr)
+    if match:
+        return match.group(1)
+    return None
+
+
+def _extract_unicode_text(textline, ns):
+    text_equiv = textline.find("./p:TextEquiv", ns)
+    unicode_elem = text_equiv.find("./p:Unicode", ns) if text_equiv is not None else None
+    if unicode_elem is None or unicode_elem.text is None:
+        return ""
+    return unicode_elem.text.strip()
+
+
+def _write_ocr_training_format_to_zip(zf, xml_files, image_format_dir):
+    page_xml_namespace = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
+    ns = {"p": page_xml_namespace}
+
+    for xml_path in sorted(xml_files):
+        try:
+            root = ET.parse(xml_path).getroot()
+        except ET.ParseError as exc:
+            print(f"Error parsing PAGE-XML for OCR training export {xml_path}: {exc}")
+            continue
+
+        page_id = xml_path.stem
+        for region_index, region in enumerate(root.findall(".//p:TextRegion", ns)):
+            textbox_label = region.get("custom") or f"textbox_label_{region_index}"
+            gt_rows = []
+
+            for textline in region.findall("./p:TextLine", ns):
+                label = _extract_unicode_text(textline, ns)
+                if not label:
+                    continue
+
+                structure_line_id = _extract_structure_line_id(textline)
+                if structure_line_id is None:
+                    continue
+
+                image_name = f"line_{structure_line_id}.jpg"
+                source_image = image_format_dir / page_id / textbox_label / image_name
+                if not source_image.exists():
+                    print(f"Skipping OCR training label without image: {source_image}")
+                    continue
+
+                image_rel_path = f"text-line-images/{image_name}"
+                image_arcname = f"ocr-training-format/{page_id}/{textbox_label}/{image_rel_path}"
+                zf.write(source_image, image_arcname)
+                gt_rows.append(f"{image_rel_path}\t{label}")
+
+            if gt_rows:
+                gt_arcname = f"ocr-training-format/{page_id}/{textbox_label}/gt.txt"
+                zf.writestr(gt_arcname, "\n".join(gt_rows) + "\n")
+
 @app.route('/download-results/<manuscript>', methods=['GET'])
 def download_results(manuscript):
-    manuscript_path = Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output"
+    manuscript_root = Path(UPLOAD_FOLDER) / manuscript
+    manuscript_path = manuscript_root / "layout_analysis_output"
     if not manuscript_path.exists():
          return jsonify({"error": "No output found for this manuscript"}), 404
     
     xml_dir = manuscript_path / "page-xml-format"
     img_dir = manuscript_path / "image-format"
     corrections_dir = Path(UPLOAD_FOLDER) / manuscript / "node_corrections"
+    xml_files = sorted(xml_dir.glob("*.xml")) if xml_dir.exists() else []
+    if not xml_files:
+        return jsonify({"error": "No annotated page layouts found for this manuscript"}), 404
     
     memory_file = io.BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
-        if xml_dir.exists():
-            for root, dirs, files in os.walk(xml_dir):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    arcname = os.path.join('page-xml-format', os.path.relpath(file_path, xml_dir))
-                    zf.write(file_path, arcname)
-        if img_dir.exists():
-            for root, dirs, files in os.walk(img_dir):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    arcname = os.path.join('image-format', os.path.relpath(file_path, img_dir))
-                    zf.write(file_path, arcname)
+        _zip_directory(zf, xml_dir, "page-xml-format")
+        _zip_directory(zf, img_dir, "image-format")
+        _write_ocr_training_format_to_zip(zf, xml_files, img_dir)
+        _write_resized_images_to_zip(zf, manuscript_root, manuscript_path, [path.stem for path in xml_files])
                     
         # --- START METRICS CALCULATION ---
         total_original = 0
