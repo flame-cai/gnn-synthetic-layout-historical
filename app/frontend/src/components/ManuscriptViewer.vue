@@ -73,6 +73,9 @@
                 <option value="local">Built-in Reader</option>
                 <option value="gemini">Gemini</option>
               </select>
+              <span v-if="recognitionEngine === 'gemini'" class="recognition-engine-note">
+                Make sure to tune the Gemini prompt for your script in the backend source code in app/app.py.
+              </span>
             </div>
           </div>
         </div>
@@ -2794,6 +2797,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   color: #c6d7e6;
   font-size: 0.76rem;
   line-height: 1.3;
+}
+
+.recognition-engine-note {
+  color: #ffd89f;
+  font-size: 0.68rem;
+  line-height: 1.25;
+  max-width: 260px;
 }
 
 .top-bar-right .action-group {
