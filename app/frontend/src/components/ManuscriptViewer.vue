@@ -988,7 +988,7 @@ const exportImageButtonTitle = computed(() => {
 const downloadResultsButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Download Manuscript')
   if (busyReason) return busyReason
-  return 'Download the digitized manuscript in PAGE-XML format.'
+  return 'Download the digitized manuscript in PAGE-XML format, and as [image, text] pairs for fine-tuning OCR models.'
 })
 const goToLayoutModeButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Open Page Layout')

@@ -508,3 +508,16 @@ In `app/app.py`, the routes must keep their existing HTTP purpose but gain the n
 Revision note, 2026-04-19 17:59 IST: this ExecPlan was rewritten to incorporate the requested save-triggered active-learning workflow, the exact best hybrid OCR recipe, manuscript-specific checkpoint lineage, restart-safe automatic promotion, future-proof orchestration for CRAFT/GNN/OCR resource contention, structured edit telemetry, CUDA profiling, and the requirement that the existing headless pre-commit checks remain unaffected.
 
 Revision note, 2026-04-20 10:06 IST: this ExecPlan was updated after implementation to record the shipped first-pass runtime, the added backend/test files, the revision-snapshot discovery, the preserved backward-compatibility contract, and the exact validation that was completed versus still pending.
+
+
+
+We want to allow the user to switch between the following modes of annotation depending on the target manuscript.
+
+Normal Mode 
+The user will first annotate the layout, then annotate the text. Clicking on next page (or going to a new page) will take the user to the layout mode of the next page. This is how the app works now. 
+
+Layout Only Mode (Annotating Layouts without recogntion)
+This is for manuscripts with complex layouts, where the user will prefer to annotated the layouts of all pages first, and then come back later to annotate the text. However they might occasionally go to Text Review Mode for a couple of pages.
+
+Recognition Only Mode (For simple layouts)
+This is for manuscripts with simple single column layouts, where almost no layout corrections are required. In this mode, the user will want to directly work in text review mode and annotate the text. However, on rare occasions, they will want to make slight changes to the layout for a rare page. We should support that.
