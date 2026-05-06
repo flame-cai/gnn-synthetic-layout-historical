@@ -1,3 +1,21 @@
+- does this help? (only for devanagari)
+    - reading order always left to right
+    - always clockwise for circular layouts
+    - make this configurable according to the script.
+    - the GUI should allow user to just decide.
+
+pre-commit new checks - implement plan
+C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\docs\exec-plans\proposed\two-new-checks.md
+
+
+
+
+
+
+
+
+
+
 - annotate data
 - prepare dataset with the same format as eval_dataset
 - a new test using circular_dataset

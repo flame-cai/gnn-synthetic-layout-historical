@@ -43,8 +43,31 @@ RECOGNITION_PHASE = PrecommitPhase(
     ),
 )
 
+RECOGNITION_FULL_E2E_PHASE = PrecommitPhase(
+    name="Recognition Fine-Tune Full E2E Study",
+    command=["-m", "unittest", "tests.test_recognition_finetuning_e2e", "-v"],
+    skip_env_var="SKIP_RECOGNITION_FULL_E2E_HOOK",
+    artifact_paths=(
+        LOGS_DIR / "recognition_finetune_results_latest.md",
+        LOGS_DIR / "recognition_finetune_results_latest.json",
+        LOGS_DIR / "recognition_finetune_results_latest.txt",
+        LOGS_DIR / "recognition_finetune_results_latest.png",
+    ),
+)
 
-PHASES = (PIPELINE_PHASE, RECOGNITION_PHASE)
+CIRCULAR_LAYOUT_PHASE = PrecommitPhase(
+    name="Circular Layout OCR Gate",
+    command=["-m", "unittest", "tests.test_circular_ocr_precommit_e2e", "-v"],
+    skip_env_var="SKIP_CIRCULAR_LAYOUT_HOOK",
+    artifact_paths=(
+        LOGS_DIR / "circular_ocr_latest.md",
+        LOGS_DIR / "circular_ocr_latest.json",
+        LOGS_DIR / "circular_ocr_latest.txt",
+    ),
+)
+
+PHASES = (PIPELINE_PHASE, RECOGNITION_PHASE, CIRCULAR_LAYOUT_PHASE)
+CIRCULAR_LAYOUT_PROFILE_PHASES = (PIPELINE_PHASE, CIRCULAR_LAYOUT_PHASE)
 
 
 def env_python_name() -> str:
@@ -152,8 +175,21 @@ def main() -> int:
         )
         return 1
 
+    profile = os.environ.get("PRECOMMIT_EVAL_PROFILE", "").strip().lower()
+    if profile == "circular_layout":
+        phases = CIRCULAR_LAYOUT_PROFILE_PHASES
+        print(
+            "[pre-commit] PRECOMMIT_EVAL_PROFILE=circular_layout, running full-pipeline and circular layout phases.",
+            flush=True,
+        )
+    elif profile:
+        print(f"[pre-commit] Unknown PRECOMMIT_EVAL_PROFILE={profile!r}.", file=sys.stderr, flush=True)
+        return 1
+    else:
+        phases = PHASES
+
     ran_any_phase = False
-    for phase in PHASES:
+    for phase in phases:
         if os.environ.get(phase.skip_env_var) == "1":
             print(f"[pre-commit] {phase.skip_env_var}=1, skipping {phase.name}.", flush=True)
             continue

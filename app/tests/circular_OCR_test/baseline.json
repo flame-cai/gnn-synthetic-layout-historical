@@ -1,0 +1,47 @@
+{
+  "dataset_name": "eval_dataset_v2",
+  "page_split": {
+    "fine_tune_page_count": 3,
+    "fine_tune_page_ids": [
+      "page_2",
+      "page_3",
+      "page_4"
+    ],
+    "evaluation_page_ids": [
+      "page_5",
+      "page_6"
+    ]
+  },
+  "strategy_name": "current_implementation_control",
+  "baseline_status": "known_bad_control_baseline",
+  "segmentation_config": {
+    "source": "PAGE-XML Coords from current axis-bound implementation"
+  },
+  "unwrapping_config": {
+    "half_height_px": 42,
+    "sample_step_px": 2,
+    "min_width_px": 12,
+    "candidate_names": [
+      "forward",
+      "reversed",
+      "forward_vertical_flip",
+      "reversed_vertical_flip"
+    ],
+    "selector": "max_confidence",
+    "uses_ground_truth_text": false
+  },
+  "metrics": {
+    "curve_metric_value": 0.9467576791808874,
+    "first_step_gain": 0.04095563139931735,
+    "final_page_cer": 0.9112627986348123,
+    "regression_guard_passed": false,
+    "max_regression": 0.06484641638225253
+  },
+  "primary_blocking_metric_name": "curve_metric_value",
+  "metric_direction": "lower_is_better",
+  "minimum_improvement_delta": 0.001,
+  "date_recorded": "2026-05-05",
+  "command_used": "$env:CIRCULAR_OCR_STRATEGY='current_implementation_control'; conda run -n gnn_layout python -m unittest app.tests.test_circular_ocr_precommit_e2e -v",
+  "artifact_run_dir": "app/tests/logs/20260505_192338_circular_ocr_eval_dataset_v2",
+  "notes": "Accepted control baseline for the axis-bound PAGE-XML Coords strategy on eval_dataset_v2. Future circular strategies must beat this primary metric."
+}
