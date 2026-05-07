@@ -54,7 +54,10 @@ class ManuscriptAwareOcrModelManager:
     def recognize_page(self, manuscript_root: str | Path, page_id: str, checkpoint_path: str | Path) -> None:
         manuscript_root = Path(manuscript_root)
         xml_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}.xml"
-        image_dirs = [str(manuscript_root / "images"), str(manuscript_root / "images_resized")]
+        image_dirs = [
+            str(manuscript_root / "layout_analysis_output" / "images_resized"),
+            str(manuscript_root / "images_resized"),
+        ]
         context = self.get_context(checkpoint_path)
         process_page_xml(
             str(xml_path),

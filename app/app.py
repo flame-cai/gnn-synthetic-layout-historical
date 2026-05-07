@@ -363,9 +363,10 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     
-    # Image search paths: Look in original images and resized images
+    # PAGE XML coordinates are generated against resized images; avoid loading original large images here.
     image_dirs = [
-        str(base_path / "images_resized")
+        str(base_path / "layout_analysis_output" / "images_resized"),
+        str(base_path / "images_resized"),
     ]
 
     if not xml_path.exists():
