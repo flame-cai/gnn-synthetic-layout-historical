@@ -365,7 +365,6 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
     
     # Image search paths: Look in original images and resized images
     image_dirs = [
-        str(base_path / "images"),
         str(base_path / "images_resized")
     ]
 
