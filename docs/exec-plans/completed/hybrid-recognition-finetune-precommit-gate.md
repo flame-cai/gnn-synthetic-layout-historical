@@ -100,7 +100,7 @@ Verification completed on 2026-04-19 with these commands:
 - `C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v`
 - `C:\Users\intro\miniconda3\envs\gnn_layout\python.exe scripts/run_precommit_eval.py`
 
-The calibrated initial OCR thresholds remained unchanged from the plan (`0.26`, `0.18`, `0.04`) because the verified runs stayed comfortably inside them. On 2026-05-09 the gate still passed after switching crop generation from direct PAGE `Coords` to baseline-derived app-aligned geometry, with `curve_metric_value=0.22040745723620986`, `final_page_cer=0.14904862579281183`, and `first_step_gain=0.05137420718816066`.
+The calibrated initial OCR thresholds remained unchanged from the plan (`0.26`, `0.18`, `0.04`) because the verified runs stayed comfortably inside them. On 2026-05-09 the gate still passed after switching crop generation from direct PAGE `Coords` to baseline-derived app-aligned geometry, with `curve_metric_value=0.22040745723620986`, `final_page_cer=0.14904862579281183`, and `first_step_gain=0.05137420718816066`. A later evaluator cleanup keeps all short-width lines in simple-layout page CER and orders page text by `TextLine/Baseline` rather than `TextLine/Coords`.
 
 ## Context and Orientation
 

@@ -83,7 +83,7 @@ The completed OCR studies produced local artifacts, but those generated files sh
 The repository now also has a two-phase pre-commit screen:
 
 - a pretrained full-pipeline gate that verifies CRAFT plus GNN plus OCR still work together on the fixed evaluation manuscript
-- a surrogate OCR fine-tuning gate that runs the best-known hybrid continuation recipe on line crops regenerated from PAGE baselines plus eval heatmaps/images, with a loose geometry-equivalence guard before the OCR thresholds block on `curve_metric_value`, `final_page_cer`, and `first_step_gain`
+- a surrogate OCR fine-tuning gate that runs the best-known hybrid continuation recipe on line crops regenerated from PAGE baselines plus eval heatmaps/images, with baseline-ordered page CER and a loose geometry-equivalence guard before the OCR thresholds block on `curve_metric_value`, `final_page_cer`, and `first_step_gain`
 
 So the repository is now in a transitional state:
 

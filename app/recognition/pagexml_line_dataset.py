@@ -79,6 +79,14 @@ def _parse_points(points_str):
     return _parse_polygon(points_str)
 
 
+def _line_order_key_from_points(points):
+    if not points:
+        return (float("inf"), float("inf"))
+    y_values = [point[1] for point in points]
+    x_values = [point[0] for point in points]
+    return ((min(y_values) + max(y_values)) / 2.0, min(x_values))
+
+
 def _polygon_for_metrics(points):
     polygon = Polygon(points)
     if not polygon.is_valid:
@@ -133,6 +141,10 @@ def _load_pagexml_baseline_records(xml_path: Path):
     for line in root.findall(".//p:TextLine", PAGE_XML_NS):
         baseline_elem = line.find("./p:Baseline", PAGE_XML_NS)
         if baseline_elem is None or not baseline_elem.get("points"):
+            continue
+        text_equiv = line.find("./p:TextEquiv", PAGE_XML_NS)
+        unicode_elem = text_equiv.find("./p:Unicode", PAGE_XML_NS) if text_equiv is not None else None
+        if not _normalize_text(unicode_elem.text if unicode_elem is not None else ""):
             continue
         line_custom = line.get("custom") or f"structure_line_id_{line_fallback_index}"
         line_numeric_id = _parse_numeric_suffix(line_custom, "structure_line_id_", line_fallback_index)
@@ -289,6 +301,12 @@ def load_pagexml_lines(xml_path: str | Path, polygons_by_line_numeric_id: dict[i
             line_id = line.get("id", f"{region_id}_line_{line_fallback_index}")
             line_custom = line.get("custom") or f"structure_line_id_{line_fallback_index}"
             line_numeric_id = _parse_numeric_suffix(line_custom, "structure_line_id_", line_fallback_index)
+            baseline_elem = line.find("./p:Baseline", PAGE_XML_NS)
+            baseline_points = (
+                _parse_points(baseline_elem.get("points"))
+                if baseline_elem is not None and baseline_elem.get("points")
+                else []
+            )
 
             if polygons_by_line_numeric_id is not None:
                 polygon_points = polygons_by_line_numeric_id.get(line_numeric_id)
@@ -303,6 +321,11 @@ def load_pagexml_lines(xml_path: str | Path, polygons_by_line_numeric_id: dict[i
             polygon = _polygon_for_metrics(polygon_points)
             centroid = polygon.centroid
             min_x, _, _, _ = polygon.bounds
+            order_y, order_x = (
+                _line_order_key_from_points(baseline_points)
+                if baseline_points
+                else (float(centroid.y), float(min_x))
+            )
 
             records.append(
                 PreparedLineRecord(
@@ -314,8 +337,8 @@ def load_pagexml_lines(xml_path: str | Path, polygons_by_line_numeric_id: dict[i
                     line_numeric_id=line_numeric_id,
                     text=text,
                     polygon_points=polygon_points,
-                    y_center=float(centroid.y),
-                    x_min=float(min_x),
+                    y_center=float(order_y),
+                    x_min=float(order_x),
                 )
             )
             line_fallback_index += 1

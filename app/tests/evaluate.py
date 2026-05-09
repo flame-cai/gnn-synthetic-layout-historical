@@ -54,6 +54,26 @@ def parse_polygon_string(points_str):
         return None
 
 
+def parse_point_string(points_str):
+    try:
+        points = []
+        for point in points_str.strip().split():
+            x, y = map(int, point.split(","))
+            points.append((x, y))
+        return points
+    except Exception:
+        return []
+
+
+def line_order_key_from_baseline(points):
+    if not points:
+        return (float("inf"), float("inf"))
+
+    y_values = [point[1] for point in points]
+    x_values = [point[0] for point in points]
+    return ((min(y_values) + max(y_values)) / 2.0, min(x_values))
+
+
 def calculate_iou_polygon(poly1, poly2):
     if poly1 is None or poly2 is None:
         return 0.0
@@ -86,30 +106,32 @@ def parse_pagexml(filepath):
                 continue
 
             coords = None
+            baseline = None
             text = None
             for child in textline:
                 tag = strip_ns(child.tag)
                 if tag == "Coords":
                     coords = child.get("points")
+                elif tag == "Baseline":
+                    baseline = child.get("points")
                 elif tag == "TextEquiv":
                     for sub in child:
                         if strip_ns(sub.tag) == "Unicode":
                             text = sub.text
 
-            if text and coords:
+            if text and baseline:
                 clean_text = unicodedata.normalize("NFC", text).strip()
-                poly_obj = parse_polygon_string(coords)
+                baseline_points = parse_point_string(baseline)
+                poly_obj = parse_polygon_string(coords) if coords else None
 
-                if clean_text and poly_obj:
-                    centroid = poly_obj.centroid
-                    min_x, min_y, max_x, max_y = poly_obj.bounds
+                if clean_text and baseline_points:
+                    order_y, order_x = line_order_key_from_baseline(baseline_points)
                     extracted_lines.append(
                         {
                             "text": clean_text,
                             "poly": poly_obj,
-                            "y_center": centroid.y,
-                            "x_min": min_x,
-                            "width": max_x - min_x,
+                            "order_y": order_y,
+                            "order_x": order_x,
                         }
                     )
     except Exception as exc:
@@ -118,47 +140,9 @@ def parse_pagexml(filepath):
     return extracted_lines
 
 
-def filter_simple_layout_lines(line_objs):
-    if not line_objs:
-        return []
-
-    widths = [obj["width"] for obj in line_objs]
-    if len(widths) < 3:
-        return line_objs
-
-    c_short = min(widths)
-    c_long = max(widths)
-
-    for _ in range(5):
-        cluster_short = []
-        cluster_long = []
-
-        for width in widths:
-            if abs(width - c_short) < abs(width - c_long):
-                cluster_short.append(width)
-            else:
-                cluster_long.append(width)
-
-        if cluster_short:
-            c_short = sum(cluster_short) / len(cluster_short)
-        if cluster_long:
-            c_long = sum(cluster_long) / len(cluster_long)
-
-    if abs(c_long - c_short) < (max(widths) * 0.2):
-        return line_objs
-
-    filtered_lines = []
-    for obj in line_objs:
-        width = obj["width"]
-        if abs(width - c_long) <= abs(width - c_short):
-            filtered_lines.append(obj)
-
-    return filtered_lines
-
-
 def calculate_page_level_stats(gt_objs, pred_objs):
-    gt_sorted = sorted(gt_objs, key=lambda item: (item["y_center"], item["x_min"]))
-    pred_sorted = sorted(pred_objs, key=lambda item: (item["y_center"], item["x_min"]))
+    gt_sorted = sorted(gt_objs, key=lambda item: (item["order_y"], item["order_x"]))
+    pred_sorted = sorted(pred_objs, key=lambda item: (item["order_y"], item["order_x"]))
 
     gt_blob = "\n".join(item["text"] for item in gt_sorted)
     pred_blob = "\n".join(item["text"] for item in pred_sorted)
@@ -244,10 +228,6 @@ def evaluate_dataset(pred_folder, gt_folder, method_name, layout_type="complex")
 
         gt_objs = parse_pagexml(gt_path)
         pred_objs = parse_pagexml(str(pred_path)) if pred_path.exists() else []
-
-        if layout_type == "simple":
-            gt_objs = filter_simple_layout_lines(gt_objs)
-            pred_objs = filter_simple_layout_lines(pred_objs)
 
         current_gt_len = sum(len(item["text"]) for item in gt_objs)
         total_gt_len_all_files += current_gt_len

@@ -139,7 +139,7 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertIn("early_weighted_page_cer=0.3", result["failure_message"])
         self.assertIn("first_step_gain=0.03", result["failure_message"])
 
-    def test_baseline_heatmap_geometry_does_not_read_pagexml_coords(self):
+    def test_baseline_heatmap_geometry_prepares_without_pagexml_coords(self):
         tmp_root = TESTS_ROOT / "_tmp_precommit_gate_unit" / "baseline_heatmap_geometry"
         if tmp_root.exists():
             shutil.rmtree(tmp_root)
@@ -165,11 +165,9 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
 <PcGts xmlns="{ns}">
   <Page imageFilename="{page_id}.jpg" imageWidth="96" imageHeight="64">
     <TextRegion id="region_0" custom="textbox_label_0">
-      <Coords points="0,0 95,0 95,63 0,63" />
       <TextLine id="region_0_line_0" custom="structure_line_id_7">
         <TextEquiv><Unicode>test</Unicode></TextEquiv>
         <Baseline points="24,36 72,36" />
-        <Coords points="0,0 8,0 8,8 0,8" />
       </TextLine>
     </TextRegion>
   </Page>
