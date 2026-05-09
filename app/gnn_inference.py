@@ -16,7 +16,14 @@ import os
 from collections import defaultdict
 import xml.etree.ElementTree as ET
 
-from segment_from_point_clusters import segmentLinesFromPointClusters
+from recognition.line_segmentation import apply_text_line_segmentation_strategy
+from recognition.pagexml_line_dataset import (
+    _encode_like_app_jpg,
+    _load_processing_image,
+    _masked_line_crop,
+    load_pagexml_lines,
+    sort_lines_for_page_level_cer,
+)
 
 SRC_ROOT = Path(__file__).resolve().parents[1] / "src"
 if str(SRC_ROOT) not in sys.path:
@@ -34,6 +41,7 @@ from gnn_training.gnn_data_preparation.feature_engineering import (
 LOADED_MODEL = None
 LOADED_CONFIG = None
 DEVICE = None
+DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = "legacy_axis_bound_v1"
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -134,19 +142,10 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         else:
              print(f"Warning: Textbox label count {len(textbox_labels)} != Node count {num_nodes}. Resetting.")
              
-    # 5. Run Segmentation (Now returns data with images, does not save to disk)
-    polygons_data = segmentLinesFromPointClusters(
-        str(output_dir.parent), 
-        page_id, 
-        BINARIZE_THRESHOLD=args_dict.get('BINARIZE_THRESHOLD', 0.5098), 
-        BBOX_PAD_V=args_dict.get('BBOX_PAD_V', 0.7), 
-        BBOX_PAD_H=args_dict.get('BBOX_PAD_H', 0.5), 
-        CC_SIZE_THRESHOLD_RATIO=args_dict.get('CC_SIZE_THRESHOLD_RATIO', 0.4), 
-        GNN_PRED_PATH=str(output_dir)
-    )
-
     xml_output_dir = output_dir / "page-xml-format"
     xml_output_dir.mkdir(exist_ok=True)
+    baseline_xml_output_dir = output_dir / "_baseline_page_xml"
+    baseline_xml_output_dir.mkdir(exist_ok=True)
     
     # --- NEW: Prepare Images Directory ---
     images_output_dir = output_dir / "image-format" / page_id
@@ -154,20 +153,40 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         shutil.rmtree(images_output_dir)
     images_output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 6. Generate XML AND Save Images
+    # 6. Generate baseline PAGE-XML, then let the shared strategy write final Coords.
+    baseline_xml_path = baseline_xml_output_dir / f"{page_id}.xml"
+    final_xml_path = xml_output_dir / f"{page_id}.xml"
     create_page_xml(
         page_id,
         unique_edges,
         points_unnormalized,
         {'width': heatmap_w, 'height': heatmap_h}, 
-        xml_output_dir / f"{page_id}.xml",
+        baseline_xml_path,
         final_structural_labels, 
-        polygons_data,
+        {},
         textbox_labels=final_textbox_labels,
         image_path=base_path / "images_resized" / f"{page_id}.jpg",
-        images_output_dir=images_output_dir,
+        images_output_dir=None,
+        save_vis=False,
         text_content=text_content # <--- PASS THIS DOWN
     )
+    strategy_config = {
+        "BINARIZE_THRESHOLD": args_dict.get("BINARIZE_THRESHOLD", 0.5098),
+        "BBOX_PAD_V": args_dict.get("BBOX_PAD_V", 0.7),
+        "BBOX_PAD_H": args_dict.get("BBOX_PAD_H", 0.5),
+        "CC_SIZE_THRESHOLD_RATIO": args_dict.get("CC_SIZE_THRESHOLD_RATIO", 0.4),
+        "include_empty_text_lines": True,
+    }
+    strategy_result = apply_text_line_segmentation_strategy(
+        page_image_path=base_path / "images_resized" / f"{page_id}.jpg",
+        heatmap_path=base_path / "heatmaps" / f"{page_id}.jpg",
+        source_pagexml_path=baseline_xml_path,
+        output_pagexml_path=final_xml_path,
+        strategy_name=DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY,
+        strategy_config=strategy_config,
+        metadata_path=output_dir / "page-xml-format" / f"{page_id}_line_segmentation_metadata.json",
+    )
+    _write_app_line_images_from_pagexml(final_xml_path, base_path / "images_resized" / f"{page_id}.jpg", images_output_dir)
 
     resized_images_dst_dir = output_dir / "images_resized"
     resized_images_dst_dir.mkdir(exist_ok=True)
@@ -175,12 +194,28 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     if src_img.exists():
         shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
 
-    line_count = len(polygons_data) # 1. Capture count first
-    del polygons_data
+    line_count = strategy_result.prepared_line_count
     import gc
     gc.collect()
 
     return {"status": "success", "lines": line_count}
+
+
+def _write_app_line_images_from_pagexml(xml_path: Path, image_path: Path, images_output_dir: Path) -> int:
+    if images_output_dir.exists():
+        shutil.rmtree(images_output_dir)
+    images_output_dir.mkdir(parents=True, exist_ok=True)
+    _, records = load_pagexml_lines(xml_path, include_empty_text_lines=True)
+    processing_image = _load_processing_image(image_path)
+    written = 0
+    for record in sort_lines_for_page_level_cer(records):
+        raw_crop = _masked_line_crop(processing_image, record.polygon_points)
+        jpg_bytes, _ = _encode_like_app_jpg(raw_crop)
+        output_path = images_output_dir / record.region_custom / f"line_{record.line_numeric_id}.jpg"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_bytes(jpg_bytes)
+        written += 1
+    return written
 
 
 

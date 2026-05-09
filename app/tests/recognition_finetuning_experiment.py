@@ -283,6 +283,7 @@ def _prepare_study_inputs(dataset_config: RecognitionEvalDatasetConfig, study_sl
         heatmaps_dir=dataset_config.heatmaps_dir,
         geometry_source=dataset_config.line_geometry_source,
         segmentation_args=dataset_config.line_segmentation_args,
+        line_segmentation_strategy_name=dataset_config.line_segmentation_strategy_name,
     )
     _assert_prepared_geometry_equivalence(dataset_config, prepared_pages)
     evaluation_pages = {page_id: prepared_pages[page_id] for page_id in evaluation_page_ids}
@@ -292,7 +293,7 @@ def _prepare_study_inputs(dataset_config: RecognitionEvalDatasetConfig, study_sl
 
 
 def _assert_prepared_geometry_equivalence(dataset_config: RecognitionEvalDatasetConfig, prepared_pages):
-    if dataset_config.line_geometry_source != "baseline_heatmap":
+    if dataset_config.line_geometry_source != "baseline_heatmap" and not dataset_config.line_segmentation_strategy_name:
         return
 
     failures = []

@@ -40,6 +40,7 @@ class RecognitionEvalDatasetConfig:
     pagexml_dir: Path
     heatmaps_dir: Path | None = None
     line_geometry_source: str = "pagexml_coords"
+    line_segmentation_strategy_name: str | None = None
     line_segmentation_args: dict = field(
         default_factory=lambda: {
             "BINARIZE_THRESHOLD": 0.5098,
@@ -166,6 +167,7 @@ def get_precommit_hybrid_recognition_gate_config(name: str = "eval_dataset") -> 
     recipe = gate_config.recipe
     base_config = get_dataset_config(gate_config.recognition_dataset_config_name).with_updates(
         line_geometry_source="baseline_heatmap",
+        line_segmentation_strategy_name="legacy_axis_bound_v1",
         training_policy=recipe.training_policy,
         history_sample_line_count=int(recipe.history_sample_line_count),
         width_policy=recipe.width_policy,

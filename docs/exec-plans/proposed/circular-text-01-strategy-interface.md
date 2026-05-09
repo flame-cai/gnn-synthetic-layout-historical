@@ -16,11 +16,11 @@ This plan only extracts the strategy interface and ports the current behavior in
 
 - [x] (2026-05-09 22:31 IST) Read `PLANS.md`, the research source `docs/exec-plans/proposed/circular-text-support.md`, and the current OCR crop and gate code.
 - [x] (2026-05-09 22:31 IST) Identified the current benchmark path: `app/recognition/pagexml_line_dataset.py` rebuilds polygons from PAGE `Baseline` plus heatmap through `segmentLinesFromPointClusters(...)`, while `app/gnn_inference.py` also calls `segmentLinesFromPointClusters(...)` during app saves.
-- [ ] Create the shared strategy types, registry, and deterministic apply function under `app/recognition/line_segmentation/`.
-- [ ] Move the current baseline-plus-heatmap polygon generation into `legacy_axis_bound_v1` without changing its geometry output.
-- [ ] Rework app save OCR preparation, PAGE baseline OCR preparation, and existing gates to call the shared strategy layer.
-- [ ] Add focused unit tests that prove the legacy strategy preserves current behavior and that all call sites select strategy names through the registry.
-- [ ] Run the validation commands in this plan and record results here before marking this plan complete.
+- [x] (2026-05-10 00:54 IST) Created the shared strategy types, registry, and deterministic apply function under `app/recognition/line_segmentation/`.
+- [x] (2026-05-10 00:54 IST) Moved the current baseline-plus-heatmap polygon generation into `legacy_axis_bound_v1` while keeping the same CRAFT heatmap box assignment and `segmentLinesFromPointClusters(...)` geometry path.
+- [x] (2026-05-10 00:54 IST) Reworked app save OCR preparation, PAGE baseline OCR preparation, and existing gates to call the shared strategy layer.
+- [x] (2026-05-10 00:54 IST) Added focused unit tests for the registry, synthetic PAGE baseline conversion, metadata preservation, `baseline_heatmap` aliasing, and app save registry wiring.
+- [x] (2026-05-10 00:54 IST) Ran the validation commands in this plan and recorded results in `Artifacts and Notes`.
 
 ## Surprises & Discoveries
 
@@ -32,6 +32,12 @@ This plan only extracts the strategy interface and ports the current behavior in
 
 - Observation: generated logs under `app/tests/logs/` already mention names such as `legacy_axis_bound_v1` and `local_tangent_band_v1`, but there is no checked-in source implementation for those names yet.
   Evidence: `rg "local_tangent|legacy_axis" app scripts docs` finds only generated log files and the research document, not production Python modules.
+
+- Observation: OCR dataset preparation and app save preparation need different text filtering at the strategy boundary.
+  Evidence: OCR ground-truth preparation must skip PAGE lines with empty `TextEquiv/Unicode`, while the app save route often has no recognized text yet and still needs PAGE `Coords` and line images. The shared strategy therefore defaults to OCR-compatible filtering and the app save path explicitly passes `include_empty_text_lines=True`.
+
+- Observation: the previous CI monkeypatch is no longer needed.
+  Evidence: `app/tests/test_ci_e2e.py` no longer assigns `pagexml_line_dataset.segmentLinesFromPointClusters`; `legacy_axis_bound_v1` loads the canonical implementation from `src/gnn_inference/segment_from_point_clusters.py` directly.
 
 ## Decision Log
 
@@ -47,9 +53,17 @@ This plan only extracts the strategy interface and ports the current behavior in
   Rationale: OCR fine-tuning code already expects `PreparedPageDataset`. Moving the strategy boundary below that data class preserves existing OCR code while making geometry generation reusable.
   Date/Author: 2026-05-09 / Codex
 
+- Decision: use `src/gnn_inference/segment_from_point_clusters.py` as the canonical legacy helper loaded by `legacy_axis_bound_v1`.
+  Rationale: the OCR verifier and historical pre-commit gate already relied on this implementation, including through a CI monkeypatch. Loading it in the strategy keeps benchmark geometry stable and removes test-local plumbing.
+  Date/Author: 2026-05-10 / Codex
+
+- Decision: add an explicit `include_empty_text_lines` strategy config used only by the app save path.
+  Rationale: OCR fine-tuning should continue to prepare only supervised lines with text, but layout saves must still write geometry before OCR text exists. Making the app path explicit preserves both behaviors.
+  Date/Author: 2026-05-10 / Codex
+
 ## Outcomes & Retrospective
 
-Not yet implemented. At completion, summarize whether the legacy strategy output matched the previous `baseline_heatmap` path, which call sites were migrated, and whether any path-specific behavior had to remain temporarily.
+Implemented on 2026-05-10. The repository now has a named `legacy_axis_bound_v1` strategy with registry entry points, deterministic PAGE-XML output, metadata JSON, and preserved legacy guard metrics. `geometry_source="baseline_heatmap"` remains a compatibility alias in `app/recognition/pagexml_line_dataset.py`, while new config can pass `line_segmentation_strategy_name="legacy_axis_bound_v1"` directly. The app save route in `app/gnn_inference.py` now writes baseline PAGE-XML first, applies the shared strategy for `Coords`, and writes app-style cropped line images from the resulting PAGE-XML. The only intentional path-specific behavior is `include_empty_text_lines=True` for app saves, because unsupervised layout saves must still produce line geometry before OCR text is available.
 
 ## Context and Orientation
 
@@ -232,6 +246,28 @@ Important current source paths:
     scripts/run_precommit_eval.py
 
 Generated logs such as `app/tests/logs/recognition_finetune_proposed_latest.md` are evidence only. Do not treat them as source of truth for available strategies.
+
+Validation completed on 2026-05-10:
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_line_segmentation_strategy_unit -v
+    Result: OK, 5 tests passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
+    Result: OK, 4 tests passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_backend_unit -v
+    Result: OK, 15 tests passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+    Result: OK, 1 end-to-end test passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
+    Result: OK, 1 slow OCR pre-commit gate passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python scripts/run_precommit_eval.py
+    Result: OK. The launcher ran both the full pipeline gate and the recognition fine-tune gate, and reported artifacts under `app/tests/logs/`.
+
+Plan update note, 2026-05-10: Recorded the completed implementation, the app-save empty-text configuration decision, the removal of the CI monkeypatch, and the validation evidence so the plan reflects the checked-in behavior.
 
 ## Interfaces and Dependencies
 

@@ -1,3 +1,7 @@
+# stray thoughts
+- GUI should be able to annotate line orientations (new supervised task)
+
+
 CIRCULAR LAYOUT TODO
 - annotate manuscripts in Tantra and alaṅkāra
 - fix vertical lines recognition bug

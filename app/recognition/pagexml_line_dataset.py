@@ -15,11 +15,26 @@ import numpy as np
 import skimage.io as io
 from shapely.geometry import Polygon
 
-SRC_GNN_INFERENCE_DIR = Path(__file__).resolve().parents[2] / "src" / "gnn_inference"
-if str(SRC_GNN_INFERENCE_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_GNN_INFERENCE_DIR))
-
-from segment_from_point_clusters import gen_bounding_boxes, loadImage, segmentLinesFromPointClusters
+try:
+    from .line_segmentation import apply_text_line_segmentation_strategy
+    from .line_segmentation.legacy_axis_bound import (
+        build_legacy_axis_bound_polygons,
+        _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
+    )
+    from .line_segmentation.pagexml import (
+        count_text_lines_with_text_and_baseline as _strategy_count_text_lines_with_text_and_baseline,
+        load_baseline_records as _strategy_load_baseline_records,
+    )
+except ImportError:  # pragma: no cover - script execution fallback
+    from line_segmentation import apply_text_line_segmentation_strategy
+    from line_segmentation.legacy_axis_bound import (
+        build_legacy_axis_bound_polygons,
+        _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
+    )
+    from line_segmentation.pagexml import (
+        count_text_lines_with_text_and_baseline as _strategy_count_text_lines_with_text_and_baseline,
+        load_baseline_records as _strategy_load_baseline_records,
+    )
 
 
 PAGE_XML_NAMESPACE = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
@@ -27,6 +42,7 @@ PAGE_XML_NS = {"p": PAGE_XML_NAMESPACE}
 GEOMETRY_SOURCE_PAGEXML_COORDS = "pagexml_coords"
 GEOMETRY_SOURCE_BASELINE_HEATMAP = "baseline_heatmap"
 SUPPORTED_GEOMETRY_SOURCES = {GEOMETRY_SOURCE_PAGEXML_COORDS, GEOMETRY_SOURCE_BASELINE_HEATMAP}
+DEFAULT_LINE_SEGMENTATION_STRATEGY = "legacy_axis_bound_v1"
 
 
 @dataclass
@@ -59,6 +75,8 @@ class PreparedPageDataset:
     records: list[PreparedLineRecord]
     geometry_source: str = GEOMETRY_SOURCE_PAGEXML_COORDS
     geometry_summary: dict | None = None
+    line_segmentation_strategy_name: str | None = None
+    line_segmentation_metadata_path: str | None = None
 
 
 def _normalize_text(text):
@@ -134,104 +152,27 @@ def _distance_to_baseline(point, baseline_points):
 
 
 def _load_pagexml_baseline_records(xml_path: Path):
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-    records = []
-    line_fallback_index = 0
-    for line in root.findall(".//p:TextLine", PAGE_XML_NS):
-        baseline_elem = line.find("./p:Baseline", PAGE_XML_NS)
-        if baseline_elem is None or not baseline_elem.get("points"):
-            continue
-        text_equiv = line.find("./p:TextEquiv", PAGE_XML_NS)
-        unicode_elem = text_equiv.find("./p:Unicode", PAGE_XML_NS) if text_equiv is not None else None
-        if not _normalize_text(unicode_elem.text if unicode_elem is not None else ""):
-            continue
-        line_custom = line.get("custom") or f"structure_line_id_{line_fallback_index}"
-        line_numeric_id = _parse_numeric_suffix(line_custom, "structure_line_id_", line_fallback_index)
-        records.append(
-            {
-                "line_numeric_id": line_numeric_id,
-                "baseline_points": _parse_points(baseline_elem.get("points")),
-            }
-        )
-        line_fallback_index += 1
-    return records
+    return [
+        {
+            "line_numeric_id": record["line_numeric_id"],
+            "baseline_points": record["baseline_points"],
+        }
+        for record in _strategy_load_baseline_records(xml_path, include_empty_text_lines=False)
+    ]
 
 
 def _count_text_lines_with_text_and_baseline(xml_path: Path):
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-    count = 0
-    for line in root.findall(".//p:TextLine", PAGE_XML_NS):
-        baseline_elem = line.find("./p:Baseline", PAGE_XML_NS)
-        if baseline_elem is None or not baseline_elem.get("points"):
-            continue
-        text_equiv = line.find("./p:TextEquiv", PAGE_XML_NS)
-        unicode_elem = text_equiv.find("./p:Unicode", PAGE_XML_NS) if text_equiv is not None else None
-        if _normalize_text(unicode_elem.text if unicode_elem is not None else ""):
-            count += 1
-    return count
+    return _strategy_count_text_lines_with_text_and_baseline(xml_path)
 
 
 def _build_baseline_component_nodes(xml_path: Path, image_path: Path, heatmap_path: Path, binarize_threshold: float):
-    baseline_records = _load_pagexml_baseline_records(xml_path)
-    if not baseline_records:
-        return np.empty((0, 3)), np.empty((0,), dtype=int), {"heatmap_box_count": 0, "assigned_box_count": 0}
-
-    image = loadImage(str(image_path))
-    heatmap = loadImage(str(heatmap_path))
-    if heatmap.ndim == 3:
-        heatmap = heatmap[:, :, 0]
-
-    image_height, image_width = image.shape[:2]
-    heatmap_height, heatmap_width = heatmap.shape[:2]
-    heatmap_resized = cv2.resize(heatmap, (image_width, image_height), interpolation=cv2.INTER_LINEAR)
-    bounding_boxes = gen_bounding_boxes(heatmap_resized, binarize_threshold)
-
-    x_to_heatmap = heatmap_width / image_width
-    y_to_heatmap = heatmap_height / image_height
-    synthetic_nodes = []
-    synthetic_labels = []
-    assigned_distances = []
-
-    for x_val, y_val, width, height in bounding_boxes:
-        center_x = x_val + (width / 2.0)
-        center_y = y_val + (height / 2.0)
-        best_record = min(
-            (
-                (_distance_to_baseline((center_x, center_y), record["baseline_points"]), record)
-                for record in baseline_records
-            ),
-            key=lambda item: item[0],
-            default=None,
-        )
-        if best_record is None:
-            continue
-
-        distance, record = best_record
-        max_distance = max(20.0, float(height) * 2.5)
-        if distance > max_distance:
-            continue
-
-        synthetic_nodes.append(
-            [
-                center_x * x_to_heatmap,
-                center_y * y_to_heatmap,
-                max(float(width) * x_to_heatmap, float(height) * y_to_heatmap),
-            ]
-        )
-        synthetic_labels.append(int(record["line_numeric_id"]))
-        assigned_distances.append(float(distance))
-
-    summary = {
-        "heatmap_box_count": len(bounding_boxes),
-        "assigned_box_count": len(synthetic_labels),
-        "heatmap_box_assignment_rate": (len(synthetic_labels) / len(bounding_boxes)) if bounding_boxes else None,
-        "baseline_line_count": len(baseline_records),
-        "max_assignment_distance": max(assigned_distances) if assigned_distances else None,
-        "mean_assignment_distance": float(np.mean(assigned_distances)) if assigned_distances else None,
-    }
-    return np.asarray(synthetic_nodes, dtype=float), np.asarray(synthetic_labels, dtype=int), summary
+    return _strategy_build_baseline_component_nodes(
+        xml_path,
+        image_path,
+        heatmap_path,
+        binarize_threshold,
+        include_empty_text_lines=False,
+    )
 
 
 def _generate_polygons_from_baselines(
@@ -241,41 +182,20 @@ def _generate_polygons_from_baselines(
     output_root: Path,
     segmentation_args: dict | None = None,
 ):
-    segmentation_args = dict(segmentation_args or {})
-    binarize_threshold = float(segmentation_args.get("BINARIZE_THRESHOLD", 0.5098))
-    nodes, labels, summary = _build_baseline_component_nodes(xml_path, image_path, heatmap_path, binarize_threshold)
-
-    work_root = output_root / "_baseline_heatmap_geometry"
-    if work_root.exists():
-        shutil.rmtree(work_root)
-    images_dir = work_root / "images_resized"
-    heatmaps_dir = work_root / "heatmaps"
-    gnn_format_dir = work_root / "layout_analysis_output" / "gnn-format"
-    images_dir.mkdir(parents=True, exist_ok=True)
-    heatmaps_dir.mkdir(parents=True, exist_ok=True)
-    gnn_format_dir.mkdir(parents=True, exist_ok=True)
-
-    shutil.copy(image_path, images_dir / f"{xml_path.stem}.jpg")
-    shutil.copy(heatmap_path, heatmaps_dir / f"{xml_path.stem}.jpg")
-    np.savetxt(gnn_format_dir / f"{xml_path.stem}_inputs_unnormalized.txt", nodes, fmt="%.6f")
-    np.savetxt(gnn_format_dir / f"{xml_path.stem}_labels_textline.txt", labels, fmt="%d")
-
-    polygons_by_label = segmentLinesFromPointClusters(
-        str(work_root),
-        xml_path.stem,
-        BINARIZE_THRESHOLD=binarize_threshold,
-        BBOX_PAD_V=float(segmentation_args.get("BBOX_PAD_V", 0.7)),
-        BBOX_PAD_H=float(segmentation_args.get("BBOX_PAD_H", 0.5)),
-        CC_SIZE_THRESHOLD_RATIO=float(segmentation_args.get("CC_SIZE_THRESHOLD_RATIO", 0.4)),
-        GNN_PRED_PATH=str(work_root / "layout_analysis_output"),
+    return build_legacy_axis_bound_polygons(
+        xml_path,
+        image_path,
+        heatmap_path,
+        output_root,
+        segmentation_args=segmentation_args,
     )
-    return {
-        int(label): [[int(point[0]), int(point[1])] for point in points]
-        for label, points in polygons_by_label.items()
-    }, summary
 
 
-def load_pagexml_lines(xml_path: str | Path, polygons_by_line_numeric_id: dict[int, list[list[int]]] | None = None):
+def load_pagexml_lines(
+    xml_path: str | Path,
+    polygons_by_line_numeric_id: dict[int, list[list[int]]] | None = None,
+    include_empty_text_lines: bool = False,
+):
     xml_path = Path(xml_path)
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -295,7 +215,7 @@ def load_pagexml_lines(xml_path: str | Path, polygons_by_line_numeric_id: dict[i
             text_equiv = line.find("./p:TextEquiv", PAGE_XML_NS)
             unicode_elem = text_equiv.find("./p:Unicode", PAGE_XML_NS) if text_equiv is not None else None
             text = _normalize_text(unicode_elem.text if unicode_elem is not None else "")
-            if not text:
+            if not text and not include_empty_text_lines:
                 continue
 
             line_id = line.get("id", f"{region_id}_line_{line_fallback_index}")
@@ -402,45 +322,70 @@ def prepare_page_line_dataset(
     heatmap_path: str | Path | None = None,
     geometry_source: str = GEOMETRY_SOURCE_PAGEXML_COORDS,
     segmentation_args: dict | None = None,
+    line_segmentation_strategy_name: str | None = None,
+    strategy_name: str | None = None,
 ):
     xml_path = Path(xml_path)
     image_path = Path(image_path)
     output_root = Path(output_root)
+    requested_strategy_name = strategy_name or line_segmentation_strategy_name
     if geometry_source not in SUPPORTED_GEOMETRY_SOURCES:
         raise ValueError(f"Unsupported PAGE line geometry source: {geometry_source}")
+    effective_geometry_source = (
+        GEOMETRY_SOURCE_BASELINE_HEATMAP if requested_strategy_name is not None else geometry_source
+    )
 
     if output_root.exists():
         shutil.rmtree(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
 
-    if geometry_source == GEOMETRY_SOURCE_BASELINE_HEATMAP:
+    effective_strategy_name = requested_strategy_name
+    if effective_geometry_source == GEOMETRY_SOURCE_BASELINE_HEATMAP and effective_strategy_name is None:
+        effective_strategy_name = DEFAULT_LINE_SEGMENTATION_STRATEGY
+
+    if effective_strategy_name is not None:
         source_text_line_count = _count_text_lines_with_text_and_baseline(xml_path)
     else:
         _, source_records = load_pagexml_lines(xml_path)
         source_text_line_count = len(source_records)
 
-    polygons_by_line_numeric_id = None
+    effective_xml_path = xml_path
     generation_summary = {}
-    if geometry_source == GEOMETRY_SOURCE_BASELINE_HEATMAP:
+    strategy_metadata_path = None
+    if effective_strategy_name is not None:
         if heatmap_path is None:
-            raise ValueError("heatmap_path is required when geometry_source='baseline_heatmap'.")
-        polygons_by_line_numeric_id, generation_summary = _generate_polygons_from_baselines(
-            xml_path,
-            image_path,
-            Path(heatmap_path),
-            output_root,
-            segmentation_args=segmentation_args,
+            raise ValueError("heatmap_path is required when line segmentation strategy is requested.")
+        strategy_root = output_root / "_line_segmentation" / effective_strategy_name
+        effective_xml_path = strategy_root / f"{xml_path.stem}.xml"
+        strategy_metadata_path = strategy_root / f"{xml_path.stem}_metadata.json"
+        strategy_result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=Path(heatmap_path),
+            source_pagexml_path=xml_path,
+            output_pagexml_path=effective_xml_path,
+            strategy_name=effective_strategy_name,
+            strategy_config=segmentation_args or {},
+            metadata_path=strategy_metadata_path,
         )
+        generation_summary = dict(strategy_result.geometry_summary)
 
-    image_filename, records = load_pagexml_lines(xml_path, polygons_by_line_numeric_id=polygons_by_line_numeric_id)
+    image_filename, records = load_pagexml_lines(effective_xml_path)
     ordered_records = sort_lines_for_page_level_cer(records)
     processing_image = _load_processing_image(image_path)
-    geometry_summary = _build_geometry_summary(
-        ordered_records,
-        generation_summary,
-        geometry_source,
-        source_text_line_count,
-    )
+    if effective_strategy_name is not None:
+        geometry_summary = dict(generation_summary)
+        geometry_summary["prepared_line_count"] = len(ordered_records)
+        geometry_summary["source_text_line_count"] = source_text_line_count
+        geometry_summary["source_line_coverage"] = (
+            len(ordered_records) / source_text_line_count if source_text_line_count else None
+        )
+    else:
+        geometry_summary = _build_geometry_summary(
+            ordered_records,
+            generation_summary,
+            effective_geometry_source,
+            source_text_line_count,
+        )
 
     image_format_root = output_root / "image-format" / xml_path.stem
     finetune_dataset_root = output_root / "finetune_dataset"
@@ -481,10 +426,13 @@ def prepare_page_line_dataset(
     manifest_payload = {
         "page_id": xml_path.stem,
         "image_filename": image_filename,
-        "source_xml_path": str(xml_path.resolve()),
+        "source_xml_path": str(effective_xml_path.resolve()),
+        "original_source_xml_path": str(xml_path.resolve()),
         "source_image_path": str(image_path.resolve()),
-        "geometry_source": geometry_source,
+        "geometry_source": effective_geometry_source,
         "geometry_summary": geometry_summary,
+        "line_segmentation_strategy_name": effective_strategy_name,
+        "line_segmentation_metadata_path": str(strategy_metadata_path.resolve()) if strategy_metadata_path else None,
         "records": [asdict(record) for record in prepared_records],
     }
     manifest_path.write_text(json.dumps(manifest_payload, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -492,7 +440,7 @@ def prepare_page_line_dataset(
     return PreparedPageDataset(
         page_id=xml_path.stem,
         image_filename=image_filename,
-        source_xml_path=str(xml_path.resolve()),
+        source_xml_path=str(effective_xml_path.resolve()),
         source_image_path=str(image_path.resolve()),
         output_root=str(output_root.resolve()),
         image_format_dir=str(image_format_root.resolve()),
@@ -500,8 +448,10 @@ def prepare_page_line_dataset(
         gt_path=str(gt_path.resolve()),
         manifest_path=str(manifest_path.resolve()),
         records=prepared_records,
-        geometry_source=geometry_source,
+        geometry_source=effective_geometry_source,
         geometry_summary=geometry_summary,
+        line_segmentation_strategy_name=effective_strategy_name,
+        line_segmentation_metadata_path=str(strategy_metadata_path.resolve()) if strategy_metadata_path else None,
     )
 
 
@@ -523,6 +473,8 @@ def load_prepared_page_dataset(manifest_path: str | Path):
         records=records,
         geometry_source=payload.get("geometry_source", GEOMETRY_SOURCE_PAGEXML_COORDS),
         geometry_summary=payload.get("geometry_summary"),
+        line_segmentation_strategy_name=payload.get("line_segmentation_strategy_name"),
+        line_segmentation_metadata_path=payload.get("line_segmentation_metadata_path"),
     )
 
 

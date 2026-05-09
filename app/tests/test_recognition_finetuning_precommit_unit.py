@@ -36,6 +36,7 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
 
         self.assertEqual(config.name, gate_config.recognition_dataset_config_name)
         self.assertEqual(config.line_geometry_source, "baseline_heatmap")
+        self.assertEqual(config.line_segmentation_strategy_name, "legacy_axis_bound_v1")
         self.assertTrue(config.heatmaps_dir.exists())
         self.assertEqual(float(config.line_segmentation_args["BINARIZE_THRESHOLD"]), 0.5098)
         self.assertEqual(float(config.min_geometry_source_line_coverage), 0.90)
@@ -185,6 +186,8 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(prepared.geometry_source, "baseline_heatmap")
+        self.assertEqual(prepared.line_segmentation_strategy_name, "legacy_axis_bound_v1")
+        self.assertTrue(Path(prepared.line_segmentation_metadata_path).exists())
         self.assertEqual(len(prepared.records), 1)
         xs = [point[0] for point in prepared.records[0].polygon_points]
         ys = [point[1] for point in prepared.records[0].polygon_points]

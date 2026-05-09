@@ -120,6 +120,7 @@ def prepare_page_datasets(
     heatmaps_dir: str | Path | None = None,
     geometry_source: str = "pagexml_coords",
     segmentation_args: dict | None = None,
+    line_segmentation_strategy_name: str | None = None,
 ):
     images_dir = Path(images_dir)
     pagexml_dir = Path(pagexml_dir)
@@ -154,6 +155,7 @@ def prepare_page_datasets(
             heatmap_path=heatmap_path,
             geometry_source=geometry_source,
             segmentation_args=segmentation_args,
+            line_segmentation_strategy_name=line_segmentation_strategy_name,
         )
 
     return prepared

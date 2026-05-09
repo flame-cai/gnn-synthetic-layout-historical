@@ -1,4 +1,3 @@
-import importlib.util
 import os
 import shutil
 import sys
@@ -23,7 +22,6 @@ os.chdir(TESTS_ROOT)
 import app as backend_app_module
 os.chdir(APP_ROOT)
 from recognition.active_learning import generate_prediction_pagexmls
-import recognition.pagexml_line_dataset as pagexml_line_dataset
 from recognition.pagexml_line_dataset import (
     GEOMETRY_SOURCE_BASELINE_HEATMAP,
     prepare_page_line_dataset,
@@ -40,19 +38,6 @@ PIPELINE_OCR_SEGMENTATION_ARGS = {
     "BBOX_PAD_H": 0.5,
     "CC_SIZE_THRESHOLD_RATIO": 0.4,
 }
-
-
-def _load_src_segment_lines_from_point_clusters():
-    segment_path = REPO_ROOT / "src" / "gnn_inference" / "segment_from_point_clusters.py"
-    spec = importlib.util.spec_from_file_location("_ci_src_segment_from_point_clusters", segment_path)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Could not load src segment_from_point_clusters from {segment_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.segmentLinesFromPointClusters
-
-
-pagexml_line_dataset.segmentLinesFromPointClusters = _load_src_segment_lines_from_point_clusters()
 
 
 class EndToEndEvalDatasetTest(unittest.TestCase):
