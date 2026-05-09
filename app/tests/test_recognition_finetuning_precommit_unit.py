@@ -19,7 +19,12 @@ if str(REPO_ROOT) not in sys.path:
 
 from tests.precommit_gate_config import get_recognition_precommit_dataset
 from tests.recognition_finetuning_config import get_precommit_hybrid_recognition_gate_config
-from tests.recognition_finetuning_experiment import _build_recognition_precommit_dataset_result, _policy_descriptor
+from tests.recognition_finetuning_experiment import (
+    _build_recognition_precommit_dataset_result,
+    _build_recognition_strategy_comparison,
+    _config_for_strategy_role,
+    _policy_descriptor,
+)
 from recognition.pagexml_line_dataset import prepare_page_line_dataset
 
 
@@ -60,6 +65,83 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertEqual(gate_config.max_final_page_cer, 0.18)
         self.assertEqual(gate_config.min_first_step_gain, 0.04)
         self.assertTrue(gate_config.regression_guard_warning_only)
+        self.assertEqual(gate_config.strategy_ablation.benchmark.role, "benchmark")
+        self.assertEqual(gate_config.strategy_ablation.proposed.role, "proposed")
+        self.assertEqual(gate_config.strategy_ablation.benchmark.strategy_name, "legacy_axis_bound_v1")
+        self.assertEqual(gate_config.strategy_ablation.proposed.strategy_name, "legacy_axis_bound_v1")
+        self.assertEqual(float(gate_config.strategy_ablation.max_allowed_regression_abs), 0.005)
+
+    def test_strategy_role_config_updates_dataset_geometry(self):
+        gate_config = get_recognition_precommit_dataset("eval_dataset")
+        base_config = get_precommit_hybrid_recognition_gate_config("eval_dataset")
+        role_config = gate_config.strategy_ablation.proposed
+
+        role_dataset_config = _config_for_strategy_role(base_config, role_config)
+
+        self.assertEqual(role_dataset_config.line_geometry_source, "baseline_heatmap")
+        self.assertEqual(role_dataset_config.line_segmentation_strategy_name, role_config.strategy_name)
+        self.assertEqual(role_dataset_config.line_segmentation_args, base_config.line_segmentation_args)
+
+    def test_strategy_comparison_allows_configured_small_regression(self):
+        gate_config = get_recognition_precommit_dataset("eval_dataset")
+        benchmark_result = {
+            "role": "benchmark",
+            "strategy_name": "legacy_axis_bound_v1",
+            "passed": True,
+            "failure_message": "",
+            "metrics": {
+                "curve_metric_value": 0.220,
+                "final_page_cer": 0.140,
+                "first_step_gain": 0.050,
+            },
+        }
+        proposed_result = {
+            "role": "proposed",
+            "strategy_name": "legacy_axis_bound_v1",
+            "passed": True,
+            "failure_message": "",
+            "metrics": {
+                "curve_metric_value": 0.224,
+                "final_page_cer": 0.144,
+                "first_step_gain": 0.046,
+            },
+        }
+
+        comparison = _build_recognition_strategy_comparison(gate_config, benchmark_result, proposed_result)
+
+        self.assertTrue(comparison["passed"], comparison["failure_message"])
+        self.assertEqual(comparison["allowed_regression_abs"], 0.005)
+        self.assertTrue(all(item["passed"] for item in comparison["metric_comparisons"]))
+
+    def test_strategy_comparison_fails_beyond_tolerance(self):
+        gate_config = get_recognition_precommit_dataset("eval_dataset")
+        benchmark_result = {
+            "role": "benchmark",
+            "strategy_name": "legacy_axis_bound_v1",
+            "passed": True,
+            "failure_message": "",
+            "metrics": {
+                "curve_metric_value": 0.220,
+                "final_page_cer": 0.140,
+                "first_step_gain": 0.050,
+            },
+        }
+        proposed_result = {
+            "role": "proposed",
+            "strategy_name": "legacy_axis_bound_v1",
+            "passed": True,
+            "failure_message": "",
+            "metrics": {
+                "curve_metric_value": 0.230,
+                "final_page_cer": 0.150,
+                "first_step_gain": 0.040,
+            },
+        }
+
+        comparison = _build_recognition_strategy_comparison(gate_config, benchmark_result, proposed_result)
+
+        self.assertFalse(comparison["passed"])
+        self.assertIn("curve_metric_value", comparison["failure_message"])
 
     def test_precommit_result_treats_regression_guard_failure_as_warning_only(self):
         dataset_config = get_precommit_hybrid_recognition_gate_config("eval_dataset")

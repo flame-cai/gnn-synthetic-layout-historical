@@ -33,6 +33,8 @@ from tests.recognition_finetuning_config import (
 
 PRETRAINED_OCR_CHECKPOINT = APP_ROOT / "recognition" / "pretrained_model" / "vadakautuhala.pth"
 RECOGNITION_PRECOMMIT_LATEST_BASENAME = "recognition_finetune_precommit_latest"
+RECOGNITION_ABLATION_LATEST_BASENAME = "recognition_finetune_ablation_latest"
+CIRCULAR_RECOGNITION_ABLATION_LATEST_BASENAME = "circular_ocr_ablation_latest"
 
 
 def _timestamp_slug():
@@ -918,6 +920,137 @@ def _build_recognition_precommit_dataset_result(dataset_name: str, policy_result
     }
 
 
+def _config_for_strategy_role(dataset_config: RecognitionEvalDatasetConfig, role_config) -> RecognitionEvalDatasetConfig:
+    return dataset_config.with_updates(
+        line_geometry_source="baseline_heatmap",
+        line_segmentation_strategy_name=role_config.strategy_name,
+        line_segmentation_args=dict(role_config.strategy_config or dataset_config.line_segmentation_args),
+    )
+
+
+def _build_strategy_role_result(role_config, policy_result: dict) -> dict:
+    return {
+        "role": role_config.role,
+        "strategy_name": role_config.strategy_name,
+        "strategy_config": dict(role_config.strategy_config),
+        "run_dir": policy_result["run_dir"],
+        "status": policy_result["status"],
+        "passed": policy_result["status"] == "passed",
+        "failure_message": policy_result["failure_message"],
+        "metrics": dict(policy_result["curve_metrics"]),
+        "summary_path": policy_result["summary_path"],
+        "metrics_path": policy_result["metrics_path"],
+        "curve_metrics_path": policy_result["curve_metrics_path"],
+        "per_page_csv_path": policy_result["per_page_csv_path"],
+        "per_line_csv_path": policy_result["per_line_csv_path"],
+        "fine_tune_metadata_path": policy_result["fine_tune_metadata_path"],
+        "selector_metrics_path": policy_result["selector_metrics_path"],
+        "plot_path": policy_result["plot_path"],
+        "policy_slug": policy_result["policy_slug"],
+        "policy": policy_result["policy"],
+        "warnings": list(policy_result.get("warnings", [])),
+    }
+
+
+def _comparison_failure_message(comparisons: list[dict]) -> str:
+    failures = []
+    for comparison in comparisons:
+        if comparison["passed"]:
+            continue
+        failures.append(
+            f"{comparison['metric_name']}: benchmark={comparison['benchmark_value']} "
+            f"proposed={comparison['proposed_value']} required "
+            f"proposed {comparison['operator']} {comparison['allowed_value']}"
+        )
+    return "; ".join(failures)
+
+
+def _build_recognition_strategy_comparison(gate_config, benchmark_result: dict, proposed_result: dict) -> dict:
+    ablation_config = gate_config.strategy_ablation
+    allowed = float(ablation_config.max_allowed_regression_abs)
+    benchmark_metrics = benchmark_result["metrics"]
+    proposed_metrics = proposed_result["metrics"]
+    same_strategy = benchmark_result["strategy_name"] == proposed_result["strategy_name"]
+
+    comparisons = []
+    primary_operator = "<"
+    primary_allowed_value = benchmark_metrics.get("curve_metric_value")
+    if not ablation_config.strict_primary_improvement_required or same_strategy:
+        primary_operator = "<="
+        primary_allowed_value = (
+            None if primary_allowed_value is None else primary_allowed_value + allowed
+        )
+    primary_observed = proposed_metrics.get("curve_metric_value")
+    primary_passed = (
+        primary_observed is not None
+        and primary_allowed_value is not None
+        and (
+            primary_observed < primary_allowed_value
+            if primary_operator == "<"
+            else primary_observed <= primary_allowed_value
+        )
+    )
+    comparisons.append(
+        {
+            "metric_name": "curve_metric_value",
+            "benchmark_value": benchmark_metrics.get("curve_metric_value"),
+            "proposed_value": primary_observed,
+            "operator": primary_operator,
+            "allowed_regression_abs": allowed,
+            "allowed_value": primary_allowed_value,
+            "passed": primary_passed,
+        }
+    )
+
+    for metric_name, operator in (("final_page_cer", "<="), ("first_step_gain", ">=")):
+        benchmark_value = benchmark_metrics.get(metric_name)
+        proposed_value = proposed_metrics.get(metric_name)
+        if operator == "<=":
+            allowed_value = None if benchmark_value is None else benchmark_value + allowed
+            passed = proposed_value is not None and allowed_value is not None and proposed_value <= allowed_value
+        else:
+            allowed_value = None if benchmark_value is None else benchmark_value - allowed
+            passed = proposed_value is not None and allowed_value is not None and proposed_value >= allowed_value
+        comparisons.append(
+            {
+                "metric_name": metric_name,
+                "benchmark_value": benchmark_value,
+                "proposed_value": proposed_value,
+                "operator": operator,
+                "allowed_regression_abs": allowed,
+                "allowed_value": allowed_value,
+                "passed": passed,
+            }
+        )
+
+    passed = (
+        benchmark_result["passed"]
+        and proposed_result["passed"]
+        and all(comparison["passed"] for comparison in comparisons)
+    )
+    failure_message = ""
+    if not benchmark_result["passed"]:
+        failure_message = f"Benchmark role failed: {benchmark_result['failure_message']}"
+    elif not proposed_result["passed"]:
+        failure_message = f"Proposed role failed: {proposed_result['failure_message']}"
+    elif not passed:
+        failure_message = "Recognition strategy ablation failed: " + _comparison_failure_message(comparisons)
+
+    return {
+        "benchmark_role": benchmark_result["role"],
+        "proposed_role": proposed_result["role"],
+        "primary_metric_name": "curve_metric_value",
+        "benchmark_value": benchmark_metrics.get("curve_metric_value"),
+        "proposed_value": proposed_metrics.get("curve_metric_value"),
+        "operator": comparisons[0]["operator"],
+        "allowed_regression_abs": allowed,
+        "strict_primary_improvement_required": ablation_config.strict_primary_improvement_required,
+        "passed": passed,
+        "failure_message": failure_message,
+        "metric_comparisons": comparisons,
+    }
+
+
 def _write_recognition_precommit_summary(path: Path, dataset_result: dict) -> None:
     policy = dataset_result["policy"]
     curve_metrics = dataset_result["curve_metrics"]
@@ -1010,8 +1143,177 @@ def _jsonable_recognition_precommit_dataset_result(dataset_result: dict) -> dict
     }
 
 
+def _jsonable_strategy_role_result(role_result: dict) -> dict:
+    return {
+        "role": role_result["role"],
+        "strategy_name": role_result["strategy_name"],
+        "strategy_config": role_result["strategy_config"],
+        "run_dir": str(role_result["run_dir"].resolve()),
+        "status": role_result["status"],
+        "passed": role_result["passed"],
+        "failure_message": role_result["failure_message"],
+        "metrics": role_result["metrics"],
+        "summary_path": str(role_result["summary_path"].resolve()),
+        "metrics_path": str(role_result["metrics_path"].resolve()),
+        "curve_metrics_path": str(role_result["curve_metrics_path"].resolve()),
+        "per_page_csv_path": str(role_result["per_page_csv_path"].resolve()),
+        "per_line_csv_path": str(role_result["per_line_csv_path"].resolve()),
+        "fine_tune_metadata_path": str(role_result["fine_tune_metadata_path"].resolve()),
+        "selector_metrics_path": str(role_result["selector_metrics_path"].resolve()),
+        "plot_path": str(role_result["plot_path"].resolve()),
+        "policy_slug": role_result["policy_slug"],
+        "policy": role_result["policy"],
+        "warnings": role_result["warnings"],
+    }
+
+
+def _write_recognition_ablation_summary(path: Path, dataset_result: dict) -> None:
+    comparison = dataset_result["comparison"]
+    lines = [
+        f"# Recognition Strategy Ablation Gate: {dataset_result['dataset_name']}",
+        "",
+        f"Study mode: `{dataset_result['study_mode']}`",
+        f"Status: **{dataset_result['status'].upper()}**",
+        "",
+        "## Strategy Roles",
+        "",
+    ]
+
+    for role_name in ("benchmark", "proposed"):
+        role_result = dataset_result["strategy_results"][role_name]
+        metrics = role_result["metrics"]
+        lines.append(
+            f"- {role_name}: strategy={role_result['strategy_name']}, "
+            f"status={role_result['status']}, "
+            f"curve_metric_value={metrics.get('curve_metric_value')}, "
+            f"final_page_cer={metrics.get('final_page_cer')}, "
+            f"first_step_gain={metrics.get('first_step_gain')}"
+        )
+
+    lines.extend(["", "## Comparison", ""])
+    for item in comparison["metric_comparisons"]:
+        lines.append(
+            f"- {item['metric_name']}: benchmark={item['benchmark_value']}, "
+            f"proposed={item['proposed_value']}, required proposed {item['operator']} "
+            f"{item['allowed_value']}, passed={item['passed']}"
+        )
+
+    if comparison["failure_message"]:
+        lines.extend(["", "## Failure", "", comparison["failure_message"]])
+
+    lines.extend(["", "## Artifacts", ""])
+    for role_name in ("benchmark", "proposed"):
+        role_result = dataset_result["strategy_results"][role_name]
+        lines.append(f"- {role_name}_summary={role_result['summary_path'].resolve()}")
+        lines.append(f"- {role_name}_metrics={role_result['metrics_path'].resolve()}")
+
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _run_recognition_strategy_ablation(
+    dataset_name: str,
+    *,
+    study_mode: str,
+    study_slug: str,
+    latest_basename: str,
+) -> dict:
+    gate_config = get_recognition_precommit_dataset(dataset_name)
+    base_dataset_config = get_precommit_hybrid_recognition_gate_config(dataset_name)
+    strategy_results = {}
+
+    for role_config in gate_config.strategy_ablation.roles():
+        role_dataset_config = _config_for_strategy_role(base_dataset_config, role_config)
+        role_run_dir, prepared_pages, evaluation_pages, gt_subset_dir = _prepare_study_inputs(
+            role_dataset_config,
+            study_slug=f"{study_slug}_{role_config.role}",
+        )
+        policy_slug = _page_plus_history_policy_slug(role_dataset_config)
+        policy_result = _run_single_policy_run(
+            role_run_dir / "policy" / policy_slug,
+            role_dataset_config,
+            prepared_pages,
+            evaluation_pages,
+            gt_subset_dir,
+            slug_builder=_page_plus_history_policy_slug,
+            regression_guard_mode="warn" if gate_config.regression_guard_warning_only else "fail",
+        )
+        strategy_results[role_config.role] = _build_strategy_role_result(role_config, policy_result)
+
+    comparison = _build_recognition_strategy_comparison(
+        gate_config,
+        strategy_results["benchmark"],
+        strategy_results["proposed"],
+    )
+    status = "passed" if comparison["passed"] else "failed"
+    run_dir = LOGS_ROOT / f"{_timestamp_slug()}_{study_slug}_{dataset_name}_summary"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    summary_path = run_dir / "summary.md"
+    metrics_path = run_dir / "metrics.json"
+    dataset_result = {
+        "study_mode": study_mode,
+        "dataset_name": dataset_name,
+        "dataset_config": base_dataset_config.to_dict(),
+        "strategy_ablation": gate_config.strategy_ablation.to_dict(),
+        "run_dir": run_dir,
+        "summary_path": summary_path,
+        "metrics_path": metrics_path,
+        "status": status,
+        "passed": comparison["passed"],
+        "failure_message": comparison["failure_message"],
+        "strategy_results": strategy_results,
+        "comparison": comparison,
+    }
+    _write_recognition_ablation_summary(summary_path, dataset_result)
+    jsonable = {
+        **{key: value for key, value in dataset_result.items() if key not in {"run_dir", "summary_path", "metrics_path", "strategy_results"}},
+        "run_dir": str(run_dir.resolve()),
+        "summary_path": str(summary_path.resolve()),
+        "metrics_path": str(metrics_path.resolve()),
+        "strategy_results": {
+            role: _jsonable_strategy_role_result(role_result)
+            for role, role_result in strategy_results.items()
+        },
+    }
+    _write_json(
+        metrics_path,
+        {
+            "study_mode": study_mode,
+            "run_dir": str(run_dir.resolve()),
+            "dataset_results": {dataset_name: jsonable},
+            "failed_datasets": [] if comparison["passed"] else [dataset_name],
+            "passed_dataset_count": 1 if comparison["passed"] else 0,
+        },
+    )
+    _copy_latest_artifacts(
+        run_dir,
+        summary_path,
+        metrics_path,
+        strategy_results["proposed"]["plot_path"],
+        latest_basename=latest_basename,
+    )
+    return dataset_result
+
+
 def run_recognition_finetuning_experiment(dataset_name="eval_dataset"):
     return run_page_plus_random_history_experiment(dataset_name=dataset_name)
+
+
+def run_recognition_strategy_ablation_gate(dataset_name: str = "eval_dataset") -> dict:
+    return _run_recognition_strategy_ablation(
+        dataset_name,
+        study_mode="recognition_strategy_ablation_gate",
+        study_slug="ocr_ablation",
+        latest_basename=RECOGNITION_ABLATION_LATEST_BASENAME,
+    )
+
+
+def run_circular_recognition_strategy_ablation_gate(dataset_name: str = "eval_dataset_v2") -> dict:
+    return _run_recognition_strategy_ablation(
+        dataset_name,
+        study_mode="circular_recognition_strategy_ablation_gate",
+        study_slug="circular_ocr_ablation",
+        latest_basename=CIRCULAR_RECOGNITION_ABLATION_LATEST_BASENAME,
+    )
 
 
 def run_page_plus_random_history_experiment(dataset_name="eval_dataset"):

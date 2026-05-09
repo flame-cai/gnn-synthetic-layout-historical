@@ -17,6 +17,7 @@ import torchvision.transforms as transforms
 
 
 SUPPORTED_WIDTH_POLICIES = {"global_2000_pad", "batch_max_pad"}
+MIN_CTC_PADDED_WIDTH = 32
 
 
 def compute_resized_width(image_or_size, imgH, imgW):
@@ -384,7 +385,7 @@ class AlignCollate(object):
         if self.keep_ratio_with_pad:  # same concept with 'Rosetta' paper
             resized_widths = [compute_resized_width(image, self.imgH, self.imgW) for image in images]
             if self.width_policy == "batch_max_pad":
-                resized_max_w = max(resized_widths) if resized_widths else self.imgW
+                resized_max_w = max(max(resized_widths) if resized_widths else self.imgW, MIN_CTC_PADDED_WIDTH)
             else:
                 resized_max_w = self.imgW
             input_channel = 3 if images[0].mode == 'RGB' else 1

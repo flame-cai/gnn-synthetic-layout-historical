@@ -211,6 +211,11 @@ class RecognitionActiveLearningUnitTest(unittest.TestCase):
         self.assertEqual([item["resized_width"] for item in global_meta], [100, 200])
         self.assertEqual([item["padded_width"] for item in batch_meta], [200, 200])
 
+        narrow_image = Image.fromarray(np.full((1000, 40), 200, dtype=np.uint8), mode="L")
+        narrow_tensors, _, narrow_meta = batch_collate([(narrow_image, "narrow")])
+        self.assertEqual(narrow_tensors.shape[-1], 32)
+        self.assertEqual(narrow_meta[0]["padded_width"], 32)
+
     def test_cer_weighted_oversampling_replication_is_capped(self):
         root = _make_workspace_tmp("oversampling")
         prepared_page = _make_prepared_page(root, "p1", [("0001", "abc"), ("0002", "def")])

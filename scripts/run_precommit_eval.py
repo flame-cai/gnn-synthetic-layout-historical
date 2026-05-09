@@ -22,29 +22,41 @@ class PrecommitPhase:
 
 
 PIPELINE_PHASE = PrecommitPhase(
-    name="Full Pipeline Gate",
+    name="Full Pipeline Strategy Ablation Gate",
     command=["-m", "unittest", "discover", "-s", "tests", "-p", "test_ci_e2e.py", "-v"],
     skip_env_var="SKIP_PIPELINE_EVAL_HOOK",
     artifact_paths=(
-        LOGS_DIR / "ci_eval_results_latest.txt",
-        LOGS_DIR / "ci_eval_results_latest.json",
+        LOGS_DIR / "pipeline_ablation_latest.md",
+        LOGS_DIR / "pipeline_ablation_latest.json",
     ),
 )
 
 
 RECOGNITION_PHASE = PrecommitPhase(
-    name="Recognition Fine-Tune Gate",
+    name="Recognition Fine-Tune Strategy Ablation Gate",
     command=["-m", "unittest", "tests.test_recognition_finetuning_precommit_e2e", "-v"],
     skip_env_var="SKIP_RECOGNITION_FT_HOOK",
     artifact_paths=(
-        LOGS_DIR / "recognition_finetune_precommit_latest.md",
-        LOGS_DIR / "recognition_finetune_precommit_latest.json",
-        LOGS_DIR / "recognition_finetune_precommit_latest.txt",
+        LOGS_DIR / "recognition_finetune_ablation_latest.md",
+        LOGS_DIR / "recognition_finetune_ablation_latest.json",
+        LOGS_DIR / "recognition_finetune_ablation_latest.txt",
     ),
 )
 
 
-PHASES = (PIPELINE_PHASE, RECOGNITION_PHASE)
+CIRCULAR_RECOGNITION_PHASE = PrecommitPhase(
+    name="Circular Recognition Fine-Tune Strategy Ablation Gate",
+    command=["-m", "unittest", "tests.test_circular_recognition_finetuning_precommit_e2e", "-v"],
+    skip_env_var="SKIP_CIRCULAR_RECOGNITION_FT_HOOK",
+    artifact_paths=(
+        LOGS_DIR / "circular_ocr_ablation_latest.md",
+        LOGS_DIR / "circular_ocr_ablation_latest.json",
+        LOGS_DIR / "circular_ocr_ablation_latest.txt",
+    ),
+)
+
+
+PHASES = (PIPELINE_PHASE, RECOGNITION_PHASE, CIRCULAR_RECOGNITION_PHASE)
 
 
 def env_python_name() -> str:

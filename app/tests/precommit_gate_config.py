@@ -1,11 +1,60 @@
 from __future__ import annotations
 
+import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from recognition.active_learning_recipe import OcrActiveLearningRecipe
 
 TESTS_ROOT = Path(__file__).resolve().parent
+DEFAULT_BENCHMARK_STRATEGY_NAME = "legacy_axis_bound_v1"
+DEFAULT_PROPOSED_STRATEGY_NAME = os.getenv(
+    "PRECOMMIT_PROPOSED_LINE_STRATEGY",
+    "legacy_axis_bound_v1",
+)
+
+
+@dataclass(frozen=True)
+class StrategyRoleConfig:
+    role: str
+    strategy_name: str
+    strategy_config: dict = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class StrategyAblationConfig:
+    benchmark: StrategyRoleConfig
+    proposed: StrategyRoleConfig
+    max_allowed_regression_abs: float
+    strict_primary_improvement_required: bool = False
+
+    def roles(self) -> tuple[StrategyRoleConfig, StrategyRoleConfig]:
+        return (self.benchmark, self.proposed)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def _default_strategy_ablation(
+    *,
+    max_allowed_regression_abs: float,
+    strict_primary_improvement_required: bool = False,
+) -> StrategyAblationConfig:
+    return StrategyAblationConfig(
+        benchmark=StrategyRoleConfig(
+            role="benchmark",
+            strategy_name=DEFAULT_BENCHMARK_STRATEGY_NAME,
+        ),
+        proposed=StrategyRoleConfig(
+            role="proposed",
+            strategy_name=DEFAULT_PROPOSED_STRATEGY_NAME,
+        ),
+        max_allowed_regression_abs=max_allowed_regression_abs,
+        strict_primary_improvement_required=strict_primary_improvement_required,
+    )
 
 
 @dataclass(frozen=True)
@@ -23,6 +72,10 @@ class PipelinePrecommitDatasetConfig:
     max_line_cer_75: float = 0.45
     max_line_cer_range: float = 0.48
     max_worst_page_line_cer_50: float = 0.55
+    strategy_ablation: StrategyAblationConfig = field(
+        default_factory=lambda: _default_strategy_ablation(max_allowed_regression_abs=0.01)
+    )
+    latest_artifact_basename: str = "pipeline_ablation_latest"
 
     def ordered_page_ids(self) -> list[str]:
         return sorted(path.stem for path in self.images_dir.glob("*.jpg"))
@@ -47,6 +100,10 @@ class RecognitionPrecommitDatasetConfig:
     min_first_step_gain: float
     regression_guard_warning_only: bool = True
     recipe: RecognitionPrecommitRecipe = field(default_factory=RecognitionPrecommitRecipe)
+    strategy_ablation: StrategyAblationConfig = field(
+        default_factory=lambda: _default_strategy_ablation(max_allowed_regression_abs=0.005)
+    )
+    latest_artifact_basename: str = "recognition_finetune_ablation_latest"
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -69,6 +126,18 @@ RECOGNITION_PRECOMMIT_DATASETS = {
         max_curve_metric_value=0.26,
         max_final_page_cer=0.18,
         min_first_step_gain=0.04,
+    ),
+    "eval_dataset_v2": RecognitionPrecommitDatasetConfig(
+        name="eval_dataset_v2",
+        recognition_dataset_config_name="eval_dataset_v2",
+        max_curve_metric_value=0.26,
+        max_final_page_cer=0.18,
+        min_first_step_gain=0.04,
+        strategy_ablation=_default_strategy_ablation(
+            max_allowed_regression_abs=0.0,
+            strict_primary_improvement_required=True,
+        ),
+        latest_artifact_basename="circular_ocr_ablation_latest",
     )
 }
 

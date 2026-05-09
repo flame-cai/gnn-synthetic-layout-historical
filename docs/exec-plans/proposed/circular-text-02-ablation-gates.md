@@ -18,13 +18,13 @@ This plan does not implement the first proposed circular strategy itself. Until 
 - [x] (2026-05-09 22:31 IST) Confirmed current config registries only include `eval_dataset` in `app/tests/precommit_gate_config.py` and `app/tests/recognition_finetuning_config.py`.
 - [x] (2026-05-09 22:31 IST) Confirmed `app/tests/eval_dataset_v2/` exists with images and heatmaps for ordered pages `page_2` through `page_6`, and PAGE-XML labels under `labels/PAGE-XML/`.
 - [x] (2026-05-09 22:31 IST) Confirmed `app/tests/circular_OCR_test/` has only `__pycache__` entries and no checked-in source implementation for a circular gate.
-- [ ] Add shared ablation config data classes and registry entries for benchmark and proposed strategies.
-- [ ] Rework the pretrained full-pipeline gate so benchmark and proposed use the same strategy-aware pipeline.
-- [ ] Rework the OCR fine-tuning gate so benchmark and proposed use the same strategy-aware crop preparation and OCR recipe.
-- [ ] Implement the circular OCR fine-tuning gate from source using `app/tests/eval_dataset_v2`.
-- [ ] Update `scripts/run_precommit_eval.py` to run all three ablation gates and report strategy-specific artifacts.
-- [ ] Add focused unit tests plus the new circular e2e test.
-- [ ] Run all validation commands in this plan and record results.
+- [x] (2026-05-10 02:25 IST) Added shared ablation config data classes and registry entries for benchmark and proposed strategies in `app/tests/precommit_gate_config.py`.
+- [x] (2026-05-10 02:25 IST) Reworked the pretrained full-pipeline gate so benchmark and proposed use the same strategy-aware pipeline through `app/tests/pipeline_ablation_experiment.py`.
+- [x] (2026-05-10 02:25 IST) Reworked the OCR fine-tuning gate so benchmark and proposed use the same strategy-aware crop preparation and OCR recipe through `run_recognition_strategy_ablation_gate(...)`.
+- [x] (2026-05-10 02:25 IST) Implemented the circular OCR fine-tuning gate from source using `app/tests/eval_dataset_v2` and `run_circular_recognition_strategy_ablation_gate(...)`.
+- [x] (2026-05-10 02:25 IST) Updated `scripts/run_precommit_eval.py` to run all three ablation gates and report strategy-specific artifacts.
+- [x] (2026-05-10 02:25 IST) Added focused unit tests plus the new circular e2e test.
+- [x] (2026-05-10 02:25 IST) Ran all validation commands in this plan and recorded results.
 
 ## Surprises & Discoveries
 
@@ -36,6 +36,9 @@ This plan does not implement the first proposed circular strategy itself. Until 
 
 - Observation: previous circular-looking logs under `app/tests/logs/` are generated evidence, not checked-in implementation.
   Evidence: `rg "circular_ocr" app/tests` finds latest log summaries, while `app/tests/circular_OCR_test/` contains no `.py` sources.
+
+- Observation: `eval_dataset_v2` contains very tall, narrow circular crops under the legacy strategy, and `batch_max_pad` could shrink a single-item batch to only a few pixels wide after height normalization.
+  Evidence: the first circular e2e run failed with `Given input size: (128x25x1). Calculated output size: (128x12x0). Output size is too small`. Inspecting prepared crops showed examples such as `page_3/test/word_0002.png` with original size `45x877`.
 
 ## Decision Log
 
@@ -51,9 +54,27 @@ This plan does not implement the first proposed circular strategy itself. Until 
   Rationale: that directory currently contains only cache files and no importable source. New checked-in tests should follow the existing top-level `app/tests/test_*.py` pattern.
   Date/Author: 2026-05-09 / Codex
 
+- Decision: default `PRECOMMIT_PROPOSED_LINE_STRATEGY` to `legacy_axis_bound_v1` for this plan, while keeping it as a single environment-configurable value.
+  Rationale: plan 03 has not added `local_tangent_band_v1` yet. Running both roles with the benchmark strategy verifies the ablation plumbing end to end without silently inventing a placeholder geometry algorithm. Setting `PRECOMMIT_PROPOSED_LINE_STRATEGY=local_tangent_band_v1` before plan 03 will fail clearly with the strategy registry's unknown-strategy error.
+  Date/Author: 2026-05-10 / Codex
+
+- Decision: when a gate is marked `strict_primary_improvement_required` but benchmark and proposed are configured to the same strategy name, treat equality as acceptable compatibility-mode plumbing.
+  Rationale: strict improvement cannot be demonstrated until the proposed circular strategy exists. The comparison remains strict for distinct strategy names, and the config still records that the circular gate is intended to require strict improvement after plan 03.
+  Date/Author: 2026-05-10 / Codex
+
+- Decision: set a minimum padded OCR width of 32 pixels for `batch_max_pad`.
+  Rationale: ratio-preserving padding can otherwise produce a tensor too narrow for the CTC OCR CNN on tall circular crops. The minimum preserves content aspect ratio while adding right padding, matching the existing padding semantics.
+  Date/Author: 2026-05-10 / Codex
+
 ## Outcomes & Retrospective
 
-Not yet implemented. At completion, summarize the final gate names, artifact paths, strategy comparison thresholds, and the first benchmark/proposed results observed in `app/tests/logs/`.
+Implemented on 2026-05-10. The launcher now runs three phases named `Full Pipeline Strategy Ablation Gate`, `Recognition Fine-Tune Strategy Ablation Gate`, and `Circular Recognition Fine-Tune Strategy Ablation Gate`. The latest artifacts are `app/tests/logs/pipeline_ablation_latest.{md,json}`, `app/tests/logs/recognition_finetune_ablation_latest.{md,json,txt}`, and `app/tests/logs/circular_ocr_ablation_latest.{md,json,txt}`. For this plumbing milestone both benchmark and proposed are configured to `legacy_axis_bound_v1`; the environment variable `PRECOMMIT_PROPOSED_LINE_STRATEGY` is the single switch for plan 03 to point proposed at `local_tangent_band_v1`.
+
+The first completed benchmark/proposed results from the final launcher run were:
+
+- Pipeline `eval_dataset`: benchmark `page_cer=0.3309031044214487`, proposed `page_cer=0.3309031044214487`, comparison passed with `max_allowed_regression_abs=0.01`.
+- Recognition `eval_dataset`: benchmark `curve_metric_value=0.23554526422635289`, proposed `curve_metric_value=0.2355072004060141`, comparison passed with `max_allowed_regression_abs=0.005`.
+- Circular recognition `eval_dataset_v2`: benchmark `curve_metric_value=0.9447010869565217`, proposed `curve_metric_value=0.9447010869565217`, comparison passed in same-strategy compatibility mode.
 
 ## Context and Orientation
 
@@ -289,6 +310,31 @@ Expected latest artifacts after this plan:
     app/tests/logs/circular_ocr_ablation_latest.json
 
 Generated logs currently present under `app/tests/logs/` are not source of truth. They may guide manual debugging, but checked-in config and source code must define gate membership and thresholds.
+
+Validation completed on 2026-05-10:
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_strategy_ablation_config_unit -v
+    Result: OK, 3 tests passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
+    Result: OK, 7 tests passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_unit -v
+    Result: OK, 9 tests passed. This includes the new minimum-width `batch_max_pad` assertion.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+    Result: OK, 1 full-pipeline ablation e2e test passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
+    Result: OK, 1 OCR fine-tuning ablation e2e test passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_circular_recognition_finetuning_precommit_e2e -v
+    First result: failed with a too-narrow CNN input from circular crops. After adding the minimum padded OCR width, rerun result: OK, 1 circular OCR ablation e2e test passed.
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python scripts/run_precommit_eval.py
+    Result: OK. The launcher ran all three ablation phases and printed the latest artifact paths.
+
+Plan update note, 2026-05-10: Recorded the completed implementation, the temporary same-strategy proposed default, the circular narrow-crop fix, and validation evidence so the plan reflects the checked-in behavior.
 
 ## Interfaces and Dependencies
 

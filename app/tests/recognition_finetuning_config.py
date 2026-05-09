@@ -131,6 +131,15 @@ DATASET_CONFIGS = {
         images_dir=TESTS_ROOT / "eval_dataset" / "images",
         pagexml_dir=TESTS_ROOT / "eval_dataset" / "labels" / "PAGE-XML",
         heatmaps_dir=TESTS_ROOT / "eval_dataset" / "heatmaps",
+    ),
+    "eval_dataset_v2": RecognitionEvalDatasetConfig(
+        name="eval_dataset_v2",
+        images_dir=TESTS_ROOT / "eval_dataset_v2" / "images",
+        pagexml_dir=TESTS_ROOT / "eval_dataset_v2" / "labels" / "PAGE-XML",
+        heatmaps_dir=TESTS_ROOT / "eval_dataset_v2" / "heatmaps",
+        fine_tune_page_count=3,
+        eval_page_start_index=3,
+        eval_page_end_index=5,
     )
 }
 
