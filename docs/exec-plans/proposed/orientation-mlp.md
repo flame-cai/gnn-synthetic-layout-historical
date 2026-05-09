@@ -9,3 +9,6 @@ We will handle this using a simple trainable MLP
 
 
     - During training, use the CER of the orientations line to detect the right orientation. Then use these as labels (with OCR model final layer hidden states as inputs) to train a small MLP classifier to decide orientation during inference.
+
+
+$env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest tests.test_recognition_finetuning_precommit_e2e -v

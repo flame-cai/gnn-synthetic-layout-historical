@@ -1,7 +1,11 @@
 import shutil
 import sys
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
+
+import cv2
+import numpy as np
 
 
 TESTS_ROOT = Path(__file__).resolve().parent
@@ -16,6 +20,7 @@ if str(REPO_ROOT) not in sys.path:
 from tests.precommit_gate_config import get_recognition_precommit_dataset
 from tests.recognition_finetuning_config import get_precommit_hybrid_recognition_gate_config
 from tests.recognition_finetuning_experiment import _build_recognition_precommit_dataset_result, _policy_descriptor
+from recognition.pagexml_line_dataset import prepare_page_line_dataset
 
 
 class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
@@ -30,6 +35,11 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         config = get_precommit_hybrid_recognition_gate_config("eval_dataset")
 
         self.assertEqual(config.name, gate_config.recognition_dataset_config_name)
+        self.assertEqual(config.line_geometry_source, "baseline_heatmap")
+        self.assertTrue(config.heatmaps_dir.exists())
+        self.assertEqual(float(config.line_segmentation_args["BINARIZE_THRESHOLD"]), 0.5098)
+        self.assertEqual(float(config.min_geometry_source_line_coverage), 0.90)
+        self.assertEqual(float(config.min_geometry_heatmap_box_assignment_rate), 0.90)
         self.assertEqual(config.training_policy, "page_plus_random_history")
         self.assertEqual(int(config.history_sample_line_count), 10)
         self.assertEqual(config.width_policy, "batch_max_pad")
@@ -128,6 +138,63 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertFalse(result["blocking_thresholds_passed"])
         self.assertIn("early_weighted_page_cer=0.3", result["failure_message"])
         self.assertIn("first_step_gain=0.03", result["failure_message"])
+
+    def test_baseline_heatmap_geometry_does_not_read_pagexml_coords(self):
+        tmp_root = TESTS_ROOT / "_tmp_precommit_gate_unit" / "baseline_heatmap_geometry"
+        if tmp_root.exists():
+            shutil.rmtree(tmp_root)
+        tmp_root.mkdir(parents=True, exist_ok=True)
+
+        page_id = "unit_page"
+        image_path = tmp_root / f"{page_id}.jpg"
+        heatmap_path = tmp_root / f"{page_id}_heatmap.jpg"
+        xml_path = tmp_root / f"{page_id}.xml"
+        output_root = tmp_root / "prepared"
+
+        image = np.full((64, 96), 240, dtype=np.uint8)
+        image[28:36, 24:72] = 20
+        heatmap = np.zeros((32, 48), dtype=np.uint8)
+        heatmap[14:18, 12:36] = 255
+        cv2.imwrite(str(image_path), image)
+        cv2.imwrite(str(heatmap_path), heatmap)
+
+        ns = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
+        ET.register_namespace("", ns)
+        xml_path.write_text(
+            f"""<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="{ns}">
+  <Page imageFilename="{page_id}.jpg" imageWidth="96" imageHeight="64">
+    <TextRegion id="region_0" custom="textbox_label_0">
+      <Coords points="0,0 95,0 95,63 0,63" />
+      <TextLine id="region_0_line_0" custom="structure_line_id_7">
+        <TextEquiv><Unicode>test</Unicode></TextEquiv>
+        <Baseline points="24,36 72,36" />
+        <Coords points="0,0 8,0 8,8 0,8" />
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            output_root,
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+        )
+
+        self.assertEqual(prepared.geometry_source, "baseline_heatmap")
+        self.assertEqual(len(prepared.records), 1)
+        xs = [point[0] for point in prepared.records[0].polygon_points]
+        ys = [point[1] for point in prepared.records[0].polygon_points]
+        self.assertGreater(max(xs), 70)
+        self.assertGreater(max(ys), 40)
+        self.assertGreater(prepared.geometry_summary["assigned_box_count"], 0)
+        self.assertEqual(prepared.geometry_summary["source_line_coverage"], 1.0)
+        self.assertEqual(prepared.geometry_summary["heatmap_box_assignment_rate"], 1.0)
 
 
 if __name__ == "__main__":

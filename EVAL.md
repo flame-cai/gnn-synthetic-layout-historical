@@ -89,7 +89,7 @@ The first gate runs:
 4. OCR
 5. evaluation against PAGE-XML ground truth
 
-The second gate runs one explicit hybrid OCR continuation recipe on perfect PAGE-XML-derived line crops and ground-truth text pairs, records `curve_metric_value`, `final_page_cer`, `first_step_gain`, `regression_guard_passed`, and `max_regression`, and compares only the three blocking metrics against checked-in thresholds. Regression-guard failure is preserved as a warning, not a hard failure, for this gate.
+The second gate runs one explicit hybrid OCR continuation recipe on line crops regenerated from ground-truth PAGE `Baseline` polylines, checked-in heatmaps, and resized page images. It uses the same heatmap-component polygon path as the application and does not read PAGE `Coords` as the crop source or equivalence oracle. Before OCR fine-tuning starts, it checks baseline-only geometry coverage (`source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`) to account for manual node additions/deletions that cannot be reconstructed exactly from baselines alone. It then records `curve_metric_value`, `final_page_cer`, `first_step_gain`, `regression_guard_passed`, and `max_regression`, and compares only the three blocking OCR metrics against checked-in thresholds. Regression-guard failure is preserved as a warning, not a hard failure, for this gate.
 
 These two checks intentionally validate different failure surfaces. The first remains the required pretrained full-pipeline gate for changes that can affect the app, OCR, PAGE-XML generation, evaluation code, or GNN inference. The second is a surrogate guard for the OCR fine-tuning subsystem even now that the GUI has a first-pass live OCR active-learning runtime, because the live runtime promotes on manuscript-local verifier-bank evidence rather than the fixed held-out benchmark used by the surrogate gate.
 
@@ -103,7 +103,7 @@ Current entrypoint:
 
 This harness does not use CRAFT or GNN segmentation. Instead it:
 
-1. prepares perfect line crops from PAGE-XML ground truth
+1. prepares line crops from PAGE-XML ground truth geometry
 2. fine-tunes the local OCR checkpoint sequentially on earlier pages
 3. evaluates later pages after each update
 4. writes full local run artifacts for debugging and later review
@@ -261,7 +261,7 @@ From repository root:
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
 
-This gate uses perfect PAGE-XML-derived line crops and ground-truth text pairs. It does not validate upstream CRAFT or GNN behavior, and it should not be described as if it were the final interactive active-learning loop.
+This gate uses ground-truth PAGE baselines plus checked-in eval heatmaps/images to regenerate app-aligned text-line polygons and line crops. It does not run upstream CRAFT or GNN inference, and it should not be described as if it were the final interactive active-learning loop. Its geometry guard uses baseline-derived line coverage and heatmap-box assignment only; PAGE `Coords` are not used by the `baseline_heatmap` path.
 
 ### Two-phase launcher
 

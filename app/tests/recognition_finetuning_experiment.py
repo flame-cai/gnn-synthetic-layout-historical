@@ -280,11 +280,44 @@ def _prepare_study_inputs(dataset_config: RecognitionEvalDatasetConfig, study_sl
         dataset_config.pagexml_dir,
         ordered_page_ids,
         run_dir / "prepared_pages",
+        heatmaps_dir=dataset_config.heatmaps_dir,
+        geometry_source=dataset_config.line_geometry_source,
+        segmentation_args=dataset_config.line_segmentation_args,
     )
+    _assert_prepared_geometry_equivalence(dataset_config, prepared_pages)
     evaluation_pages = {page_id: prepared_pages[page_id] for page_id in evaluation_page_ids}
     gt_subset_dir = _copy_eval_ground_truth_subset(dataset_config.pagexml_dir, evaluation_page_ids, run_dir / "gt_eval_subset")
 
     return run_dir, prepared_pages, evaluation_pages, gt_subset_dir
+
+
+def _assert_prepared_geometry_equivalence(dataset_config: RecognitionEvalDatasetConfig, prepared_pages):
+    if dataset_config.line_geometry_source != "baseline_heatmap":
+        return
+
+    failures = []
+    for page_id, prepared_page in prepared_pages.items():
+        summary = prepared_page.geometry_summary or {}
+        coverage = summary.get("source_line_coverage")
+        assignment_rate = summary.get("heatmap_box_assignment_rate")
+        if coverage is None or coverage < dataset_config.min_geometry_source_line_coverage:
+            failures.append(
+                f"{page_id}: source_line_coverage={coverage} "
+                f"< {dataset_config.min_geometry_source_line_coverage}"
+            )
+        if (
+            assignment_rate is None
+            or assignment_rate < dataset_config.min_geometry_heatmap_box_assignment_rate
+        ):
+            failures.append(
+                f"{page_id}: heatmap_box_assignment_rate={assignment_rate} "
+                f"< {dataset_config.min_geometry_heatmap_box_assignment_rate}"
+            )
+
+    if failures:
+        raise AssertionError(
+            "Baseline-derived OCR crop geometry failed equivalence guard: " + "; ".join(failures)
+        )
 
 
 def _run_single_policy_run(

@@ -1,40 +1,3 @@
-# PRE-PLAN TODO
-1) in this repo, there are two pre-commit checks. can you please tell me what they are and what they check?
-
-2) I want you to make modify the active learning finetuning pre-commit check, which uses the dataset: app\tests\eval_dataset
-
-Right now for this check we assume that the text-line segmentation is perfect, and hence we directly use the ground truth bounding polygons <Coords points=../> from the page-xml files as a starting point to process text-line images to be fed to the OCR model for fine-tuning. We want to change this.
-Instead of using the <Coords points=../> I want you to use the ground truth <Baseline points="x1,y1 x2,y2 .."/> as the starting point. We want to process the <Baseline points="x1,y1 x2,y2 .."/> in the page-xml, the heatmap, the original image using a pipeline to actually get the <Coords points=../>. This pipeline should be exactly the same as the pipeline in the application, and the pre-trained only pre-trained only check. Hence we should ideally get the _exact same_ <Coords points=../>, and the eventual processed text-line images for the OCR model after this modification.
-
-So instead of taking the shortcut of directly using the <Coords points=../>, I want the test to take the longcut, and calculate the <Coords points=../> from the <Baseline points="x1,y1 x2,y2 .."/>, the heatmap, the original image, using the pipeline which the application actually uses. We must ensure that the longcut get us the exact same <Coords points=../> which the shortcut used directly.
-
-Hence, ideally, we want to use this condition for getting equivalent outputs (<Coords points=../>, processed text-line images for OCR model) to verify if this update has passed.
-
-Once passed, please clean up stale code, and update the docs.
-
-So after this update, both pre-commit checks will ideally be using equivalent pipelines to get the text-line images, which are to be fed to the OCR model.
-
-IMPORTANT.
-To ensure equivalency, you will also need to study how the application pipelines works, especially when the user manually adds or deletes nodes, and how these are processed heuristically. Because sometimes, the heatmaps makes mistakes, so the user has to manually adds and deletes nodes, to get the ground-truth text-line <Baseline points="x1,y1 x2,y2 .."/>. The <Baseline points="x1,y1 x2,y2 .."/>s in the page-xml are already ground-truth, but we don't know which nodes, from which baseline were manually added by the user, and which were deleted. So we need to handle this somehow. _Perhaps, we can use a slightly looser notion of equivalency to account for this_. Please think hard about this before implementation. In any case, we want to start from <Baseline points="x1,y1 x2,y2 .."/> which are the ground-truths, and we want to prioritise this over perfect equivalency.
-
-In this regard, it is also important to note that <Baseline points="x1,y1 x2,y2 .."/> are essentially processed the gnn-format predictions, where all points, having the same label, are joined to form the polyline <Baseline points="x1,y1 x2,y2 .."/>, which denotes a text-line location.
-
-While making this change, please ask me any clarifications if you feel the need to.
-
-
-- do you have permission to git commit in this branch only? circular-layout-attempt-2
-- first fix the active finetuning test, such that it doesn't directly crop text-lines images from PAGE-XML. Use the pipeline, but ensure the results are equivalent! exact equivalent (direct cropping from- page-xml)
-- fix the bug: make sure this error never happens: The pre-commit script ran for about 24 minutes, but the outer conda run wrapper hit the known Windows cp1252 Unicode-printing failure after the subprocess completed. 
-- no saving in C:\\temp issue
-- understand the current text-lines segmentation strategy and update the prompt.
-
-
-
-
-
-
-
-
 This plan will enable us to combine the generative capabilities of LLMs with external verifier metrics to perform step by step evolutionary search in python code space - with the purpose to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline points="x1,y1 x2,y2 .."/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions <Baseline points="x1,y1 x2,y2 .."/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
 
 The application already has such a text-line segmentation strategy. We will call this the "benchmark_strategy". However this strategy is flawed and works only for horizontal text-lines (not circular, curved, or vertical lines). To fix these flaws, we will be implementing a new "proposed_strategy". The goal is that if the new "proposed_strategy" passes 3 pre-commit external verifier checks (more on these verifier checks later), it will be promoted, and will become the new "benchmark_strategy", and then finally the git commit will happen. This will then allow us to go to the next round, where we will try an even newer "proposed_strategy" and check it's performance against the new "benchmark_strategy" using the same external evaluator checks, and promote it if the checks pass, and git commit again. Hence we would like to overhaul the current existing pre-commit check mechanism.
@@ -196,6 +159,9 @@ Refer to AGENTS.md to know common hiccups like which conda environment to use, h
 
 Also please think critically and try to find flaws, bugs or unexpected subtle effects which might happen in upstream code or downstream code due to this implementation. Please ask me any clarifications if you feel the need to.
 
+use conda environment gnn_layout
+
+avoid windows permission denied error, write everything to the current directory only.no saving in C:\\temp
 
 
 

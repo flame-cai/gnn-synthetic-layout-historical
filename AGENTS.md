@@ -97,7 +97,7 @@ The current harness supports:
 - one retained continuation regime: `page_plus_random_history`
 - deterministic history replay metadata with `history_sample_line_count=10`
 - a shared checked-in pre-commit gate registry for dataset membership and thresholds
-- a dedicated surrogate OCR pre-commit gate using the exact hybrid recipe `page_plus_random_history + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`
+- a dedicated surrogate OCR pre-commit gate using the exact hybrid recipe `page_plus_random_history + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`; its OCR crops are regenerated from PAGE `Baseline` polylines plus the checked-in eval heatmaps/images, not read directly from PAGE `Coords`
 - manuscript-local OCR registries with durable page-revision snapshots, active/candidate checkpoint lineage, automatic fallback, and `needs_rebase` tracking
 - save-triggered OCR job queueing that distinguishes commit saves from draft autosaves through explicit `saveIntent`
 - a generic app-level job orchestrator with priorities, GPU device leases, and isolated OCR fine-tune/rebase jobs that can be canceled and requeued for interactive OCR
@@ -122,7 +122,7 @@ The durable hybrid-study conclusions to preserve in checked-in docs are:
 - Best `first_step_gain`: `wb_on_an_hist10_sn_optd_lr200000u`
   Evidence: `first_step_gain=0.0572938689217759`
 
-The dedicated surrogate pre-commit gate uses the same recipe shape but a fixed thresholded dataset result. Its blocking thresholds are checked in through `app/tests/precommit_gate_config.py`, not through generated artifact files.
+The dedicated surrogate pre-commit gate uses the same recipe shape but a fixed thresholded dataset result. Its blocking OCR thresholds are checked in through `app/tests/precommit_gate_config.py`, not through generated artifact files. Before OCR fine-tuning starts, the gate also verifies baseline-derived geometry with `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. The `baseline_heatmap` path must not read PAGE `Coords` for fallback or equivalence because PAGE baselines do not preserve the manual node-add/delete history needed to reconstruct every corrected graph point exactly.
 
 ## Verification Commands
 

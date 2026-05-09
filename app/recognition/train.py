@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import random
 import string
-import sys
 import time
 from pathlib import Path
 
@@ -15,12 +14,14 @@ import torch.optim as optim
 import torch.utils.data
 
 try:
+    from .console import configure_recognition_console_streams
     from .dataset import AlignCollate, Batch_Balanced_Dataset, hierarchical_dataset
     from .model import Model
     from .ocr_defaults import SANSKRIT_OCR_CHARACTER_SET, get_device, load_state_dict_compat
     from .test import validation
     from .utils import AttnLabelConverter, Averager, CTCLabelConverter, CTCLabelConverterForBaiduWarpctc
 except ImportError:  # pragma: no cover - script execution fallback
+    from console import configure_recognition_console_streams
     from dataset import AlignCollate, Batch_Balanced_Dataset, hierarchical_dataset
     from model import Model
     from ocr_defaults import SANSKRIT_OCR_CHARACTER_SET, get_device, load_state_dict_compat
@@ -28,10 +29,7 @@ except ImportError:  # pragma: no cover - script execution fallback
     from utils import AttnLabelConverter, Averager, CTCLabelConverter, CTCLabelConverterForBaiduWarpctc
 
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
-if hasattr(sys.stderr, "reconfigure"):
-    sys.stderr.reconfigure(encoding="utf-8")
+configure_recognition_console_streams()
 
 
 def _experiment_dir(opt):

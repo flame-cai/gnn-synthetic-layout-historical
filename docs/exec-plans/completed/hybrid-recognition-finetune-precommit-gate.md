@@ -6,7 +6,7 @@ This document is maintained in accordance with `PLANS.md` from the repository ro
 
 ## Purpose / Big Picture
 
-After this change, every normal commit in this repository will be screened by two GUI-free gates instead of one. The existing gate will still prove that the full automatic pipeline, using pretrained CRAFT, pretrained GNN, and the pretrained recognition checkpoint, can process the evaluation manuscript end to end and stay under the current PAGE-level CER thresholds. The new gate will prove something different: that the recognition fine-tuning stack, using the currently best hybrid continuation recipe, can still improve OCR on fixed held-out pages when it is fed perfect line crops and ground-truth text pairs.
+After this change, every normal commit in this repository will be screened by two GUI-free gates instead of one. The existing gate will still prove that the full automatic pipeline, using pretrained CRAFT, pretrained GNN, and the pretrained recognition checkpoint, can process the evaluation manuscript end to end and stay under the current PAGE-level CER thresholds. The new gate will prove something different: that the recognition fine-tuning stack, using the currently best hybrid continuation recipe, can still improve OCR on fixed held-out pages when it is fed line crops generated from corrected PAGE baselines, checked-in heatmaps, resized images, and ground-truth text pairs.
 
 The user-visible proof will be that one pre-commit hook invocation prints two named phases, writes two families of artifacts under `app/tests/logs/`, and exits nonzero only if either the existing full-pipeline gate fails or the new recognition fine-tuning gate falls outside its configured acceptance thresholds. The new gate is intentionally not the real human-in-the-loop pipeline. It is a surrogate safety check for the OCR fine-tuning code and shared scaffolding while the repo still lacks live GUI-triggered training for CRAFT, GNN, and OCR together.
 
@@ -21,6 +21,8 @@ The user-visible proof will be that one pre-commit hook invocation prints two na
 - [x] (2026-04-19 16:01 IST) Extended `scripts/run_precommit_eval.py` to run the full-pipeline gate first and the OCR fine-tuning gate second, added `SKIP_PIPELINE_EVAL_HOOK` and `SKIP_RECOGNITION_FT_HOOK`, and reactivated `.githooks/pre-commit` by removing the unconditional `exit 0`.
 - [x] (2026-04-19 16:01 IST) Updated `README.md`, `EVAL.md`, `VISION.md`, and `AGENTS.md` so the docs now describe the two-phase hook and the surrogate scope of the OCR gate.
 - [x] (2026-04-19 16:01 IST) Verified the implementation with the new unit test, the refactored full-pipeline gate, the new OCR pre-commit e2e, and the launcher entrypoint.
+- [x] (2026-05-09 15:00 IST) Changed the recognition fine-tuning pre-commit gate so its eval-dataset OCR crops are regenerated from PAGE `Baseline` polylines, checked-in heatmaps, and resized images instead of reading PAGE `Coords` directly as the crop source.
+- [x] (2026-05-09 15:00 IST) Added a baseline-derived geometry guard before OCR fine-tuning: each prepared page must keep `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`, without reading PAGE `Coords`.
 
 ## Surprises & Discoveries
 
@@ -48,6 +50,9 @@ The user-visible proof will be that one pre-commit hook invocation prints two na
 - Observation: a top-level dataset-keyed JSON payload was easy to add even for the first single-dataset rollout.
   Evidence: `app/tests/logs/recognition_finetune_precommit_latest.json` now stores results under `dataset_results["eval_dataset"]`, which avoids baking a permanent single-dataset assumption into the new gate aliases.
 
+- Observation: exact polygon equality is not a realistic blocking condition when reconstructing crop geometry from baselines alone.
+  Evidence: PAGE baselines preserve the corrected text-line trace, but they do not record which heatmap nodes were manually added or deleted. The new gate therefore regenerates labelled heatmap components from nearest baselines and blocks on baseline-derived line coverage plus heatmap-box assignment coverage, not byte-for-byte PAGE `Coords` equality.
+
 ## Decision Log
 
 - Decision: keep the old pretrained end-to-end gate and add the new OCR fine-tuning gate alongside it rather than replacing the old gate.
@@ -70,6 +75,14 @@ The user-visible proof will be that one pre-commit hook invocation prints two na
   Rationale: the current gate uses ground-truth segmented lines and ground-truth text pairs, while the future product vision involves upstream CRAFT, GNN, scaffolding, save-cycle events, and human corrections driving fine-tuning for all three model families.
   Date/Author: 2026-04-19 / Codex
 
+- Decision: stop using PAGE `Coords` as the crop source for the recognition fine-tuning gate.
+  Rationale: the app and the pretrained full-pipeline gate derive text-line polygons from heatmap components and labelled text-line structure. Starting the OCR gate from ground-truth baselines plus heatmaps/images exercises that same polygon-and-crop machinery while still using the corrected PAGE baselines as the ground truth line locations.
+  Date/Author: 2026-05-09 / Codex
+
+- Decision: use a loose baseline-only geometry guard instead of exact PAGE polygon equality.
+  Rationale: baselines are generated from corrected GNN-format line labels, but the PAGE files do not preserve which points were manually added or removed to obtain those baselines. A page-level guard based on line coverage and heatmap-box assignment catches obvious geometry loss without using PAGE `Coords` as a fallback or oracle.
+  Date/Author: 2026-05-09 / Codex
+
 - Decision: reuse `_run_single_policy_run(...)` with a `regression_guard_mode` switch instead of creating a second mostly-duplicated OCR runner implementation.
   Rationale: the pre-commit gate still needs the same artifacts, step records, and metric computation as the research harness. A mode switch preserves one implementation path while keeping the research runs strict and the surrogate gate warning-only on regression-guard failures.
   Date/Author: 2026-04-19 / Codex
@@ -87,7 +100,7 @@ Verification completed on 2026-04-19 with these commands:
 - `C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v`
 - `C:\Users\intro\miniconda3\envs\gnn_layout\python.exe scripts/run_precommit_eval.py`
 
-The calibrated initial OCR thresholds remained unchanged from the plan (`0.26`, `0.18`, `0.04`) because the verified run stayed comfortably inside them.
+The calibrated initial OCR thresholds remained unchanged from the plan (`0.26`, `0.18`, `0.04`) because the verified runs stayed comfortably inside them. On 2026-05-09 the gate still passed after switching crop generation from direct PAGE `Coords` to baseline-derived app-aligned geometry, with `curve_metric_value=0.22040745723620986`, `final_page_cer=0.14904862579281183`, and `first_step_gain=0.05137420718816066`.
 
 ## Context and Orientation
 
@@ -110,7 +123,7 @@ The OCR fine-tuning research harness lives in these files:
 - `app/tests/test_recognition_finetuning_e2e.py`
 - `app/tests/test_recognition_finetuning_page_plus_history_unit.py`
 
-That harness prepares perfect line crops from PAGE-XML ground truth, fine-tunes OCR checkpoints sequentially, evaluates later pages, and writes artifact folders under `app/tests/logs/`. The hybrid continuation recipe we want for the new gate is:
+That harness prepares line crops from PAGE-XML ground truth geometry, fine-tunes OCR checkpoints sequentially, evaluates later pages, and writes artifact folders under `app/tests/logs/`. The hybrid continuation recipe we want for the new gate is:
 
 - `training_policy=page_plus_random_history`
 - `history_sample_line_count=10`
@@ -189,7 +202,7 @@ After the new test exists, extend `scripts/run_precommit_eval.py` so it runs two
 
 Then update `.githooks/pre-commit` to remove the unconditional `exit 0` and rely on the launcher again. Keep the existing "find Python, run the launcher, fail with a readable message if no interpreter is available" behavior. The hook should remain a thin shell wrapper and should not learn evaluation logic itself.
 
-Finally, update the repository documentation. `README.md` should describe that pre-commit now runs two GUI-free evaluation phases and explain where their latest summaries are written. `EVAL.md` should explicitly distinguish the two pre-commit gates from the broader offline research studies and from the future true human-in-the-loop pipeline. It should state plainly that the new OCR pre-commit gate uses perfect line segmentation from PAGE-XML ground truth and therefore validates the OCR fine-tuning subsystem, not the full interactive active-learning product. `VISION.md` should explain why this is still valuable: it gives the repo a stable surrogate guard while the longer path toward fine-tuning CRAFT, GNN, and OCR from real user corrections is still under construction. `AGENTS.md` should be updated so future agents know the new hook exists, where its source of truth lives, and how it differs from the broader research harness.
+Finally, update the repository documentation. `README.md` should describe that pre-commit now runs two GUI-free evaluation phases and explain where their latest summaries are written. `EVAL.md` should explicitly distinguish the two pre-commit gates from the broader offline research studies and from the future true human-in-the-loop pipeline. It should state plainly that the OCR pre-commit gate starts from corrected PAGE baselines and checked-in eval heatmaps/images rather than newly generated upstream predictions, so it validates the OCR fine-tuning subsystem and app-aligned crop generation, not the full interactive active-learning product. `VISION.md` should explain why this is still valuable: it gives the repo a stable surrogate guard while the longer path toward fine-tuning CRAFT, GNN, and OCR from real user corrections is still under construction. `AGENTS.md` should be updated so future agents know the new hook exists, where its source of truth lives, and how it differs from the broader research harness.
 
 ## Concrete Steps
 
@@ -250,7 +263,7 @@ Acceptance for this plan is behavioral.
 
 First, the repository must still have the current full-pipeline GUI-free pre-commit gate. It must remain required, and it must still fail commits when the pretrained CRAFT plus pretrained GNN plus pretrained OCR path breaks or exceeds its current CER thresholds.
 
-Second, the repository must gain a second GUI-free pre-commit gate for OCR fine-tuning that uses perfect line crops and ground-truth text pairs rather than the GUI or predicted segmentation. The point of this gate is to protect the OCR fine-tuning subsystem and shared scaffolding, not to simulate the final product experience.
+Second, the repository must gain a second GUI-free pre-commit gate for OCR fine-tuning that uses corrected PAGE baselines, checked-in eval heatmaps/images, and ground-truth text pairs rather than the GUI or freshly predicted segmentation. The point of this gate is to protect the OCR fine-tuning subsystem and shared scaffolding, not to simulate the final product experience.
 
 Third, the new OCR gate must run exactly one explicit recipe for each configured dataset, not a policy sweep. For `eval_dataset`, that recipe must be the current best hybrid continuation recipe: `page_plus_random_history`, `history_sample_line_count=10`, `batch_max_pad`, no oversampling, no augmentation, no scheduler, Adadelta, `lr=0.2`, `num_iter=60`, `early_weighted_page_cer`, `regression_guard_abs=0.005`, `background_plus_rotation_variant_count=10`, and `shuffle_train_each_epoch=True`.
 

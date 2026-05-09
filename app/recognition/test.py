@@ -4,7 +4,6 @@ import argparse
 import os
 import re
 import string
-import sys
 import time
 from pathlib import Path
 
@@ -16,11 +15,13 @@ import torch.utils.data
 from nltk.metrics.distance import edit_distance
 
 try:
+    from .console import configure_recognition_console_streams
     from .dataset import AlignCollate, hierarchical_dataset
     from .model import Model
     from .ocr_defaults import SANSKRIT_OCR_CHARACTER_SET, get_device, load_state_dict_compat
     from .utils import AttnLabelConverter, Averager, CTCLabelConverter
 except ImportError:  # pragma: no cover - script execution fallback
+    from console import configure_recognition_console_streams
     from dataset import AlignCollate, hierarchical_dataset
     from model import Model
     from ocr_defaults import SANSKRIT_OCR_CHARACTER_SET, get_device, load_state_dict_compat
@@ -29,10 +30,7 @@ except ImportError:  # pragma: no cover - script execution fallback
 
 DEVICE = get_device()
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
-if hasattr(sys.stderr, "reconfigure"):
-    sys.stderr.reconfigure(encoding="utf-8")
+configure_recognition_console_streams()
 
 
 def benchmark_all_eval(model, criterion, converter, opt, calculate_infer_time=False):

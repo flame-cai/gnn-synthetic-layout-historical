@@ -14,6 +14,10 @@ if str(APP_ROOT) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from recognition.console import configure_recognition_console_streams
+
+configure_recognition_console_streams()
+
 from tests.precommit_gate_config import get_recognition_precommit_dataset
 from tests.recognition_finetuning_experiment import run_recognition_precommit_gate
 

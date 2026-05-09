@@ -83,7 +83,7 @@ The completed OCR studies produced local artifacts, but those generated files sh
 The repository now also has a two-phase pre-commit screen:
 
 - a pretrained full-pipeline gate that verifies CRAFT plus GNN plus OCR still work together on the fixed evaluation manuscript
-- a surrogate OCR fine-tuning gate that runs the best-known hybrid continuation recipe on perfect PAGE-XML-derived line crops and blocks commits only on `curve_metric_value`, `final_page_cer`, and `first_step_gain`
+- a surrogate OCR fine-tuning gate that runs the best-known hybrid continuation recipe on line crops regenerated from PAGE baselines plus eval heatmaps/images, with a loose geometry-equivalence guard before the OCR thresholds block on `curve_metric_value`, `final_page_cer`, and `first_step_gain`
 
 So the repository is now in a transitional state:
 
@@ -102,7 +102,7 @@ The next uncertainty is how robust that first-pass live runtime is across more m
 
 - validate the retained page-plus-random-history regime on more than one manuscript sequence and more than one history replay size
 - harden restart, interruption, and rebuild behavior in the live manuscript registry/orchestrator path
-- keep the surrogate pre-commit gate honest about its scope: it validates OCR fine-tuning under perfect text-line segmentation inputs, not the full future human correction loop
+- keep the surrogate pre-commit gate honest about its scope: it validates OCR fine-tuning from ground-truth baselines and checked-in heatmaps/images, not the full future human correction loop with newly generated CRAFT/GNN outputs
 - turn the new manuscript-local telemetry into manuscript-level effort summaries and trend reports
 - keep the Windows-safe direct-interpreter execution path first-class for long OCR verifier runs
 

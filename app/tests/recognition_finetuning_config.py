@@ -38,6 +38,18 @@ class RecognitionEvalDatasetConfig:
     name: str
     images_dir: Path
     pagexml_dir: Path
+    heatmaps_dir: Path | None = None
+    line_geometry_source: str = "pagexml_coords"
+    line_segmentation_args: dict = field(
+        default_factory=lambda: {
+            "BINARIZE_THRESHOLD": 0.5098,
+            "BBOX_PAD_V": 0.7,
+            "BBOX_PAD_H": 0.5,
+            "CC_SIZE_THRESHOLD_RATIO": 0.4,
+        }
+    )
+    min_geometry_source_line_coverage: float = 0.90
+    min_geometry_heatmap_box_assignment_rate: float = 0.90
     layout_type: str = "simple"
     fine_tune_page_count: int = 9
     eval_page_start_index: int = 9
@@ -82,6 +94,7 @@ class RecognitionEvalDatasetConfig:
         payload = asdict(self)
         payload["images_dir"] = str(self.images_dir.resolve())
         payload["pagexml_dir"] = str(self.pagexml_dir.resolve())
+        payload["heatmaps_dir"] = str(self.heatmaps_dir.resolve()) if self.heatmaps_dir else None
         payload["ordered_page_ids"] = self.ordered_page_ids()
         payload["fine_tune_page_ids"] = self.fine_tune_page_ids()
         payload["evaluation_page_ids"] = self.evaluation_page_ids()
@@ -116,6 +129,7 @@ DATASET_CONFIGS = {
         name="eval_dataset",
         images_dir=TESTS_ROOT / "eval_dataset" / "images",
         pagexml_dir=TESTS_ROOT / "eval_dataset" / "labels" / "PAGE-XML",
+        heatmaps_dir=TESTS_ROOT / "eval_dataset" / "heatmaps",
     )
 }
 
@@ -151,6 +165,7 @@ def get_precommit_hybrid_recognition_gate_config(name: str = "eval_dataset") -> 
     gate_config = get_recognition_precommit_dataset(name)
     recipe = gate_config.recipe
     base_config = get_dataset_config(gate_config.recognition_dataset_config_name).with_updates(
+        line_geometry_source="baseline_heatmap",
         training_policy=recipe.training_policy,
         history_sample_line_count=int(recipe.history_sample_line_count),
         width_policy=recipe.width_policy,

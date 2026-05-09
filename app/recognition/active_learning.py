@@ -112,9 +112,18 @@ class RecognitionInferenceResult:
     per_line_predictions: list[dict] = field(default_factory=list)
 
 
-def prepare_page_datasets(images_dir: str | Path, pagexml_dir: str | Path, page_ids, output_root: str | Path):
+def prepare_page_datasets(
+    images_dir: str | Path,
+    pagexml_dir: str | Path,
+    page_ids,
+    output_root: str | Path,
+    heatmaps_dir: str | Path | None = None,
+    geometry_source: str = "pagexml_coords",
+    segmentation_args: dict | None = None,
+):
     images_dir = Path(images_dir)
     pagexml_dir = Path(pagexml_dir)
+    heatmaps_dir = Path(heatmaps_dir) if heatmaps_dir is not None else None
     output_root = Path(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
 
@@ -128,8 +137,24 @@ def prepare_page_datasets(images_dir: str | Path, pagexml_dir: str | Path, page_
                 raise FileNotFoundError(f"Image not found for page {page_id} in {images_dir}")
             image_path = matches[0]
 
+        heatmap_path = None
+        if heatmaps_dir is not None:
+            heatmap_path = heatmaps_dir / f"{page_id}.jpg"
+            if not heatmap_path.exists():
+                matches = list(heatmaps_dir.glob(f"{page_id}.*"))
+                if not matches:
+                    raise FileNotFoundError(f"Heatmap not found for page {page_id} in {heatmaps_dir}")
+                heatmap_path = matches[0]
+
         page_output_root = output_root / page_id
-        prepared[page_id] = prepare_page_line_dataset(xml_path, image_path, page_output_root)
+        prepared[page_id] = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            page_output_root,
+            heatmap_path=heatmap_path,
+            geometry_source=geometry_source,
+            segmentation_args=segmentation_args,
+        )
 
     return prepared
 
