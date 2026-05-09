@@ -15,13 +15,12 @@ Once passed, please clean up stale code, and update the docs.
 So after this update, both pre-commit checks will ideally be using equivalent pipelines to get the text-line images, which are to be fed to the OCR model.
 
 IMPORTANT.
-To ensure equivalency, you will also need to study how the application pipelines works, especially when the user manually adds or deletes nodes, and how these are processed heuristically. Because sometimes, the heatmaps makes mistakes, so the user has to manually adds and deletes nodes, to get the ground-truth text-line <Baseline points="x1,y1 x2,y2 .."/>. The <Baseline points="x1,y1 x2,y2 .."/>s in the page-xml are already ground-truth, but we don't know which nodes, from which baseline were manually added by the user, and which were deleted. So we need to handle this somehow. Perhaps, we can use a looser notion of equivalency. Please think hard about this before implementation. In any case, we want to start from <Baseline points="x1,y1 x2,y2 .."/> which are the ground-truths, and we want to prioritise this over perfect equivalency.
+To ensure equivalency, you will also need to study how the application pipelines works, especially when the user manually adds or deletes nodes, and how these are processed heuristically. Because sometimes, the heatmaps makes mistakes, so the user has to manually adds and deletes nodes, to get the ground-truth text-line <Baseline points="x1,y1 x2,y2 .."/>. The <Baseline points="x1,y1 x2,y2 .."/>s in the page-xml are already ground-truth, but we don't know which nodes, from which baseline were manually added by the user, and which were deleted. So we need to handle this somehow. _Perhaps, we can use a slightly looser notion of equivalency to account for this_. Please think hard about this before implementation. In any case, we want to start from <Baseline points="x1,y1 x2,y2 .."/> which are the ground-truths, and we want to prioritise this over perfect equivalency.
 
-In this regards, it is also important to note that <Baseline points="x1,y1 x2,y2 .."/> are essentially processed gnn-format predictions, where all points, having the same label, are joined to form the polyline <Baseline points="x1,y1 x2,y2 .."/>, which denotes a text-line location.
+In this regard, it is also important to note that <Baseline points="x1,y1 x2,y2 .."/> are essentially processed the gnn-format predictions, where all points, having the same label, are joined to form the polyline <Baseline points="x1,y1 x2,y2 .."/>, which denotes a text-line location.
 
+While making this change, please ask me any clarifications if you feel the need to.
 
-
-___________
 
 - do you have permission to git commit in this branch only? circular-layout-attempt-2
 - first fix the active finetuning test, such that it doesn't directly crop text-lines images from PAGE-XML. Use the pipeline, but ensure the results are equivalent! exact equivalent (direct cropping from- page-xml)
@@ -31,20 +30,12 @@ ___________
 
 
 
-_______________
 
 
 
 
 
-
-
-
-
-
-
-
-This plan will enable us to combine the generative capabilities of LLMs with external verifier metrics to perform step by step evolutionary search in python code space - with the purpose to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions (<Baseline/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
+This plan will enable us to combine the generative capabilities of LLMs with external verifier metrics to perform step by step evolutionary search in python code space - with the purpose to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline points="x1,y1 x2,y2 .."/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions <Baseline points="x1,y1 x2,y2 .."/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
 
 The application already has such a text-line segmentation strategy. We will call this the "benchmark_strategy". However this strategy is flawed and works only for horizontal text-lines (not circular, curved, or vertical lines). To fix these flaws, we will be implementing a new "proposed_strategy". The goal is that if the new "proposed_strategy" passes 3 pre-commit external verifier checks (more on these verifier checks later), it will be promoted, and will become the new "benchmark_strategy", and then finally the git commit will happen. This will then allow us to go to the next round, where we will try an even newer "proposed_strategy" and check it's performance against the new "benchmark_strategy" using the same external evaluator checks, and promote it if the checks pass, and git commit again. Hence we would like to overhaul the current existing pre-commit check mechanism.
 
@@ -63,9 +54,9 @@ Step 4: Setup strategy promotion mechanism and configuration (from "proposed_str
 ### STEP 1 
 In this step, you should understand the code, and precisely scope what part of the pipeline is will be needing ablations to be iteratively improved:
 
-We want to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions (<Baseline/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
+We want to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline points="x1,y1 x2,y2 .."/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions (<Baseline/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
 
-Understand how the GNN predictions (<Baseline/> in page-xml)  are converted to text-line images, which are then fed to the downstream OCR model for fine-tuning or inference. We want to improve precisely this part of the pipeline.
+Understand how the GNN predictions (<Baseline points="x1,y1 x2,y2 .."/> in page-xml)  are converted to text-line images, which are then fed to the downstream OCR model for fine-tuning or inference. We want to improve precisely this part of the pipeline.
 
 Once done understanding, edit and refactor the code, such that it becomes modular and ablation friendly. Regarding this, it is very important to keep in mind that each of the 3 external-verifier pre-commit checks should use the _exact same implementation_ for each ablation strategy. So we want to setup the code in a way that when we will implement the "proposed_strategy", we will reuse the code of the "proposed_strategy" and "benchmark_strategy" for all 3 pre-commit checks.
 
@@ -81,67 +72,78 @@ The 3 external verifier checks which we want to implement are:
 - active-learning-ocr-finetuning gate (2 tests on 'eval_data', "benchmark_strategy" vs "proposed_strategy" ablation)
 - circular-layout-ocr-finetuning gate (2 tests on 'eval_data_2', "benchmark_strategy" vs "proposed_strategy" ablation)
 
-We already have pre-trained-pipeline gate, and active-learning-ocr-finetuning gate implemented, and will need to modify them to fit this new evaluation framework. However, circular-layout-ocr-finetuning gate is not yet implemented, so we need to implement this from scratch.
+We already have pre-trained-pipeline gate, and active-learning-ocr-finetuning gate implemented, and will need to modify them to fit this new evaluation framework. However, circular-layout-ocr-finetuning gate is not yet implemented, so we need to implement this from scratch:
+
+#### implementation details:
+
+##### pre-trained-pipeline gate
+This gate works with tests\eval_dataset.
+Modify this gate such that we scope out which part of the pipeline we are improving upon iteratively and make it modular such that doing ablations is easy.
+
+##### active-learning-ocr-finetuning gate
+This gate works with tests\eval_dataset.
+Modify this gate such that we scope out which part of the pipeline we are improving upon iteratively and make it modular such that doing ablations is easy.
+
+##### circular-layout-ocr-finetuning gate
+This gate works with tests\eval_dataset_v2. 'eval_dataset_v2' has only 5 pages. We want to use first 3 pages for iterative fine-tuning, and last 2 for verification and metric calculation (which will be used to compare "benchmark_strategy" with "proposed_strategy"). Other than this difference, this test is very similar to active-learning-ocr-finetuning gate, so please use the same metrics and the same OCR model fine-tuning config and recipe.
+
+Write this gate such that we scope out which part of the pipeline we are improving upon iteratively and make it modular such that doing ablations is easy.
 
 
-
-
-
-### pre-trained-pipeline gate
-For this gate, keep everything the same, other than the abltation.
-
-### active-learning-ocr-finetuning gate
-For this gate, keep everything the same, other than the abltation and one nuance: Note that for this test we consider that the GNN has done the upstream text-line detection (in gnn-format, <Baseline points="x1,y1 x2,y2 .."/> perfectly). For "benchmark_strategy" we currently directly crop out text-lines from the page-xml, as the page-xml of the eval-data has been prepared using the baseline method it self. For "proposed_strategy" ablation, we want to use the "<Baseline points="x1,y1 x2,y2 .."/> entries in the page-xml (which are essentially the GNN outputs). However, in the future, both "benchmark_strategy" and "proposed_strategy" methods will use <Baseline points="x1,y1 x2,y2 .."/>, the the current "proposed_strategy" method becomes the "benchmark_strategy" method
-
-### circular-layout-ocr-finetuning gate
-For this gate, keep everything the same, other than the abltation. For this too, we consider that the GNN has done the upstream text-line detection (in gnn-format, <Baseline points="x1,y1 x2,y2 .."/> perfectly).  For "benchmark_strategy" we currently directly crop out text-lines from the page-xml, as the page-xml of the eval-data has been prepared using the baseline method it self. For "proposed_strategy" ablation, we want to use the "<Baseline points="x1,y1 x2,y2 .."/> entries in the page-xml (which are essentially the GNN outputs). However, in the future, both "benchmark_strategy" and "proposed_strategy" methods will use <Baseline points="x1,y1 x2,y2 .."/>, the the current "proposed_strategy" method becomes the "benchmark_strategy" method
-
-### What success means for each gate:
-- pre-trained-pipeline gate - proposed as good as or better than baseline (slightly inferior also OK)
-- active-learning-ocr-finetuning gate - proposed as good as or better than baseline (slightly inferior also OK)
-- circular-layout-ocr-finetuning gate - proposed should be strictly better than baseline (slightly inferior NOT OK)
-
-### OCR model config
-'eval_dataset_v2' has only 5 pages. We want to use first 3 pages for iterative fine-tuning, and last 2 for verification and metric calculation (which will eventually help us select). Please use the same metrics and the best OCR model config we use in app/tests/test_recognition_finetuning_e2e.py.
-
-
+#### What success means for each gate:
+- pre-trained-pipeline gate - "proposed_strategy" as good as or better than "benchmark_strategy" (slightly inferior also OK)
+- active-learning-ocr-finetuning gate - "proposed_strategy" as good as or better than "benchmark_strategy" (slightly inferior also OK)
+- circular-layout-ocr-finetuning gate - "proposed_strategy" should be strictly better than "benchmark_strategy" (slightly inferior NOT OK)
 
 
 ### STEP 3 Implement Proposed_strategy
-Every curved line, when seen locally is a straight line. We can get good information of the curvature using the 'Baseline' in the PAGE-XML (and the gnn-format labels). There are only two types of text-lines circle and curved line (of which straight line is a special case). Once we cut the circle, we want to treat it as a curved line. Hence use the ENGINEERING_DOCTRINE to find invariants, abstraction and tread every line the same (with minimal if/else edge case last mile handing).
+We want to implement a proposed strategy which will take in the <Baseline points="x1,y1 x2,y2 .."/> from the page-xml, the heatmap, the original image, and then output text-line images in a format which can be fed to the downstream OCR model for finetuning or inference.
 
-Proposed Strategy:
+The proposed strategy should be able to handle vertical text, curved text, and circular text, along with standard horizontal text. For this our main inspiration is:
+- Every curved line, when seen locally is a straight line. We can get good information of the curvature using the 'Baseline' in the PAGE-XML
 - straight line is a special case of curved line
-- a curved line is straight locally
-- Once we cut the circle, we want to treat it as a curved line. Cut a circle always at the top-most point, as that's where we start annotating.
-- keep the heuristic smartly crop out text coming from the "top" or "bottom" from adjacent lines. but generalize this for curved lines. This heuristic has been tuned for horizontal lines, having in mind that some scripts like devanagari have diacritic marks, matras extend out from the main text line (and which need to be included), but matras and diacritics from adjacent lines need to be excluded. Carefully study this.
-- once cropped, we join all cropped images, then to convert this mask, to a rectangular image, we set it's background to the median color of the page.
-- this generalized heuristic masking logic should be separate from the line straightening logic.
-- When we will convert a curved line or a vertical line to a horizontal line as required, there is a chance that this text-line image will be upside down (as the conversion is ambiguous). line orientation domain knowledge:
-    - reading order always left to right
-    - always clockwise for circular layouts
-    - make this configurable according to the script (right now it's right to left)
-    - During training, use the CER of the orientations line to detect the right orientation. Then use these as labels (with OCR model final layer hidden states as inputs) to train a small MLP classifier to decide orientation during inference.
 
-______
-- Hence we will actually need to create new copies of the PAGE-XML (with updated Coords, everything else fixed) when trying different strategies. Keep the code standardized - hence one page-xml for "benchmark_strategy", and one for "proposed_strategy" - and then we straighten the line if is curved, circle or vertical. The benchmark_stratefy doesn't have any such handling of curved, circle or vertical.
+Hence we want this proposed_strategy to be a generalization of the current benchmark_strategy. In other words, the benchmark_strategy should be a special case of the proposed_strategy.
 
-(we do heurist adjacent line text cropping from top and bottom, but in a more generalized way to support curved line and vertical lines)
-Step 1 is segmentation in page coordinate space. This step updates the `TextLine/Coords` polygons in copied PAGE-XML files. These `Coords` remain page-space polygons that describe where the text line is on the manuscript image.
+##### heuristic-adjacent line-text-cropping:
+We will want to use a generalized version of the heuristic-adjacent line-text-cropping which the benchmark_strategy uses:
 
-(if line is circular, curverd or vertical, we do step 2)
-Step 2 is unwrapping for OCR. This step consumes the page image plus the updated `Coords` and `Baseline`, then creates horizontal OCR-ready line images and metadata. The unwrapped horizontal rectangle must not be treated as the PAGE-XML `Coords`, because it no longer represents the original page-space layout.
+This heuristic smartly crops out text coming from the "top" or "bottom" from adjacent lines. But generalize this for curved lines, as this heuristic has been tuned for horizontal lines, having in mind that some scripts like devanagari have diacritic marks, matras extend out from the main text line (and which need to be included), but matras and diacritics from adjacent lines need to be excluded (they come from the "top and bottom"). Carefully study this.
 
-Segmentation and OCR unwrapping are two separate steps.
+##### OCR unwrapping
+For horizontal line, we assume no OCR unwrapping would be required. For vertical line OCR unwrapping would just be rotation. For curved lines we will need an OCR unwrapping strategy.
 
-Segmentation input:
+
+
+#### How to handle each type of lines:
+Hence use the ENGINEERING_DOCTRINE to find invariants, abstraction and treat every line the same (with minimal if/else edge case last mile handing).
+
+##### Horizontal lines: 
+We will use the same heuristic-adjacent-line-text-cropping. These lines should be handled exactly like how the benchmark_strategy handles them. 
+
+##### Vertical lines: 
+heuristic-adjacent-line-text-cropping needs to be modified such that it works with Vertical lines. Then these need to be converted to horizontal lines. The right orientation after conversion is ambiguous. We need orientation handling mechanism.
+
+##### Curved lines:
+STEP 1: heuristic-adjacent-line-text-cropping 
+This needs to be modified such that it works with curved lines (and lines of shape S and C and U etc). 
+The current version of the heuristic-adjacent-line-text-cropping crops too much or too little near diagonal tangent regions, especially around roughly 45, 135, 225, and 315 degrees. This supports the hypothesis that global x/y padding and rectangle-bridging are the wrong abstraction for curved text. New strategies should use local tangent and local normal directions along the baseline so padding means "along the line" and "across the line" rather than "page x" and "page y". Once heuristic-adjacent-line-text-cropping is done (we will get the <Coords/> in the page-xml and we can create new page-xmls with everything else the same but with new <Coords/>). These `Coords` remain page-space polygons that describe where the text line is on the manuscript image.
+
+STEP 2: OCR unwrapping
+Step 2 is unwrapping for OCR. This step consumes the page image, the updated `Coords`, and the `Baseline` and then then creates horizontal OCR-ready line images and metadata. The horizontal OCR-ready line images should contain ONLY the contents of the respective line's new `Coords` in an unwrapped transformed way. Once the new `Coords` are transformed and unwrapped, to we will fit a tight enclosing rectangle around them.
+The background of this rectangular horizontal OCR-ready line images (the part outside the transformed unwrapped `Coords`) should be set to the median background color of the page the text-line is from.
+
+Hence the workflow should be something like:
+
+heuristic-adjacent-line-text-cropping and OCR unwrapping are two separate steps.
+
+heuristic-adjacent-line-text-cropping input:
 - page image
 - heatmap
-- gnn points and text-line labels
 - PAGE-XML `Baseline` and `TextEquiv`
 - strategy config
 
-Segmentation output:
+heuristic-adjacent-line-text-cropping output:
 - copied PAGE-XML with updated page-space `TextLine/Coords`
 - page-space polygons only
 - metadata including strategy name, line ids, cut point, tangent/normal settings, and source inputs
@@ -156,32 +158,43 @@ OCR unwrapping input:
 OCR unwrapping output:
 - OCR-ready horizontal crop images
 - `PreparedPageDataset`-compatible manifests
-- orientation candidate metadata
-- selected candidate and rejected candidate scores
 
 The unwrapped horizontal rectangle must never be written as PAGE-XML `Coords`.
 
-________________
+The right orientation after conversion of curved lines too is ambiguous. We need orientation handling mechanism.
 
 
-The current segmentation behavior appears to work reasonably well on horizontal and vertical portions of circular text when judged in the global page frame. It crops too much or too little near diagonal tangent regions, especially around roughly 45, 135, 225, and 315 degrees. This supports the hypothesis that global x/y padding and rectangle-bridging are the wrong abstraction for curved text. New strategies should use local tangent and local normal directions along the baseline so padding means "along the line" and "across the line" rather than "page x" and "page y".
+##### Circular lines:
+We will cut a circle always at the top-most point, as that's where we start annotating the text.
+Once we cut the circle, we want to process it just like a curved line. 
 
+
+#### orientation handling mechanism
+After the two steps (heuristic-adjacent-line-text-cropping and OCR unwrapping), the step of orientation handling still remains, as there is a chance that this text-line image will be upside down (as the conversion is ambiguous).
+
+There are 4 possible orientation ambiguities, but we can narrow them down using domain knowledge which can be configured. Right now we would be processing Sanskrit text lines. So:
+- reading order will always left to right
+- always clockwise for circular layouts
+This info, which will be configurable will be used to reduce the ambiguity. 
+
+But some ambiguity will still remain. To fix this perhaps we can run the OCR model on all possible orientations, and then "smartly" select the right one based on the statistics OCR model outputs, and the OCR model uncertainty. To get these statistics, we can also perhaps use the three page training data in "eval_dataset_v2"
+
+
+### Step 4:
+Setup strategy promotion mechanism and configuration (from "proposed_strategy" promotes to "benchmark_strategy") if pre-commit checks passes. Perform clean up and additional checks. Once everything is done, prompt use to manually commit. This should trigger the pre-commit checks, and if they pass, the strategy promotion will happen. If they fail, we should be able to see good logs on what failed. Write good configuration files for the strategy promption framework.
 
 
 
 ## Additional Notes:
-Please clean up existing pre-commit checks and remove stale code. We only want the new 3 pre-commit checks mentions above going ahead.
-
 Note that <Baseline points="x1,y1 x2,y2 .."/> are essentially processed gnn-format predictions, where all points, having the same label, are joined to form the polyline <Baseline points="x1,y1 x2,y2 .."/>
 
+Please clean up existing pre-commit checks and remove stale code. We only want the new 3 pre-commit checks mentions above going ahead.
 
 While doing this overhaul, please clean up any stale code if you find any. Follow ENGINEERING_DOCTRINE.md to keep the code base maintainable, and future proof. Do not be afraid to do a big overhaul if you think it will be more future proof, and more in spirit of this "benchmark_strategy" vs "proposed_strategy" ablation vision. MORE IMPORTANTLY, note that the current evaluation suite will only test the "benchmark_strategy" vs "proposed_strategy" in the context of text-lines segmentation (conversion of GNN output to OCR Model input). However, in the future "benchmark_strategy" vs "proposed_strategy" can be any ablation in the entire pipeline - you may also get more context regarding this from EVAL.md, and VISION.md. Do not let EVAL.md corrupt your context.
 
 Refer to AGENTS.md to know common hiccups like which conda environment to use, how to fix for unicode output errors in windows, where to write.
 
-Also please think critically and try to find flaws, bugs or unexpected subtle effects which might happen in upstream code or downstream code due to this implementation.
-
-
+Also please think critically and try to find flaws, bugs or unexpected subtle effects which might happen in upstream code or downstream code due to this implementation. Please ask me any clarifications if you feel the need to.
 
 
 
