@@ -15,7 +15,11 @@ Hence can you please standardize how the pre-commit pretrained gate prepares tex
 
 Both test should have the same OCR crop source. Right now, Local OCR re-crops in memory from generated PAGE TextLine/Coords in process_page_xml(). But instead we want to use the Baseline, like how the Fine-tuning pre-commit gate does. Both should use same function prepare_page_line_dataset().
 
-Only make changes to the pre-commit test code. do not touch the productio code which the app actually uses.
+This change just a standardization of the pre-commit tests. The test should remain functionally the same.
+
+Only make changes to the pre-commit test code. do not touch the production code which the app actually uses.
+
+Pretrained pre-commit gate should also use OCR width policy batch_max_pad instead of global_2000_pad.
 
 ____
 This research plan will enable us to combine the generative capabilities of LLMs with external verifier metrics to perform step by step evolutionary search in python code space - with the purpose to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline points="x1,y1 x2,y2 .."/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions <Baseline points="x1,y1 x2,y2 .."/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
