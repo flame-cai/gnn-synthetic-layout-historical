@@ -1,4 +1,23 @@
 
+
+Pretrained pre-commit gate should also use OCR width policy batch_max_pad instead of global_2000_pad. And so should the application when it does inference for vadakautuhala, or any of the the fine-tuned checkpoints.
+____
+
+do both gates prepare the data for the OCR model (for inference or training) the same way?
+--
+Hence can you please standardize how the pre-commit pretrained gate prepares text-line images for OCR model - such that it also hinges on the Baseline in PAGE-XML, the heatmap, and the images to perform the actual cropping?
+
+The Baseline in PAGE-XML is essentially what we get after CRAFT+GNN + joining all the nodes with the same label using Minimum Spanning tree.
+
+The Baseline in PAGE-XML is essentially what we get after CRAFT+GNN + joining all the nodes with the same label using Minimum Spanning tree.
+
+Hence can you please standardize how the pre-commit pretrained gate prepares text-line images for OCR model - such that it also hinges on the Baseline in PAGE-XML, the heatmap, and the images to perform the actual cropping?
+
+Both test should have the same OCR crop source. Right now, Local OCR re-crops in memory from generated PAGE TextLine/Coords in process_page_xml(). But instead we want to use the Baseline, like how the Fine-tuning pre-commit gate does. Both should use same function prepare_page_line_dataset().
+
+Only make changes to the pre-commit test code. do not touch the productio code which the app actually uses.
+
+____
 This research plan will enable us to combine the generative capabilities of LLMs with external verifier metrics to perform step by step evolutionary search in python code space - with the purpose to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline points="x1,y1 x2,y2 .."/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions <Baseline points="x1,y1 x2,y2 .."/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
 
 The application already has such a text-line segmentation strategy. We will call this the "benchmark_strategy". However this strategy is flawed and works only for horizontal text-lines (not circular, curved, or vertical lines). To fix these flaws, we will be implementing a new "proposed_strategy". The goal is that if the new "proposed_strategy" passes 3 pre-commit external verifier checks (more on these verifier checks later), it will be promoted, and will become the new "benchmark_strategy", and then finally the git commit will happen. This will then allow us to go to the next round, where we will try an even newer "proposed_strategy" and check it's performance against the new "benchmark_strategy" using the same external evaluator checks, and promote it if the checks pass, and git commit again. Hence we would like to overhaul the current existing pre-commit check mechanism.
