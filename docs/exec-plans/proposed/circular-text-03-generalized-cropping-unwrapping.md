@@ -18,6 +18,7 @@ The observable behavior is that `local_tangent_band_v1` can be selected as the p
 - [ ] Implement `local_tangent_band_v1` as a registered strategy under `app/recognition/line_segmentation/`.
 - [ ] Implement separate OCR unwrapping that consumes copied PAGE-XML `Coords` plus `Baseline`, without writing unwrapped rectangles as PAGE `Coords`.
 - [ ] Add orientation candidate generation and deterministic selection metadata.
+- [ ] Add supervised orientation calibration for labeled fine-tuning pages and ground-truth-free orientation inference for held-out validation pages.
 - [ ] Add synthetic unit tests for horizontal, vertical, curved, and circular baselines.
 - [ ] Run all ablation gates and record whether the proposed strategy meets the plan 02 comparison rules.
 
@@ -28,6 +29,9 @@ The observable behavior is that `local_tangent_band_v1` can be selected as the p
 
 - Observation: the current OCR crop preparation masks a PAGE-space polygon into an axis-aligned bounding rectangle and fills background with the page median color.
   Evidence: `app/recognition/pagexml_line_dataset.py::_masked_line_crop(...)` computes `cv2.boundingRect(polygon)`, fills a new image with `np.median(processing_image)`, and copies only pixels inside the shifted polygon mask.
+
+- Observation: the circular OCR fine-tuning gate has labels on the first three pages, so orientation choice can be supervised on those pages without leaking validation labels.
+  Evidence: plan 02 defines `eval_dataset_v2` with fine-tune pages `page_2`, `page_3`, and `page_4`, and evaluation pages `page_5` and `page_6`. The PAGE-XML for the fine-tune pages contains `TextEquiv/Unicode` ground-truth text.
 
 ## Decision Log
 
@@ -41,6 +45,10 @@ The observable behavior is that `local_tangent_band_v1` can be selected as the p
 
 - Decision: orientation selection should write all candidate scores to metadata, even when the selected orientation is obvious.
   Rationale: circular and vertical text introduce ambiguity. Debugging bad OCR output requires knowing which candidates were considered and why one was selected.
+  Date/Author: 2026-05-09 / Codex
+
+- Decision: use PAGE ground-truth text only to calibrate orientation on labeled fine-tuning pages, never to choose orientation on held-out validation pages.
+  Rationale: the first three circular fine-tuning pages have ground-truth labels. For those pages, each orientation candidate can be OCR'd and compared against the known line text; the correct candidate should have lower line CER than wrong orientations. That creates supervised labels and calibration statistics. During validation or inference, the selector may use the calibration learned from training pages plus OCR confidence and uncertainty features, but it must not compute CER against validation ground truth.
   Date/Author: 2026-05-09 / Codex
 
 ## Outcomes & Retrospective
@@ -64,6 +72,8 @@ A local tangent band is a polygon or mask built around a baseline by measuring d
 Unwrapping means sampling pixels from a curved or vertical text-line region and placing them into a horizontal OCR-ready image. Unwrapping changes image representation for OCR only. It must not replace PAGE `Coords`.
 
 Orientation selection means choosing which direction an unwrapped line image should be read. Horizontal Sanskrit is left-to-right. Circular layouts in this project default to clockwise reading order. Even with those assumptions, some vertical and curved cases may be upside down after unwrapping.
+
+In the circular OCR fine-tuning gate, orientation selection has two different contexts. Fine-tuning pages are labeled pages, so their PAGE-XML `TextEquiv/Unicode` text may be used to discover the correct orientation for those same training crops. Validation pages are held-out pages, so their ground-truth text must not be used for orientation choice. Line CER means character error rate: the Levenshtein edit distance between OCR prediction and ground-truth text divided by the ground-truth length. The right orientation should normally have lower CER than wrong orientations, because the OCR model should read the correctly oriented image more accurately.
 
 ## Plan of Work
 
@@ -141,7 +151,15 @@ Use config to narrow candidates:
     circular_reading_direction="clockwise"
     orientation_selection="ocr_confidence"
 
-When OCR confidence selection is available, run the local OCR model on candidates and choose the candidate with the best score. If full OCR scoring is too expensive for unit tests, abstract it behind a scorer interface and provide a deterministic test scorer. Candidate scores should include at least candidate name, selected boolean, predicted text when available, mean confidence when available, blank ratio or output length when available, and rejection reason.
+Add a supervised calibration path for labeled fine-tuning pages. For `eval_dataset_v2`, the first three pages are fine-tuning pages and their ground-truth line texts are available. For each line on those pages, generate every allowed orientation candidate, run the current OCR scorer on each candidate, and compute line CER against that line's PAGE `TextEquiv/Unicode` text. Select the candidate with the lowest line CER as the supervised oracle orientation for that training line. If two candidates tie on CER, break ties using higher OCR confidence, then lower uncertainty, then the configured reading-direction prior, then candidate name order. Store the full candidate list and the selected oracle candidate in `orientation_metadata.json`.
+
+Use those supervised oracle decisions to compute calibration statistics that can be applied later without labels. At minimum, record per-candidate and aggregate features such as mean OCR confidence, confidence margin between best and second-best candidate, prediction length ratio against the training label, blank ratio, entropy or uncertainty if available, geometric line class, rotation family, and whether the candidate matched the supervised oracle. This can start as a transparent rule-based calibration rather than a learned classifier: for example, choose the candidate with the best calibrated score built from confidence, uncertainty, blank ratio, and reading-direction priors. If enough labeled examples exist, a later plan may replace this with the orientation MLP described in `docs/exec-plans/proposed/orientation-mlp.md`, but this plan should keep the calibration simple and inspectable.
+
+Separate label-only diagnostics from label-free inference features. `oracle_cer`, `matched_oracle`, and prediction length ratio against the ground-truth text are useful for analyzing training-page calibration, but they are not legal inputs to validation-page orientation selection. The calibrated inference score must be computed only from label-free features available at inference time, such as OCR confidence, OCR uncertainty, blank ratio, raw prediction length, geometry class, candidate transform name, and reading-direction priors.
+
+For validation pages and normal inference, do not use PAGE ground-truth text in orientation selection. The selector may run OCR on orientation candidates and may use the calibration statistics learned from fine-tuning pages, OCR confidence, OCR uncertainty, blank ratio, output length, geometry class, and configured reading-direction priors. It must not compute CER, edit distance to ground truth, or any feature that requires validation `TextEquiv/Unicode`. The evaluation code may later compare final predictions against validation ground truth, but that happens after orientation has already been selected.
+
+When OCR confidence selection is available, run the local OCR model on candidates and choose the candidate with the best calibrated inference score. If full OCR scoring is too expensive for unit tests, abstract it behind a scorer interface and provide a deterministic test scorer. Candidate scores should include at least candidate name, selected boolean, predicted text when available, mean confidence when available, uncertainty when available, blank ratio or output length when available, supervised line CER only when the page role is training, and rejection reason.
 
 Do not train a new orientation MLP in this plan. `docs/exec-plans/proposed/orientation-mlp.md` is separate research and should not be mixed into this first strategy implementation.
 
@@ -172,6 +190,10 @@ For every line, metadata should include:
     unwrap_mode
     selected_orientation
     orientation_candidates
+    orientation_selection_mode
+    orientation_oracle_cer
+    orientation_calibration_features
+    ground_truth_used_for_orientation
 
 ## Concrete Steps
 
@@ -182,12 +204,14 @@ Work from the repository root:
 Add or update:
 
     app/recognition/line_segmentation/local_tangent_band.py
+    app/recognition/line_segmentation/orientation.py
     app/recognition/line_segmentation/unwrap.py
     app/recognition/line_segmentation/types.py
     app/recognition/line_segmentation/registry.py
     app/recognition/pagexml_line_dataset.py
     app/tests/test_line_segmentation_strategy_unit.py
     app/tests/test_local_tangent_band_unit.py
+    app/tests/test_orientation_selection_unit.py
     app/tests/test_recognition_active_learning_unit.py
     app/tests/test_circular_recognition_finetuning_precommit_e2e.py
 
@@ -201,6 +225,8 @@ Unit tests should cover:
 - circular line: a closed baseline is cut at the top-most point and metadata records `cut_policy="top_point"`.
 - masking: pixels outside the unwrapped `Coords` mask are set to the page median background.
 - orientation metadata: all considered candidates and the selected candidate are written.
+- supervised orientation calibration: on labeled fine-tuning pages, the candidate with the lowest CER against the line ground truth is marked as the oracle orientation, and the metadata records `ground_truth_used_for_orientation=true`.
+- validation orientation inference: on held-out pages, the orientation selector records candidate OCR confidence and uncertainty features, selects an orientation without any ground-truth CER field, and records `ground_truth_used_for_orientation=false`.
 
 Then configure `local_tangent_band_v1` as the proposed strategy for ablation gates from plan 02.
 
@@ -212,6 +238,12 @@ Run focused unit tests:
     $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_line_segmentation_strategy_unit -v
 
 Expected result: synthetic horizontal, vertical, curved, circular, masking, and metadata tests pass.
+
+Run the orientation calibration unit tests:
+
+    $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_orientation_selection_unit -v
+
+Expected result: a deterministic fake OCR scorer makes the lowest-CER candidate win on a labeled training page, and the same selector refuses to read or use ground-truth text on a held-out validation page.
 
 Run the OCR pre-commit unit tests:
 
@@ -235,7 +267,7 @@ Run the circular OCR gate:
 
     $env:CONDA_NO_PLUGINS='true'; conda run -n gnn_layout python -m unittest app.tests.test_circular_recognition_finetuning_precommit_e2e -v
 
-Expected result: proposed `local_tangent_band_v1` is strictly better than benchmark `legacy_axis_bound_v1` on the circular gate primary metric. The latest artifact should show fine-tune pages `page_2`, `page_3`, `page_4` and evaluation pages `page_5`, `page_6`.
+Expected result: proposed `local_tangent_band_v1` is strictly better than benchmark `legacy_axis_bound_v1` on the circular gate primary metric. The latest artifact should show fine-tune pages `page_2`, `page_3`, `page_4` and evaluation pages `page_5`, `page_6`. Orientation metadata for fine-tune pages may contain supervised oracle CER values. Orientation metadata for evaluation pages must not contain validation ground-truth CER or any marker that ground truth was used for orientation selection.
 
 Run the complete launcher:
 
@@ -256,7 +288,9 @@ The strategy should be deterministic. Re-running on the same inputs and output d
 
 If `local_tangent_band_v1` regresses horizontal `eval_dataset`, do not loosen gates immediately. First inspect `segmentation_metadata.json`, compare assigned heatmap counts and polygon areas against `legacy_axis_bound_v1`, and tune config defaults. Record any threshold change in `Decision Log` with metrics evidence.
 
-If orientation selection is unstable because OCR confidence is noisy, keep all candidates in metadata and use deterministic tie-breaking: prefer the candidate implied by configured reading direction, then shortest rotation, then candidate name order.
+If orientation selection is unstable because OCR confidence is noisy, keep all candidates in metadata and use deterministic tie-breaking: prefer the supervised lowest-CER oracle only on labeled training pages; otherwise prefer the candidate implied by calibrated training-page statistics, then configured reading direction, then shortest rotation, then candidate name order.
+
+If a bug causes validation PAGE `TextEquiv/Unicode` to be read during orientation inference, treat it as a test-blocking data leak. The fix is to pass page role explicitly into the orientation selector and to make the scorer API reject ground-truth text unless `page_role="train"` and `allow_ground_truth_orientation_labels=true`.
 
 If a circular line has no reliable closure, process it as a curved line and record `is_circular=false` with the closure distance. Do not force a circular cut on open baselines.
 
@@ -289,7 +323,8 @@ Required config defaults:
     circular_reading_direction=clockwise
     script_direction=left_to_right
     unwrap_mode=baseline_ribbon_v1
-    orientation_selection=ocr_confidence
+    orientation_selection=calibrated_ocr_uncertainty
+    allow_ground_truth_orientation_labels=true
 
 Required unwrapping function:
 
@@ -300,8 +335,23 @@ Required unwrapping function:
         unwrap_config=None,
     ) -> PreparedPageDataset
 
+Required orientation function:
+
+    select_orientation_candidate(
+        candidates,
+        page_role,
+        scorer,
+        ground_truth_text=None,
+        calibration=None,
+        config=None,
+    ) -> OrientationSelectionResult
+
+This function must reject `ground_truth_text` unless `page_role="train"` and `allow_ground_truth_orientation_labels=true`. Its result must expose the selected candidate, all candidate scores, whether ground truth was used, and the label-free features used for inference scoring.
+
 Use existing dependencies: `cv2`, `numpy`, `shapely`, `skimage.io`, and the existing OCR inference helpers in `app/recognition/active_learning.py` when candidate scoring needs model predictions. Do not add a new external OCR or geometry library.
 
 ## Change Note
 
 Initial split plan created on 2026-05-09. This plan isolates the first proposed geometry and unwrapping algorithm from the gate framework so algorithm failures can be debugged without changing evaluation plumbing.
+
+Updated on 2026-05-09 to add supervised orientation calibration on labeled fine-tuning pages and an explicit no-ground-truth rule for validation-page orientation inference. This preserves the original orientation candidate plan while making use of the three labeled circular fine-tuning pages safely.
