@@ -1,17 +1,25 @@
 # PRE-PLAN TODO
 1) in this repo, there are two pre-commit checks. can you please tell me what they are and what they check?
 
-2) I want you to make modify the active learning finetuning pre-commit check. 
+2) I want you to make modify the active learning finetuning pre-commit check, which uses the dataset: app\tests\eval_dataset
+
 Right now for this check we assume that the text-line segmentation is perfect, and hence we directly use the ground truth bounding polygons <Coords points=../> from the page-xml files as a starting point to process text-line images to be fed to the OCR model for fine-tuning. We want to change this.
-Instead of using the <Coords points=../> I want you to use the ground truth <Baseline points="x1,y1 x2,y2 .."/> as the starting point. We want to process the <Baseline points="x1,y1 x2,y2 .."/> in the page-xml, the heatmap, the original image using a pipeline to actually get the <Coords points=../>. This pipeline should be exactly the same as the pipeline in the application, and the pre-trained only pre-trained only check. Hence we should get the _exact same_ <Coords points=../>, and the eventual processed text-line images for the OCR model after this modification.
+Instead of using the <Coords points=../> I want you to use the ground truth <Baseline points="x1,y1 x2,y2 .."/> as the starting point. We want to process the <Baseline points="x1,y1 x2,y2 .."/> in the page-xml, the heatmap, the original image using a pipeline to actually get the <Coords points=../>. This pipeline should be exactly the same as the pipeline in the application, and the pre-trained only pre-trained only check. Hence we should ideally get the _exact same_ <Coords points=../>, and the eventual processed text-line images for the OCR model after this modification.
 
 So instead of taking the shortcut of directly using the <Coords points=../>, I want the test to take the longcut, and calculate the <Coords points=../> from the <Baseline points="x1,y1 x2,y2 .."/>, the heatmap, the original image, using the pipeline which the application actually uses. We must ensure that the longcut get us the exact same <Coords points=../> which the shortcut used directly.
 
-Use this condition for getting equivalent outputs (<Coords points=../>, processed text-line images for OCR model) to verify if the update has passed.
+Hence, ideally, we want to use this condition for getting equivalent outputs (<Coords points=../>, processed text-line images for OCR model) to verify if this update has passed.
 
 Once passed, please clean up stale code, and update the docs.
 
-So after this update, both pre-commit checks will be using equivalent pipelines to get the text-line images, which are to be fed to the OCR model.
+So after this update, both pre-commit checks will ideally be using equivalent pipelines to get the text-line images, which are to be fed to the OCR model.
+
+IMPORTANT.
+To ensure equivalency, you will also need to study how the application pipelines works, especially when the user manually adds or deletes nodes, and how these are processed heuristically. Because sometimes, the heatmaps makes mistakes, so the user has to manually adds and deletes nodes, to get the ground-truth text-line <Baseline points="x1,y1 x2,y2 .."/>. The <Baseline points="x1,y1 x2,y2 .."/>s in the page-xml are already ground-truth, but we don't know which nodes, from which baseline were manually added by the user, and which were deleted. So we need to handle this somehow. Perhaps, we can use a looser notion of equivalency. Please think hard about this before implementation.
+
+In this regards, it is also important to note that <Baseline points="x1,y1 x2,y2 .."/> are essentially processed gnn-format predictions, where all points, having the same label, are joined to form the polyline <Baseline points="x1,y1 x2,y2 .."/>, which denotes a text-line location.
+
+
 
 ___________
 
@@ -163,6 +171,8 @@ The current segmentation behavior appears to work reasonably well on horizontal 
 
 ## Additional Notes:
 Please clean up existing pre-commit checks and remove stale code. We only want the new 3 pre-commit checks mentions above going ahead.
+
+Note that <Baseline points="x1,y1 x2,y2 .."/> are essentially processed gnn-format predictions, where all points, having the same label, are joined to form the polyline <Baseline points="x1,y1 x2,y2 .."/>
 
 
 While doing this overhaul, please clean up any stale code if you find any. Follow ENGINEERING_DOCTRINE.md to keep the code base maintainable, and future proof. Do not be afraid to do a big overhaul if you think it will be more future proof, and more in spirit of this "benchmark_strategy" vs "proposed_strategy" ablation vision. MORE IMPORTANTLY, note that the current evaluation suite will only test the "benchmark_strategy" vs "proposed_strategy" in the context of text-lines segmentation (conversion of GNN output to OCR Model input). However, in the future "benchmark_strategy" vs "proposed_strategy" can be any ablation in the entire pipeline - you may also get more context regarding this from EVAL.md, and VISION.md. Do not let EVAL.md corrupt your context.
