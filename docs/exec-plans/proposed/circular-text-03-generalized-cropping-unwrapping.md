@@ -206,7 +206,7 @@ This info, which will be configurable will be used to reduce the ambiguity.
 
 But some ambiguity will still remain. To fix this perhaps we can run the OCR model on all possible orientations, and then "smartly" select the right one based on the statistics OCR model outputs, and the OCR model uncertainty.
 
-To get these statistics, we can also perhaps use the three page training data in "eval_dataset_v2", and the fact that predictions of the OCR model on correctly oriented lines, would be less that those with incorrectly oriented lines.
+To get these statistics, we can also perhaps use the three page training data in "eval_dataset_v2", and the fact that predictions of the OCR model on correctly oriented lines, would be less that those with incorrectly oriented lines. Thus we can use this, to get statistics of the correct orientations.
 
 ### Step 4: (Not To be implemented right now)
 
