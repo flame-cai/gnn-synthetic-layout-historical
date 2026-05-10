@@ -7,7 +7,7 @@ import shutil
 import sys
 import unicodedata
 import xml.etree.ElementTree as ET
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 import cv2
@@ -21,6 +21,7 @@ try:
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
     )
+    from .line_segmentation.unwrap import should_unwrap_strategy, unwrap_line_crop_for_ocr
     from .line_segmentation.pagexml import (
         count_text_lines_with_text_and_baseline as _strategy_count_text_lines_with_text_and_baseline,
         load_baseline_records as _strategy_load_baseline_records,
@@ -31,6 +32,7 @@ except ImportError:  # pragma: no cover - script execution fallback
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
     )
+    from line_segmentation.unwrap import should_unwrap_strategy, unwrap_line_crop_for_ocr
     from line_segmentation.pagexml import (
         count_text_lines_with_text_and_baseline as _strategy_count_text_lines_with_text_and_baseline,
         load_baseline_records as _strategy_load_baseline_records,
@@ -57,8 +59,10 @@ class PreparedLineRecord:
     polygon_points: list[list[int]]
     y_center: float
     x_min: float
+    baseline_points: list[list[int]] = field(default_factory=list)
     app_image_rel_path: str | None = None
     flat_image_rel_path: str | None = None
+    crop_metadata: dict | None = None
 
 
 @dataclass
@@ -259,6 +263,7 @@ def load_pagexml_lines(
                     polygon_points=polygon_points,
                     y_center=float(order_y),
                     x_min=float(order_x),
+                    baseline_points=baseline_points,
                 )
             )
             line_fallback_index += 1
@@ -352,6 +357,7 @@ def prepare_page_line_dataset(
     effective_xml_path = xml_path
     generation_summary = {}
     strategy_metadata_path = None
+    strategy_line_metadata_by_numeric_id = {}
     if effective_strategy_name is not None:
         if heatmap_path is None:
             raise ValueError("heatmap_path is required when line segmentation strategy is requested.")
@@ -368,6 +374,10 @@ def prepare_page_line_dataset(
             metadata_path=strategy_metadata_path,
         )
         generation_summary = dict(strategy_result.geometry_summary)
+        strategy_line_metadata_by_numeric_id = {
+            int(item["line_numeric_id"]): dict(item)
+            for item in strategy_result.line_metadata
+        }
 
     image_filename, records = load_pagexml_lines(effective_xml_path)
     ordered_records = sort_lines_for_page_level_cer(records)
@@ -396,7 +406,32 @@ def prepare_page_line_dataset(
     prepared_records = []
 
     for index, record in enumerate(ordered_records, start=1):
-        raw_crop = _masked_line_crop(processing_image, record.polygon_points)
+        crop_metadata = None
+        strategy_line_metadata = strategy_line_metadata_by_numeric_id.get(int(record.line_numeric_id), {})
+        should_unwrap_record = (
+            should_unwrap_strategy(effective_strategy_name)
+            and strategy_line_metadata.get("crop_model") == "local_tangent_band"
+        )
+        if should_unwrap_record:
+            crop_result = unwrap_line_crop_for_ocr(
+                processing_image,
+                record.polygon_points,
+                record.baseline_points,
+                text=record.text,
+                unwrap_config=segmentation_args or {},
+            )
+            raw_crop = crop_result.image
+            crop_metadata = {
+                **crop_result.metadata,
+                "strategy_line_metadata": strategy_line_metadata,
+            }
+        else:
+            raw_crop = _masked_line_crop(processing_image, record.polygon_points)
+            if should_unwrap_strategy(effective_strategy_name):
+                crop_metadata = {
+                    "unwrap_strategy": "axis_aligned_masked_crop",
+                    "strategy_line_metadata": strategy_line_metadata,
+                }
         jpg_bytes, decoded_jpg = _encode_like_app_jpg(raw_crop)
 
         app_rel_path = Path("image-format") / record.page_id / record.region_custom / f"line_{record.line_numeric_id}.jpg"
@@ -415,6 +450,7 @@ def prepare_page_line_dataset(
                     **asdict(record),
                     "app_image_rel_path": app_rel_path.as_posix(),
                     "flat_image_rel_path": flat_rel_path.as_posix(),
+                    "crop_metadata": crop_metadata,
                 }
             )
         )

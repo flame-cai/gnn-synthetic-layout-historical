@@ -1,5 +1,17 @@
 # stray thoughts
+
 - GUI should be able to annotate line orientations (new supervised task)
+
+- please prepare a doc for comparing proposed_strategy vs benchmark_strategy, update vision.md, and eval.md...not just for segmentation, but also for every other part of the pipeline.
+
+
+- let's implement step 4, and also write a document which explain the proposed_strategy vs benchmark_strategy pre-commit check harness, and how proposed_strategy gets promoted to a benchmark strategy of the next iteration. Keep old strategies as backup.
+
+So for each iteration (after a successful commit after a precommit check has passed) I want to have an ITERATION.md file which will contain the following sections:
+- the architectre of the current benchmark method - step by step blueprint of the pipeline
+- what direction we want iterate this, new ideas, what changes to make
+- use the blueprint doc!!!!!!!!
+
 
 
 CIRCULAR LAYOUT TODO

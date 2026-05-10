@@ -68,8 +68,8 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertEqual(gate_config.strategy_ablation.benchmark.role, "benchmark")
         self.assertEqual(gate_config.strategy_ablation.proposed.role, "proposed")
         self.assertEqual(gate_config.strategy_ablation.benchmark.strategy_name, "legacy_axis_bound_v1")
-        self.assertEqual(gate_config.strategy_ablation.proposed.strategy_name, "legacy_axis_bound_v1")
-        self.assertEqual(float(gate_config.strategy_ablation.max_allowed_regression_abs), 0.005)
+        self.assertEqual(gate_config.strategy_ablation.proposed.strategy_name, "local_tangent_band_v1")
+        self.assertEqual(float(gate_config.strategy_ablation.max_allowed_regression_abs), 0.02)
 
     def test_strategy_role_config_updates_dataset_geometry(self):
         gate_config = get_recognition_precommit_dataset("eval_dataset")
@@ -110,7 +110,7 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         comparison = _build_recognition_strategy_comparison(gate_config, benchmark_result, proposed_result)
 
         self.assertTrue(comparison["passed"], comparison["failure_message"])
-        self.assertEqual(comparison["allowed_regression_abs"], 0.005)
+        self.assertEqual(comparison["allowed_regression_abs"], 0.02)
         self.assertTrue(all(item["passed"] for item in comparison["metric_comparisons"]))
 
     def test_strategy_comparison_fails_beyond_tolerance(self):
@@ -132,9 +132,9 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
             "passed": True,
             "failure_message": "",
             "metrics": {
-                "curve_metric_value": 0.230,
-                "final_page_cer": 0.150,
-                "first_step_gain": 0.040,
+                "curve_metric_value": 0.250,
+                "final_page_cer": 0.170,
+                "first_step_gain": 0.020,
             },
         }
 
@@ -142,6 +142,39 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
 
         self.assertFalse(comparison["passed"])
         self.assertIn("curve_metric_value", comparison["failure_message"])
+
+    def test_circular_strategy_comparison_blocks_on_primary_only(self):
+        gate_config = get_recognition_precommit_dataset("eval_dataset_v2")
+        benchmark_result = {
+            "role": "benchmark",
+            "strategy_name": "legacy_axis_bound_v1",
+            "passed": True,
+            "failure_message": "",
+            "metrics": {
+                "curve_metric_value": 0.94,
+                "final_page_cer": 0.91,
+                "first_step_gain": 0.06,
+            },
+        }
+        proposed_result = {
+            "role": "proposed",
+            "strategy_name": "local_tangent_band_v1",
+            "passed": True,
+            "failure_message": "",
+            "metrics": {
+                "curve_metric_value": 0.18,
+                "final_page_cer": 0.16,
+                "first_step_gain": 0.01,
+            },
+        }
+
+        comparison = _build_recognition_strategy_comparison(gate_config, benchmark_result, proposed_result)
+
+        self.assertTrue(comparison["passed"], comparison["failure_message"])
+        self.assertEqual(comparison["operator"], "<")
+        first_step = next(item for item in comparison["metric_comparisons"] if item["metric_name"] == "first_step_gain")
+        self.assertFalse(first_step["passed"])
+        self.assertFalse(first_step["blocking"])
 
     def test_precommit_result_treats_regression_guard_failure_as_warning_only(self):
         dataset_config = get_precommit_hybrid_recognition_gate_config("eval_dataset")

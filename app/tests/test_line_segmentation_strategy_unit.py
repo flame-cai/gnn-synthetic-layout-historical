@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 import unittest
@@ -77,6 +78,12 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
 
         self.assertEqual(strategy.name, "legacy_axis_bound_v1")
         self.assertIn("legacy_axis_bound_v1", list_text_line_segmentation_strategies())
+        self.assertIn("local_tangent_band_v1", list_text_line_segmentation_strategies())
+
+    def test_registry_returns_local_tangent_strategy(self):
+        strategy = get_text_line_segmentation_strategy("local_tangent_band_v1")
+
+        self.assertEqual(strategy.name, "local_tangent_band_v1")
 
     def test_unknown_strategy_error_names_request(self):
         with self.assertRaisesRegex(ValueError, "does_not_exist"):
@@ -157,6 +164,116 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
 
         self.assertIn('DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = "legacy_axis_bound_v1"', source)
         self.assertIn("apply_text_line_segmentation_strategy", source)
+
+    def _make_single_line_page(self, name: str, baseline_points: str, ink_rects: list[tuple[int, int, int, int]]):
+        tmp_root = TESTS_ROOT / "_tmp_line_segmentation_strategy_unit" / name
+        if tmp_root.exists():
+            shutil.rmtree(tmp_root)
+        tmp_root.mkdir(parents=True, exist_ok=True)
+
+        page_id = "unit_page"
+        image_path = tmp_root / f"{page_id}.jpg"
+        heatmap_path = tmp_root / f"{page_id}_heatmap.jpg"
+        xml_path = tmp_root / f"{page_id}.xml"
+
+        image = np.full((96, 96), 240, dtype=np.uint8)
+        heatmap = np.zeros((96, 96), dtype=np.uint8)
+        for x_val, y_val, width, height in ink_rects:
+            image[y_val : y_val + height, x_val : x_val + width] = 20
+            heatmap[y_val : y_val + height, x_val : x_val + width] = 255
+        cv2.imwrite(str(image_path), image)
+        cv2.imwrite(str(heatmap_path), heatmap)
+
+        ns = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
+        ET.register_namespace("", ns)
+        xml_path.write_text(
+            f"""<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="{ns}">
+  <Page imageFilename="{page_id}.jpg" imageWidth="96" imageHeight="96">
+    <TextRegion id="region_0" custom="textbox_label_0">
+      <TextLine id="region_0_line_0" custom="structure_line_id_7">
+        <TextEquiv><Unicode>test</Unicode></TextEquiv>
+        <Baseline points="{baseline_points}" />
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+        return tmp_root, xml_path, image_path, heatmap_path
+
+    def test_local_tangent_vertical_line_unwraps_to_horizontal_crop(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_vertical",
+            "48,18 48,78",
+            [(42, 18, 12, 60)],
+        )
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_tangent_band_v1",
+        )
+
+        self.assertEqual(prepared.line_segmentation_strategy_name, "local_tangent_band_v1")
+        self.assertEqual(len(prepared.records), 1)
+        crop = cv2.imread(str(Path(prepared.finetune_dataset_dir) / prepared.records[0].flat_image_rel_path), cv2.IMREAD_GRAYSCALE)
+        self.assertGreater(crop.shape[1], crop.shape[0])
+        self.assertEqual(prepared.records[0].crop_metadata["topology"]["line_kind"], "vertical_straight")
+        self.assertEqual(prepared.records[0].crop_metadata["orientation"]["selected_transform"], "identity")
+
+    def test_local_tangent_curved_line_writes_band_metadata(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_curved",
+            "18,70 32,44 48,30 64,44 78,70",
+            [(18, 64, 60, 12), (30, 42, 36, 12)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_tangent_band_v1",
+            metadata_path=metadata_path,
+        )
+
+        self.assertEqual(result.strategy_name, "local_tangent_band_v1")
+        self.assertEqual(result.prepared_line_count, 1)
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        line = payload["line_metadata"][0]
+        self.assertEqual(line["line_kind"], "curved_open")
+        self.assertEqual(line["crop_model"], "local_tangent_band")
+        self.assertGreater(len(line["coords_points"]), 4)
+
+    def test_local_tangent_circular_out_and_back_normalizes_topology(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_circular",
+            "48,16 78,48 48,80 18,48 48,16 18,48 48,80 78,48",
+            [(16, 16, 64, 64)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_tangent_band_v1",
+            metadata_path=metadata_path,
+        )
+
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        topology = payload["line_metadata"][0]["topology"]
+        self.assertTrue(topology["was_out_and_back"])
+        self.assertTrue(topology["is_closed"])
+        self.assertEqual(payload["line_metadata"][0]["line_kind"], "closed_circular")
+        self.assertEqual(payload["line_metadata"][0]["crop_model"], "local_tangent_band")
 
 
 if __name__ == "__main__":

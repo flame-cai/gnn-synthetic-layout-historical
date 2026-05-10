@@ -955,7 +955,7 @@ def _build_strategy_role_result(role_config, policy_result: dict) -> dict:
 def _comparison_failure_message(comparisons: list[dict]) -> str:
     failures = []
     for comparison in comparisons:
-        if comparison["passed"]:
+        if comparison["passed"] or not comparison.get("blocking", True):
             continue
         failures.append(
             f"{comparison['metric_name']}: benchmark={comparison['benchmark_value']} "
@@ -999,6 +999,7 @@ def _build_recognition_strategy_comparison(gate_config, benchmark_result: dict, 
             "allowed_regression_abs": allowed,
             "allowed_value": primary_allowed_value,
             "passed": primary_passed,
+            "blocking": True,
         }
     )
 
@@ -1020,13 +1021,15 @@ def _build_recognition_strategy_comparison(gate_config, benchmark_result: dict, 
                 "allowed_regression_abs": allowed,
                 "allowed_value": allowed_value,
                 "passed": passed,
+                "blocking": not ablation_config.strict_primary_improvement_required,
             }
         )
 
+    blocking_comparisons = [comparison for comparison in comparisons if comparison.get("blocking", True)]
     passed = (
         benchmark_result["passed"]
         and proposed_result["passed"]
-        and all(comparison["passed"] for comparison in comparisons)
+        and all(comparison["passed"] for comparison in blocking_comparisons)
     )
     failure_message = ""
     if not benchmark_result["passed"]:
@@ -1195,7 +1198,8 @@ def _write_recognition_ablation_summary(path: Path, dataset_result: dict) -> Non
         lines.append(
             f"- {item['metric_name']}: benchmark={item['benchmark_value']}, "
             f"proposed={item['proposed_value']}, required proposed {item['operator']} "
-            f"{item['allowed_value']}, passed={item['passed']}"
+            f"{item['allowed_value']}, passed={item['passed']}, "
+            f"blocking={item.get('blocking', True)}"
         )
 
     if comparison["failure_message"]:

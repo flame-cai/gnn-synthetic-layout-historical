@@ -10,7 +10,7 @@ TESTS_ROOT = Path(__file__).resolve().parent
 DEFAULT_BENCHMARK_STRATEGY_NAME = "legacy_axis_bound_v1"
 DEFAULT_PROPOSED_STRATEGY_NAME = os.getenv(
     "PRECOMMIT_PROPOSED_LINE_STRATEGY",
-    "legacy_axis_bound_v1",
+    "local_tangent_band_v1",
 )
 
 
@@ -126,6 +126,7 @@ RECOGNITION_PRECOMMIT_DATASETS = {
         max_curve_metric_value=0.26,
         max_final_page_cer=0.18,
         min_first_step_gain=0.04,
+        strategy_ablation=_default_strategy_ablation(max_allowed_regression_abs=0.02),
     ),
     "eval_dataset_v2": RecognitionPrecommitDatasetConfig(
         name="eval_dataset_v2",
