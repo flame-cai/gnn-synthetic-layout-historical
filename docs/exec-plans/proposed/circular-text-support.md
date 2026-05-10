@@ -14,7 +14,7 @@ Step 3: Implement the first iteration of the "proposed_strategy", with the aim t
 
 Step 4: Setup strategy promotion mechanism and configuration (from "proposed_strategy" promotes to "benchmark_strategy") if pre-commit checks passes.
 
-### STEP 1 
+### STEP 1 (Implemented)
 In this step, you should understand the code, and precisely scope what part of the pipeline is will be needing ablations to be iteratively improved:
 
 We want to improve how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline points="x1,y1 x2,y2 .."/> in page-xml). In other words, we want to improve the part of the pipeline which converts the GNN predictions (<Baseline/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference.
@@ -24,7 +24,7 @@ Understand how the GNN predictions (<Baseline points="x1,y1 x2,y2 .."/> in page-
 Once done understanding, edit and refactor the code, such that it becomes modular and ablation friendly. Regarding this, it is very important to keep in mind that each of the 3 external-verifier pre-commit checks should use the _exact same implementation_ for each ablation strategy. So we want to setup the code in a way that when we will implement the "proposed_strategy", we will reuse the code of the "proposed_strategy" and "benchmark_strategy" for all 3 pre-commit checks.
 
 
-### STEP 2 Implement 3 external verifier checks
+### STEP 2 Implement 3 external verifier checks (Implemented)
 I want you to overhaul the pre-commit evaluation, with one primary motive: Perform ablations on the text-line segmentation strategies - "benchmark_strategy" vs "proposed_strategy" new generalized text-line segmentation. In the future, when we want to try a newer version of text-line segmentation, the "proposed_strategy" will become the "benchmark_strategy", and the newer version will become the "proposed_strategy".
 
 This will allow us to iteratively improve with each git commit in this branch. Hence we want to create overhaul the evaluation framework with the motto:
