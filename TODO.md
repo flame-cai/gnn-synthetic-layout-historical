@@ -1,4 +1,4 @@
-Please implement the following plan, which will implement step 4 of the following research harness:
+Please implement the following plan, which will implement step 4 of the following research harness: 
 
 The research harness will enable us to combine the generative capabilities of LLMs with external verifier metrics to perform step by step evolutionary search in python code space. 
 
