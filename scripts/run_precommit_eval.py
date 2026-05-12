@@ -7,6 +7,12 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from promote_text_line_strategy import (
+    DEFAULT_PROMOTION_EVIDENCE_JSON_PATH,
+    DEFAULT_PROMOTION_EVIDENCE_MD_PATH,
+    write_strategy_promotion_evidence,
+)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 APP_DIR = REPO_ROOT / "app"
@@ -165,11 +171,13 @@ def main() -> int:
         return 1
 
     ran_any_phase = False
+    ran_phase_names: set[str] = set()
     for phase in PHASES:
         if os.environ.get(phase.skip_env_var) == "1":
             print(f"[pre-commit] {phase.skip_env_var}=1, skipping {phase.name}.", flush=True)
             continue
         ran_any_phase = True
+        ran_phase_names.add(phase.name)
         phase_returncode = _run_phase(command_prefix, phase)
         if phase_returncode != 0:
             return phase_returncode
@@ -178,6 +186,34 @@ def main() -> int:
         print("[pre-commit] All evaluation phases were skipped.", flush=True)
     else:
         print("[pre-commit] All requested evaluation phases passed.", flush=True)
+        if len(ran_phase_names) == len(PHASES):
+            evidence = write_strategy_promotion_evidence()
+            print(f"[pre-commit] Artifact: {DEFAULT_PROMOTION_EVIDENCE_MD_PATH}", flush=True)
+            print(f"[pre-commit] Artifact: {DEFAULT_PROMOTION_EVIDENCE_JSON_PATH}", flush=True)
+            print(
+                "[pre-commit] Promotion recommended: "
+                f"{evidence['promotion_recommended']} "
+                f"(benchmark={evidence['benchmark_strategy_name']}, proposed={evidence['proposed_strategy_name']})",
+                flush=True,
+            )
+            if evidence["promotion_recommended"]:
+                command = (
+                    "python scripts/promote_text_line_strategy.py "
+                    f"--candidate {evidence['proposed_strategy_name']} "
+                    f"--previous-benchmark {evidence['benchmark_strategy_name']} "
+                    f"--metrics {DEFAULT_PROMOTION_EVIDENCE_JSON_PATH.as_posix()} --apply"
+                )
+                print(f"[pre-commit] To promote the proposed strategy, run: {command}", flush=True)
+            else:
+                print(
+                    f"[pre-commit] Promotion blockers: {evidence.get('promotion_blockers', [])}",
+                    flush=True,
+                )
+        else:
+            print(
+                "[pre-commit] One or more strategy ablation gates were skipped, so promotion evidence was not refreshed.",
+                flush=True,
+            )
     return 0
 
 

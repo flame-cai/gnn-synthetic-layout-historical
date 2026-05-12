@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from recognition.active_learning_recipe import OcrActiveLearningRecipe
+from recognition.line_segmentation.strategy_config import (
+    get_benchmark_strategy_name,
+    get_proposed_strategy_name,
+)
 
 TESTS_ROOT = Path(__file__).resolve().parent
-DEFAULT_BENCHMARK_STRATEGY_NAME = "legacy_axis_bound_v1"
-DEFAULT_PROPOSED_STRATEGY_NAME = os.getenv(
-    "PRECOMMIT_PROPOSED_LINE_STRATEGY",
-    "local_tangent_band_v1",
-)
+DEFAULT_BENCHMARK_STRATEGY_NAME = get_benchmark_strategy_name()
+DEFAULT_PROPOSED_STRATEGY_NAME = get_proposed_strategy_name()
 
 
 @dataclass(frozen=True)
@@ -43,6 +43,8 @@ def _default_strategy_ablation(
     max_allowed_regression_abs: float,
     strict_primary_improvement_required: bool = False,
 ) -> StrategyAblationConfig:
+    if DEFAULT_PROPOSED_STRATEGY_NAME is None:
+        raise ValueError("Strategy ablation requires proposed_strategy_name to be configured.")
     return StrategyAblationConfig(
         benchmark=StrategyRoleConfig(
             role="benchmark",

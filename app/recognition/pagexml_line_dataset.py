@@ -17,6 +17,7 @@ from shapely.geometry import Polygon
 
 try:
     from .line_segmentation import apply_text_line_segmentation_strategy
+    from .line_segmentation.strategy_config import get_benchmark_strategy_name
     from .line_segmentation.legacy_axis_bound import (
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
@@ -28,6 +29,7 @@ try:
     )
 except ImportError:  # pragma: no cover - script execution fallback
     from line_segmentation import apply_text_line_segmentation_strategy
+    from line_segmentation.strategy_config import get_benchmark_strategy_name
     from line_segmentation.legacy_axis_bound import (
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
@@ -44,7 +46,7 @@ PAGE_XML_NS = {"p": PAGE_XML_NAMESPACE}
 GEOMETRY_SOURCE_PAGEXML_COORDS = "pagexml_coords"
 GEOMETRY_SOURCE_BASELINE_HEATMAP = "baseline_heatmap"
 SUPPORTED_GEOMETRY_SOURCES = {GEOMETRY_SOURCE_PAGEXML_COORDS, GEOMETRY_SOURCE_BASELINE_HEATMAP}
-DEFAULT_LINE_SEGMENTATION_STRATEGY = "legacy_axis_bound_v1"
+DEFAULT_LINE_SEGMENTATION_STRATEGY = get_benchmark_strategy_name()
 
 
 @dataclass

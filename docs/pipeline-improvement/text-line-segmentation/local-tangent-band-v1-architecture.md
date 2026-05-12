@@ -298,9 +298,9 @@ Important `local_tangent_band_v1` defaults are:
 
 ## Current Gate Behavior
 
-`local_tangent_band_v1` is the default proposed strategy through:
+The checked-in strategy role source of truth now lives in:
 
-    PRECOMMIT_PROPOSED_LINE_STRATEGY
+    app/recognition/line_segmentation/strategy_config.py
 
 when the environment variable is not set.
 
@@ -323,7 +323,9 @@ The v1 strategy is intentionally conservative.
 
 It does not yet perform OCR-confidence orientation selection across rotated/flipped candidate crops. It records deterministic metadata instead.
 
-It does not promote the strategy to benchmark. Promotion belongs to the next plan.
+It does not promote itself automatically. Promotion is now explicit through:
+
+    scripts/promote_text_line_strategy.py
 
 It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remains the benchmark and also serves as the horizontal special case for the proposed strategy.
 

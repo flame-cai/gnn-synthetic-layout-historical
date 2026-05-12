@@ -1,0 +1,352 @@
+# EVAL.md
+
+This document explains the current verifier-driven evaluation harness and the explicit promotion workflow for text-line segmentation strategy research. It is also written as a reusable template for future agents who want to apply the same harness to a different pipeline stage.
+
+## Core Principle
+
+The harness compares one checked-in `benchmark_strategy` against one checked-in `proposed_strategy` using the same plumbing and the same external verifiers.
+
+Generated log artifacts are evidence.
+
+Checked-in source config is the source of truth.
+
+That split matters because local artifacts under `app/tests/logs/` may not exist in a fresh checkout, while source config must always reveal:
+
+- which strategy currently owns the benchmark role
+- which strategy is the current promotion candidate
+- what the promotion history was
+
+## Current Harness Target
+
+The current target stage is the text-line segmentation step that converts:
+
+- resized page images
+- heatmaps
+- PAGE-XML `Baseline` polylines derived from GNN predictions
+
+into:
+
+- PAGE-space `TextLine/Coords` polygons
+- OCR-ready text-line crops used by recognition fine-tuning and inference
+
+This stage exists because the historical cropper worked mainly for horizontal lines. The current research harness evaluates whether a newer strategy improves curved, circular, and vertical lines without breaking the horizontal baseline.
+
+## Source Of Truth Files
+
+The current checked-in strategy-role state lives in:
+
+- `app/recognition/line_segmentation/strategy_config.py`
+
+The promotion and evidence tooling lives in:
+
+- `scripts/run_precommit_eval.py`
+- `scripts/promote_text_line_strategy.py`
+
+The strategy comparison config lives in:
+
+- `app/tests/precommit_gate_config.py`
+- `app/tests/recognition_finetuning_config.py`
+
+The strategy docs live in:
+
+- `docs/pipeline-improvement/text-line-segmentation/local-tangent-band-v1-architecture.md`
+- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-workflow.md`
+
+## Strategy Roles
+
+The checked-in initial role mapping for this harness is:
+
+- benchmark: `legacy_axis_bound_v1`
+- proposed: `local_tangent_band_v1`
+
+`legacy_axis_bound_v1` is the preserved historical benchmark.
+
+`local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
+
+## Three External Verifier Gates
+
+All three gates run benchmark and proposed through the same strategy-aware implementation path.
+
+### 1. Pretrained Full-Pipeline Gate
+
+Purpose:
+
+- verify that end-to-end manuscript processing still works with pretrained CRAFT, GNN, and OCR
+- catch regressions in the layout-to-crop stage before OCR fine-tuning even begins
+
+Dataset:
+
+- `app/tests/eval_dataset/`
+
+Command:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+```
+
+Study mode:
+
+- `pipeline_strategy_ablation_gate`
+
+Primary comparison metric:
+
+- `page_cer`
+
+Additional comparison metrics:
+
+- `line_cer_50`
+- `line_cer_75`
+- `line_cer_range`
+
+Success rule:
+
+- benchmark role must pass its own thresholds
+- proposed role must pass its own thresholds
+- proposed metrics may regress by at most `0.01` absolute versus benchmark on the comparison metrics
+
+Latest artifact files:
+
+- `app/tests/logs/pipeline_ablation_latest.json`
+- `app/tests/logs/pipeline_ablation_latest.md`
+
+### 2. OCR Fine-Tuning Strategy Ablation Gate
+
+Purpose:
+
+- test whether the strategy produces OCR crops that work well with the retained surrogate recognition fine-tuning recipe on the regular evaluation manuscript
+
+Dataset:
+
+- `app/tests/eval_dataset/`
+
+Command:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
+```
+
+Study mode:
+
+- `recognition_strategy_ablation_gate`
+
+Recipe shape:
+
+- `page_plus_random_history`
+- `history_sample_line_count=10`
+- `width_policy=batch_max_pad`
+- `oversampling_policy=none`
+- `augmentation_policy=none`
+- `optimizer=Adadelta`
+- `lr=0.2`
+- `num_iter=60`
+
+Primary comparison metric:
+
+- `curve_metric_value`
+
+Additional comparison metrics:
+
+- `final_page_cer`
+- `first_step_gain`
+
+Success rule:
+
+- benchmark role must pass
+- proposed role must pass
+- proposed may regress by at most `0.02` absolute against the benchmark on the ablation comparison
+
+Blocking dataset thresholds:
+
+- `curve_metric_value <= 0.26`
+- `final_page_cer <= 0.18`
+- `first_step_gain >= 0.04`
+
+Geometry guard before OCR fine-tuning:
+
+- `source_line_coverage >= 0.90`
+- `heatmap_box_assignment_rate >= 0.90`
+
+Latest artifact files:
+
+- `app/tests/logs/recognition_finetune_ablation_latest.json`
+- `app/tests/logs/recognition_finetune_ablation_latest.md`
+- `app/tests/logs/recognition_finetune_ablation_latest.txt`
+
+### 3. Circular OCR Fine-Tuning Strategy Ablation Gate
+
+Purpose:
+
+- focus on the circular and non-horizontal failure mode that motivated the new strategy
+
+Dataset:
+
+- `app/tests/eval_dataset_v2/`
+
+Command:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_circular_recognition_finetuning_precommit_e2e -v
+```
+
+Study mode:
+
+- `circular_recognition_strategy_ablation_gate`
+
+Primary comparison metric:
+
+- `curve_metric_value`
+
+Additional comparison metrics:
+
+- `final_page_cer`
+- `first_step_gain`
+
+Success rule:
+
+- benchmark role must pass
+- proposed role must pass
+- proposed must be strictly better on the primary metric
+- no absolute regression allowance is granted on the primary metric for this gate
+
+Blocking behavior:
+
+- only the strict primary comparison is blocking in this circular gate
+- secondary metrics are still reported, but they are informational when strict primary improvement mode is active
+
+Dataset-level thresholds remain:
+
+- `curve_metric_value <= 0.26`
+- `final_page_cer <= 0.18`
+- `first_step_gain >= 0.04`
+
+Latest artifact files:
+
+- `app/tests/logs/circular_ocr_ablation_latest.json`
+- `app/tests/logs/circular_ocr_ablation_latest.md`
+- `app/tests/logs/circular_ocr_ablation_latest.txt`
+
+## Aggregate Promotion Evidence
+
+When all three gates run and pass through `scripts/run_precommit_eval.py`, the launcher writes:
+
+- `app/tests/logs/strategy_promotion_latest.json`
+- `app/tests/logs/strategy_promotion_latest.md`
+
+This aggregate file summarizes:
+
+- benchmark strategy name
+- proposed strategy name
+- pass/fail state for each gate
+- primary metric comparison for each gate
+- whether promotion is recommended
+
+This file is still evidence only. It does not change the benchmark role by itself.
+
+## Promotion Workflow
+
+The promotion workflow is explicit:
+
+1. Run `scripts/run_precommit_eval.py`.
+2. Inspect the latest gate artifacts and aggregate promotion evidence.
+3. Run the promotion script in dry-run mode first.
+4. Run it again with `--apply` only if the diff is correct.
+5. Review the source diff.
+6. Commit the already-reviewed config and doc changes.
+
+Dry run:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json
+```
+
+Apply:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
+```
+
+The promotion script refuses to write when:
+
+- the evidence file is missing
+- the evidence file is stale relative to its referenced artifacts
+- any required gate failed
+- the evidence names a different benchmark or candidate than the CLI request
+- the candidate strategy is not registered
+
+On success it updates `app/recognition/line_segmentation/strategy_config.py`, moves the candidate into the benchmark slot, clears the proposed slot, and appends promotion history.
+
+## Hook Behavior
+
+The checked-in hook launcher is:
+
+- `.githooks/pre-commit`
+
+After `python scripts/install_git_hooks.py`, a normal `git commit` runs the three gates through `scripts/run_precommit_eval.py`.
+
+The hook does not promote automatically.
+
+Intentional bypasses remain available:
+
+- `git commit --no-verify`
+- `SKIP_EVAL_HOOK=1`
+- `SKIP_PIPELINE_EVAL_HOOK=1`
+- `SKIP_RECOGNITION_FT_HOOK=1`
+- `SKIP_CIRCULAR_RECOGNITION_FT_HOOK=1`
+
+If any gate is skipped, the launcher does not refresh the aggregate promotion evidence.
+
+## Validation Commands
+
+Promotion unit tests:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_strategy_promotion_unit -v
+```
+
+Strategy configuration and crop behavior:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_strategy_ablation_config_unit -v
+conda run -n gnn_layout python -m unittest app.tests.test_line_segmentation_strategy_unit -v
+conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
+```
+
+Full launcher:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/run_precommit_eval.py
+```
+
+## How To Adapt This Harness To Another Pipeline Stage
+
+Future agents should preserve the same structure instead of inventing a new one-off evaluation loop.
+
+1. Specify the stage boundary precisely.
+   Inputs: exact files, tensors, records, or PAGE elements consumed.
+   Outputs: exact files, tensors, records, or PAGE elements produced.
+
+2. Create stable strategy names.
+   Keep one benchmark and one proposed role in checked-in config.
+
+3. Reuse the same external verifiers for both roles.
+   The only intentional variable should be the strategy itself.
+
+4. Define success criteria in checked-in source.
+   Include primary metric, secondary metrics, thresholds, and regression allowances.
+
+5. Separate evidence from source-of-truth config.
+   Gate artifacts can be regenerated; strategy-role config must remain readable in a fresh clone.
+
+6. Keep promotion explicit.
+   A gate run may recommend promotion, but it should not silently rewrite tracked source during pre-commit.
+
+7. Retain old strategy code and promotion history.
+   Research branches need rollback and historical comparison, not destructive replacement.

@@ -29,11 +29,12 @@ The observable behavior is a safe workflow:
 - [x] (2026-05-09 22:31 IST) Confirmed the research source asks for promotion from `proposed_strategy` to `benchmark_strategy` after gates pass.
 - [x] (2026-05-09 22:31 IST) Confirmed normal pre-commit mutation is unsafe because `.git/hooks/pre-commit` runs after Git has prepared the candidate commit index.
 - [x] (2026-05-09 22:31 IST) Confirmed the current checked-in `.githooks/pre-commit` begins with `exit 0`, so hook activation needs an explicit decision rather than being assumed.
-- [ ] Add checked-in strategy selection config with benchmark and proposed strategy names.
-- [ ] Add an explicit promotion script that refuses to update config unless all required gate artifacts passed.
-- [ ] Update pre-commit launcher and hook docs so gates report promotion readiness but do not mutate files.
-- [ ] Update `README.md`, `EVAL.md`, `VISION.md`, and relevant ExecPlans with the final strategy and gate behavior.
-- [ ] Add tests for promotion idempotence, refusal cases, and successful config update.
+- [x] (2026-05-12 17:42 IST) Added checked-in strategy role config at `app/recognition/line_segmentation/strategy_config.py` with benchmark, proposed, and promotion history state.
+- [x] (2026-05-12 17:42 IST) Added `scripts/promote_text_line_strategy.py` with dry-run default, `--apply`, evidence validation, and idempotent history handling.
+- [x] (2026-05-12 17:42 IST) Updated `scripts/run_precommit_eval.py` to write aggregate promotion evidence and print the explicit promotion command without mutating tracked config.
+- [x] (2026-05-12 17:42 IST) Activated `.githooks/pre-commit` as a launcher once hooks are installed and documented the explicit bypass variables.
+- [x] (2026-05-12 17:42 IST) Updated `README.md`, added `EVAL.md`, updated `VISION.md`, and refreshed text-line strategy docs with the promotion workflow.
+- [x] (2026-05-12 17:42 IST) Added promotion unit tests for dry run, apply, idempotence, missing evidence, failing gates, mismatched evidence, and unregistered candidates.
 - [ ] Run the full validation suite and record outcomes.
 
 ## Surprises & Discoveries
@@ -58,9 +59,32 @@ The observable behavior is a safe workflow:
   Rationale: future ablations need to understand what changed and why. Keeping a promotion history makes results interpretable.
   Date/Author: 2026-05-09 / Codex
 
+- Decision: use a checked-in Python module for strategy role config rather than environment variables or generated logs.
+  Rationale: the benchmark/proposed mapping must remain readable in a fresh checkout and easy to update through a normal source diff.
+  Date/Author: 2026-05-12 / Codex
+
+- Decision: activate `.githooks/pre-commit` as a launcher once the user installs hooks, but keep promotion as a separate explicit command.
+  Rationale: automatic gate execution is useful; automatic tracked-source mutation during pre-commit is not.
+  Date/Author: 2026-05-12 / Codex
+
 ## Outcomes & Retrospective
 
-Not yet implemented. At completion, record the final promotion command, the config file changed by promotion, the docs updated, and the exact gate artifacts used as promotion evidence.
+Implemented on 2026-05-12 except for the final validation run inventory. The checked-in source-of-truth file is `app/recognition/line_segmentation/strategy_config.py`. The explicit promotion command is:
+
+    python scripts/promote_text_line_strategy.py --candidate <strategy> --previous-benchmark <strategy> --metrics app/tests/logs/strategy_promotion_latest.json --apply
+
+The launcher now writes promotion evidence to:
+
+    app/tests/logs/strategy_promotion_latest.json
+    app/tests/logs/strategy_promotion_latest.md
+
+The main documentation updates landed in:
+
+    README.md
+    EVAL.md
+    VISION.md
+    docs/pipeline-improvement/text-line-segmentation/local-tangent-band-v1-architecture.md
+    docs/pipeline-improvement/text-line-segmentation/strategy-promotion-workflow.md
 
 ## Context and Orientation
 

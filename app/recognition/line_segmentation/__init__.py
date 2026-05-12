@@ -5,6 +5,11 @@ from .registry import (
     get_text_line_segmentation_strategy,
     list_text_line_segmentation_strategies,
 )
+from .strategy_config import (
+    get_benchmark_strategy_name,
+    get_proposed_strategy_name,
+    get_strategy_role_config,
+)
 from .types import TextLineSegmentationRequest, TextLineSegmentationResult, TextLineSegmentationStrategy
 
 __all__ = [
@@ -16,6 +21,9 @@ __all__ = [
     "TextLineSegmentationResult",
     "TextLineSegmentationStrategy",
     "apply_text_line_segmentation_strategy",
+    "get_benchmark_strategy_name",
+    "get_proposed_strategy_name",
+    "get_strategy_role_config",
     "get_text_line_segmentation_strategy",
     "list_text_line_segmentation_strategies",
 ]

@@ -152,10 +152,13 @@ Gemini can still be used for prediction, but the active-learning lineage is buil
 
 
 #### Automated Evaluation Checks (GUI-free)
-The repository now has two GUI-free pre-commit phases:
+The repository now has three GUI-free pre-commit gates for text-line segmentation strategy ablations:
 
-- a pretrained full-pipeline gate that runs upload plus CRAFT plus GNN plus OCR end to end on `app/tests/eval_dataset/`. This check confirms that any changes to the pipeline, does not degrade performance on 'eval_dataset'. For this check, we use pretrained models only (CRAFT, GNN and Recognition OCR Model)
-- a surrogate OCR fine-tuning gate that starts from ground-truth PAGE `Baseline` polylines, the checked-in heatmaps, and the resized page images, then runs the same heatmap-component-to-polygon crop path used by the application before feeding line images and ground-truth text pairs to the current best hybrid continuation recipe. This check confirms that the Recognition OCR model is learning correctly when iteratively fine-tuned on previous pages, to make better predictions on held-out pages of `eval_dataset`.
+- a pretrained full-pipeline gate on `app/tests/eval_dataset/`
+- a surrogate OCR fine-tuning gate on `app/tests/eval_dataset/`
+- a circular-layout OCR fine-tuning gate on `app/tests/eval_dataset_v2/`
+
+Each gate runs the checked-in `benchmark_strategy` and `proposed_strategy` through the same implementation path. The gate artifacts are evidence only. Promotion of the proposed strategy is a separate explicit command.
 
 To run only the pretrained full-pipeline validation flow without opening the GUI, use the dedicated integration test from the `app/` directory:
 
@@ -165,7 +168,7 @@ conda activate gnn_layout
 python -m unittest discover -s tests -p "test_ci_e2e.py" -v
 ```
 
-To run only the OCR fine-tuning surrogate gate, use:
+To run only the OCR fine-tuning surrogate gate on `eval_dataset`, use:
 
 ```bash
 cd app
@@ -173,7 +176,15 @@ conda activate gnn_layout
 python -m unittest tests.test_recognition_finetuning_precommit_e2e -v
 ```
 
-To run the same two-phase sequence the hook uses, run from the repository root:
+To run the circular OCR fine-tuning surrogate gate on `eval_dataset_v2`, use:
+
+```bash
+cd app
+conda activate gnn_layout
+python -m unittest tests.test_circular_recognition_finetuning_precommit_e2e -v
+```
+
+To run the full three-gate sequence and write aggregate promotion evidence, run from the repository root:
 
 ```bash
 conda activate gnn_layout
@@ -190,18 +201,33 @@ On Windows, `py -3 scripts/install_git_hooks.py` is also fine.
 
 The full-pipeline gate automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, and evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`. The gate writes local run artifacts and prints their paths at the end of the run; those generated artifacts are useful for debugging but are not treated as checked-in documentation.
 
-The OCR fine-tuning surrogate gate runs the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`. Its line crops are not read from PAGE `Coords`; they are regenerated from PAGE `Baseline` points plus the eval heatmaps/images through the app-aligned polygon pipeline. The gate also checks baseline-only geometry coverage before OCR fine-tuning starts: `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. Its checked-in OCR thresholds live in `app/tests/precommit_gate_config.py`: `curve_metric_value <= 0.26`, `final_page_cer <= 0.18`, and `first_step_gain >= 0.04`. Regression-guard failures are recorded as warnings for this gate rather than blocking failures.
+The OCR fine-tuning surrogate gates run the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`. Their line crops are not read from PAGE `Coords`; they are regenerated from PAGE `Baseline` points plus the eval heatmaps/images through the app-aligned polygon pipeline. The geometry guard before OCR fine-tuning is `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. The checked-in thresholds live in `app/tests/precommit_gate_config.py`. The regular OCR gate allows small absolute regression relative to the benchmark, while the circular OCR gate requires strict improvement on the primary curve metric.
+
+When all three gates pass, `scripts/run_precommit_eval.py` writes:
+
+- `app/tests/logs/strategy_promotion_latest.json`
+- `app/tests/logs/strategy_promotion_latest.md`
+
+To promote the proposed strategy after reviewing those artifacts, run:
+
+```bash
+conda activate gnn_layout
+python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
+```
+
+The exact benchmark and proposed names come from `app/recognition/line_segmentation/strategy_config.py`. After a promotion, use the names currently recorded there.
 
 By default the temporary manuscript artifacts are deleted after the test. Set `KEEP_CI_ARTIFACTS=1` before the command if you want to inspect the generated manuscript outputs under `app/input_manuscripts/_ci_root/`.
 
 The pre-commit launcher tries to find the `gnn_layout` Python automatically. If your environment lives in a non-standard location, set `GNN_LAYOUT_PYTHON` to the full path of that environment's Python executable before committing.
 
 If you intentionally need to bypass the pre-commit evaluation once, use standard git bypass with `git commit --no-verify`. The hook also supports:
-- `SKIP_EVAL_HOOK=1` to skip both phases
+- `SKIP_EVAL_HOOK=1` to skip all phases
 - `SKIP_PIPELINE_EVAL_HOOK=1` to skip only the pretrained full-pipeline phase
 - `SKIP_RECOGNITION_FT_HOOK=1` to skip only the OCR fine-tuning surrogate phase
+- `SKIP_CIRCULAR_RECOGNITION_FT_HOOK=1` to skip only the circular OCR fine-tuning surrogate phase
 
-The longer-term evaluation blueprint for automatic tests, GUI tests, and future human-in-the-loop active-learning studies lives in `EVAL.md`.
+The evaluation architecture, thresholds, artifacts, and adaptation guidance for future strategy harnesses live in `EVAL.md`.
 
 ##  💻 **Graph Neural Network based Text-Line Segmentation Core ```src/```**
 Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. 

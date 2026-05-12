@@ -17,6 +17,7 @@ from collections import defaultdict
 import xml.etree.ElementTree as ET
 
 from recognition.line_segmentation import apply_text_line_segmentation_strategy
+from recognition.line_segmentation.strategy_config import get_benchmark_strategy_name
 from recognition.pagexml_line_dataset import (
     _encode_like_app_jpg,
     _load_processing_image,
@@ -41,7 +42,7 @@ from gnn_training.gnn_data_preparation.feature_engineering import (
 LOADED_MODEL = None
 LOADED_CONFIG = None
 DEVICE = None
-DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = "legacy_axis_bound_v1"
+DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = get_benchmark_strategy_name()
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -1,129 +1,169 @@
 # VISION.md
 
-This repository exists to reduce the total human effort required to digitize historical manuscripts. It provides a semi-automatic digitization tool, and the long-term vision is for that tool to learn from each corrected page so later pages require fewer corrections.
+This repository exists to reduce the total human effort required to digitize historical manuscripts. The product goal is not only better raw model accuracy, but a digitization workflow where corrected pages make later pages cheaper to annotate, easier to review, and safer to promote.
 
-Another core goal is to keep the repository friendly to coding agents and future researchers. Improvements to the manuscript digitization pipeline should pair generative coding assistance with concrete external verifiers: tests, evaluation scripts, PAGE-level CER, line-level CER, edit-distance summaries, correction counts, and other task-specific metrics.
+The repository currently has two connected products:
 
-This repository currently has two main products:
-
-1. Graph Neural Network based Text-Line Segmentation Core in `src/`. This is where GNN experiments and research happen. Right now the GNN performs text-line segmentation as a binary edge-classification task. The desired research extension is multi-task learning for text-region grouping alongside text-line segmentation, plus better training speed, inference speed, data preparation, checkpoint handling, and architecture experiments.
-2. Semi Automatic Annotation Tool in `app/`. This is the full application for manuscript digitization. It runs CRAFT, GNN layout analysis, and OCR, then lets a human correct nodes, edges, text-region labels, and recognized text.
+1. `src/`: the graph neural network text-line segmentation core.
+2. `app/`: the semi-automatic annotation tool, OCR stack, evaluation harnesses, and active-learning runtime.
 
 ## Product Vision
 
-The semi-automatic tool in `app/` digitizes manuscripts in two stages:
+The manuscript pipeline has two user-visible stages:
 
-1. Layout analysis: text-line segmentation, text-region grouping, and PAGE-XML creation.
-2. Text recognition: recognizing text from segmented lines and updating PAGE-XML with Unicode text.
+1. Layout analysis: detect characters, group them into text lines, group text lines into text regions, and write PAGE-XML geometry.
+2. Text recognition: turn segmented text-line images into Unicode text and let the annotator correct the output.
 
-That means the repository is naturally active-learning-friendly for four tasks:
+The long-term product target is a manuscript-local learning loop:
 
-1. Character detection or a future CRAFT-like surrogate model. (ACTIVE LEARNING NOT IMPLEMENTED YET)
-2. GNN edge classification for text-line grouping. (ACTIVE LEARNING NOT IMPLEMENTED YET)
-3. Text-region grouping. (ACTIVE LEARNING NOT IMPLEMENTED YET)
-4. Text recognition. (ACTIVE LEARNING IMPLEMENTED)
+1. Earlier pages need the most correction.
+2. Those corrections become training or adaptation signals.
+3. Background jobs run safely without freezing the app.
+4. Later pages require less manual intervention.
+5. Every promotion is explicit, reviewable, and reversible.
 
-By active learning here, we mean the user corrects model mistakes, those corrections become new training data, and later pages should require less manual work than earlier pages.
+Success is therefore multi-objective:
 
-### Desired End State
+- lower human correction burden
+- stable or improved output quality
+- explicit promotion rules
+- reproducible evidence for research claims
+- a frontend workflow that remains predictable while background work happens
 
-For a manuscript with multiple pages, the user should eventually experience the following:
+## Verifier-Driven Evolution Harness
 
-1. Page 1 requires the most manual corrections (add/delete nodes and edges, text-region grouping, corrections to recognized text (OCR'ed text) from segmented text lines)
-2. The corrected page is turned into fine-tuning data for various parts of the pipeline (CRAFT, GNN, Text-recognizer(OCR))
-3. Fine-tuning of various parts of the pipeline runs in the background at a safe time with good orchestration.
-4. The next model version performs better on the next unseen page, requiring less manual corrections (add/delete nodes and edges, text-region grouping, corrections to recognized text (OCR'ed text) from segmented text lines).
-5. Manual effort continues to drop over later pages.
-6. User exports the manuscript in PAGE-XML format.
+The repository now has a reusable research harness for step-by-step improvement of a specific pipeline stage with LLM-assisted code changes and external verifier metrics.
 
-Success is not defined by a single accuracy number. Success means:
+The generic pattern is:
 
-- lower total manual effort
-- stable or improving output quality
-- predictable and reversible model promotion
-- a smooth annotation workflow that does not freeze or confuse the user
-- background training and inference orchestration that keeps the frontend smooth and predictable.
+1. Define one narrow pipeline stage with explicit inputs and outputs.
+2. Keep one checked-in `benchmark_strategy`.
+3. Implement one checked-in `proposed_strategy`.
+4. Run the same external verifiers against both roles.
+5. Aggregate the gate evidence.
+6. Promote the proposed strategy explicitly only after all gates pass.
+7. Keep the old strategy code and history for rollback and future ablations.
 
-### Current Reality
+This harness is intentionally broader than text-line segmentation. A future agent can adapt it to another pipeline component if it first writes down:
 
-The repository still does not provide production-ready GUI fine-tuning for all four tasks.
+- the exact input contract
+- the exact output contract
+- the primary quality metrics
+- the acceptable regression rules
+- the promotion command and source-of-truth config
 
-However, the OCR side (Text recognition from the segmented text-lines) is no longer only aspirational or GUI-free. As of 2026-04-20, the repository now has a first-pass save-triggered GUI OCR active-learning runtime on top of the existing offline harness.
+The important design rule is that generated logs are evidence, but checked-in source config is the source of truth for which strategy currently owns the benchmark role.
 
-As of 2026-04-22, the live GUI runtime carries one runtime-specific sibling-checkpoint knob: it currently defaults the sibling checkpoint choice to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`. The offline harness and surrogate gate can still use the CER-aligned selector when that is the better fit.
+## Current Harness Instance: Text-Line Segmentation To OCR Crops
 
-The relevant live runtime files are:
+The active non-OCR harness target is the step that converts:
 
-- `app/recognition/active_learning_recipe.py`
-- `app/job_orchestrator.py`
-- `app/device_leases.py`
-- `app/manuscript_ocr_registry.py`
-- `app/ocr_active_learning_runtime.py`
-- `app/ocr_model_manager.py`
-- `app/telemetry.py`
-- `app/profiling.py`
+- resized manuscript page images
+- heatmaps
+- PAGE-XML `Baseline` polylines predicted from the GNN graph
 
-The relevant offline research and regression files remain:
+into:
+
+- PAGE-space `TextLine/Coords` polygons
+- OCR-ready text-line crops
+
+The current checked-in strategy role source of truth is:
+
+- `app/recognition/line_segmentation/strategy_config.py`
+
+The current concrete strategies are:
+
+- benchmark: `legacy_axis_bound_v1`
+- proposed: `local_tangent_band_v1`
+
+`legacy_axis_bound_v1` preserves the historical axis-aligned behavior. `local_tangent_band_v1` is the generalized strategy for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
+
+The current explicit workflow is:
+
+1. A researcher suggests a new `proposed_strategy`.
+2. Agents implement the code and update docs/config.
+3. The developer runs or triggers the three pre-commit gates.
+4. `scripts/run_precommit_eval.py` writes gate artifacts and aggregate promotion evidence.
+5. The developer reviews the evidence and runs `scripts/promote_text_line_strategy.py --apply`.
+6. The benchmark role moves forward in checked-in config, while old strategy code remains available for comparison.
+
+This keeps promotion reviewable. The pre-commit path does not silently mutate tracked config after Git has already prepared the commit.
+
+## Current Evaluation And Promotion State
+
+The text-line segmentation harness currently uses three external verifier gates:
+
+1. A pretrained full-pipeline strategy ablation gate on `app/tests/eval_dataset/`.
+2. A surrogate OCR fine-tuning strategy ablation gate on `app/tests/eval_dataset/`.
+3. A circular-layout OCR fine-tuning strategy ablation gate on `app/tests/eval_dataset_v2/`.
+
+The launcher is:
+
+- `scripts/run_precommit_eval.py`
+
+The explicit promotion command is:
+
+- `scripts/promote_text_line_strategy.py`
+
+The current strategy docs live under:
+
+- `docs/pipeline-improvement/text-line-segmentation/`
+
+The detailed evaluation architecture, thresholds, artifacts, and adaptation guidance live in:
+
+- `EVAL.md`
+
+## OCR Active Learning Reality
+
+The OCR side of the repository remains the most mature active-learning subsystem. The important checked-in files are still:
 
 - `app/recognition/active_learning.py`
+- `app/recognition/active_learning_recipe.py`
+- `app/ocr_active_learning_runtime.py`
+- `app/manuscript_ocr_registry.py`
+- `app/job_orchestrator.py`
 - `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
-- `app/tests/test_recognition_finetuning_precommit_e2e.py`
-- `app/tests/test_recognition_finetuning_e2e.py`
 
-The completed OCR studies produced local artifacts, but those generated files should not be required for a fresh GitHub checkout to understand the branch. The durable conclusions are:
+The retained OCR continuation recipe remains the hybrid `page_plus_random_history` recipe with:
 
-1. Earlier broad and focused sweeps were enough to identify the structural stack worth keeping: `batch_max_pad + no oversampling + no augmentation`.
-2. Strict page-only continuation is viable, but it was materially weaker and more regression-guard-sensitive than the retained hybrid recipe on `eval_dataset`.
-3. The live slow OCR verifier now keeps only the hybrid `page_plus_random_history` regime rather than carrying all earlier study modes in active code.
-4. In the completed page-plus-random-history follow-up, `wb_on_an_hist10_sn_optd_lr200000u` beat both the earlier cumulative winner and the page-only winner on the primary metric and final-page CER. Its recorded values were `curve_metric_value=0.22151451085911972`, `final_page_cer=0.13784355179704016`, and `first_step_gain=0.0572938689217759`.
-5. Adam remained regression-guard-sensitive even in the hybrid regime, so the trusted recipe remains Adadelta `lr=0.2`, `num_iter=60`.
+- `history_sample_line_count=10`
+- `width_policy=batch_max_pad`
+- `oversampling_policy=none`
+- `augmentation_policy=none`
+- `optimizer=Adadelta`
+- `lr=0.2`
+- `num_iter=60`
 
-The repository now also has a two-phase pre-commit screen:
+The repository therefore has two complementary promotion concepts today:
 
-- a pretrained full-pipeline gate that verifies CRAFT plus GNN plus OCR still work together on the fixed evaluation manuscript
-- a surrogate OCR fine-tuning gate that runs the best-known hybrid continuation recipe on line crops regenerated from PAGE baselines plus eval heatmaps/images, with baseline-ordered page CER and a loose geometry-equivalence guard before the OCR thresholds block on `curve_metric_value`, `final_page_cer`, and `first_step_gain`
+1. manuscript-local OCR checkpoint promotion inside the runtime
+2. repository-level text-line segmentation strategy promotion through checked-in config
 
-So the repository is now in a transitional state:
-
-- the OCR verifier is real
-- the pre-commit path now protects both the pretrained full pipeline and the current OCR fine-tuning subsystem
-- the OCR research harness now keeps one replay-buffer-like continuation regime in active code while preserving the earlier cumulative and page-only conclusions in docs
-- the GUI now has a first-pass OCR active-learning loop with manuscript-local registry, promotion, rebase detection, telemetry, and profiling
-- the GUI runtime is still intentionally narrow and needs more hardening before it should be treated as fully mature product behavior
-
-
-### Immediate Direction
-
-The next OCR milestone is no longer deciding which offline continuation regime to keep or whether the GUI may trigger OCR fine-tuning at all. Both decisions are now made in code: the retained path is `page_plus_random_history`, and the GUI save flow can trigger manuscript-local OCR fine-tuning through the recorded runtime recipe with direct promotion after training.
-
-The next uncertainty is how robust that first-pass live runtime is across more manuscripts and longer annotation sessions. The highest-value follow-up work is:
-
-- validate the retained page-plus-random-history regime on more than one manuscript sequence and more than one history replay size
-- harden restart, interruption, and rebuild behavior in the live manuscript registry/orchestrator path
-- keep the surrogate pre-commit gate honest about its scope: it validates OCR fine-tuning from ground-truth baselines and checked-in heatmaps/images, not the full future human correction loop with newly generated CRAFT/GNN outputs
-- turn the new manuscript-local telemetry into manuscript-level effort summaries and trend reports
-- keep the Windows-safe direct-interpreter execution path first-class for long OCR verifier runs
+Both follow the same product rule: promotion must be explicit and evidenced, not silent.
 
 ## Broader Research Direction
 
-Over time, the same active-learning pattern should apply to all major tasks in the pipeline:
+Over time, the same verifier-driven improvement pattern should be extended to other stages:
 
-- active learning by fine-tuning OCR text recognition, using the CNN-BiLSTM-CTC recognition model. This is implemented in the current version.
-- active learning by fine-tuning text-line segmentation, using the GNN
-- active learning by fine-tuning text-region grouping, likely using an extended GNN
-- active learning by fine-tuning CRAFT or a CRAFT-like surrogate for character detection
+- character detection or a trainable CRAFT-like surrogate
+- GNN text-line segmentation
+- text-region grouping
+- OCR post-processing or crop normalization
 
-CRAFT itself is not currently fine-tunable in this repository because the relevant training path is not available here. If active learning for character detection becomes important, the expected path is to introduce a surrogate model that can learn from user node additions and deletions.
+For each new stage, future agents should preserve the same discipline:
 
-The GNN also is not currently fine-tunable in an active learning setting from the semi-automatic annotation tool. The GNN also currently only does the text-line segmentation task (as binary edge classification). It DOES NOT do text-region grouping yet, where text-lines (and the characters of the text-lines), belonging to the same text-box will have the same label. Thus Multi-task learning of the Graph Neural Network remains a research direction, which MUST be first implemented and tested in the core GNN directory `src/` and then implemented in the semi-automatic annotation tool in `app/`.
+- stable benchmark/proposed role names
+- one checked-in role config
+- external verifier artifacts
+- explicit promotion after review
+- historical code retained for comparison and rollback
 
+## Non-Negotiable Constraints
 
-## Non-Negotiable Product Constraints
-
-- The app must remain usable even when research code is changing.
-- A newly trained model must never silently replace the active model without a recorded promotion rule.
-- Training and inference must not fight each other for the same device in a way that degrades the user experience.
-- Every research claim should be backed by an artifact-producing run and exact settings, and any conclusion needed by future contributors should be copied into checked-in documentation rather than living only in generated local artifacts.
-- Reduction in Human correction burden must eventually become a logged first-class metric rather than an anecdotal claim.
+- The app must remain usable while research code changes.
+- A successful gate run must never silently edit tracked source config.
+- Promotions must be explicit, reviewable, and reproducible.
+- Generated artifacts must not be the only place where important conclusions live.
+- Human-effort reduction should become a first-class logged metric, not only an anecdotal goal.

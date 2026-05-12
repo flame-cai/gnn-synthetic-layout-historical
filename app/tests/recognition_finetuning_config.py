@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 from recognition.active_learning_recipe import DEFAULT_OCR_ACTIVE_LEARNING_RECIPE
+from recognition.line_segmentation.strategy_config import get_benchmark_strategy_name
 from tests.precommit_gate_config import get_recognition_precommit_dataset
 
 
@@ -176,7 +177,7 @@ def get_precommit_hybrid_recognition_gate_config(name: str = "eval_dataset") -> 
     recipe = gate_config.recipe
     base_config = get_dataset_config(gate_config.recognition_dataset_config_name).with_updates(
         line_geometry_source="baseline_heatmap",
-        line_segmentation_strategy_name="legacy_axis_bound_v1",
+        line_segmentation_strategy_name=get_benchmark_strategy_name(),
         training_policy=recipe.training_policy,
         history_sample_line_count=int(recipe.history_sample_line_count),
         width_policy=recipe.width_policy,

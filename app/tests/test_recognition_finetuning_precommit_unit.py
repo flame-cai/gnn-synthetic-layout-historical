@@ -25,6 +25,7 @@ from tests.recognition_finetuning_experiment import (
     _config_for_strategy_role,
     _policy_descriptor,
 )
+from recognition.line_segmentation.strategy_config import get_benchmark_strategy_name, get_proposed_strategy_name
 from recognition.pagexml_line_dataset import prepare_page_line_dataset
 
 
@@ -38,10 +39,12 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
     def test_precommit_hybrid_recipe_is_exact(self):
         gate_config = get_recognition_precommit_dataset("eval_dataset")
         config = get_precommit_hybrid_recognition_gate_config("eval_dataset")
+        benchmark_strategy = get_benchmark_strategy_name()
+        proposed_strategy = get_proposed_strategy_name()
 
         self.assertEqual(config.name, gate_config.recognition_dataset_config_name)
         self.assertEqual(config.line_geometry_source, "baseline_heatmap")
-        self.assertEqual(config.line_segmentation_strategy_name, "legacy_axis_bound_v1")
+        self.assertEqual(config.line_segmentation_strategy_name, benchmark_strategy)
         self.assertTrue(config.heatmaps_dir.exists())
         self.assertEqual(float(config.line_segmentation_args["BINARIZE_THRESHOLD"]), 0.5098)
         self.assertEqual(float(config.min_geometry_source_line_coverage), 0.90)
@@ -67,8 +70,8 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertTrue(gate_config.regression_guard_warning_only)
         self.assertEqual(gate_config.strategy_ablation.benchmark.role, "benchmark")
         self.assertEqual(gate_config.strategy_ablation.proposed.role, "proposed")
-        self.assertEqual(gate_config.strategy_ablation.benchmark.strategy_name, "legacy_axis_bound_v1")
-        self.assertEqual(gate_config.strategy_ablation.proposed.strategy_name, "local_tangent_band_v1")
+        self.assertEqual(gate_config.strategy_ablation.benchmark.strategy_name, benchmark_strategy)
+        self.assertEqual(gate_config.strategy_ablation.proposed.strategy_name, proposed_strategy)
         self.assertEqual(float(gate_config.strategy_ablation.max_allowed_regression_abs), 0.02)
 
     def test_strategy_role_config_updates_dataset_geometry(self):
@@ -301,7 +304,7 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(prepared.geometry_source, "baseline_heatmap")
-        self.assertEqual(prepared.line_segmentation_strategy_name, "legacy_axis_bound_v1")
+        self.assertEqual(prepared.line_segmentation_strategy_name, get_benchmark_strategy_name())
         self.assertTrue(Path(prepared.line_segmentation_metadata_path).exists())
         self.assertEqual(len(prepared.records), 1)
         xs = [point[0] for point in prepared.records[0].polygon_points]
