@@ -20,7 +20,6 @@ if str(APP_ROOT) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from recognition.line_segmentation.registry import list_text_line_segmentation_strategies
 from recognition.line_segmentation.strategy_config import (
     STRATEGY_ROLE_CONFIG_PATH,
     normalize_strategy_role_config_payload,
@@ -220,6 +219,8 @@ def write_strategy_promotion_evidence(
 
 
 def _validate_registered_strategy(strategy_name: str, *, role_label: str) -> None:
+    from recognition.line_segmentation.registry import list_text_line_segmentation_strategies
+
     available = set(list_text_line_segmentation_strategies())
     if strategy_name not in available:
         raise ValueError(
