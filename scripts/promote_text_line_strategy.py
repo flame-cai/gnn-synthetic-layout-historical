@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
+import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,10 +22,11 @@ if str(REPO_ROOT) not in sys.path:
 
 from recognition.line_segmentation.strategy_config import (
     STRATEGY_ROLE_CONFIG_PATH,
-    normalize_strategy_role_config_payload,
+    load_strategy_role_config_from_path,
     write_strategy_role_config,
 )
 
+LOGGER = logging.getLogger(__name__)
 
 LATEST_GATE_SPECS = (
     {
@@ -73,16 +74,6 @@ def _load_json(path: Path) -> dict[str, Any]:
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
-def _load_strategy_role_config_from_path(path: Path) -> dict[str, Any]:
-    source = path.read_text(encoding="utf-8")
-    match = re.search(r'STRATEGY_ROLE_CONFIG_JSON = """([\s\S]*?)"""', source)
-    if match is None:
-        match = re.search(r"STRATEGY_ROLE_CONFIG_JSON = '''([\s\S]*?)'''", source)
-    if match is None:
-        raise ValueError(f"Could not locate STRATEGY_ROLE_CONFIG_JSON in {path}")
-    return normalize_strategy_role_config_payload(json.loads(match.group(1)))
 
 
 def _require_path(path: Path, *, label: str) -> Path:
@@ -173,12 +164,12 @@ def build_strategy_promotion_evidence() -> dict[str, Any]:
 
 def render_strategy_promotion_markdown(evidence: dict[str, Any]) -> str:
     lines = [
-        "# Text-Line Strategy Promotion Evidence",
+        "# Text-Line Strategy Research Promotion Evidence",
         "",
         f"Generated at: `{evidence['generated_at_utc']}`",
-        f"Benchmark strategy: `{evidence['benchmark_strategy_name']}`",
-        f"Proposed strategy: `{evidence['proposed_strategy_name']}`",
-        f"Promotion recommended: `{evidence['promotion_recommended']}`",
+        f"Research benchmark strategy: `{evidence['benchmark_strategy_name']}`",
+        f"Research proposed strategy: `{evidence['proposed_strategy_name']}`",
+        f"Research harness promotion recommended: `{evidence['promotion_recommended']}`",
         "",
         "## Gates",
         "",
@@ -231,6 +222,12 @@ def _validate_registered_strategy(strategy_name: str, *, role_label: str) -> Non
 
 def _load_and_validate_evidence(metrics_path: Path, *, candidate: str, previous_benchmark: str) -> dict[str, Any]:
     metrics_path = _require_path(metrics_path, label="promotion evidence")
+    LOGGER.info(
+        "Validating research promotion evidence metrics_path=%s candidate=%s previous_benchmark=%s",
+        metrics_path,
+        candidate,
+        previous_benchmark,
+    )
     evidence = _load_json(metrics_path)
     if evidence.get("study_mode") != "strategy_promotion_evidence":
         raise ValueError(
@@ -353,10 +350,10 @@ def promote_text_line_strategy(
         previous_benchmark=previous_benchmark,
     )
 
-    current_config = _load_strategy_role_config_from_path(strategy_config_path)
+    current_config = load_strategy_role_config_from_path(strategy_config_path)
     current_benchmark = current_config["benchmark_strategy_name"]
     current_proposed = current_config.get("proposed_strategy_name")
-    promotion_history = list(current_config.get("promotion_history", []))
+    promotion_history = list(current_config.get("research_promotion_history", []))
     matching_history = _find_matching_history_entry(
         promotion_history,
         candidate=candidate,
@@ -370,7 +367,10 @@ def promote_text_line_strategy(
             "changed": False,
             "applied": False,
             "idempotent": True,
-            "message": f"{candidate} is already the benchmark strategy and matching promotion history is already recorded.",
+            "message": (
+                f"{candidate} is already the research benchmark strategy and matching "
+                "research promotion history is already recorded."
+            ),
             "metrics_path": str(resolved_metrics_path.resolve()),
             "config_path": str(strategy_config_path.resolve()),
             "config_before": current_config,
@@ -395,25 +395,33 @@ def promote_text_line_strategy(
     )
     updated_history = promotion_history if matching_history is not None else promotion_history + [history_entry]
     updated_config = {
+        **current_config,
         "benchmark_strategy_name": candidate,
         "proposed_strategy_name": None,
-        "promotion_history": updated_history,
+        "research_promotion_history": updated_history,
     }
 
     result = {
         "changed": current_config != updated_config,
         "applied": False,
         "idempotent": False,
-        "message": f"Promote {candidate} to benchmark and clear the proposed strategy slot.",
+        "message": f"Promote {candidate} to research benchmark and clear the proposed strategy slot.",
         "metrics_path": str(resolved_metrics_path.resolve()),
         "config_path": str(strategy_config_path.resolve()),
         "config_before": current_config,
         "config_after": updated_config,
     }
     if apply and result["changed"]:
+        LOGGER.info(
+            "Applying research promotion config_path=%s previous_benchmark=%s promoted_strategy=%s production_strategy_preserved=%s",
+            strategy_config_path,
+            previous_benchmark,
+            candidate,
+            current_config.get("production_strategy_name"),
+        )
         write_strategy_role_config(strategy_config_path, updated_config)
         result["applied"] = True
-        result["message"] = f"Promoted {candidate} to benchmark in {strategy_config_path}."
+        result["message"] = f"Promoted {candidate} to research benchmark in {strategy_config_path}."
     return result
 
 
@@ -429,9 +437,11 @@ def _build_promotion_command(benchmark_strategy_name: str, proposed_strategy_nam
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Promote a proposed text-line segmentation strategy to benchmark.")
-    parser.add_argument("--candidate", required=True, help="Registered strategy name to promote.")
-    parser.add_argument("--previous-benchmark", required=True, help="Current benchmark strategy name.")
+    parser = argparse.ArgumentParser(
+        description="Promote a proposed text-line segmentation strategy inside the research harness."
+    )
+    parser.add_argument("--candidate", required=True, help="Registered strategy name to promote in the research harness.")
+    parser.add_argument("--previous-benchmark", required=True, help="Current research benchmark strategy name.")
     parser.add_argument(
         "--metrics",
         default=str(DEFAULT_PROMOTION_EVIDENCE_JSON_PATH),
@@ -448,6 +458,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
     args = _build_arg_parser().parse_args(argv)
     result = promote_text_line_strategy(
         candidate=args.candidate,
@@ -457,14 +468,24 @@ def main(argv: list[str] | None = None) -> int:
         strategy_config_path=Path(args.strategy_config_path),
         author_or_tool=args.author_or_tool,
     )
-    print(f"[promotion] Evidence: {result['metrics_path']}")
-    print(f"[promotion] Config: {result['config_path']}")
-    print(f"[promotion] {result['message']}")
+    print(f"[research-promotion] Evidence: {result['metrics_path']}")
+    print(f"[research-promotion] Config: {result['config_path']}")
+    print(f"[research-promotion] {result['message']}")
     if not args.apply:
         before = result["config_before"]
         after = result["config_after"]
-        print(f"[promotion] Dry run only. benchmark: {before['benchmark_strategy_name']} -> {after['benchmark_strategy_name']}")
-        print(f"[promotion] Dry run only. proposed: {before.get('proposed_strategy_name')} -> {after.get('proposed_strategy_name')}")
+        print(
+            "[research-promotion] Dry run only. research benchmark: "
+            f"{before['benchmark_strategy_name']} -> {after['benchmark_strategy_name']}"
+        )
+        print(
+            "[research-promotion] Dry run only. proposed: "
+            f"{before.get('proposed_strategy_name')} -> {after.get('proposed_strategy_name')}"
+        )
+        print(
+            "[research-promotion] Dry run only. production app strategy: "
+            f"{before.get('production_strategy_name')} -> {after.get('production_strategy_name')}"
+        )
     return 0
 
 

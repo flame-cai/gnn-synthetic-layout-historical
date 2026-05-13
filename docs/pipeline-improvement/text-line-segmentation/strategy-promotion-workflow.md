@@ -1,33 +1,43 @@
-# Strategy Promotion Workflow
+# Strategy Promotion And Production Adoption Workflow
 
-This document records the checked-in promotion workflow for text-line segmentation strategies.
+This document records the checked-in lifecycle controls for text-line segmentation strategies. There are two separate workflows:
+
+- harness promotion: move a passing proposed strategy into the research benchmark role
+- production adoption: explicitly choose the strategy used by future app saves and regenerations
+
+Harness promotion is not an app rollout.
 
 ## Source Of Truth
 
-The checked-in benchmark/proposed role mapping lives in:
+The checked-in role mapping lives in:
 
     app/recognition/line_segmentation/strategy_config.py
 
-That file is the source of truth for:
+That file owns:
 
 - `benchmark_strategy_name`
 - `proposed_strategy_name`
-- `promotion_history`
+- `production_strategy_name`
+- `research_promotion_history`
+- `production_adoption_history`
 
 Generated artifacts under `app/tests/logs/` are evidence only.
 
 ## Current Initial State
 
-The current checked-in initial state for this harness is:
+The current checked-in state is:
 
-- benchmark: `legacy_axis_bound_v1`
-- proposed: `local_tangent_band_v1`
+- research benchmark: `legacy_axis_bound_v1`
+- research proposed: `local_tangent_band_v1`
+- production app default: `legacy_axis_bound_v1`
 
-`legacy_axis_bound_v1` remains available after promotion for rollback and historical comparison.
+`legacy_axis_bound_v1` remains available after any research promotion for rollback, historical comparison, and production pinning.
 
-## Evidence Generation
+## Harness Promotion
 
-Run the three-gate launcher:
+Harness promotion is evidence-gated. It changes only the research roles and research history.
+
+Prerequisite:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
@@ -39,38 +49,76 @@ If all three gates run, the launcher writes:
 - `app/tests/logs/strategy_promotion_latest.json`
 - `app/tests/logs/strategy_promotion_latest.md`
 
-Those files summarize:
-
-- benchmark strategy name
-- proposed strategy name
-- pass/fail status for each gate
-- primary metric comparisons
-- whether promotion is recommended
-
-## Promotion
-
-Review the evidence first, then run a dry run:
+Dry run:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
 conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json
 ```
 
-Apply only after review:
+Apply only after reviewing the dry-run output:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
 conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
 ```
 
-The script refuses to write when the evidence is missing, stale, failing, mismatched, or names an unregistered strategy.
-
-## Promotion Result
-
-Successful promotion does three things:
+Successful harness promotion:
 
 1. moves the candidate into `benchmark_strategy_name`
-2. clears `proposed_strategy_name` so the next research iteration must set a new candidate explicitly
-3. appends a history entry with evidence paths, primary metric summaries, timestamp, and tool identity
+2. clears `proposed_strategy_name`
+3. appends `research_promotion_history`
 
-This workflow keeps source changes reviewable and avoids the unsafe pattern of mutating tracked files inside Git pre-commit after the candidate commit index is already built.
+It does not change:
+
+- `production_strategy_name`
+- `production_adoption_history`
+- existing PAGE XML
+- existing OCR line images
+- GUI OCR crop behavior
+
+## Production Adoption
+
+Production adoption is the explicit app rollout step. It does not require verifier evidence because it is an operational decision after review.
+
+Dry run:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence"
+```
+
+Apply:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence" --apply
+```
+
+Successful production adoption:
+
+1. updates `production_strategy_name`
+2. appends `production_adoption_history`
+
+It does not change:
+
+- `benchmark_strategy_name`
+- `proposed_strategy_name`
+- `research_promotion_history`
+- existing PAGE XML
+- existing OCR line images
+- active-learning checkpoint lineage
+
+Production adoption affects future layout saves and regenerations only. Existing manuscripts and pages are not migrated automatically.
+
+## App OCR Non-Changes
+
+This workflow does not integrate local-tangent OCR unwrapping into the GUI runtime.
+
+Current GUI behavior remains:
+
+- app save/regeneration uses `production_strategy_name` for PAGE `Coords`
+- GUI OCR inference still crops from existing PAGE `Coords`
+- GUI active-learning training still defaults to `pagexml_coords`
+
+The `baseline_heatmap` verifier path remains a research/test harness path unless explicitly requested.

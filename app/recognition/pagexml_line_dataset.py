@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 import re
 import shutil
@@ -17,7 +18,7 @@ from shapely.geometry import Polygon
 
 try:
     from .line_segmentation import apply_text_line_segmentation_strategy
-    from .line_segmentation.strategy_config import get_benchmark_strategy_name
+    from .line_segmentation.strategy_config import get_production_strategy_name
     from .line_segmentation.legacy_axis_bound import (
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
@@ -29,7 +30,7 @@ try:
     )
 except ImportError:  # pragma: no cover - script execution fallback
     from line_segmentation import apply_text_line_segmentation_strategy
-    from line_segmentation.strategy_config import get_benchmark_strategy_name
+    from line_segmentation.strategy_config import get_production_strategy_name
     from line_segmentation.legacy_axis_bound import (
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
@@ -46,7 +47,8 @@ PAGE_XML_NS = {"p": PAGE_XML_NAMESPACE}
 GEOMETRY_SOURCE_PAGEXML_COORDS = "pagexml_coords"
 GEOMETRY_SOURCE_BASELINE_HEATMAP = "baseline_heatmap"
 SUPPORTED_GEOMETRY_SOURCES = {GEOMETRY_SOURCE_PAGEXML_COORDS, GEOMETRY_SOURCE_BASELINE_HEATMAP}
-DEFAULT_LINE_SEGMENTATION_STRATEGY = get_benchmark_strategy_name()
+DEFAULT_LINE_SEGMENTATION_STRATEGY = get_production_strategy_name()
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -349,6 +351,11 @@ def prepare_page_line_dataset(
     effective_strategy_name = requested_strategy_name
     if effective_geometry_source == GEOMETRY_SOURCE_BASELINE_HEATMAP and effective_strategy_name is None:
         effective_strategy_name = DEFAULT_LINE_SEGMENTATION_STRATEGY
+        LOGGER.info(
+            "Using production text-line segmentation strategy for baseline_heatmap preparation strategy=%s page=%s",
+            effective_strategy_name,
+            xml_path.stem,
+        )
 
     if effective_strategy_name is not None:
         source_text_line_count = _count_text_lines_with_text_and_baseline(xml_path)

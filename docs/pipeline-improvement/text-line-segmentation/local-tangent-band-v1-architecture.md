@@ -302,12 +302,22 @@ The checked-in strategy role source of truth now lives in:
 
     app/recognition/line_segmentation/strategy_config.py
 
-when the environment variable is not set.
+It records separate research and production roles:
+
+- `benchmark_strategy_name`
+- `proposed_strategy_name`
+- `production_strategy_name`
 
 The three ablation gates compare:
 
 - benchmark: `legacy_axis_bound_v1`
 - proposed: `local_tangent_band_v1`
+
+The current production app default remains:
+
+- production app: `legacy_axis_bound_v1`
+
+Research promotion moves only the benchmark/proposed harness roles. It does not change the production app default.
 
 Current acceptance behavior:
 
@@ -323,11 +333,17 @@ The v1 strategy is intentionally conservative.
 
 It does not yet perform OCR-confidence orientation selection across rotated/flipped candidate crops. It records deterministic metadata instead.
 
-It does not promote itself automatically. Promotion is now explicit through:
+It does not promote itself automatically. Research harness promotion is explicit through:
 
     scripts/promote_text_line_strategy.py
 
-It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remains the benchmark and also serves as the horizontal special case for the proposed strategy.
+It does not adopt itself into the app automatically. Production adoption is explicit through:
+
+    scripts/adopt_text_line_strategy_for_app.py
+
+It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remains the current production app default and also serves as the horizontal special case for the proposed strategy.
+
+Existing pages are not migrated automatically. GUI OCR inference still crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
 
 ## Validation Commands
 

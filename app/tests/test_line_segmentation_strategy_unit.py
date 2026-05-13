@@ -22,7 +22,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from recognition.line_segmentation import (
     apply_text_line_segmentation_strategy,
-    get_benchmark_strategy_name,
+    get_production_strategy_name,
     get_text_line_segmentation_strategy,
     list_text_line_segmentation_strategies,
 )
@@ -162,10 +162,14 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
 
     def test_app_save_module_uses_named_strategy_registry(self):
         source = (APP_ROOT / "gnn_inference.py").read_text(encoding="utf-8")
+        pagexml_source = (APP_ROOT / "recognition" / "pagexml_line_dataset.py").read_text(encoding="utf-8")
 
-        self.assertIn("DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = get_benchmark_strategy_name()", source)
+        self.assertIn("get_production_strategy_name", source)
+        self.assertNotIn("get_benchmark_strategy_name", source)
+        self.assertIn("get_production_strategy_name", pagexml_source)
+        self.assertNotIn("get_benchmark_strategy_name", pagexml_source)
         self.assertIn("apply_text_line_segmentation_strategy", source)
-        self.assertEqual(get_benchmark_strategy_name(), "legacy_axis_bound_v1")
+        self.assertEqual(get_production_strategy_name(), "legacy_axis_bound_v1")
 
     def _make_single_line_page(self, name: str, baseline_points: str, ink_rects: list[tuple[int, int, int, int]]):
         tmp_root = TESTS_ROOT / "_tmp_line_segmentation_strategy_unit" / name

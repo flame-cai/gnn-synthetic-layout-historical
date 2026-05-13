@@ -191,7 +191,7 @@ def main() -> int:
             print(f"[pre-commit] Artifact: {DEFAULT_PROMOTION_EVIDENCE_MD_PATH}", flush=True)
             print(f"[pre-commit] Artifact: {DEFAULT_PROMOTION_EVIDENCE_JSON_PATH}", flush=True)
             print(
-                "[pre-commit] Promotion recommended: "
+                "[pre-commit] Research harness promotion recommended: "
                 f"{evidence['promotion_recommended']} "
                 f"(benchmark={evidence['benchmark_strategy_name']}, proposed={evidence['proposed_strategy_name']})",
                 flush=True,
@@ -203,10 +203,15 @@ def main() -> int:
                     f"--previous-benchmark {evidence['benchmark_strategy_name']} "
                     f"--metrics {DEFAULT_PROMOTION_EVIDENCE_JSON_PATH.as_posix()} --apply"
                 )
-                print(f"[pre-commit] To promote the proposed strategy, run: {command}", flush=True)
+                print(f"[pre-commit] To promote the proposed strategy inside the research harness, run: {command}", flush=True)
+                print(
+                    "[pre-commit] This does not change the production app default; use "
+                    "scripts/adopt_text_line_strategy_for_app.py for explicit app adoption.",
+                    flush=True,
+                )
             else:
                 print(
-                    f"[pre-commit] Promotion blockers: {evidence.get('promotion_blockers', [])}",
+                    f"[pre-commit] Research harness promotion blockers: {evidence.get('promotion_blockers', [])}",
                     flush=True,
                 )
         else:

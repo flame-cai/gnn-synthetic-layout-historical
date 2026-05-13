@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import sys
@@ -57,7 +58,9 @@ class StrategyPromotionUnitTest(unittest.TestCase):
             {
                 "benchmark_strategy_name": "legacy_axis_bound_v1",
                 "proposed_strategy_name": "local_tangent_band_v1",
-                "promotion_history": [],
+                "production_strategy_name": "legacy_axis_bound_v1",
+                "research_promotion_history": [],
+                "production_adoption_history": [],
             },
         )
 
@@ -140,6 +143,8 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         self.assertEqual(before, after)
         self.assertEqual(result["config_after"]["benchmark_strategy_name"], "local_tangent_band_v1")
         self.assertIsNone(result["config_after"]["proposed_strategy_name"])
+        self.assertEqual(result["config_after"]["production_strategy_name"], "legacy_axis_bound_v1")
+        self.assertEqual(result["config_after"]["production_adoption_history"], [])
 
     def test_apply_updates_config_when_all_gates_pass(self):
         evidence_path = self._write_evidence()
@@ -157,8 +162,10 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         payload = _load_config_payload(self.config_path)
         self.assertEqual(payload["benchmark_strategy_name"], "local_tangent_band_v1")
         self.assertIsNone(payload["proposed_strategy_name"])
-        self.assertEqual(len(payload["promotion_history"]), 1)
-        self.assertEqual(payload["promotion_history"][0]["promoted_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
+        self.assertEqual(payload["production_adoption_history"], [])
+        self.assertEqual(len(payload["research_promotion_history"]), 1)
+        self.assertEqual(payload["research_promotion_history"][0]["promoted_strategy_name"], "local_tangent_band_v1")
 
     def test_apply_is_idempotent_and_does_not_duplicate_history(self):
         evidence_path = self._write_evidence()
@@ -182,7 +189,43 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         self.assertFalse(second["changed"])
         self.assertTrue(second["idempotent"])
         payload = _load_config_payload(self.config_path)
-        self.assertEqual(len(payload["promotion_history"]), 1)
+        self.assertEqual(len(payload["research_promotion_history"]), 1)
+
+    def test_apply_preserves_existing_production_adoption_state(self):
+        write_strategy_role_config(
+            self.config_path,
+            {
+                "benchmark_strategy_name": "legacy_axis_bound_v1",
+                "proposed_strategy_name": "local_tangent_band_v1",
+                "production_strategy_name": "legacy_axis_bound_v1",
+                "research_promotion_history": [],
+                "production_adoption_history": [
+                    {
+                        "adopted_strategy_name": "legacy_axis_bound_v1",
+                        "previous_production_strategy_name": "legacy_axis_bound_v1",
+                        "adoption_timestamp_utc": "2026-05-12T00:00:00Z",
+                        "author_or_tool": "unit-test",
+                        "reason": "existing production state",
+                    }
+                ],
+            },
+        )
+        evidence_path = self._write_evidence()
+
+        promote_text_line_strategy(
+            candidate="local_tangent_band_v1",
+            previous_benchmark="legacy_axis_bound_v1",
+            metrics_path=evidence_path,
+            apply=True,
+            strategy_config_path=self.config_path,
+        )
+
+        payload = _load_config_payload(self.config_path)
+        self.assertEqual(payload["benchmark_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
+        self.assertEqual(len(payload["research_promotion_history"]), 1)
+        self.assertEqual(len(payload["production_adoption_history"]), 1)
+        self.assertEqual(payload["production_adoption_history"][0]["reason"], "existing production state")
 
     def test_refuses_when_metrics_file_is_missing(self):
         missing_path = self.tmp_root / "missing.json"
@@ -200,6 +243,24 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         evidence_path = self._write_evidence(all_passed=False)
 
         with self.assertRaisesRegex(ValueError, "did not recommend promotion"):
+            promote_text_line_strategy(
+                candidate="local_tangent_band_v1",
+                previous_benchmark="legacy_axis_bound_v1",
+                metrics_path=evidence_path,
+                apply=False,
+                strategy_config_path=self.config_path,
+            )
+
+    def test_refuses_when_evidence_is_stale(self):
+        evidence_path = self._write_evidence()
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+        stale_artifact = Path(
+            evidence["gate_results"]["pipeline_eval_dataset"]["artifact_paths"]["latest_metrics_json"]
+        )
+        stale_mtime = stale_artifact.stat().st_mtime + 5.0
+        os.utime(stale_artifact, (stale_mtime, stale_mtime))
+
+        with self.assertRaisesRegex(ValueError, "evidence was stale"):
             promote_text_line_strategy(
                 candidate="local_tangent_band_v1",
                 previous_benchmark="legacy_axis_bound_v1",

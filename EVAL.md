@@ -1,10 +1,12 @@
 # EVAL.md
 
-This document explains the current verifier-driven evaluation harness and the explicit promotion workflow for text-line segmentation strategy research. It is also written as a reusable template for future agents who want to apply the same harness to a different pipeline stage.
+This document explains the current verifier-driven evaluation harness, the research-only promotion workflow for text-line segmentation strategy research, and the separate production adoption workflow for the app. It is also written as a reusable template for future agents who want to apply the same harness to a different pipeline stage.
 
 ## Core Principle
 
 The harness compares one checked-in `benchmark_strategy` against one checked-in `proposed_strategy` using the same plumbing and the same external verifiers.
+
+The production app separately reads one checked-in `production_strategy`. Research promotion does not change that production app pin.
 
 Generated log artifacts are evidence.
 
@@ -14,7 +16,8 @@ That split matters because local artifacts under `app/tests/logs/` may not exist
 
 - which strategy currently owns the benchmark role
 - which strategy is the current promotion candidate
-- what the promotion history was
+- which strategy the app uses for future layout saves and regenerations
+- what the research promotion and production adoption histories were
 
 ## Current Harness Target
 
@@ -42,6 +45,10 @@ The promotion and evidence tooling lives in:
 - `scripts/run_precommit_eval.py`
 - `scripts/promote_text_line_strategy.py`
 
+The production adoption tooling lives in:
+
+- `scripts/adopt_text_line_strategy_for_app.py`
+
 The strategy comparison config lives in:
 
 - `app/tests/precommit_gate_config.py`
@@ -58,10 +65,13 @@ The checked-in initial role mapping for this harness is:
 
 - benchmark: `legacy_axis_bound_v1`
 - proposed: `local_tangent_band_v1`
+- production app: `legacy_axis_bound_v1`
 
 `legacy_axis_bound_v1` is the preserved historical benchmark.
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
+
+`production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
 ## Three External Verifier Gates
 
@@ -245,9 +255,9 @@ This aggregate file summarizes:
 
 This file is still evidence only. It does not change the benchmark role by itself.
 
-## Promotion Workflow
+## Research Harness Promotion Workflow
 
-The promotion workflow is explicit:
+Harness promotion is explicit and research-only:
 
 1. Run `scripts/run_precommit_eval.py`.
 2. Inspect the latest gate artifacts and aggregate promotion evidence.
@@ -278,7 +288,31 @@ The promotion script refuses to write when:
 - the evidence names a different benchmark or candidate than the CLI request
 - the candidate strategy is not registered
 
-On success it updates `app/recognition/line_segmentation/strategy_config.py`, moves the candidate into the benchmark slot, clears the proposed slot, and appends promotion history.
+On success it updates `app/recognition/line_segmentation/strategy_config.py`, moves the candidate into the research benchmark slot, clears the proposed slot, and appends `research_promotion_history`.
+
+It does not change `production_strategy_name` or `production_adoption_history`. A harness promotion must not be treated as a GUI/app rollout.
+
+## Production Adoption Workflow
+
+Production adoption is separate and explicit. It chooses the strategy used by future app layout saves and regenerations.
+
+Dry run:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence"
+```
+
+Apply:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence" --apply
+```
+
+The adoption script validates that the named strategy is registered. On success it updates only `production_strategy_name` and `production_adoption_history`; it does not mutate the research benchmark/proposed roles and does not require verifier evidence.
+
+No migration happens automatically. Existing PAGE XML, existing OCR line images, and active-learning checkpoint lineage remain as they are. GUI OCR inference continues to crop from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
 
 ## Hook Behavior
 
@@ -307,6 +341,7 @@ Promotion unit tests:
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
 conda run -n gnn_layout python -m unittest app.tests.test_strategy_promotion_unit -v
+conda run -n gnn_layout python -m unittest app.tests.test_strategy_adoption_unit -v
 ```
 
 Strategy configuration and crop behavior:
@@ -348,5 +383,5 @@ Future agents should preserve the same structure instead of inventing a new one-
 6. Keep promotion explicit.
    A gate run may recommend promotion, but it should not silently rewrite tracked source during pre-commit.
 
-7. Retain old strategy code and promotion history.
+7. Retain old strategy code and research promotion history.
    Research branches need rollback and historical comparison, not destructive replacement.

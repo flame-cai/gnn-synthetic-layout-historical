@@ -66,6 +66,7 @@ The source-of-truth files are:
 - `app/profiling.py`
 - `app/recognition/active_learning.py`
 - `app/recognition/active_learning_recipe.py`
+- `app/recognition/line_segmentation/strategy_config.py`
 - `app/recognition/pagexml_line_dataset.py`
 - `app/recognition/dataset.py`
 - `app/recognition/ocr_defaults.py`
@@ -84,6 +85,8 @@ The source-of-truth files are:
 - `app/tests/test_recognition_finetuning_e2e.py`
 - `app/tests/test_recognition_telemetry_unit.py`
 - `scripts/run_precommit_eval.py`
+- `scripts/promote_text_line_strategy.py`
+- `scripts/adopt_text_line_strategy_for_app.py`
 - `.githooks/pre-commit`
 
 The current harness supports:
@@ -103,7 +106,15 @@ The current harness supports:
 - a generic app-level job orchestrator with priorities, GPU device leases, and isolated OCR fine-tune/rebase jobs that can be canceled and requeued for interactive OCR
 - manuscript-aware local OCR inference that loads the current manuscript checkpoint instead of assuming one global active model forever
 - structured page/job telemetry and coarse profiling summaries, with optional sampled CUDA traces
+- separated text-line strategy lifecycle state in `app/recognition/line_segmentation/strategy_config.py`: research uses `benchmark_strategy_name`, `proposed_strategy_name`, and `research_promotion_history`; the app uses `production_strategy_name` and `production_adoption_history`
 - run artifacts including `curve_metrics.json`, `per_page.csv`, `per_line.csv`, `selector_metrics.json`, `fine_tune_metadata.json`, and plots. These artifacts are generated locally and should not be assumed to exist in a fresh GitHub checkout.
+
+Text-line strategy rollout has two explicit workflows:
+
+- `scripts/promote_text_line_strategy.py` promotes a proposed strategy inside the research harness only. It must not be treated as a GUI/app rollout.
+- `scripts/adopt_text_line_strategy_for_app.py` adopts a registered strategy for future app layout saves/regenerations by changing `production_strategy_name`.
+
+Existing PAGE XML, OCR line images, and active-learning checkpoint lineage are not migrated automatically by either workflow. GUI OCR inference still crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
 
 Earlier cumulative and page-only studies are now treated as preserved conclusions rather than live code paths. The retained conclusions are:
 

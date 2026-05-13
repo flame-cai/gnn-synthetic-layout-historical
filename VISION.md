@@ -41,8 +41,9 @@ The generic pattern is:
 3. Implement one checked-in `proposed_strategy`.
 4. Run the same external verifiers against both roles.
 5. Aggregate the gate evidence.
-6. Promote the proposed strategy explicitly only after all gates pass.
-7. Keep the old strategy code and history for rollback and future ablations.
+6. Promote the proposed strategy explicitly inside the research harness only after all gates pass.
+7. Adopt a strategy for production app use through a separate explicit command.
+8. Keep the old strategy code and history for rollback and future ablations.
 
 This harness is intentionally broader than text-line segmentation. A future agent can adapt it to another pipeline component if it first writes down:
 
@@ -50,9 +51,9 @@ This harness is intentionally broader than text-line segmentation. A future agen
 - the exact output contract
 - the primary quality metrics
 - the acceptable regression rules
-- the promotion command and source-of-truth config
+- the research promotion command, production adoption command, and source-of-truth config
 
-The important design rule is that generated logs are evidence, but checked-in source config is the source of truth for which strategy currently owns the benchmark role.
+The important design rule is that generated logs are evidence, but checked-in source config is the source of truth for which strategy currently owns the research benchmark role and which strategy the app uses in production.
 
 ## Current Harness Instance: Text-Line Segmentation To OCR Crops
 
@@ -75,6 +76,7 @@ The current concrete strategies are:
 
 - benchmark: `legacy_axis_bound_v1`
 - proposed: `local_tangent_band_v1`
+- production app: `legacy_axis_bound_v1`
 
 `legacy_axis_bound_v1` preserves the historical axis-aligned behavior. `local_tangent_band_v1` is the generalized strategy for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
 
@@ -85,9 +87,10 @@ The current explicit workflow is:
 3. The developer runs or triggers the three pre-commit gates.
 4. `scripts/run_precommit_eval.py` writes gate artifacts and aggregate promotion evidence.
 5. The developer reviews the evidence and runs `scripts/promote_text_line_strategy.py --apply`.
-6. The benchmark role moves forward in checked-in config, while old strategy code remains available for comparison.
+6. The research benchmark role moves forward in checked-in config, while old strategy code remains available for comparison.
+7. A separate operator decision runs `scripts/adopt_text_line_strategy_for_app.py --apply` if the app should use a different production strategy.
 
-This keeps promotion reviewable. The pre-commit path does not silently mutate tracked config after Git has already prepared the commit.
+This keeps promotion and production rollout reviewable. The pre-commit path does not silently mutate tracked config after Git has already prepared the commit, and research promotion is not a GUI/app rollout.
 
 ## Current Evaluation And Promotion State
 
@@ -104,6 +107,10 @@ The launcher is:
 The explicit promotion command is:
 
 - `scripts/promote_text_line_strategy.py`
+
+The explicit production adoption command is:
+
+- `scripts/adopt_text_line_strategy_for_app.py`
 
 The current strategy docs live under:
 
@@ -136,12 +143,13 @@ The retained OCR continuation recipe remains the hybrid `page_plus_random_histor
 - `lr=0.2`
 - `num_iter=60`
 
-The repository therefore has two complementary promotion concepts today:
+The repository therefore has two complementary promotion/adoption concepts today:
 
 1. manuscript-local OCR checkpoint promotion inside the runtime
-2. repository-level text-line segmentation strategy promotion through checked-in config
+2. repository-level text-line segmentation research promotion through checked-in config
+3. repository-level text-line segmentation production adoption through checked-in config
 
-Both follow the same product rule: promotion must be explicit and evidenced, not silent.
+They follow the same product rule: promotion or adoption must be explicit, reviewable, and not silent.
 
 ## Broader Research Direction
 
@@ -157,13 +165,14 @@ For each new stage, future agents should preserve the same discipline:
 - stable benchmark/proposed role names
 - one checked-in role config
 - external verifier artifacts
-- explicit promotion after review
+- explicit research promotion after review
+- explicit production adoption when app behavior should change
 - historical code retained for comparison and rollback
 
 ## Non-Negotiable Constraints
 
 - The app must remain usable while research code changes.
 - A successful gate run must never silently edit tracked source config.
-- Promotions must be explicit, reviewable, and reproducible.
+- Promotions and production adoptions must be explicit, reviewable, and reproducible.
 - Generated artifacts must not be the only place where important conclusions live.
 - Human-effort reduction should become a first-class logged metric, not only an anecdotal goal.

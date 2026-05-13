@@ -150,6 +150,16 @@ Current behavior:
 Gemini can still be used for prediction, but the active-learning lineage is built around the local OCR checkpoint family (EasyOCR based recognition model 'vadakautuhala.pth') and its manuscript-specific promotions.
 
 
+#### Text-Line Strategy Roles
+The app and the research verifier use separate text-line segmentation role pins in `app/recognition/line_segmentation/strategy_config.py`.
+
+- `benchmark_strategy_name` and `proposed_strategy_name` are research harness roles.
+- `production_strategy_name` is the app default used for future layout saves and regenerations.
+
+The current production app strategy is `legacy_axis_bound_v1`. Research promotion does not change the production app default. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
+
+GUI OCR behavior is unchanged by strategy lifecycle changes: OCR inference crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
+
 
 #### Automated Evaluation Checks (GUI-free)
 The repository now has three GUI-free pre-commit gates for text-line segmentation strategy ablations:
@@ -158,7 +168,7 @@ The repository now has three GUI-free pre-commit gates for text-line segmentatio
 - a surrogate OCR fine-tuning gate on `app/tests/eval_dataset/`
 - a circular-layout OCR fine-tuning gate on `app/tests/eval_dataset_v2/`
 
-Each gate runs the checked-in `benchmark_strategy` and `proposed_strategy` through the same implementation path. The gate artifacts are evidence only. Promotion of the proposed strategy is a separate explicit command.
+Each gate runs the checked-in `benchmark_strategy` and `proposed_strategy` through the same implementation path. The gate artifacts are evidence only. Promotion of the proposed strategy is a separate explicit research-harness command, not an app rollout.
 
 To run only the pretrained full-pipeline validation flow without opening the GUI, use the dedicated integration test from the `app/` directory:
 
@@ -208,14 +218,30 @@ When all three gates pass, `scripts/run_precommit_eval.py` writes:
 - `app/tests/logs/strategy_promotion_latest.json`
 - `app/tests/logs/strategy_promotion_latest.md`
 
-To promote the proposed strategy after reviewing those artifacts, run:
+To promote the proposed strategy inside the research harness after reviewing those artifacts, run:
 
 ```bash
 conda activate gnn_layout
 python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
 ```
 
-The exact benchmark and proposed names come from `app/recognition/line_segmentation/strategy_config.py`. After a promotion, use the names currently recorded there.
+The exact benchmark and proposed names come from `app/recognition/line_segmentation/strategy_config.py`. After a research promotion, use the names currently recorded there.
+
+To adopt a registered strategy as the production app default, run a separate dry run first:
+
+```bash
+conda activate gnn_layout
+python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence"
+```
+
+Then apply only after reviewing the dry-run output:
+
+```bash
+conda activate gnn_layout
+python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence" --apply
+```
+
+Production adoption changes only `production_strategy_name` and `production_adoption_history`; it does not mutate the benchmark/proposed research roles.
 
 By default the temporary manuscript artifacts are deleted after the test. Set `KEEP_CI_ARTIFACTS=1` before the command if you want to inspect the generated manuscript outputs under `app/input_manuscripts/_ci_root/`.
 

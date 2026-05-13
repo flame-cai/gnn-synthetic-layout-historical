@@ -17,7 +17,7 @@ from collections import defaultdict
 import xml.etree.ElementTree as ET
 
 from recognition.line_segmentation import apply_text_line_segmentation_strategy
-from recognition.line_segmentation.strategy_config import get_benchmark_strategy_name
+from recognition.line_segmentation.strategy_config import get_production_strategy_name
 from recognition.pagexml_line_dataset import (
     _encode_like_app_jpg,
     _load_processing_image,
@@ -42,7 +42,14 @@ from gnn_training.gnn_data_preparation.feature_engineering import (
 LOADED_MODEL = None
 LOADED_CONFIG = None
 DEVICE = None
-DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = get_benchmark_strategy_name()
+LOGGER = logging.getLogger(__name__)
+
+
+def get_default_text_line_segmentation_strategy() -> str:
+    return get_production_strategy_name()
+
+
+DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = get_default_text_line_segmentation_strategy()
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -178,12 +185,19 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         "CC_SIZE_THRESHOLD_RATIO": args_dict.get("CC_SIZE_THRESHOLD_RATIO", 0.4),
         "include_empty_text_lines": True,
     }
+    strategy_name = get_default_text_line_segmentation_strategy()
+    LOGGER.info(
+        "Applying production text-line segmentation strategy strategy=%s manuscript=%s page_id=%s",
+        strategy_name,
+        base_path.name,
+        page_id,
+    )
     strategy_result = apply_text_line_segmentation_strategy(
         page_image_path=base_path / "images_resized" / f"{page_id}.jpg",
         heatmap_path=base_path / "heatmaps" / f"{page_id}.jpg",
         source_pagexml_path=baseline_xml_path,
         output_pagexml_path=final_xml_path,
-        strategy_name=DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY,
+        strategy_name=strategy_name,
         strategy_config=strategy_config,
         metadata_path=output_dir / "page-xml-format" / f"{page_id}_line_segmentation_metadata.json",
     )

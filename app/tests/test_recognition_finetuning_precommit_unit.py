@@ -25,7 +25,11 @@ from tests.recognition_finetuning_experiment import (
     _config_for_strategy_role,
     _policy_descriptor,
 )
-from recognition.line_segmentation.strategy_config import get_benchmark_strategy_name, get_proposed_strategy_name
+from recognition.line_segmentation.strategy_config import (
+    get_benchmark_strategy_name,
+    get_proposed_strategy_name,
+    get_production_strategy_name,
+)
 from recognition.pagexml_line_dataset import prepare_page_line_dataset
 
 
@@ -304,7 +308,7 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(prepared.geometry_source, "baseline_heatmap")
-        self.assertEqual(prepared.line_segmentation_strategy_name, get_benchmark_strategy_name())
+        self.assertEqual(prepared.line_segmentation_strategy_name, get_production_strategy_name())
         self.assertTrue(Path(prepared.line_segmentation_metadata_path).exists())
         self.assertEqual(len(prepared.records), 1)
         xs = [point[0] for point in prepared.records[0].polygon_points]

@@ -20,7 +20,9 @@ from tests.recognition_finetuning_config import get_precommit_hybrid_recognition
 from recognition.line_segmentation.strategy_config import (
     get_benchmark_strategy_name,
     get_proposed_strategy_name,
+    get_production_strategy_name,
     get_strategy_role_config,
+    normalize_strategy_role_config_payload,
 )
 
 
@@ -70,7 +72,48 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
 
         self.assertEqual(payload["benchmark_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(payload["proposed_strategy_name"], "local_tangent_band_v1")
-        self.assertEqual(payload["promotion_history"], [])
+        self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
+        self.assertEqual(get_production_strategy_name(), "legacy_axis_bound_v1")
+        self.assertEqual(payload["research_promotion_history"], [])
+        self.assertEqual(payload["production_adoption_history"], [])
+
+    def test_strategy_role_config_allows_research_and_production_to_diverge(self):
+        research_promoted_payload = normalize_strategy_role_config_payload(
+            {
+                "benchmark_strategy_name": "local_tangent_band_v1",
+                "proposed_strategy_name": None,
+                "production_strategy_name": "legacy_axis_bound_v1",
+                "research_promotion_history": [{"promoted_strategy_name": "local_tangent_band_v1"}],
+                "production_adoption_history": [],
+            }
+        )
+        production_adopted_payload = normalize_strategy_role_config_payload(
+            {
+                "benchmark_strategy_name": "legacy_axis_bound_v1",
+                "proposed_strategy_name": "local_tangent_band_v1",
+                "production_strategy_name": "local_tangent_band_v1",
+                "research_promotion_history": [],
+                "production_adoption_history": [{"adopted_strategy_name": "local_tangent_band_v1"}],
+            }
+        )
+
+        self.assertEqual(research_promoted_payload["benchmark_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(research_promoted_payload["production_strategy_name"], "legacy_axis_bound_v1")
+        self.assertEqual(production_adopted_payload["benchmark_strategy_name"], "legacy_axis_bound_v1")
+        self.assertEqual(production_adopted_payload["production_strategy_name"], "local_tangent_band_v1")
+
+    def test_legacy_promotion_history_key_normalizes_to_research_history(self):
+        payload = normalize_strategy_role_config_payload(
+            {
+                "benchmark_strategy_name": "legacy_axis_bound_v1",
+                "proposed_strategy_name": "local_tangent_band_v1",
+                "promotion_history": [{"promoted_strategy_name": "legacy_axis_bound_v1"}],
+            }
+        )
+
+        self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
+        self.assertEqual(payload["research_promotion_history"], [{"promoted_strategy_name": "legacy_axis_bound_v1"}])
+        self.assertEqual(payload["production_adoption_history"], [])
 
 
 if __name__ == "__main__":
