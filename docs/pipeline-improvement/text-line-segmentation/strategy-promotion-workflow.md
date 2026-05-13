@@ -33,6 +33,24 @@ The current checked-in state is:
 
 `legacy_axis_bound_v1` remains available after any research promotion for rollback, historical comparison, and production pinning.
 
+## Why The Lifecycles Are Separate
+
+The production app and the research harness currently prepare OCR line images from different starting geometry.
+
+Production GUI/runtime path:
+
+- app save/regeneration writes PAGE `TextLine/Coords` using `production_strategy_name`
+- GUI OCR inference crops line images directly from the existing PAGE `Coords`
+- GUI active-learning training still defaults to `pagexml_coords`
+
+Research verifier path:
+
+- strategy ablation gates start from PAGE `Baseline` plus page image and heatmap
+- the selected strategy regenerates PAGE-space `TextLine/Coords`
+- OCR verifier crops are then prepared from that regenerated geometry
+
+This is the main reason harness promotion must not be treated as production adoption. Cleanly adopting a baseline-derived strategy such as `local_tangent_band_v1` in the app is not just a config flip for OCR behavior. It needs explicit infrastructure decisions around when to regenerate PAGE `Coords`, how to preserve existing pages without migration, how to record which geometry/crop strategy produced active-learning samples, and whether/when GUI OCR should use local-tangent unwrapped crops instead of direct masked crops from PAGE `Coords`.
+
 ## Harness Promotion
 
 Harness promotion is evidence-gated. It changes only the research roles and research history.

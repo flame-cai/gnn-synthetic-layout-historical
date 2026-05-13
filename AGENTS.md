@@ -116,6 +116,8 @@ Text-line strategy rollout has two explicit workflows:
 
 Existing PAGE XML, OCR line images, and active-learning checkpoint lineage are not migrated automatically by either workflow. GUI OCR inference still crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
 
+This separation exists because production and research crop preparation do not start from the same geometry. Production OCR uses the PAGE `Coords` already present on a saved page. The OCR strategy ablation harness starts from PAGE `Baseline` plus checked-in heatmaps/images, regenerates `Coords` through the selected strategy, and then prepares OCR crops. Treat production integration of baseline-derived or local-tangent crop behavior as a separate app/runtime change that must decide regeneration timing, no-migration behavior, active-learning lineage metadata, and whether GUI OCR should adopt unwrapped crops.
+
 Earlier cumulative and page-only studies are now treated as preserved conclusions rather than live code paths. The retained conclusions are:
 
 - the broad and focused sweeps established `batch_max_pad + no oversampling + no augmentation` as the stable structural stack worth keeping

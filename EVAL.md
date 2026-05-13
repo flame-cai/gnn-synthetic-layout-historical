@@ -73,6 +73,10 @@ The checked-in initial role mapping for this harness is:
 
 `production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
+The crop-preparation boundary is intentional. The production GUI currently prepares OCR line images from existing PAGE `TextLine/Coords`; GUI OCR inference crops directly from those `Coords`, and GUI active-learning training still defaults to `pagexml_coords`. The research OCR ablation gates instead start from PAGE `Baseline` plus the page image and heatmap, regenerate `Coords` through the selected strategy, and then prepare OCR crops from the regenerated geometry. Because those paths do not have the same operational contract, adopting a strategy for the app requires explicit production infrastructure decisions rather than a silent consequence of harness promotion.
+
+Production integration work that is intentionally not hidden inside harness promotion includes deciding when to regenerate PAGE `Coords`, how to avoid migrating existing pages unexpectedly, how to record the geometry/crop strategy used for active-learning samples, and whether GUI OCR should later use local-tangent unwrapped crops rather than direct masked crops from PAGE `Coords`.
+
 ## Three External Verifier Gates
 
 All three gates run benchmark and proposed through the same strategy-aware implementation path.

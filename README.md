@@ -160,6 +160,8 @@ The current production app strategy is `legacy_axis_bound_v1`. Research promotio
 
 GUI OCR behavior is unchanged by strategy lifecycle changes: OCR inference crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
 
+This separation is intentional because the verifier and the app do not prepare OCR crops from the same starting geometry. The research OCR ablation gates start from PAGE `Baseline` plus eval heatmaps/images, regenerate `Coords` through the selected strategy, and then crop from that regenerated geometry. The production GUI path uses the PAGE `Coords` already present on the saved page. Moving a baseline-derived strategy into production therefore needs explicit infrastructure choices around page regeneration, no-migration behavior, active-learning lineage metadata, and future local-tangent OCR unwrapping.
+
 
 #### Automated Evaluation Checks (GUI-free)
 The repository now has three GUI-free pre-commit gates for text-line segmentation strategy ablations:

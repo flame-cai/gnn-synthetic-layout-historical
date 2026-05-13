@@ -345,6 +345,8 @@ It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remain
 
 Existing pages are not migrated automatically. GUI OCR inference still crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
 
+That production/research split is intentional. The research harness can safely evaluate `local_tangent_band_v1` by starting from PAGE `Baseline`, page image, and heatmap, regenerating PAGE `Coords`, and preparing OCR crops from that regenerated geometry. The production GUI currently starts OCR crop preparation from the PAGE `Coords` already saved for the page. Making local-tangent geometry or unwrapped crops part of the production OCR runtime needs a separate integration plan for when to regenerate saved geometry, how to avoid surprising migration of existing pages, how to tag active-learning samples with the geometry/crop strategy that produced them, and how to preserve current direct-`Coords` OCR behavior until the rollout is explicit.
+
 ## Validation Commands
 
 Use the `gnn_layout` conda environment from the repository root.
