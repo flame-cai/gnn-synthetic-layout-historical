@@ -2,11 +2,11 @@
 
 This document describes the current `legacy_axis_bound_v1` text-line segmentation strategy in enough detail to reimplement it without reading the source code.
 
-It also places the strategy in the context of the behavior-preserving production refactor proposed in `docs/exec-plans/proposed/production-strategy-aware-ocr-crops.md`. The important point for that refactor is that a text-line segmentation strategy is not only "how PAGE-XML `Coords` are generated". For OCR, the strategy also includes "how PAGE-XML geometry is converted into OCR line images". Today those two responsibilities are split across different parts of the application.
+It also places the strategy in the context of the behavior-preserving production refactor implemented through `docs/exec-plans/proposed/production-strategy-aware-ocr-crops.md`. The important point for that refactor is that a text-line segmentation strategy is not only "how PAGE-XML `Coords` are generated". For OCR, the strategy also includes "how PAGE-XML geometry is converted into OCR line images".
 
 ## Current Role
 
-`legacy_axis_bound_v1` is the current axis-aligned benchmark strategy for the text-line segmentation research harness. It is also the behavior that production should preserve while production code is refactored to become strategy-aware.
+`legacy_axis_bound_v1` is the current axis-aligned benchmark strategy for the text-line segmentation research harness. It is also the current production behavior preserved by the strategy-aware OCR crop layer.
 
 The strategy generates PAGE `TextLine/Coords` polygons from:
 
@@ -21,16 +21,16 @@ The strategy is "legacy" because most of its geometry comes from the older `src/
 
 ## Production Refactor Context
 
-The proposed production refactor should preserve current behavior for `legacy_axis_bound_v1` while making the production path modular enough for later strategies such as `local_tangent_band_v1`.
+The production refactor preserves current behavior for `legacy_axis_bound_v1` while making the production path modular enough for later strategies such as `local_tangent_band_v1`.
 
-The current production behavior is split:
+The current production behavior is explicitly two-phase:
 
 - PAGE `Coords` generation can already start from PAGE `Baseline` geometry through the registered text-line strategy.
-- Production OCR inference and active-learning training still mostly consume the saved PAGE `Coords` directly and crop with the app's generic masked polygon crop.
+- Production OCR inference, app line-image export, and active-learning training consume saved PAGE `Coords` through `app/recognition/line_segmentation/ocr_crops.py`.
 
-For `legacy_axis_bound_v1`, that split is behavior-preserving because the final OCR crop is an axis-aligned masked crop of the generated line polygon. The generated polygon itself already came from axis-aligned heatmap boxes, padding, connected-component cleanup, rectangular masks, and contour extraction.
+For `legacy_axis_bound_v1`, that crop layer keeps the final OCR crop as an axis-aligned masked crop of the generated line polygon. The generated polygon itself already came from axis-aligned heatmap boxes, padding, connected-component cleanup, rectangular masks, and contour extraction.
 
-For a future strategy with a different crop model, such as a local tangent band or unwrapped curved-line crop, changing only PAGE `Coords` generation would be incomplete. The PAGE polygon may change, but OCR would still use the old masked crop behavior unless OCR crop preparation is also routed through the strategy. The production refactor should therefore make the crop preparation step explicit while keeping the default legacy crop identical to today's behavior.
+For a future strategy with a different crop model, such as a local tangent band or unwrapped curved-line crop, changing only PAGE `Coords` generation would be incomplete. The PAGE polygon may change, and the shared crop layer now has one place to honor per-line crop metadata. The default legacy crop remains identical to the historical masked behavior.
 
 ## Production GUI Save Context
 
@@ -94,7 +94,7 @@ layout_analysis_output/page-xml-format/<page_id>.xml
 
 For the current production default, the strategy is `legacy_axis_bound_v1` and `include_empty_text_lines` is passed as `true`.
 
-After the final PAGE XML is written, production regenerates app line images from that final PAGE XML. The current crop path reads the generated `TextLine/Coords` and applies the generic masked polygon crop.
+After the final PAGE XML is written, production regenerates app line images from that final PAGE XML. The crop path reads the generated `TextLine/Coords`, loads the sibling line-segmentation metadata when present, and calls the shared crop layer. For `legacy_axis_bound_v1`, the selected crop remains the generic masked polygon crop.
 
 This means a user layout change affects OCR geometry in this order:
 
@@ -136,9 +136,13 @@ The current implementation is spread across these files:
 
 - `app/recognition/pagexml_line_dataset.py`
   - OCR dataset loading from PAGE XML
-  - app-style masked line crop generation from final PAGE `Coords`
 
-The scratch line images written by `segment_from_point_clusters.py` are not the canonical production OCR crops. In the app and research OCR harness, final OCR crops are prepared later from the resulting PAGE XML, usually through the masked crop logic in `pagexml_line_dataset.py`.
+- `app/recognition/line_segmentation/ocr_crops.py`
+  - app-style masked line crop generation from final PAGE `Coords`
+  - strategy metadata loading and crop-model selection
+  - local-tangent unwrap delegation when metadata requests it
+
+The scratch line images written by `segment_from_point_clusters.py` are not the canonical production OCR crops. In the app and research OCR harness, final OCR crops are prepared later from the resulting PAGE XML through `ocr_crops.py`.
 
 ## Strategy Name
 
@@ -883,7 +887,7 @@ The strategy does not alter the baseline points themselves.
 
 ## OCR Crop Behavior For Legacy
 
-The OCR crop behavior currently used after PAGE XML preparation is the generic PAGE polygon masked crop in `app/recognition/pagexml_line_dataset.py`.
+The OCR crop behavior currently used after PAGE XML preparation is the generic PAGE polygon masked crop in `app/recognition/line_segmentation/ocr_crops.py`.
 
 For each prepared line record:
 
@@ -907,7 +911,7 @@ This crop is axis-aligned at the outer bounding rectangle level. It preserves pi
 
 For `legacy_axis_bound_v1`, this is consistent with the generated geometry because the polygon is itself built from axis-aligned rectangles and rectangular bridges.
 
-The production refactor should preserve this exact crop behavior as the default legacy OCR crop implementation.
+This exact crop behavior is the default legacy OCR crop implementation and the fallback when line-segmentation metadata is missing, malformed, unsupported, or delegated to legacy behavior.
 
 ## End-To-End Data Flow
 
@@ -958,7 +962,7 @@ insert generated TextLine/Coords by numeric line id
 write PAGE XML and metadata
         |
         v
-OCR dataset/inference crop preparation reads final PAGE Coords
+OCR dataset/inference crop preparation reads final PAGE Coords and optional metadata
         |
         v
 legacy masked polygon crop creates OCR line image
@@ -1012,11 +1016,11 @@ The strategy updates line polygons only. It does not recompute text-region polyg
 
 The baseline-derived research harness cannot perfectly reconstruct every manual graph edit from PAGE baseline alone. PAGE baselines do not preserve every added or deleted graph node. That is why research gates track geometry coverage metrics such as `source_line_coverage` and `heatmap_box_assignment_rate`.
 
-## Behavior-Preserving Refactor Requirements
+## Behavior-Preserving Refactor Contract
 
-When implementing the production strategy-aware OCR crop refactor, `legacy_axis_bound_v1` should become the default compatibility strategy for both geometry and crop preparation.
+The production strategy-aware OCR crop refactor makes `legacy_axis_bound_v1` the default compatibility strategy for both geometry and crop preparation.
 
-The refactor should introduce an explicit production crop strategy boundary with behavior equivalent to:
+The explicit production crop strategy boundary has behavior equivalent to:
 
 ```text
 crop_strategy = masked_pagexml_coords
@@ -1025,7 +1029,7 @@ geometry_strategy = legacy_axis_bound_v1
 
 For legacy behavior, OCR line images should remain byte-level or near-byte-level equivalent subject to existing JPEG encoding and OpenCV version differences.
 
-The refactor should make this contract visible in metadata:
+The crop layer makes this contract visible in metadata:
 
 - production geometry strategy name
 - OCR crop strategy name
@@ -1041,7 +1045,7 @@ crop_strategy = masked_pagexml_coords
 unwrapped = false
 ```
 
-The refactor should not silently change production OCR crop behavior while adding modularity. `local_tangent_band_v1` or any future curved-line strategy should require an explicit crop-preparation implementation and explicit adoption step before production OCR starts using unwrapped crops.
+The refactor does not silently change production OCR crop behavior while adding modularity. `local_tangent_band_v1` or any future curved-line strategy still requires explicit production adoption before newly saved production pages carry metadata that asks OCR to use unwrapped crops.
 
 ## Verification Guidance
 

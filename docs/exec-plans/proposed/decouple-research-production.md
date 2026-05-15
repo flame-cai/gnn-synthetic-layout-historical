@@ -122,10 +122,10 @@ Required changes:
 
 Important non-change for safety:
 
-- do not change GUI OCR crop behavior in this refactor
-- GUI OCR inference still crops from existing PAGE `Coords`
-- GUI active-learning training still defaults to `pagexml_coords`
-- no attempt is made here to integrate local-tangent unwrapping into the GUI OCR runtime
+- original scope: do not change GUI OCR crop behavior in this refactor
+- 2026-05-15 follow-up: production OCR callers now route through `app/recognition/line_segmentation/ocr_crops.py`; with the current `legacy_axis_bound_v1` production pin this still produces the masked PAGE `Coords` crop
+- GUI OCR inference and active-learning training still read saved PAGE `Coords`; sibling metadata only decides whether the derived OCR crop remains masked or uses a local-tangent unwrap after explicit production adoption
+- no existing manuscripts are migrated by the crop-layer refactor
 
 This keeps the change small, bounded, and non-disruptive.
 

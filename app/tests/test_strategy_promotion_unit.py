@@ -20,7 +20,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from recognition.line_segmentation.strategy_config import write_strategy_role_config
-from scripts.promote_text_line_strategy import promote_text_line_strategy
+from scripts.promote_text_line_strategy import (
+    promote_text_line_strategy,
+    write_checked_in_strategy_promotion_record,
+)
 
 
 def _mtime_iso(path: Path) -> str:
@@ -166,6 +169,23 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         self.assertEqual(payload["production_adoption_history"], [])
         self.assertEqual(len(payload["research_promotion_history"]), 1)
         self.assertEqual(payload["research_promotion_history"][0]["promoted_strategy_name"], "local_tangent_band_v1")
+
+    def test_checked_in_promotion_record_is_rendered_from_evidence(self):
+        evidence_path = self._write_evidence()
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+        record_path = self.tmp_root / "docs" / "strategy-promotion-record.md"
+
+        written_path = write_checked_in_strategy_promotion_record(evidence, record_path)
+
+        self.assertEqual(written_path, record_path)
+        record = record_path.read_text(encoding="utf-8")
+        self.assertIn("Text-Line Strategy Promotion Record", record)
+        self.assertIn("`legacy_axis_bound_v1`", record)
+        self.assertIn("`local_tangent_band_v1`", record)
+        self.assertIn("`pipeline_eval_dataset`", record)
+        self.assertIn("`ocr_eval_dataset`", record)
+        self.assertIn("`circular_ocr_eval_dataset_v2`", record)
+        self.assertIn("`app/tests/logs/` is ignored", record)
 
     def test_apply_is_idempotent_and_does_not_duplicate_history(self):
         evidence_path = self._write_evidence()

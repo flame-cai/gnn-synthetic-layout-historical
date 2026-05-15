@@ -6,6 +6,7 @@ from pathlib import Path
 
 import torch
 
+from recognition.line_segmentation.ocr_crops import default_line_segmentation_metadata_path
 from recognition.recognize_manuscript_text_v2_pretrained import (
     get_model_config,
     load_ocr_model,
@@ -54,6 +55,7 @@ class ManuscriptAwareOcrModelManager:
     def recognize_page(self, manuscript_root: str | Path, page_id: str, checkpoint_path: str | Path) -> None:
         manuscript_root = Path(manuscript_root)
         xml_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}.xml"
+        metadata_path = default_line_segmentation_metadata_path(xml_path)
         image_dirs = [
             str(manuscript_root / "layout_analysis_output" / "images_resized"),
             str(manuscript_root / "images_resized"),
@@ -66,4 +68,5 @@ class ManuscriptAwareOcrModelManager:
             context["converter"],
             context["config"],
             context["device"],
+            line_segmentation_metadata_path=metadata_path if metadata_path.exists() else None,
         )

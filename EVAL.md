@@ -71,11 +71,11 @@ The checked-in initial role mapping for this harness is:
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
 
-`production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
+`production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations, and production OCR crop preparation now routes through the same strategy-aware crop layer. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
-The crop-preparation boundary is intentional. The production GUI currently prepares OCR line images from existing PAGE `TextLine/Coords`; GUI OCR inference crops directly from those `Coords`, and GUI active-learning training still defaults to `pagexml_coords`. The research OCR ablation gates instead start from PAGE `Baseline` plus the page image and heatmap, regenerate `Coords` through the selected strategy, and then prepare OCR crops from the regenerated geometry. Because those paths do not have the same operational contract, adopting a strategy for the app requires explicit production infrastructure decisions rather than a silent consequence of harness promotion. Production already regenerates PAGE Coords from PAGE Baseline during layout saves. However, production OCR and active-learning training still consume the saved Coords directly for crop extraction, instead of rerunning the strategy-aware crop/unwrapping path used by the research harness.
+The crop-preparation boundary is intentional. The production GUI prepares OCR line images from saved PAGE `TextLine/Coords` and optional sibling line-segmentation metadata through `app/recognition/line_segmentation/ocr_crops.py`. Missing, malformed, legacy, or non-local-tangent metadata falls back to the existing masked PAGE `Coords` crop. The research OCR ablation gates instead start from PAGE `Baseline` plus the page image and heatmap, regenerate `Coords` through the selected strategy, and then use the same crop decision layer on the regenerated geometry. Because those paths do not have the same operational contract, adopting a strategy for the app requires explicit production validation rather than a silent consequence of harness promotion. Production already regenerates PAGE Coords from PAGE Baseline during layout saves; the remaining distinction is whether future production saves carry metadata that asks the shared OCR crop layer for local-tangent unwrapping.
 
-Production integration work that is intentionally not hidden inside harness promotion includes deciding when to regenerate PAGE `Coords`, how to avoid migrating existing pages unexpectedly, how to record the geometry/crop strategy used for active-learning samples, and whether GUI OCR should later use local-tangent unwrapped crops rather than direct masked crops from PAGE `Coords`.
+Production integration work that is intentionally not hidden inside harness promotion includes deciding when to regenerate PAGE `Coords`, how to avoid migrating existing pages unexpectedly, how to validate active-learning samples produced under a new geometry/crop strategy, and whether GUI OCR should use local-tangent unwrapped crops for newly saved pages.
 
 ## Three External Verifier Gates
 
@@ -248,6 +248,7 @@ When all three gates run and pass through `scripts/run_precommit_eval.py`, the l
 
 - `app/tests/logs/strategy_promotion_latest.json`
 - `app/tests/logs/strategy_promotion_latest.md`
+- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
 
 This aggregate file summarizes:
 
@@ -257,7 +258,7 @@ This aggregate file summarizes:
 - primary metric comparison for each gate
 - whether promotion is recommended
 
-This file is still evidence only. It does not change the benchmark role by itself.
+The files under `app/tests/logs/` are local generated artifacts and may be ignored in a fresh checkout. The checked-in promotion record is the durable summary to review and commit with a promotion. It is still evidence only; it does not change the benchmark role by itself.
 
 ## Research Harness Promotion Workflow
 
@@ -298,7 +299,7 @@ It does not change `production_strategy_name` or `production_adoption_history`. 
 
 ## Production Adoption Workflow
 
-Production adoption is separate and explicit. It chooses the strategy used by future app layout saves and regenerations.
+Production adoption is separate and explicit. It chooses the strategy used by future app layout saves/regenerations and the crop behavior honored by production OCR preparation metadata.
 
 Dry run:
 
@@ -316,7 +317,7 @@ conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --str
 
 The adoption script validates that the named strategy is registered. On success it updates only `production_strategy_name` and `production_adoption_history`; it does not mutate the research benchmark/proposed roles and does not require verifier evidence.
 
-No migration happens automatically. Existing PAGE XML, existing OCR line images, and active-learning checkpoint lineage remain as they are. GUI OCR inference continues to crop from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
+No migration happens automatically. Existing PAGE XML, existing OCR line images, and active-learning checkpoint lineage remain as they are. GUI OCR inference, app line-image export, and active-learning training all read saved PAGE `Coords`; when a sibling strategy metadata sidecar exists, they use it only to decide the derived OCR crop representation. Missing metadata remains a valid masked-crop fallback.
 
 ## Hook Behavior
 
@@ -352,6 +353,7 @@ Strategy configuration and crop behavior:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_strategy_aware_ocr_crops_unit -v
 conda run -n gnn_layout python -m unittest app.tests.test_strategy_ablation_config_unit -v
 conda run -n gnn_layout python -m unittest app.tests.test_line_segmentation_strategy_unit -v
 conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v

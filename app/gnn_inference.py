@@ -17,11 +17,15 @@ from collections import defaultdict
 import xml.etree.ElementTree as ET
 
 from recognition.line_segmentation import apply_text_line_segmentation_strategy
+from recognition.line_segmentation.ocr_crops import (
+    crop_line_record_for_ocr,
+    load_line_segmentation_metadata_by_numeric_id,
+    load_line_segmentation_strategy_name,
+)
 from recognition.line_segmentation.strategy_config import get_production_strategy_name
 from recognition.pagexml_line_dataset import (
     _encode_like_app_jpg,
     _load_processing_image,
-    _masked_line_crop,
     load_pagexml_lines,
     sort_lines_for_page_level_cer,
 )
@@ -201,7 +205,14 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         strategy_config=strategy_config,
         metadata_path=output_dir / "page-xml-format" / f"{page_id}_line_segmentation_metadata.json",
     )
-    _write_app_line_images_from_pagexml(final_xml_path, base_path / "images_resized" / f"{page_id}.jpg", images_output_dir)
+    _write_app_line_images_from_pagexml(
+        final_xml_path,
+        base_path / "images_resized" / f"{page_id}.jpg",
+        images_output_dir,
+        strategy_name=strategy_result.strategy_name,
+        strategy_metadata_path=strategy_result.metadata_path,
+        strategy_config=strategy_config,
+    )
 
     resized_images_dst_dir = output_dir / "images_resized"
     resized_images_dst_dir.mkdir(exist_ok=True)
@@ -216,15 +227,31 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     return {"status": "success", "lines": line_count}
 
 
-def _write_app_line_images_from_pagexml(xml_path: Path, image_path: Path, images_output_dir: Path) -> int:
+def _write_app_line_images_from_pagexml(
+    xml_path: Path,
+    image_path: Path,
+    images_output_dir: Path,
+    strategy_name: str | None = None,
+    strategy_metadata_path: str | Path | None = None,
+    strategy_config: dict | None = None,
+) -> int:
     if images_output_dir.exists():
         shutil.rmtree(images_output_dir)
     images_output_dir.mkdir(parents=True, exist_ok=True)
     _, records = load_pagexml_lines(xml_path, include_empty_text_lines=True)
     processing_image = _load_processing_image(image_path)
+    metadata_by_numeric_id = load_line_segmentation_metadata_by_numeric_id(strategy_metadata_path)
+    effective_strategy_name = strategy_name or load_line_segmentation_strategy_name(strategy_metadata_path)
     written = 0
     for record in sort_lines_for_page_level_cer(records):
-        raw_crop = _masked_line_crop(processing_image, record.polygon_points)
+        crop_result = crop_line_record_for_ocr(
+            processing_image,
+            record,
+            strategy_name=effective_strategy_name,
+            strategy_line_metadata=metadata_by_numeric_id.get(int(record.line_numeric_id)),
+            crop_config=strategy_config or {},
+        )
+        raw_crop = crop_result.image
         jpg_bytes, _ = _encode_like_app_jpg(raw_crop)
         output_path = images_output_dir / record.region_custom / f"line_{record.line_numeric_id}.jpg"
         output_path.parent.mkdir(parents=True, exist_ok=True)

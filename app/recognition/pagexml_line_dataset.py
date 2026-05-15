@@ -23,7 +23,13 @@ try:
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
     )
-    from .line_segmentation.unwrap import should_unwrap_strategy, unwrap_line_crop_for_ocr
+    from .line_segmentation.ocr_crops import (
+        crop_line_record_for_ocr,
+        default_line_segmentation_metadata_path,
+        load_line_segmentation_metadata_by_numeric_id,
+        load_line_segmentation_strategy_name,
+        masked_line_crop,
+    )
     from .line_segmentation.pagexml import (
         count_text_lines_with_text_and_baseline as _strategy_count_text_lines_with_text_and_baseline,
         load_baseline_records as _strategy_load_baseline_records,
@@ -35,7 +41,13 @@ except ImportError:  # pragma: no cover - script execution fallback
         build_legacy_axis_bound_polygons,
         _build_baseline_component_nodes as _strategy_build_baseline_component_nodes,
     )
-    from line_segmentation.unwrap import should_unwrap_strategy, unwrap_line_crop_for_ocr
+    from line_segmentation.ocr_crops import (
+        crop_line_record_for_ocr,
+        default_line_segmentation_metadata_path,
+        load_line_segmentation_metadata_by_numeric_id,
+        load_line_segmentation_strategy_name,
+        masked_line_crop,
+    )
     from line_segmentation.pagexml import (
         count_text_lines_with_text_and_baseline as _strategy_count_text_lines_with_text_and_baseline,
         load_baseline_records as _strategy_load_baseline_records,
@@ -291,17 +303,7 @@ def _load_processing_image(image_path: str | Path):
     return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
 
-def _masked_line_crop(processing_image, polygon_points):
-    polygon = np.array(polygon_points, dtype=np.int32)
-    x_val, y_val, width, height = cv2.boundingRect(polygon)
-    cropped_line_image = processing_image[y_val : y_val + height, x_val : x_val + width]
-    page_median_color = int(np.median(processing_image))
-    new_img = np.ones(cropped_line_image.shape, dtype=np.uint8) * page_median_color
-    mask_polygon = np.zeros(cropped_line_image.shape[:2], dtype=np.uint8)
-    polygon_shifted = polygon - [x_val, y_val]
-    cv2.drawContours(mask_polygon, [polygon_shifted], -1, 255, -1)
-    new_img[mask_polygon == 255] = cropped_line_image[mask_polygon == 255]
-    return new_img
+_masked_line_crop = masked_line_crop
 
 
 def _encode_like_app_jpg(image):
@@ -333,6 +335,8 @@ def prepare_page_line_dataset(
     segmentation_args: dict | None = None,
     line_segmentation_strategy_name: str | None = None,
     strategy_name: str | None = None,
+    line_segmentation_metadata_path: str | Path | None = None,
+    crop_config: dict | None = None,
 ):
     xml_path = Path(xml_path)
     image_path = Path(image_path)
@@ -356,8 +360,9 @@ def prepare_page_line_dataset(
             effective_strategy_name,
             xml_path.stem,
         )
+    generate_strategy_geometry = effective_strategy_name is not None
 
-    if effective_strategy_name is not None:
+    if generate_strategy_geometry:
         source_text_line_count = _count_text_lines_with_text_and_baseline(xml_path)
     else:
         _, source_records = load_pagexml_lines(xml_path)
@@ -367,7 +372,7 @@ def prepare_page_line_dataset(
     generation_summary = {}
     strategy_metadata_path = None
     strategy_line_metadata_by_numeric_id = {}
-    if effective_strategy_name is not None:
+    if generate_strategy_geometry:
         if heatmap_path is None:
             raise ValueError("heatmap_path is required when line segmentation strategy is requested.")
         strategy_root = output_root / "_line_segmentation" / effective_strategy_name
@@ -387,11 +392,21 @@ def prepare_page_line_dataset(
             int(item["line_numeric_id"]): dict(item)
             for item in strategy_result.line_metadata
         }
+    else:
+        provided_metadata_path = (
+            Path(line_segmentation_metadata_path)
+            if line_segmentation_metadata_path is not None
+            else default_line_segmentation_metadata_path(xml_path)
+        )
+        if provided_metadata_path.exists():
+            strategy_metadata_path = provided_metadata_path
+            strategy_line_metadata_by_numeric_id = load_line_segmentation_metadata_by_numeric_id(strategy_metadata_path)
+            effective_strategy_name = load_line_segmentation_strategy_name(strategy_metadata_path)
 
     image_filename, records = load_pagexml_lines(effective_xml_path)
     ordered_records = sort_lines_for_page_level_cer(records)
     processing_image = _load_processing_image(image_path)
-    if effective_strategy_name is not None:
+    if generate_strategy_geometry:
         geometry_summary = dict(generation_summary)
         geometry_summary["prepared_line_count"] = len(ordered_records)
         geometry_summary["source_text_line_count"] = source_text_line_count
@@ -415,32 +430,16 @@ def prepare_page_line_dataset(
     prepared_records = []
 
     for index, record in enumerate(ordered_records, start=1):
-        crop_metadata = None
-        strategy_line_metadata = strategy_line_metadata_by_numeric_id.get(int(record.line_numeric_id), {})
-        should_unwrap_record = (
-            should_unwrap_strategy(effective_strategy_name)
-            and strategy_line_metadata.get("crop_model") == "local_tangent_band"
+        strategy_line_metadata = strategy_line_metadata_by_numeric_id.get(int(record.line_numeric_id))
+        crop_result = crop_line_record_for_ocr(
+            processing_image,
+            record,
+            strategy_name=effective_strategy_name,
+            strategy_line_metadata=strategy_line_metadata,
+            crop_config=crop_config or segmentation_args or {},
         )
-        if should_unwrap_record:
-            crop_result = unwrap_line_crop_for_ocr(
-                processing_image,
-                record.polygon_points,
-                record.baseline_points,
-                text=record.text,
-                unwrap_config=segmentation_args or {},
-            )
-            raw_crop = crop_result.image
-            crop_metadata = {
-                **crop_result.metadata,
-                "strategy_line_metadata": strategy_line_metadata,
-            }
-        else:
-            raw_crop = _masked_line_crop(processing_image, record.polygon_points)
-            if should_unwrap_strategy(effective_strategy_name):
-                crop_metadata = {
-                    "unwrap_strategy": "axis_aligned_masked_crop",
-                    "strategy_line_metadata": strategy_line_metadata,
-                }
+        raw_crop = crop_result.image
+        crop_metadata = crop_result.metadata
         jpg_bytes, decoded_jpg = _encode_like_app_jpg(raw_crop)
 
         app_rel_path = Path("image-format") / record.page_id / record.region_custom / f"line_{record.line_numeric_id}.jpg"

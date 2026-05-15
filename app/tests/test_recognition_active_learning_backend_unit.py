@@ -28,6 +28,7 @@ from ocr_active_learning_runtime import (
     run_ocr_finetune_job,
     summarize_manuscript_active_learning,
     summarize_page_active_learning,
+    _prepare_revision_pages,
 )
 
 
@@ -91,6 +92,64 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertNotIn("verifier_revision_refs", orchestrator.jobs[0].payload)
         self.assertEqual(result["revision"]["revision_number"], 1)
         self.assertTrue(result["entered_active_learning"])
+
+    def test_snapshot_page_revision_copies_line_segmentation_metadata_sidecar(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("snapshot_metadata")
+        page_id = "233_0001"
+        metadata_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}_line_segmentation_metadata.json"
+        metadata_path.write_text('{"strategy_name":"legacy_axis_bound_v1","line_metadata":[]}', encoding="utf-8")
+        configure_runtime(base_checkpoint, orchestrator=None)
+
+        result = handle_post_save(
+            manuscript="snapshot_metadata_manuscript",
+            page=page_id,
+            save_intent="commit",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "rama"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
+
+        registry = load_registry(manuscript_root, base_checkpoint)
+        snapshot_root = registry.revision_snapshot_root(page_id, result["revision"]["revision_number"])
+        self.assertTrue((snapshot_root / "page-xml-format" / metadata_path.name).exists())
+
+    def test_prepare_revision_pages_passes_snapshot_metadata_dir_without_heatmaps(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("prepare_revision_metadata")
+        page_id = "233_0001"
+        configure_runtime(base_checkpoint, orchestrator=None)
+        result = handle_post_save(
+            manuscript="prepare_revision_metadata_manuscript",
+            page=page_id,
+            save_intent="commit",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "rama"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
+        registry = load_registry(manuscript_root, base_checkpoint)
+
+        with mock.patch("ocr_active_learning_runtime.prepare_page_datasets", return_value={page_id: "prepared"}) as mock_prepare:
+            prepared_pages = _prepare_revision_pages(
+                registry,
+                [{"page_id": page_id, "revision_number": result["revision"]["revision_number"]}],
+                "unit_purpose",
+            )
+
+        self.assertEqual(prepared_pages, ["prepared"])
+        _, kwargs = mock_prepare.call_args
+        self.assertEqual(kwargs["heatmaps_dir"] if "heatmaps_dir" in kwargs else None, None)
+        self.assertEqual(kwargs["line_segmentation_metadata_dir"], registry.revision_snapshot_root(page_id, 1) / "page-xml-format")
 
     def test_draft_and_layout_only_saves_do_not_enqueue_ocr_training(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("draft")

@@ -77,6 +77,9 @@ The launcher now writes promotion evidence to:
 
     app/tests/logs/strategy_promotion_latest.json
     app/tests/logs/strategy_promotion_latest.md
+    docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md
+
+Update on 2026-05-15: the checked-in promotion record is generated because `app/tests/logs/` is ignored and should not be the only durable place where promotion evidence is summarized.
 
 The main documentation updates landed in:
 
@@ -160,6 +163,7 @@ Create or update an aggregate promotion evidence file when gates pass:
 
     app/tests/logs/strategy_promotion_latest.json
     app/tests/logs/strategy_promotion_latest.md
+    docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md
 
 This file should summarize:
 

@@ -22,6 +22,9 @@ That file owns:
 - `production_adoption_history`
 
 Generated artifacts under `app/tests/logs/` are evidence only.
+The durable generated evidence summary is checked in at:
+
+    docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md
 
 ## Current Initial State
 
@@ -35,21 +38,21 @@ The current checked-in state is:
 
 ## Why The Lifecycles Are Separate
 
-The production app and the research harness currently prepare OCR line images from different starting geometry.
+The production app and the research harness prepare OCR line images from different starting geometry, even though they now share the same crop decision layer.
 
 Production GUI/runtime path:
 
 - app save/regeneration writes PAGE `TextLine/Coords` using `production_strategy_name`
-- GUI OCR inference crops line images directly from the existing PAGE `Coords`
-- GUI active-learning training still defaults to `pagexml_coords`
+- app line-image export, GUI OCR inference, and GUI active-learning training read saved PAGE `Coords`
+- optional line-segmentation metadata sidecars decide whether the OCR crop stays masked or uses a strategy-specific derived crop
 
 Research verifier path:
 
 - strategy ablation gates start from PAGE `Baseline` plus page image and heatmap
 - the selected strategy regenerates PAGE-space `TextLine/Coords`
-- OCR verifier crops are then prepared from that regenerated geometry
+- OCR verifier crops are then prepared from that regenerated geometry through the shared crop layer
 
-This is the main reason harness promotion must not be treated as production adoption. Cleanly adopting a baseline-derived strategy such as `local_tangent_band_v1` in the app is not just a config flip for OCR behavior. It needs explicit infrastructure decisions around when to regenerate PAGE `Coords`, how to preserve existing pages without migration, how to record which geometry/crop strategy produced active-learning samples, and whether/when GUI OCR should use local-tangent unwrapped crops instead of direct masked crops from PAGE `Coords`.
+This is the main reason harness promotion must not be treated as production adoption. Cleanly adopting a baseline-derived strategy such as `local_tangent_band_v1` in the app is not just a config flip for research metrics. Production adoption changes future PAGE `Coords` generation and the strategy metadata that production OCR crop preparation honors. Existing pages remain valid and fall back to masked PAGE `Coords` crops when metadata is missing.
 
 ## Harness Promotion
 
@@ -66,6 +69,9 @@ If all three gates run, the launcher writes:
 
 - `app/tests/logs/strategy_promotion_latest.json`
 - `app/tests/logs/strategy_promotion_latest.md`
+- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
+
+The `app/tests/logs/` files are local generated artifacts. Commit the checked-in promotion record with any research promotion so future readers can review the gate summary without needing ignored logs.
 
 Dry run:
 
@@ -93,7 +99,7 @@ It does not change:
 - `production_adoption_history`
 - existing PAGE XML
 - existing OCR line images
-- GUI OCR crop behavior
+- production OCR crop behavior
 
 ## Production Adoption
 
@@ -127,16 +133,16 @@ It does not change:
 - existing OCR line images
 - active-learning checkpoint lineage
 
-Production adoption affects future layout saves and regenerations only. Existing manuscripts and pages are not migrated automatically.
+Production adoption affects future layout saves/regenerations and the crop metadata produced for newly saved pages only. Existing manuscripts and pages are not migrated automatically.
 
-## App OCR Non-Changes
+## App OCR Behavior
 
-This workflow does not integrate local-tangent OCR unwrapping into the GUI runtime.
+The GUI runtime now uses the shared strategy-aware crop layer:
 
-Current GUI behavior remains:
+- app line-image export calls `crop_line_record_for_ocr(...)`
+- local OCR inference discovers sibling line-segmentation metadata and falls back safely when it is absent
+- active-learning revision snapshots preserve metadata sidecars and train from saved PAGE `Coords` plus metadata
 
-- app save/regeneration uses `production_strategy_name` for PAGE `Coords`
-- GUI OCR inference still crops from existing PAGE `Coords`
-- GUI active-learning training still defaults to `pagexml_coords`
+With the current production pin `legacy_axis_bound_v1`, this remains the historical masked PAGE `Coords` crop. Local-tangent unwrapping in production happens only for lines whose saved metadata requests `crop_model="local_tangent_band"`, which requires an explicit future production adoption and validation.
 
 The `baseline_heatmap` verifier path remains a research/test harness path unless explicitly requested.

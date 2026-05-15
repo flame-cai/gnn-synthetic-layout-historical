@@ -100,11 +100,14 @@ def _snapshot_page_revision(registry: ManuscriptOcrRegistry, page_id: str, revis
     (snapshot_root / "images_resized").mkdir(parents=True, exist_ok=True)
 
     live_xml = registry.manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}.xml"
+    live_metadata = live_xml.with_name(f"{page_id}_line_segmentation_metadata.json")
     live_image = registry.manuscript_root / "layout_analysis_output" / "images_resized" / f"{page_id}.jpg"
     if not live_image.exists():
         live_image = registry.manuscript_root / "images_resized" / f"{page_id}.jpg"
 
     shutil.copy2(live_xml, snapshot_root / "page-xml-format" / f"{page_id}.xml")
+    if live_metadata.exists():
+        shutil.copy2(live_metadata, snapshot_root / "page-xml-format" / live_metadata.name)
     shutil.copy2(live_image, snapshot_root / "images_resized" / f"{page_id}.jpg")
     return snapshot_root
 
@@ -134,6 +137,7 @@ def _prepare_revision_pages(
             pagexml_dir=pagexml_dir,
             page_ids=[page_id],
             output_root=output_root / f"{_safe_slug(page_id)}_r{revision_number:04d}",
+            line_segmentation_metadata_dir=pagexml_dir,
         )
         prepared_pages.append(prepared[page_id])
     return prepared_pages

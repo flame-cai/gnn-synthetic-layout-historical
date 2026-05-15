@@ -154,13 +154,13 @@ Gemini can still be used for prediction, but the active-learning lineage is buil
 The app and the research verifier use separate text-line segmentation role pins in `app/recognition/line_segmentation/strategy_config.py`.
 
 - `benchmark_strategy_name` and `proposed_strategy_name` are research harness roles.
-- `production_strategy_name` is the app default used for future layout saves and regenerations.
+- `production_strategy_name` is the app default used for future layout saves/regenerations and for strategy-aware OCR crop preparation.
 
 The current production app strategy is `legacy_axis_bound_v1`. Research promotion does not change the production app default. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
 
-GUI OCR behavior is unchanged by strategy lifecycle changes: OCR inference crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
+Production OCR crops now go through `app/recognition/line_segmentation/ocr_crops.py`. With the current production pin, the app still produces the legacy axis-aligned masked PAGE `Coords` crop. If a future production adoption writes local-tangent metadata for a line, the same shared layer can use that metadata to produce the derived OCR crop while keeping PAGE `Coords` as page-space geometry. Missing metadata falls back to the legacy masked crop.
 
-This separation is intentional because the verifier and the app do not prepare OCR crops from the same starting geometry. The research OCR ablation gates start from PAGE `Baseline` plus eval heatmaps/images, regenerate `Coords` through the selected strategy, and then crop from that regenerated geometry. The production GUI path uses the PAGE `Coords` already present on the saved page. Moving a baseline-derived strategy into production therefore needs explicit infrastructure choices around page regeneration, no-migration behavior, active-learning lineage metadata, and future local-tangent OCR unwrapping.
+This separation is intentional because the verifier and the app do not prepare OCR crops from the same starting geometry. The research OCR ablation gates start from PAGE `Baseline` plus eval heatmaps/images, regenerate `Coords` through the selected strategy, and then crop from that regenerated geometry. The production GUI path uses the PAGE `Coords` already present on the saved page and optional line-segmentation metadata sidecars. Moving a baseline-derived strategy into production therefore remains an explicit adoption decision with production validation.
 
 
 #### Automated Evaluation Checks (GUI-free)
@@ -219,6 +219,9 @@ When all three gates pass, `scripts/run_precommit_eval.py` writes:
 
 - `app/tests/logs/strategy_promotion_latest.json`
 - `app/tests/logs/strategy_promotion_latest.md`
+- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
+
+The `app/tests/logs/` outputs are generated local artifacts. The checked-in promotion record is the durable summary to review and commit with any research promotion.
 
 To promote the proposed strategy inside the research harness after reviewing those artifacts, run:
 

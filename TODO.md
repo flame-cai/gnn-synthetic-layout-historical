@@ -1,39 +1,13 @@
-Please implement the following plan, which will implement step 4 of the following research harness: 
+can you please prepare a new plan which will update the research harness accordingly to the production refactored architecture?
+1) PAGE XML creation (use Baseline, heatmap to get generalized Coords, which will work even for curved lines)
+2) Text-line horizontal image preparation for OCR Model (unwrapping or no unwrapping)
 
-The research harness will enable us to combine the generative capabilities of LLMs with external verifier metrics to perform step by step evolutionary search in python code space. 
+- rewrite the strategy docs according to this architecture
+- write a template on how I should write out ideas for new proposed strategy
+- update the GUI so that we can annotate curved lines to remove ambiguity
+- write a promote to production script
 
-This harness can we adapted to improve any part of the application pipeline using the external verifier metrics (See VISION.md). However, the current part of the pipeline this research harness is aimed at improving is how this application segments text-lines (using the resized_images, heatmaps and the respective predictions of the GNN i.e the <Baseline points="x1,y1 x2,y2 .."/> in page-xml). In other words, we currently want to improve the part of the pipeline which converts the GNN predictions <Baseline points="x1,y1 x2,y2 .."/> in page-xml) to the text-line images which are fed to the downstream OCR model for fine-tuning or inference. The application already has a text-line segmentation strategy. We will call this the "benchmark_strategy". However this strategy is flawed and works only for horizontal text-lines (not circular, curved, or vertical lines). To fix these flaws, we have implemented a "proposed_strategy".
-
-
-Step 1 (IMPLEMENTED): Understand the code, and precisely scope what it is that needs ablations to be iteratively improved.
-
-Step 2 (IMPLEMENTED): Setup 3 external verifier precommit checks. Each verifier will have 2 runs, ablating and comparing "proposed_strategy" vs "benchmark_strategy". Each of the 3 external-verifier pre-commit checks should use the exact same implementation for each ablation strategy.
-
-Step 3 (IMPLEMENTED): Implement the first iteration of the "proposed_strategy", with the aim to handle circular, curved and vertical lines better, while maintaining performance on horizontal lines.
-
-Step 4 (TO BE IMPLEMENTED): Setup strategy promotion mechanism and configuration (from "proposed_strategy" promotes to "benchmark_strategy") if pre-commit checks passes.
-
-All strategy docs live here:
-C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\docs\pipeline-improvement\text-line-segmentation\
-
-
-Please update VISION.md
-PLease write a EVAL.md explaining the evaluation harness (each of the three tests, what is success criterai, the config, and more).
-
-Both VISION.md, and EVAL.md should have self-contained information for future agents to adapt this harness to improve another specific part of the pipeline (after specifying what the inputs and outputs are.)
-
-I see the workflow as follows:
-1) I suggest new proposed_strategy
-2) LLM agents implement, and update code
-3) I click commit
-4) Commit passes, if all 3 pre-commits checks pass
-5) proposed_strategy promoted to benchmark strategy (docs updated in C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\docs\pipeline-improvement\text-line-segmentation, configs updated, other changes to make everything self contained. We want to keep all historical code as backup and documented.)
-6) I suggest a new proposed_strategy
-and so on..
-
-Based on this, implement this plan:
-C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\docs\exec-plans\proposed\circular-text-04-promotion-and-docs.md
-
+over all making the progression from research harness to production smoother.
 
 
 

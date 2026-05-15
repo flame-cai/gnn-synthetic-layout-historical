@@ -319,7 +319,7 @@ The observable behavior is that `local_tangent_band_v1` can be selected as the p
   Evidence: `app/segment_from_point_clusters.py` and `src/gnn_inference/segment_from_point_clusters.py` contain `detect_line_type(...)`, `analyze_and_clean_blob(...)`, and `get_bboxes_for_lines(...)`, then draw axis-aligned rectangles into a mask before extracting a contour.
 
 - Observation: the current OCR crop preparation masks a PAGE-space polygon into an axis-aligned bounding rectangle and fills background with the page median color.
-  Evidence: `app/recognition/pagexml_line_dataset.py::_masked_line_crop(...)` computes `cv2.boundingRect(polygon)`, fills a new image with `np.median(processing_image)`, and copies only pixels inside the shifted polygon mask.
+  Evidence: this behavior now lives in `app/recognition/line_segmentation/ocr_crops.py::masked_line_crop(...)`; `app/recognition/pagexml_line_dataset.py` keeps a compatibility alias. The function computes `cv2.boundingRect(polygon)`, fills a new image with `np.median(processing_image)`, and copies only pixels inside the shifted polygon mask.
 
 - Observation: the circular OCR fine-tuning gate has labels on the first three pages, so orientation choice can be supervised on those pages without leaking validation labels.
   Evidence: plan 02 defines `eval_dataset_v2` with fine-tune pages `page_2`, `page_3`, and `page_4`, and evaluation pages `page_5` and `page_6`. The PAGE-XML for the fine-tune pages contains `TextEquiv/Unicode` ground-truth text.

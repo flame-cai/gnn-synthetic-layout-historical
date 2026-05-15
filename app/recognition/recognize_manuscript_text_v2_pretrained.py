@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import sys
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -15,10 +16,24 @@ from PIL import Image
 
 try:
     from .dataset import AlignCollate
+    from .line_segmentation.ocr_crops import (
+        crop_line_record_for_ocr,
+        default_line_segmentation_metadata_path,
+        load_line_segmentation_metadata_by_numeric_id,
+        load_line_segmentation_strategy_name,
+    )
     from .ocr_defaults import build_label_converter, build_ocr_config, create_model, load_state_dict_compat
+    from .pagexml_line_dataset import _encode_like_app_jpg, _load_processing_image, load_pagexml_lines
 except ImportError:  # pragma: no cover - script execution fallback
     from dataset import AlignCollate
+    from line_segmentation.ocr_crops import (
+        crop_line_record_for_ocr,
+        default_line_segmentation_metadata_path,
+        load_line_segmentation_metadata_by_numeric_id,
+        load_line_segmentation_strategy_name,
+    )
     from ocr_defaults import build_label_converter, build_ocr_config, create_model, load_state_dict_compat
+    from pagexml_line_dataset import _encode_like_app_jpg, _load_processing_image, load_pagexml_lines
 
 
 logging.basicConfig(
@@ -74,99 +89,156 @@ def parse_coords(coords_str):
         return None
 
 
-def process_page_xml(xml_path, image_root_dirs, model, converter, config, device):
+def _pagexml_namespace_helpers(root):
+    ns_url = root.tag.split("}")[0].strip("{") if "}" in root.tag else ""
+    ns = {"pc": ns_url} if ns_url else {}
+
+    def find_all(element, tag):
+        if ns_url:
+            return element.findall(f".//pc:{tag}", ns)
+        return element.findall(f".//{tag}")
+
+    def find(element, tag):
+        if ns_url:
+            return element.find(f"pc:{tag}", ns)
+        return element.find(tag)
+
+    return ns_url, find_all, find
+
+
+def _line_contexts_by_id_and_custom(page_elem, find_all):
+    by_line_id = {}
+    by_line_custom = {}
+    for region in find_all(page_elem, "TextRegion"):
+        region_id = region.get("id")
+        for line in find_all(region, "TextLine"):
+            context = (line, region_id, line.get("id"))
+            line_id = line.get("id")
+            line_custom = line.get("custom")
+            if line_id:
+                by_line_id[line_id] = context
+            if line_custom:
+                by_line_custom[line_custom] = context
+    return by_line_id, by_line_custom
+
+
+def _extract_ocr_line_crops_with_tree(
+    xml_path,
+    image_root_dirs,
+    *,
+    line_segmentation_strategy_name=None,
+    line_segmentation_metadata_path=None,
+    crop_config=None,
+):
+    parser = ET.XMLParser(remove_blank_text=True)
+    tree = ET.parse(xml_path, parser)
+    root = tree.getroot()
+    ns_url, find_all, find = _pagexml_namespace_helpers(root)
+
+    page_elem = find(root, "Page")
+    if page_elem is None:
+        logger.error(f"No Page element found in {xml_path}")
+        return tree, root, ns_url, []
+
+    image_filename = page_elem.get("imageFilename")
+    if not image_filename:
+        logger.error(f"No Page imageFilename found in {xml_path}")
+        return tree, root, ns_url, []
+    full_image_path = None
+    for img_dir in image_root_dirs:
+        potential_path = os.path.join(img_dir, image_filename)
+        if os.path.exists(potential_path):
+            full_image_path = potential_path
+            break
+
+    if not full_image_path:
+        logger.error(f"Could not find image file '{image_filename}' in provided directories for XML: {xml_path}")
+        return tree, root, ns_url, []
+
     try:
-        parser = ET.XMLParser(remove_blank_text=True)
-        tree = ET.parse(xml_path, parser)
-        root = tree.getroot()
+        processing_image = _load_processing_image(full_image_path)
+    except Exception as exc:
+        logger.error(f"Failed to read image: {full_image_path} | Error: {exc}")
+        return tree, root, ns_url, []
 
-        ns_url = root.tag.split("}")[0].strip("{") if "}" in root.tag else ""
-        ns = {"pc": ns_url} if ns_url else {}
+    metadata_path = (
+        Path(line_segmentation_metadata_path)
+        if line_segmentation_metadata_path is not None
+        else default_line_segmentation_metadata_path(xml_path)
+    )
+    metadata_by_numeric_id = load_line_segmentation_metadata_by_numeric_id(metadata_path)
+    effective_strategy_name = line_segmentation_strategy_name or load_line_segmentation_strategy_name(metadata_path)
 
-        def find_all(element, tag):
-            if ns_url:
-                return element.findall(f".//pc:{tag}", ns)
-            return element.findall(f".//{tag}")
+    try:
+        _, records = load_pagexml_lines(xml_path, include_empty_text_lines=True)
+    except Exception as exc:
+        logger.error(f"Failed to parse PAGE XML lines from {xml_path}: {exc}")
+        return tree, root, ns_url, []
 
-        def find(element, tag):
-            if ns_url:
-                return element.find(f"pc:{tag}", ns)
-            return element.find(tag)
-
-        page_elem = find(root, "Page")
-        if page_elem is None:
-            logger.error(f"No Page element found in {xml_path}")
-            return
-
-        image_filename = page_elem.get("imageFilename")
-        full_image_path = None
-        for img_dir in image_root_dirs:
-            potential_path = os.path.join(img_dir, image_filename)
-            if os.path.exists(potential_path):
-                full_image_path = potential_path
-                break
-
-        if not full_image_path:
-            logger.error(f"Could not find image file '{image_filename}' in provided directories for XML: {xml_path}")
-            return
-
+    contexts_by_line_id, contexts_by_line_custom = _line_contexts_by_id_and_custom(page_elem, find_all)
+    batch_data = []
+    for record in records:
+        context = contexts_by_line_id.get(record.line_id) or contexts_by_line_custom.get(record.line_custom)
+        if context is None:
+            logger.warning(f"Could not match OCR crop record to XML line {record.line_id} in {xml_path}")
+            continue
         try:
-            image = io.imread(full_image_path)
+            crop_result = crop_line_record_for_ocr(
+                processing_image,
+                record,
+                strategy_name=effective_strategy_name,
+                strategy_line_metadata=metadata_by_numeric_id.get(int(record.line_numeric_id)),
+                crop_config=crop_config or {},
+            )
+            _, decoded_jpg = _encode_like_app_jpg(crop_result.image)
+            line_elem, region_id, line_id = context
+            batch_data.append((Image.fromarray(decoded_jpg), (line_elem, region_id, line_id, crop_result.metadata)))
         except Exception as exc:
-            logger.error(f"Failed to read image: {full_image_path} | Error: {exc}")
-            return
+            logger.warning(f"Error processing crop for line {record.line_id} in {xml_path}: {exc}")
+            continue
 
-        if image.shape[0] == 2:
-            image = image[0]
-        if len(image.shape) == 2:
-            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-        if image.shape[2] == 4:
-            image = image[:, :, :3]
-        image = np.array(image)
-        processing_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    return tree, root, ns_url, batch_data
 
-        batch_data = []
-        page_median_color = int(np.median(processing_image))
 
-        text_regions = find_all(page_elem, "TextRegion")
-        for region in text_regions:
-            region_id = region.get("id")
-            text_lines = find_all(region, "TextLine")
-            for line in text_lines:
-                line_id = line.get("id")
-                coords_elem = find(line, "Coords")
-                if coords_elem is None:
-                    continue
+def extract_ocr_line_crops_from_page_xml(
+    xml_path,
+    image_root_dirs,
+    *,
+    line_segmentation_strategy_name=None,
+    line_segmentation_metadata_path=None,
+    crop_config=None,
+):
+    _, _, _, batch_data = _extract_ocr_line_crops_with_tree(
+        xml_path,
+        image_root_dirs,
+        line_segmentation_strategy_name=line_segmentation_strategy_name,
+        line_segmentation_metadata_path=line_segmentation_metadata_path,
+        crop_config=crop_config,
+    )
+    return batch_data
 
-                polygon = parse_coords(coords_elem.get("points"))
-                if polygon is None or len(polygon) < 3:
-                    continue
 
-                try:
-                    x_val, y_val, width, height = cv2.boundingRect(polygon)
-                    x_start = max(0, x_val)
-                    y_start = max(0, y_val)
-                    x_end = min(processing_image.shape[1], x_val + width)
-                    y_end = min(processing_image.shape[0], y_val + height)
-                    if x_end <= x_start or y_end <= y_start:
-                        continue
-
-                    cropped_line_image = processing_image[y_start:y_end, x_start:x_end]
-                    new_img = np.ones(cropped_line_image.shape, dtype=np.uint8) * page_median_color
-                    mask_polygon = np.zeros(cropped_line_image.shape[:2], dtype=np.uint8)
-                    polygon_shifted = polygon - [x_start, y_start]
-                    cv2.drawContours(mask_polygon, [polygon_shifted], -1, 255, -1)
-                    new_img[mask_polygon == 255] = cropped_line_image[mask_polygon == 255]
-
-                    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 95]
-                    is_success, buffer = cv2.imencode(".jpg", new_img, encode_param)
-                    if is_success:
-                        new_img = cv2.imdecode(buffer, cv2.IMREAD_GRAYSCALE)
-
-                    batch_data.append((Image.fromarray(new_img), (line, region_id, line_id)))
-                except Exception as exc:
-                    logger.warning(f"Error processing crop for line {line_id} in {xml_path}: {exc}")
-                    continue
+def process_page_xml(
+    xml_path,
+    image_root_dirs,
+    model,
+    converter,
+    config,
+    device,
+    *,
+    line_segmentation_strategy_name=None,
+    line_segmentation_metadata_path=None,
+    crop_config=None,
+):
+    try:
+        tree, root, ns_url, batch_data = _extract_ocr_line_crops_with_tree(
+            xml_path,
+            image_root_dirs,
+            line_segmentation_strategy_name=line_segmentation_strategy_name,
+            line_segmentation_metadata_path=line_segmentation_metadata_path,
+            crop_config=crop_config,
+        )
+        _, find_all, _ = _pagexml_namespace_helpers(root)
 
         if not batch_data:
             logger.info(f"No valid text lines found in {xml_path}")
@@ -196,7 +268,7 @@ def process_page_xml(xml_path, image_root_dirs, model, converter, config, device
                 preds_str = converter.decode(preds_index, preds_size)
 
                 for index, pred_text in enumerate(preds_str):
-                    line_elem, _, _ = metadata_list[index]
+                    line_elem, _, _, _ = metadata_list[index]
                     for existing_equiv in find_all(line_elem, "TextEquiv"):
                         line_elem.remove(existing_equiv)
 

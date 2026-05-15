@@ -16,6 +16,7 @@ and implemented by:
 
     app/recognition/line_segmentation/local_tangent_band.py
     app/recognition/line_segmentation/geometry.py
+    app/recognition/line_segmentation/ocr_crops.py
     app/recognition/line_segmentation/unwrap.py
 
 ## Pipeline Overview
@@ -195,9 +196,11 @@ The geometry summary includes guard values such as:
 
 ## OCR Unwrapping Blueprint
 
-OCR crop preparation happens in:
+OCR crop selection happens in:
 
-    app/recognition/pagexml_line_dataset.py
+    app/recognition/line_segmentation/ocr_crops.py
+
+Research dataset preparation, app line-image export, local OCR inference, and active-learning revision preparation all call this shared layer. `app/recognition/pagexml_line_dataset.py` still owns dataset materialization, but it no longer owns the strategy crop decision.
 
 For `local_tangent_band_v1`, OCR unwrapping is applied only when a line's strategy metadata says:
 
@@ -275,6 +278,14 @@ OCR preparation outputs:
 
 Each prepared record can carry `crop_metadata`, including unwrap and orientation details.
 
+Production callers that consume this derived representation are:
+
+- `app/gnn_inference.py::_write_app_line_images_from_pagexml(...)`
+- `app/recognition/recognize_manuscript_text_v2_pretrained.py::extract_ocr_line_crops_from_page_xml(...)`
+- `app/recognition/active_learning.py::prepare_page_datasets(...)` when revision snapshots provide metadata sidecars
+
+These callers do not write unwrapped strips back into PAGE XML. PAGE `Coords` remain page-space polygons.
+
 ## Config Defaults
 
 Important `local_tangent_band_v1` defaults are:
@@ -343,9 +354,9 @@ It does not adopt itself into the app automatically. Production adoption is expl
 
 It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remains the current production app default and also serves as the horizontal special case for the proposed strategy.
 
-Existing pages are not migrated automatically. GUI OCR inference still crops from existing PAGE `Coords`, and GUI active-learning training still defaults to `pagexml_coords`.
+Existing pages are not migrated automatically. GUI OCR inference and GUI active-learning training still read saved PAGE `Coords`, but they now pass those records through the shared crop layer. Missing metadata remains the legacy masked-crop fallback.
 
-That production/research split is intentional. The research harness can safely evaluate `local_tangent_band_v1` by starting from PAGE `Baseline`, page image, and heatmap, regenerating PAGE `Coords`, and preparing OCR crops from that regenerated geometry. The production GUI currently starts OCR crop preparation from the PAGE `Coords` already saved for the page. Making local-tangent geometry or unwrapped crops part of the production OCR runtime needs a separate integration plan for when to regenerate saved geometry, how to avoid surprising migration of existing pages, how to tag active-learning samples with the geometry/crop strategy that produced them, and how to preserve current direct-`Coords` OCR behavior until the rollout is explicit.
+That production/research split is intentional. The research harness can safely evaluate `local_tangent_band_v1` by starting from PAGE `Baseline`, page image, and heatmap, regenerating PAGE `Coords`, and preparing OCR crops from that regenerated geometry. The production GUI starts OCR crop preparation from the PAGE `Coords` already saved for the page and consults the sibling metadata sidecar when it exists. Making local-tangent geometry or unwrapped crops the production behavior still needs an explicit adoption decision and production validation.
 
 ## Validation Commands
 

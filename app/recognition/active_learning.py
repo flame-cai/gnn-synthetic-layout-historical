@@ -121,10 +121,17 @@ def prepare_page_datasets(
     geometry_source: str = "pagexml_coords",
     segmentation_args: dict | None = None,
     line_segmentation_strategy_name: str | None = None,
+    line_segmentation_metadata_dir: str | Path | None = None,
+    line_segmentation_metadata_resolver=None,
 ):
     images_dir = Path(images_dir)
     pagexml_dir = Path(pagexml_dir)
     heatmaps_dir = Path(heatmaps_dir) if heatmaps_dir is not None else None
+    line_segmentation_metadata_dir = (
+        Path(line_segmentation_metadata_dir)
+        if line_segmentation_metadata_dir is not None
+        else None
+    )
     output_root = Path(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
 
@@ -147,6 +154,13 @@ def prepare_page_datasets(
                     raise FileNotFoundError(f"Heatmap not found for page {page_id} in {heatmaps_dir}")
                 heatmap_path = matches[0]
 
+        metadata_path = None
+        if line_segmentation_metadata_resolver is not None:
+            metadata_path = line_segmentation_metadata_resolver(page_id)
+        elif line_segmentation_metadata_dir is not None:
+            candidate = line_segmentation_metadata_dir / f"{page_id}_line_segmentation_metadata.json"
+            metadata_path = candidate if candidate.exists() else None
+
         page_output_root = output_root / page_id
         prepared[page_id] = prepare_page_line_dataset(
             xml_path,
@@ -156,6 +170,7 @@ def prepare_page_datasets(
             geometry_source=geometry_source,
             segmentation_args=segmentation_args,
             line_segmentation_strategy_name=line_segmentation_strategy_name,
+            line_segmentation_metadata_path=metadata_path,
         )
 
     return prepared

@@ -26,14 +26,14 @@ This refactor should make the second phase strategy-aware without collapsing it 
 
 - [x] (2026-05-15 13:53 IST) Created this proposed ExecPlan after confirming that production layout save already regenerates PAGE `Coords` from a fresh baseline PAGE XML, while production OCR inference and active-learning training still crop from saved `Coords`.
 - [x] (2026-05-15 14:22 IST) Hardened the plan with the two-phase architecture rationale, guardrails that keep PAGE geometry separate from OCR crop images, and phased implementation constraints for production adoption.
-- [ ] Implement shared strategy-aware OCR crop module.
-- [ ] Refactor research dataset preparation to use the shared module without changing current gate behavior.
-- [ ] Refactor production app line-image export to use the shared module.
-- [ ] Refactor production local OCR inference to use the shared module.
-- [ ] Refactor active-learning revision preparation to preserve and consume strategy metadata.
-- [ ] Add tests proving `legacy_axis_bound_v1` production behavior is unchanged and local-tangent metadata can drive unwrapping.
-- [ ] Update all docs that describe production adoption, research promotion, and OCR crop behavior.
-- [ ] Run targeted unit tests and the relevant pre-commit gates, then record outcomes.
+- [x] (2026-05-15 14:50 IST) Implemented shared strategy-aware OCR crop module at `app/recognition/line_segmentation/ocr_crops.py`.
+- [x] (2026-05-15 14:50 IST) Refactored research dataset preparation to use the shared crop module while keeping `baseline_heatmap` strategy generation behavior.
+- [x] (2026-05-15 14:50 IST) Refactored production app line-image export to use the shared cropper and the metadata sidecar written during layout save.
+- [x] (2026-05-15 14:50 IST) Refactored production local OCR inference to use shared crop extraction with sibling metadata discovery and masked-crop fallback.
+- [x] (2026-05-15 14:50 IST) Refactored active-learning snapshots and revision preparation to preserve and consume line-segmentation metadata without requiring heatmaps.
+- [x] (2026-05-15 14:50 IST) Added tests for missing/malformed/legacy/delegated/local-tangent crop metadata, PAGE XML immutability, local OCR fallback, and active-learning metadata snapshot plumbing.
+- [x] (2026-05-15 14:50 IST) Updated repository docs and text-line strategy docs to describe strategy-aware production OCR crops and checked-in promotion record generation.
+- [x] (2026-05-15 14:57 IST) Ran targeted unit tests, OCR pre-commit unit gate, and fast full-pipeline gate; all passed. Slow OCR e2e ablation gates were not run in this pass.
 
 ## Surprises & Discoveries
 
@@ -45,6 +45,9 @@ This refactor should make the second phase strategy-aware without collapsing it 
 
 - Observation: GUI active-learning training snapshots final PAGE XML and image files, then prepares OCR data from saved `Coords`.
   Evidence: `app/ocr_active_learning_runtime.py::_snapshot_page_revision(...)` copies final PAGE XML and resized image into the revision snapshot. `_prepare_revision_pages(...)` calls `prepare_page_datasets(...)` without a strategy name or heatmap directory, so the default `geometry_source="pagexml_coords"` path is used.
+
+- Observation: `app/tests/logs/` evidence is ignored locally, so durable promotion summaries need a checked-in home.
+  Evidence: `scripts/promote_text_line_strategy.py::write_strategy_promotion_evidence(...)` now refreshes `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md` in addition to the ignored latest log files.
 
 ## Decision Log
 
@@ -74,7 +77,19 @@ This refactor should make the second phase strategy-aware without collapsing it 
 
 ## Outcomes & Retrospective
 
-This plan has not been implemented yet. Completion should leave the production app behavior unchanged for `legacy_axis_bound_v1`, while making the production crop path capable of honoring local-tangent strategy metadata after an explicit production adoption.
+Implemented on 2026-05-15. The production app behavior remains masked-crop compatible for `legacy_axis_bound_v1`, while app line-image export, local OCR inference, research dataset preparation, and active-learning revision training now share one crop decision layer that can honor local-tangent metadata after explicit production adoption.
+
+Validation run on 2026-05-15:
+
+    conda run -n gnn_layout python -m unittest app.tests.test_strategy_aware_ocr_crops_unit -v
+    conda run -n gnn_layout python -m unittest app.tests.test_strategy_promotion_unit -v
+    conda run -n gnn_layout python -m unittest app.tests.test_line_segmentation_strategy_unit -v
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_unit -v
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_backend_unit -v
+    conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
+    conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+
+The slow surrogate OCR e2e gates were not run in this implementation pass.
 
 ## Context and Orientation
 
@@ -86,15 +101,15 @@ The current strategy registry is in `app/recognition/line_segmentation/registry.
 
 `local_tangent_band_v1` is the current proposed research strategy. It also writes page-space `Coords`, but for vertical, curved, and circular lines it can later unwrap the line into a horizontal OCR crop using both `Coords` and `Baseline`. The unwrapped OCR crop is a derived image; it must not be written back as PAGE `Coords`.
 
-The research harness already has strategy-aware crop preparation in `app/recognition/pagexml_line_dataset.py::prepare_page_line_dataset(...)`. When a strategy name is supplied, it regenerates `Coords` and uses saved per-line strategy metadata to decide whether to call `unwrap_line_crop_for_ocr(...)` or fall back to `_masked_line_crop(...)`.
+The research harness now reaches strategy-aware crop preparation through `app/recognition/line_segmentation/ocr_crops.py`, called from `app/recognition/pagexml_line_dataset.py::prepare_page_line_dataset(...)`. When a strategy name is supplied, it regenerates `Coords` and uses saved per-line strategy metadata to decide whether to call `unwrap_line_crop_for_ocr(...)` or fall back to `masked_line_crop(...)`.
 
-Production currently differs in three important places:
+Before this implementation, production differed in three important places. These are now refactored:
 
-`app/gnn_inference.py::_write_app_line_images_from_pagexml(...)` writes app line images after layout save. It reads final PAGE XML and calls `_masked_line_crop(...)` directly for every line.
+`app/gnn_inference.py::_write_app_line_images_from_pagexml(...)` writes app line images after layout save. It now reads final PAGE XML, loads the sibling metadata sidecar, and calls the shared cropper for every line.
 
-`app/recognition/recognize_manuscript_text_v2_pretrained.py::process_page_xml(...)` runs local OCR inference. It reimplements direct `Coords` masking internally and does not read line segmentation metadata.
+`app/recognition/recognize_manuscript_text_v2_pretrained.py::process_page_xml(...)` runs local OCR inference. It now calls `extract_ocr_line_crops_from_page_xml(...)`, which discovers sibling metadata and falls back to masked crops.
 
-`app/ocr_active_learning_runtime.py::_prepare_revision_pages(...)` prepares active-learning training data from revision snapshots. It calls `prepare_page_datasets(...)` in the default `pagexml_coords` mode without passing strategy metadata.
+`app/ocr_active_learning_runtime.py::_prepare_revision_pages(...)` prepares active-learning training data from revision snapshots. It keeps `geometry_source="pagexml_coords"` and now passes each snapshot page XML directory as the metadata sidecar source.
 
 The production layout save path itself is already strategy-aware for PAGE XML generation. `app/gnn_inference.py::generate_xml_and_images_for_page(...)` builds a fresh baseline PAGE XML from edited graph nodes and edges, applies `get_production_strategy_name()`, and writes final PAGE `Coords`.
 
@@ -364,13 +379,10 @@ Relevant current code excerpts:
         _write_app_line_images_from_pagexml(final_xml_path, ...)
 
     app/recognition/pagexml_line_dataset.py::prepare_page_line_dataset(...)
-        if strategy metadata says crop_model == "local_tangent_band":
-            unwrap_line_crop_for_ocr(...)
-        else:
-            _masked_line_crop(...)
+        calls crop_line_record_for_ocr(...), which unwraps only when metadata says crop_model == "local_tangent_band"
 
     app/recognition/recognize_manuscript_text_v2_pretrained.py::process_page_xml(...)
-        currently reimplements direct TextLine/Coords masked cropping internally.
+        uses extract_ocr_line_crops_from_page_xml(...) and no longer reimplements TextLine/Coords masking internally.
 
 Expected short test transcript after implementation:
 

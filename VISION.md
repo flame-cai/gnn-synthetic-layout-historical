@@ -42,7 +42,7 @@ The generic pattern is:
 4. Run the same external verifiers against both roles.
 5. Aggregate the gate evidence.
 6. Promote the proposed strategy explicitly inside the research harness only after all gates pass.
-7. Adopt a strategy for production app use through a separate explicit command.
+7. Adopt a strategy for production app use through a separate explicit command that changes future PAGE geometry generation and the crop metadata honored by production OCR preparation.
 8. Keep the old strategy code and history for rollback and future ablations.
 
 This harness is intentionally broader than text-line segmentation. A future agent can adapt it to another pipeline component if it first writes down:
@@ -53,7 +53,7 @@ This harness is intentionally broader than text-line segmentation. A future agen
 - the acceptable regression rules
 - the research promotion command, production adoption command, and source-of-truth config
 
-The important design rule is that generated logs are evidence, but checked-in source config is the source of truth for which strategy currently owns the research benchmark role and which strategy the app uses in production.
+The important design rule is that generated logs are evidence, but checked-in source config is the source of truth for which strategy currently owns the research benchmark role and which strategy the app uses in production. Because generated logs under `app/tests/logs/` are ignored, `scripts/run_precommit_eval.py` also refreshes `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md` as the checked-in promotion evidence summary.
 
 ## Current Harness Instance: Text-Line Segmentation To OCR Crops
 
@@ -80,15 +80,17 @@ The current concrete strategies are:
 
 `legacy_axis_bound_v1` preserves the historical axis-aligned behavior. `local_tangent_band_v1` is the generalized strategy for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
 
+Production now has a shared OCR crop preparation boundary in `app/recognition/line_segmentation/ocr_crops.py`. App line-image export, local OCR inference, and active-learning revision preparation all read saved PAGE `Coords` and optional strategy metadata through that layer. With the current production pin, output remains the legacy masked PAGE `Coords` crop; a later explicit production adoption can bring both future PAGE `Coords` generation and local-tangent crop behavior into the app for newly saved pages.
+
 The current explicit workflow is:
 
 1. A researcher suggests a new `proposed_strategy`.
 2. Agents implement the code and update docs/config.
 3. The developer runs or triggers the three pre-commit gates.
-4. `scripts/run_precommit_eval.py` writes gate artifacts and aggregate promotion evidence.
+4. `scripts/run_precommit_eval.py` writes gate artifacts, aggregate promotion evidence, and the checked-in promotion record.
 5. The developer reviews the evidence and runs `scripts/promote_text_line_strategy.py --apply`.
 6. The research benchmark role moves forward in checked-in config, while old strategy code remains available for comparison.
-7. A separate operator decision runs `scripts/adopt_text_line_strategy_for_app.py --apply` if the app should use a different production strategy.
+7. A separate operator decision runs `scripts/adopt_text_line_strategy_for_app.py --apply` if the app should use a different production strategy for future geometry and crop behavior.
 
 This keeps promotion and production rollout reviewable. The pre-commit path does not silently mutate tracked config after Git has already prepared the commit, and research promotion is not a GUI/app rollout.
 
