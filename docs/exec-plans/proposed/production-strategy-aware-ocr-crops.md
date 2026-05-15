@@ -10,9 +10,22 @@ After this change, adopting a text-line segmentation strategy for production wil
 
 The important gain is modularity. Today the research harness has a strategy-aware OCR crop path, but production local OCR and active-learning training mostly crop directly from saved `Coords`. After this refactor, production code will call a shared strategy-aware crop preparation layer. With `legacy_axis_bound_v1`, that layer will still choose the existing axis-aligned masked crop. If a future operator explicitly adopts `local_tangent_band_v1` for production, the same production layer will be able to use local-tangent unwrapping for lines whose saved strategy metadata says they were produced by local-tangent geometry.
 
+This plan intentionally keeps OCR preparation as two phases:
+
+    durable page geometry:
+        Baseline + image + heatmap -> PAGE TextLine/Coords + strategy metadata
+
+    derived OCR representation:
+        PAGE TextLine/Coords + Baseline + strategy metadata -> OCR-ready crop image
+
+The two phases should stay separate because PAGE XML is the durable, editable, auditable layout representation. OCR crops are model inputs and may be unwrapped, padded, normalized, or otherwise transformed in ways that are not true page-space geometry. A local-tangent unwrapped strip must never be written back as PAGE `Coords`.
+
+This refactor should make the second phase strategy-aware without collapsing it into the first phase. Promotion to production becomes easier because the app will have one shared place to honor strategy crop behavior, but promotion is still not automatic. Research promotion says a strategy passed harness gates. Production adoption still requires an explicit adoption step and production validation.
+
 ## Progress
 
 - [x] (2026-05-15 13:53 IST) Created this proposed ExecPlan after confirming that production layout save already regenerates PAGE `Coords` from a fresh baseline PAGE XML, while production OCR inference and active-learning training still crop from saved `Coords`.
+- [x] (2026-05-15 14:22 IST) Hardened the plan with the two-phase architecture rationale, guardrails that keep PAGE geometry separate from OCR crop images, and phased implementation constraints for production adoption.
 - [ ] Implement shared strategy-aware OCR crop module.
 - [ ] Refactor research dataset preparation to use the shared module without changing current gate behavior.
 - [ ] Refactor production app line-image export to use the shared module.
@@ -37,6 +50,14 @@ The important gain is modularity. Today the research harness has a strategy-awar
 
 - Decision: treat OCR crop preparation as part of a production strategy adoption, but keep PAGE XML geometry and OCR crop images as separate representations.
   Rationale: PAGE `Coords` are page-space manuscript geometry. OCR unwrapping is a derived image representation for recognition. Writing unwrapped rectangles back into PAGE XML would corrupt the page-space layout model.
+  Date/Author: 2026-05-15 / Codex
+
+- Decision: keep production strategy adoption explicit even after research promotion succeeds.
+  Rationale: research promotion proves a strategy passed harness gates against a benchmark. Production adoption changes GUI save behavior, local OCR input images, and active-learning training data. Those are related but not the same operational decision.
+  Date/Author: 2026-05-15 / Codex
+
+- Decision: choose OCR crop behavior from per-line metadata when possible, not from strategy name alone.
+  Rationale: `local_tangent_band_v1` can delegate simple horizontal lines to legacy behavior while using local-tangent crops for curved, vertical, or circular lines. A page-level strategy name is not enough to know what each line needs.
   Date/Author: 2026-05-15 / Codex
 
 - Decision: refactor production to use a shared crop module rather than making `local_tangent_band_v1` a special case in each caller.
@@ -76,6 +97,39 @@ Production currently differs in three important places:
 `app/ocr_active_learning_runtime.py::_prepare_revision_pages(...)` prepares active-learning training data from revision snapshots. It calls `prepare_page_datasets(...)` in the default `pagexml_coords` mode without passing strategy metadata.
 
 The production layout save path itself is already strategy-aware for PAGE XML generation. `app/gnn_inference.py::generate_xml_and_images_for_page(...)` builds a fresh baseline PAGE XML from edited graph nodes and edges, applies `get_production_strategy_name()`, and writes final PAGE `Coords`.
+
+## Architectural Guardrails
+
+Keep the two phases explicit in code, names, tests, and documentation.
+
+The geometry phase owns durable PAGE layout:
+
+    input: graph-derived PAGE Baseline, page image, heatmap, strategy config
+    output: final PAGE TextLine/Coords and line segmentation metadata
+
+The OCR crop phase owns model input preparation:
+
+    input: final PAGE TextLine/Coords, PAGE Baseline, page image, strategy metadata, crop config
+    output: OCR-ready crop image and crop metadata
+
+The OCR crop phase may unwrap or normalize a line image. It must not mutate PAGE geometry. PAGE `Coords` remain page-space polygons even when the OCR model receives a horizontal unwrapped strip.
+
+Do not let callers infer crop behavior only from `production_strategy_name`. The cropper must look at per-line metadata when it exists. This matters because `local_tangent_band_v1` can intentionally preserve legacy behavior for simple horizontal lines while using local-tangent behavior for curved or circular lines.
+
+Do not require heatmaps during normal production OCR inference or active-learning training from saved revisions. Production snapshots already contain final PAGE `Coords`. Heatmaps are required for strategy geometry regeneration, not for reading an already-saved production revision.
+
+Do not migrate old manuscripts as a side effect of this refactor. Existing PAGE XML without strategy metadata remains valid and must fall back to the masked `Coords` crop.
+
+Do not silently treat research promotion as production adoption. The research workflow may promote a benchmark strategy for future harness comparisons. Production adoption must remain a separate script/config change that changes future app saves and OCR crops only after explicit operator intent.
+
+The fallback behavior must be boring and predictable:
+
+    missing metadata -> masked PAGE Coords crop
+    malformed metadata -> log warning, masked PAGE Coords crop
+    unsupported crop_model -> log warning, masked PAGE Coords crop
+    legacy_axis_bound_v1 -> masked PAGE Coords crop
+    local_tangent_band_v1 + crop_model=legacy_axis_bound_delegate -> masked PAGE Coords crop
+    local_tangent_band_v1 + crop_model=local_tangent_band -> local-tangent unwrap
 
 ## Plan of Work
 
@@ -138,6 +192,36 @@ If `docs/pipeline-improvement/text-line-segmentation/legacy-axis-bound-v1-archit
 
 Review current proposed ExecPlans that mention production crop behavior. Do not rewrite completed historical evidence casually, but add a short note to any active proposed plan if its guidance would mislead a future implementer after this refactor.
 
+## Implementation Phases
+
+Implement this as a staged refactor. Do not mix the mechanical crop extraction with production adoption of new local-tangent behavior.
+
+Phase 1: Extract legacy crop behavior.
+
+Move the existing masked PAGE `Coords` crop into the shared module and point research dataset preparation at that function. The output for `legacy_axis_bound_v1` should remain the same. This phase should not introduce unwrapping into production callers.
+
+Phase 2: Add metadata loading and crop selection.
+
+Add the sidecar metadata loader and `crop_line_record_for_ocr(...)`. The cropper should support local-tangent unwrapping, but production callers do not need to use it yet. Tests should cover missing, malformed, legacy, local-tangent, and delegated metadata.
+
+Phase 3: Refactor production app line-image export.
+
+Change `_write_app_line_images_from_pagexml(...)` to call the shared cropper and pass the metadata written by the just-run production strategy. With current production config, this should still produce masked crops.
+
+Phase 4: Refactor production local OCR inference.
+
+Remove the duplicate direct `Coords` masking from local OCR inference and route it through the shared cropper. Keep automatic fallback to sibling metadata discovery and masked crop behavior when metadata is absent.
+
+Phase 5: Refactor active-learning revision snapshots and preparation.
+
+Copy the strategy metadata sidecar into revision snapshots when present. Prepare revision training crops from saved PAGE `Coords` plus metadata. Do not require heatmaps for normal production revision training.
+
+Phase 6: Validate production adoption readiness.
+
+Only after the previous phases are passing should `local_tangent_band_v1` be considered for production adoption. At that point, adoption should be an explicit config/script action and should be validated as a production behavior change, not as part of this refactor.
+
+Each phase should preserve the invariant that missing metadata behaves like the old production app: saved PAGE `Coords` are cropped with the masked polygon crop.
+
 ## Concrete Steps
 
 Work from the repository root:
@@ -158,6 +242,23 @@ The module should expose stable functions with names close to:
 
     image
     metadata
+
+The metadata should be small but explicit. Include at least:
+
+    crop_model
+    crop_source
+    line_segmentation_strategy_name
+    line_numeric_id
+    used_unwrap
+    fallback_reason
+
+For the legacy fallback, a reasonable metadata shape is:
+
+    crop_model = "axis_aligned_masked_crop"
+    crop_source = "pagexml_coords"
+    used_unwrap = false
+
+For local-tangent unwrapping, preserve the existing unwrap metadata and add enough outer metadata to make the crop decision auditable.
 
 Keep the first implementation narrow. It only needs to preserve the current masked crop and delegate to the existing `unwrap_line_crop_for_ocr(...)` when metadata calls for local-tangent unwrapping.
 
@@ -182,13 +283,17 @@ Add or update tests:
 The new crop unit tests should cover:
 
 - missing metadata uses the masked crop
+- malformed metadata uses the masked crop and records/logs a fallback
 - `legacy_axis_bound_v1` metadata uses the masked crop
 - `local_tangent_band_v1` metadata with `crop_model="local_tangent_band"` uses unwrapping
 - `local_tangent_band_v1` metadata with `crop_model="legacy_axis_bound_delegate"` uses the masked crop
+- crop preparation does not mutate PAGE XML or write unwrapped geometry back into PAGE `Coords`
+- crop preparation from saved production revisions does not require heatmaps
 
 The production tests should cover:
 
 - app line-image export still writes the same path structure for legacy pages
+- app line-image export for legacy pages matches the old masked crop output on a synthetic fixture
 - local OCR crop extraction can discover sibling metadata but falls back safely if it is absent
 - active-learning snapshots copy the metadata sidecar when present
 - active-learning revision preparation uses saved `Coords` plus metadata, not heatmap regeneration, for production snapshots
@@ -220,6 +325,8 @@ If the change is being prepared for merge or production adoption work, run the t
 ## Validation and Acceptance
 
 Acceptance requires behavior that a human can observe.
+
+Acceptance for this refactor is not the same as acceptance for `local_tangent_band_v1` production adoption. This refactor is accepted when production can route OCR crop preparation through the shared cropper while preserving current legacy behavior. A later production adoption is accepted only after proving the adopted strategy's OCR crops and active-learning behavior are acceptable in production-like workflows.
 
 With current checked-in config, `production_strategy_name` remains `legacy_axis_bound_v1`. After the refactor, saving a normal horizontal page in the GUI should still produce:
 
