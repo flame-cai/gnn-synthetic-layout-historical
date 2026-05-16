@@ -1,122 +1,399 @@
-can you think of a strategy (local_polygons_v1) which will generalize segmentLinesFromPointClusters(...) (which currently generates axis-aligned-ish PAGE polygons), which will generate similar axis-aligned PAGE polygons by treating each curve as "locally as a curve". We want this because segmentLinesFromPointClusters(...) really has good heuristics for not including unnecessary text coming from adjacent line from the "top" or "bottom". this notion of top and bottom also perhaps can be generalized. Once these heuristics are applied to the text-line in a generalized way, we want to move to next step of unwrapping. We want this generalized version to ideally work exactly the same for horizonal lines, and also work with the same spirit for curved lines (unlike the band strategy, which does not apply any heuristics to not include unnecessary text from adjacent lines)
+# local_polygons_v1 Strategy Sketch
 
-We want to unwrap without delegating horizontal lines to the legacy strategy. We just want one general strategy which unwraps the PAGE-polygons  into a horizonal strip
+This document sketches a proposed text-line segmentation and OCR crop strategy named
+`local_polygons_v1`. It is not an implementation plan yet. The goal is to record the
+geometry idea, the risks found during investigation, and the TODOs that should be
+completed before implementation starts.
 
+## Problem
 
-#### proposed new strategy
-The clean strategy is not “band then unwrap”; it is legacy polygon heuristics in a local coordinate system, then unwrap from those tighter polygons.
+`legacy_axis_bound_v1` produces useful OCR crops for mostly horizontal text because
+`segmentLinesFromPointClusters(...)` applies several practical heuristics before it
+builds PAGE `TextLine/Coords`:
 
-I’d call it something like local_polygons_v1.
+- heatmap thresholding and connected-component boxes
+- dynamic padding around each component
+- local connected-component cleanup inside each padded crop
+- removal of small components touching the crop's top or bottom boundary
+- rectangular mask union and bridging between nearby disconnected box groups
+- final contour extraction and median-color fill outside the generated polygon
 
-Core Idea
-For each line, build a local coordinate frame around the baseline:
+Those heuristics are valuable because they reject unnecessary ink from adjacent
+lines above and below the target line.
 
+`local_tangent_band_v1` solves a different problem. It builds a broad local tangent
+band around a baseline, then unwraps that band. This handles curved and circular
+layout, but the band itself is often too permissive. In
+`app/tests/logs/20260512_135724_ocrft_circular_ocr_ablation_proposed_eval_dataset_v2`,
+the local-tangent metadata shows that the PAGE/ribbon mask covers nearly the whole
+unwrapped rectangle. For example, `page_2` line `0` has output size
+`6665 x 156` and `foreground_pixel_count=1035333`, so only about `0.42%` of the
+rectangle is outside the mask and replaced with page median color. The crop therefore
+keeps page background texture across almost the entire ribbon.
+
+The desired next strategy is not "band then unwrap". It is:
+
+```text
+legacy polygon heuristics in a local coordinate system,
+then unwrap from those tighter polygons
+```
+
+## Core Idea
+
+For every text line, construct a local frame around the normalized PAGE baseline:
+
+```text
 s = distance along baseline
-n = signed distance normal to baseline
-Then convert the line’s heatmap components into this (s, n) space. In that space, every line is treated as locally horizontal. Now the old legacy idea of “top” and “bottom” becomes:
+n = signed distance along the local normal
+```
 
+In this `(s, n)` frame, each line is treated as locally horizontal.
+
+The legacy idea of top and bottom generalizes to:
+
+```text
 top    = negative normal side
 bottom = positive normal side
-For horizontal lines, this local frame is essentially the original image frame, so the strategy can behave like segmentLinesFromPointClusters(...) without delegating to it.
+```
 
-Proposed local_polygons_v1 Pipeline
+For a normal horizontal line, `s` is approximately page `x` and `n` is approximately
+`page_y - baseline_y`. That means the new strategy can match the spirit of
+`segmentLinesFromPointClusters(...)` for horizontal lines without delegating to
+`legacy_axis_bound_v1`.
 
-Normalize baseline
-Use the same topology cleanup we discussed: remove graph-walk backtracking, handle circular paths, enforce reading direction. This is mandatory before any local geometry.
+## Proposed Pipeline
 
-Assign heatmap components to lines
-Threshold heatmap and extract connected-component boxes, as legacy does. But assignment uses nearest point on the normalized baseline, not axis-aligned containment.
+### 1. Normalize Baselines
 
-Project each component into local line coordinates
-For each heatmap component, sample its corners or mask pixels into (s, n). It becomes a local rectangle/blob in unwrapped line space.
+Normalize every raw PAGE `Baseline` before any local geometry is computed.
 
-Run legacy-style cleanup in local space
-This is the key part. For each component/local blob:
+Required behavior:
 
-pad along n using the legacy vertical padding idea
-pad along s using the legacy horizontal padding idea
-binarize the corresponding local image patch
-remove small connected components touching the local top/bottom boundary
-for vertical/curved/circular text, “top/bottom” means normal-side boundaries, not page y-boundaries
-Build a tight local polygon
-Union the cleaned local rectangles/masks for that line. Bridge nearby disconnected groups in local s order, using local line height, same spirit as legacy. Then contour the union mask in (s, n) space.
+- remove graph-walk backtracking artifacts such as `A -> B -> C -> B`
+- handle longer out-and-back paths
+- preserve true closed circular paths
+- choose a stable seam for closed paths
+- enforce reading direction and circular direction
+- expose the normalized baseline and topology metadata to both geometry generation
+  and OCR unwrapping
 
-Map polygon back to PAGE space
-Convert the local polygon boundary back through the baseline transform:
+This should happen before `local_polygons_v1` is implemented, because baseline
+normalization affects `local_tangent_band_v1`, the proposed strategy, and every
+future strategy that uses baseline-local coordinates.
 
+### 2. Extract Heatmap Components
+
+Reuse the legacy heatmap thresholding primitive:
+
+```text
+heatmap -> threshold -> external contours -> component bounding boxes
+```
+
+The implementation should preserve the meaning of the existing defaults:
+
+- `BINARIZE_THRESHOLD`
+- `BBOX_PAD_V`
+- `BBOX_PAD_H`
+- `CC_SIZE_THRESHOLD_RATIO`
+
+The strategy may later add local-only settings, but the first version should keep
+the old knobs recognizable so ablations remain interpretable.
+
+### 3. Assign Components To Lines
+
+Assign heatmap components to normalized baselines by nearest baseline point, not by
+axis-aligned containment alone.
+
+For each component, record:
+
+- nearest line id
+- nearest baseline station `s`
+- signed normal offset `n`
+- local tangent and normal
+- component extent along `s`
+- component extent along `n`
+- distance-to-baseline and rejection reason when unassigned
+
+This is where local "above" and "below" become meaningful for vertical, curved, and
+circular text.
+
+### 4. Project Components Into Local Space
+
+For each assigned component, project either its rectangle corners or its heatmap
+mask pixels into the line-local `(s, n)` frame.
+
+The recommended first implementation is conservative:
+
+- start with component rectangles projected into local space
+- retain enough per-component metadata to debug false inclusions
+- add mask-pixel projection only if rectangle projection proves too coarse
+
+Projected components should be represented as local rectangles or small local masks
+on a local canvas.
+
+### 5. Run Legacy-Style Cleanup In Local Space
+
+Apply the old component cleanup in local coordinates:
+
+- pad along `n` using the legacy vertical padding idea
+- pad along `s` using the legacy horizontal padding idea
+- crop the original page through the local remap for the padded local box
+- binarize the local crop
+- remove small connected components touching the local top or bottom boundary
+- for near-vertical text, do not special-case page `x`; the local normal axis already
+  defines top and bottom
+
+This is the main difference from `local_tangent_band_v1`: local polygons are produced
+from cleaned component evidence, not from a broad baseline ribbon.
+
+### 6. Build A Tight Local Polygon
+
+Union the cleaned local boxes or masks for one line.
+
+Then:
+
+- bridge nearby disconnected groups in increasing `s` order
+- use local line height as the bridge height, matching the spirit of legacy bridging
+- extract a contour in local `(s, n)` space
+- simplify the contour while preserving the cleaned mask area
+
+The output at this stage is a local polygon, not yet PAGE `Coords`.
+
+### 7. Map The Local Polygon Back To PAGE Space
+
+Convert local polygon boundary points back to page coordinates:
+
+```text
 page_point = baseline_point_at_s + n * local_normal_at_s
-This gives PAGE Coords. The polygon is no longer globally axis-aligned for curved lines, but it is “axis-aligned in local line coordinates,” which is the right generalization.
+```
 
-Unwrap OCR crop from this tight polygon
-Use the same baseline-local remap as current local_tangent_band_v1, but mask with the new tight local polygon, not the broad ribbon. Pixels outside the cleaned local polygon become page median color.
+The resulting PAGE `Coords` are not globally axis-aligned for curved text. They are
+axis-aligned in the local line frame, which is the intended generalization of the
+legacy axis-bound polygon.
 
-Why This Fixes The Median Background Issue
-local_tangent_band_v1 masks with a broad ribbon around the whole baseline, so almost every pixel survives.
+### 8. Prepare OCR Crop By Unwrapping The Tight Polygon
 
-local_polygons_v1 would mask with the cleaned component-derived polygon. That means the unwrapped crop should look like:
+Use the baseline-local remap that `local_tangent_band_v1` already uses, but mask with
+the tight local polygon rather than the broad line band.
 
-ink / real text pixels inside cleaned local polygons
-median-color background outside them
-This is much closer to legacy OCR crops.
+Expected OCR crop behavior:
 
-Why Horizontal Lines Can Match Legacy
-For a normal horizontal line:
+```text
+inside cleaned local polygon  -> original page pixels
+outside cleaned local polygon -> page median color
+```
 
+This should make curved and circular line crops visually closer to legacy crops:
+text-line content is preserved, while unrelated adjacent-line/background regions are
+suppressed.
+
+## Why Horizontal Lines Should Not Delegate To Legacy
+
+The proposed strategy should be one general algorithm. For horizontal lines, the
+local coordinate frame collapses to the normal page frame:
+
+```text
 s ~= page x
 n ~= page y - baseline_y
-So local top/bottom are the same as image top/bottom. If we keep the same heatmap thresholding, dynamic padding, boundary-touching component cleanup, bridge heuristic, and contour extraction, the horizontal output can be made effectively identical to legacy without calling the legacy strategy.
+```
 
-The main risks are:
+Therefore, if the strategy preserves thresholding, padding, top/bottom cleanup,
+bridging, and contour extraction semantics, horizontal behavior can be made
+equivalent or near-equivalent to legacy without a special delegation branch.
 
-baseline normalization must be fixed first
-circular lines need careful seam selection so components do not split badly at s=0
-PAGE polygons from local masks may have many points and may need simplification
-exact legacy parity for horizontal lines should be protected with tests before expanding to curves
+This matters because delegation hides defects. A general strategy must prove that
+the local-coordinate formulation reproduces the horizontal benchmark before it is
+trusted for curved and circular text.
 
+## Pre-Implementation TODOs
 
-#### WEIRD LINE FIX: INVESTAGTE BASELINE NORMALIZATION ####
+### TODO 1: Harden Baseline Normalization First
 
+Do not start `local_polygons_v1` by patching OCR crops. Fix the baseline topology
+layer first.
 
-TODO: investigate all Baselines in all the PAGE-XMLS and try to find such issues in app/tests/eval_dataset, app/tests/eval_dataset_v2 and all manuscripts in app/input_manuscripts
+The immediate failure case is:
 
-Yes. The root cause is likely the baseline topology, not the median-fill code.
-For word_0020.png / line 19, the source baseline is:
-text
-
+```text
 756,816 -> 806,814 -> 856,818 -> 806,814
+```
 
-That is a short retraced graph walk: A -> B -> C -> B.
-Current normalize_baseline_topology(...) only detects out-and-back paths when there are at least min_mirror_pairs=3. For A-B-C-B, there is only one mirror pair, so it is not normalized. It stays curved_open, gets crop_model="local_tangent_band", then _band_polygon(...) builds a self-crossing-ish band from the folded baseline. OCR unwrapping then remaps that folded band, producing the strange crop.
-The source of these baselines is also important: trace_component_with_backtracking (line 362) creates a DFS traversal that explicitly appends parent nodes while backtracking. That is fine as a graph traversal, but it is not always a clean PAGE baseline.
-Best Fix Direction
-Do not patch the cropper first. Fix baseline normalization, because both strategy geometry and OCR unwrapping call it.
-I’d recommend a two-part normalization hardening:
-Handle short retraced tails
-Detect short patterns like A-B-C-B and A-B-C-D-C-B even when they have fewer than 3 mirror pairs. For line 19, this would normalize to:
-text
+This is a short retraced graph walk: `A -> B -> C -> B`.
 
+Current `normalize_baseline_topology(...)` detects out-and-back paths only when
+there are at least `min_mirror_pairs=3`. For `A-B-C-B`, there is only one mirror
+pair, so current normalization leaves it as `curved_open`. `local_tangent_band_v1`
+then builds and unwraps a folded band.
 
+Required normalization work:
 
-A -> B -> C
+- detect short retraced tails such as `A-B-C-B` and `A-B-C-D-C-B`
+- avoid turning branched walks such as `A-B-C-A-C-B` into fake closed loops
+- when repeated near-points form an otherwise straight horizontal or vertical line,
+  collapse to unique points ordered along the dominant axis
+- keep true circular paths classified as `closed_circular`
+- expose enough metadata to distinguish `short_tail_trimmed`,
+  `dominant_axis_deduped`, and existing `out_and_back` normalization
 
-Then it classifies as horizontal_straight, and local_tangent_band_v1 delegates it to legacy masked cropping instead of unwrapping.
+### TODO 2: Scan Baselines Before Changing Behavior
 
-Handle small branched retraced walks
-I found other examples like A-B-C-A-C-B. A simple “allow one mirror pair” rule can misclassify that as a fake closed loop. A safer repair is: when a baseline has repeated/near-repeated points and the unique points form a straight horizontal/vertical line, collapse to unique points ordered along the dominant axis.
+Initial scan performed on 2026-05-16 over:
 
-This should be guarded by tests so true circular paths still remain closed_circular.
-Concrete tests I’d add before changing behavior:
-A-B-C-B normalizes to A-B-C, line_kind="horizontal_straight".
-A-B-C-A-C-B normalizes to ordered unique straight points, not closed_circular.
-Existing circular out-and-back test still passes.
-A local strategy prep for short retraced horizontal baseline produces crop_model="legacy_axis_bound_delegate" and does not unwrap.
-After this fix, old generated crops will not change until regenerated, but new research harness prep should stop producing that folded local-tangent crop for line 19.
+- `app/tests/eval_dataset`
+- `app/tests/eval_dataset_v2`
+- `app/input_manuscripts`
 
+Scan results:
 
+| Root | XML files | Text lines | Lines with baseline | Current out-and-back | Current closed | Short retraced-tail candidates | Non-adjacent repeats | Straight after dedupe |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `app/tests/eval_dataset` | 15 | 305 | 279 | 218 | 0 | 31 | 249 | 31 |
+| `app/tests/eval_dataset_v2` | 5 | 25 | 25 | 25 | 10 | 0 | 25 | 0 |
+| `app/input_manuscripts` | 495 | 14342 | 14245 | 640 | 0 | 59 | 699 | 58 |
 
+Interpretation:
 
+- `eval_dataset_v2` mostly uses long out-and-back paths already handled by current
+  normalization.
+- `eval_dataset` contains many short retraced-tail baselines that current
+  normalization misses.
+- local manuscripts also contain short retraced-tail candidates, so this is not only
+  a test-artifact problem.
 
+Before implementation, turn this scan into a repeatable test or diagnostic script
+so future strategy changes can report how many baselines are normalized by each rule.
 
+### TODO 3: Decide Whether To Fix Baseline Generation Too
 
+The source of many retraced baselines is `trace_component_with_backtracking(...)` in
+`app/gnn_inference.py`. That DFS trace appends parent nodes while it backtracks,
+which is appropriate for visiting all graph edges but not always appropriate for a
+PAGE text-line baseline.
 
+Implementation choices:
 
+- harden only `normalize_baseline_topology(...)`
+- replace the graph baseline trace with a cleaner path extraction method
+- do both, but keep normalization as a defensive layer for old PAGE XML
+
+The safest order is:
+
+1. harden normalization
+2. add tests proving old PAGE XML is repaired at read time
+3. consider changing baseline generation after the strategy work is stable
+
+### TODO 4: Define Local Polygon Metadata
+
+`local_polygons_v1` should emit enough metadata for debugging and crop selection:
+
+- `crop_model = "local_polygon_unwrap"`
+- `line_kind`
+- `topology`
+- component assignment counts
+- rejected component counts by reason
+- local canvas dimensions
+- local polygon point count before and after simplification
+- median-background fraction in the OCR crop
+- whether the crop used rectangle projection or heatmap-mask projection
+- seam location for closed lines
+
+The shared OCR cropper must choose the new unwrapping behavior from per-line
+metadata, not from page-level strategy name alone.
+
+### TODO 5: Protect Horizontal Parity
+
+Add tests before curved/circular optimization:
+
+- synthetic horizontal line: local polygon crop should match legacy masked crop
+  within a tight pixel tolerance
+- real `eval_dataset` horizontal pages: line counts and page-level CER should stay
+  close to `legacy_axis_bound_v1`
+- no `legacy_axis_bound_delegate` crop model should appear for this strategy
+- `baseline_heatmap` strategy preparation should report stable
+  `source_line_coverage` and `heatmap_box_assignment_rate`
+
+## Expected Trickle-Down Effects
+
+### Strategy Registry And Role Config
+
+Adding `local_polygons_v1` means updating the strategy registry, tests, and role
+config. It should enter as a proposed research strategy, not as production behavior.
+Research promotion and production adoption must remain separate.
+
+### OCR Crop Layer
+
+The shared crop layer currently distinguishes:
+
+- legacy masked crop
+- local tangent unwrap
+- local tangent legacy delegate fallback
+
+`local_polygons_v1` needs a new crop model. It should not be forced through
+`local_tangent_band` metadata because that name means broad-band geometry today.
+
+### PAGE XML Size And Compatibility
+
+Local masks mapped back to page space may produce many polygon vertices. Add contour
+simplification and point-count metadata. Keep PAGE `Coords` in page coordinates and
+never write unwrapped rectangles back to PAGE XML.
+
+### Circular Seam Handling
+
+Closed circular lines need a seam. A poor seam can split connected text components
+across `s=0`. The strategy should cut closed paths at a stable top point, then either
+duplicate a small seam overlap in local space or bridge across the seam before final
+contour extraction.
+
+### Component Competition Between Lines
+
+Nearest-baseline assignment can still assign adjacent-line ink to the wrong line
+when baselines are close. Consider adding competition rules:
+
+- reject components whose nearest and second-nearest baselines are too close
+- reject components with normal offset beyond a robust line-width estimate
+- log ambiguous components separately from unassigned components
+
+### Background Semantics
+
+Legacy crops preserve original page pixels inside the generated polygon and set only
+outside-polygon pixels to median color. `local_polygons_v1` should initially preserve
+that semantic. A stricter ink-only mask would be a different strategy variant.
+
+### Performance And Memory
+
+Circular unwrapped crops can be very wide. The `eval_dataset_v2` run contains
+unwrapped widths around 6600 pixels. Local mask projection and contour extraction
+must avoid per-pixel work on full page images where possible. Start with component
+rectangles and local canvases bounded to each line.
+
+### Existing Artifacts
+
+Old generated PAGE XML, line images, and active-learning revisions will not change
+until regenerated. Any comparison must regenerate prepared pages under the new
+strategy before drawing conclusions.
+
+## Proposed Acceptance Checks
+
+Minimum checks before treating `local_polygons_v1` as a viable proposed strategy:
+
+- baseline normalization unit tests for `A-B-C-B`, `A-B-C-D-C-B`, branched
+  repeated walks, and true closed circular paths
+- synthetic horizontal parity test against `legacy_axis_bound_v1`
+- synthetic vertical and curved tests showing local top/bottom cleanup rejects
+  adjacent-line components
+- `eval_dataset` full-pipeline ablation
+- `eval_dataset` OCR fine-tune ablation with strict attention to horizontal regressions
+- `eval_dataset_v2` circular OCR ablation
+- manifest-level crop diagnostics showing a meaningful median-background fraction
+  for circular crops compared with `local_tangent_band_v1`
+
+## Non-Goals For The First Version
+
+- production adoption
+- migration of existing PAGE XML or active-learning checkpoint lineage
+- OCR-confidence-based orientation search
+- ink-only foreground masking
+- replacing the legacy strategy
+
+`legacy_axis_bound_v1` should remain available for benchmark comparison and
+production rollback regardless of whether `local_polygons_v1` succeeds.
