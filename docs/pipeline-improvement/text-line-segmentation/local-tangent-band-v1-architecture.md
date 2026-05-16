@@ -319,10 +319,15 @@ It records separate research and production roles:
 - `proposed_strategy_name`
 - `production_strategy_name`
 
-The three ablation gates compare:
+The promotion evidence compared:
 
-- benchmark: `legacy_axis_bound_v1`
-- proposed: `local_tangent_band_v1`
+- previous benchmark: `legacy_axis_bound_v1`
+- promoted strategy: `local_tangent_band_v1`
+
+The current research harness roles are:
+
+- benchmark: `local_tangent_band_v1`
+- proposed: not configured
 
 The current production app default remains:
 

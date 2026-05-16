@@ -61,13 +61,15 @@ The strategy docs live in:
 
 ## Strategy Roles
 
-The checked-in initial role mapping for this harness is:
+The checked-in current role mapping for this harness is:
 
-- benchmark: `legacy_axis_bound_v1`
-- proposed: `local_tangent_band_v1`
+- benchmark: `local_tangent_band_v1`
+- proposed: not configured
 - production app: `legacy_axis_bound_v1`
 
-`legacy_axis_bound_v1` is the preserved historical benchmark.
+`local_tangent_band_v1` is the current research benchmark after harness promotion. Configure a new proposed strategy before running the next ablation cycle.
+
+`legacy_axis_bound_v1` is the preserved historical benchmark and remains the production app default.
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
 

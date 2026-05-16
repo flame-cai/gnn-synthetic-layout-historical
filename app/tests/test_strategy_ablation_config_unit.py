@@ -27,32 +27,32 @@ from recognition.line_segmentation.strategy_config import (
 
 
 class StrategyAblationConfigUnitTest(unittest.TestCase):
-    def test_eval_dataset_pipeline_ablation_config(self):
+    def test_eval_dataset_pipeline_ablation_config_records_unset_proposed_after_promotion(self):
         config = get_pipeline_precommit_dataset("eval_dataset")
         benchmark_strategy = get_benchmark_strategy_name()
-        proposed_strategy = get_proposed_strategy_name()
+        self.assertIsNone(get_proposed_strategy_name())
         self.assertEqual(config.name, "eval_dataset")
         self.assertEqual(config.strategy_ablation.benchmark.role, "benchmark")
         self.assertEqual(config.strategy_ablation.proposed.role, "proposed")
         self.assertEqual(config.strategy_ablation.benchmark.strategy_name, benchmark_strategy)
-        self.assertEqual(config.strategy_ablation.proposed.strategy_name, proposed_strategy)
+        self.assertIsNone(config.strategy_ablation.proposed.strategy_name)
         self.assertEqual(config.strategy_ablation.max_allowed_regression_abs, 0.01)
         self.assertFalse(config.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(config.latest_artifact_basename, "pipeline_ablation_latest")
         self.assertEqual(len(config.ordered_page_ids()), config.expected_page_count)
 
-    def test_eval_dataset_recognition_ablation_config(self):
+    def test_eval_dataset_recognition_config_tracks_promoted_benchmark(self):
         gate = get_recognition_precommit_dataset("eval_dataset")
         config = get_precommit_hybrid_recognition_gate_config("eval_dataset")
         self.assertEqual(gate.strategy_ablation.benchmark.strategy_name, get_benchmark_strategy_name())
-        self.assertEqual(gate.strategy_ablation.proposed.strategy_name, get_proposed_strategy_name())
+        self.assertIsNone(gate.strategy_ablation.proposed.strategy_name)
         self.assertEqual(gate.strategy_ablation.max_allowed_regression_abs, 0.02)
         self.assertFalse(gate.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(gate.latest_artifact_basename, "recognition_finetune_ablation_latest")
         self.assertEqual(len(config.ordered_page_ids()), 15)
         self.assertEqual(config.line_segmentation_strategy_name, get_benchmark_strategy_name())
 
-    def test_eval_dataset_v2_circular_recognition_config(self):
+    def test_eval_dataset_v2_circular_recognition_config_tracks_promoted_benchmark(self):
         gate = get_recognition_precommit_dataset("eval_dataset_v2")
         config = get_precommit_hybrid_recognition_gate_config("eval_dataset_v2")
         self.assertEqual(config.name, "eval_dataset_v2")
@@ -62,19 +62,25 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
         self.assertEqual(gate.strategy_ablation.benchmark.role, "benchmark")
         self.assertEqual(gate.strategy_ablation.proposed.role, "proposed")
         self.assertEqual(gate.strategy_ablation.benchmark.strategy_name, get_benchmark_strategy_name())
-        self.assertEqual(gate.strategy_ablation.proposed.strategy_name, get_proposed_strategy_name())
+        self.assertIsNone(gate.strategy_ablation.proposed.strategy_name)
         self.assertTrue(gate.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(gate.strategy_ablation.max_allowed_regression_abs, 0.0)
         self.assertEqual(gate.latest_artifact_basename, "circular_ocr_ablation_latest")
+        self.assertEqual(config.line_segmentation_strategy_name, get_benchmark_strategy_name())
 
-    def test_checked_in_strategy_role_config_starts_with_empty_history(self):
+    def test_checked_in_strategy_role_config_records_research_promotion(self):
         payload = get_strategy_role_config()
 
-        self.assertEqual(payload["benchmark_strategy_name"], "legacy_axis_bound_v1")
-        self.assertEqual(payload["proposed_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["benchmark_strategy_name"], "local_tangent_band_v1")
+        self.assertIsNone(payload["proposed_strategy_name"])
         self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(get_production_strategy_name(), "legacy_axis_bound_v1")
-        self.assertEqual(payload["research_promotion_history"], [])
+        self.assertEqual(len(payload["research_promotion_history"]), 1)
+        self.assertEqual(payload["research_promotion_history"][0]["promoted_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(
+            payload["research_promotion_history"][0]["previous_benchmark_strategy_name"],
+            "legacy_axis_bound_v1",
+        )
         self.assertEqual(payload["production_adoption_history"], [])
 
     def test_strategy_role_config_allows_research_and_production_to_diverge(self):

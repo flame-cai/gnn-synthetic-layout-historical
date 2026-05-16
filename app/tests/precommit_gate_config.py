@@ -17,7 +17,7 @@ DEFAULT_PROPOSED_STRATEGY_NAME = get_proposed_strategy_name()
 @dataclass(frozen=True)
 class StrategyRoleConfig:
     role: str
-    strategy_name: str
+    strategy_name: str | None
     strategy_config: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -43,8 +43,6 @@ def _default_strategy_ablation(
     max_allowed_regression_abs: float,
     strict_primary_improvement_required: bool = False,
 ) -> StrategyAblationConfig:
-    if DEFAULT_PROPOSED_STRATEGY_NAME is None:
-        raise ValueError("Strategy ablation requires proposed_strategy_name to be configured.")
     return StrategyAblationConfig(
         benchmark=StrategyRoleConfig(
             role="benchmark",
@@ -111,38 +109,40 @@ class RecognitionPrecommitDatasetConfig:
         return asdict(self)
 
 
-PIPELINE_PRECOMMIT_DATASETS = {
-    "eval_dataset": PipelinePrecommitDatasetConfig(
-        name="eval_dataset",
-        manuscript_name="ci_eval_dataset",
-        images_dir=TESTS_ROOT / "eval_dataset" / "images",
-        pagexml_dir=TESTS_ROOT / "eval_dataset" / "labels" / "PAGE-XML",
-    )
-}
+def _pipeline_precommit_datasets() -> dict[str, PipelinePrecommitDatasetConfig]:
+    return {
+        "eval_dataset": PipelinePrecommitDatasetConfig(
+            name="eval_dataset",
+            manuscript_name="ci_eval_dataset",
+            images_dir=TESTS_ROOT / "eval_dataset" / "images",
+            pagexml_dir=TESTS_ROOT / "eval_dataset" / "labels" / "PAGE-XML",
+        )
+    }
 
 
-RECOGNITION_PRECOMMIT_DATASETS = {
-    "eval_dataset": RecognitionPrecommitDatasetConfig(
-        name="eval_dataset",
-        recognition_dataset_config_name="eval_dataset",
-        max_curve_metric_value=0.26,
-        max_final_page_cer=0.18,
-        min_first_step_gain=0.04,
-        strategy_ablation=_default_strategy_ablation(max_allowed_regression_abs=0.02),
-    ),
-    "eval_dataset_v2": RecognitionPrecommitDatasetConfig(
-        name="eval_dataset_v2",
-        recognition_dataset_config_name="eval_dataset_v2",
-        max_curve_metric_value=0.26,
-        max_final_page_cer=0.18,
-        min_first_step_gain=0.04,
-        strategy_ablation=_default_strategy_ablation(
-            max_allowed_regression_abs=0.0,
-            strict_primary_improvement_required=True,
+def _recognition_precommit_datasets() -> dict[str, RecognitionPrecommitDatasetConfig]:
+    return {
+        "eval_dataset": RecognitionPrecommitDatasetConfig(
+            name="eval_dataset",
+            recognition_dataset_config_name="eval_dataset",
+            max_curve_metric_value=0.26,
+            max_final_page_cer=0.18,
+            min_first_step_gain=0.04,
+            strategy_ablation=_default_strategy_ablation(max_allowed_regression_abs=0.02),
         ),
-        latest_artifact_basename="circular_ocr_ablation_latest",
-    )
-}
+        "eval_dataset_v2": RecognitionPrecommitDatasetConfig(
+            name="eval_dataset_v2",
+            recognition_dataset_config_name="eval_dataset_v2",
+            max_curve_metric_value=0.26,
+            max_final_page_cer=0.18,
+            min_first_step_gain=0.04,
+            strategy_ablation=_default_strategy_ablation(
+                max_allowed_regression_abs=0.0,
+                strict_primary_improvement_required=True,
+            ),
+            latest_artifact_basename="circular_ocr_ablation_latest",
+        ),
+    }
 
 
 def _ordered_configs(registry: dict[str, object]) -> tuple[object, ...]:
@@ -150,20 +150,22 @@ def _ordered_configs(registry: dict[str, object]) -> tuple[object, ...]:
 
 
 def get_pipeline_precommit_dataset(name: str = "eval_dataset") -> PipelinePrecommitDatasetConfig:
-    if name not in PIPELINE_PRECOMMIT_DATASETS:
+    registry = _pipeline_precommit_datasets()
+    if name not in registry:
         raise KeyError(f"Unknown pipeline pre-commit dataset config: {name}")
-    return PIPELINE_PRECOMMIT_DATASETS[name]
+    return registry[name]
 
 
 def get_pipeline_precommit_datasets() -> tuple[PipelinePrecommitDatasetConfig, ...]:
-    return _ordered_configs(PIPELINE_PRECOMMIT_DATASETS)
+    return _ordered_configs(_pipeline_precommit_datasets())
 
 
 def get_recognition_precommit_dataset(name: str = "eval_dataset") -> RecognitionPrecommitDatasetConfig:
-    if name not in RECOGNITION_PRECOMMIT_DATASETS:
+    registry = _recognition_precommit_datasets()
+    if name not in registry:
         raise KeyError(f"Unknown recognition pre-commit dataset config: {name}")
-    return RECOGNITION_PRECOMMIT_DATASETS[name]
+    return registry[name]
 
 
 def get_recognition_precommit_datasets() -> tuple[RecognitionPrecommitDatasetConfig, ...]:
-    return _ordered_configs(RECOGNITION_PRECOMMIT_DATASETS)
+    return _ordered_configs(_recognition_precommit_datasets())

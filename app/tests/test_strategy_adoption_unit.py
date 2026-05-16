@@ -23,9 +23,9 @@ from scripts.adopt_text_line_strategy_for_app import adopt_text_line_strategy_fo
 
 def _load_config_payload(path: Path) -> dict:
     source = path.read_text(encoding="utf-8")
-    match = re.search(r'STRATEGY_ROLE_CONFIG_JSON = """([\s\S]*?)"""', source)
+    match = re.search(r'STRATEGY_ROLE_CONFIG_JSON = r?"""([\s\S]*?)"""', source)
     if match is None:
-        match = re.search(r"STRATEGY_ROLE_CONFIG_JSON = '''([\s\S]*?)'''", source)
+        match = re.search(r"STRATEGY_ROLE_CONFIG_JSON = r?'''([\s\S]*?)'''", source)
     if match is None:
         raise AssertionError(f"Could not locate STRATEGY_ROLE_CONFIG_JSON in {path}")
     return json.loads(match.group(1))

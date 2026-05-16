@@ -921,6 +921,10 @@ def _build_recognition_precommit_dataset_result(dataset_name: str, policy_result
 
 
 def _config_for_strategy_role(dataset_config: RecognitionEvalDatasetConfig, role_config) -> RecognitionEvalDatasetConfig:
+    if not role_config.strategy_name:
+        raise ValueError(
+            f"Strategy ablation role {role_config.role!r} requires proposed_strategy_name to be configured."
+        )
     return dataset_config.with_updates(
         line_geometry_source="baseline_heatmap",
         line_segmentation_strategy_name=role_config.strategy_name,

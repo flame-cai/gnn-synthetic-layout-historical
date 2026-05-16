@@ -212,6 +212,10 @@ def _build_absolute_thresholds(dataset_config, aggregate: dict, worst_page_line_
 
 
 def _run_pipeline_role(client, dataset_config, role_config, upload_root: Path) -> dict:
+    if not role_config.strategy_name:
+        raise ValueError(
+            f"Pipeline ablation role {role_config.role!r} requires proposed_strategy_name to be configured."
+        )
     expected_pages = dataset_config.ordered_page_ids()
     timestamp = _timestamp_slug()
     manuscript_name = f"{dataset_config.manuscript_name}_{role_config.role}"

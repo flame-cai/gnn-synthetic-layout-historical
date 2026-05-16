@@ -1,3 +1,5 @@
+
+__________
 can you please prepare a new plan which will update the research harness accordingly to the production refactored architecture?
 1) PAGE XML creation (use Baseline, heatmap to get generalized Coords, which will work even for curved lines)
 2) Text-line horizontal image preparation for OCR Model (unwrapping or no unwrapping)

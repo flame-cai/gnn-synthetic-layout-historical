@@ -5,11 +5,63 @@ import re
 from pathlib import Path
 from typing import Any
 
-STRATEGY_ROLE_CONFIG_JSON = """{
-  "benchmark_strategy_name": "legacy_axis_bound_v1",
-  "proposed_strategy_name": "local_tangent_band_v1",
+STRATEGY_ROLE_CONFIG_JSON = r"""{
+  "benchmark_strategy_name": "local_tangent_band_v1",
+  "proposed_strategy_name": null,
   "production_strategy_name": "legacy_axis_bound_v1",
-  "research_promotion_history": [],
+  "research_promotion_history": [
+    {
+      "promoted_strategy_name": "local_tangent_band_v1",
+      "previous_benchmark_strategy_name": "legacy_axis_bound_v1",
+      "evidence_metrics_path": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
+      "evidence_generated_at_utc": "2026-05-16T07:14:45Z",
+      "gate_artifact_paths": {
+        "pipeline_eval_dataset": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260515_145658_pipeline_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260515_145658_pipeline_ablation_eval_dataset_summary\\summary.md"
+        },
+        "ocr_eval_dataset": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135604_ocr_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135604_ocr_ablation_eval_dataset_summary\\summary.md"
+        },
+        "circular_ocr_eval_dataset_v2": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135937_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135937_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
+        }
+      },
+      "gate_metric_summary": {
+        "pipeline_eval_dataset": {
+          "primary_metric_name": "page_cer",
+          "benchmark_value": 0.3309031044214487,
+          "proposed_value": 0.33827218563813105,
+          "operator": "<=",
+          "passed": true
+        },
+        "ocr_eval_dataset": {
+          "primary_metric_name": "curve_metric_value",
+          "benchmark_value": 0.23991308761022648,
+          "proposed_value": 0.24910867220706717,
+          "operator": "<=",
+          "passed": true
+        },
+        "circular_ocr_eval_dataset_v2": {
+          "primary_metric_name": "curve_metric_value",
+          "benchmark_value": 0.9447010869565217,
+          "proposed_value": 0.18057065217391305,
+          "operator": "<",
+          "passed": true
+        }
+      },
+      "promotion_timestamp_utc": "2026-05-16T07:14:57Z",
+      "author_or_tool": "scripts/promote_text_line_strategy.py"
+    }
+  ],
   "production_adoption_history": []
 }
 """
@@ -91,9 +143,9 @@ def get_production_strategy_name() -> str:
 
 def load_strategy_role_config_from_path(path: str | Path) -> dict[str, Any]:
     source = Path(path).read_text(encoding="utf-8")
-    match = re.search(r'STRATEGY_ROLE_CONFIG_JSON = """([\s\S]*?)"""', source)
+    match = re.search(r'STRATEGY_ROLE_CONFIG_JSON = r?"""([\s\S]*?)"""', source)
     if match is None:
-        match = re.search(r"STRATEGY_ROLE_CONFIG_JSON = '''([\s\S]*?)'''", source)
+        match = re.search(r"STRATEGY_ROLE_CONFIG_JSON = r?'''([\s\S]*?)'''", source)
     if match is None:
         raise ValueError(f"Could not locate STRATEGY_ROLE_CONFIG_JSON in {path}")
     return normalize_strategy_role_config_payload(json.loads(match.group(1)))
@@ -102,18 +154,18 @@ def load_strategy_role_config_from_path(path: str | Path) -> dict[str, Any]:
 def render_strategy_role_config(payload: dict[str, Any]) -> str:
     normalized = normalize_strategy_role_config_payload(payload)
     source = STRATEGY_ROLE_CONFIG_PATH.read_text(encoding="utf-8")
-    replacement = 'STRATEGY_ROLE_CONFIG_JSON = """' + json.dumps(
+    replacement = 'STRATEGY_ROLE_CONFIG_JSON = r"""' + json.dumps(
         normalized,
         indent=2,
         ensure_ascii=False,
     ) + '\n"""'
     updated = re.sub(
-        r'STRATEGY_ROLE_CONFIG_JSON = """[\s\S]*?"""',
+        r'STRATEGY_ROLE_CONFIG_JSON = r?"""[\s\S]*?"""',
         lambda _: replacement,
         source,
         count=1,
     )
-    if 'STRATEGY_ROLE_CONFIG_JSON = """' not in updated:
+    if re.search(r'STRATEGY_ROLE_CONFIG_JSON = r?"""', updated) is None:
         raise ValueError("Could not locate STRATEGY_ROLE_CONFIG_JSON block for rewrite.")
     return updated
 

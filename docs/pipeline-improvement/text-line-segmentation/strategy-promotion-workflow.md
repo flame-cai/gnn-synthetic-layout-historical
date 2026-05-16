@@ -26,15 +26,16 @@ The durable generated evidence summary is checked in at:
 
     docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md
 
-## Current Initial State
+## Current State
 
 The current checked-in state is:
 
-- research benchmark: `legacy_axis_bound_v1`
-- research proposed: `local_tangent_band_v1`
+- research benchmark: `local_tangent_band_v1`
+- research proposed: not configured
 - production app default: `legacy_axis_bound_v1`
 
 `legacy_axis_bound_v1` remains available after any research promotion for rollback, historical comparison, and production pinning.
+Configure a new `proposed_strategy_name` before running the next strategy ablation cycle.
 
 ## Why The Lifecycles Are Separate
 
