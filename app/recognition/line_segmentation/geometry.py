@@ -12,10 +12,17 @@ class BaselineTopology:
     original_point_count: int
     normalized_point_count: int
     split_index: int | None
+    mirror_pair_count: int | None
     mirror_match_tolerance: float
     mean_mirror_distance: float | None
     max_mirror_distance: float | None
     was_out_and_back: bool
+    out_and_back_detection: str | None
+    short_tail_trimmed: bool
+    dominant_axis_deduped: bool
+    dominant_axis: str | None
+    repeated_near_point_count: int
+    normalization_actions: list[str]
     is_closed: bool
     closed_path_tolerance: float
     cut_index: int | None
@@ -77,7 +84,7 @@ def _detect_out_and_back_split(
     points: list[list[float]],
     mirror_match_tolerance: float,
     min_mirror_pairs: int,
-) -> tuple[int | None, float | None, float | None]:
+) -> tuple[int | None, float | None, float | None, int | None]:
     best: tuple[int, int, float, float] | None = None
     point_count = len(points)
     for split_index in range(1, point_count - 1):
@@ -98,16 +105,78 @@ def _detect_out_and_back_split(
         ):
             best = candidate
     if best is None:
-        return None, None, None
+        return None, None, None, None
     _, split_index, mean_distance, max_distance = best
-    return split_index, mean_distance, max_distance
+    return split_index, mean_distance, max_distance, best[0]
 
 
-def _cut_closed_path_at_top(points: list[list[float]]) -> tuple[list[list[float]], int | None]:
+def _near_unique_points(points: list[list[float]], tolerance: float) -> tuple[list[list[float]], int]:
+    unique_points: list[list[float]] = []
+    repeated_count = 0
+    for point in points:
+        if any(distance(point, unique_point) <= tolerance for unique_point in unique_points):
+            repeated_count += 1
+            continue
+        unique_points.append(list(point))
+    return unique_points, repeated_count
+
+
+def _short_tail_creates_fake_closed_loop(
+    points: list[list[float]],
+    split_index: int,
+    *,
+    closed_path_tolerance: float,
+    mirror_match_tolerance: float,
+    min_closed_unique_points: int = 4,
+) -> bool:
+    candidate_points = points[: split_index + 1]
+    if (
+        len(candidate_points) < 3
+        or distance(candidate_points[0], candidate_points[-1]) > closed_path_tolerance
+    ):
+        return False
+    ring_points = candidate_points[:-1]
+    unique_ring_points, _ = _near_unique_points(ring_points, mirror_match_tolerance)
+    return len(unique_ring_points) < min_closed_unique_points
+
+
+def _dominant_axis_dedupe(
+    points: list[list[float]],
+    *,
+    mirror_match_tolerance: float,
+    horizontal_angle_degrees: float,
+) -> tuple[list[list[float]] | None, str | None, int]:
+    unique_points, repeated_count = _near_unique_points(points, mirror_match_tolerance)
+    if repeated_count <= 0 or len(unique_points) < 2:
+        return None, None, repeated_count
+
+    x_values = [point[0] for point in unique_points]
+    y_values = [point[1] for point in unique_points]
+    x_span = max(x_values) - min(x_values)
+    y_span = max(y_values) - min(y_values)
+    angle_allowance = math.tan(math.radians(horizontal_angle_degrees))
+
+    if x_span >= y_span and x_span > 1e-6:
+        allowed_y_span = max(mirror_match_tolerance, x_span * angle_allowance)
+        if y_span <= allowed_y_span:
+            return sorted(unique_points, key=lambda point: (point[0], point[1])), "horizontal", repeated_count
+    elif y_span > 1e-6:
+        allowed_x_span = max(mirror_match_tolerance, y_span * angle_allowance)
+        if x_span <= allowed_x_span:
+            return sorted(unique_points, key=lambda point: (point[1], point[0])), "vertical", repeated_count
+
+    return None, None, repeated_count
+
+
+def _cut_closed_path_at_top(
+    points: list[list[float]],
+    *,
+    closed_path_tolerance: float,
+) -> tuple[list[list[float]], int | None]:
     if len(points) < 2:
         return points, None
     ring_points = list(points)
-    if distance(ring_points[0], ring_points[-1]) <= 1e-6:
+    if distance(ring_points[0], ring_points[-1]) <= closed_path_tolerance:
         ring_points = ring_points[:-1]
     if not ring_points:
         return points, None
@@ -148,13 +217,51 @@ def normalize_baseline_topology(
     circular_direction: str = "clockwise",
 ) -> BaselineTopology:
     original_points = as_float_points(points)
-    split_index, mean_mirror_distance, max_mirror_distance = _detect_out_and_back_split(
+    normalization_actions: list[str] = []
+    split_index, mean_mirror_distance, max_mirror_distance, mirror_pair_count = _detect_out_and_back_split(
         original_points,
         mirror_match_tolerance=mirror_match_tolerance,
         min_mirror_pairs=min_mirror_pairs,
     )
+    out_and_back_detection = "mirror_pairs" if split_index is not None else None
+    short_tail_trimmed = False
+    dominant_axis_deduped = False
+    dominant_axis = None
+    repeated_near_point_count = 0
+
+    if split_index is None:
+        (
+            short_split_index,
+            short_mean_mirror_distance,
+            short_max_mirror_distance,
+            short_mirror_pair_count,
+        ) = _detect_out_and_back_split(
+            original_points,
+            mirror_match_tolerance=mirror_match_tolerance,
+            min_mirror_pairs=1,
+        )
+        if (
+            short_split_index is not None
+            and (short_mirror_pair_count or 0) < min_mirror_pairs
+            and not _short_tail_creates_fake_closed_loop(
+                original_points,
+                short_split_index,
+                closed_path_tolerance=closed_path_tolerance,
+                mirror_match_tolerance=mirror_match_tolerance,
+            )
+        ):
+            split_index = short_split_index
+            mean_mirror_distance = short_mean_mirror_distance
+            max_mirror_distance = short_max_mirror_distance
+            mirror_pair_count = short_mirror_pair_count
+            out_and_back_detection = "short_tail"
+            short_tail_trimmed = True
+            normalization_actions.append("short_tail_trimmed")
+
     if split_index is not None:
         normalized_points = original_points[: split_index + 1]
+        if out_and_back_detection == "mirror_pairs":
+            normalization_actions.append("out_and_back")
     else:
         normalized_points = list(original_points)
 
@@ -162,20 +269,57 @@ def normalize_baseline_topology(
         len(normalized_points) >= 3
         and distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
     )
+    if not is_closed:
+        deduped_points, deduped_axis, repeated_count = _dominant_axis_dedupe(
+            original_points,
+            mirror_match_tolerance=mirror_match_tolerance,
+            horizontal_angle_degrees=horizontal_angle_degrees,
+        )
+        repeated_near_point_count = repeated_count
+        if deduped_points is not None:
+            normalized_points = deduped_points
+            dominant_axis_deduped = True
+            dominant_axis = deduped_axis
+            normalization_actions.append("dominant_axis_deduped")
+            is_closed = (
+                len(normalized_points) >= 3
+                and distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
+            )
+    else:
+        _, repeated_near_point_count = _near_unique_points(original_points, mirror_match_tolerance)
+
     cut_index = None
     orientation_action = "preserved"
 
     if is_closed:
-        normalized_points, cut_index = _cut_closed_path_at_top(normalized_points)
-        area = signed_area(normalized_points[:-1] if normalized_points and normalized_points[0] == normalized_points[-1] else normalized_points)
+        normalized_points, cut_index = _cut_closed_path_at_top(
+            normalized_points,
+            closed_path_tolerance=closed_path_tolerance,
+        )
+        if cut_index is not None:
+            normalization_actions.append("cut_at_top")
+        area_points = (
+            normalized_points[:-1]
+            if (
+                len(normalized_points) >= 2
+                and distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
+            )
+            else normalized_points
+        )
+        area = signed_area(area_points)
         wants_clockwise = circular_direction == "clockwise"
         is_clockwise_in_image_space = area > 0
         if wants_clockwise != is_clockwise_in_image_space and len(normalized_points) > 2:
-            ring = normalized_points[:-1] if distance(normalized_points[0], normalized_points[-1]) <= 1e-6 else normalized_points
+            ring = (
+                normalized_points[:-1]
+                if distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
+                else normalized_points
+            )
             reversed_ring = list(reversed(ring))
             cut_index = min(range(len(reversed_ring)), key=lambda idx: (reversed_ring[idx][1], reversed_ring[idx][0]))
             normalized_points = reversed_ring[cut_index:] + reversed_ring[:cut_index] + [reversed_ring[cut_index]]
             orientation_action = "reversed_to_clockwise" if wants_clockwise else "reversed_to_counterclockwise"
+            normalization_actions.append(orientation_action)
         elif cut_index is not None:
             orientation_action = "cut_at_top"
     elif reading_order == "left_to_right" and len(normalized_points) >= 2:
@@ -184,6 +328,7 @@ def normalize_baseline_topology(
         if abs(dx_val) >= abs(dy_val) and dx_val < 0:
             normalized_points = list(reversed(normalized_points))
             orientation_action = "reversed_to_left_to_right"
+            normalization_actions.append(orientation_action)
 
     kind = _line_kind(
         normalized_points,
@@ -197,10 +342,17 @@ def normalize_baseline_topology(
         original_point_count=len(original_points),
         normalized_point_count=len(normalized_points),
         split_index=split_index,
+        mirror_pair_count=mirror_pair_count,
         mirror_match_tolerance=float(mirror_match_tolerance),
         mean_mirror_distance=mean_mirror_distance,
         max_mirror_distance=max_mirror_distance,
         was_out_and_back=split_index is not None,
+        out_and_back_detection=out_and_back_detection,
+        short_tail_trimmed=short_tail_trimmed,
+        dominant_axis_deduped=dominant_axis_deduped,
+        dominant_axis=dominant_axis,
+        repeated_near_point_count=repeated_near_point_count,
+        normalization_actions=normalization_actions,
         is_closed=is_closed,
         closed_path_tolerance=float(closed_path_tolerance),
         cut_index=cut_index,

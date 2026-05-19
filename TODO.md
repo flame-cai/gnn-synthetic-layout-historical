@@ -1,3 +1,8 @@
+## NEW TODO
+- truely generalized (curved line a generalization of straight line)
+- make sure we implement a new proposed strategy in the research harness, which will help us compare with the existing benchmark strategy and do local_polygons_v1 vs local_tangent_band_v1 (after fixing the normalization)
+- decompose the implementation of the strategy in two steps (similar to how the production app does it): 1) Page XML preparation 2) unwrapping of the Coords into text-lines. 
+
 
 __________
 can you please prepare a new plan which will update the research harness accordingly to the production refactored architecture?
