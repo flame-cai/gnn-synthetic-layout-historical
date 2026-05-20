@@ -1,7 +1,9 @@
-## NEW TODO
-- truely generalized (curved line a generalization of straight line)
-- make sure we implement a new proposed strategy in the research harness, which will help us compare with the existing benchmark strategy and do local_polygons_v1 vs local_tangent_band_v1 (after fixing the normalization)
-- decompose the implementation of the strategy in two steps (similar to how the production app does it): 1) Page XML preparation 2) unwrapping of the Coords into text-lines. 
+- in full pipeline gate, what is line_cer_range=0.59 and why is it bad?
+- in circular gate, the line height is too much..around 45 degree??
+- previously we did baseline normalization, implemented the legacy inspired local cropping with median color background, the short line fix, then single point 1x1 fix..
+- annotate all 481 pages at layout level and prepare a nice dataset
+
+
 
 
 __________

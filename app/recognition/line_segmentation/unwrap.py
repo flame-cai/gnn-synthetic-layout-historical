@@ -51,7 +51,7 @@ def _normalise_config(config: dict | None) -> dict:
 
 
 def should_unwrap_strategy(strategy_name: str | None) -> bool:
-    return strategy_name == "local_tangent_band_v1"
+    return strategy_name in {"local_tangent_band_v1", "local_polygons_v1"}
 
 
 def _estimate_half_width(polygon_points: list[list[int]], baseline_points: list[list[float]], config: dict) -> float:
@@ -91,6 +91,87 @@ def _trim_to_mask(image: np.ndarray, mask: np.ndarray, page_median_color: int) -
     return trimmed_image, trimmed_mask
 
 
+def _unit(vector_x: float, vector_y: float) -> tuple[float, float]:
+    length = math.hypot(vector_x, vector_y)
+    if length <= 1e-6:
+        return 1.0, 0.0
+    return vector_x / length, vector_y / length
+
+
+def _point_at_station(
+    points: list[list[float]],
+    station: float,
+    *,
+    is_closed: bool,
+    baseline_length: float,
+) -> tuple[tuple[float, float], tuple[float, float]]:
+    if not points:
+        return (0.0, 0.0), (1.0, 0.0)
+    if len(points) == 1 or baseline_length <= 1e-6:
+        return (points[0][0] + station, points[0][1]), (1.0, 0.0)
+    if is_closed:
+        station = station % baseline_length
+
+    first_tangent = _unit(points[1][0] - points[0][0], points[1][1] - points[0][1])
+    if station <= 0.0:
+        return (
+            points[0][0] + first_tangent[0] * station,
+            points[0][1] + first_tangent[1] * station,
+        ), first_tangent
+
+    arc_before = 0.0
+    last_tangent = first_tangent
+    for index in range(len(points) - 1):
+        start = points[index]
+        end = points[index + 1]
+        dx_val = end[0] - start[0]
+        dy_val = end[1] - start[1]
+        segment_length = math.hypot(dx_val, dy_val)
+        if segment_length <= 1e-6:
+            continue
+        tangent = _unit(dx_val, dy_val)
+        last_tangent = tangent
+        if station <= arc_before + segment_length:
+            ratio = (station - arc_before) / segment_length
+            return (
+                start[0] + ratio * dx_val,
+                start[1] + ratio * dy_val,
+            ), tangent
+        arc_before += segment_length
+
+    end = points[-1]
+    overflow = station - baseline_length
+    return (
+        end[0] + last_tangent[0] * overflow,
+        end[1] + last_tangent[1] * overflow,
+    ), last_tangent
+
+
+def _station_range_from_config(config: dict, baseline_length: float) -> tuple[float, float]:
+    station_min = 0.0
+    station_max = baseline_length
+    try:
+        configured_min = float(config["local_s_min"])
+        configured_max = float(config["local_s_max"])
+    except Exception:
+        return station_min, station_max
+    if math.isfinite(configured_min) and math.isfinite(configured_max) and configured_max > configured_min:
+        return configured_min, configured_max
+    return station_min, station_max
+
+
+def _half_width_from_local_bounds(config: dict) -> float | None:
+    try:
+        configured_min = float(config["local_n_min"])
+        configured_max = float(config["local_n_max"])
+    except Exception:
+        return None
+    if not (math.isfinite(configured_min) and math.isfinite(configured_max) and configured_max > configured_min):
+        return None
+    half_width = max(abs(configured_min), abs(configured_max))
+    return float(np.clip(half_width, config["minimum_half_width_px"], config["maximum_half_width_px"]))
+
+
 def unwrap_line_crop_for_ocr(
     processing_image: np.ndarray,
     polygon_points: list[list[int]],
@@ -113,7 +194,10 @@ def unwrap_line_crop_for_ocr(
     )
     normalized_points = topology.normalized_points
     baseline_length = topology.baseline_length
-    if len(normalized_points) < 2 or baseline_length <= 1e-6:
+    station_min, station_max = _station_range_from_config(config, baseline_length)
+    station_span = station_max - station_min
+    can_unwrap_point_baseline = len(normalized_points) == 1 and station_span > 1e-6
+    if (len(normalized_points) < 2 or baseline_length <= 1e-6) and not can_unwrap_point_baseline:
         return UnwrappedLineCrop(
             image=np.full((1, 1), page_median_color, dtype=np.uint8),
             metadata={
@@ -123,10 +207,26 @@ def unwrap_line_crop_for_ocr(
             },
         )
 
-    half_width = _estimate_half_width(polygon_points, normalized_points, config)
-    output_width = max(1, int(math.ceil(baseline_length / max(config["sample_spacing_px"], 1e-6))))
+    half_width = _half_width_from_local_bounds(config)
+    if half_width is None:
+        half_width = _estimate_half_width(polygon_points, normalized_points, config)
+    output_width = max(1, int(math.ceil(station_span / max(config["sample_spacing_px"], 1e-6))))
     output_height = max(2, int(math.ceil(half_width * 2.0)))
-    centers, tangents, _ = sample_polyline(normalized_points, output_width)
+    if baseline_length > 1e-6 and station_min == 0.0 and station_max == baseline_length:
+        centers, tangents, _ = sample_polyline(normalized_points, output_width)
+    else:
+        centers = []
+        tangents = []
+        for sample_index in range(output_width):
+            station = station_min + min(station_span, sample_index * station_span / max(output_width - 1, 1))
+            center, tangent = _point_at_station(
+                normalized_points,
+                station,
+                is_closed=topology.is_closed,
+                baseline_length=baseline_length,
+            )
+            centers.append(center)
+            tangents.append(tangent)
     row_offsets = np.linspace(-half_width, half_width, output_height, dtype=np.float32)
 
     map_x = np.zeros((output_height, output_width), dtype=np.float32)
@@ -156,17 +256,24 @@ def unwrap_line_crop_for_ocr(
     )
     unwrapped[unwrapped_mask < 128] = page_median_color
     unwrapped, unwrapped_mask = _trim_to_mask(unwrapped, unwrapped_mask, page_median_color)
+    background_pixel_count = int(np.count_nonzero(unwrapped_mask < 128))
+    total_pixel_count = int(unwrapped_mask.size)
 
     orientation_selection_mode = "supervised_text_equiv_baseline_order" if text else "geometry_only_baseline_order"
     metadata = {
         "unwrap_strategy": "baseline_local_tangent",
         "topology": topology.to_metadata(),
         "baseline_length_px": baseline_length,
+        "station_min_px": station_min,
+        "station_max_px": station_max,
+        "station_span_px": station_span,
         "output_width_px": int(unwrapped.shape[1]),
         "output_height_px": int(unwrapped.shape[0]),
         "estimated_half_width_px": half_width,
         "page_median_color": page_median_color,
         "foreground_pixel_count": int(np.count_nonzero(unwrapped_mask >= 128)),
+        "background_pixel_count": background_pixel_count,
+        "median_background_fraction": (background_pixel_count / total_pixel_count) if total_pixel_count else None,
         "orientation": {
             "candidate_transforms": ["identity", "rotate_180"],
             "selected_transform": "identity",

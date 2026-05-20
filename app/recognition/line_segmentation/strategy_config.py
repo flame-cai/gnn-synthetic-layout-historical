@@ -7,7 +7,7 @@ from typing import Any
 
 STRATEGY_ROLE_CONFIG_JSON = r"""{
   "benchmark_strategy_name": "local_tangent_band_v1",
-  "proposed_strategy_name": null,
+  "proposed_strategy_name": "local_polygons_v1",
   "production_strategy_name": "legacy_axis_bound_v1",
   "research_promotion_history": [
     {

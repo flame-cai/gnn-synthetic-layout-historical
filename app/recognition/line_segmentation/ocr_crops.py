@@ -14,8 +14,10 @@ from .unwrap import should_unwrap_strategy, unwrap_line_crop_for_ocr
 
 LOGGER = logging.getLogger(__name__)
 LOCAL_TANGENT_CROP_MODEL = "local_tangent_band"
+LOCAL_POLYGON_CROP_MODEL = "local_polygon_unwrap"
 LEGACY_DELEGATE_CROP_MODEL = "legacy_axis_bound_delegate"
 AXIS_ALIGNED_CROP_MODEL = "axis_aligned_masked_crop"
+UNWRAPPED_CROP_MODELS = {LOCAL_TANGENT_CROP_MODEL, LOCAL_POLYGON_CROP_MODEL}
 
 
 @dataclass(frozen=True)
@@ -148,37 +150,46 @@ def crop_line_record_for_ocr(
 
     should_unwrap_record = (
         should_unwrap_strategy(effective_strategy_name)
-        and crop_model == LOCAL_TANGENT_CROP_MODEL
+        and crop_model in UNWRAPPED_CROP_MODELS
     )
     if should_unwrap_record:
         try:
+            unwrap_config = dict(crop_config or {})
+            if crop_model == LOCAL_POLYGON_CROP_MODEL:
+                for key in ("local_s_min", "local_s_max", "local_n_min", "local_n_max"):
+                    if key in line_metadata:
+                        unwrap_config.setdefault(key, line_metadata[key])
             crop_result = unwrap_line_crop_for_ocr(
                 processing_image,
                 _record_value(record, "polygon_points") or [],
                 _record_value(record, "baseline_points") or [],
                 text=_record_value(record, "text", "") or "",
-                unwrap_config=crop_config or {},
+                unwrap_config=unwrap_config,
             )
-            metadata = {
-                **crop_result.metadata,
-                "crop_model": LOCAL_TANGENT_CROP_MODEL,
-                "crop_source": "pagexml_coords_and_baseline",
-                "line_segmentation_strategy_name": effective_strategy_name,
-                "line_numeric_id": int(_record_value(record, "line_numeric_id")),
-                "used_unwrap": True,
-                "fallback_reason": crop_result.metadata.get("fallback_reason"),
-                "strategy_line_metadata": line_metadata,
-            }
-            return OcrCropResult(image=crop_result.image, metadata=metadata)
+            if crop_result.metadata.get("fallback_reason"):
+                fallback_reason = f"unwrap_{crop_result.metadata['fallback_reason']}"
+            else:
+                metadata = {
+                    **crop_result.metadata,
+                    "crop_model": crop_model,
+                    "crop_source": "pagexml_coords_and_baseline",
+                    "line_segmentation_strategy_name": effective_strategy_name,
+                    "line_numeric_id": int(_record_value(record, "line_numeric_id")),
+                    "used_unwrap": True,
+                    "fallback_reason": crop_result.metadata.get("fallback_reason"),
+                    "strategy_line_metadata": line_metadata,
+                }
+                return OcrCropResult(image=crop_result.image, metadata=metadata)
         except Exception as exc:
             LOGGER.warning(
-                "Falling back to masked OCR crop after local-tangent unwrap failed line=%s strategy=%s: %s",
+                "Falling back to masked OCR crop after baseline-local unwrap failed line=%s strategy=%s crop_model=%s: %s",
                 _record_value(record, "line_numeric_id"),
                 effective_strategy_name,
+                crop_model,
                 exc,
             )
             fallback_reason = "unwrap_failed"
-    elif crop_model and crop_model not in {LEGACY_DELEGATE_CROP_MODEL, LOCAL_TANGENT_CROP_MODEL}:
+    elif crop_model and crop_model not in {LEGACY_DELEGATE_CROP_MODEL, *UNWRAPPED_CROP_MODELS}:
         LOGGER.warning(
             "Unsupported OCR crop model '%s' for line=%s strategy=%s; using masked PAGE Coords crop.",
             crop_model,
@@ -188,7 +199,7 @@ def crop_line_record_for_ocr(
         fallback_reason = f"unsupported_crop_model:{crop_model}"
     elif metadata_fallback:
         fallback_reason = metadata_fallback
-    elif should_unwrap_strategy(effective_strategy_name) and crop_model != LOCAL_TANGENT_CROP_MODEL:
+    elif should_unwrap_strategy(effective_strategy_name) and crop_model not in UNWRAPPED_CROP_MODELS:
         fallback_reason = f"non_unwrapped_crop_model:{crop_model or 'missing'}"
     else:
         fallback_reason = None

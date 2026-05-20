@@ -12,6 +12,7 @@ from .types import TextLineSegmentationRequest, TextLineSegmentationResult, Text
 
 if TYPE_CHECKING:
     from .legacy_axis_bound import DEFAULT_LEGACY_AXIS_BOUND_CONFIG, LegacyAxisBoundStrategy
+    from .local_polygons import DEFAULT_LOCAL_POLYGON_CONFIG, LocalPolygonsStrategy
     from .local_tangent_band import DEFAULT_LOCAL_TANGENT_BAND_CONFIG, LocalTangentBandStrategy
 
 
@@ -48,13 +49,22 @@ def __getattr__(name: str):
             "DEFAULT_LOCAL_TANGENT_BAND_CONFIG": DEFAULT_LOCAL_TANGENT_BAND_CONFIG,
             "LocalTangentBandStrategy": LocalTangentBandStrategy,
         }[name]
+    if name in {"DEFAULT_LOCAL_POLYGON_CONFIG", "LocalPolygonsStrategy"}:
+        from .local_polygons import DEFAULT_LOCAL_POLYGON_CONFIG, LocalPolygonsStrategy
+
+        return {
+            "DEFAULT_LOCAL_POLYGON_CONFIG": DEFAULT_LOCAL_POLYGON_CONFIG,
+            "LocalPolygonsStrategy": LocalPolygonsStrategy,
+        }[name]
     raise AttributeError(name)
 
 
 __all__ = [
     "DEFAULT_LEGACY_AXIS_BOUND_CONFIG",
+    "DEFAULT_LOCAL_POLYGON_CONFIG",
     "DEFAULT_LOCAL_TANGENT_BAND_CONFIG",
     "LegacyAxisBoundStrategy",
+    "LocalPolygonsStrategy",
     "LocalTangentBandStrategy",
     "TextLineSegmentationRequest",
     "TextLineSegmentationResult",

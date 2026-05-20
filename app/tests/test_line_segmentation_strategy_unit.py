@@ -80,11 +80,17 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(strategy.name, "legacy_axis_bound_v1")
         self.assertIn("legacy_axis_bound_v1", list_text_line_segmentation_strategies())
         self.assertIn("local_tangent_band_v1", list_text_line_segmentation_strategies())
+        self.assertIn("local_polygons_v1", list_text_line_segmentation_strategies())
 
     def test_registry_returns_local_tangent_strategy(self):
         strategy = get_text_line_segmentation_strategy("local_tangent_band_v1")
 
         self.assertEqual(strategy.name, "local_tangent_band_v1")
+
+    def test_registry_returns_local_polygons_strategy(self):
+        strategy = get_text_line_segmentation_strategy("local_polygons_v1")
+
+        self.assertEqual(strategy.name, "local_polygons_v1")
 
     def test_unknown_strategy_error_names_request(self):
         with self.assertRaisesRegex(ValueError, "does_not_exist"):
@@ -280,6 +286,195 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertTrue(topology["is_closed"])
         self.assertEqual(payload["line_metadata"][0]["line_kind"], "closed_circular")
         self.assertEqual(payload["line_metadata"][0]["crop_model"], "local_tangent_band")
+
+    def test_local_polygons_page_preparation_and_ocr_unwrap_are_separate(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_polygons_horizontal",
+            "18,48 78,48",
+            [(18, 42, 60, 12)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=metadata_path,
+        )
+
+        self.assertEqual(result.strategy_name, "local_polygons_v1")
+        self.assertEqual(result.prepared_line_count, 1)
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        line = payload["line_metadata"][0]
+        self.assertEqual(line["crop_model"], "local_polygon_unwrap")
+        self.assertEqual(line["component_projection_model"], "heatmap_component_rectangles")
+        self.assertEqual(line["local_cleanup_model"], "legacy_remap_top_bottom_cc")
+        self.assertFalse(payload["geometry_summary"]["used_legacy_axis_bound_delegate"])
+        self.assertEqual(payload["geometry_summary"]["local_cleanup_model"], "legacy_remap_top_bottom_cc")
+        self.assertNotIn("unwrap_strategy", line)
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_polygons_v1",
+        )
+
+        self.assertEqual(prepared.line_segmentation_strategy_name, "local_polygons_v1")
+        self.assertEqual(len(prepared.records), 1)
+        crop_metadata = prepared.records[0].crop_metadata
+        self.assertTrue(crop_metadata["used_unwrap"])
+        self.assertEqual(crop_metadata["crop_model"], "local_polygon_unwrap")
+        self.assertEqual(crop_metadata["unwrap_strategy"], "baseline_local_tangent")
+        self.assertEqual(
+            crop_metadata["strategy_line_metadata"]["component_projection_model"],
+            "heatmap_component_rectangles",
+        )
+        self.assertEqual(
+            crop_metadata["strategy_line_metadata"]["local_cleanup_model"],
+            "legacy_remap_top_bottom_cc",
+        )
+
+    def test_local_polygons_remapped_local_cleanup_trims_top_boundary_noise(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_polygons_cleanup",
+            "18,48 78,48",
+            [(18, 42, 60, 12)],
+        )
+        image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+        image[32:36, 18:78] = 20
+        cv2.imwrite(str(image_path), image)
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=metadata_path,
+        )
+
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        line = payload["line_metadata"][0]
+        self.assertEqual(line["local_cleanup_model"], "legacy_remap_top_bottom_cc")
+        self.assertGreater(line["local_cleanup_removed_boundary_component_count"], 0)
+        self.assertGreater(line["local_cleanup_top_trim_px_total"], 0)
+        self.assertEqual(line["crop_model"], "local_polygon_unwrap")
+
+    def test_local_polygons_open_baseline_projects_beyond_short_endpoints(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_polygons_short_baseline",
+            "40,48 60,48",
+            [(18, 42, 14, 12), (68, 42, 16, 12)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=metadata_path,
+        )
+
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        coords = payload["line_metadata"][0]["coords_points"]
+        x_values = [point[0] for point in coords]
+        self.assertLessEqual(min(x_values), 20)
+        self.assertGreaterEqual(max(x_values), 80)
+        self.assertEqual(payload["line_metadata"][0]["crop_model"], "local_polygon_unwrap")
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_polygons_v1",
+        )
+        crop_metadata = prepared.records[0].crop_metadata
+        self.assertLess(crop_metadata["station_min_px"], 0.0)
+        self.assertGreater(crop_metadata["station_max_px"], 20.0)
+        self.assertGreater(crop_metadata["output_width_px"], 40)
+
+    def test_local_polygons_point_baseline_preserves_component_width(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_polygons_point_baseline",
+            "48,48",
+            [(30, 40, 36, 16)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=metadata_path,
+        )
+
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        line_metadata = payload["line_metadata"][0]
+        coords = line_metadata["coords_points"]
+        x_values = [point[0] for point in coords]
+        y_values = [point[1] for point in coords]
+        self.assertEqual(line_metadata["line_kind"], "point")
+        self.assertGreater(max(x_values) - min(x_values), 25)
+        self.assertGreater(max(y_values) - min(y_values), 12)
+        self.assertLess(line_metadata["local_s_min"], 0.0)
+        self.assertGreater(line_metadata["local_s_max"], 0.0)
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_polygons_v1",
+        )
+        crop_metadata = prepared.records[0].crop_metadata
+        crop = cv2.imread(
+            str(Path(prepared.finetune_dataset_dir) / prepared.records[0].flat_image_rel_path),
+            cv2.IMREAD_GRAYSCALE,
+        )
+        self.assertTrue(crop_metadata["used_unwrap"])
+        self.assertIsNone(crop_metadata["fallback_reason"])
+        self.assertEqual(crop_metadata["topology"]["line_kind"], "point")
+        self.assertGreater(crop_metadata["output_width_px"], 25)
+        self.assertGreater(crop.shape[1], 25)
+        self.assertGreater(crop.shape[0], 12)
+
+    def test_local_polygons_circular_line_uses_normalized_closed_baseline(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_polygons_circular",
+            "48,16 78,48 48,80 18,48 48,16 18,48 48,80 78,48",
+            [(16, 16, 64, 64)],
+        )
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_polygons_v1",
+        )
+
+        self.assertEqual(prepared.line_segmentation_strategy_name, "local_polygons_v1")
+        self.assertEqual(len(prepared.records), 1)
+        crop_metadata = prepared.records[0].crop_metadata
+        self.assertTrue(crop_metadata["used_unwrap"])
+        self.assertEqual(crop_metadata["crop_model"], "local_polygon_unwrap")
+        self.assertEqual(crop_metadata["topology"]["line_kind"], "closed_circular")
+        self.assertTrue(crop_metadata["strategy_line_metadata"]["topology"]["is_closed"])
+        self.assertGreater(crop_metadata["output_width_px"], crop_metadata["output_height_px"])
 
 
 if __name__ == "__main__":

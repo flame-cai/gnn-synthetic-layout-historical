@@ -387,6 +387,47 @@ Minimum checks before treating `local_polygons_v1` as a viable proposed strategy
 - manifest-level crop diagnostics showing a meaningful median-background fraction
   for circular crops compared with `local_tangent_band_v1`
 
+## Implementation Status
+
+Status as of 2026-05-19:
+
+- Baseline normalization has been hardened first in the shared topology layer, so
+  both the benchmark strategy and proposed strategies read the same normalized
+  baselines before computing local geometry.
+- `local_polygons_v1` is registered as the proposed research strategy. Production
+  remains pinned to `legacy_axis_bound_v1`.
+- PAGE-XML preparation is implemented as a separate strategy step in
+  `app/recognition/line_segmentation/local_polygons.py`. It projects heatmap
+  component rectangles into baseline-local `(s, n)` coordinates, remaps the
+  original page image into each local component crop, applies the legacy-style
+  Otsu connected-component cleanup that trims small components touching local
+  top/bottom boundaries, builds a local mask/polygon from the cleaned component
+  crops, maps that polygon back to PAGE-space `Coords`, and writes per-line
+  metadata with `crop_model = "local_polygon_unwrap"` and
+  `local_cleanup_model = "legacy_remap_top_bottom_cc"`.
+- OCR crop preparation remains a second step. `prepare_page_line_dataset(...)`
+  reloads the generated PAGE XML and the strategy metadata, then the shared cropper
+  unwraps `Coords + Baseline` only when the line metadata requests
+  `local_polygon_unwrap`.
+- Small open-baseline lines now preserve foreground that extends before or after the
+  raw baseline endpoints. PAGE-XML generation extrapolates the baseline-local
+  station outside the endpoint range when assigning component geometry, records
+  `local_s_min`/`local_s_max`, and OCR crop preparation passes those limits into
+  the unwrap step so the final text-line image is not clipped back to the original
+  baseline length.
+- One-point baselines are treated as degenerate local horizontal frames rather than
+  as unwrappable failures. The strategy projects heatmap component extents into
+  `s = page_x - point_x`, `n = page_y - point_y`, maps nonzero-width PAGE
+  `Coords`, and unwraps with the recorded local `s`/`n` bounds instead of writing a
+  1x1 fallback crop.
+- The default research knobs for this strategy live in
+  `app/recognition/line_segmentation/local_polygons.py` as
+  `DEFAULT_LOCAL_POLYGON_CONFIG`. Harness runs can override them through
+  per-call `strategy_config` / `line_segmentation_args` without changing
+  production adoption state.
+- The three slow final pre-commit success checks have not been run yet. Manual OCR
+  crop review on `eval_dataset` and `eval_dataset_v2` is the next checkpoint.
+
 ## Non-Goals For The First Version
 
 - production adoption

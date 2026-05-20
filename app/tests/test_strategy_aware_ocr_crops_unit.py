@@ -140,6 +140,22 @@ class StrategyAwareOcrCropsUnitTest(unittest.TestCase):
         self.assertEqual(result.metadata["unwrap_strategy"], "baseline_local_tangent")
         self.assertGreater(result.image.shape[1], result.image.shape[0])
 
+    def test_local_polygon_metadata_unwraps(self):
+        image, record = self._image_and_record()
+
+        result = crop_line_record_for_ocr(
+            image,
+            record,
+            strategy_name="local_polygons_v1",
+            strategy_line_metadata={"line_numeric_id": 7, "crop_model": "local_polygon_unwrap"},
+        )
+
+        self.assertTrue(result.metadata["used_unwrap"])
+        self.assertEqual(result.metadata["crop_model"], "local_polygon_unwrap")
+        self.assertEqual(result.metadata["unwrap_strategy"], "baseline_local_tangent")
+        self.assertIn("median_background_fraction", result.metadata)
+        self.assertGreater(result.image.shape[1], result.image.shape[0])
+
     def test_local_tangent_delegate_uses_masked_crop(self):
         image, record = self._image_and_record()
 

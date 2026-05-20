@@ -83,8 +83,11 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         base_config = get_precommit_hybrid_recognition_gate_config("eval_dataset")
         role_config = gate_config.strategy_ablation.proposed
 
-        with self.assertRaisesRegex(ValueError, "proposed_strategy_name"):
-            _config_for_strategy_role(base_config, role_config)
+        proposed_config = _config_for_strategy_role(base_config, role_config)
+
+        self.assertEqual(proposed_config.line_geometry_source, "baseline_heatmap")
+        self.assertEqual(proposed_config.line_segmentation_strategy_name, "local_polygons_v1")
+        self.assertEqual(proposed_config.line_segmentation_args, base_config.line_segmentation_args)
 
     def test_strategy_comparison_allows_configured_small_regression(self):
         gate_config = get_recognition_precommit_dataset("eval_dataset")

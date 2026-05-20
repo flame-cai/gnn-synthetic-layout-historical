@@ -4,12 +4,14 @@ from pathlib import Path
 from typing import Mapping
 
 from .legacy_axis_bound import LegacyAxisBoundStrategy
+from .local_polygons import LocalPolygonsStrategy
 from .local_tangent_band import LocalTangentBandStrategy
 from .types import TextLineSegmentationRequest, TextLineSegmentationResult, TextLineSegmentationStrategy
 
 
 _STRATEGIES = {
     LegacyAxisBoundStrategy.name: LegacyAxisBoundStrategy(),
+    LocalPolygonsStrategy.name: LocalPolygonsStrategy(),
     LocalTangentBandStrategy.name: LocalTangentBandStrategy(),
 }
 
