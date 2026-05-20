@@ -309,8 +309,10 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         payload = json.loads(metadata_path.read_text(encoding="utf-8"))
         line = payload["line_metadata"][0]
         self.assertEqual(line["crop_model"], "local_polygon_unwrap")
-        self.assertEqual(line["component_projection_model"], "heatmap_component_rectangles")
+        self.assertEqual(line["component_projection_model"], "heatmap_component_contour_mask")
         self.assertEqual(line["local_cleanup_model"], "legacy_remap_top_bottom_cc")
+        self.assertEqual(line["final_mask_normal_pad_px"], 10.0)
+        self.assertEqual(line["final_mask_station_pad_px"], 1.0)
         self.assertFalse(payload["geometry_summary"]["used_legacy_axis_bound_delegate"])
         self.assertEqual(payload["geometry_summary"]["local_cleanup_model"], "legacy_remap_top_bottom_cc")
         self.assertNotIn("unwrap_strategy", line)
@@ -332,7 +334,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(crop_metadata["unwrap_strategy"], "baseline_local_tangent")
         self.assertEqual(
             crop_metadata["strategy_line_metadata"]["component_projection_model"],
-            "heatmap_component_rectangles",
+            "heatmap_component_contour_mask",
         )
         self.assertEqual(
             crop_metadata["strategy_line_metadata"]["local_cleanup_model"],
@@ -475,6 +477,34 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(crop_metadata["topology"]["line_kind"], "closed_circular")
         self.assertTrue(crop_metadata["strategy_line_metadata"]["topology"]["is_closed"])
         self.assertGreater(crop_metadata["output_width_px"], crop_metadata["output_height_px"])
+
+    def test_local_polygons_circular_line_uses_heatmap_contour_not_axis_bbox_height(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_polygons_circular_contour_bounds",
+            "64,24 104,64 64,104 24,64 64,24 24,64 64,104 104,64",
+            [],
+        )
+        image = np.full((128, 128), 240, dtype=np.uint8)
+        heatmap = np.zeros((128, 128), dtype=np.uint8)
+        cv2.line(image, (78, 22), (110, 54), 20, thickness=5)
+        cv2.line(heatmap, (78, 22), (110, 54), 255, thickness=5)
+        cv2.imwrite(str(image_path), image)
+        cv2.imwrite(str(heatmap_path), heatmap)
+
+        metadata_path = tmp_root / "out" / "metadata.json"
+        apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=metadata_path,
+        )
+
+        line = json.loads(metadata_path.read_text(encoding="utf-8"))["line_metadata"][0]
+        self.assertEqual(line["component_projection_model"], "heatmap_component_contour_mask")
+        self.assertEqual(line["line_kind"], "closed_circular")
+        self.assertLess(line["local_n_max"] - line["local_n_min"], 55.0)
 
 
 if __name__ == "__main__":

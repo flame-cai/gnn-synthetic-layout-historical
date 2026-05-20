@@ -21,6 +21,8 @@ from .types import TextLineSegmentationRequest, TextLineSegmentationResult
 
 
 LOCAL_POLYGON_CROP_MODEL = "local_polygon_unwrap"
+COMPONENT_PROJECTION_MODEL = "heatmap_component_contour_mask"
+COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
     "BINARIZE_THRESHOLD": 0.5098,
@@ -39,6 +41,8 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "maximum_half_width_px": 180.0,
     "normal_pad_px": 6.0,
     "minimum_along_pad_px": 2.0,
+    "final_mask_normal_pad_px": 10.0,
+    "final_mask_station_pad_px": 1.0,
     "bridge_gap_px": 80.0,
     "bridge_all_component_groups": True,
     "simplify_epsilon_px": 1.5,
@@ -71,6 +75,8 @@ def _normalise_config(config: dict | None) -> dict:
         "maximum_half_width_px",
         "normal_pad_px",
         "minimum_along_pad_px",
+        "final_mask_normal_pad_px",
+        "final_mask_station_pad_px",
         "bridge_gap_px",
         "simplify_epsilon_px",
         "minimum_page_mapping_step_px",
@@ -111,9 +117,14 @@ def _heatmap_boxes(image_path: Path, heatmap_path: Path, threshold: float) -> tu
     image_height, image_width = image.shape[:2]
     heatmap_resized = cv2.resize(heatmap, (image_width, image_height), interpolation=cv2.INTER_LINEAR)
     boxes = []
-    for x_val, y_val, width, height in module.gen_bounding_boxes(heatmap_resized, threshold):
+    threshold_val = int(float(threshold) * 255)
+    _, binary_heatmap = cv2.threshold(np.uint8(heatmap_resized), threshold_val, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(binary_heatmap, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        x_val, y_val, width, height = cv2.boundingRect(contour)
         width = float(width)
         height = float(height)
+        contour_points = contour.reshape(-1, 2).astype(float).tolist()
         boxes.append(
             {
                 "x": float(x_val),
@@ -122,6 +133,8 @@ def _heatmap_boxes(image_path: Path, heatmap_path: Path, threshold: float) -> tu
                 "height": height,
                 "center": (float(x_val) + width / 2.0, float(y_val) + height / 2.0),
                 "max_side": max(width, height),
+                "contour_points": contour_points,
+                "contour_point_count": len(contour_points),
             }
         )
     return boxes, {"heatmap_box_count": len(boxes)}
@@ -246,15 +259,26 @@ def _project_point_to_local(
 
 def _component_local_rect(box: dict, topology: BaselineTopology, config: dict) -> dict:
     center_station, center_normal = _project_point_to_local(box["center"], topology)
-    corners = [
+    rectangle_corners = [
         (box["x"], box["y"]),
         (box["x"] + box["width"], box["y"]),
         (box["x"] + box["width"], box["y"] + box["height"]),
         (box["x"], box["y"] + box["height"]),
     ]
+    contour_points = [
+        (float(point[0]), float(point[1]))
+        for point in box.get("contour_points", [])
+        if len(point) >= 2
+    ]
+    projection_points = contour_points if len(contour_points) >= 3 else rectangle_corners
+    projection_model = (
+        COMPONENT_PROJECTION_MODEL
+        if len(contour_points) >= 3
+        else COMPONENT_PROJECTION_FALLBACK_MODEL
+    )
     projected = [
         _project_point_to_local(corner, topology, reference_station=center_station)
-        for corner in corners
+        for corner in projection_points
     ]
     station_values = [item[0] for item in projected]
     normal_values = [item[1] for item in projected]
@@ -262,6 +286,7 @@ def _component_local_rect(box: dict, topology: BaselineTopology, config: dict) -
     normal_half_extent = max(0.5, (max(normal_values) - min(normal_values)) / 2.0)
     station_pad = max(float(config["minimum_along_pad_px"]), station_half_extent * float(config["BBOX_PAD_H"]))
     normal_pad = normal_half_extent * float(config["BBOX_PAD_V"]) + float(config["normal_pad_px"])
+    local_outline_points = [[float(s_val), float(n_val)] for s_val, n_val in projected] if projection_model == COMPONENT_PROJECTION_MODEL else []
     return {
         **box,
         "center_station": center_station,
@@ -272,6 +297,11 @@ def _component_local_rect(box: dict, topology: BaselineTopology, config: dict) -
         "n_max": max(normal_values) + normal_pad,
         "station_half_extent": station_half_extent,
         "normal_half_extent": normal_half_extent,
+        "station_pad": station_pad,
+        "normal_pad": normal_pad,
+        "local_outline_points": local_outline_points,
+        "local_projection_point_count": len(projection_points),
+        "component_projection_model": projection_model,
     }
 
 
@@ -280,22 +310,28 @@ def _split_closed_rect(rect: dict, baseline_length: float) -> list[dict]:
         return [rect]
     width = rect["s_max"] - rect["s_min"]
     if width >= baseline_length:
-        return [{**rect, "s_min": 0.0, "s_max": baseline_length}]
+        return [{**rect, "s_min": 0.0, "s_max": baseline_length, "local_outline_points": []}]
     center = (rect["s_min"] + rect["s_max"]) / 2.0
     shift = math.floor(center / baseline_length) * baseline_length
     s_min = rect["s_min"] - shift
     s_max = rect["s_max"] - shift
+    outline_points = [
+        [float(point[0]) - shift, float(point[1])]
+        for point in rect.get("local_outline_points", [])
+    ]
     while s_min < 0.0:
         s_min += baseline_length
         s_max += baseline_length
+        outline_points = [[point[0] + baseline_length, point[1]] for point in outline_points]
     while s_min >= baseline_length:
         s_min -= baseline_length
         s_max -= baseline_length
+        outline_points = [[point[0] - baseline_length, point[1]] for point in outline_points]
     if s_max <= baseline_length:
-        return [{**rect, "s_min": s_min, "s_max": s_max}]
+        return [{**rect, "s_min": s_min, "s_max": s_max, "local_outline_points": outline_points}]
     return [
-        {**rect, "s_min": s_min, "s_max": baseline_length},
-        {**rect, "s_min": 0.0, "s_max": s_max - baseline_length},
+        {**rect, "s_min": s_min, "s_max": baseline_length, "local_outline_points": []},
+        {**rect, "s_min": 0.0, "s_max": s_max - baseline_length, "local_outline_points": []},
     ]
 
 
@@ -329,6 +365,45 @@ def _draw_rect(mask: np.ndarray, rect: dict, origin_s: float, origin_n: float) -
         cv2.rectangle(mask, (x0, y0), (x1, y1), 255, thickness=-1)
 
 
+def _draw_component_mask(mask: np.ndarray, rect: dict, origin_s: float, origin_n: float) -> None:
+    outline_points = rect.get("local_outline_points") or []
+    if len(outline_points) < 3:
+        _draw_rect(mask, rect, origin_s, origin_n)
+        return
+
+    x0 = int(math.floor(rect["s_min"] - origin_s))
+    x1 = int(math.ceil(rect["s_max"] - origin_s)) + 1
+    y0 = int(math.floor(rect["n_min"] - origin_n))
+    y1 = int(math.ceil(rect["n_max"] - origin_n)) + 1
+    x0 = max(0, min(mask.shape[1], x0))
+    x1 = max(0, min(mask.shape[1], x1))
+    y0 = max(0, min(mask.shape[0], y0))
+    y1 = max(0, min(mask.shape[0], y1))
+    if x1 <= x0 or y1 <= y0:
+        return
+
+    polygon = np.asarray(
+        [
+            [
+                int(round(float(point[0]) - origin_s)) - x0,
+                int(round(float(point[1]) - origin_n)) - y0,
+            ]
+            for point in outline_points
+        ],
+        dtype=np.int32,
+    )
+    component_mask = np.zeros((y1 - y0, x1 - x0), dtype=np.uint8)
+    cv2.fillPoly(component_mask, [polygon], 255)
+    station_pad = max(0, int(round(float(rect.get("station_pad", 0.0)))))
+    normal_pad = max(0, int(round(float(rect.get("normal_pad", 0.0)))))
+    if station_pad > 0 or normal_pad > 0:
+        kernel_width = max(1, station_pad * 2 + 1)
+        kernel_height = max(1, normal_pad * 2 + 1)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_width, kernel_height))
+        component_mask = cv2.dilate(component_mask, kernel, iterations=1)
+    mask[y0:y1, x0:x1] = np.maximum(mask[y0:y1, x0:x1], component_mask)
+
+
 def _draw_bridge(
     mask: np.ndarray,
     left_rect: dict,
@@ -345,6 +420,59 @@ def _draw_bridge(
         "n_max": max(left_rect["center_normal"], right_rect["center_normal"]) + half_width,
     }
     _draw_rect(mask, bridge, origin_s, origin_n)
+
+
+def _apply_final_mask_padding(
+    mask: np.ndarray,
+    *,
+    origin_s: float,
+    topology: BaselineTopology,
+    baseline_length: float,
+    config: dict,
+) -> np.ndarray:
+    normal_pad = max(0, int(round(float(config["final_mask_normal_pad_px"]))))
+    station_pad = max(0, int(round(float(config["final_mask_station_pad_px"]))))
+    if normal_pad > 0 or station_pad > 0:
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_RECT,
+            (station_pad * 2 + 1, normal_pad * 2 + 1),
+        )
+        mask = cv2.dilate(mask, kernel, iterations=1)
+    if topology.is_closed:
+        left = max(0, int(math.floor(0.0 - origin_s)))
+        right = min(mask.shape[1], int(math.ceil(baseline_length - origin_s)) + 1)
+        if left > 0:
+            mask[:, :left] = 0
+        if right < mask.shape[1]:
+            mask[:, right:] = 0
+    return mask
+
+
+def _mask_local_bounds(
+    mask: np.ndarray,
+    *,
+    origin_s: float,
+    origin_n: float,
+    fallback_s_min: float,
+    fallback_s_max: float,
+    fallback_n_min: float,
+    fallback_n_max: float,
+    topology: BaselineTopology,
+    baseline_length: float,
+) -> tuple[float, float, float, float]:
+    rows = np.where(mask.max(axis=1) > 0)[0]
+    cols = np.where(mask.max(axis=0) > 0)[0]
+    if rows.size == 0 or cols.size == 0:
+        return fallback_s_min, fallback_s_max, fallback_n_min, fallback_n_max
+    if topology.is_closed:
+        local_s_min = 0.0
+        local_s_max = baseline_length
+    else:
+        local_s_min = float(origin_s + int(cols[0]))
+        local_s_max = float(origin_s + int(cols[-1]) + 1)
+    local_n_min = float(origin_n + int(rows[0]))
+    local_n_max = float(origin_n + int(rows[-1]) + 1)
+    return local_s_min, local_s_max, local_n_min, local_n_max
 
 
 def _remap_local_crop(
@@ -612,7 +740,8 @@ def _build_local_polygon(
         used_component_fallback = True
 
     half_width = _estimate_half_width(rects, config)
-    margin = float(config["local_canvas_margin_px"])
+    margin_s = float(config["local_canvas_margin_px"]) + max(0.0, float(config["final_mask_station_pad_px"]))
+    margin_n = float(config["local_canvas_margin_px"]) + max(0.0, float(config["final_mask_normal_pad_px"]))
     if topology.is_closed:
         min_s = 0.0
         max_s = baseline_length
@@ -621,15 +750,15 @@ def _build_local_polygon(
         max_s = max(rect["s_max"] for rect in rects)
     min_n = min(rect["n_min"] for rect in rects)
     max_n = max(rect["n_max"] for rect in rects)
-    origin_s = math.floor(min_s - margin)
-    origin_n = math.floor(min_n - margin)
-    width = max(2, int(math.ceil(max_s - origin_s + margin)))
-    height = max(2, int(math.ceil(max_n - origin_n + margin)))
+    origin_s = math.floor(min_s - margin_s)
+    origin_n = math.floor(min_n - margin_n)
+    width = max(2, int(math.ceil(max_s - origin_s + margin_s)))
+    height = max(2, int(math.ceil(max_n - origin_n + margin_n)))
     mask = np.zeros((height, width), dtype=np.uint8)
 
     ordered_rects = sorted(rects, key=lambda item: ((item["s_min"] + item["s_max"]) / 2.0, item["center_normal"]))
     for rect in ordered_rects:
-        _draw_rect(mask, rect, origin_s, origin_n)
+        _draw_component_mask(mask, rect, origin_s, origin_n)
     for left_rect, right_rect in zip(ordered_rects, ordered_rects[1:]):
         gap = right_rect["s_min"] - left_rect["s_max"]
         if gap <= 0.0:
@@ -656,6 +785,25 @@ def _build_local_polygon(
             _draw_rect(mask, left_bridge, origin_s, origin_n)
             _draw_rect(mask, right_bridge, origin_s, origin_n)
 
+    mask = _apply_final_mask_padding(
+        mask,
+        origin_s=origin_s,
+        topology=topology,
+        baseline_length=baseline_length,
+        config=config,
+    )
+    local_s_min, local_s_max, local_n_min, local_n_max = _mask_local_bounds(
+        mask,
+        origin_s=origin_s,
+        origin_n=origin_n,
+        fallback_s_min=min_s,
+        fallback_s_max=max_s,
+        fallback_n_min=min_n,
+        fallback_n_max=max_n,
+        topology=topology,
+        baseline_length=baseline_length,
+    )
+
     local_polygon = _contour_to_local_polygon(mask, config)
     if local_polygon is None or len(local_polygon) < 3:
         polygon = _fallback_band_polygon(topology, half_width, image_width, image_height)
@@ -669,6 +817,8 @@ def _build_local_polygon(
             "local_polygon_point_count": 0,
             "page_polygon_point_count": len(polygon),
             "line_half_width_px": half_width,
+            "final_mask_normal_pad_px": float(config["final_mask_normal_pad_px"]),
+            "final_mask_station_pad_px": float(config["final_mask_station_pad_px"]),
         }
 
     max_polygon_points = max(8, int(config["max_polygon_points"]))
@@ -703,12 +853,14 @@ def _build_local_polygon(
         "mapped_local_polygon_point_count": int(len(mapped_local_polygon)),
         "page_polygon_point_count": int(len(page_points)),
         "line_half_width_px": half_width,
+        "final_mask_normal_pad_px": float(config["final_mask_normal_pad_px"]),
+        "final_mask_station_pad_px": float(config["final_mask_station_pad_px"]),
         "local_mask_foreground_pixel_count": int(np.count_nonzero(mask)),
         "local_mask_background_fraction": float(1.0 - (np.count_nonzero(mask) / mask.size)) if mask.size else None,
-        "local_s_min": float(min_s),
-        "local_s_max": float(max_s),
-        "local_n_min": float(min_n),
-        "local_n_max": float(max_n),
+        "local_s_min": float(local_s_min),
+        "local_s_max": float(local_s_max),
+        "local_n_min": float(local_n_min),
+        "local_n_max": float(local_n_max),
     }
 
 
@@ -808,7 +960,7 @@ class LocalPolygonsStrategy:
                 "line_kind": topology.line_kind,
                 "topology": topology.to_metadata(),
                 "crop_model": LOCAL_POLYGON_CROP_MODEL,
-                "component_projection_model": "heatmap_component_rectangles",
+                "component_projection_model": COMPONENT_PROJECTION_MODEL,
                 "local_cleanup_model": LOCAL_CLEANUP_MODEL,
                 "assigned_component_count": len(components),
                 "rejected_component_counts_by_reason": assignment_summary["rejected_box_counts_by_reason"],
@@ -837,7 +989,7 @@ class LocalPolygonsStrategy:
             "source_line_coverage": (prepared_line_count / source_line_count) if source_line_count else None,
             "used_legacy_axis_bound_delegate": False,
             "crop_model_counts": {LOCAL_POLYGON_CROP_MODEL: prepared_line_count},
-            "component_projection_model": "heatmap_component_rectangles",
+            "component_projection_model": COMPONENT_PROJECTION_MODEL,
             "local_cleanup_model": LOCAL_CLEANUP_MODEL,
             "topology_counts": topology_counts,
             "normalization_action_counts": normalization_counts,

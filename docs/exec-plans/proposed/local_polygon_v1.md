@@ -397,14 +397,29 @@ Status as of 2026-05-19:
 - `local_polygons_v1` is registered as the proposed research strategy. Production
   remains pinned to `legacy_axis_bound_v1`.
 - PAGE-XML preparation is implemented as a separate strategy step in
-  `app/recognition/line_segmentation/local_polygons.py`. It projects heatmap
-  component rectangles into baseline-local `(s, n)` coordinates, remaps the
-  original page image into each local component crop, applies the legacy-style
-  Otsu connected-component cleanup that trims small components touching local
-  top/bottom boundaries, builds a local mask/polygon from the cleaned component
-  crops, maps that polygon back to PAGE-space `Coords`, and writes per-line
-  metadata with `crop_model = "local_polygon_unwrap"` and
+  `app/recognition/line_segmentation/local_polygons.py`. It now keeps the
+  thresholded heatmap contours for each component, projects those contours into
+  baseline-local `(s, n)` coordinates, remaps the original page image into each
+  local component crop, applies the legacy-style Otsu connected-component cleanup
+  that trims small components touching local top/bottom boundaries, builds a
+  padded local contour mask/polygon from the cleaned component crops, maps that
+  polygon back to PAGE-space `Coords`, and writes per-line metadata with
+  `crop_model = "local_polygon_unwrap"`,
+  `component_projection_model = "heatmap_component_contour_mask"`, and
   `local_cleanup_model = "legacy_remap_top_bottom_cc"`.
+- A 2026-05-20 circular-crop fix replaced page-axis-aligned heatmap rectangle
+  projection as the default local mask primitive. The failed example
+  `page_2/textbox_label_0/line_0.jpg` in
+  `20260519_124509_ocrft_circular_ocr_ablation_proposed_eval_dataset_v2`
+  was `6665 x 347` because rectangle corners expanded the line-local normal
+  bounds to about `-173..167px`.
+- The contour-mask fix intentionally keeps a small final looseness pad. The
+  default `final_mask_normal_pad_px=10` and `final_mask_station_pad_px=1` are
+  applied to the assembled local mask after component cleanup and bridging, then
+  `local_s_min`/`local_s_max`/`local_n_min`/`local_n_max` are recomputed from the
+  padded final mask. Regenerating the same page with this pad produced
+  `6665 x 180` in the manual-review artifact
+  `app/tests/logs/20260520_local_polygons_contour_mask_pad10_manual_review/page_2/`.
 - OCR crop preparation remains a second step. `prepare_page_line_dataset(...)`
   reloads the generated PAGE XML and the strategy metadata, then the shared cropper
   unwraps `Coords + Baseline` only when the line metadata requests

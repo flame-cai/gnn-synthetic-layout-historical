@@ -64,14 +64,16 @@ The strategy docs live in:
 The checked-in current role mapping for this harness is:
 
 - benchmark: `local_tangent_band_v1`
-- proposed: not configured
+- proposed: `local_polygons_v1`
 - production app: `legacy_axis_bound_v1`
 
-`local_tangent_band_v1` is the current research benchmark after harness promotion. Configure a new proposed strategy before running the next ablation cycle.
+`local_tangent_band_v1` is the current research benchmark after harness promotion.
 
 `legacy_axis_bound_v1` is the preserved historical benchmark and remains the production app default.
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
+
+`local_polygons_v1` is the current proposed research strategy. It builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text.
 
 `production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations, and production OCR crop preparation now routes through the same strategy-aware crop layer. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
