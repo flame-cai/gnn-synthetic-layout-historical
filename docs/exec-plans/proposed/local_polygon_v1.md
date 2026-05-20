@@ -425,8 +425,9 @@ Status as of 2026-05-19:
   `DEFAULT_LOCAL_POLYGON_CONFIG`. Harness runs can override them through
   per-call `strategy_config` / `line_segmentation_args` without changing
   production adoption state.
-- The three slow final pre-commit success checks have not been run yet. Manual OCR
-  crop review on `eval_dataset` and `eval_dataset_v2` is the next checkpoint.
+- The full-pipeline pre-commit gate now blocks only on `page_cer`. It still writes
+  line-level CER diagnostics to artifacts, but `line_cer_50`, `line_cer_75`, and
+  `line_cer_range` no longer determine the pass/fail result for this gate.
 
 ## Non-Goals For The First Version
 

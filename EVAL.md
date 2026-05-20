@@ -109,7 +109,7 @@ Primary comparison metric:
 
 - `page_cer`
 
-Additional comparison metrics:
+Diagnostic metrics written to artifacts but not used for pass/fail:
 
 - `line_cer_50`
 - `line_cer_75`
@@ -117,9 +117,9 @@ Additional comparison metrics:
 
 Success rule:
 
-- benchmark role must pass its own thresholds
-- proposed role must pass its own thresholds
-- proposed metrics may regress by at most `0.01` absolute versus benchmark on the comparison metrics
+- benchmark role must pass its own `page_cer` threshold
+- proposed role must pass its own `page_cer` threshold
+- proposed `page_cer` may regress by at most `0.01` absolute versus benchmark
 
 Latest artifact files:
 

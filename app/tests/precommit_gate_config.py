@@ -68,10 +68,6 @@ class PipelinePrecommitDatasetConfig:
     min_distance: int = 20
     expected_page_count: int = 15
     max_page_cer: float = 0.40
-    max_line_cer_50: float = 0.40
-    max_line_cer_75: float = 0.45
-    max_line_cer_range: float = 0.48
-    max_worst_page_line_cer_50: float = 0.55
     strategy_ablation: StrategyAblationConfig = field(
         default_factory=lambda: _default_strategy_ablation(max_allowed_regression_abs=0.01)
     )

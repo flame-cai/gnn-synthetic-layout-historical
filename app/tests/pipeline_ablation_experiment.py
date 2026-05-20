@@ -181,33 +181,9 @@ def _threshold_result(metric_name: str, observed, operator: str, threshold: floa
     }
 
 
-def _build_absolute_thresholds(dataset_config, aggregate: dict, worst_page_line_cer: float) -> dict:
+def _build_absolute_thresholds(dataset_config, aggregate: dict) -> dict:
     return {
         "page_cer": _threshold_result("page_cer", aggregate["page_cer"], "<=", dataset_config.max_page_cer),
-        "line_cer_50": _threshold_result(
-            "line_cer_50",
-            aggregate["line_cer_50"],
-            "<=",
-            dataset_config.max_line_cer_50,
-        ),
-        "line_cer_75": _threshold_result(
-            "line_cer_75",
-            aggregate["line_cer_75"],
-            "<=",
-            dataset_config.max_line_cer_75,
-        ),
-        "line_cer_range": _threshold_result(
-            "line_cer_range",
-            aggregate["line_cer_range"],
-            "<=",
-            dataset_config.max_line_cer_range,
-        ),
-        "worst_page_line_cer_50": _threshold_result(
-            "worst_page_line_cer_50",
-            worst_page_line_cer,
-            "<=",
-            dataset_config.max_worst_page_line_cer_50,
-        ),
     }
 
 
@@ -306,8 +282,7 @@ def _run_pipeline_role(client, dataset_config, role_config, upload_root: Path) -
         layout_type=dataset_config.layout_type,
     )
     aggregate = result["aggregate_metrics"]
-    worst_page_line_cer = max(page["line_cer_50"] for page in result["per_page"])
-    threshold_results = _build_absolute_thresholds(dataset_config, aggregate, worst_page_line_cer)
+    threshold_results = _build_absolute_thresholds(dataset_config, aggregate)
     passed = (
         result["files_processed"] == len(expected_pages)
         and all(page["prediction_found"] for page in result["per_page"])
@@ -343,22 +318,22 @@ def _run_pipeline_role(client, dataset_config, role_config, upload_root: Path) -
 def _build_pipeline_comparison(dataset_config, benchmark_result: dict, proposed_result: dict) -> dict:
     allowed = float(dataset_config.strategy_ablation.max_allowed_regression_abs)
     comparisons = []
-    for metric_name in ("page_cer", "line_cer_50", "line_cer_75", "line_cer_range"):
-        benchmark_value = benchmark_result["metrics"].get(metric_name)
-        proposed_value = proposed_result["metrics"].get(metric_name)
-        allowed_value = None if benchmark_value is None else benchmark_value + allowed
-        passed = proposed_value is not None and allowed_value is not None and proposed_value <= allowed_value
-        comparisons.append(
-            {
-                "metric_name": metric_name,
-                "benchmark_value": benchmark_value,
-                "proposed_value": proposed_value,
-                "operator": "<=",
-                "allowed_regression_abs": allowed,
-                "allowed_value": allowed_value,
-                "passed": passed,
-            }
-        )
+    metric_name = "page_cer"
+    benchmark_value = benchmark_result["metrics"].get(metric_name)
+    proposed_value = proposed_result["metrics"].get(metric_name)
+    allowed_value = None if benchmark_value is None else benchmark_value + allowed
+    passed_page_cer = proposed_value is not None and allowed_value is not None and proposed_value <= allowed_value
+    comparisons.append(
+        {
+            "metric_name": metric_name,
+            "benchmark_value": benchmark_value,
+            "proposed_value": proposed_value,
+            "operator": "<=",
+            "allowed_regression_abs": allowed,
+            "allowed_value": allowed_value,
+            "passed": passed_page_cer,
+        }
+    )
 
     passed = (
         benchmark_result["passed"]

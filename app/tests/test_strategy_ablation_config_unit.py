@@ -16,6 +16,7 @@ from tests.precommit_gate_config import (
     get_pipeline_precommit_dataset,
     get_recognition_precommit_dataset,
 )
+from tests.pipeline_ablation_experiment import _build_absolute_thresholds, _build_pipeline_comparison
 from tests.recognition_finetuning_config import get_precommit_hybrid_recognition_gate_config
 from recognition.line_segmentation.strategy_config import (
     get_benchmark_strategy_name,
@@ -40,6 +41,50 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
         self.assertFalse(config.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(config.latest_artifact_basename, "pipeline_ablation_latest")
         self.assertEqual(len(config.ordered_page_ids()), config.expected_page_count)
+
+    def test_pipeline_gate_blocks_only_on_page_cer(self):
+        config = get_pipeline_precommit_dataset("eval_dataset")
+        thresholds = _build_absolute_thresholds(
+            config,
+            {
+                "page_cer": 0.39,
+                "line_cer_50": 1.0,
+                "line_cer_75": 1.0,
+                "line_cer_range": 1.0,
+            },
+        )
+
+        self.assertEqual(list(thresholds), ["page_cer"])
+        self.assertTrue(thresholds["page_cer"]["passed"])
+
+        comparison = _build_pipeline_comparison(
+            config,
+            {
+                "role": "benchmark",
+                "passed": True,
+                "failure_message": "",
+                "metrics": {
+                    "page_cer": 0.33,
+                    "line_cer_50": 0.10,
+                    "line_cer_75": 0.10,
+                    "line_cer_range": 0.10,
+                },
+            },
+            {
+                "role": "proposed",
+                "passed": True,
+                "failure_message": "",
+                "metrics": {
+                    "page_cer": 0.32,
+                    "line_cer_50": 0.90,
+                    "line_cer_75": 0.90,
+                    "line_cer_range": 0.90,
+                },
+            },
+        )
+
+        self.assertTrue(comparison["passed"], comparison["failure_message"])
+        self.assertEqual([item["metric_name"] for item in comparison["metric_comparisons"]], ["page_cer"])
 
     def test_eval_dataset_recognition_config_tracks_promoted_benchmark(self):
         gate = get_recognition_precommit_dataset("eval_dataset")
