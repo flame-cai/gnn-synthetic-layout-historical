@@ -41,7 +41,8 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "maximum_half_width_px": 180.0,
     "normal_pad_px": 6.0,
     "minimum_along_pad_px": 2.0,
-    "final_mask_normal_pad_px": 10.0,
+    "final_mask_normal_pad_px": 0.0,
+    "closed_circular_final_mask_normal_pad_px": 10.0,
     "final_mask_station_pad_px": 1.0,
     "bridge_gap_px": 80.0,
     "bridge_all_component_groups": True,
@@ -76,6 +77,7 @@ def _normalise_config(config: dict | None) -> dict:
         "normal_pad_px",
         "minimum_along_pad_px",
         "final_mask_normal_pad_px",
+        "closed_circular_final_mask_normal_pad_px",
         "final_mask_station_pad_px",
         "bridge_gap_px",
         "simplify_epsilon_px",
@@ -422,6 +424,15 @@ def _draw_bridge(
     _draw_rect(mask, bridge, origin_s, origin_n)
 
 
+def _final_mask_padding_px(config: dict, topology: BaselineTopology) -> tuple[float, float]:
+    normal_pad_key = (
+        "closed_circular_final_mask_normal_pad_px"
+        if topology.line_kind == "closed_circular"
+        else "final_mask_normal_pad_px"
+    )
+    return float(config[normal_pad_key]), float(config["final_mask_station_pad_px"])
+
+
 def _apply_final_mask_padding(
     mask: np.ndarray,
     *,
@@ -430,8 +441,9 @@ def _apply_final_mask_padding(
     baseline_length: float,
     config: dict,
 ) -> np.ndarray:
-    normal_pad = max(0, int(round(float(config["final_mask_normal_pad_px"]))))
-    station_pad = max(0, int(round(float(config["final_mask_station_pad_px"]))))
+    normal_pad_px, station_pad_px = _final_mask_padding_px(config, topology)
+    normal_pad = max(0, int(round(normal_pad_px)))
+    station_pad = max(0, int(round(station_pad_px)))
     if normal_pad > 0 or station_pad > 0:
         kernel = cv2.getStructuringElement(
             cv2.MORPH_RECT,
@@ -740,8 +752,9 @@ def _build_local_polygon(
         used_component_fallback = True
 
     half_width = _estimate_half_width(rects, config)
-    margin_s = float(config["local_canvas_margin_px"]) + max(0.0, float(config["final_mask_station_pad_px"]))
-    margin_n = float(config["local_canvas_margin_px"]) + max(0.0, float(config["final_mask_normal_pad_px"]))
+    final_normal_pad_px, final_station_pad_px = _final_mask_padding_px(config, topology)
+    margin_s = float(config["local_canvas_margin_px"]) + max(0.0, final_station_pad_px)
+    margin_n = float(config["local_canvas_margin_px"]) + max(0.0, final_normal_pad_px)
     if topology.is_closed:
         min_s = 0.0
         max_s = baseline_length
@@ -817,8 +830,8 @@ def _build_local_polygon(
             "local_polygon_point_count": 0,
             "page_polygon_point_count": len(polygon),
             "line_half_width_px": half_width,
-            "final_mask_normal_pad_px": float(config["final_mask_normal_pad_px"]),
-            "final_mask_station_pad_px": float(config["final_mask_station_pad_px"]),
+            "final_mask_normal_pad_px": float(final_normal_pad_px),
+            "final_mask_station_pad_px": float(final_station_pad_px),
         }
 
     max_polygon_points = max(8, int(config["max_polygon_points"]))
@@ -853,8 +866,8 @@ def _build_local_polygon(
         "mapped_local_polygon_point_count": int(len(mapped_local_polygon)),
         "page_polygon_point_count": int(len(page_points)),
         "line_half_width_px": half_width,
-        "final_mask_normal_pad_px": float(config["final_mask_normal_pad_px"]),
-        "final_mask_station_pad_px": float(config["final_mask_station_pad_px"]),
+        "final_mask_normal_pad_px": float(final_normal_pad_px),
+        "final_mask_station_pad_px": float(final_station_pad_px),
         "local_mask_foreground_pixel_count": int(np.count_nonzero(mask)),
         "local_mask_background_fraction": float(1.0 - (np.count_nonzero(mask) / mask.size)) if mask.size else None,
         "local_s_min": float(local_s_min),

@@ -311,7 +311,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(line["crop_model"], "local_polygon_unwrap")
         self.assertEqual(line["component_projection_model"], "heatmap_component_contour_mask")
         self.assertEqual(line["local_cleanup_model"], "legacy_remap_top_bottom_cc")
-        self.assertEqual(line["final_mask_normal_pad_px"], 10.0)
+        self.assertEqual(line["final_mask_normal_pad_px"], 0.0)
         self.assertEqual(line["final_mask_station_pad_px"], 1.0)
         self.assertFalse(payload["geometry_summary"]["used_legacy_axis_bound_delegate"])
         self.assertEqual(payload["geometry_summary"]["local_cleanup_model"], "legacy_remap_top_bottom_cc")
@@ -504,6 +504,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         line = json.loads(metadata_path.read_text(encoding="utf-8"))["line_metadata"][0]
         self.assertEqual(line["component_projection_model"], "heatmap_component_contour_mask")
         self.assertEqual(line["line_kind"], "closed_circular")
+        self.assertEqual(line["final_mask_normal_pad_px"], 10.0)
         self.assertLess(line["local_n_max"] - line["local_n_min"], 55.0)
 
 

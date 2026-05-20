@@ -414,11 +414,14 @@ Status as of 2026-05-19:
   was `6665 x 347` because rectangle corners expanded the line-local normal
   bounds to about `-173..167px`.
 - The contour-mask fix intentionally keeps a small final looseness pad. The
-  default `final_mask_normal_pad_px=10` and `final_mask_station_pad_px=1` are
-  applied to the assembled local mask after component cleanup and bridging, then
-  `local_s_min`/`local_s_max`/`local_n_min`/`local_n_max` are recomputed from the
-  padded final mask. Regenerating the same page with this pad produced
-  `6665 x 180` in the manual-review artifact
+  default open-line pad is `final_mask_normal_pad_px=0` with
+  `final_mask_station_pad_px=1`; closed circular lines use
+  `closed_circular_final_mask_normal_pad_px=10` so the circular crop is safely
+  loosened without applying the same extra height to ordinary horizontal pages.
+  The pad is applied to the assembled local mask after component cleanup and
+  bridging, then `local_s_min`/`local_s_max`/`local_n_min`/`local_n_max` are
+  recomputed from the padded final mask. Regenerating the same circular page
+  with the 10px circular pad produced `6665 x 180` in the manual-review artifact
   `app/tests/logs/20260520_local_polygons_contour_mask_pad10_manual_review/page_2/`.
 - OCR crop preparation remains a second step. `prepare_page_line_dataset(...)`
   reloads the generated PAGE XML and the strategy metadata, then the shared cropper
