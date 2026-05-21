@@ -25,7 +25,7 @@ COMPONENT_PROJECTION_MODEL = "heatmap_component_contour_mask"
 COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
-    "BINARIZE_THRESHOLD": 0.5098,
+    "BINARIZE_THRESHOLD": 0.45,
     "BBOX_PAD_V": 0.7,
     "BBOX_PAD_H": 0.5,
     "CC_SIZE_THRESHOLD_RATIO": 0.4,
@@ -41,7 +41,7 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "maximum_half_width_px": 180.0,
     "normal_pad_px": 6.0,
     "minimum_along_pad_px": 2.0,
-    "final_mask_normal_pad_px": 6.0,
+    "final_mask_normal_pad_px": 0.0,
     "closed_circular_final_mask_normal_pad_px": 10.0,
     "final_mask_station_pad_px": 1.0,
     "bridge_gap_px": 80.0,

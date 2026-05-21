@@ -413,24 +413,28 @@ Status as of 2026-05-19:
   `20260519_124509_ocrft_circular_ocr_ablation_proposed_eval_dataset_v2`
   was `6665 x 347` because rectangle corners expanded the line-local normal
   bounds to about `-173..167px`.
-- The contour-mask fix intentionally keeps a small final looseness pad. Open
-  lines use `final_mask_normal_pad_px=6` with
-  `final_mask_station_pad_px=1`; closed circular lines use
-  `closed_circular_final_mask_normal_pad_px=10`. This keeps detached marks near
-  local-mask boundaries inside the post-cleanup safety margin without adding
-  separate horizontal, vertical, and curved open-line knobs.
-  The pad is applied to the assembled local mask after component cleanup and
-  bridging, then `local_s_min`/`local_s_max`/`local_n_min`/`local_n_max` are
-  recomputed from the padded final mask. Regenerating the same circular page
+- The contour-mask fix keeps open-line final-mask padding tight so local cleanup
+  remains authoritative. Open lines use `normal_pad_px=6`,
+  `final_mask_normal_pad_px=0`, and `final_mask_station_pad_px=1`; closed
+  circular lines still use `closed_circular_final_mask_normal_pad_px=10`.
+  After the final mask is assembled and padded where configured,
+  `local_s_min`/`local_s_max`/`local_n_min`/`local_n_max` are recomputed from
+  that mask. Regenerating the same circular page
   with the 10px circular pad produced `6665 x 180` in the manual-review artifact
   `app/tests/logs/20260520_local_polygons_contour_mask_pad10_manual_review/page_2/`.
 - A 2026-05-21 vertical-open-line probe on `eval_dataset_v2` `page_5`
   `line_1` showed why the open-line margin is needed: the contour-mask path
   reported `final_mask_normal_pad_px=0` and masked detached diacritic pixels
-  that the broader local-tangent benchmark kept. Applying a 6px post-cleanup
-  normal margin restored those marks. The same risk applies to horizontal
-  Sanskrit lines with detached marks, so the default margin is shared by all
-  open-line topologies.
+  that the broader local-tangent benchmark kept. A first pass restored those
+  marks with a 6px post-cleanup final-mask margin, but review showed that stage
+  can undo the purpose of local boundary cleanup. Expanding the pre-cleanup
+  component `normal_pad_px` to 12 also broke the boundary-cleanup regression
+  test by moving the synthetic intrusion away from the local crop boundary.
+  The retained fix lowers the proposed local-polygon research-role
+  `BINARIZE_THRESHOLD` from the shared `0.5098` harness value to `0.45` before
+  heatmap contour extraction and local cleanup. That keeps the existing cleanup
+  geometry and uses one threshold for horizontal, vertical, and curved open
+  lines instead of adding topology-specific pads.
 - OCR crop preparation remains a second step. `prepare_page_line_dataset(...)`
   reloads the generated PAGE XML and the strategy metadata, then the shared cropper
   unwraps `Coords + Baseline` only when the line metadata requests
