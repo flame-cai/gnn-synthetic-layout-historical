@@ -41,7 +41,7 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "maximum_half_width_px": 180.0,
     "normal_pad_px": 6.0,
     "minimum_along_pad_px": 2.0,
-    "final_mask_normal_pad_px": 0.0,
+    "final_mask_normal_pad_px": 6.0,
     "closed_circular_final_mask_normal_pad_px": 10.0,
     "final_mask_station_pad_px": 1.0,
     "bridge_gap_px": 80.0,
@@ -425,11 +425,10 @@ def _draw_bridge(
 
 
 def _final_mask_padding_px(config: dict, topology: BaselineTopology) -> tuple[float, float]:
-    normal_pad_key = (
-        "closed_circular_final_mask_normal_pad_px"
-        if topology.line_kind == "closed_circular"
-        else "final_mask_normal_pad_px"
-    )
+    if topology.line_kind == "closed_circular":
+        normal_pad_key = "closed_circular_final_mask_normal_pad_px"
+    else:
+        normal_pad_key = "final_mask_normal_pad_px"
     return float(config[normal_pad_key]), float(config["final_mask_station_pad_px"])
 
 

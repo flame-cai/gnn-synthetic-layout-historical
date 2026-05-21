@@ -95,6 +95,8 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
         self.assertFalse(gate.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(gate.latest_artifact_basename, "recognition_finetune_ablation_latest")
         self.assertEqual(len(config.ordered_page_ids()), 15)
+        self.assertEqual(gate.fine_tune_page_count, 3)
+        self.assertEqual(config.fine_tune_page_ids(), ["233_0002", "233_0003", "233_0004"])
         self.assertEqual(config.line_segmentation_strategy_name, get_benchmark_strategy_name())
 
     def test_eval_dataset_v2_circular_recognition_config_tracks_promoted_benchmark(self):

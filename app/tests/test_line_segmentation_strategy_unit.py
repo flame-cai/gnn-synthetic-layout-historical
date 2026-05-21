@@ -311,7 +311,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(line["crop_model"], "local_polygon_unwrap")
         self.assertEqual(line["component_projection_model"], "heatmap_component_contour_mask")
         self.assertEqual(line["local_cleanup_model"], "legacy_remap_top_bottom_cc")
-        self.assertEqual(line["final_mask_normal_pad_px"], 0.0)
+        self.assertEqual(line["final_mask_normal_pad_px"], 6.0)
         self.assertEqual(line["final_mask_station_pad_px"], 1.0)
         self.assertFalse(payload["geometry_summary"]["used_legacy_axis_bound_delegate"])
         self.assertEqual(payload["geometry_summary"]["local_cleanup_model"], "legacy_remap_top_bottom_cc")
@@ -340,6 +340,28 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             crop_metadata["strategy_line_metadata"]["local_cleanup_model"],
             "legacy_remap_top_bottom_cc",
         )
+
+    def test_local_polygons_vertical_line_uses_open_final_mask_pad(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "local_polygons_vertical",
+            "48,18 48,78",
+            [(42, 18, 12, 60)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=metadata_path,
+        )
+
+        line = json.loads(metadata_path.read_text(encoding="utf-8"))["line_metadata"][0]
+        self.assertEqual(line["line_kind"], "vertical_straight")
+        self.assertEqual(line["crop_model"], "local_polygon_unwrap")
+        self.assertEqual(line["final_mask_normal_pad_px"], 6.0)
 
     def test_local_polygons_remapped_local_cleanup_trims_top_boundary_noise(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(

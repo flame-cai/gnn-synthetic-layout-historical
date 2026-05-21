@@ -73,7 +73,7 @@ The checked-in current role mapping for this harness is:
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
 
-`local_polygons_v1` is the current proposed research strategy. It builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text; final mask padding is topology-aware so circular crops keep a modest safety margin without over-loosening ordinary open lines.
+`local_polygons_v1` is the current proposed research strategy. It builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text; final mask padding keeps a shared safety margin for open-line detached marks after local cleanup and a larger closed-circular override.
 
 `production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations, and production OCR crop preparation now routes through the same strategy-aware crop layer. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
@@ -151,6 +151,7 @@ Study mode:
 
 Recipe shape:
 
+- `fine_tune_page_count=3`, configured in `app/tests/precommit_gate_config.py` for the pre-commit gate while slower research studies may use a longer prefix
 - `page_plus_random_history`
 - `history_sample_line_count=10`
 - `width_policy=batch_max_pad`
@@ -253,6 +254,8 @@ When all three gates run and pass through `scripts/run_precommit_eval.py`, the l
 - `app/tests/logs/strategy_promotion_latest.json`
 - `app/tests/logs/strategy_promotion_latest.md`
 - `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
+
+The launcher deletes passing gate role-run directories by default after each phase writes its latest aliases. This removes the large benchmark/proposed OCR artifact trees, including per-step `models/` folders, while preserving the latest aliases and small gate summary directories required for promotion evidence. Failed phases keep role-run directories for diagnosis. Set `CLEAN_UP=0` before running the launcher to retain full passing role artifacts.
 
 This aggregate file summarizes:
 

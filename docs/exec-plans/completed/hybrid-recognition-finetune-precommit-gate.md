@@ -23,6 +23,7 @@ The user-visible proof will be that one pre-commit hook invocation prints two na
 - [x] (2026-04-19 16:01 IST) Verified the implementation with the new unit test, the refactored full-pipeline gate, the new OCR pre-commit e2e, and the launcher entrypoint.
 - [x] (2026-05-09 15:00 IST) Changed the recognition fine-tuning pre-commit gate so its eval-dataset OCR crops are regenerated from PAGE `Baseline` polylines, checked-in heatmaps, and resized images instead of reading PAGE `Coords` directly as the crop source.
 - [x] (2026-05-09 15:00 IST) Added a baseline-derived geometry guard before OCR fine-tuning: each prepared page must keep `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`, without reading PAGE `Coords`.
+- [x] (2026-05-21 IST) Moved the pre-commit OCR fine-tuning page prefix into `app/tests/precommit_gate_config.py` and defaulted it to three pages so the commit gate does not inherit the slower nine-page offline study default.
 
 ## Surprises & Discoveries
 
@@ -86,6 +87,10 @@ The user-visible proof will be that one pre-commit hook invocation prints two na
 - Decision: reuse `_run_single_policy_run(...)` with a `regression_guard_mode` switch instead of creating a second mostly-duplicated OCR runner implementation.
   Rationale: the pre-commit gate still needs the same artifacts, step records, and metric computation as the research harness. A mode switch preserves one implementation path while keeping the research runs strict and the surrogate gate warning-only on regression-guard failures.
   Date/Author: 2026-04-19 / Codex
+
+- Decision: configure `fine_tune_page_count` in the pre-commit OCR registry and default the regular recognition gate to three pages.
+  Rationale: the pre-commit gate is a bounded surrogate guard, not the longer offline OCR study. Keeping its page prefix in the gate registry makes the runtime/coverage tradeoff reviewable without changing research dataset defaults.
+  Date/Author: 2026-05-21 / Codex
 
 ## Outcomes & Retrospective
 

@@ -94,6 +94,7 @@ class RecognitionPrecommitDatasetConfig:
     max_curve_metric_value: float
     max_final_page_cer: float
     min_first_step_gain: float
+    fine_tune_page_count: int = 3
     regression_guard_warning_only: bool = True
     recipe: RecognitionPrecommitRecipe = field(default_factory=RecognitionPrecommitRecipe)
     strategy_ablation: StrategyAblationConfig = field(

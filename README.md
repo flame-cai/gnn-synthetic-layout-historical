@@ -213,13 +213,15 @@ On Windows, `py -3 scripts/install_git_hooks.py` is also fine.
 
 The full-pipeline gate automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, and evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`. The gate writes local run artifacts and prints their paths at the end of the run; those generated artifacts are useful for debugging but are not treated as checked-in documentation.
 
-The OCR fine-tuning surrogate gates run the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`. Their line crops are not read from PAGE `Coords`; they are regenerated from PAGE `Baseline` points plus the eval heatmaps/images through the app-aligned polygon pipeline. The geometry guard before OCR fine-tuning is `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. The checked-in thresholds live in `app/tests/precommit_gate_config.py`. The regular OCR gate allows small absolute regression relative to the benchmark, while the circular OCR gate requires strict improvement on the primary curve metric.
+The OCR fine-tuning surrogate gates run the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`. Their pre-commit training-page prefix is configured in `app/tests/precommit_gate_config.py` and defaults to three pages so the regular gate does not rerun the longer offline study shape. Their line crops are not read from PAGE `Coords`; they are regenerated from PAGE `Baseline` points plus the eval heatmaps/images through the app-aligned polygon pipeline. The geometry guard before OCR fine-tuning is `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. The checked-in thresholds live in `app/tests/precommit_gate_config.py`. The regular OCR gate allows small absolute regression relative to the benchmark, while the circular OCR gate requires strict improvement on the primary curve metric.
 
 When all three gates pass, `scripts/run_precommit_eval.py` writes:
 
 - `app/tests/logs/strategy_promotion_latest.json`
 - `app/tests/logs/strategy_promotion_latest.md`
 - `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
+
+Passing phases in `scripts/run_precommit_eval.py` delete their large benchmark/proposed role-run directories by default after the latest aliases are written, so repeated OCR checks do not retain per-step `models/` trees. Failed phases keep their role-run directories for debugging. Set `CLEAN_UP=0` before the launcher when you need full role artifacts from passing phases.
 
 The `app/tests/logs/` outputs are generated local artifacts. The checked-in promotion record is the durable summary to review and commit with any research promotion.
 

@@ -53,6 +53,8 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertEqual(float(config.line_segmentation_args["BINARIZE_THRESHOLD"]), 0.5098)
         self.assertEqual(float(config.min_geometry_source_line_coverage), 0.90)
         self.assertEqual(float(config.min_geometry_heatmap_box_assignment_rate), 0.90)
+        self.assertEqual(gate_config.fine_tune_page_count, 3)
+        self.assertEqual(config.fine_tune_page_ids(), ["233_0002", "233_0003", "233_0004"])
         self.assertEqual(config.training_policy, "page_plus_random_history")
         self.assertEqual(int(config.history_sample_line_count), 10)
         self.assertEqual(config.width_policy, "batch_max_pad")

@@ -290,7 +290,7 @@ The acceptance criterion is not just passing tests. Inspect the latest JSON arti
 
 ## Idempotence and Recovery
 
-All gates should be rerunnable. They may overwrite `*_latest.*` files under `app/tests/logs/` and create new timestamped run directories. Timestamped run directories are evidence only and should not be required for a fresh checkout.
+All gates should be rerunnable. They may overwrite `*_latest.*` files under `app/tests/logs/` and create new timestamped run directories. Timestamped run directories are evidence only and should not be required for a fresh checkout. The launcher prunes passing benchmark/proposed role-run directories by default after latest aliases are copied, while failed phases retain them for debugging; set `CLEAN_UP=0` when a passing launcher run needs full role artifacts.
 
 Do not write to `C:\temp` or outside this repository. If a test needs temporary files, use `app/tests/_tmp_*` or a timestamped directory under `app/tests/logs/`.
 

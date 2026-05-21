@@ -1,17 +1,25 @@
 from __future__ import annotations
 
 import os
+import json
 import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from promote_text_line_strategy import (
-    DEFAULT_PROMOTION_EVIDENCE_JSON_PATH,
-    DEFAULT_PROMOTION_EVIDENCE_MD_PATH,
-    write_strategy_promotion_evidence,
-)
+try:
+    from .promote_text_line_strategy import (
+        DEFAULT_PROMOTION_EVIDENCE_JSON_PATH,
+        DEFAULT_PROMOTION_EVIDENCE_MD_PATH,
+        write_strategy_promotion_evidence,
+    )
+except ImportError:
+    from promote_text_line_strategy import (
+        DEFAULT_PROMOTION_EVIDENCE_JSON_PATH,
+        DEFAULT_PROMOTION_EVIDENCE_MD_PATH,
+        write_strategy_promotion_evidence,
+    )
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -63,6 +71,7 @@ CIRCULAR_RECOGNITION_PHASE = PrecommitPhase(
 
 
 PHASES = (PIPELINE_PHASE, RECOGNITION_PHASE, CIRCULAR_RECOGNITION_PHASE)
+STRATEGY_GATE_CLEANUP_ENV_VAR = "CLEAN_UP"
 
 
 def env_python_name() -> str:
@@ -137,6 +146,92 @@ def _phase_artifact_lines(phase: PrecommitPhase) -> list[str]:
     return [f"[pre-commit] Artifact: {artifact}" for artifact in phase.artifact_paths]
 
 
+def _is_truthy_env_value(value: str | None) -> bool:
+    return str(value or "").strip().lower() not in {"", "0", "false", "no", "off"}
+
+
+def strategy_gate_cleanup_enabled() -> bool:
+    value = os.environ.get(STRATEGY_GATE_CLEANUP_ENV_VAR)
+    if value is None:
+        return True
+    return _is_truthy_env_value(value)
+
+
+def _metrics_artifact_path(phase: PrecommitPhase) -> Path | None:
+    for path in phase.artifact_paths:
+        if path.suffix.lower() == ".json":
+            return path
+    return None
+
+
+def _path_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def _top_level_log_entry(path: Path, logs_root: Path) -> Path | None:
+    if not _path_within(path, logs_root):
+        return None
+    relative_path = path.relative_to(logs_root)
+    if not relative_path.parts:
+        return None
+    return logs_root / relative_path.parts[0]
+
+
+def _iter_role_run_dirs(metrics_payload: dict) -> list[Path]:
+    run_dirs: list[Path] = []
+    dataset_results = metrics_payload.get("dataset_results", {})
+    if not isinstance(dataset_results, dict):
+        return run_dirs
+
+    for dataset_result in dataset_results.values():
+        strategy_results = dataset_result.get("strategy_results", {}) if isinstance(dataset_result, dict) else {}
+        if not isinstance(strategy_results, dict):
+            continue
+        for role_result in strategy_results.values():
+            if not isinstance(role_result, dict) or not role_result.get("run_dir"):
+                continue
+            run_dirs.append(Path(str(role_result["run_dir"])).resolve())
+    return run_dirs
+
+
+def cleanup_passing_phase_role_runs(phase: PrecommitPhase) -> list[Path]:
+    metrics_path = _metrics_artifact_path(phase)
+    if metrics_path is None or not metrics_path.exists():
+        print(f"[pre-commit] No latest metrics JSON available for {phase.name}; skipping role-run cleanup.", flush=True)
+        return []
+
+    try:
+        metrics_payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"[pre-commit] Could not read cleanup metadata from {metrics_path}: {exc}", file=sys.stderr, flush=True)
+        return []
+
+    deleted: list[Path] = []
+    logs_root = LOGS_DIR.resolve()
+    for run_dir in _iter_role_run_dirs(metrics_payload):
+        cleanup_target = _top_level_log_entry(run_dir, logs_root)
+        if cleanup_target is None:
+            print(f"[pre-commit] Refusing cleanup outside {logs_root}: {run_dir}", file=sys.stderr, flush=True)
+            continue
+        if not cleanup_target.exists():
+            continue
+        try:
+            shutil.rmtree(cleanup_target)
+        except OSError as exc:
+            print(
+                f"[pre-commit] Could not delete passing role-run artifact {cleanup_target}: {exc}",
+                file=sys.stderr,
+                flush=True,
+            )
+            continue
+        deleted.append(cleanup_target)
+    return deleted
+
+
 def _run_phase(command_prefix: list[str], phase: PrecommitPhase) -> int:
     full_command = command_prefix + phase.command
     env = dict(os.environ)
@@ -148,6 +243,20 @@ def _run_phase(command_prefix: list[str], phase: PrecommitPhase) -> int:
     if result.returncode == 0:
         for artifact_line in _phase_artifact_lines(phase):
             print(artifact_line, flush=True)
+        if strategy_gate_cleanup_enabled():
+            deleted_role_runs = cleanup_passing_phase_role_runs(phase)
+            if deleted_role_runs:
+                print(
+                    f"[pre-commit] Cleaned {len(deleted_role_runs)} passing role-run artifact directories for "
+                    f"{phase.name}. Set {STRATEGY_GATE_CLEANUP_ENV_VAR}=0 to keep them.",
+                    flush=True,
+                )
+        else:
+            print(
+                f"[pre-commit] {STRATEGY_GATE_CLEANUP_ENV_VAR}=0, keeping passing role-run artifacts for "
+                f"{phase.name}.",
+                flush=True,
+            )
         return 0
 
     print(f"[pre-commit] {phase.name} failed with exit code {result.returncode}.", file=sys.stderr, flush=True)

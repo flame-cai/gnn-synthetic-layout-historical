@@ -72,6 +72,8 @@ If all three gates run, the launcher writes:
 - `app/tests/logs/strategy_promotion_latest.md`
 - `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
 
+The launcher deletes passing gate role-run directories by default after each phase writes its latest aliases. This prunes the large benchmark/proposed OCR artifact trees, including `models/`, while retaining the latest aliases and gate summary directories needed for promotion evidence. Failed phases keep role-run directories for debugging. Set `CLEAN_UP=0` before the launcher command to keep full passing role artifacts.
+
 The `app/tests/logs/` files are local generated artifacts. Commit the checked-in promotion record with any research promotion so future readers can review the gate summary without needing ignored logs.
 
 Dry run:
