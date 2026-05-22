@@ -181,21 +181,79 @@ def _top_level_log_entry(path: Path, logs_root: Path) -> Path | None:
     return logs_root / relative_path.parts[0]
 
 
-def _iter_role_run_dirs(metrics_payload: dict) -> list[Path]:
-    run_dirs: list[Path] = []
+def _artifact_name_component(value: object) -> str:
+    cleaned = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in str(value).strip())
+    return cleaned.strip("_") or "artifact"
+
+
+def _iter_dataset_role_results(metrics_payload: dict):
     dataset_results = metrics_payload.get("dataset_results", {})
     if not isinstance(dataset_results, dict):
-        return run_dirs
+        return
 
-    for dataset_result in dataset_results.values():
-        strategy_results = dataset_result.get("strategy_results", {}) if isinstance(dataset_result, dict) else {}
+    for dataset_name, dataset_result in dataset_results.items():
+        if not isinstance(dataset_result, dict):
+            continue
+        strategy_results = dataset_result.get("strategy_results", {})
         if not isinstance(strategy_results, dict):
             continue
-        for role_result in strategy_results.values():
-            if not isinstance(role_result, dict) or not role_result.get("run_dir"):
-                continue
+        for role_name, role_result in strategy_results.items():
+            if isinstance(role_result, dict):
+                yield str(dataset_name), dataset_result, str(role_name), role_result
+
+
+def _iter_role_run_dirs(metrics_payload: dict) -> list[Path]:
+    run_dirs: list[Path] = []
+    for _dataset_name, _dataset_result, _role_name, role_result in _iter_dataset_role_results(metrics_payload):
+        if role_result.get("run_dir"):
             run_dirs.append(Path(str(role_result["run_dir"])).resolve())
     return run_dirs
+
+
+def _copy_role_plots_to_summary_dirs(metrics_payload: dict, logs_root: Path) -> list[Path]:
+    copied_paths: list[Path] = []
+    for dataset_name, dataset_result, role_name, role_result in _iter_dataset_role_results(metrics_payload):
+        summary_run_dir_value = dataset_result.get("run_dir")
+        role_plot_path_value = role_result.get("plot_path")
+        if not summary_run_dir_value or not role_plot_path_value:
+            continue
+
+        summary_run_dir = Path(str(summary_run_dir_value)).resolve()
+        role_plot_path = Path(str(role_plot_path_value)).resolve()
+        if not _path_within(summary_run_dir, logs_root):
+            print(
+                f"[pre-commit] Refusing plot preservation outside {logs_root}: {summary_run_dir}",
+                file=sys.stderr,
+                flush=True,
+            )
+            continue
+        if not _path_within(role_plot_path, logs_root):
+            print(
+                f"[pre-commit] Refusing plot preservation from outside {logs_root}: {role_plot_path}",
+                file=sys.stderr,
+                flush=True,
+            )
+            continue
+        if not summary_run_dir.is_dir() or not role_plot_path.is_file():
+            continue
+
+        preserved_plots_dir = (
+            summary_run_dir
+            / "plots"
+            / f"{_artifact_name_component(dataset_name)}_{_artifact_name_component(role_name)}"
+        )
+        try:
+            preserved_plots_dir.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(role_plot_path.parent, preserved_plots_dir, dirs_exist_ok=True)
+        except OSError as exc:
+            print(
+                f"[pre-commit] Could not preserve passing role plots from {role_plot_path.parent}: {exc}",
+                file=sys.stderr,
+                flush=True,
+            )
+            continue
+        copied_paths.append(preserved_plots_dir)
+    return copied_paths
 
 
 def cleanup_passing_phase_role_runs(phase: PrecommitPhase) -> list[Path]:
@@ -212,6 +270,13 @@ def cleanup_passing_phase_role_runs(phase: PrecommitPhase) -> list[Path]:
 
     deleted: list[Path] = []
     logs_root = LOGS_DIR.resolve()
+    preserved_plots = _copy_role_plots_to_summary_dirs(metrics_payload, logs_root)
+    if preserved_plots:
+        print(
+            f"[pre-commit] Preserved {len(preserved_plots)} passing role plot directories in summary directories for "
+            f"{phase.name}.",
+            flush=True,
+        )
     for run_dir in _iter_role_run_dirs(metrics_payload):
         cleanup_target = _top_level_log_entry(run_dir, logs_root)
         if cleanup_target is None:

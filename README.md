@@ -221,7 +221,7 @@ When all three gates pass, `scripts/run_precommit_eval.py` writes:
 - `app/tests/logs/strategy_promotion_latest.md`
 - `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
 
-Passing phases in `scripts/run_precommit_eval.py` delete their large benchmark/proposed role-run directories by default after the latest aliases are written, so repeated OCR checks do not retain per-step `models/` trees. Failed phases keep their role-run directories for debugging. Set `CLEAN_UP=0` before the launcher when you need full role artifacts from passing phases.
+Passing phases in `scripts/run_precommit_eval.py` delete their large benchmark/proposed role-run directories by default after the latest aliases are written, so repeated OCR checks do not retain per-step `models/` trees. Passing OCR role plots are copied into the retained gate summary directory under `plots/` before those large role runs are pruned. Failed phases keep their role-run directories for debugging. Set `CLEAN_UP=0` before the launcher when you need full role artifacts from passing phases.
 
 The `app/tests/logs/` outputs are generated local artifacts. The checked-in promotion record is the durable summary to review and commit with any research promotion.
 

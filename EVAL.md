@@ -255,7 +255,7 @@ When all three gates run and pass through `scripts/run_precommit_eval.py`, the l
 - `app/tests/logs/strategy_promotion_latest.md`
 - `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
 
-The launcher deletes passing gate role-run directories by default after each phase writes its latest aliases. This removes the large benchmark/proposed OCR artifact trees, including per-step `models/` folders, while preserving the latest aliases and small gate summary directories required for promotion evidence. Failed phases keep role-run directories for diagnosis. Set `CLEAN_UP=0` before running the launcher to retain full passing role artifacts.
+The launcher deletes passing gate role-run directories by default after each phase writes its latest aliases. This removes the large benchmark/proposed OCR artifact trees, including per-step `models/` folders, while preserving the latest aliases and small gate summary directories required for promotion evidence. Passing OCR role plots are copied into each retained summary directory under `plots/` before role cleanup. Failed phases keep role-run directories for diagnosis. Set `CLEAN_UP=0` before running the launcher to retain full passing role artifacts.
 
 This aggregate file summarizes:
 

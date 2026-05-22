@@ -42,13 +42,30 @@ class RunPrecommitEvalUnitTest(unittest.TestCase):
             artifact_paths=(self.metrics_path,),
         )
 
-    def _write_latest_metrics(self, *run_dirs: Path) -> None:
+    def _write_latest_metrics(
+        self,
+        *run_dirs: Path,
+        summary_dir: Path | None = None,
+        plot_paths: tuple[Path | None, ...] = (),
+    ) -> None:
         strategy_results = {
-            f"role_{index}": {"run_dir": str(run_dir.resolve())}
+            f"role_{index}": {
+                key: value
+                for key, value in {
+                    "run_dir": str(run_dir.resolve()),
+                    "plot_path": str(plot_paths[index].resolve())
+                    if index < len(plot_paths) and plot_paths[index] is not None
+                    else None,
+                }.items()
+                if value is not None
+            }
             for index, run_dir in enumerate(run_dirs)
         }
+        dataset_result = {"strategy_results": strategy_results}
+        if summary_dir is not None:
+            dataset_result["run_dir"] = str(summary_dir.resolve())
         self.metrics_path.write_text(
-            json.dumps({"dataset_results": {"eval_dataset": {"strategy_results": strategy_results}}}),
+            json.dumps({"dataset_results": {"eval_dataset": dataset_result}}),
             encoding="utf-8",
         )
 
@@ -82,6 +99,44 @@ class RunPrecommitEvalUnitTest(unittest.TestCase):
         self.assertFalse(proposed_root.exists())
         self.assertTrue(outside_dir.exists())
         self.assertTrue(summary_dir.exists())
+
+    def test_cleanup_preserves_role_plots_in_summary_run_dir(self):
+        benchmark_root = self.logs_root / "benchmark"
+        proposed_root = self.logs_root / "proposed"
+        benchmark_dir = benchmark_root / "policy" / "slug"
+        proposed_dir = proposed_root / "policy" / "slug"
+        summary_dir = self.logs_root / "summary"
+        benchmark_plot = benchmark_dir / "plots" / "page_cer_vs_finetune_pages.png"
+        proposed_plot = proposed_dir / "plots" / "page_cer_vs_finetune_pages.png"
+        for plot_path, content in ((benchmark_plot, "benchmark plot\n"), (proposed_plot, "proposed plot\n")):
+            plot_path.parent.mkdir(parents=True, exist_ok=True)
+            plot_path.write_text(content, encoding="utf-8")
+        summary_dir.mkdir(parents=True, exist_ok=True)
+        self._write_latest_metrics(
+            benchmark_dir,
+            proposed_dir,
+            summary_dir=summary_dir,
+            plot_paths=(benchmark_plot, proposed_plot),
+        )
+
+        with patch.object(run_precommit_eval, "LOGS_DIR", self.logs_root):
+            deleted = run_precommit_eval.cleanup_passing_phase_role_runs(self.phase)
+
+        self.assertEqual({path.name for path in deleted}, {"benchmark", "proposed"})
+        self.assertFalse(benchmark_root.exists())
+        self.assertFalse(proposed_root.exists())
+        self.assertEqual(
+            (summary_dir / "plots" / "eval_dataset_role_0" / "page_cer_vs_finetune_pages.png").read_text(
+                encoding="utf-8"
+            ),
+            "benchmark plot\n",
+        )
+        self.assertEqual(
+            (summary_dir / "plots" / "eval_dataset_role_1" / "page_cer_vs_finetune_pages.png").read_text(
+                encoding="utf-8"
+            ),
+            "proposed plot\n",
+        )
 
     def test_failed_phase_keeps_role_run_dirs(self):
         role_dir = self.logs_root / "benchmark"
