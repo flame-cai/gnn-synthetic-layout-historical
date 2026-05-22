@@ -12,6 +12,12 @@ This is the fourth plan in the circular text support series. It depends on the s
 
 It uses `docs/exec-plans/proposed/circular-text-support.md` as the research source and must not overwrite that file.
 
+Update note, 2026-05-22: the concrete `legacy_axis_bound_v1` to
+`local_tangent_band_v1` promotion commands in this plan record the first
+promotion workflow implementation. Current research roles and the next command
+must be read from `app/recognition/line_segmentation/strategy_config.py` and the
+latest checked-in promotion record.
+
 ## Purpose / Big Picture
 
 After this change, strategy promotion will be explicit, reviewable, and documented. When the proposed strategy passes all gates, a developer can run a promotion script that updates checked-in config so the proposed strategy becomes the new benchmark. A normal pre-commit hook will run gates and report pass/fail evidence, but it will not silently mutate files after Git has already built the commit index.

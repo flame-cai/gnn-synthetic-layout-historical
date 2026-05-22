@@ -28,16 +28,18 @@ from recognition.line_segmentation.strategy_config import (
 
 
 class StrategyAblationConfigUnitTest(unittest.TestCase):
-    def test_eval_dataset_pipeline_ablation_config_records_local_polygons_proposed(self):
+    def test_eval_dataset_pipeline_ablation_config_records_local_polygons_benchmark(self):
         config = get_pipeline_precommit_dataset("eval_dataset")
         benchmark_strategy = get_benchmark_strategy_name()
-        self.assertEqual(get_proposed_strategy_name(), "local_polygons_v1")
+        self.assertEqual(benchmark_strategy, "local_polygons_v1")
+        self.assertIsNone(get_proposed_strategy_name())
         self.assertEqual(config.name, "eval_dataset")
         self.assertEqual(config.strategy_ablation.benchmark.role, "benchmark")
         self.assertEqual(config.strategy_ablation.proposed.role, "proposed")
         self.assertEqual(config.strategy_ablation.benchmark.strategy_name, benchmark_strategy)
-        self.assertEqual(config.strategy_ablation.proposed.strategy_name, "local_polygons_v1")
-        self.assertEqual(config.strategy_ablation.proposed.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
+        self.assertEqual(config.strategy_ablation.benchmark.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
+        self.assertIsNone(config.strategy_ablation.proposed.strategy_name)
+        self.assertEqual(config.strategy_ablation.proposed.strategy_config, {})
         self.assertEqual(config.strategy_ablation.max_allowed_regression_abs, 0.01)
         self.assertFalse(config.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(config.latest_artifact_basename, "pipeline_ablation_latest")
@@ -91,8 +93,9 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
         gate = get_recognition_precommit_dataset("eval_dataset")
         config = get_precommit_hybrid_recognition_gate_config("eval_dataset")
         self.assertEqual(gate.strategy_ablation.benchmark.strategy_name, get_benchmark_strategy_name())
-        self.assertEqual(gate.strategy_ablation.proposed.strategy_name, "local_polygons_v1")
-        self.assertEqual(gate.strategy_ablation.proposed.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
+        self.assertEqual(gate.strategy_ablation.benchmark.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
+        self.assertIsNone(gate.strategy_ablation.proposed.strategy_name)
+        self.assertEqual(gate.strategy_ablation.proposed.strategy_config, {})
         self.assertEqual(gate.strategy_ablation.max_allowed_regression_abs, 0.02)
         self.assertFalse(gate.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(gate.latest_artifact_basename, "recognition_finetune_ablation_latest")
@@ -111,8 +114,9 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
         self.assertEqual(gate.strategy_ablation.benchmark.role, "benchmark")
         self.assertEqual(gate.strategy_ablation.proposed.role, "proposed")
         self.assertEqual(gate.strategy_ablation.benchmark.strategy_name, get_benchmark_strategy_name())
-        self.assertEqual(gate.strategy_ablation.proposed.strategy_name, "local_polygons_v1")
-        self.assertEqual(gate.strategy_ablation.proposed.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
+        self.assertEqual(gate.strategy_ablation.benchmark.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
+        self.assertIsNone(gate.strategy_ablation.proposed.strategy_name)
+        self.assertEqual(gate.strategy_ablation.proposed.strategy_config, {})
         self.assertTrue(gate.strategy_ablation.strict_primary_improvement_required)
         self.assertEqual(gate.strategy_ablation.max_allowed_regression_abs, 0.0)
         self.assertEqual(gate.latest_artifact_basename, "circular_ocr_ablation_latest")
@@ -121,15 +125,20 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
     def test_checked_in_strategy_role_config_records_research_promotion(self):
         payload = get_strategy_role_config()
 
-        self.assertEqual(payload["benchmark_strategy_name"], "local_tangent_band_v1")
-        self.assertEqual(payload["proposed_strategy_name"], "local_polygons_v1")
+        self.assertEqual(payload["benchmark_strategy_name"], "local_polygons_v1")
+        self.assertIsNone(payload["proposed_strategy_name"])
         self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(get_production_strategy_name(), "legacy_axis_bound_v1")
-        self.assertEqual(len(payload["research_promotion_history"]), 1)
+        self.assertEqual(len(payload["research_promotion_history"]), 2)
         self.assertEqual(payload["research_promotion_history"][0]["promoted_strategy_name"], "local_tangent_band_v1")
         self.assertEqual(
             payload["research_promotion_history"][0]["previous_benchmark_strategy_name"],
             "legacy_axis_bound_v1",
+        )
+        self.assertEqual(payload["research_promotion_history"][1]["promoted_strategy_name"], "local_polygons_v1")
+        self.assertEqual(
+            payload["research_promotion_history"][1]["previous_benchmark_strategy_name"],
+            "local_tangent_band_v1",
         )
         self.assertEqual(payload["production_adoption_history"], [])
 

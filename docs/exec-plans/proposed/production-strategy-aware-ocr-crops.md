@@ -99,7 +99,7 @@ The current strategy registry is in `app/recognition/line_segmentation/registry.
 
 `legacy_axis_bound_v1` is the current production strategy. It reads PAGE `Baseline`, the page image, and a heatmap, then writes page-space `Coords` using the historical axis-bound polygon method. Its OCR crop behavior is the old masked crop: take a bounding rectangle around `Coords`, fill a new image with the page median color, and copy pixels inside the polygon mask.
 
-`local_tangent_band_v1` is the current proposed research strategy. It also writes page-space `Coords`, but for vertical, curved, and circular lines it can later unwrap the line into a horizontal OCR crop using both `Coords` and `Baseline`. The unwrapped OCR crop is a derived image; it must not be written back as PAGE `Coords`.
+When this refactor started, `local_tangent_band_v1` was the proposed research strategy. It also writes page-space `Coords`, but for vertical, curved, and circular lines it can later unwrap the line into a horizontal OCR crop using both `Coords` and `Baseline`. The unwrapped OCR crop is a derived image; it must not be written back as PAGE `Coords`. Current research roles live in `app/recognition/line_segmentation/strategy_config.py`.
 
 The research harness now reaches strategy-aware crop preparation through `app/recognition/line_segmentation/ocr_crops.py`, called from `app/recognition/pagexml_line_dataset.py::prepare_page_line_dataset(...)`. When a strategy name is supplied, it regenerates `Coords` and uses saved per-line strategy metadata to decide whether to call `unwrap_line_crop_for_ocr(...)` or fall back to `masked_line_crop(...)`.
 

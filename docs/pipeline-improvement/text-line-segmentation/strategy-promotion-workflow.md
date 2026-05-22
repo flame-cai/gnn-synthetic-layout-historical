@@ -30,12 +30,13 @@ The durable generated evidence summary is checked in at:
 
 The current checked-in state is:
 
-- research benchmark: `local_tangent_band_v1`
+- research benchmark: `local_polygons_v1`
 - research proposed: not configured
 - production app default: `legacy_axis_bound_v1`
 
 `legacy_axis_bound_v1` remains available after any research promotion for rollback, historical comparison, and production pinning.
 Configure a new `proposed_strategy_name` before running the next strategy ablation cycle.
+Research strategy configs that must survive role changes are keyed by strategy in `app/tests/precommit_gate_config.py`; the current local-polygons research config keeps `BINARIZE_THRESHOLD=0.45` whether it is benchmark or proposed.
 
 ## Why The Lifecycles Are Separate
 
@@ -76,18 +77,18 @@ The launcher deletes passing gate role-run directories by default after each pha
 
 The `app/tests/logs/` files are local generated artifacts. Commit the checked-in promotion record with any research promotion so future readers can review the gate summary without needing ignored logs.
 
-Dry run:
+Dry run with the command from the 2026-05-22 promotion record:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json
 ```
 
 Apply only after reviewing the dry-run output:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
 ```
 
 Successful harness promotion:

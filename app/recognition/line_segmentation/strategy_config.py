@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any
 
 STRATEGY_ROLE_CONFIG_JSON = r"""{
-  "benchmark_strategy_name": "local_tangent_band_v1",
-  "proposed_strategy_name": "local_polygons_v1",
+  "benchmark_strategy_name": "local_polygons_v1",
+  "proposed_strategy_name": null,
   "production_strategy_name": "legacy_axis_bound_v1",
   "research_promotion_history": [
     {
@@ -59,6 +59,57 @@ STRATEGY_ROLE_CONFIG_JSON = r"""{
         }
       },
       "promotion_timestamp_utc": "2026-05-16T07:14:57Z",
+      "author_or_tool": "scripts/promote_text_line_strategy.py"
+    },
+    {
+      "promoted_strategy_name": "local_polygons_v1",
+      "previous_benchmark_strategy_name": "local_tangent_band_v1",
+      "evidence_metrics_path": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
+      "evidence_generated_at_utc": "2026-05-22T07:18:29Z",
+      "gate_artifact_paths": {
+        "pipeline_eval_dataset": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_123345_pipeline_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_123345_pipeline_ablation_eval_dataset_summary\\summary.md"
+        },
+        "ocr_eval_dataset": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124343_ocr_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124343_ocr_ablation_eval_dataset_summary\\summary.md"
+        },
+        "circular_ocr_eval_dataset_v2": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124828_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124828_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
+        }
+      },
+      "gate_metric_summary": {
+        "pipeline_eval_dataset": {
+          "primary_metric_name": "page_cer",
+          "benchmark_value": 0.3327845719661336,
+          "proposed_value": 0.321574161179053,
+          "operator": "<=",
+          "passed": true
+        },
+        "ocr_eval_dataset": {
+          "primary_metric_name": "curve_metric_value",
+          "benchmark_value": 0.2867759944173064,
+          "proposed_value": 0.27201674808094906,
+          "operator": "<=",
+          "passed": true
+        },
+        "circular_ocr_eval_dataset_v2": {
+          "primary_metric_name": "curve_metric_value",
+          "benchmark_value": 0.17744565217391303,
+          "proposed_value": 0.16032608695652176,
+          "operator": "<",
+          "passed": true
+        }
+      },
+      "promotion_timestamp_utc": "2026-05-22T07:31:01Z",
       "author_or_tool": "scripts/promote_text_line_strategy.py"
     }
   ],
@@ -172,7 +223,7 @@ def render_strategy_role_config(payload: dict[str, Any]) -> str:
 
 def write_strategy_role_config(path: str | Path, payload: dict[str, Any]) -> Path:
     destination = Path(path)
-    destination.write_text(render_strategy_role_config(payload), encoding="utf-8")
+    destination.write_text(render_strategy_role_config(payload), encoding="utf-8", newline="\n")
     return destination
 
 

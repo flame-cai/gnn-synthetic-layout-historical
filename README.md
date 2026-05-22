@@ -213,7 +213,7 @@ On Windows, `py -3 scripts/install_git_hooks.py` is also fine.
 
 The full-pipeline gate automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, and evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`. The gate writes local run artifacts and prints their paths at the end of the run; those generated artifacts are useful for debugging but are not treated as checked-in documentation.
 
-The OCR fine-tuning surrogate gates run the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`. Their pre-commit training-page prefix is configured in `app/tests/precommit_gate_config.py` and defaults to three pages so the regular gate does not rerun the longer offline study shape. Their line crops are not read from PAGE `Coords`; they are regenerated from PAGE `Baseline` points plus the eval heatmaps/images through the app-aligned polygon pipeline. The geometry guard before OCR fine-tuning is `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. The checked-in thresholds live in `app/tests/precommit_gate_config.py`. The regular OCR gate allows small absolute regression relative to the benchmark, while the circular OCR gate requires strict improvement on the primary curve metric.
+The OCR fine-tuning surrogate gates run the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`. Their pre-commit training-page prefix is configured in `app/tests/precommit_gate_config.py` and defaults to three pages so the regular gate does not rerun the longer offline study shape. Their line crops are not read from PAGE `Coords`; they are regenerated from PAGE `Baseline` points plus the eval heatmaps/images through the app-aligned polygon pipeline. The geometry guard before OCR fine-tuning is `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. The checked-in thresholds and research strategy overrides live in `app/tests/precommit_gate_config.py`; strategy overrides follow the strategy name across benchmark/proposed promotion. The regular OCR gate allows small absolute regression relative to the benchmark, while the circular OCR gate requires strict improvement on the primary curve metric.
 
 When all three gates pass, `scripts/run_precommit_eval.py` writes:
 
@@ -225,14 +225,14 @@ Passing phases in `scripts/run_precommit_eval.py` delete their large benchmark/p
 
 The `app/tests/logs/` outputs are generated local artifacts. The checked-in promotion record is the durable summary to review and commit with any research promotion.
 
-To promote the proposed strategy inside the research harness after reviewing those artifacts, run:
+To promote the proposed strategy inside the research harness after reviewing those artifacts, run the command written into the generated promotion record. For the promotion recorded on 2026-05-22, that command is:
 
 ```bash
 conda activate gnn_layout
-python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
+python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
 ```
 
-The exact benchmark and proposed names come from `app/recognition/line_segmentation/strategy_config.py`. After a research promotion, use the names currently recorded there.
+The exact benchmark and proposed names come from `app/recognition/line_segmentation/strategy_config.py`. After a research promotion, the proposed slot is cleared; configure the next proposed strategy before the next ablation cycle.
 
 To adopt a registered strategy as the production app default, run a separate dry run first:
 

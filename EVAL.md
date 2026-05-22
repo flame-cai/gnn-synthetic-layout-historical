@@ -63,17 +63,17 @@ The strategy docs live in:
 
 The checked-in current role mapping for this harness is:
 
-- benchmark: `local_tangent_band_v1`
-- proposed: `local_polygons_v1`
+- benchmark: `local_polygons_v1`
+- proposed: not configured
 - production app: `legacy_axis_bound_v1`
 
-`local_tangent_band_v1` is the current research benchmark after harness promotion.
+`local_polygons_v1` is the current research benchmark after harness promotion on 2026-05-22. Configure the next proposed strategy before running the next three-gate ablation cycle.
 
 `legacy_axis_bound_v1` is the preserved historical benchmark and remains the production app default.
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
 
-`local_polygons_v1` is the current proposed research strategy. It builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text. For the proposed research role, heatmap contours are binarized at `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override.
+`local_polygons_v1` builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text. Its research-harness heatmap contours are binarized at `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override. `app/tests/precommit_gate_config.py` attaches that research override by strategy name so it remains in force when the strategy changes from proposed to benchmark.
 
 `production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations, and production OCR crop preparation now routes through the same strategy-aware crop layer. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
@@ -282,14 +282,14 @@ Dry run:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json
 ```
 
 Apply:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_tangent_band_v1 --previous-benchmark legacy_axis_bound_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
 ```
 
 The promotion script refuses to write when:

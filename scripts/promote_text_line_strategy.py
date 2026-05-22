@@ -285,7 +285,11 @@ def write_checked_in_strategy_promotion_record(
     record_path: Path = DEFAULT_CHECKED_IN_PROMOTION_RECORD_MD_PATH,
 ) -> Path:
     record_path.parent.mkdir(parents=True, exist_ok=True)
-    record_path.write_text(render_checked_in_strategy_promotion_record(evidence), encoding="utf-8")
+    record_path.write_text(
+        render_checked_in_strategy_promotion_record(evidence),
+        encoding="utf-8",
+        newline="\n",
+    )
     return record_path
 
 

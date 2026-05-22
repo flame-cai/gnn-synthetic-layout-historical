@@ -324,9 +324,11 @@ The promotion evidence compared:
 - previous benchmark: `legacy_axis_bound_v1`
 - promoted strategy: `local_tangent_band_v1`
 
-The current research harness roles are:
+The research promotion described above moved `local_tangent_band_v1` into the
+benchmark slot. The harness has since advanced again. The current research
+harness roles are:
 
-- benchmark: `local_tangent_band_v1`
+- benchmark: `local_polygons_v1`
 - proposed: not configured
 
 The current production app default remains:

@@ -12,8 +12,10 @@ from recognition.line_segmentation.strategy_config import (
 TESTS_ROOT = Path(__file__).resolve().parent
 DEFAULT_BENCHMARK_STRATEGY_NAME = get_benchmark_strategy_name()
 DEFAULT_PROPOSED_STRATEGY_NAME = get_proposed_strategy_name()
-LOCAL_POLYGONS_PROPOSED_STRATEGY_CONFIG = {
-    "BINARIZE_THRESHOLD": 0.45,
+RESEARCH_STRATEGY_CONFIGS = {
+    "local_polygons_v1": {
+        "BINARIZE_THRESHOLD": 0.45,
+    },
 }
 
 
@@ -41,25 +43,25 @@ class StrategyAblationConfig:
         return asdict(self)
 
 
+def _research_strategy_config(strategy_name: str | None) -> dict:
+    return dict(RESEARCH_STRATEGY_CONFIGS.get(str(strategy_name or ""), {}))
+
+
 def _default_strategy_ablation(
     *,
     max_allowed_regression_abs: float,
     strict_primary_improvement_required: bool = False,
 ) -> StrategyAblationConfig:
-    proposed_strategy_config = (
-        dict(LOCAL_POLYGONS_PROPOSED_STRATEGY_CONFIG)
-        if DEFAULT_PROPOSED_STRATEGY_NAME == "local_polygons_v1"
-        else {}
-    )
     return StrategyAblationConfig(
         benchmark=StrategyRoleConfig(
             role="benchmark",
             strategy_name=DEFAULT_BENCHMARK_STRATEGY_NAME,
+            strategy_config=_research_strategy_config(DEFAULT_BENCHMARK_STRATEGY_NAME),
         ),
         proposed=StrategyRoleConfig(
             role="proposed",
             strategy_name=DEFAULT_PROPOSED_STRATEGY_NAME,
-            strategy_config=proposed_strategy_config,
+            strategy_config=_research_strategy_config(DEFAULT_PROPOSED_STRATEGY_NAME),
         ),
         max_allowed_regression_abs=max_allowed_regression_abs,
         strict_primary_improvement_required=strict_primary_improvement_required,

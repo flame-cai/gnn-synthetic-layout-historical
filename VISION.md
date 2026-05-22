@@ -74,11 +74,11 @@ The current checked-in strategy role source of truth is:
 
 The current concrete strategies are:
 
-- benchmark: `local_tangent_band_v1`
-- proposed: `local_polygons_v1`
+- benchmark: `local_polygons_v1`
+- proposed: not configured
 - production app: `legacy_axis_bound_v1`
 
-`local_tangent_band_v1` is the current research benchmark after harness promotion. `local_polygons_v1` is the current proposed strategy and uses baseline-local heatmap contour masks so circular OCR crops are not sized from page-axis-aligned heatmap boxes. Its proposed research-role heatmap threshold is `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override. `legacy_axis_bound_v1` preserves the historical axis-aligned behavior and remains the production app default. `local_tangent_band_v1` is the generalized strategy for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
+`local_polygons_v1` is the current research benchmark after promotion on 2026-05-22 and uses baseline-local heatmap contour masks so circular OCR crops are not sized from page-axis-aligned heatmap boxes. Its research-harness heatmap threshold is `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override. The gate registry attaches that override by strategy name so research promotion does not change its evaluated threshold. `legacy_axis_bound_v1` preserves the historical axis-aligned behavior and remains the production app default. `local_tangent_band_v1` remains available as the earlier generalized benchmark for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
 
 Production now has a shared OCR crop preparation boundary in `app/recognition/line_segmentation/ocr_crops.py`. App line-image export, local OCR inference, and active-learning revision preparation all read saved PAGE `Coords` and optional strategy metadata through that layer. With the current production pin, output remains the legacy masked PAGE `Coords` crop; a later explicit production adoption can bring both future PAGE `Coords` generation and local-tangent crop behavior into the app for newly saved pages.
 

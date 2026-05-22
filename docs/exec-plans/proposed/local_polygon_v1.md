@@ -389,13 +389,14 @@ Minimum checks before treating `local_polygons_v1` as a viable proposed strategy
 
 ## Implementation Status
 
-Status as of 2026-05-19:
+Status as of 2026-05-22:
 
 - Baseline normalization has been hardened first in the shared topology layer, so
   both the benchmark strategy and proposed strategies read the same normalized
   baselines before computing local geometry.
-- `local_polygons_v1` is registered as the proposed research strategy. Production
-  remains pinned to `legacy_axis_bound_v1`.
+- `local_polygons_v1` was promoted to the current research benchmark on
+  2026-05-22. The proposed research slot is clear for the next ablation cycle.
+  Production remains pinned to `legacy_axis_bound_v1`.
 - PAGE-XML preparation is implemented as a separate strategy step in
   `app/recognition/line_segmentation/local_polygons.py`. It now keeps the
   thresholded heatmap contours for each component, projects those contours into
@@ -430,11 +431,13 @@ Status as of 2026-05-19:
   can undo the purpose of local boundary cleanup. Expanding the pre-cleanup
   component `normal_pad_px` to 12 also broke the boundary-cleanup regression
   test by moving the synthetic intrusion away from the local crop boundary.
-  The retained fix lowers the proposed local-polygon research-role
+  The retained fix lowers the local-polygon research-harness
   `BINARIZE_THRESHOLD` from the shared `0.5098` harness value to `0.45` before
   heatmap contour extraction and local cleanup. That keeps the existing cleanup
   geometry and uses one threshold for horizontal, vertical, and curved open
-  lines instead of adding topology-specific pads.
+  lines instead of adding topology-specific pads. The pre-commit gate registry
+  keys this research override by strategy name so promotion from proposed to
+  benchmark does not silently restore the shared threshold.
 - OCR crop preparation remains a second step. `prepare_page_line_dataset(...)`
   reloads the generated PAGE XML and the strategy metadata, then the shared cropper
   unwraps `Coords + Baseline` only when the line metadata requests
@@ -450,11 +453,12 @@ Status as of 2026-05-19:
   `s = page_x - point_x`, `n = page_y - point_y`, maps nonzero-width PAGE
   `Coords`, and unwraps with the recorded local `s`/`n` bounds instead of writing a
   1x1 fallback crop.
-- The default research knobs for this strategy live in
+- The default knobs for this strategy live in
   `app/recognition/line_segmentation/local_polygons.py` as
-  `DEFAULT_LOCAL_POLYGON_CONFIG`. Harness runs can override them through
-  per-call `strategy_config` / `line_segmentation_args` without changing
-  production adoption state.
+  `DEFAULT_LOCAL_POLYGON_CONFIG`. The pre-commit harness keeps evaluated
+  research overrides in `app/tests/precommit_gate_config.py` and passes them
+  through per-call `strategy_config` / `line_segmentation_args` without
+  changing production adoption state.
 - The full-pipeline pre-commit gate now blocks only on `page_cer`. It still writes
   line-level CER diagnostics to artifacts, but `line_cer_50`, `line_cer_75`, and
   `line_cer_range` no longer determine the pass/fail result for this gate.
