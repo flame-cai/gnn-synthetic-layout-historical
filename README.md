@@ -397,3 +397,8 @@ This poster presents an annotation tool which allows the user to extract text fr
 
 The authors also wish to express their thanks to [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/), DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
 The authors also wish to express their gratitude to the anonymous reviewers, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, and Dr. Oliver Hellwig for their invaluable guidance and support.
+
+
+# License
+This project is licensed under the GNU General Public License v3.0 or later.
+See the LICENSE.md file for details.
