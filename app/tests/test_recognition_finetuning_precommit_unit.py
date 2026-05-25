@@ -50,7 +50,7 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertEqual(config.line_geometry_source, "baseline_heatmap")
         self.assertEqual(config.line_segmentation_strategy_name, benchmark_strategy)
         self.assertTrue(config.heatmaps_dir.exists())
-        self.assertEqual(float(config.line_segmentation_args["BINARIZE_THRESHOLD"]), 0.5098)
+        self.assertEqual(float(config.line_segmentation_args["BINARIZE_THRESHOLD"]), 0.45)
         self.assertEqual(float(config.min_geometry_source_line_coverage), 0.90)
         self.assertEqual(float(config.min_geometry_heatmap_box_assignment_rate), 0.90)
         self.assertEqual(gate_config.fine_tune_page_count, 3)

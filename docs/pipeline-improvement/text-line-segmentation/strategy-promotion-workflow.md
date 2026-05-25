@@ -32,11 +32,12 @@ The current checked-in state is:
 
 - research benchmark: `local_polygons_v1`
 - research proposed: not configured
-- production app default: `legacy_axis_bound_v1`
+- production app default: `local_polygons_v1`
 
-`legacy_axis_bound_v1` remains available after any research promotion for rollback, historical comparison, and production pinning.
+`local_polygons_v1` was adopted for production on 2026-05-23 after runtime support landed for strategy-owned config and reading-direction metadata. `legacy_axis_bound_v1` remains available after any research promotion or production adoption for rollback, historical comparison, and legacy-page fallback behavior.
 Configure a new `proposed_strategy_name` before running the next strategy ablation cycle.
 Research strategy configs that must survive role changes are keyed by strategy in `app/tests/precommit_gate_config.py`; the current local-polygons research config keeps `BINARIZE_THRESHOLD=0.45` whether it is benchmark or proposed.
+If no proposed strategy is configured, benchmark-only verifier runs are allowed and the strategy comparison is recorded as skipped. Such runs are useful for regression checks but are not promotion evidence.
 
 ## Why The Lifecycles Are Separate
 
@@ -54,7 +55,7 @@ Research verifier path:
 - the selected strategy regenerates PAGE-space `TextLine/Coords`
 - OCR verifier crops are then prepared from that regenerated geometry through the shared crop layer
 
-This is the main reason harness promotion must not be treated as production adoption. Cleanly adopting a baseline-derived strategy such as `local_tangent_band_v1` in the app is not just a config flip for research metrics. Production adoption changes future PAGE `Coords` generation and the strategy metadata that production OCR crop preparation honors. Existing pages remain valid and fall back to masked PAGE `Coords` crops when metadata is missing.
+This is the main reason harness promotion must not be treated as production adoption. Cleanly adopting a baseline-derived strategy such as `local_polygons_v1` in the app is not just a config flip for research metrics. Production adoption changes future PAGE `Coords` generation and the strategy metadata that production OCR crop preparation honors. Existing pages remain valid and fall back to masked PAGE `Coords` crops when metadata is missing.
 
 ## Harness Promotion
 
@@ -139,6 +140,13 @@ It does not change:
 
 Production adoption affects future layout saves/regenerations and the crop metadata produced for newly saved pages only. Existing manuscripts and pages are not migrated automatically.
 
+The 2026-05-23 production adoption command was:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_v1 --reason "Adopt current research benchmark with strategy-owned runtime config and reading-direction metadata support." --apply
+```
+
 ## App OCR Behavior
 
 The GUI runtime now uses the shared strategy-aware crop layer:
@@ -147,6 +155,8 @@ The GUI runtime now uses the shared strategy-aware crop layer:
 - local OCR inference discovers sibling line-segmentation metadata and falls back safely when it is absent
 - active-learning revision snapshots preserve metadata sidecars and train from saved PAGE `Coords` plus metadata
 
-With the current production pin `legacy_axis_bound_v1`, this remains the historical masked PAGE `Coords` crop. Local-tangent unwrapping in production happens only for lines whose saved metadata requests `crop_model="local_tangent_band"`, which requires an explicit future production adoption and validation.
+With the current production pin `local_polygons_v1`, new layout saves write metadata that requests `crop_model="local_polygon_unwrap"`. Production OCR then uses local-polygon unwrapping and median-color background through the shared crop layer. Existing pages without usable metadata still use the historical masked PAGE `Coords` crop.
+
+The app also stores optional reading-direction sidecars next to PAGE XML. Layout-mode `O` gestures write cross-line cuts that resolve open-line 180-degree ambiguity and circular unwrap start/direction. Active-learning snapshots copy this sidecar with PAGE XML and line-segmentation metadata. Missing, malformed, or stale annotations fall back to script defaults.
 
 The `baseline_heatmap` verifier path remains a research/test harness path unless explicitly requested.

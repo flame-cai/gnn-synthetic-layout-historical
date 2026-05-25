@@ -127,8 +127,8 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
 
         self.assertEqual(payload["benchmark_strategy_name"], "local_polygons_v1")
         self.assertIsNone(payload["proposed_strategy_name"])
-        self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
-        self.assertEqual(get_production_strategy_name(), "legacy_axis_bound_v1")
+        self.assertEqual(payload["production_strategy_name"], "local_polygons_v1")
+        self.assertEqual(get_production_strategy_name(), "local_polygons_v1")
         self.assertEqual(len(payload["research_promotion_history"]), 2)
         self.assertEqual(payload["research_promotion_history"][0]["promoted_strategy_name"], "local_tangent_band_v1")
         self.assertEqual(
@@ -140,7 +140,15 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
             payload["research_promotion_history"][1]["previous_benchmark_strategy_name"],
             "local_tangent_band_v1",
         )
-        self.assertEqual(payload["production_adoption_history"], [])
+        self.assertEqual(len(payload["production_adoption_history"]), 1)
+        self.assertEqual(
+            payload["production_adoption_history"][0]["adopted_strategy_name"],
+            "local_polygons_v1",
+        )
+        self.assertEqual(
+            payload["production_adoption_history"][0]["previous_production_strategy_name"],
+            "legacy_axis_bound_v1",
+        )
 
     def test_strategy_role_config_allows_research_and_production_to_diverge(self):
         research_promoted_payload = normalize_strategy_role_config_payload(

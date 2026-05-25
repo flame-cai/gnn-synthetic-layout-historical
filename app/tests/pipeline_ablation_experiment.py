@@ -315,8 +315,25 @@ def _run_pipeline_role(client, dataset_config, role_config, upload_root: Path) -
     }
 
 
-def _build_pipeline_comparison(dataset_config, benchmark_result: dict, proposed_result: dict) -> dict:
+def _build_pipeline_comparison(dataset_config, benchmark_result: dict, proposed_result: dict | None = None) -> dict:
     allowed = float(dataset_config.strategy_ablation.max_allowed_regression_abs)
+    if proposed_result is None:
+        passed = bool(benchmark_result["passed"])
+        return {
+            "benchmark_role": benchmark_result["role"],
+            "proposed_role": None,
+            "primary_metric_name": "page_cer",
+            "benchmark_value": benchmark_result["metrics"].get("page_cer"),
+            "proposed_value": None,
+            "operator": None,
+            "allowed_regression_abs": allowed,
+            "passed": passed,
+            "failure_message": "" if passed else f"Benchmark role failed: {benchmark_result['failure_message']}",
+            "metric_comparisons": [],
+            "comparison_skipped": True,
+            "skip_reason": "proposed_strategy_name_not_configured",
+        }
+
     comparisons = []
     metric_name = "page_cer"
     benchmark_value = benchmark_result["metrics"].get(metric_name)
@@ -387,6 +404,9 @@ def _write_pipeline_ablation_summary(path: Path, dataset_result: dict) -> None:
         "",
     ]
     for role_name in ("benchmark", "proposed"):
+        if role_name not in dataset_result["strategy_results"]:
+            lines.append(f"- {role_name}: skipped (strategy not configured)")
+            continue
         role_result = dataset_result["strategy_results"][role_name]
         metrics = role_result["metrics"]
         lines.append(
@@ -399,12 +419,15 @@ def _write_pipeline_ablation_summary(path: Path, dataset_result: dict) -> None:
         )
 
     lines.extend(["", "## Comparison", ""])
-    for item in dataset_result["comparison"]["metric_comparisons"]:
-        lines.append(
-            f"- {item['metric_name']}: benchmark={item['benchmark_value']}, "
-            f"proposed={item['proposed_value']}, required proposed <= {item['allowed_value']}, "
-            f"passed={item['passed']}"
-        )
+    if dataset_result["comparison"].get("comparison_skipped"):
+        lines.append(f"- skipped: {dataset_result['comparison']['skip_reason']}")
+    else:
+        for item in dataset_result["comparison"]["metric_comparisons"]:
+            lines.append(
+                f"- {item['metric_name']}: benchmark={item['benchmark_value']}, "
+                f"proposed={item['proposed_value']}, required proposed <= {item['allowed_value']}, "
+                f"passed={item['passed']}"
+            )
     if dataset_result["failure_message"]:
         lines.extend(["", "## Failure", "", dataset_result["failure_message"]])
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -448,12 +471,16 @@ def run_pipeline_strategy_ablation_gate(dataset_name: str = "eval_dataset") -> d
         client = backend_app_module.app.test_client()
         strategy_results = {}
         for role_config in dataset_config.strategy_ablation.roles():
+            if not role_config.strategy_name:
+                if role_config.role == "benchmark":
+                    raise ValueError("Pipeline ablation benchmark role requires a strategy.")
+                continue
             strategy_results[role_config.role] = _run_pipeline_role(client, dataset_config, role_config, upload_root)
 
         comparison = _build_pipeline_comparison(
             dataset_config,
             strategy_results["benchmark"],
-            strategy_results["proposed"],
+            strategy_results.get("proposed"),
         )
         status = "passed" if comparison["passed"] else "failed"
         run_dir = LOGS_ROOT / f"{_timestamp_slug()}_pipeline_ablation_{dataset_name}_summary"

@@ -29,6 +29,8 @@ class BaselineTopology:
     baseline_length: float
     line_kind: str
     orientation_action: str
+    reading_direction: list[float] | None = None
+    reading_cut_point: list[float] | None = None
 
     def to_metadata(self) -> dict:
         payload = asdict(self)
@@ -185,6 +187,109 @@ def _cut_closed_path_at_top(
     return cut_points, cut_index
 
 
+def _normalize_optional_vector(value: Iterable[float] | None) -> list[float] | None:
+    if value is None:
+        return None
+    values = list(value)
+    if len(values) < 2:
+        return None
+    x_val = float(values[0])
+    y_val = float(values[1])
+    length = math.hypot(x_val, y_val)
+    if length <= 1e-6:
+        return None
+    return [x_val / length, y_val / length]
+
+
+def _normalize_optional_point(value: Iterable[float] | None) -> list[float] | None:
+    if value is None:
+        return None
+    values = list(value)
+    if len(values) < 2:
+        return None
+    return [float(values[0]), float(values[1])]
+
+
+def _dot(vector_a: Iterable[float], vector_b: Iterable[float]) -> float:
+    ax_val, ay_val = vector_a
+    bx_val, by_val = vector_b
+    return float(ax_val) * float(bx_val) + float(ay_val) * float(by_val)
+
+
+def _first_tangent(points: list[list[float]]) -> tuple[float, float]:
+    if len(points) < 2:
+        return 1.0, 0.0
+    return _unit(points[1][0] - points[0][0], points[1][1] - points[0][1])
+
+
+def _nearest_ring_vertex_index(points: list[list[float]], target: list[float] | None) -> int:
+    if not points:
+        return 0
+    if target is None:
+        return min(range(len(points)), key=lambda idx: (points[idx][1], points[idx][0]))
+    return min(range(len(points)), key=lambda idx: distance(points[idx], target))
+
+
+def _orient_closed_path_to_reading_direction(
+    points: list[list[float]],
+    *,
+    reading_direction: list[float],
+    reading_cut_point: list[float] | None,
+    closed_path_tolerance: float,
+) -> tuple[list[list[float]], int | None, str]:
+    ring = list(points)
+    if len(ring) >= 2 and distance(ring[0], ring[-1]) <= closed_path_tolerance:
+        ring = ring[:-1]
+    if len(ring) < 2:
+        return points, None, "preserved"
+
+    candidates = []
+    for candidate_ring in (ring, list(reversed(ring))):
+        cut_index = _nearest_ring_vertex_index(candidate_ring, reading_cut_point)
+        ordered = candidate_ring[cut_index:] + candidate_ring[:cut_index] + [candidate_ring[cut_index]]
+        score = _dot(_first_tangent(ordered), reading_direction)
+        area = signed_area(ordered[:-1] if len(ordered) > 1 else ordered)
+        candidates.append((score, ordered, cut_index, area))
+
+    score, ordered, cut_index, area = max(candidates, key=lambda item: item[0])
+    direction_label = "clockwise" if area > 0 else "counterclockwise"
+    action = f"annotated_cut_{direction_label}"
+    if score < 0:
+        action = f"{action}_weak_alignment"
+    return ordered, cut_index, action
+
+
+def _orient_open_path_to_reading_direction(
+    points: list[list[float]],
+    *,
+    reading_direction: list[float],
+    reading_cut_point: list[float] | None,
+) -> tuple[list[list[float]], str]:
+    if len(points) < 2:
+        return points, "preserved"
+    if reading_cut_point is not None:
+        tangent = nearest_point_on_polyline(reading_cut_point, points).tangent
+    else:
+        tangent = _unit(points[-1][0] - points[0][0], points[-1][1] - points[0][1])
+    if _dot(tangent, reading_direction) < 0:
+        return list(reversed(points)), "reversed_to_annotated_reading_direction"
+    return points, "preserved_annotated_reading_direction"
+
+
+def _orient_open_path_to_script_default(points: list[list[float]]) -> tuple[list[list[float]], str]:
+    if len(points) < 2:
+        return points, "preserved"
+    dx_val = points[-1][0] - points[0][0]
+    dy_val = points[-1][1] - points[0][1]
+    if abs(dx_val) >= abs(dy_val):
+        if dx_val < 0:
+            return list(reversed(points)), "reversed_to_left_to_right"
+        return points, "preserved_left_to_right"
+    if dy_val < 0:
+        return list(reversed(points)), "reversed_to_top_to_bottom"
+    return points, "preserved_top_to_bottom"
+
+
 def _line_kind(points: list[list[float]], closed: bool, straightness_chord_ratio: float, horizontal_angle_degrees: float) -> str:
     if closed:
         return "closed_circular"
@@ -215,8 +320,12 @@ def normalize_baseline_topology(
     horizontal_angle_degrees: float = 12.0,
     reading_order: str = "left_to_right",
     circular_direction: str = "clockwise",
+    reading_direction: Iterable[float] | None = None,
+    reading_cut_point: Iterable[float] | None = None,
 ) -> BaselineTopology:
     original_points = as_float_points(points)
+    normalized_reading_direction = _normalize_optional_vector(reading_direction)
+    normalized_reading_cut_point = _normalize_optional_point(reading_cut_point)
     normalization_actions: list[str] = []
     split_index, mean_mirror_distance, max_mirror_distance, mirror_pair_count = _detect_out_and_back_split(
         original_points,
@@ -292,42 +401,55 @@ def normalize_baseline_topology(
     orientation_action = "preserved"
 
     if is_closed:
-        normalized_points, cut_index = _cut_closed_path_at_top(
-            normalized_points,
-            closed_path_tolerance=closed_path_tolerance,
-        )
-        if cut_index is not None:
-            normalization_actions.append("cut_at_top")
-        area_points = (
-            normalized_points[:-1]
-            if (
-                len(normalized_points) >= 2
-                and distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
+        if normalized_reading_direction is not None:
+            normalized_points, cut_index, orientation_action = _orient_closed_path_to_reading_direction(
+                normalized_points,
+                reading_direction=normalized_reading_direction,
+                reading_cut_point=normalized_reading_cut_point,
+                closed_path_tolerance=closed_path_tolerance,
             )
-            else normalized_points
-        )
-        area = signed_area(area_points)
-        wants_clockwise = circular_direction == "clockwise"
-        is_clockwise_in_image_space = area > 0
-        if wants_clockwise != is_clockwise_in_image_space and len(normalized_points) > 2:
-            ring = (
+            normalization_actions.append(orientation_action)
+        else:
+            normalized_points, cut_index = _cut_closed_path_at_top(
+                normalized_points,
+                closed_path_tolerance=closed_path_tolerance,
+            )
+            if cut_index is not None:
+                normalization_actions.append("cut_at_top")
+            area_points = (
                 normalized_points[:-1]
-                if distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
+                if (
+                    len(normalized_points) >= 2
+                    and distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
+                )
                 else normalized_points
             )
-            reversed_ring = list(reversed(ring))
-            cut_index = min(range(len(reversed_ring)), key=lambda idx: (reversed_ring[idx][1], reversed_ring[idx][0]))
-            normalized_points = reversed_ring[cut_index:] + reversed_ring[:cut_index] + [reversed_ring[cut_index]]
-            orientation_action = "reversed_to_clockwise" if wants_clockwise else "reversed_to_counterclockwise"
-            normalization_actions.append(orientation_action)
-        elif cut_index is not None:
-            orientation_action = "cut_at_top"
+            area = signed_area(area_points)
+            wants_clockwise = circular_direction == "clockwise"
+            is_clockwise_in_image_space = area > 0
+            if wants_clockwise != is_clockwise_in_image_space and len(normalized_points) > 2:
+                ring = (
+                    normalized_points[:-1]
+                    if distance(normalized_points[0], normalized_points[-1]) <= closed_path_tolerance
+                    else normalized_points
+                )
+                reversed_ring = list(reversed(ring))
+                cut_index = min(range(len(reversed_ring)), key=lambda idx: (reversed_ring[idx][1], reversed_ring[idx][0]))
+                normalized_points = reversed_ring[cut_index:] + reversed_ring[:cut_index] + [reversed_ring[cut_index]]
+                orientation_action = "reversed_to_clockwise" if wants_clockwise else "reversed_to_counterclockwise"
+                normalization_actions.append(orientation_action)
+            elif cut_index is not None:
+                orientation_action = "cut_at_top"
+    elif normalized_reading_direction is not None and len(normalized_points) >= 2:
+        normalized_points, orientation_action = _orient_open_path_to_reading_direction(
+            normalized_points,
+            reading_direction=normalized_reading_direction,
+            reading_cut_point=normalized_reading_cut_point,
+        )
+        normalization_actions.append(orientation_action)
     elif reading_order == "left_to_right" and len(normalized_points) >= 2:
-        dx_val = normalized_points[-1][0] - normalized_points[0][0]
-        dy_val = normalized_points[-1][1] - normalized_points[0][1]
-        if abs(dx_val) >= abs(dy_val) and dx_val < 0:
-            normalized_points = list(reversed(normalized_points))
-            orientation_action = "reversed_to_left_to_right"
+        normalized_points, orientation_action = _orient_open_path_to_script_default(normalized_points)
+        if orientation_action != "preserved":
             normalization_actions.append(orientation_action)
 
     kind = _line_kind(
@@ -359,6 +481,8 @@ def normalize_baseline_topology(
         baseline_length=polyline_length(normalized_points),
         line_kind=kind,
         orientation_action=orientation_action,
+        reading_direction=normalized_reading_direction,
+        reading_cut_point=normalized_reading_cut_point,
     )
 
 

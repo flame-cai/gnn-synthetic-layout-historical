@@ -61,6 +61,10 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 # Import your existing pipelines
 from inference import process_new_manuscript
 from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
+from recognition.line_segmentation.reading_direction import (
+    default_reading_direction_metadata_path,
+    load_reading_direction_metadata,
+)
 from segmentation.utils import load_images_from_folder
 from job_orchestrator import JobOrchestrator
 from ocr_active_learning_runtime import (
@@ -175,6 +179,15 @@ def get_existing_text_content(xml_path):
     return {"text": text_content, "confidences": confidences}
 
 
+def get_existing_reading_direction_annotations(xml_path):
+    metadata_path = default_reading_direction_metadata_path(xml_path)
+    payload = load_reading_direction_metadata(metadata_path)
+    return {
+        "lineAnnotations": payload.get("line_annotations", []),
+        "staleAnnotations": payload.get("stale_annotations", []),
+    }
+
+
 def update_page_text_content(xml_path, text_content=None, confidences=None):
     xml_path = Path(xml_path)
     if not xml_path.exists():
@@ -279,6 +292,9 @@ def compute_page_layout_fingerprint(xml_path):
         tree = ET.parse(xml_path)
         root = tree.getroot()
         line_records = []
+        reading_direction_payload = load_reading_direction_metadata(
+            default_reading_direction_metadata_path(xml_path)
+        )
 
         for textline in root.findall(".//p:TextLine", ns):
             custom_attr = textline.get('custom', '')
@@ -301,7 +317,14 @@ def compute_page_layout_fingerprint(xml_path):
                 }
             )
 
-        serialized = json.dumps(sorted(line_records, key=lambda record: record["line_id"]), ensure_ascii=False, sort_keys=True)
+        serialized = json.dumps(
+            {
+                "lines": sorted(line_records, key=lambda record: record["line_id"]),
+                "reading_direction": reading_direction_payload,
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
         return hashlib.sha1(serialized.encode("utf-8")).hexdigest()
     except Exception as e:
         print(f"Error computing page layout fingerprint for {xml_path}: {e}")
@@ -525,10 +548,12 @@ def get_page_prediction(manuscript, page):
         xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
         polygons = {}
         existing_data = {"text": {}, "confidences": {}}
+        reading_direction_annotations = {"lineAnnotations": [], "staleAnnotations": []}
         
         if xml_path.exists():
             polygons = parse_page_xml_polygons(str(xml_path))
             existing_data = get_existing_text_content(str(xml_path))
+            reading_direction_annotations = get_existing_reading_direction_annotations(str(xml_path))
 
         active_learning = _get_manuscript_active_learning_state(manuscript)
         response = {
@@ -541,6 +566,7 @@ def get_page_prediction(manuscript, page):
             "polygons": polygons, 
             "textContent": existing_data["text"],
             "textConfidences": existing_data["confidences"],
+            "readingDirectionAnnotations": reading_direction_annotations,
             "activeLearning": active_learning,
             "pageWorkflow": _build_page_workflow(
                 manuscript_path,
@@ -674,7 +700,6 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
             base_elem = textline.find('p:Baseline', ns)
             if base_elem is not None and base_elem.get('points'):
                 pts = [list(map(int, p.split(','))) for p in base_elem.get('points').strip().split(' ')]
-                pts.sort(key=lambda k: k[0])
             else: continue
 
             coords_elem = textline.find('p:Coords', ns)
@@ -872,6 +897,7 @@ def save_correction(manuscript, page):
     textbox_labels = data.get('textboxLabels')
     nodes_data = graph_data.get('nodes')
     text_content = data.get('textContent') 
+    reading_direction_annotations = data.get('readingDirectionAnnotations') or []
     
     run_recognition = data.get('runRecognition', False)
     api_key = data.get('apiKey', None)
@@ -894,15 +920,11 @@ def save_correction(manuscript, page):
                 page,
                 textline_labels,
                 graph_data['edges'],
-                { 
-                    'BINARIZE_THRESHOLD': 0.5098,
-                    'BBOX_PAD_V': 0.7,
-                    'BBOX_PAD_H': 0.5,
-                    'CC_SIZE_THRESHOLD_RATIO': 0.4
-                },
+                {},
                 textbox_labels=textbox_labels,
                 nodes=nodes_data,
-                text_content=text_content 
+                text_content=text_content,
+                reading_direction_annotations=reading_direction_annotations,
             )
 
         active_learning_result = handle_post_save(

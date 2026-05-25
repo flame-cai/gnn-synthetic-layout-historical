@@ -178,6 +178,7 @@ def get_precommit_hybrid_recognition_gate_config(name: str = "eval_dataset") -> 
     base_config = get_dataset_config(gate_config.recognition_dataset_config_name).with_updates(
         line_geometry_source="baseline_heatmap",
         line_segmentation_strategy_name=get_benchmark_strategy_name(),
+        line_segmentation_args=dict(gate_config.strategy_ablation.benchmark.strategy_config),
         fine_tune_page_count=int(gate_config.fine_tune_page_count),
         training_policy=recipe.training_policy,
         history_sample_line_count=int(recipe.history_sample_line_count),

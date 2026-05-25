@@ -65,25 +65,27 @@ The checked-in current role mapping for this harness is:
 
 - benchmark: `local_polygons_v1`
 - proposed: not configured
-- production app: `legacy_axis_bound_v1`
+- production app: `local_polygons_v1`
 
-`local_polygons_v1` is the current research benchmark after harness promotion on 2026-05-22. Configure the next proposed strategy before running the next three-gate ablation cycle.
+`local_polygons_v1` is the current research benchmark after harness promotion on 2026-05-22 and the current production app strategy after explicit production adoption on 2026-05-23. Configure the next proposed strategy before running the next three-gate ablation cycle.
 
-`legacy_axis_bound_v1` is the preserved historical benchmark and remains the production app default.
+`legacy_axis_bound_v1` is the preserved historical benchmark and remains registered for rollback, historical comparison, and legacy-page fallback behavior.
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
 
 `local_polygons_v1` builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text. Its research-harness heatmap contours are binarized at `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override. `app/tests/precommit_gate_config.py` attaches that research override by strategy name so it remains in force when the strategy changes from proposed to benchmark.
 
-`production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations, and production OCR crop preparation now routes through the same strategy-aware crop layer. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
+`production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations, and production OCR crop preparation routes through the same strategy-aware crop layer. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
-The crop-preparation boundary is intentional. The production GUI prepares OCR line images from saved PAGE `TextLine/Coords` and optional sibling line-segmentation metadata through `app/recognition/line_segmentation/ocr_crops.py`. Missing, malformed, legacy, or non-local-tangent metadata falls back to the existing masked PAGE `Coords` crop. The research OCR ablation gates instead start from PAGE `Baseline` plus the page image and heatmap, regenerate `Coords` through the selected strategy, and then use the same crop decision layer on the regenerated geometry. Because those paths do not have the same operational contract, adopting a strategy for the app requires explicit production validation rather than a silent consequence of harness promotion. Production already regenerates PAGE Coords from PAGE Baseline during layout saves; the remaining distinction is whether future production saves carry metadata that asks the shared OCR crop layer for local-tangent unwrapping.
+The crop-preparation boundary is intentional. The production GUI prepares OCR line images from saved PAGE `TextLine/Coords` and optional sibling line-segmentation metadata through `app/recognition/line_segmentation/ocr_crops.py`. For new `local_polygons_v1` saves, line metadata requests `crop_model="local_polygon_unwrap"` so local OCR, app line-image export, and active-learning revision training consume the same unwrapped median-background crop used by the benchmark harness. Missing, malformed, stale, legacy, or unsupported metadata falls back to the existing masked PAGE `Coords` crop. The research OCR ablation gates instead start from PAGE `Baseline` plus the page image and heatmap, regenerate `Coords` through the selected strategy, and then use the same crop decision layer on the regenerated geometry. Because those paths do not have the same operational contract, production adoption remains explicit rather than a silent consequence of harness promotion.
 
-Production integration work that is intentionally not hidden inside harness promotion includes deciding when to regenerate PAGE `Coords`, how to avoid migrating existing pages unexpectedly, how to validate active-learning samples produced under a new geometry/crop strategy, and whether GUI OCR should use local-tangent unwrapped crops for newly saved pages.
+Reading-direction annotations are optional production metadata. The layout GUI writes `<page>_reading_direction_metadata.json` from cross-line `O` gestures. The app resolves annotations by component overlap on save, marks stale annotations instead of guessing, and includes the sidecar in layout fingerprints and active-learning revision snapshots. If no active annotation exists, the strategy uses script defaults: horizontal left-to-right, vertical top-to-bottom, and circular clockwise with a top cut.
 
 ## Three External Verifier Gates
 
 All three gates run benchmark and proposed through the same strategy-aware implementation path.
+
+When `proposed_strategy_name` is not configured, the fast pipeline and OCR strategy-ablation launchers run the benchmark role and record the strategy comparison as skipped instead of failing the gate on missing proposal state. Configure a proposed strategy before using the gates as promotion evidence.
 
 ### 1. Pretrained Full-Pipeline Gate
 
@@ -323,6 +325,8 @@ conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --str
 ```
 
 The adoption script validates that the named strategy is registered. On success it updates only `production_strategy_name` and `production_adoption_history`; it does not mutate the research benchmark/proposed roles and does not require verifier evidence.
+
+The 2026-05-23 production adoption used the same command shape with `--strategy local_polygons_v1` and recorded the change in `production_adoption_history`.
 
 No migration happens automatically. Existing PAGE XML, existing OCR line images, and active-learning checkpoint lineage remain as they are. GUI OCR inference, app line-image export, and active-learning training all read saved PAGE `Coords`; when a sibling strategy metadata sidecar exists, they use it only to decide the derived OCR crop representation. Missing metadata remains a valid masked-crop fallback.
 

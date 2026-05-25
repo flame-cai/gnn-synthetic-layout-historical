@@ -6,7 +6,7 @@ This document is maintained in accordance with `PLANS.md` from the repository ro
 
 ## Purpose / Big Picture
 
-After this change, adopting a text-line segmentation strategy for production will adopt both halves of the strategy: how the app writes PAGE-XML `TextLine/Coords`, and how the app turns saved PAGE-XML lines into OCR-ready images. The current production strategy is `legacy_axis_bound_v1`, so the visible behavior should remain effectively the same before and after the refactor: horizontal manuscript pages still produce the same masked line crops, local OCR still reads saved PAGE XML, and active-learning jobs still train from saved page revisions.
+After this change, adopting a text-line segmentation strategy for production will adopt both halves of the strategy: how the app writes PAGE-XML `TextLine/Coords`, and how the app turns saved PAGE-XML lines into OCR-ready images. At the time of this refactor, the production strategy was `legacy_axis_bound_v1`, so the visible behavior needed to remain effectively the same before and after the refactor: horizontal manuscript pages still produced the same masked line crops, local OCR still read saved PAGE XML, and active-learning jobs still trained from saved page revisions.
 
 The important gain is modularity. Today the research harness has a strategy-aware OCR crop path, but production local OCR and active-learning training mostly crop directly from saved `Coords`. After this refactor, production code will call a shared strategy-aware crop preparation layer. With `legacy_axis_bound_v1`, that layer will still choose the existing axis-aligned masked crop. If a future operator explicitly adopts `local_tangent_band_v1` for production, the same production layer will be able to use local-tangent unwrapping for lines whose saved strategy metadata says they were produced by local-tangent geometry.
 
@@ -67,8 +67,8 @@ This refactor should make the second phase strategy-aware without collapsing it 
   Rationale: the goal is smooth future promotion/adoption. Production line-image export, local OCR inference, and active-learning training should all ask the same code how to crop a line for OCR.
   Date/Author: 2026-05-15 / Codex
 
-- Decision: preserve current behavior for `legacy_axis_bound_v1`.
-  Rationale: this is a modularization plan, not a production rollout of a new recognition behavior. With the current production pin, outputs should remain axis-aligned masked crops.
+- Decision: preserve then-current behavior for `legacy_axis_bound_v1`.
+  Rationale: this was a modularization plan, not a production rollout of a new recognition behavior. With the 2026-05-15 production pin, outputs needed to remain axis-aligned masked crops.
   Date/Author: 2026-05-15 / Codex
 
 - Decision: use saved strategy metadata when available, and fall back to the existing masked crop when metadata is missing.
@@ -77,7 +77,9 @@ This refactor should make the second phase strategy-aware without collapsing it 
 
 ## Outcomes & Retrospective
 
-Implemented on 2026-05-15. The production app behavior remains masked-crop compatible for `legacy_axis_bound_v1`, while app line-image export, local OCR inference, research dataset preparation, and active-learning revision training now share one crop decision layer that can honor local-tangent metadata after explicit production adoption.
+Implemented on 2026-05-15. The production app behavior initially remained masked-crop compatible for `legacy_axis_bound_v1`, while app line-image export, local OCR inference, research dataset preparation, and active-learning revision training shared one crop decision layer that could honor local-tangent metadata after explicit production adoption.
+
+Follow-up implemented on 2026-05-23: production adopted `local_polygons_v1` for future layout saves/regenerations. New saves now write strategy metadata for `crop_model="local_polygon_unwrap"` and optional reading-direction metadata. Existing pages remain unmigrated and continue to use the masked PAGE `Coords` fallback when metadata is missing or unsupported.
 
 Validation run on 2026-05-15:
 
@@ -95,7 +97,7 @@ The slow surrogate OCR e2e gates were not run in this implementation pass.
 
 This repository has a semi-automatic manuscript annotation app under `app/`. The app writes PAGE XML, a document layout format where each `TextLine` may contain a `Baseline` and `Coords`. In this plan, `Baseline` means a polyline that follows the center path of a text line. `Coords` means a page-space polygon around that text line.
 
-The current strategy registry is in `app/recognition/line_segmentation/registry.py`. It registers `legacy_axis_bound_v1` and `local_tangent_band_v1`.
+The current strategy registry is in `app/recognition/line_segmentation/registry.py`. It registers `legacy_axis_bound_v1`, `local_tangent_band_v1`, and `local_polygons_v1`.
 
 `legacy_axis_bound_v1` is the current production strategy. It reads PAGE `Baseline`, the page image, and a heatmap, then writes page-space `Coords` using the historical axis-bound polygon method. Its OCR crop behavior is the old masked crop: take a bounding rectangle around `Coords`, fill a new image with the page median color, and copy pixels inside the polygon mask.
 
@@ -155,7 +157,7 @@ The new module should move or wrap the existing behavior from `app/recognition/p
     If strategy_name is "local_tangent_band_v1" and the line metadata has crop_model == "local_tangent_band", call unwrap_line_crop_for_ocr(...).
     Otherwise, call masked_line_crop(...).
 
-This exactly preserves current production behavior for `legacy_axis_bound_v1`, because legacy lines will fall through to the masked crop.
+This preserved production behavior for `legacy_axis_bound_v1`, because legacy lines fall through to the masked crop.
 
 Add a helper that loads line segmentation metadata from the sidecar JSON written next to final PAGE XML. Production layout save currently writes metadata to `layout_analysis_output/page-xml-format/<page>_line_segmentation_metadata.json`. The loader should return a mapping from integer `line_numeric_id` to that line's metadata. If the file is missing, invalid, or does not contain a line, the caller should get an empty mapping and the cropper should use the masked crop.
 
@@ -343,13 +345,13 @@ Acceptance requires behavior that a human can observe.
 
 Acceptance for this refactor is not the same as acceptance for `local_tangent_band_v1` production adoption. This refactor is accepted when production can route OCR crop preparation through the shared cropper while preserving current legacy behavior. A later production adoption is accepted only after proving the adopted strategy's OCR crops and active-learning behavior are acceptable in production-like workflows.
 
-With current checked-in config, `production_strategy_name` remains `legacy_axis_bound_v1`. After the refactor, saving a normal horizontal page in the GUI should still produce:
+At the time of the initial refactor, `production_strategy_name` remained `legacy_axis_bound_v1`. After the 2026-05-23 adoption, `production_strategy_name` is `local_polygons_v1`; future GUI layout saves should still produce:
 
     layout_analysis_output/page-xml-format/<page>.xml
     layout_analysis_output/page-xml-format/<page>_line_segmentation_metadata.json
     layout_analysis_output/image-format/<page>/<textbox_label>/line_<id>.jpg
 
-The saved app line images should still be axis-aligned masked crops for legacy lines. Unit tests should demonstrate this by comparing the shared cropper's output to the old masked crop behavior on a synthetic polygon.
+Legacy lines and pages without usable metadata should still be axis-aligned masked crops. New `local_polygons_v1` lines with valid metadata should use local-polygon unwrapping. Unit tests should demonstrate both the masked fallback and strategy-aware unwrap paths.
 
 Local OCR inference should still work when no metadata sidecar exists. A test should call the extraction path on a synthetic PAGE XML with `Coords` and confirm it returns at least one crop using the masked-crop fallback.
 

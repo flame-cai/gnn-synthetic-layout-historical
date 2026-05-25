@@ -47,6 +47,10 @@ def _normalise_config(config: dict | None) -> dict:
     merged["min_mirror_pairs"] = int(merged["min_mirror_pairs"])
     merged["reading_order"] = str(merged["reading_order"])
     merged["circular_direction"] = str(merged["circular_direction"])
+    if "reading_direction" in merged and merged["reading_direction"] is not None:
+        merged["reading_direction"] = list(merged["reading_direction"])
+    if "reading_cut_point" in merged and merged["reading_cut_point"] is not None:
+        merged["reading_cut_point"] = list(merged["reading_cut_point"])
     return merged
 
 
@@ -191,6 +195,8 @@ def unwrap_line_crop_for_ocr(
         horizontal_angle_degrees=config["horizontal_angle_degrees"],
         reading_order=config["reading_order"],
         circular_direction=config["circular_direction"],
+        reading_direction=config.get("reading_direction"),
+        reading_cut_point=config.get("reading_cut_point"),
     )
     normalized_points = topology.normalized_points
     baseline_length = topology.baseline_length
@@ -280,6 +286,8 @@ def unwrap_line_crop_for_ocr(
             "selection_mode": orientation_selection_mode,
             "reading_order": config["reading_order"],
             "circular_direction": config["circular_direction"],
+            "reading_direction": config.get("reading_direction"),
+            "reading_cut_point": config.get("reading_cut_point"),
             "reason": topology.orientation_action,
         },
     }

@@ -156,6 +156,28 @@ class StrategyAwareOcrCropsUnitTest(unittest.TestCase):
         self.assertIn("median_background_fraction", result.metadata)
         self.assertGreater(result.image.shape[1], result.image.shape[0])
 
+    def test_local_polygon_reading_direction_annotation_reaches_unwrap(self):
+        image, record = self._image_and_record()
+
+        result = crop_line_record_for_ocr(
+            image,
+            record,
+            strategy_name="local_polygons_v1",
+            strategy_line_metadata={
+                "line_numeric_id": 7,
+                "crop_model": "local_polygon_unwrap",
+                "reading_direction_annotation": {
+                    "reading_direction": [0, -1],
+                    "cut_midpoint": [48, 48],
+                },
+            },
+        )
+
+        self.assertTrue(result.metadata["used_unwrap"])
+        self.assertEqual(result.metadata["orientation"]["reading_direction"], [0, -1])
+        self.assertEqual(result.metadata["orientation"]["reading_cut_point"], [48, 48])
+        self.assertEqual(result.metadata["orientation"]["reason"], "reversed_to_annotated_reading_direction")
+
     def test_local_tangent_delegate_uses_masked_crop(self):
         image, record = self._image_and_record()
 

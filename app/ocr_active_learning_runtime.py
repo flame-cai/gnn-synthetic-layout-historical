@@ -20,6 +20,7 @@ from recognition.active_learning import (
     fine_tune_checkpoint_on_pages,
     prepare_page_datasets,
 )
+from recognition.line_segmentation.reading_direction import default_reading_direction_metadata_path
 from recognition.active_learning_recipe import (
     DEFAULT_OCR_ACTIVE_LEARNING_RECIPE,
     OcrActiveLearningRecipe,
@@ -101,6 +102,7 @@ def _snapshot_page_revision(registry: ManuscriptOcrRegistry, page_id: str, revis
 
     live_xml = registry.manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}.xml"
     live_metadata = live_xml.with_name(f"{page_id}_line_segmentation_metadata.json")
+    live_reading_direction_metadata = default_reading_direction_metadata_path(live_xml)
     live_image = registry.manuscript_root / "layout_analysis_output" / "images_resized" / f"{page_id}.jpg"
     if not live_image.exists():
         live_image = registry.manuscript_root / "images_resized" / f"{page_id}.jpg"
@@ -108,6 +110,11 @@ def _snapshot_page_revision(registry: ManuscriptOcrRegistry, page_id: str, revis
     shutil.copy2(live_xml, snapshot_root / "page-xml-format" / f"{page_id}.xml")
     if live_metadata.exists():
         shutil.copy2(live_metadata, snapshot_root / "page-xml-format" / live_metadata.name)
+    if live_reading_direction_metadata.exists():
+        shutil.copy2(
+            live_reading_direction_metadata,
+            snapshot_root / "page-xml-format" / live_reading_direction_metadata.name,
+        )
     shutil.copy2(live_image, snapshot_root / "images_resized" / f"{page_id}.jpg")
     return snapshot_root
 

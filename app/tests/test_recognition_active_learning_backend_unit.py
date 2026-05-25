@@ -97,7 +97,12 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         manuscript_root, base_checkpoint = self._make_manuscript_root("snapshot_metadata")
         page_id = "233_0001"
         metadata_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}_line_segmentation_metadata.json"
+        reading_metadata_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page_id}_reading_direction_metadata.json"
         metadata_path.write_text('{"strategy_name":"legacy_axis_bound_v1","line_metadata":[]}', encoding="utf-8")
+        reading_metadata_path.write_text(
+            '{"schema_version":1,"line_annotations":[{"resolved_line_numeric_id":0}],"stale_annotations":[]}',
+            encoding="utf-8",
+        )
         configure_runtime(base_checkpoint, orchestrator=None)
 
         result = handle_post_save(
@@ -118,6 +123,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         registry = load_registry(manuscript_root, base_checkpoint)
         snapshot_root = registry.revision_snapshot_root(page_id, result["revision"]["revision_number"])
         self.assertTrue((snapshot_root / "page-xml-format" / metadata_path.name).exists())
+        self.assertTrue((snapshot_root / "page-xml-format" / reading_metadata_path.name).exists())
 
     def test_prepare_revision_pages_passes_snapshot_metadata_dir_without_heatmaps(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("prepare_revision_metadata")
@@ -343,6 +349,47 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 
         self.assertEqual(first_fingerprint, second_fingerprint)
 
+    def test_compute_page_layout_fingerprint_changes_when_reading_direction_metadata_changes(self):
+        manuscript_root, _ = self._make_manuscript_root("layout_fingerprint_reading_direction")
+        xml_dir = manuscript_root / "layout_analysis_output" / "page-xml-format"
+        xml_path = xml_dir / "233_0001.xml"
+        xml_path.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Page imageFilename="233_0001.jpg" imageWidth="100" imageHeight="100">
+    <TextRegion id="region_0">
+      <TextLine id="line_0" custom="structure_line_id_7">
+        <Coords points="10,10 40,10 40,20 10,20" />
+        <Baseline points="10,15 25,15 40,15" />
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+
+        original_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(xml_path))
+        backend_app_module.default_reading_direction_metadata_path(xml_path).write_text(
+            """{
+  "schema_version": 1,
+  "line_annotations": [
+    {
+      "resolved_line_numeric_id": 7,
+      "component_node_indices": [0, 1],
+      "cut_midpoint": [25, 15],
+      "reading_direction": [1, 0]
+    }
+  ],
+  "stale_annotations": []
+}
+""",
+            encoding="utf-8",
+        )
+        updated_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(xml_path))
+
+        self.assertNotEqual(updated_fingerprint, original_fingerprint)
+
     def test_text_only_save_updates_text_without_regenerating_layout(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("text_only_save")
         page_id = "233_0001"
@@ -365,6 +412,21 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 """,
             encoding="utf-8",
         )
+        reading_metadata_path = backend_app_module.default_reading_direction_metadata_path(xml_path)
+        reading_metadata = """{
+  "schema_version": 1,
+  "line_annotations": [
+    {
+      "resolved_line_numeric_id": 7,
+      "component_node_indices": [0, 1],
+      "cut_midpoint": [25, 15],
+      "reading_direction": [1, 0]
+    }
+  ],
+  "stale_annotations": []
+}
+"""
+        reading_metadata_path.write_text(reading_metadata, encoding="utf-8")
 
         original_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(xml_path))
         client = backend_app_module.app.test_client()
@@ -414,6 +476,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertEqual(response_json["status"], "success")
         self.assertEqual(response_json["lines"], 1)
         mock_generate.assert_not_called()
+        self.assertEqual(reading_metadata_path.read_text(encoding="utf-8"), reading_metadata)
 
         updated_fingerprint = backend_app_module.compute_page_layout_fingerprint(str(xml_path))
         self.assertEqual(updated_fingerprint, original_fingerprint)

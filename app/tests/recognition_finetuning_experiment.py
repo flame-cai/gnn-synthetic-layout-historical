@@ -969,10 +969,28 @@ def _comparison_failure_message(comparisons: list[dict]) -> str:
     return "; ".join(failures)
 
 
-def _build_recognition_strategy_comparison(gate_config, benchmark_result: dict, proposed_result: dict) -> dict:
+def _build_recognition_strategy_comparison(gate_config, benchmark_result: dict, proposed_result: dict | None = None) -> dict:
     ablation_config = gate_config.strategy_ablation
     allowed = float(ablation_config.max_allowed_regression_abs)
     benchmark_metrics = benchmark_result["metrics"]
+    if proposed_result is None:
+        passed = bool(benchmark_result["passed"])
+        return {
+            "benchmark_role": benchmark_result["role"],
+            "proposed_role": None,
+            "primary_metric_name": "curve_metric_value",
+            "benchmark_value": benchmark_metrics.get("curve_metric_value"),
+            "proposed_value": None,
+            "operator": None,
+            "allowed_regression_abs": allowed,
+            "strict_primary_improvement_required": ablation_config.strict_primary_improvement_required,
+            "passed": passed,
+            "failure_message": "" if passed else f"Benchmark role failed: {benchmark_result['failure_message']}",
+            "metric_comparisons": [],
+            "comparison_skipped": True,
+            "skip_reason": "proposed_strategy_name_not_configured",
+        }
+
     proposed_metrics = proposed_result["metrics"]
     same_strategy = benchmark_result["strategy_name"] == proposed_result["strategy_name"]
 
@@ -1187,6 +1205,9 @@ def _write_recognition_ablation_summary(path: Path, dataset_result: dict) -> Non
     ]
 
     for role_name in ("benchmark", "proposed"):
+        if role_name not in dataset_result["strategy_results"]:
+            lines.append(f"- {role_name}: skipped (strategy not configured)")
+            continue
         role_result = dataset_result["strategy_results"][role_name]
         metrics = role_result["metrics"]
         lines.append(
@@ -1198,19 +1219,24 @@ def _write_recognition_ablation_summary(path: Path, dataset_result: dict) -> Non
         )
 
     lines.extend(["", "## Comparison", ""])
-    for item in comparison["metric_comparisons"]:
-        lines.append(
-            f"- {item['metric_name']}: benchmark={item['benchmark_value']}, "
-            f"proposed={item['proposed_value']}, required proposed {item['operator']} "
-            f"{item['allowed_value']}, passed={item['passed']}, "
-            f"blocking={item.get('blocking', True)}"
-        )
+    if comparison.get("comparison_skipped"):
+        lines.append(f"- skipped: {comparison['skip_reason']}")
+    else:
+        for item in comparison["metric_comparisons"]:
+            lines.append(
+                f"- {item['metric_name']}: benchmark={item['benchmark_value']}, "
+                f"proposed={item['proposed_value']}, required proposed {item['operator']} "
+                f"{item['allowed_value']}, passed={item['passed']}, "
+                f"blocking={item.get('blocking', True)}"
+            )
 
     if comparison["failure_message"]:
         lines.extend(["", "## Failure", "", comparison["failure_message"]])
 
     lines.extend(["", "## Artifacts", ""])
     for role_name in ("benchmark", "proposed"):
+        if role_name not in dataset_result["strategy_results"]:
+            continue
         role_result = dataset_result["strategy_results"][role_name]
         lines.append(f"- {role_name}_summary={role_result['summary_path'].resolve()}")
         lines.append(f"- {role_name}_metrics={role_result['metrics_path'].resolve()}")
@@ -1230,6 +1256,10 @@ def _run_recognition_strategy_ablation(
     strategy_results = {}
 
     for role_config in gate_config.strategy_ablation.roles():
+        if not role_config.strategy_name:
+            if role_config.role == "benchmark":
+                raise ValueError("Strategy ablation benchmark role requires a strategy.")
+            continue
         role_dataset_config = _config_for_strategy_role(base_dataset_config, role_config)
         role_run_dir, prepared_pages, evaluation_pages, gt_subset_dir = _prepare_study_inputs(
             role_dataset_config,
@@ -1250,7 +1280,7 @@ def _run_recognition_strategy_ablation(
     comparison = _build_recognition_strategy_comparison(
         gate_config,
         strategy_results["benchmark"],
-        strategy_results["proposed"],
+        strategy_results.get("proposed"),
     )
     status = "passed" if comparison["passed"] else "failed"
     run_dir = LOGS_ROOT / f"{_timestamp_slug()}_{study_slug}_{dataset_name}_summary"
@@ -1296,7 +1326,7 @@ def _run_recognition_strategy_ablation(
         run_dir,
         summary_path,
         metrics_path,
-        strategy_results["proposed"]["plot_path"],
+        strategy_results.get("proposed", strategy_results["benchmark"])["plot_path"],
         latest_basename=latest_basename,
     )
     return dataset_result

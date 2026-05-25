@@ -156,9 +156,11 @@ The app and the research verifier use separate text-line segmentation role pins 
 - `benchmark_strategy_name` and `proposed_strategy_name` are research harness roles.
 - `production_strategy_name` is the app default used for future layout saves/regenerations and for strategy-aware OCR crop preparation.
 
-The current production app strategy is `legacy_axis_bound_v1`. Research promotion does not change the production app default. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
+The current production app strategy is `local_polygons_v1`, adopted explicitly after the research benchmark promotion. Research promotion still does not change the production app default by itself. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
 
-Production OCR crops now go through `app/recognition/line_segmentation/ocr_crops.py`. With the current production pin, the app still produces the legacy axis-aligned masked PAGE `Coords` crop. If a future production adoption writes local-tangent metadata for a line, the same shared layer can use that metadata to produce the derived OCR crop while keeping PAGE `Coords` as page-space geometry. Missing metadata falls back to the legacy masked crop.
+Production OCR crops now go through `app/recognition/line_segmentation/ocr_crops.py`. New `local_polygons_v1` saves write strategy metadata that lets local OCR, line-image export, and active-learning training use local-polygon unwrapping with a median-color background while keeping PAGE `Coords` as page-space geometry. Missing or unsupported metadata falls back to the legacy masked crop.
+
+In layout mode, shortcut `O` enables optional reading-direction annotation for a text line. Draw a short cross-line cut; the app records the rotated cut tangent as the line's reading direction, resolves it by component overlap on save, and stores it in a reading-direction sidecar. This resolves 180-degree ambiguity for vertical, slanted, curved, and circular lines without changing page-level line ordering.
 
 This separation is intentional because the verifier and the app do not prepare OCR crops from the same starting geometry. The research OCR ablation gates start from PAGE `Baseline` plus eval heatmaps/images, regenerate `Coords` through the selected strategy, and then crop from that regenerated geometry. The production GUI path uses the PAGE `Coords` already present on the saved page and optional line-segmentation metadata sidecars. Moving a baseline-derived strategy into production therefore remains an explicit adoption decision with production validation.
 

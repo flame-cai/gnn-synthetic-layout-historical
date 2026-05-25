@@ -93,6 +93,8 @@ def _normalise_config(config: dict | None) -> dict:
     merged["bridge_all_component_groups"] = bool(merged["bridge_all_component_groups"])
     merged["reading_order"] = str(merged["reading_order"])
     merged["circular_direction"] = str(merged["circular_direction"])
+    if not isinstance(merged.get("reading_direction_annotations_by_line_id"), dict):
+        merged["reading_direction_annotations_by_line_id"] = {}
     return merged
 
 
@@ -142,9 +144,22 @@ def _heatmap_boxes(image_path: Path, heatmap_path: Path, threshold: float) -> tu
     return boxes, {"heatmap_box_count": len(boxes)}
 
 
+def _reading_annotation_for_line(config: dict, line_numeric_id: int) -> dict | None:
+    annotations = config.get("reading_direction_annotations_by_line_id") or {}
+    if not isinstance(annotations, dict):
+        return None
+    value = annotations.get(line_numeric_id)
+    if value is None:
+        value = annotations.get(str(line_numeric_id))
+    return dict(value) if isinstance(value, dict) else None
+
+
 def _topologies_for_records(records: list[dict], config: dict) -> dict[int, BaselineTopology]:
-    return {
-        int(record["line_numeric_id"]): normalize_baseline_topology(
+    topologies = {}
+    for record in records:
+        line_numeric_id = int(record["line_numeric_id"])
+        reading_annotation = _reading_annotation_for_line(config, line_numeric_id)
+        topologies[line_numeric_id] = normalize_baseline_topology(
             record["baseline_points"],
             mirror_match_tolerance=config["mirror_match_tolerance_px"],
             closed_path_tolerance=config["closed_path_tolerance_px"],
@@ -153,9 +168,10 @@ def _topologies_for_records(records: list[dict], config: dict) -> dict[int, Base
             horizontal_angle_degrees=config["horizontal_angle_degrees"],
             reading_order=config["reading_order"],
             circular_direction=config["circular_direction"],
+            reading_direction=(reading_annotation or {}).get("reading_direction"),
+            reading_cut_point=(reading_annotation or {}).get("cut_midpoint"),
         )
-        for record in records
-    }
+    return topologies
 
 
 def _clip_point(point: tuple[float, float], image_width: int, image_height: int) -> list[int]:
@@ -971,6 +987,7 @@ class LocalPolygonsStrategy:
             line_details[line_numeric_id] = {
                 "line_kind": topology.line_kind,
                 "topology": topology.to_metadata(),
+                "reading_direction_annotation": _reading_annotation_for_line(config, line_numeric_id),
                 "crop_model": LOCAL_POLYGON_CROP_MODEL,
                 "component_projection_model": COMPONENT_PROJECTION_MODEL,
                 "local_cleanup_model": LOCAL_CLEANUP_MODEL,

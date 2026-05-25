@@ -159,6 +159,12 @@ def crop_line_record_for_ocr(
                 for key in ("local_s_min", "local_s_max", "local_n_min", "local_n_max"):
                     if key in line_metadata:
                         unwrap_config.setdefault(key, line_metadata[key])
+            reading_annotation = line_metadata.get("reading_direction_annotation")
+            if isinstance(reading_annotation, dict):
+                if reading_annotation.get("reading_direction") is not None:
+                    unwrap_config.setdefault("reading_direction", reading_annotation.get("reading_direction"))
+                if reading_annotation.get("cut_midpoint") is not None:
+                    unwrap_config.setdefault("reading_cut_point", reading_annotation.get("cut_midpoint"))
             crop_result = unwrap_line_crop_for_ocr(
                 processing_image,
                 _record_value(record, "polygon_points") or [],

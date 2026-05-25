@@ -186,13 +186,28 @@
               :width="scaledWidth"
               :height="scaledHeight"
               :viewBox="`0 0 ${scaledWidth} ${scaledHeight}`"
-              :style="{ cursor: pointer}"
+              :style="{ cursor: isOKeyPressed ? 'crosshair' : 'pointer'}"
               @click="onBackgroundClick($event)"
               @contextmenu.prevent 
+              @mousedown="handleSvgMouseDown"
               @mousemove="handleSvgMouseMove"
+              @mouseup="handleSvgMouseUp"
               @mouseleave="handleSvgMouseLeave"
               ref="svgOverlayRef"
             >
+              <line
+                v-for="annotation in readingDirectionAnnotationList"
+                :key="`reading-cut-${annotation.annotation_id}`"
+                :x1="scaleX(annotation.cut_start[0])"
+                :y1="scaleY(annotation.cut_start[1])"
+                :x2="scaleX(annotation.cut_end[0])"
+                :y2="scaleY(annotation.cut_end[1])"
+                stroke="#ffd54f"
+                stroke-width="3"
+                stroke-linecap="round"
+                opacity="0.9"
+              />
+
               <line
                 v-for="(edge, index) in workingGraph.edges"
                 :key="`edge-${index}`"
@@ -223,7 +238,8 @@
                   tempEndPoint &&
                   !isAKeyPressed &&
                   !isDKeyPressed &&
-                  !isEKeyPressed
+                  !isEKeyPressed &&
+                  !isOKeyPressed
                 "
                 :x1="scaleX(workingGraph.nodes[selectedNodes[0]].x)"
                 :y1="scaleY(workingGraph.nodes[selectedNodes[0]].y)"
@@ -232,6 +248,17 @@
                 stroke="#ff9500"
                 :stroke-width="tempEdgeStrokeWidth"
                 stroke-dasharray="5,5"
+              />
+
+              <line
+                v-if="readingDirectionDraft"
+                :x1="scaleX(readingDirectionDraft.cut_start[0])"
+                :y1="scaleY(readingDirectionDraft.cut_start[1])"
+                :x2="scaleX(readingDirectionDraft.cut_end[0])"
+                :y2="scaleY(readingDirectionDraft.cut_end[1])"
+                stroke="#ffd54f"
+                :stroke-width="tempEdgeStrokeWidth"
+                stroke-linecap="round"
               />
             </svg>
 
@@ -538,6 +565,8 @@ const setMode = (mode) => {
   isAKeyPressed.value = false
   isDKeyPressed.value = false
   isEKeyPressed.value = false
+  isOKeyPressed.value = false
+  readingDirectionDraft.value = null
   resetSelection()
 
   if (mode === 'layout') {
@@ -583,6 +612,7 @@ const isDKeyPressed = ref(false)
 const isAKeyPressed = ref(false)
 const isEKeyPressed = ref(false) 
 const isVKeyPressed = ref(false) // NEW for Visibility
+const isOKeyPressed = ref(false)
 
 const hoveredNodesForMST = reactive(new Set())
 const container = ref(null)
@@ -596,6 +626,10 @@ const hoveredTextlineId = ref(null)
 const textboxLabels = ref(0) 
 const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] 
 const savedTextboxLabelsSnapshot = ref('[]')
+const readingDirectionAnnotations = ref({})
+const readingDirectionDraft = ref(null)
+const savedReadingDirectionAnnotationsSnapshot = ref('[]')
+let suppressNextBackgroundClick = false
 
 // Recognition Data
 const geminiKey = ref(localStorage.getItem('gemini_key') || '')
@@ -700,17 +734,108 @@ const buildTextboxLabelsPayload = (numNodes = 0) => {
   return labels
 }
 
+const normalizeReadingDirectionAnnotation = (annotation) => {
+  if (!annotation?.reading_direction || !annotation?.cut_start || !annotation?.cut_end) return null
+  const cutStart = annotation.cut_start.map(Number)
+  const cutEnd = annotation.cut_end.map(Number)
+  const cutMidpoint = annotation.cut_midpoint ? annotation.cut_midpoint.map(Number) : [
+    (cutStart[0] + cutEnd[0]) / 2,
+    (cutStart[1] + cutEnd[1]) / 2,
+  ]
+  const readingDirection = annotation.reading_direction.map(Number)
+  if (
+    cutStart.length < 2 ||
+    cutEnd.length < 2 ||
+    readingDirection.length < 2 ||
+    !cutStart.every(Number.isFinite) ||
+    !cutEnd.every(Number.isFinite) ||
+    !cutMidpoint.every(Number.isFinite) ||
+    !readingDirection.every(Number.isFinite)
+  ) return null
+  const componentNodeIndices = Array.isArray(annotation.component_node_indices)
+    ? [...new Set(annotation.component_node_indices.map(Number).filter(Number.isInteger))].sort((a, b) => a - b)
+    : []
+  return {
+    annotation_id: String(annotation.annotation_id || annotation.frontend_line_id || ''),
+    frontend_line_id: String(annotation.frontend_line_id || annotation.annotation_id || ''),
+    component_node_indices: componentNodeIndices,
+    cut_start: cutStart,
+    cut_end: cutEnd,
+    cut_midpoint: cutMidpoint,
+    reading_direction: readingDirection,
+    source: annotation.source || 'user_cross_cut',
+    updated_at: annotation.updated_at || '',
+  }
+}
+
+const findFrontendTextlineForComponent = (componentNodeIndices, fallbackLineId = null) => {
+  const componentSet = new Set(
+    Array.isArray(componentNodeIndices)
+      ? componentNodeIndices.map(Number).filter(Number.isInteger)
+      : []
+  )
+  if (componentSet.size === 0 && fallbackLineId !== null && textlines.value[fallbackLineId]) {
+    return String(fallbackLineId)
+  }
+  let best = { lineId: null, overlap: 0, ratio: 0 }
+  Object.entries(textlines.value).forEach(([lineId, nodeIndices]) => {
+    const overlap = nodeIndices.filter((nodeIndex) => componentSet.has(Number(nodeIndex))).length
+    const ratio = componentSet.size > 0 ? overlap / componentSet.size : 0
+    if (overlap > best.overlap || (overlap === best.overlap && ratio > best.ratio)) {
+      best = { lineId, overlap, ratio }
+    }
+  })
+  if (best.lineId !== null && best.overlap > 0 && best.ratio >= 0.5) return String(best.lineId)
+  if (fallbackLineId !== null && textlines.value[fallbackLineId]) return String(fallbackLineId)
+  return null
+}
+
+const loadReadingDirectionAnnotationsFromPageData = (metadata) => {
+  const loaded = {}
+  const lineAnnotations = Array.isArray(metadata?.lineAnnotations) ? metadata.lineAnnotations : []
+  lineAnnotations.forEach((annotation) => {
+    const fallbackLineId = annotation.frontend_line_id ?? annotation.line_id ?? annotation.resolved_line_numeric_id ?? null
+    const textlineId = findFrontendTextlineForComponent(annotation.component_node_indices, fallbackLineId)
+    if (textlineId === null) return
+    const normalized = normalizeReadingDirectionAnnotation({
+      ...annotation,
+      annotation_id: textlineId,
+      frontend_line_id: textlineId,
+    })
+    if (normalized) loaded[textlineId] = normalized
+  })
+  readingDirectionAnnotations.value = loaded
+  syncSavedReadingDirectionAnnotationsSnapshot()
+}
+
+const buildReadingDirectionAnnotationsPayload = () =>
+  Object.values(readingDirectionAnnotations.value)
+    .map(normalizeReadingDirectionAnnotation)
+    .filter(Boolean)
+    .sort((a, b) => a.annotation_id.localeCompare(b.annotation_id))
+
+const readingDirectionAnnotationList = computed(() => buildReadingDirectionAnnotationsPayload())
+
 const syncSavedTextboxLabelsSnapshot = (numNodes = workingGraph.nodes?.length || graph.value?.nodes?.length || 0) => {
   savedTextboxLabelsSnapshot.value = JSON.stringify(buildTextboxLabelsPayload(numNodes))
+}
+
+const syncSavedReadingDirectionAnnotationsSnapshot = () => {
+  savedReadingDirectionAnnotationsSnapshot.value = JSON.stringify(buildReadingDirectionAnnotationsPayload())
 }
 
 const hasUnsavedTextboxLabelChanges = computed(() => {
   const nodeCount = workingGraph.nodes?.length || graph.value?.nodes?.length || 0
   return JSON.stringify(buildTextboxLabelsPayload(nodeCount)) !== savedTextboxLabelsSnapshot.value
 })
+const hasUnsavedReadingDirectionChanges = computed(() =>
+  JSON.stringify(buildReadingDirectionAnnotationsPayload()) !== savedReadingDirectionAnnotationsSnapshot.value
+)
 
 const hasUnsavedGraphChanges = computed(() => modifications.value.length > 0)
-const hasUnsavedLayoutChanges = computed(() => hasUnsavedGraphChanges.value || hasUnsavedTextboxLabelChanges.value)
+const hasUnsavedLayoutChanges = computed(() =>
+  hasUnsavedGraphChanges.value || hasUnsavedTextboxLabelChanges.value || hasUnsavedReadingDirectionChanges.value
+)
 const currentSaveScope = computed(() => {
   if (!hasUnsavedLayoutChanges.value && recognitionDraftDirty.value) return 'text_only'
   return recognitionModeActive.value ? 'text_only' : 'layout'
@@ -1567,6 +1692,9 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
 
   error.value = null
   modifications.value = []
+  readingDirectionAnnotations.value = {}
+  readingDirectionDraft.value = null
+  syncSavedReadingDirectionAnnotationsSnapshot()
   
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
   replaceLocalRecognitionData({}, {})
@@ -1625,6 +1753,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
 
     updatePageDynamicSizing(graph.value?.nodes || [], graph.value?.edges || [])
     resetWorkingGraph()
+    loadReadingDirectionAnnotationsFromPageData(data.readingDirectionAnnotations)
     syncSavedTextboxLabelsSnapshot(graph.value?.nodes?.length || 0)
     sortLinesTopToBottom()
   } catch (err) {
@@ -1808,8 +1937,106 @@ const resetSelection = () => {
   tempEndPoint.value = null
 }
 
+const imagePointFromMouseEvent = (event) => {
+  if (!svgOverlayRef.value) return null
+  const rect = svgOverlayRef.value.getBoundingClientRect()
+  return [
+    (event.clientX - rect.left) / scaleFactor,
+    (event.clientY - rect.top) / scaleFactor,
+  ]
+}
+
+const distancePointToSegmentRaw = (px, py, x1, y1, x2, y2) => {
+  const denom = Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) || 1
+  const ratio = Math.max(0, Math.min(1, ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / denom))
+  const nx = x1 + ratio * (x2 - x1)
+  const ny = y1 + ratio * (y2 - y1)
+  return Math.hypot(px - nx, py - ny)
+}
+
+const nearestTextlineIdForImagePoint = (point) => {
+  if (!point || !graphIsLoaded.value) return null
+  const [x, y] = point
+  let best = { id: null, distance: Infinity }
+  Object.entries(textlines.value).forEach(([lineId, nodeIndices]) => {
+    const nodeSet = new Set(nodeIndices)
+    nodeIndices.forEach((nodeIndex) => {
+      const node = workingGraph.nodes[nodeIndex]
+      if (!node) return
+      const distance = Math.hypot(x - node.x, y - node.y)
+      if (distance < best.distance) best = { id: lineId, distance }
+    })
+    workingGraph.edges.forEach((edge) => {
+      if (!nodeSet.has(edge.source) || !nodeSet.has(edge.target)) return
+      const source = workingGraph.nodes[edge.source]
+      const target = workingGraph.nodes[edge.target]
+      if (!source || !target) return
+      const distance = distancePointToSegmentRaw(x, y, source.x, source.y, target.x, target.y)
+      if (distance < best.distance) best = { id: lineId, distance }
+    })
+  })
+  const maxDistance = Math.max(pageMedianNeighborDistanceRaw.value * 2.5, 35)
+  return best.distance <= maxDistance ? best.id : null
+}
+
+const handleSvgMouseDown = (event) => {
+  if (!layoutModeActive.value || !isOKeyPressed.value || recognitionModeActive.value) return
+  const point = imagePointFromMouseEvent(event)
+  if (!point) return
+  event.preventDefault()
+  event.stopPropagation()
+  resetSelection()
+  readingDirectionDraft.value = {
+    cut_start: point,
+    cut_end: point,
+  }
+}
+
+const handleSvgMouseUp = (event) => {
+  if (!layoutModeActive.value || !readingDirectionDraft.value) return
+  const endPoint = imagePointFromMouseEvent(event)
+  if (!endPoint) return
+  event.preventDefault()
+  event.stopPropagation()
+  readingDirectionDraft.value.cut_end = endPoint
+  const start = readingDirectionDraft.value.cut_start
+  const dx = endPoint[0] - start[0]
+  const dy = endPoint[1] - start[1]
+  const strokeLength = Math.hypot(dx, dy)
+  if (strokeLength >= 4) {
+    const midpoint = [(start[0] + endPoint[0]) / 2, (start[1] + endPoint[1]) / 2]
+    const textlineId = nearestTextlineIdForImagePoint(midpoint)
+    if (textlineId !== null && textlines.value[textlineId]) {
+      const readingDirection = [-dy / strokeLength, dx / strokeLength]
+      const annotation = {
+        annotation_id: String(textlineId),
+        frontend_line_id: String(textlineId),
+        component_node_indices: [...textlines.value[textlineId]].sort((a, b) => a - b),
+        cut_start: start,
+        cut_end: endPoint,
+        cut_midpoint: midpoint,
+        reading_direction: readingDirection,
+        source: 'user_cross_cut',
+        updated_at: new Date().toISOString(),
+      }
+      const previousAnnotation = readingDirectionAnnotations.value[String(textlineId)] || null
+      readingDirectionAnnotations.value = {
+        ...readingDirectionAnnotations.value,
+        [String(textlineId)]: annotation,
+      }
+      modifications.value.push({
+        type: 'reading_direction',
+        lineId: String(textlineId),
+        previousAnnotation,
+      })
+    }
+  }
+  readingDirectionDraft.value = null
+  suppressNextBackgroundClick = true
+}
+
 const onEdgeClick = (edge, event) => {
-  if (isAKeyPressed.value || isDKeyPressed.value || isEKeyPressed.value || recognitionModeActive.value) return
+  if (isAKeyPressed.value || isDKeyPressed.value || isEKeyPressed.value || isOKeyPressed.value || recognitionModeActive.value) return
   event.stopPropagation()
   selectedNodes.value = [edge.source, edge.target]
 }
@@ -1840,8 +2067,13 @@ const saveOverlay = async () => {
 
 const onBackgroundClick = (event) => {
     if (recognitionModeActive.value) return; 
+    if (suppressNextBackgroundClick) {
+        suppressNextBackgroundClick = false
+        return
+    }
+    if (isOKeyPressed.value) return
     
-    if (layoutModeActive.value && !isAKeyPressed.value && !isDKeyPressed.value && !isEKeyPressed.value) {
+    if (layoutModeActive.value && !isAKeyPressed.value && !isDKeyPressed.value && !isEKeyPressed.value && !isOKeyPressed.value) {
         addNode(event.clientX, event.clientY);
         return;
     }
@@ -1852,7 +2084,7 @@ const onBackgroundClick = (event) => {
 const onNodeClick = (nodeIndex, event) => {
     event.stopPropagation(); 
     if (!layoutModeActive.value || recognitionModeActive.value) return;
-    if (isAKeyPressed.value || isDKeyPressed.value || isEKeyPressed.value) return;
+    if (isAKeyPressed.value || isDKeyPressed.value || isEKeyPressed.value || isOKeyPressed.value) return;
     
     const existingIndex = selectedNodes.value.indexOf(nodeIndex);
     if (existingIndex !== -1) selectedNodes.value.splice(existingIndex, 1);
@@ -1860,7 +2092,7 @@ const onNodeClick = (nodeIndex, event) => {
 }
 
 const onNodeRightClick = (nodeIndex, event) => {
-    if (layoutModeActive.value && !isAKeyPressed.value && !isDKeyPressed.value && !isEKeyPressed.value) {
+    if (layoutModeActive.value && !isAKeyPressed.value && !isDKeyPressed.value && !isEKeyPressed.value && !isOKeyPressed.value) {
         event.preventDefault(); 
         deleteNode(nodeIndex);
     }
@@ -1871,6 +2103,17 @@ const handleSvgMouseMove = (event) => {
   const { left, top } = svgOverlayRef.value.getBoundingClientRect()
   const mouseX = event.clientX - left
   const mouseY = event.clientY - top
+
+  if (isOKeyPressed.value) {
+    if (readingDirectionDraft.value) {
+      readingDirectionDraft.value = {
+        ...readingDirectionDraft.value,
+        cut_end: [mouseX / scaleFactor, mouseY / scaleFactor],
+      }
+    }
+    tempEndPoint.value = null
+    return
+  }
 
   if (isEKeyPressed.value) {
     let newHoveredTextlineId = null
@@ -1912,6 +2155,7 @@ const handleSvgMouseMove = (event) => {
 const handleSvgMouseLeave = () => {
   if (selectedNodes.value.length === 1) tempEndPoint.value = null
   hoveredTextlineId.value = null
+  readingDirectionDraft.value = null
 }
 
 const labelTextline = () => {
@@ -1980,6 +2224,12 @@ const handleGlobalKeyDown = (e) => {
   
   if (key === 'w' && !e.repeat && !isInput) { e.preventDefault(); setMode('layout'); return }
   if (key === 't' && !e.repeat && !isInput) { e.preventDefault(); requestSwitchToRecognition(); return }
+  if (key === 'escape' && !e.repeat && !isInput && layoutModeActive.value && isOKeyPressed.value) {
+    e.preventDefault()
+    isOKeyPressed.value = false
+    readingDirectionDraft.value = null
+    return
+  }
   if (key === 'escape' && recognitionModeActive.value && isInput) { e.preventDefault(); focusedLineId.value = null; return }
   
   // NEW: Visibility Hotkey 'v'
@@ -1989,6 +2239,18 @@ const handleGlobalKeyDown = (e) => {
   }
 
   if (layoutModeActive.value && !e.repeat && !isInput) {
+      if (key === 'o') {
+        e.preventDefault()
+        isOKeyPressed.value = !isOKeyPressed.value
+        readingDirectionDraft.value = null
+        hoveredNodesForMST.clear()
+        resetSelection()
+        return
+      }
+      if (isOKeyPressed.value) {
+        e.preventDefault()
+        return
+      }
       if (key === 'e') { e.preventDefault(); isEKeyPressed.value = true; return }
       if (key === 'd') { e.preventDefault(); isDKeyPressed.value = true; resetSelection(); return }
       if (key === 'a') { e.preventDefault(); isAKeyPressed.value = true; hoveredNodesForMST.clear(); resetSelection(); return }
@@ -2036,12 +2298,34 @@ const undoModification = (index) => {
       workingGraph.nodes.pop();
   } else if (mod.type === 'node_delete') {
       alert("Undo node delete not fully implemented, reload page.")
+  } else if (mod.type === 'reading_direction') {
+    if (mod.previousAnnotation) {
+      readingDirectionAnnotations.value = {
+        ...readingDirectionAnnotations.value,
+        [String(mod.lineId)]: mod.previousAnnotation,
+      }
+    } else {
+      const nextAnnotations = { ...readingDirectionAnnotations.value }
+      delete nextAnnotations[String(mod.lineId)]
+      readingDirectionAnnotations.value = nextAnnotations
+    }
   }
 }
 
 
 const resetModifications = () => {
   resetWorkingGraph()
+  try {
+    const restored = {}
+    JSON.parse(savedReadingDirectionAnnotationsSnapshot.value || '[]').forEach((annotation) => {
+      const normalized = normalizeReadingDirectionAnnotation(annotation)
+      if (normalized) restored[String(normalized.annotation_id)] = normalized
+    })
+    readingDirectionAnnotations.value = restored
+  } catch (err) {
+    readingDirectionAnnotations.value = {}
+  }
+  readingDirectionDraft.value = null
   modifications.value = []
 }
 
@@ -2115,6 +2399,7 @@ const saveModifications = async (background = false, options = {}) => {
   const forceLayoutSave = options?.forceLayoutSave === true
   const numNodes = workingGraph.nodes.length
   const labelsToSend = buildTextboxLabelsPayload(numNodes)
+  const readingDirectionAnnotationsToSend = buildReadingDirectionAnnotationsPayload()
   const dummyTextlineLabels = new Array(numNodes).fill(-1);
   const textContentForSave = hasUnsavedLayoutChanges.value ? {} : { ...localTextContent }
   const requestBody = {
@@ -2122,6 +2407,7 @@ const saveModifications = async (background = false, options = {}) => {
     modifications: modifications.value,
     textlineLabels: dummyTextlineLabels, 
     textboxLabels: labelsToSend,
+    readingDirectionAnnotations: readingDirectionAnnotationsToSend,
     textContent: textContentForSave,
     runRecognition: false,
     apiKey: geminiKey.value,
@@ -2149,6 +2435,7 @@ const saveModifications = async (background = false, options = {}) => {
     modifications.value = []
     recognitionDraftDirty.value = false
     syncSavedTextboxLabelsSnapshot(numNodes)
+    syncSavedReadingDirectionAnnotationsSnapshot()
     error.value = null
   } catch (err) {
     error.value = err.message

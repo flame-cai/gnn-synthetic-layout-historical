@@ -26,6 +26,7 @@ from recognition.line_segmentation import (
     get_text_line_segmentation_strategy,
     list_text_line_segmentation_strategies,
 )
+from recognition.line_segmentation.runtime_config import get_strategy_runtime_config
 from recognition.pagexml_line_dataset import prepare_page_line_dataset
 
 
@@ -151,11 +152,11 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             tmp_root / "explicit",
             heatmap_path=heatmap_path,
             geometry_source="baseline_heatmap",
-            line_segmentation_strategy_name="legacy_axis_bound_v1",
+            line_segmentation_strategy_name="local_polygons_v1",
         )
 
-        self.assertEqual(implicit.line_segmentation_strategy_name, "legacy_axis_bound_v1")
-        self.assertEqual(explicit.line_segmentation_strategy_name, "legacy_axis_bound_v1")
+        self.assertEqual(implicit.line_segmentation_strategy_name, "local_polygons_v1")
+        self.assertEqual(explicit.line_segmentation_strategy_name, "local_polygons_v1")
         self.assertEqual(len(implicit.records), len(explicit.records))
         self.assertEqual(
             implicit.geometry_summary["heatmap_box_assignment_rate"],
@@ -175,7 +176,16 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertIn("get_production_strategy_name", pagexml_source)
         self.assertNotIn("get_benchmark_strategy_name", pagexml_source)
         self.assertIn("apply_text_line_segmentation_strategy", source)
-        self.assertEqual(get_production_strategy_name(), "legacy_axis_bound_v1")
+        self.assertIn("get_strategy_runtime_config", source)
+        self.assertEqual(get_production_strategy_name(), "local_polygons_v1")
+
+    def test_production_local_polygons_runtime_config_uses_benchmark_threshold(self):
+        config = get_strategy_runtime_config(get_production_strategy_name(), include_empty_text_lines=True)
+
+        self.assertEqual(get_production_strategy_name(), "local_polygons_v1")
+        self.assertEqual(float(config["BINARIZE_THRESHOLD"]), 0.45)
+        self.assertTrue(config["include_empty_text_lines"])
+        self.assertEqual(float(config["final_mask_normal_pad_px"]), 0.0)
 
     def _make_single_line_page(self, name: str, baseline_points: str, ink_rects: list[tuple[int, int, int, int]]):
         tmp_root = TESTS_ROOT / "_tmp_line_segmentation_strategy_unit" / name

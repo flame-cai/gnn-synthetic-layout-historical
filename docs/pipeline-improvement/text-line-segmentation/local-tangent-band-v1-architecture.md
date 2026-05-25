@@ -331,11 +331,11 @@ harness roles are:
 - benchmark: `local_polygons_v1`
 - proposed: not configured
 
-The current production app default remains:
+The current production app default has since advanced:
 
-- production app: `legacy_axis_bound_v1`
+- production app: `local_polygons_v1`
 
-Research promotion moves only the benchmark/proposed harness roles. It does not change the production app default.
+Research promotion moves only the benchmark/proposed harness roles. It does not change the production app default; the `local_polygons_v1` production rollout was a separate adoption step.
 
 Current acceptance behavior:
 
@@ -359,7 +359,7 @@ It does not adopt itself into the app automatically. Production adoption is expl
 
     scripts/adopt_text_line_strategy_for_app.py
 
-It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remains the current production app default and also serves as the horizontal special case for the proposed strategy.
+It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remains registered for rollback and masked-crop fallback behavior, and also serves as the horizontal special case inside `local_tangent_band_v1`.
 
 Existing pages are not migrated automatically. GUI OCR inference and GUI active-learning training still read saved PAGE `Coords`, but they now pass those records through the shared crop layer. Missing metadata remains the legacy masked-crop fallback.
 

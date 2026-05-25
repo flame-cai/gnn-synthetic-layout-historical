@@ -17,11 +17,18 @@ from collections import defaultdict
 import xml.etree.ElementTree as ET
 
 from recognition.line_segmentation import apply_text_line_segmentation_strategy
+from recognition.line_segmentation.geometry import normalize_baseline_topology
 from recognition.line_segmentation.ocr_crops import (
     crop_line_record_for_ocr,
     load_line_segmentation_metadata_by_numeric_id,
     load_line_segmentation_strategy_name,
 )
+from recognition.line_segmentation.reading_direction import (
+    build_reading_direction_metadata_payload,
+    default_reading_direction_metadata_path,
+    write_reading_direction_metadata,
+)
+from recognition.line_segmentation.runtime_config import get_strategy_runtime_config
 from recognition.line_segmentation.strategy_config import get_production_strategy_name
 from recognition.pagexml_line_dataset import (
     _encode_like_app_jpg,
@@ -72,7 +79,17 @@ def load_model_once(model_checkpoint_path, config_path):
             LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
 
-def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, graph_edges, args_dict, textbox_labels=None, nodes=None, text_content=None):
+def generate_xml_and_images_for_page(
+    manuscript_path,
+    page_id,
+    node_labels,
+    graph_edges,
+    args_dict,
+    textbox_labels=None,
+    nodes=None,
+    text_content=None,
+    reading_direction_annotations=None,
+):
     """
     Saves user corrections and regenerates XML.
     Handles coordinate scaling: Frontend (Image Space) -> Storage (Heatmap Space).
@@ -158,6 +175,19 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
     xml_output_dir.mkdir(exist_ok=True)
     baseline_xml_output_dir = output_dir / "_baseline_page_xml"
     baseline_xml_output_dir.mkdir(exist_ok=True)
+
+    reading_direction_metadata_path = default_reading_direction_metadata_path(xml_output_dir / f"{page_id}.xml")
+    reading_direction_metadata = build_reading_direction_metadata_payload(
+        page_id=page_id,
+        annotations=reading_direction_annotations or [],
+        final_structural_labels=final_structural_labels,
+        num_nodes=num_nodes,
+    )
+    write_reading_direction_metadata(reading_direction_metadata_path, reading_direction_metadata)
+    reading_direction_annotations_by_line_id = {
+        int(item["resolved_line_numeric_id"]): dict(item)
+        for item in reading_direction_metadata.get("line_annotations", [])
+    }
     
     # --- NEW: Prepare Images Directory ---
     images_output_dir = output_dir / "image-format" / page_id
@@ -180,16 +210,16 @@ def generate_xml_and_images_for_page(manuscript_path, page_id, node_labels, grap
         image_path=base_path / "images_resized" / f"{page_id}.jpg",
         images_output_dir=None,
         save_vis=False,
-        text_content=text_content # <--- PASS THIS DOWN
+        text_content=text_content,
+        reading_direction_annotations_by_line_id=reading_direction_annotations_by_line_id,
     )
-    strategy_config = {
-        "BINARIZE_THRESHOLD": args_dict.get("BINARIZE_THRESHOLD", 0.5098),
-        "BBOX_PAD_V": args_dict.get("BBOX_PAD_V", 0.7),
-        "BBOX_PAD_H": args_dict.get("BBOX_PAD_H", 0.5),
-        "CC_SIZE_THRESHOLD_RATIO": args_dict.get("CC_SIZE_THRESHOLD_RATIO", 0.4),
-        "include_empty_text_lines": True,
-    }
     strategy_name = get_default_text_line_segmentation_strategy()
+    strategy_config = get_strategy_runtime_config(
+        strategy_name,
+        overrides=args_dict or {},
+        include_empty_text_lines=True,
+    )
+    strategy_config["reading_direction_annotations_by_line_id"] = reading_direction_annotations_by_line_id
     LOGGER.info(
         "Applying production text-line segmentation strategy strategy=%s manuscript=%s page_id=%s",
         strategy_name,
@@ -672,10 +702,11 @@ def create_page_xml(
     textbox_labels: np.ndarray = None,
     use_best_fit_line: bool = False,
     extend_percentage: float = 0.01,
-    image_path: Path = None, 
+    image_path: Path = None,
     save_vis: bool = True,
     images_output_dir: Path = None,
-    text_content: dict = None # <--- NEW ARGUMENT
+    text_content: dict = None,
+    reading_direction_annotations_by_line_id: dict | None = None,
 ):
     """
     Generates a PAGE XML file with reading order and textregions (textboxes).
@@ -849,6 +880,17 @@ def create_page_xml(
             if len(path_indices) >= 1:
                 ordered_points = [points_unnormalized[idx] for idx in path_indices]
                 baseline_vis = [[int(p[0]*2), int((p[1]+(p[2]/2))*2)] for p in ordered_points]
+                reading_annotation = (reading_direction_annotations_by_line_id or {}).get(int(line_label))
+                topology = normalize_baseline_topology(
+                    baseline_vis,
+                    reading_direction=(reading_annotation or {}).get("reading_direction"),
+                    reading_cut_point=(reading_annotation or {}).get("cut_midpoint"),
+                )
+                if topology.normalized_points:
+                    baseline_vis = [
+                        [int(round(point[0])), int(round(point[1]))]
+                        for point in topology.normalized_points
+                    ]
                 baseline_points_str = " ".join([f"{p[0]},{p[1]}" for p in baseline_vis])
             
             ET.SubElement(text_line, "Baseline", points=baseline_points_str)
