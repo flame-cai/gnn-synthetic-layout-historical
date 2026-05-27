@@ -32,7 +32,7 @@ import base64
 import json
 import zipfile
 import io
-import google.generativeai as genai
+from google import genai
 import glob
 import re
 
@@ -49,7 +49,7 @@ import traceback
 from PIL import Image, ImageDraw, ImageOps
 
 from google.api_core import retry
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
+from google.genai import types
 
 
 # from recognition.recognize_manuscript_text import recognize_manuscript_text
@@ -720,8 +720,9 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
 
         if not lines_geometry: return {}
 
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        model = genai.GenerativeModel('gemini-3.5-flash')
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+        # model = genai.GenerativeModel('gemini-3.5-flash')
 
         def normalize(x, y):
             return max(0, min(1000, int((y / img_h) * 1000))), max(0, min(1000, int((x / img_w) * 1000)))
@@ -766,10 +767,15 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
                 # Use higher temperature for ensemble diversity if N > 1, else greedy (0.2)
                 run_temperature = 0.7 if N > 1 else 0.2
                 
-                response = model.generate_content(
-                    [pil_img, prompt_text],
-                    generation_config={"response_mime_type": "application/json", "temperature": run_temperature}
+                response = client.models.generate_content(
+                    model='gemini-3.5-flash', # Or whichever model version you want to use
+                    contents=[pil_img, prompt_text],
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        temperature=run_temperature
+                    )
                 )
+
                 data = json.loads(response.text)
                 if isinstance(data, dict) and "transcriptions" in data: data = data["transcriptions"]
                 return {str(i['id']): str(i['text']).strip() for i in data if 'id' in i}

@@ -12,7 +12,7 @@ torch_geometric
 torch-spline-conv
 
 # Generative AI
-google-generativeai
+google-genai
 
 # Data Science & Imaging
 numpy
