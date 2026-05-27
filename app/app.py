@@ -754,6 +754,7 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
                 "to precisely map the text line locations on the image.\n"
                 "For each path trace points, transcribe the text that sits along this curve.\n"
                 "Focus strictly on the visual line indicated by the trace; ignore text from lines above or below.\n"
+                "The path trace can be curved and even circular. If a path trace is circular, transcribe the text that sits along the entire circle, starting from the top.\n"
                 "Transcribe in Unicode Devanagari. Preserve original spelling (Sandhi).\n"
                 "Output a JSON array of objects with 'id' and 'text'.\n\n"
                 "REGIONS:\n"

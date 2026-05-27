@@ -7070,3 +7070,54 @@
 2026-05-23 14:14:30,247 - INFO - 127.0.0.1 - - [23/May/2026 14:14:30] "GET /manuscript/my_manuscript_circle/active-learning HTTP/1.1" 200 -
 2026-05-23 14:14:32,534 - INFO - 127.0.0.1 - - [23/May/2026 14:14:32] "GET /manuscript/my_manuscript_circle/active-learning HTTP/1.1" 200 -
 2026-05-23 14:14:34,221 - INFO - 127.0.0.1 - - [23/May/2026 14:14:34] "GET /manuscript/my_manuscript_circle/active-learning HTTP/1.1" 200 -
+2026-05-27 11:16:31,511 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.197:5000
+2026-05-27 11:16:31,511 - INFO - [33mPress CTRL+C to quit[0m
+2026-05-27 11:16:31,515 - INFO -  * Restarting with stat
+2026-05-27 11:16:45,383 - WARNING -  * Debugger is active!
+2026-05-27 11:16:45,389 - INFO -  * Debugger PIN: 377-258-397
+2026-05-27 11:16:45,490 - INFO - 127.0.0.1 - - [27/May/2026 11:16:45] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-27 11:16:49,287 - INFO - 127.0.0.1 - - [27/May/2026 11:16:49] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-27 11:17:23,598 - INFO - 127.0.0.1 - - [27/May/2026 11:17:23] "POST /upload HTTP/1.1" 200 -
+2026-05-27 11:17:23,974 - INFO - 127.0.0.1 - - [27/May/2026 11:17:23] "GET /manuscript/my_manuscript_27/pages HTTP/1.1" 200 -
+2026-05-27 11:17:25,153 - INFO - 127.0.0.1 - - [27/May/2026 11:17:25] "GET /semi-segment/my_manuscript_27/page_3 HTTP/1.1" 200 -
+2026-05-27 11:17:25,285 - INFO - 127.0.0.1 - - [27/May/2026 11:17:25] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:27,718 - INFO - 127.0.0.1 - - [27/May/2026 11:17:27] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:29,421 - INFO - 127.0.0.1 - - [27/May/2026 11:17:29] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:31,711 - INFO - 127.0.0.1 - - [27/May/2026 11:17:31] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:34,404 - INFO - 127.0.0.1 - - [27/May/2026 11:17:34] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:36,722 - INFO - 127.0.0.1 - - [27/May/2026 11:17:36] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:38,406 - INFO - 127.0.0.1 - - [27/May/2026 11:17:38] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:39,717 - INFO - 127.0.0.1 - - [27/May/2026 11:17:39] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:41,411 - INFO - 127.0.0.1 - - [27/May/2026 11:17:41] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:43,721 - INFO - 127.0.0.1 - - [27/May/2026 11:17:43] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:45,406 - INFO - 127.0.0.1 - - [27/May/2026 11:17:45] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:48,709 - INFO - 127.0.0.1 - - [27/May/2026 11:17:48] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:49,417 - INFO - 127.0.0.1 - - [27/May/2026 11:17:49] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:52,716 - INFO - 127.0.0.1 - - [27/May/2026 11:17:52] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:53,421 - INFO - 127.0.0.1 - - [27/May/2026 11:17:53] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:55,713 - INFO - 127.0.0.1 - - [27/May/2026 11:17:55] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:57,415 - INFO - 127.0.0.1 - - [27/May/2026 11:17:57] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:17:59,708 - INFO - 127.0.0.1 - - [27/May/2026 11:17:59] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:01,415 - INFO - 127.0.0.1 - - [27/May/2026 11:18:01] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:03,707 - INFO - 127.0.0.1 - - [27/May/2026 11:18:03] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:05,408 - INFO - 127.0.0.1 - - [27/May/2026 11:18:05] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:07,734 - INFO - 127.0.0.1 - - [27/May/2026 11:18:07] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:09,386 - INFO - 127.0.0.1 - - [27/May/2026 11:18:09] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:11,741 - INFO - 127.0.0.1 - - [27/May/2026 11:18:11] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:13,399 - INFO - 127.0.0.1 - - [27/May/2026 11:18:13] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:15,726 - INFO - 127.0.0.1 - - [27/May/2026 11:18:15] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:17,406 - INFO - 127.0.0.1 - - [27/May/2026 11:18:17] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:19,705 - INFO - 127.0.0.1 - - [27/May/2026 11:18:19] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:18:29,482 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-05-27 11:18:31,484 - INFO -  * Restarting with stat
+2026-05-27 11:18:51,041 - WARNING -  * Debugger is active!
+2026-05-27 11:18:51,049 - INFO -  * Debugger PIN: 377-258-397
+2026-05-27 11:18:52,320 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-05-27 11:18:54,319 - INFO -  * Restarting with stat
+2026-05-27 11:19:09,634 - WARNING -  * Debugger is active!
+2026-05-27 11:19:09,638 - INFO -  * Debugger PIN: 377-258-397
+2026-05-27 11:19:09,765 - INFO - 127.0.0.1 - - [27/May/2026 11:19:09] "GET /manuscript/my_manuscript_27/active-learning HTTP/1.1" 200 -
+2026-05-27 11:19:10,972 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
