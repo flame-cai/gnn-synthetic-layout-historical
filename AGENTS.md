@@ -118,6 +118,8 @@ Text-line strategy rollout has two explicit workflows:
 - `scripts/promote_text_line_strategy.py` promotes a proposed strategy inside the research harness only. It must not be treated as a GUI/app rollout.
 - `scripts/adopt_text_line_strategy_for_app.py` adopts a registered strategy for future app layout saves/regenerations by changing `production_strategy_name`.
 
+Production adoption must not modify the research harness or ablation gates. Do not change `app/tests/pipeline_ablation_experiment.py`, `app/tests/recognition_finetuning_experiment.py`, `app/tests/precommit_gate_config.py`, or `scripts/run_precommit_eval.py` when the task is only to adopt the current research benchmark in the app. Benchmark-only or no-proposed-strategy gate behavior is a separate research-harness change and needs explicit approval.
+
 Existing PAGE XML, OCR line images, and active-learning checkpoint lineage are not migrated automatically by either workflow. Production OCR still reads saved PAGE `Coords`, but app line-image export, local OCR inference, and GUI active-learning training now use the shared strategy-aware crop layer. Missing metadata, legacy metadata, malformed metadata, and non-local-tangent metadata all fall back to the historical masked PAGE `Coords` crop.
 
 This separation exists because production and research crop preparation do not start from the same geometry. Production OCR uses the PAGE `Coords` already present on a saved page plus optional line-segmentation metadata sidecars. The OCR strategy ablation harness starts from PAGE `Baseline` plus checked-in heatmaps/images, regenerates `Coords` through the selected strategy, and then prepares OCR crops through the same crop decision layer. A production text-line segmentation strategy therefore includes both PAGE `Coords` generation and the way saved PAGE lines are converted into OCR-ready crops, but production adoption remains explicit and does not migrate old pages.
@@ -158,6 +160,8 @@ From repository root:
 
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+
+This gate is a benchmark/proposed strategy comparison. If `proposed_strategy_name` is not configured, configure a proposed research strategy before running it; do not change the gate to benchmark-only mode as part of production adoption work.
 
 Targeted OCR unit tests:
 

@@ -28,13 +28,8 @@ class EndToEndEvalDatasetTest(unittest.TestCase):
                 self.assertTrue(result["passed"], result["failure_message"])
                 self.assertEqual(result["status"], "passed")
                 self.assertIn("benchmark", result["strategy_results"])
+                self.assertIn("proposed", result["strategy_results"])
                 self.assertTrue(result["comparison"]["passed"], result["comparison"]["failure_message"])
-                if dataset_config.strategy_ablation.proposed.strategy_name:
-                    self.assertIn("proposed", result["strategy_results"])
-                    self.assertFalse(result["comparison"].get("comparison_skipped", False))
-                else:
-                    self.assertNotIn("proposed", result["strategy_results"])
-                    self.assertTrue(result["comparison"].get("comparison_skipped"))
 
                 latest_metrics_path = TESTS_ROOT / "logs" / "pipeline_ablation_latest.json"
                 latest_summary_path = TESTS_ROOT / "logs" / "pipeline_ablation_latest.md"
@@ -46,10 +41,7 @@ class EndToEndEvalDatasetTest(unittest.TestCase):
                 self.assertEqual(latest_metrics["failed_datasets"], [])
                 dataset_result = latest_metrics["dataset_results"][dataset_config.name]
                 self.assertIn("benchmark", dataset_result["strategy_results"])
-                if dataset_config.strategy_ablation.proposed.strategy_name:
-                    self.assertIn("proposed", dataset_result["strategy_results"])
-                else:
-                    self.assertNotIn("proposed", dataset_result["strategy_results"])
+                self.assertIn("proposed", dataset_result["strategy_results"])
 
 
 if __name__ == "__main__":

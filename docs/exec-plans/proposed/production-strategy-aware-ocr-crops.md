@@ -139,6 +139,8 @@ Do not migrate old manuscripts as a side effect of this refactor. Existing PAGE 
 
 Do not silently treat research promotion as production adoption. The research workflow may promote a benchmark strategy for future harness comparisons. Production adoption must remain a separate script/config change that changes future app saves and OCR crops only after explicit operator intent.
 
+Do not change the research harness or pre-commit ablation gates as part of production adoption. In particular, adopting the current research benchmark for the app must not change benchmark/proposed comparison semantics, add benchmark-only skip behavior, or alter research gate runners under `app/tests/`. Any such change is a separate research-harness maintenance task and needs separate justification.
+
 The fallback behavior must be boring and predictable:
 
     missing metadata -> masked PAGE Coords crop
@@ -328,12 +330,12 @@ Then run the hybrid OCR unit gate:
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_unit -v
 
-If those pass, run the fast full-pipeline gate:
+If those pass and a proposed research strategy is configured, run the fast full-pipeline gate:
 
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
 
-If the change is being prepared for merge or production adoption work, run the two slow OCR ablation gates as well:
+If the change is a research strategy comparison or a production adoption that explicitly needs fresh verifier evidence with both benchmark and proposed roles configured, run the two slow OCR ablation gates as well:
 
     $env:CONDA_NO_PLUGINS='true'
     conda run -n gnn_layout python -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v

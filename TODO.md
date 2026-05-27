@@ -1,14 +1,15 @@
-- the proposed is too local..horizontal lines are treated as curved lines..
-
-
-
+# production
+- change switch to Gemini Reader Note: Just warn user that existing changes will be erased..
+- "Could not update from saved corrections"
 - drawing reading order annotation lines dont work on an entire paragraph it only works on one line at a time
-- the research harness is untouched right?
-- update gemini prompt
-- don't touch the research harness
-- the research harness proposed and benchmark is independent from the production app strategy.
+- testing, recognize using gemini, fine-tune built in reader.
 - apply the reading order annotation to the Gemini recognition pipeline too..
-- does production have base line normalization?
+
+# research
+- the proposed is too local..horizontal lines are treated as curved lines..
+- faster inference..should be more smooth.
+- check if pre-commit gates are working
+
 
 __________
 

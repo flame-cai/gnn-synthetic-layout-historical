@@ -37,7 +37,7 @@ The current checked-in state is:
 `local_polygons_v1` was adopted for production on 2026-05-23 after runtime support landed for strategy-owned config and reading-direction metadata. `legacy_axis_bound_v1` remains available after any research promotion or production adoption for rollback, historical comparison, and legacy-page fallback behavior.
 Configure a new `proposed_strategy_name` before running the next strategy ablation cycle.
 Research strategy configs that must survive role changes are keyed by strategy in `app/tests/precommit_gate_config.py`; the current local-polygons research config keeps `BINARIZE_THRESHOLD=0.45` whether it is benchmark or proposed.
-If no proposed strategy is configured, benchmark-only verifier runs are allowed and the strategy comparison is recorded as skipped. Such runs are useful for regression checks but are not promotion evidence.
+If no proposed strategy is configured, do not change the ablation gates to run benchmark-only as part of production adoption. Configure a proposed research strategy before running comparison gates again, or treat any benchmark-only health check as a separate research-harness maintenance change with its own review.
 
 ## Why The Lifecycles Are Separate
 
@@ -134,11 +134,13 @@ It does not change:
 - `benchmark_strategy_name`
 - `proposed_strategy_name`
 - `research_promotion_history`
+- research harness code or pre-commit ablation gate behavior
 - existing PAGE XML
 - existing OCR line images
 - active-learning checkpoint lineage
 
 Production adoption affects future layout saves/regenerations and the crop metadata produced for newly saved pages only. Existing manuscripts and pages are not migrated automatically.
+When adopting the current research benchmark for production, do not edit `app/tests/pipeline_ablation_experiment.py`, `app/tests/recognition_finetuning_experiment.py`, `app/tests/precommit_gate_config.py`, or `scripts/run_precommit_eval.py` unless the task is explicitly a separate research-harness change. Production adoption should be limited to app/runtime support and the production role fields in `app/recognition/line_segmentation/strategy_config.py`.
 
 The 2026-05-23 production adoption command was:
 
