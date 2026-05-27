@@ -71,10 +71,13 @@
                 style="padding: 2px 6px; font-size: 0.75rem;"
               >
                 <option value="local">Built-in Reader</option>
-                <option value="gemini">Gemini</option>
+                <option value="gemini" :disabled="!isRecognitionEngineAvailable('gemini')">Gemini</option>
               </select>
-              <span v-if="recognitionEngine === 'gemini'" class="recognition-engine-note">
-                Make sure to tune the Gemini prompt for your script in the backend source code in app/app.py.
+              <span v-if="readerSwitchNotice" class="recognition-engine-note">
+                {{ readerSwitchNotice }}
+              </span>
+              <span v-else-if="recognitionEngine === 'gemini' && !isRecognitionEngineAvailable('gemini')" class="recognition-engine-note">
+                {{ recognitionEngineUnavailableMessage('gemini') }}
               </span>
             </div>
           </div>
@@ -553,6 +556,15 @@ const emit = defineEmits(['page-changed', 'back'])
 const router = useRouter()
 const PAGE_ENTRY_LAYOUT = 'layout'
 const PAGE_ENTRY_RECOGNITION_IF_COMMITTED_TEXT = 'recognition_if_committed_text'
+const RECOGNITION_READER_LABELS = {
+  local: 'Built-in Reader',
+  gemini: 'Gemini',
+}
+const normalizeRecognitionEngine = (value) => (value === 'gemini' ? 'gemini' : 'local')
+const activeLearningPollDelayMs = {
+  active: 2000,
+  idle: 60000,
+}
 
 // UI State
 const isPanelCollapsed = ref(false)
@@ -632,7 +644,6 @@ const savedReadingDirectionAnnotationsSnapshot = ref('[]')
 let suppressNextBackgroundClick = false
 
 // Recognition Data
-const geminiKey = ref(localStorage.getItem('gemini_key') || '')
 const localTextContent = reactive({}) 
 const pagePolygons = ref({}) 
 const focusedLineId = ref(null)
@@ -640,13 +651,27 @@ const sortedLineIds = ref([])
 const autoRecogEnabled = ref(localStorage.getItem('auto_prepare_next_page') === 'true')
 const activeLearningEnabled = ref(localStorage.getItem('active_learning_enabled') !== 'false')
 const activeLearningStatus = ref('Not updating right now')
-const recognitionEngine = ref(localStorage.getItem('recognition_engine') || 'local') // NEW
+const recognitionEngine = ref(normalizeRecognitionEngine(localStorage.getItem('recognition_engine') || 'local'))
 const devanagariModeEnabled = ref(true) 
 const recognitionInFlight = ref(false)
 const recognitionDraftDirty = ref(false)
 const suppressTextDirtyTracking = ref(false)
 const pendingPageEntryPreference = ref(null)
+const readerSwitchNotice = ref('')
+const readerCapabilities = reactive({
+  local: {
+    available: true,
+    label: RECOGNITION_READER_LABELS.local,
+    unavailableReason: null,
+  },
+  gemini: {
+    available: false,
+    label: RECOGNITION_READER_LABELS.gemini,
+    unavailableReason: 'Gemini is not configured on this server.',
+  },
+})
 const activeLearningMeta = reactive({
+  code: 'idle',
   label: 'Not updating right now',
   active_checkpoint_id: 'base',
   active_checkpoint_path: null,
@@ -678,13 +703,13 @@ const pageWorkflow = reactive({
 
 // NEW: Persist keys/settings to local storage
 watch(autoRecogEnabled, (val) => localStorage.setItem('auto_prepare_next_page', String(val)))
-watch(recognitionEngine, (val) => localStorage.setItem('recognition_engine', val))
 watch(activeLearningEnabled, (val) => localStorage.setItem('active_learning_enabled', String(val)))
-watch(geminiKey, (val) => localStorage.setItem('gemini_key', val))
 const localTextConfidence = reactive({}) 
 const autoSaveInterval = ref(null) // NEW
-let activeLearningPollIntervalId = null
+let activeLearningPollTimeoutId = null
 let activeLearningPollInFlight = false
+let suppressRecognitionEngineWatcher = false
+let readerSwitchNoticeTimeoutId = null
 
 const scaleFactor = 0.7
 const DEFAULT_MEDIAN_NEIGHBOR_DISTANCE_RAW = 20
@@ -860,17 +885,33 @@ const describeLocalCheckpoint = (checkpointId) => {
 }
 
 const localCheckpointDescriptor = computed(() => describeLocalCheckpoint(activeLearningMeta.active_checkpoint_id))
-const activeReaderStatusLabel = computed(() => `Active Reader: ${localCheckpointDescriptor.value.modelLabel}`)
+const activeReaderStatusLabel = computed(() => `Trainable Reader: ${localCheckpointDescriptor.value.modelLabel}`)
+
+const recognitionEngineOptionLabel = (engine) =>
+  readerCapabilities[engine]?.label || RECOGNITION_READER_LABELS[engine] || String(engine || 'Reader')
+
+const isRecognitionEngineAvailable = (engine) => {
+  const normalizedEngine = normalizeRecognitionEngine(engine)
+  return Boolean(readerCapabilities[normalizedEngine]?.available)
+}
+
+const recognitionEngineUnavailableMessage = (engine = recognitionEngine.value) => {
+  const normalizedEngine = normalizeRecognitionEngine(engine)
+  return (
+    readerCapabilities[normalizedEngine]?.unavailableReason ||
+    `${recognitionEngineOptionLabel(normalizedEngine)} is not available right now.`
+  )
+}
 
 const nextRecognitionSourceLabel = computed(() => {
-  if (recognitionEngine.value === 'gemini') return 'Gemini'
+  if (recognitionEngine.value === 'gemini') return recognitionEngineOptionLabel('gemini')
   return localCheckpointDescriptor.value.modelLabel
 })
 
 const recognitionEngineLabel = computed(() => nextRecognitionSourceLabel.value)
-const canRecognizePage = computed(() => recognitionEngine.value !== 'gemini' || Boolean(geminiKey.value))
+const canRecognizePage = computed(() => isRecognitionEngineAvailable(recognitionEngine.value))
 const recognitionBusyLabel = computed(() => {
-  if (recognitionEngine.value === 'gemini') return 'Reading the page with Gemini...'
+  if (recognitionEngine.value === 'gemini') return `Reading the page with ${recognitionEngineOptionLabel('gemini')}...`
   return `Reading the page with ${localCheckpointDescriptor.value.fullLabel}...`
 })
 const pageWorkflowRequiresLayoutMode = (workflow) =>
@@ -946,7 +987,7 @@ const recognitionEngineDescription = computed(() => {
   if (recognitionEngine.value === 'gemini') {
     return canRecognizePage.value
       ? 'Uses Gemini to read the text on this page.'
-      : 'Gemini needs an API key before it can read this page.'
+      : recognitionEngineUnavailableMessage('gemini')
   }
   return localCheckpointDescriptor.value.detailLabel
 })
@@ -1074,9 +1115,7 @@ const recognizeButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason(recognizeButtonLabel.value)
   if (busyReason) return busyReason
   if (!canRecognizePage.value) {
-    return recognitionEngine.value === 'gemini'
-      ? 'Add a Gemini API key or switch to the built-in reader before reading the page.'
-      : 'Text reading is not available right now.'
+    return recognitionEngineUnavailableMessage(recognitionEngine.value)
   }
   if (layoutModeActive.value && hasUnsavedLayoutChanges.value) {
     return 'Save the updated page layout, open Text Review, and read the page text (R).'
@@ -1177,13 +1216,87 @@ const replaceLocalRecognitionData = (textPayload = {}, confidencePayload = {}) =
   })
 }
 
+const applyReaderCapabilities = (payload = {}) => {
+  const readers = payload.readers || {}
+  ;['local', 'gemini'].forEach((engine) => {
+    const reader = readers[engine] || {}
+    readerCapabilities[engine].available = engine === 'local' ? true : Boolean(reader.available)
+    readerCapabilities[engine].label = reader.label || RECOGNITION_READER_LABELS[engine]
+    readerCapabilities[engine].unavailableReason = reader.unavailableReason || null
+  })
+  if (!readerCapabilities.gemini.available && !readerCapabilities.gemini.unavailableReason) {
+    readerCapabilities.gemini.unavailableReason = 'Gemini is not configured on this server.'
+  }
+  if (!isRecognitionEngineAvailable(recognitionEngine.value)) {
+    setRecognitionEngineSilently(normalizeRecognitionEngine(payload.defaultEngine))
+  }
+}
+
+const refreshReaderCapabilities = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recognition/readers`)
+    if (!response.ok) return
+    const data = await response.json()
+    applyReaderCapabilities(data)
+  } catch (err) {
+    console.warn('Reader capability refresh failed', err)
+  }
+}
+
+const showReaderSwitchNotice = (message) => {
+  readerSwitchNotice.value = message || ''
+  if (readerSwitchNoticeTimeoutId !== null) {
+    window.clearTimeout(readerSwitchNoticeTimeoutId)
+    readerSwitchNoticeTimeoutId = null
+  }
+  if (readerSwitchNotice.value) {
+    readerSwitchNoticeTimeoutId = window.setTimeout(() => {
+      readerSwitchNotice.value = ''
+      readerSwitchNoticeTimeoutId = null
+    }, 7000)
+  }
+}
+
+const setRecognitionEngineSilently = (engine) => {
+  suppressRecognitionEngineWatcher = true
+  recognitionEngine.value = normalizeRecognitionEngine(engine)
+  localStorage.setItem('recognition_engine', recognitionEngine.value)
+  nextTick(() => {
+    suppressRecognitionEngineWatcher = false
+  })
+}
+
 const applyActiveLearningState = (payload = {}) => {
+  activeLearningMeta.code = payload.code || 'idle'
   activeLearningStatus.value = payload.label || 'Not updating right now'
   activeLearningMeta.label = activeLearningStatus.value
   activeLearningMeta.active_checkpoint_id = payload.active_checkpoint_id || 'base'
   activeLearningMeta.active_checkpoint_path = payload.active_checkpoint_path || null
   activeLearningMeta.pending_jobs = Array.isArray(payload.pending_jobs) ? payload.pending_jobs : []
   activeLearningMeta.needs_rebase = Boolean(payload.needs_rebase)
+}
+
+const activeLearningNeedsFastPolling = () =>
+  activeLearningMeta.pending_jobs.length > 0 ||
+  ['queued', 'running', 'paused_for_ocr'].includes(activeLearningMeta.code)
+
+const currentActiveLearningPollDelay = () =>
+  activeLearningNeedsFastPolling() ? activeLearningPollDelayMs.active : activeLearningPollDelayMs.idle
+
+const scheduleNextActiveLearningPoll = (delayMs = currentActiveLearningPollDelay()) => {
+  if (activeLearningPollTimeoutId !== null) {
+    window.clearTimeout(activeLearningPollTimeoutId)
+  }
+  activeLearningPollTimeoutId = window.setTimeout(async () => {
+    activeLearningPollTimeoutId = null
+    await refreshActiveLearningState()
+    scheduleNextActiveLearningPoll()
+  }, delayMs)
+}
+
+const rescheduleActiveLearningPolling = (delayMs = currentActiveLearningPollDelay()) => {
+  if (activeLearningPollTimeoutId === null) return
+  scheduleNextActiveLearningPoll(delayMs)
 }
 
 const refreshActiveLearningState = async () => {
@@ -1202,16 +1315,14 @@ const refreshActiveLearningState = async () => {
 }
 
 const startActiveLearningPolling = () => {
-  if (activeLearningPollIntervalId !== null) return
-  activeLearningPollIntervalId = window.setInterval(() => {
-    refreshActiveLearningState()
-  }, 2000)
+  if (activeLearningPollTimeoutId !== null) return
+  scheduleNextActiveLearningPoll(currentActiveLearningPollDelay())
 }
 
 const stopActiveLearningPolling = () => {
-  if (activeLearningPollIntervalId === null) return
-  window.clearInterval(activeLearningPollIntervalId)
-  activeLearningPollIntervalId = null
+  if (activeLearningPollTimeoutId === null) return
+  window.clearTimeout(activeLearningPollTimeoutId)
+  activeLearningPollTimeoutId = null
 }
 
 const applyPageWorkflow = (payload = {}) => {
@@ -1258,6 +1369,57 @@ const shouldResumeRecognitionForWorkflow = (workflow = {}) =>
   Boolean(
     workflow?.can_resume_recognition
   )
+
+const unsavedReaderSwitchBlockMessage = () => {
+  if (hasUnsavedLayoutChanges.value) {
+    return 'Save or discard the page layout changes before changing the text reader.'
+  }
+  if (recognitionDraftDirty.value) {
+    return 'Save or discard the current text corrections before changing the text reader.'
+  }
+  return ''
+}
+
+const handleRecognitionEngineChange = async (newEngine, previousEngine) => {
+  const normalizedNewEngine = normalizeRecognitionEngine(newEngine)
+  const normalizedPreviousEngine = normalizeRecognitionEngine(previousEngine)
+  if (normalizedNewEngine !== newEngine) {
+    setRecognitionEngineSilently(normalizedNewEngine)
+    return
+  }
+
+  localStorage.setItem('recognition_engine', normalizedNewEngine)
+  if (suppressRecognitionEngineWatcher) return
+
+  if (!isRecognitionEngineAvailable(normalizedNewEngine)) {
+    const message = recognitionEngineUnavailableMessage(normalizedNewEngine)
+    error.value = message
+    showReaderSwitchNotice(message)
+    setRecognitionEngineSilently(normalizedPreviousEngine)
+    return
+  }
+
+  if (!recognitionModeActive.value) {
+    showReaderSwitchNotice(`${recognitionEngineOptionLabel(normalizedNewEngine)} will be used the next time you read a page.`)
+    return
+  }
+
+  const blockedMessage = unsavedReaderSwitchBlockMessage()
+  if (blockedMessage) {
+    error.value = blockedMessage
+    showReaderSwitchNotice(blockedMessage)
+    setRecognitionEngineSilently(normalizedPreviousEngine)
+    return
+  }
+
+  showReaderSwitchNotice(`Re-reading this page with ${recognitionEngineOptionLabel(normalizedNewEngine)}.`)
+  await recognizeCurrentPage({ focusAfter: true })
+}
+
+watch(recognitionEngine, (newEngine, previousEngine) => {
+  if (suppressRecognitionEngineWatcher) return
+  handleRecognitionEngineChange(newEngine, previousEngine)
+})
 
 watch(
   localTextContent,
@@ -1780,9 +1942,7 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
     return false
   }
   if (!canRecognizePage.value) {
-    const message = recognitionEngine.value === 'gemini'
-      ? 'Gemini needs an API key before it can read this page.'
-      : 'Text reading is not available right now.'
+    const message = recognitionEngineUnavailableMessage(recognitionEngine.value)
     error.value = message
     if (!suppressErrors) alert(message)
     return false
@@ -1797,7 +1957,6 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
       body: JSON.stringify({
         manuscript: localManuscriptName.value,
         page: localCurrentPage.value,
-        apiKey: geminiKey.value,
         recognitionEngine: recognitionEngine.value,
       }),
     })
@@ -1809,6 +1968,7 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
     const data = await response.json()
     replaceLocalRecognitionData(data.text || {}, data.confidences || {})
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    rescheduleActiveLearningPolling()
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
     sortLinesTopToBottom()
     if (focusAfter && sortedLineIds.value.length > 0) {
@@ -2410,7 +2570,6 @@ const saveModifications = async (background = false, options = {}) => {
     readingDirectionAnnotations: readingDirectionAnnotationsToSend,
     textContent: textContentForSave,
     runRecognition: false,
-    apiKey: geminiKey.value,
     recognitionEngine: recognitionEngine.value, // <--- NEW PARAMETER
     activeLearningEnabled: activeLearningEnabled.value,
     saveIntent: background ? 'draft' : 'commit',
@@ -2430,6 +2589,7 @@ const saveModifications = async (background = false, options = {}) => {
     // If auto-recog was run, update text
     const data = await res.json()
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    rescheduleActiveLearningPolling()
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
 
     modifications.value = []
@@ -2595,6 +2755,7 @@ onMounted(async () => {
          emit('page-changed', lastEdited) // Sync with parent
     }
 
+    await refreshReaderCapabilities()
     await fetchPageData(props.manuscriptName, localCurrentPage.value, false, false)
     await refreshActiveLearningState()
     startActiveLearningPolling()
@@ -2630,6 +2791,10 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleGlobalKeyDown)
   window.removeEventListener('keyup', handleGlobalKeyUp)
   if(autoSaveInterval.value) clearInterval(autoSaveInterval.value);
+  if (readerSwitchNoticeTimeoutId !== null) {
+    window.clearTimeout(readerSwitchNoticeTimeoutId)
+    readerSwitchNoticeTimeoutId = null
+  }
   stopActiveLearningPolling()
 })
 

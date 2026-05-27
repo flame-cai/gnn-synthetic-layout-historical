@@ -32,6 +32,7 @@ import base64
 import json
 import zipfile
 import io
+import time
 from google import genai
 import glob
 import re
@@ -63,8 +64,10 @@ from inference import process_new_manuscript
 from gnn_inference import run_gnn_prediction_for_page, generate_xml_and_images_for_page
 from recognition.line_segmentation.reading_direction import (
     default_reading_direction_metadata_path,
+    load_reading_direction_annotations_by_line_id,
     load_reading_direction_metadata,
 )
+from recognition.line_segmentation.geometry import normalize_baseline_topology
 from segmentation.utils import load_images_from_folder
 from job_orchestrator import JobOrchestrator
 from ocr_active_learning_runtime import (
@@ -86,6 +89,36 @@ MODEL_CHECKPOINT = "./pretrained_gnn/v2.pt"
 DATASET_CONFIG = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
 OCR_MODEL_MANAGER = ManuscriptAwareOcrModelManager()
 JOB_ORCHESTRATOR = JobOrchestrator()
+SUPPORTED_RECOGNITION_ENGINES = {"local", "gemini"}
+
+
+def _normalize_recognition_engine(value):
+    engine = str(value or "local").strip().lower()
+    return engine if engine in SUPPORTED_RECOGNITION_ENGINES else "local"
+
+
+def _server_gemini_api_key():
+    return (os.getenv("GEMINI_API_KEY") or "").strip()
+
+
+def _recognition_reader_capabilities():
+    gemini_configured = bool(_server_gemini_api_key())
+    return {
+        "defaultEngine": "local",
+        "readers": {
+            "local": {
+                "available": True,
+                "label": "Built-in Reader",
+                "serverConfigured": True,
+            },
+            "gemini": {
+                "available": gemini_configured,
+                "label": "Gemini",
+                "serverConfigured": gemini_configured,
+                "unavailableReason": None if gemini_configured else "Gemini is not configured on this server.",
+            },
+        },
+    }
 
 
 def _configure_active_learning_runtime():
@@ -528,6 +561,11 @@ def get_manuscript_active_learning(name):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+
+@app.route('/recognition/readers', methods=['GET'])
+def get_recognition_readers():
+    return jsonify(_recognition_reader_capabilities())
+
 @app.route('/semi-segment/<manuscript>/<page>', methods=['GET'])
 def get_page_prediction(manuscript, page):
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
@@ -651,15 +689,19 @@ def ensemble_text_samples(samples):
     return "".join(result_chars), result_confidences
 
 
-def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_points=4):
+def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_trace_points=4):
+    started_at = time.monotonic()
     print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
+    api_key = _server_gemini_api_key()
+    if not api_key:
+        return {"error": "Gemini is not configured on this server."}
     
     base_path = Path(UPLOAD_FOLDER) / manuscript
     xml_path = base_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     img_path = base_path / "images_resized" / f"{page}.jpg"
 
     if not xml_path.exists() or not img_path.exists():
-        return {}
+        return {"error": "Page XML or image is missing."}
 
     try:
         pil_img = Image.open(img_path)
@@ -691,6 +733,35 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
                         break
             return new_pts
 
+        reading_annotations_by_line_id = load_reading_direction_annotations_by_line_id(
+            default_reading_direction_metadata_path(xml_path)
+        )
+
+        def normalize_trace_baseline(line_id, pts):
+            try:
+                line_numeric_id = int(line_id)
+            except Exception:
+                line_numeric_id = None
+            reading_annotation = (
+                reading_annotations_by_line_id.get(line_numeric_id)
+                if line_numeric_id is not None
+                else None
+            )
+            try:
+                topology = normalize_baseline_topology(
+                    pts,
+                    reading_direction=(reading_annotation or {}).get("reading_direction"),
+                    reading_cut_point=(reading_annotation or {}).get("cut_midpoint"),
+                )
+                if topology.normalized_points:
+                    return [
+                        [int(round(point[0])), int(round(point[1]))]
+                        for point in topology.normalized_points
+                    ]
+            except Exception as exc:
+                print(f"[{page}] Warning: Gemini trace normalization failed for line {line_id}: {exc}")
+            return pts
+
         lines_geometry = [] 
         for textline in root.findall(".//p:TextLine", ns):
             custom_attr = textline.get('custom', '')
@@ -701,6 +772,7 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
             if base_elem is not None and base_elem.get('points'):
                 pts = [list(map(int, p.split(','))) for p in base_elem.get('points').strip().split(' ')]
             else: continue
+            pts = normalize_trace_baseline(line_id, pts)
 
             coords_elem = textline.find('p:Coords', ns)
             poly_pts = [list(map(int, p.split(','))) for p in coords_elem.get('points').strip().split(' ')] if coords_elem is not None else []
@@ -718,9 +790,10 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
                 "thickness": max(10, min(thickness, 20)), "is_vertical": is_vert
             })
 
-        if not lines_geometry: return {}
+        if not lines_geometry:
+            return {"error": "No text-line baselines are available for Gemini recognition."}
 
-        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        client = genai.Client(api_key=api_key)
 
         # model = genai.GenerativeModel('gemini-3.5-flash')
 
@@ -785,7 +858,14 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=N) as executor:
             future_to_idx = {executor.submit(sample_worker, i): i for i in range(N)}
-            all_samples_results = [f.result() for f in concurrent.futures.as_completed(future_to_idx) if f.result()]
+            all_samples_results = []
+            for future in concurrent.futures.as_completed(future_to_idx):
+                sample_result = future.result()
+                if sample_result:
+                    all_samples_results.append(sample_result)
+
+        if not all_samples_results:
+            return {"error": "Gemini did not return a usable transcription."}
 
         # --- 3. CHARACTER-LEVEL ENSEMBLE ---
         final_map = {}
@@ -829,13 +909,18 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
                 tree.write(xml_path, encoding='UTF-8', xml_declaration=True)
                 print(f"[{page}] XML updated with robust ensemble text.")
 
+        if not final_map:
+            return {"error": "Gemini returned no line-level text for this page."}
+
+        elapsed_seconds = time.monotonic() - started_at
+        print(f"[{page}] Gemini recognition completed in {elapsed_seconds:.1f}s for {len(final_map)} lines.")
         return { "text": final_map, "confidences": final_confidences }
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         print(f"Internal Recognition Error: {e}")
-        return {}
+        return {"error": str(e)}
 
 
 
@@ -907,9 +992,7 @@ def save_correction(manuscript, page):
     reading_direction_annotations = data.get('readingDirectionAnnotations') or []
     
     run_recognition = data.get('runRecognition', False)
-    api_key = data.get('apiKey', None)
-    # --- NEW: Get engine choice ---
-    recognition_engine = data.get('recognitionEngine', 'local') 
+    recognition_engine = _normalize_recognition_engine(data.get('recognitionEngine', 'local'))
     save_intent = data.get('saveIntent', 'commit')
     save_scope = str(data.get('saveScope') or 'layout')
     active_learning_enabled = bool(data.get('activeLearningEnabled', False))
@@ -961,14 +1044,17 @@ def save_correction(manuscript, page):
             # --- MODIFIED: Robust background task with engine switch & logging ---
             checkpoint_path, checkpoint_id, _ = _get_manuscript_local_checkpoint(manuscript)
 
-            def background_task(m, p, k, engine, local_checkpoint_path, local_checkpoint_id):
+            def background_task(m, p, engine, local_checkpoint_path, local_checkpoint_id):
                 print(f"[{p}] Starting background auto-recognition. Engine: {engine}")
                 try:
                     if engine == 'gemini':
-                        if not k:
-                            print(f"[{p}] ERROR: Gemini API key is missing. Aborting recognition.")
+                        if not _server_gemini_api_key():
+                            print(f"[{p}] ERROR: Gemini is not configured on this server. Aborting recognition.")
                             return
-                        gemini_result = _run_gemini_recognition_internal(m, p, k)
+                        gemini_result = _run_gemini_recognition_internal(m, p)
+                        if gemini_result.get("error"):
+                            print(f"[{p}] ERROR in Gemini recognition: {gemini_result['error']}")
+                            return
                         record_prediction(
                             manuscript_root=Path(UPLOAD_FOLDER) / m,
                             page_id=p,
@@ -997,7 +1083,7 @@ def save_correction(manuscript, page):
 
             thread = threading.Thread(
                 target=background_task,
-                args=(manuscript, page, api_key, recognition_engine, checkpoint_path, checkpoint_id),
+                args=(manuscript, page, recognition_engine, checkpoint_path, checkpoint_id),
                 daemon=True,
             )
             thread.start()
@@ -1017,16 +1103,16 @@ def recognize_text():
     data = request.json
     manuscript = data.get('manuscript')
     page = data.get('page')
-    api_key = data.get('apiKey')
-    # --- NEW: Get engine choice ---
-    recognition_engine = data.get('recognitionEngine', 'local')
+    recognition_engine = _normalize_recognition_engine(data.get('recognitionEngine', 'local'))
     
     print(f"[{page}] Manual recognition requested using engine: {recognition_engine}")
 
     if recognition_engine == 'gemini':
-        if not api_key:
-            return jsonify({"error": "API Key required for Gemini"}), 400
-        result = _run_gemini_recognition_internal(manuscript, page, api_key)
+        if not _server_gemini_api_key():
+            return jsonify({"error": "Gemini is not configured on this server."}), 400
+        result = _run_gemini_recognition_internal(manuscript, page)
+        if result.get("error"):
+            return jsonify(result), 502
         record_prediction(
             manuscript_root=Path(UPLOAD_FOLDER) / manuscript,
             page_id=page,

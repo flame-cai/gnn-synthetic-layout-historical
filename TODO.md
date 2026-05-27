@@ -1,5 +1,7 @@
-
 - the proposed is too local..horizontal lines are treated as curved lines..
+
+
+
 - drawing reading order annotation lines dont work on an entire paragraph it only works on one line at a time
 - the research harness is untouched right?
 - update gemini prompt

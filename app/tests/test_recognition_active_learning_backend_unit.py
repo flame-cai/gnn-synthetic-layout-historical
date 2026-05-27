@@ -93,6 +93,62 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertEqual(result["revision"]["revision_number"], 1)
         self.assertTrue(result["entered_active_learning"])
 
+    def test_commit_save_after_gemini_prediction_enqueues_builtin_finetune_job(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("gemini_prediction_supervision")
+        orchestrator = _StubOrchestrator()
+        configure_runtime(base_checkpoint, orchestrator=None)
+        record_prediction(
+            manuscript_root=manuscript_root,
+            page_id="233_0001",
+            predicted_lines={"1": "rama raw"},
+            recognition_engine="gemini",
+            checkpoint_id=None,
+            checkpoint_path=None,
+            confidences={},
+            layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        result = handle_post_save(
+            manuscript="gemini_prediction_supervision_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=True,
+            recognition_engine="gemini",
+            text_payload={"1": "rama corrected"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=orchestrator,
+        )
+
+        self.assertEqual(len(orchestrator.jobs), 1)
+        job = orchestrator.jobs[0]
+        self.assertEqual(job.job_type, JobType.OCR_FINE_TUNE.value)
+        self.assertEqual(job.payload["parent_checkpoint_id"], "base")
+        self.assertEqual(Path(job.payload["parent_checkpoint_path"]).resolve(), base_checkpoint.resolve())
+        self.assertTrue(result["entered_active_learning"])
+
+        registry_payload = load_registry(manuscript_root, base_checkpoint).snapshot()
+        revision_payload = registry_payload["page_revisions"]["233_0001"][-1]
+        self.assertEqual(revision_payload["recognition_engine"], "gemini")
+        self.assertEqual(revision_payload["prediction_engine"], "gemini")
+        self.assertIsNone(revision_payload["prediction_checkpoint_id"])
+
+    def test_reader_capabilities_report_server_configured_gemini(self):
+        client = backend_app_module.app.test_client()
+
+        with mock.patch.object(backend_app_module, "_server_gemini_api_key", return_value="server-key"):
+            response = client.get("/recognition/readers")
+
+        response_json = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response_json["readers"]["local"]["available"])
+        self.assertTrue(response_json["readers"]["gemini"]["available"])
+        self.assertEqual(response_json["defaultEngine"], "local")
+
     def test_snapshot_page_revision_copies_line_segmentation_metadata_sidecar(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("snapshot_metadata")
         page_id = "233_0001"
