@@ -721,7 +721,7 @@ def _run_gemini_recognition_internal(manuscript, page, api_key, N=1, num_trace_p
         if not lines_geometry: return {}
 
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-3.5-flash')
 
         def normalize(x, y):
             return max(0, min(1000, int((y / img_h) * 1000))), max(0, min(1000, int((x / img_w) * 1000)))
