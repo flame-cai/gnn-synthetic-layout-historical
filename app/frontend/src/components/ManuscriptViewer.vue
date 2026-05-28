@@ -1163,13 +1163,10 @@ const goToLayoutModeButtonTitle = computed(() => {
   return 'Return to Page Layout for this page.'
 })
 const primaryTopBarActionHidden = computed(() =>
-  (
-    layoutModeActive.value &&
-    !recognitionModeRequiresLayoutReturn.value &&
-    !hasUnsavedLayoutChanges.value &&
-    !effectivePageWorkflow.value.needs_recognition
-  ) ||
-  rereadWillOverwriteExistingText.value
+  layoutModeActive.value &&
+  !recognitionModeRequiresLayoutReturn.value &&
+  !hasUnsavedLayoutChanges.value &&
+  !effectivePageWorkflow.value.needs_recognition
 )
 const primaryTopBarActionLabel = computed(() =>
   recognitionModeRequiresLayoutReturn.value ? 'Open Page Layout' : recognizeButtonLabel.value
@@ -1193,7 +1190,7 @@ const rereadWillOverwriteExistingText = computed(() =>
 const recognitionEngineSelectTitle = computed(() => {
   if (recognitionInFlight.value) return 'The text-reading method cannot be changed while the page is being read.'
   if (isProcessingSave.value) return 'The text-reading method cannot be changed while changes are being saved.'
-  return 'Choose the method used when you read the text on this page.'
+  return 'Choose the method used the next time this page is read. Changing this does not alter the current text.'
 })
 
 const confirmReplaceWithNewReading = () => {
@@ -1255,6 +1252,31 @@ const showReaderSwitchNotice = (message) => {
       readerSwitchNoticeTimeoutId = null
     }, 7000)
   }
+}
+
+const logRecognitionReaderSelection = (eventName, details = {}) => {
+  console.info('[recognition] reader selection', {
+    event: eventName,
+    manuscript: localManuscriptName.value,
+    page: localCurrentPage.value,
+    reader: recognitionEngine.value,
+    recognitionModeActive: recognitionModeActive.value,
+    hasUnsavedLayoutChanges: hasUnsavedLayoutChanges.value,
+    recognitionDraftDirty: recognitionDraftDirty.value,
+    workflowState: effectivePageWorkflow.value.state,
+    ...details,
+  })
+}
+
+const readerSelectionNotice = (engine) => {
+  const label = recognitionEngineOptionLabel(engine)
+  if (recognitionModeActive.value && rereadWillOverwriteExistingText.value) {
+    return `${label} selected. Current text is unchanged. Click the Replace With New Reading button to overwrite this page.`
+  }
+  if (recognitionModeActive.value && effectivePageWorkflow.value.needs_recognition) {
+    return `${label} selected. Click Read Text to read this page.`
+  }
+  return `${label} will be used the next time you read a page.`
 }
 
 const setRecognitionEngineSilently = (engine) => {
@@ -1370,50 +1392,39 @@ const shouldResumeRecognitionForWorkflow = (workflow = {}) =>
     workflow?.can_resume_recognition
   )
 
-const unsavedReaderSwitchBlockMessage = () => {
-  if (hasUnsavedLayoutChanges.value) {
-    return 'Save or discard the page layout changes before changing the text reader.'
-  }
-  if (recognitionDraftDirty.value) {
-    return 'Save or discard the current text corrections before changing the text reader.'
-  }
-  return ''
-}
-
 const handleRecognitionEngineChange = async (newEngine, previousEngine) => {
   const normalizedNewEngine = normalizeRecognitionEngine(newEngine)
   const normalizedPreviousEngine = normalizeRecognitionEngine(previousEngine)
   if (normalizedNewEngine !== newEngine) {
+    logRecognitionReaderSelection('normalize_reader_value', {
+      requestedReader: newEngine,
+      normalizedReader: normalizedNewEngine,
+    })
     setRecognitionEngineSilently(normalizedNewEngine)
     return
   }
 
   localStorage.setItem('recognition_engine', normalizedNewEngine)
   if (suppressRecognitionEngineWatcher) return
+  logRecognitionReaderSelection('reader_selected', {
+    previousReader: normalizedPreviousEngine,
+    selectedReader: normalizedNewEngine,
+  })
 
   if (!isRecognitionEngineAvailable(normalizedNewEngine)) {
     const message = recognitionEngineUnavailableMessage(normalizedNewEngine)
     error.value = message
     showReaderSwitchNotice(message)
+    logRecognitionReaderSelection('reader_unavailable_reverted', {
+      requestedReader: normalizedNewEngine,
+      revertedReader: normalizedPreviousEngine,
+      reason: message,
+    })
     setRecognitionEngineSilently(normalizedPreviousEngine)
     return
   }
 
-  if (!recognitionModeActive.value) {
-    showReaderSwitchNotice(`${recognitionEngineOptionLabel(normalizedNewEngine)} will be used the next time you read a page.`)
-    return
-  }
-
-  const blockedMessage = unsavedReaderSwitchBlockMessage()
-  if (blockedMessage) {
-    error.value = blockedMessage
-    showReaderSwitchNotice(blockedMessage)
-    setRecognitionEngineSilently(normalizedPreviousEngine)
-    return
-  }
-
-  showReaderSwitchNotice(`Re-reading this page with ${recognitionEngineOptionLabel(normalizedNewEngine)}.`)
-  await recognizeCurrentPage({ focusAfter: true })
+  showReaderSwitchNotice(readerSelectionNotice(normalizedNewEngine))
 }
 
 watch(recognitionEngine, (newEngine, previousEngine) => {
@@ -2114,6 +2125,180 @@ const distancePointToSegmentRaw = (px, py, x1, y1, x2, y2) => {
   return Math.hypot(px - nx, py - ny)
 }
 
+const closestPointOnSegmentRaw = (px, py, x1, y1, x2, y2) => {
+  const denom = Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) || 1
+  const ratio = clamp(((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / denom, 0, 1)
+  const x = x1 + ratio * (x2 - x1)
+  const y = y1 + ratio * (y2 - y1)
+  return {
+    point: [x, y],
+    ratio,
+    distance: Math.hypot(px - x, py - y),
+  }
+}
+
+const cross2d = (ax, ay, bx, by) => (ax * by) - (ay * bx)
+
+const segmentIntersectionRaw = (startA, endA, startB, endB) => {
+  const ax = startA[0]
+  const ay = startA[1]
+  const rx = endA[0] - ax
+  const ry = endA[1] - ay
+  const bx = startB[0]
+  const by = startB[1]
+  const sx = endB[0] - bx
+  const sy = endB[1] - by
+  const denominator = cross2d(rx, ry, sx, sy)
+  if (Math.abs(denominator) < 1e-9) return null
+
+  const qpx = bx - ax
+  const qpy = by - ay
+  const cutRatio = cross2d(qpx, qpy, sx, sy) / denominator
+  const textlineRatio = cross2d(qpx, qpy, rx, ry) / denominator
+  if (cutRatio < 0 || cutRatio > 1 || textlineRatio < 0 || textlineRatio > 1) return null
+
+  const point = [ax + (cutRatio * rx), ay + (cutRatio * ry)]
+  return {
+    cutPoint: point,
+    textlinePoint: point,
+    cutRatio,
+    textlineRatio,
+    distance: 0,
+  }
+}
+
+const closestSegmentPairRaw = (cutStart, cutEnd, lineStart, lineEnd) => {
+  const intersection = segmentIntersectionRaw(cutStart, cutEnd, lineStart, lineEnd)
+  if (intersection) return intersection
+
+  const candidates = []
+  const addCandidate = (candidate) => {
+    if (candidate && Number.isFinite(candidate.distance)) candidates.push(candidate)
+  }
+
+  const cutToLineStart = closestPointOnSegmentRaw(lineStart[0], lineStart[1], cutStart[0], cutStart[1], cutEnd[0], cutEnd[1])
+  addCandidate({
+    cutPoint: cutToLineStart.point,
+    textlinePoint: lineStart,
+    cutRatio: cutToLineStart.ratio,
+    distance: cutToLineStart.distance,
+  })
+
+  const cutToLineEnd = closestPointOnSegmentRaw(lineEnd[0], lineEnd[1], cutStart[0], cutStart[1], cutEnd[0], cutEnd[1])
+  addCandidate({
+    cutPoint: cutToLineEnd.point,
+    textlinePoint: lineEnd,
+    cutRatio: cutToLineEnd.ratio,
+    distance: cutToLineEnd.distance,
+  })
+
+  const lineToCutStart = closestPointOnSegmentRaw(cutStart[0], cutStart[1], lineStart[0], lineStart[1], lineEnd[0], lineEnd[1])
+  addCandidate({
+    cutPoint: cutStart,
+    textlinePoint: lineToCutStart.point,
+    cutRatio: 0,
+    textlineRatio: lineToCutStart.ratio,
+    distance: lineToCutStart.distance,
+  })
+
+  const lineToCutEnd = closestPointOnSegmentRaw(cutEnd[0], cutEnd[1], lineStart[0], lineStart[1], lineEnd[0], lineEnd[1])
+  addCandidate({
+    cutPoint: cutEnd,
+    textlinePoint: lineToCutEnd.point,
+    cutRatio: 1,
+    textlineRatio: lineToCutEnd.ratio,
+    distance: lineToCutEnd.distance,
+  })
+
+  return candidates.reduce((best, candidate) => (
+    !best || candidate.distance < best.distance ? candidate : best
+  ), null)
+}
+
+const findTextlineCutMatches = (cutStart, cutEnd) => {
+  if (!graphIsLoaded.value) return []
+  const threshold = Math.max(pageMedianNeighborDistanceRaw.value * 0.75, 16)
+  const matches = []
+
+  Object.entries(textlines.value).forEach(([lineId, nodeIndices]) => {
+    const nodeSet = new Set(nodeIndices.map(Number))
+    let bestMatch = null
+    const considerMatch = (candidate) => {
+      if (!candidate || !Number.isFinite(candidate.distance)) return
+      if (!bestMatch || candidate.distance < bestMatch.distance) bestMatch = candidate
+    }
+
+    nodeIndices.forEach((nodeIndex) => {
+      const node = workingGraph.nodes[nodeIndex]
+      if (!node) return
+      const closest = closestPointOnSegmentRaw(node.x, node.y, cutStart[0], cutStart[1], cutEnd[0], cutEnd[1])
+      considerMatch({
+        cutPoint: closest.point,
+        textlinePoint: [node.x, node.y],
+        cutRatio: closest.ratio,
+        distance: closest.distance,
+      })
+    })
+
+    workingGraph.edges.forEach((edge) => {
+      if (!nodeSet.has(edge.source) || !nodeSet.has(edge.target)) return
+      const source = workingGraph.nodes[edge.source]
+      const target = workingGraph.nodes[edge.target]
+      if (!source || !target) return
+      considerMatch(closestSegmentPairRaw(
+        cutStart,
+        cutEnd,
+        [source.x, source.y],
+        [target.x, target.y],
+      ))
+    })
+
+    if (bestMatch && bestMatch.distance <= threshold) {
+      matches.push({
+        lineId: String(lineId),
+        cutPoint: bestMatch.cutPoint,
+        cutRatio: bestMatch.cutRatio,
+        distance: bestMatch.distance,
+        midpoint: bestMatch.textlinePoint || bestMatch.cutPoint,
+      })
+    }
+  })
+
+  return matches.sort((a, b) => (a.cutRatio - b.cutRatio) || (a.distance - b.distance))
+}
+
+const localCutSegmentForTextlineMatch = (match, cutStart, cutEnd, strokeLength, useOriginalStroke) => {
+  if (useOriginalStroke) {
+    return {
+      cutStart,
+      cutEnd,
+      cutMidpoint: [
+        (cutStart[0] + cutEnd[0]) / 2,
+        (cutStart[1] + cutEnd[1]) / 2,
+      ],
+    }
+  }
+
+  const directionX = (cutEnd[0] - cutStart[0]) / strokeLength
+  const directionY = (cutEnd[1] - cutStart[1]) / strokeLength
+  const halfLength = Math.min(
+    strokeLength / 2,
+    Math.max(pageMedianNeighborDistanceRaw.value * 0.8, 12),
+  )
+  const midpoint = match.midpoint || match.cutPoint
+  return {
+    cutStart: [
+      midpoint[0] - (directionX * halfLength),
+      midpoint[1] - (directionY * halfLength),
+    ],
+    cutEnd: [
+      midpoint[0] + (directionX * halfLength),
+      midpoint[1] + (directionY * halfLength),
+    ],
+    cutMidpoint: midpoint,
+  }
+}
+
 const nearestTextlineIdForImagePoint = (point) => {
   if (!point || !graphIsLoaded.value) return null
   const [x, y] = point
@@ -2165,30 +2350,48 @@ const handleSvgMouseUp = (event) => {
   const strokeLength = Math.hypot(dx, dy)
   if (strokeLength >= 4) {
     const midpoint = [(start[0] + endPoint[0]) / 2, (start[1] + endPoint[1]) / 2]
-    const textlineId = nearestTextlineIdForImagePoint(midpoint)
-    if (textlineId !== null && textlines.value[textlineId]) {
-      const readingDirection = [-dy / strokeLength, dx / strokeLength]
-      const annotation = {
-        annotation_id: String(textlineId),
-        frontend_line_id: String(textlineId),
-        component_node_indices: [...textlines.value[textlineId]].sort((a, b) => a - b),
-        cut_start: start,
-        cut_end: endPoint,
-        cut_midpoint: midpoint,
-        reading_direction: readingDirection,
-        source: 'user_cross_cut',
-        updated_at: new Date().toISOString(),
+    const readingDirection = [-dy / strokeLength, dx / strokeLength]
+    let textlineMatches = findTextlineCutMatches(start, endPoint)
+    if (textlineMatches.length === 0) {
+      const fallbackTextlineId = nearestTextlineIdForImagePoint(midpoint)
+      if (fallbackTextlineId !== null && textlines.value[fallbackTextlineId]) {
+        textlineMatches = [{
+          lineId: String(fallbackTextlineId),
+          cutPoint: midpoint,
+          cutRatio: 0.5,
+          distance: 0,
+          midpoint,
+        }]
       }
-      const previousAnnotation = readingDirectionAnnotations.value[String(textlineId)] || null
-      readingDirectionAnnotations.value = {
-        ...readingDirectionAnnotations.value,
-        [String(textlineId)]: annotation,
-      }
-      modifications.value.push({
-        type: 'reading_direction',
-        lineId: String(textlineId),
-        previousAnnotation,
+    }
+    if (textlineMatches.length > 0) {
+      const nextAnnotations = { ...readingDirectionAnnotations.value }
+      const useOriginalStroke = textlineMatches.length === 1
+      const updatedAt = new Date().toISOString()
+      textlineMatches.forEach((match) => {
+        const textlineId = String(match.lineId)
+        if (!textlines.value[textlineId]) return
+        const localCut = localCutSegmentForTextlineMatch(match, start, endPoint, strokeLength, useOriginalStroke)
+        const annotation = {
+          annotation_id: String(textlineId),
+          frontend_line_id: String(textlineId),
+          component_node_indices: [...textlines.value[textlineId]].sort((a, b) => a - b),
+          cut_start: localCut.cutStart,
+          cut_end: localCut.cutEnd,
+          cut_midpoint: localCut.cutMidpoint,
+          reading_direction: readingDirection,
+          source: 'user_cross_cut',
+          updated_at: updatedAt,
+        }
+        const previousAnnotation = readingDirectionAnnotations.value[String(textlineId)] || null
+        nextAnnotations[String(textlineId)] = annotation
+        modifications.value.push({
+          type: 'reading_direction',
+          lineId: String(textlineId),
+          previousAnnotation,
+        })
       })
+      readingDirectionAnnotations.value = nextAnnotations
     }
   }
   readingDirectionDraft.value = null
