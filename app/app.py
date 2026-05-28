@@ -364,7 +364,14 @@ def compute_page_layout_fingerprint(xml_path):
         return None
 
 
-def _build_page_workflow(manuscript_path, page, text_payload=None, active_learning=None):
+def _build_page_workflow(
+    manuscript_path,
+    page,
+    text_payload=None,
+    active_learning=None,
+    graph_payload=None,
+    textbox_labels=None,
+):
     xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
     layout_fingerprint = compute_page_layout_fingerprint(str(xml_path))
     if text_payload is None:
@@ -375,6 +382,8 @@ def _build_page_workflow(manuscript_path, page, text_payload=None, active_learni
         page,
         current_text_payload=text_payload,
         current_layout_fingerprint=layout_fingerprint,
+        current_graph_payload=graph_payload,
+        current_textbox_labels=textbox_labels,
         base_checkpoint_path=OCR_MODEL_PATH,
     )
     if active_learning:
@@ -611,6 +620,8 @@ def get_page_prediction(manuscript, page):
                 page,
                 text_payload=existing_data["text"],
                 active_learning=active_learning,
+                graph_payload=graph_data,
+                textbox_labels=graph_data.get('textbox_labels', []),
             ),
         }
         return jsonify(response)
@@ -1029,6 +1040,7 @@ def save_correction(manuscript, page):
             graph_payload=graph_data,
             textbox_labels=textbox_labels,
             modifications=modifications,
+            save_scope=save_scope,
             orchestrator=JOB_ORCHESTRATOR,
         )
         result['activeLearning'] = active_learning_result['active_learning']
@@ -1038,6 +1050,8 @@ def save_correction(manuscript, page):
             manuscript_path,
             page,
             active_learning=active_learning_result['active_learning'],
+            graph_payload=graph_data,
+            textbox_labels=textbox_labels,
         )
 
         if run_recognition: 

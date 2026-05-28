@@ -1,7 +1,7 @@
 # production
 - change switch to Gemini Reader Note: Just warn user that existing changes will be erased..
 - "Could not update from saved corrections"
-- drawing reading order annotation lines dont work on an entire paragraph it only works on one line at a time
+
 - testing, recognize using gemini, fine-tune built in reader.
 - apply the reading order annotation to the Gemini recognition pipeline too..
 

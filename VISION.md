@@ -149,6 +149,8 @@ The retained OCR continuation recipe remains the hybrid `page_plus_random_histor
 - `lr=0.2`
 - `num_iter=60`
 
+In the production GUI, reviewed ground truth is a save-state contract rather than a separate lock button. `Save Page` and `Save & Next Page` in Text Review commit reviewed text as supervised OCR ground truth. Draft autosaves, raw OCR predictions, and Page Layout saves remain recoverability or layout-lineage states and do not enter OCR fine-tuning.
+
 The repository therefore has two complementary promotion/adoption concepts today:
 
 1. manuscript-local OCR checkpoint promotion inside the runtime

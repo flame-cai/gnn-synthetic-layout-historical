@@ -81,6 +81,8 @@ The crop-preparation boundary is intentional. The production GUI prepares OCR li
 
 Reading-direction annotations are optional production metadata. The layout GUI writes `<page>_reading_direction_metadata.json` from cross-line `O` gestures. The app resolves annotations by component overlap on save, marks stale annotations instead of guessing, and includes the sidecar in layout fingerprints and active-learning revision snapshots. If no active annotation exists, the strategy uses script defaults: horizontal left-to-right, vertical top-to-bottom, and circular clockwise with a top cut.
 
+Production OCR active learning treats only foreground Text Review saves with non-empty text as ground-truth supervised revisions. OCR predictions, draft autosaves, and Page Layout saves may update PAGE-XML or layout lineage, but they are not OCR supervision and must not enqueue OCR fine-tuning. The page workflow payload reports this distinction through `review_status`, `has_ground_truth`, `ground_truth_revision_number`, and `current_revision_is_ground_truth` so the GUI can warn before destructive rereads or layout changes.
+
 ## Three External Verifier Gates
 
 All three gates run benchmark and proposed through the same strategy-aware implementation path.

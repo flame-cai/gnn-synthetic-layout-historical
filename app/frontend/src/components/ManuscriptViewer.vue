@@ -687,6 +687,11 @@ const pageWorkflow = reactive({
   can_resume_recognition: false,
   has_text: false,
   latest_revision_save_intent: null,
+  latest_supervised_commit_revision_number: null,
+  review_status: 'layout_ready_no_text',
+  has_ground_truth: false,
+  ground_truth_revision_number: null,
+  current_revision_is_ground_truth: false,
   correction_summary: { changed_line_count: 0, total_edit_distance: 0, normalized_edit_distance: 0 },
   prediction: {
     available: false,
@@ -861,10 +866,37 @@ const hasUnsavedGraphChanges = computed(() => modifications.value.length > 0)
 const hasUnsavedLayoutChanges = computed(() =>
   hasUnsavedGraphChanges.value || hasUnsavedTextboxLabelChanges.value || hasUnsavedReadingDirectionChanges.value
 )
-const currentSaveScope = computed(() => {
-  if (!hasUnsavedLayoutChanges.value && recognitionDraftDirty.value) return 'text_only'
-  return recognitionModeActive.value ? 'text_only' : 'layout'
-})
+const currentPageHasTextContent = computed(() =>
+  Object.values(localTextContent).some((value) => String(value || '').trim().length > 0)
+)
+const reviewStatusRequiresGroundTruthCommit = (status) =>
+  [
+    'ocr_prediction_unreviewed',
+    'draft_saved',
+    'ground_truth_with_draft_changes',
+    'legacy_text_needs_review',
+  ].includes(String(status || ''))
+const groundTruthCommitPending = computed(() =>
+  currentPageHasTextContent.value &&
+  !pageWorkflow.current_revision_is_ground_truth &&
+  (
+    recognitionDraftDirty.value ||
+    reviewStatusRequiresGroundTruthCommit(pageWorkflow.review_status)
+  )
+)
+const determineSaveScope = ({ background = false, forceLayoutSave = false } = {}) => {
+  if (forceLayoutSave) return 'layout'
+  if (hasUnsavedLayoutChanges.value) return 'layout'
+  if (
+    recognitionModeActive.value &&
+    pageWorkflow.can_edit_text &&
+    currentPageHasTextContent.value &&
+    !effectivePageWorkflow.value.needs_recognition
+  ) {
+    return 'text_only'
+  }
+  return 'layout'
+}
 
 const describeLocalCheckpoint = (checkpointId) => {
   if (!checkpointId || checkpointId === 'base') {
@@ -938,7 +970,10 @@ const effectivePageWorkflow = computed(() => {
       correction_summary: correctionSummary,
       state: 'layout_dirty',
       label: 'Page layout changed',
-      hint: 'Save the page layout, then read the text again before correcting it.',
+      hint: pageWorkflow.has_ground_truth
+        ? 'This page has saved ground truth. Save the layout changes only if you are ready to re-review the text.'
+        : 'Save the page layout, then read the text again before correcting it.',
+      review_status: pageWorkflow.has_ground_truth ? 'ground_truth_stale_layout' : pageWorkflow.review_status,
       needs_recognition: true,
       can_edit_text: false,
     }
@@ -1049,15 +1084,23 @@ const topBarActionState = computed(() => {
         recommendedAction: 'recognize',
       }
     }
-    if (recognitionDraftDirty.value) {
+    if (recognitionDraftDirty.value || groundTruthCommitPending.value) {
       return {
         eyebrow: 'Text Review',
-        title: 'Save your current corrections',
-        hint: 'Save this page so your text corrections stay attached to the current page.',
+        title: 'Save ground truth',
+        hint: 'Save this reviewed text as ground truth before moving on.',
         recommendedAction: 'commit',
       }
     }
     if (effectivePageWorkflow.value.can_edit_text) {
+      if (effectivePageWorkflow.value.current_revision_is_ground_truth) {
+        return {
+          eyebrow: 'Text Review',
+          title: 'Ground truth saved',
+          hint: 'This page is saved as reviewed ground truth.',
+          recommendedAction: null,
+        }
+      }
       return {
         eyebrow: 'Text Review',
         title: 'Review and correct the text',
@@ -1134,7 +1177,9 @@ const commitButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Save Page')
   if (busyReason) return busyReason
   if (hasUnsavedLayoutChanges.value) return 'Save the current page layout changes (S).'
-  if (recognitionDraftDirty.value) return 'Save the current text corrections on this page (S).'
+  if (recognitionModeActive.value && (recognitionDraftDirty.value || groundTruthCommitPending.value)) {
+    return 'Save the current text as ground truth for this page (S).'
+  }
   return 'Save the current page (S).'
 })
 
@@ -1195,7 +1240,9 @@ const recognitionEngineSelectTitle = computed(() => {
 
 const confirmReplaceWithNewReading = () => {
   if (!rereadWillOverwriteExistingText.value) return true
-  const warning = recognitionDraftDirty.value
+  const warning = pageWorkflow.has_ground_truth
+    ? 'This page is saved as ground truth. Re-reading will overwrite the current text for this page. Continue?'
+    : recognitionDraftDirty.value
     ? 'This will replace the current text on this page with a new reading and overwrite your existing corrections, including unsaved changes. Continue?'
     : 'This will replace the current text on this page with a new reading and overwrite the existing corrections on this page. Continue?'
   return window.confirm(warning)
@@ -1356,6 +1403,11 @@ const applyPageWorkflow = (payload = {}) => {
   pageWorkflow.can_resume_recognition = Boolean(payload.can_resume_recognition)
   pageWorkflow.has_text = Boolean(payload.has_text)
   pageWorkflow.latest_revision_save_intent = payload?.latest_revision_save_intent || null
+  pageWorkflow.latest_supervised_commit_revision_number = payload?.latest_supervised_commit_revision_number ?? null
+  pageWorkflow.review_status = payload?.review_status || 'layout_ready_no_text'
+  pageWorkflow.has_ground_truth = Boolean(payload?.has_ground_truth)
+  pageWorkflow.ground_truth_revision_number = payload?.ground_truth_revision_number ?? null
+  pageWorkflow.current_revision_is_ground_truth = Boolean(payload?.current_revision_is_ground_truth)
   pageWorkflow.correction_summary = {
     changed_line_count: Number(payload?.correction_summary?.changed_line_count || 0),
     total_edit_distance: Number(payload?.correction_summary?.total_edit_distance || 0),
@@ -2760,11 +2812,16 @@ const addMSTEdges = () => {
 
 const saveModifications = async (background = false, options = {}) => {
   const forceLayoutSave = options?.forceLayoutSave === true
+  const saveScope = options?.saveScope || determineSaveScope({ background, forceLayoutSave })
   const numNodes = workingGraph.nodes.length
   const labelsToSend = buildTextboxLabelsPayload(numNodes)
   const readingDirectionAnnotationsToSend = buildReadingDirectionAnnotationsPayload()
   const dummyTextlineLabels = new Array(numNodes).fill(-1);
-  const textContentForSave = hasUnsavedLayoutChanges.value ? {} : { ...localTextContent }
+  const textContentForSave = saveScope === 'text_only'
+    ? { ...localTextContent }
+    : hasUnsavedLayoutChanges.value
+    ? {}
+    : {}
   const requestBody = {
     graph: workingGraph, 
     modifications: modifications.value,
@@ -2776,8 +2833,19 @@ const saveModifications = async (background = false, options = {}) => {
     recognitionEngine: recognitionEngine.value, // <--- NEW PARAMETER
     activeLearningEnabled: activeLearningEnabled.value,
     saveIntent: background ? 'draft' : 'commit',
-    saveScope: forceLayoutSave ? 'layout' : currentSaveScope.value,
+    saveScope,
   }
+  console.info('[page-save] submitting', {
+    manuscript: localManuscriptName.value,
+    page: localCurrentPage.value,
+    background,
+    saveScope,
+    recognitionModeActive: recognitionModeActive.value,
+    hasUnsavedLayoutChanges: hasUnsavedLayoutChanges.value,
+    recognitionDraftDirty: recognitionDraftDirty.value,
+    groundTruthCommitPending: groundTruthCommitPending.value,
+    reviewStatus: pageWorkflow.review_status,
+  })
   try {
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/semi-segment/${localManuscriptName.value}/${localCurrentPage.value}`,
@@ -2795,15 +2863,59 @@ const saveModifications = async (background = false, options = {}) => {
     rescheduleActiveLearningPolling()
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
 
-    modifications.value = []
-    recognitionDraftDirty.value = false
-    syncSavedTextboxLabelsSnapshot(numNodes)
-    syncSavedReadingDirectionAnnotationsSnapshot()
+    if (saveScope === 'layout') {
+      modifications.value = []
+      syncSavedTextboxLabelsSnapshot(numNodes)
+      syncSavedReadingDirectionAnnotationsSnapshot()
+    }
+    if (saveScope === 'text_only') {
+      recognitionDraftDirty.value = false
+    }
     error.value = null
+    console.info('[page-save] completed', {
+      manuscript: localManuscriptName.value,
+      page: localCurrentPage.value,
+      saveScope,
+      saveIntent: background ? 'draft' : 'commit',
+      reviewStatus: data?.pageWorkflow?.review_status,
+      queuedJobIds: data?.activeLearningQueuedJobIds || [],
+    })
   } catch (err) {
     error.value = err.message
+    console.warn('[page-save] failed', {
+      manuscript: localManuscriptName.value,
+      page: localCurrentPage.value,
+      saveScope,
+      error: err.message,
+    })
     throw err
   }
+}
+
+const saveCurrentPageForCurrentMode = async ({ background = false, forceLayoutSave = false } = {}) => {
+  const saveScope = determineSaveScope({ background, forceLayoutSave })
+  if (saveScope === 'layout' && !hasUnsavedLayoutChanges.value && !forceLayoutSave) {
+    console.info('[page-save] skipped unchanged layout save', {
+      manuscript: localManuscriptName.value,
+      page: localCurrentPage.value,
+      background,
+      saveScope,
+    })
+    return true
+  }
+  if (saveScope === 'text_only' && (!currentPageHasTextContent.value || effectivePageWorkflow.value.needs_recognition)) {
+    console.warn('[page-save] skipped invalid text review save', {
+      manuscript: localManuscriptName.value,
+      page: localCurrentPage.value,
+      background,
+      saveScope,
+      hasText: currentPageHasTextContent.value,
+      needsRecognition: effectivePageWorkflow.value.needs_recognition,
+    })
+    return false
+  }
+  await saveModifications(background, { forceLayoutSave, saveScope })
+  return true
 }
 
 
@@ -2816,7 +2928,7 @@ const requestSwitchToRecognition = async (forceRecognition = false) => {
     isProcessingSave.value = true;
     try {
         if (hasUnsavedLayoutChanges.value || requiresSavedLayoutForRecognition) {
-            await saveModifications(false, { forceLayoutSave: true }); 
+            await saveCurrentPageForCurrentMode({ forceLayoutSave: true }); 
             await fetchPageData(localManuscriptName.value, localCurrentPage.value, true, false);
         }
         setMode('recognition');
@@ -2840,51 +2952,100 @@ const requestSwitchToRecognition = async (forceRecognition = false) => {
 }
 
 
-const confirmAndNavigate = async (navAction) => {
-  if (isProcessingSave.value || recognitionInFlight.value) return
-  if (hasUnsavedLayoutChanges.value || recognitionDraftDirty.value) {
-    if (confirm('Do you want to save changes before navigating?')) {
-      isProcessingSave.value = true
-      try {
-        await saveModifications()
-        navAction()
-      } catch (err) {
-        alert('Save failed, navigation cancelled.')
-      } finally {
-        isProcessingSave.value = false
-      }
-    } else {
-      modifications.value = []
-      recognitionDraftDirty.value = false
-      navAction()
-    }
-  } else {
-    navAction()
-  }
-}
-
 const navigateToPage = (page) => {
   pendingPageEntryPreference.value = recognitionModeActive.value
     ? PAGE_ENTRY_RECOGNITION_IF_COMMITTED_TEXT
     : PAGE_ENTRY_LAYOUT
   emit('page-changed', page)
 }
-const previousPage = () => confirmAndNavigate(() => {
+
+const discardCurrentPageLocalChanges = () => {
+  if (hasUnsavedLayoutChanges.value) {
+    resetModifications()
+  }
+  if (recognitionDraftDirty.value) {
+    recognitionDraftDirty.value = false
+  }
+}
+
+const navigationSavePrompt = () => {
+  if (hasUnsavedLayoutChanges.value) {
+    if (pageWorkflow.has_ground_truth) {
+      return 'Save layout changes before leaving? This page has saved ground truth, and layout changes may require re-reviewing the text.'
+    }
+    return 'Save layout changes before leaving?'
+  }
+  if (recognitionModeActive.value && recognitionDraftDirty.value) {
+    return 'Save this page as ground truth before leaving?'
+  }
+  if (recognitionModeActive.value && groundTruthCommitPending.value) {
+    if (pageWorkflow.review_status === 'draft_saved' || pageWorkflow.review_status === 'ground_truth_with_draft_changes') {
+      return 'This page has draft text that is not saved as ground truth. Save as ground truth before leaving?'
+    }
+    return 'Save this page as ground truth before leaving?'
+  }
+  return ''
+}
+
+const navigateToPageWithPolicy = async (targetPage, { exitAction = 'prompt' } = {}) => {
+  if (!targetPage || targetPage === localCurrentPage.value || isProcessingSave.value || recognitionInFlight.value) return
+
+  if (exitAction === 'save') {
+    isProcessingSave.value = true
+    try {
+      const saved = await saveCurrentPageForCurrentMode()
+      if (saved) navigateToPage(targetPage)
+    } catch (err) {
+      alert(`Save failed, navigation cancelled: ${err.message}`)
+    } finally {
+      isProcessingSave.value = false
+    }
+    return
+  }
+
+  const promptMessage = navigationSavePrompt()
+  if (promptMessage) {
+    if (confirm(promptMessage)) {
+      isProcessingSave.value = true
+      try {
+        const saved = await saveCurrentPageForCurrentMode()
+        if (saved) navigateToPage(targetPage)
+      } catch (err) {
+        alert(`Save failed, navigation cancelled: ${err.message}`)
+      } finally {
+        isProcessingSave.value = false
+      }
+    } else {
+      discardCurrentPageLocalChanges()
+      navigateToPage(targetPage)
+    }
+    return
+  }
+
+  if (!recognitionModeActive.value && groundTruthCommitPending.value) {
+    if (confirm('This page has text that is not saved as ground truth. Leave without saving it as ground truth?')) {
+      navigateToPage(targetPage)
+    }
+    return
+  }
+
+  navigateToPage(targetPage)
+}
+
+const previousPage = () => {
     const idx = localPageList.value.indexOf(localCurrentPage.value)
-    if (idx > 0) navigateToPage(localPageList.value[idx - 1])
-})
-const nextPage = () => confirmAndNavigate(() => {
+    if (idx > 0) navigateToPageWithPolicy(localPageList.value[idx - 1], { exitAction: 'prompt' })
+}
+const nextPage = () => {
     const idx = localPageList.value.indexOf(localCurrentPage.value)
-    if (idx < localPageList.value.length - 1) navigateToPage(localPageList.value[idx + 1])
-})
+    if (idx < localPageList.value.length - 1) navigateToPageWithPolicy(localPageList.value[idx + 1], { exitAction: 'prompt' })
+}
 
 const handlePageSelect = (event) => {
     const selectedPage = event.target.value;
     if (selectedPage === localCurrentPage.value) return;
     
-    confirmAndNavigate(() => {
-        navigateToPage(selectedPage);
-    });
+    navigateToPageWithPolicy(selectedPage, { exitAction: 'prompt' });
 }
 
 // NEW: Save current page logic (no nav)
@@ -2892,7 +3053,7 @@ const saveCurrentPage = async () => {
   if (loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value) return
   isProcessingSave.value = true
   try {
-    await saveModifications()
+    await saveCurrentPageForCurrentMode()
     // Optional: Flash a small 'Saved' toast
   } catch (err) { alert(`Save failed: ${err.message}`) } 
   finally { isProcessingSave.value = false }
@@ -2900,14 +3061,17 @@ const saveCurrentPage = async () => {
 
 const saveAndGoNext = async () => {
   if (loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value) return
-  isProcessingSave.value = true
-  try {
-    await saveModifications()
-    const idx = localPageList.value.indexOf(localCurrentPage.value)
-    if (idx < localPageList.value.length - 1) navigateToPage(localPageList.value[idx + 1])
-    else alert('Last page saved!')
-  } catch (err) { alert(`Save failed: ${err.message}`) } 
-  finally { isProcessingSave.value = false }
+  const idx = localPageList.value.indexOf(localCurrentPage.value)
+  if (idx < localPageList.value.length - 1) {
+    await navigateToPageWithPolicy(localPageList.value[idx + 1], { exitAction: 'save' })
+  } else {
+    isProcessingSave.value = true
+    try {
+      await saveCurrentPageForCurrentMode()
+      alert('Last page saved!')
+    } catch (err) { alert(`Save failed: ${err.message}`) }
+    finally { isProcessingSave.value = false }
+  }
 }
 
 const runHeuristic = () => {
@@ -2926,7 +3090,7 @@ watch(recognitionModeActive, (active) => {
         autoSaveInterval.value = setInterval(async () => {
             if (recognitionInFlight.value || isProcessingSave.value || !recognitionDraftDirty.value) return;
             try {
-                await saveModifications(true);
+                await saveCurrentPageForCurrentMode({ background: true });
                 console.log("Auto-save completed");
             } catch(e) {
                 console.warn("Auto-save failed silently", e);

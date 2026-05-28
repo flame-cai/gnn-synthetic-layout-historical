@@ -41,6 +41,7 @@ This plan intentionally implements only OCR active learning now, but it does so 
 - [x] (2026-04-20 10:06 IST) Kept the frontend changes minimal by adding the `Active Learning` toggle, status text, and explicit `saveIntent` wiring in `app/frontend/src/components/ManuscriptViewer.vue`.
 - [x] (2026-04-22 10:23 IST) Added a configurable live-runtime sibling checkpoint strategy override so GUI-triggered OCR jobs now default to `best_norm_ED.pth` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`, while leaving the CER-based selector available in the shared OCR code path.
 - [x] (2026-04-22 15:02 IST) Removed the stale manuscript-local protected-set promotion guard from the live runtime so GUI-triggered OCR jobs now promote directly after training and registry writes, without carrying dead verifier-bank code paths.
+- [x] (2026-05-28) Hardened GUI save semantics so only foreground Text Review saves with non-empty text become ground-truth supervised revisions. Layout saves, draft autosaves, and OCR predictions remain non-ground-truth states and do not enqueue OCR active-learning work.
 - [ ] (2026-04-20 10:06 IST) Added new headless backend tests and reran both unchanged gates individually: `test_ci_e2e.py` and `app.tests.test_recognition_finetuning_precommit_e2e`; the only remaining redundant rerun is `scripts/run_precommit_eval.py`.
 
 ## Surprises & Discoveries
@@ -85,6 +86,10 @@ This plan intentionally implements only OCR active learning now, but it does so 
 - Decision: OCR fine-tuning will trigger only on commit saves, not on draft autosaves.
   Rationale: recognition-mode autosave exists for recoverability, not for model-lineage promotion. Training on every 20-second autosave would cause duplicate jobs and unstable provenance.
   Date/Author: 2026-04-19 / Codex
+
+- Decision: a commit save is OCR supervision only when it is a foreground Text Review save with non-empty text.
+  Rationale: Page Layout saves can change geometry without reviewed text, and OCR predictions are machine output until an operator reviews and saves them. This makes `Save Page` and `Save & Next Page` in Text Review the ground-truth commit actions without adding a separate lock button.
+  Date/Author: 2026-05-28 / Codex
 
 - Decision: every save still enters the orchestration pipeline, but the OCR branch will enqueue work only when the saved page revision includes usable text supervision.
   Rationale: layout-only saves should still be recorded for future CRAFT and GNN active learning, but OCR cannot fine-tune on a page that has polygons without corrected text.
@@ -172,7 +177,7 @@ The current regression guards that must continue to pass live in:
 
 Several terms in this plan are precise and must be implemented that way.
 
-A "commit save" means an intentional user action that should create durable lineage. In this repository that includes `Save`, `Save & Next`, page-navigation saves, and mode-transition saves that the user explicitly requested. A "draft save" means recoverability-only autosave while the user is still editing. Draft saves must persist the page, but they must not enqueue OCR fine-tuning.
+A "commit save" means an intentional user action that should create durable lineage. For OCR active learning, only foreground Text Review commits with non-empty text are supervised ground truth. Page Layout commits persist layout lineage only. A "draft save" means recoverability-only autosave while the user is still editing. Draft saves must persist the page, but they must not enqueue OCR fine-tuning.
 
 A "supervised page revision" means one saved page version whose PAGE-XML line polygons and Unicode text are both available. OCR active learning can only train on supervised revisions.
 
@@ -508,5 +513,4 @@ In `app/app.py`, the routes must keep their existing HTTP purpose but gain the n
 Revision note, 2026-04-19 17:59 IST: this ExecPlan was rewritten to incorporate the requested save-triggered active-learning workflow, the exact best hybrid OCR recipe, manuscript-specific checkpoint lineage, restart-safe automatic promotion, future-proof orchestration for CRAFT/GNN/OCR resource contention, structured edit telemetry, CUDA profiling, and the requirement that the existing headless pre-commit checks remain unaffected.
 
 Revision note, 2026-04-20 10:06 IST: this ExecPlan was updated after implementation to record the shipped first-pass runtime, the added backend/test files, the revision-snapshot discovery, the preserved backward-compatibility contract, and the exact validation that was completed versus still pending.
-
 

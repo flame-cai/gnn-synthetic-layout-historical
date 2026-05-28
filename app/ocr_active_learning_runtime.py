@@ -271,6 +271,8 @@ def summarize_page_active_learning(
     page_id: str,
     current_text_payload: dict | None = None,
     current_layout_fingerprint: str | None = None,
+    current_graph_payload: dict | None = None,
+    current_textbox_labels=None,
     base_checkpoint_path: str | Path | None = None,
 ) -> dict:
     registry = _load_registry_for_manuscript(manuscript_root, base_checkpoint_path=base_checkpoint_path)
@@ -280,6 +282,11 @@ def summarize_page_active_learning(
     latest_revision = registry.latest_revision(page_id)
     latest_supervised_commit = registry.latest_supervised_commit_revision(page_id)
     last_prediction = registry.get_last_prediction(page_id) or {}
+    current_content_hash = (
+        build_revision_hash(current_graph_payload, current_text_payload, textbox_labels=current_textbox_labels)
+        if current_graph_payload is not None
+        else None
+    )
     prediction_layout_fingerprint = last_prediction.get("layout_fingerprint")
     layout_match_known = bool(current_layout_fingerprint and prediction_layout_fingerprint)
     prediction_matches_current_layout = None
@@ -292,6 +299,51 @@ def summarize_page_active_learning(
     # A newer active checkpoint alone does not invalidate saved page text.
     # We only force OCR again when the recorded prediction no longer matches
     # the current layout or when the page has no text to edit.
+    has_ground_truth = latest_supervised_commit is not None
+    ground_truth_revision_number = (
+        int(latest_supervised_commit["revision_number"]) if latest_supervised_commit else None
+    )
+    latest_revision_number = int(latest_revision.revision_number) if latest_revision else None
+    latest_prediction_recorded_at = last_prediction.get("recorded_at")
+    ground_truth_prediction_recorded_at = (
+        latest_supervised_commit.get("prediction_recorded_at") if latest_supervised_commit else None
+    )
+    current_text_matches_prediction = (
+        bool(last_prediction)
+        and {
+            str(line_id): str(value or "")
+            for line_id, value in dict(last_prediction.get("predicted_lines", {})).items()
+        }
+        == {
+            str(line_id): str(value or "")
+            for line_id, value in current_text_payload.items()
+        }
+    )
+    current_hash_matches_ground_truth = (
+        current_content_hash == latest_supervised_commit.get("content_hash")
+        if current_content_hash is not None and latest_supervised_commit
+        else None
+    )
+    latest_revision_is_ground_truth = bool(
+        latest_revision
+        and latest_supervised_commit
+        and latest_revision_number == ground_truth_revision_number
+        and latest_revision.save_intent == "commit"
+        and latest_revision.supervision_present
+    )
+    prediction_replaced_ground_truth = bool(
+        has_ground_truth
+        and bool(last_prediction)
+        and latest_prediction_recorded_at
+        and latest_prediction_recorded_at != ground_truth_prediction_recorded_at
+        and current_text_matches_prediction
+    )
+    current_revision_is_ground_truth = bool(
+        latest_revision_is_ground_truth
+        and not prediction_replaced_ground_truth
+        and current_hash_matches_ground_truth is not False
+    )
+
     if last_prediction and prediction_matches_current_layout is False:
         state = "stale_layout"
         label = "Page structure changed"
@@ -317,6 +369,59 @@ def summarize_page_active_learning(
         can_edit_text = True
         needs_recognition = False
 
+    if has_ground_truth and (
+        state == "stale_layout"
+        or not has_text
+        or (
+            latest_revision
+            and ground_truth_revision_number is not None
+            and latest_revision_number > ground_truth_revision_number
+            and latest_revision.save_intent == "commit"
+            and not latest_revision.supervision_present
+        )
+    ):
+        review_status = "ground_truth_stale_layout"
+    elif current_revision_is_ground_truth:
+        review_status = "ground_truth_saved"
+    elif has_ground_truth and latest_revision and latest_revision.save_intent == "draft":
+        review_status = "ground_truth_with_draft_changes"
+    elif has_ground_truth and current_hash_matches_ground_truth is False:
+        review_status = "ground_truth_with_draft_changes"
+    elif prediction_replaced_ground_truth:
+        review_status = "ocr_prediction_unreviewed"
+    elif has_text and last_prediction and not has_ground_truth:
+        review_status = "ocr_prediction_unreviewed"
+    elif has_text and latest_revision and latest_revision.save_intent == "draft":
+        review_status = "draft_saved"
+    elif has_text and not last_prediction and not has_ground_truth:
+        review_status = "legacy_text_needs_review"
+    elif not has_text:
+        review_status = "layout_ready_no_text"
+    else:
+        review_status = "ocr_prediction_unreviewed"
+
+    if review_status == "ground_truth_saved":
+        label = "Ground truth saved"
+        hint = "This page is saved as reviewed ground truth."
+    elif review_status == "ground_truth_with_draft_changes":
+        label = "Draft changes saved"
+        hint = "This page has saved ground truth plus draft text changes. Save in Text Review to update the ground truth."
+    elif review_status == "ground_truth_stale_layout":
+        label = "Ground truth needs review"
+        hint = "This page has saved ground truth, but the layout changed. Re-read and review the text before saving again."
+    elif review_status == "ocr_prediction_unreviewed":
+        label = "OCR prediction"
+        hint = "Review the text line by line, then save this page as ground truth."
+    elif review_status == "draft_saved":
+        label = "Draft saved"
+        hint = "Draft text is saved locally. Save in Text Review to mark it as ground truth."
+    elif review_status == "legacy_text_needs_review":
+        label = "Saved text needs review"
+        hint = "This page has saved text without review history. Review it and save to mark it as ground truth."
+    elif review_status == "layout_ready_no_text":
+        label = "Layout ready"
+        hint = "Open Text Review and read the page before correcting the text."
+
     # Reopening Recognition Mode should preserve any editable saved text,
     # including draft-only text, as long as the current layout is still safe
     # to edit without forcing a new OCR pass.
@@ -335,11 +440,13 @@ def summarize_page_active_learning(
         "has_text": bool(has_text),
         "text_line_count": len(current_text_payload),
         "text_non_empty_line_count": int(non_empty_text_line_count),
-        "latest_revision_number": int(latest_revision.revision_number) if latest_revision else None,
+        "latest_revision_number": latest_revision_number,
         "latest_revision_save_intent": latest_revision.save_intent if latest_revision else None,
-        "latest_supervised_commit_revision_number": (
-            int(latest_supervised_commit["revision_number"]) if latest_supervised_commit else None
-        ),
+        "latest_supervised_commit_revision_number": ground_truth_revision_number,
+        "review_status": review_status,
+        "has_ground_truth": bool(has_ground_truth),
+        "ground_truth_revision_number": ground_truth_revision_number,
+        "current_revision_is_ground_truth": bool(current_revision_is_ground_truth),
         "prediction": {
             "available": bool(last_prediction),
             "engine": last_prediction.get("recognition_engine"),
@@ -613,6 +720,7 @@ def handle_post_save(
     graph_payload: dict | None = None,
     textbox_labels=None,
     modifications: list[dict] | None = None,
+    save_scope: str = "text_only",
     orchestrator: JobOrchestrator | None = None,
 ) -> dict:
     manuscript_root = Path(manuscript_root or Path("input_manuscripts") / manuscript)
@@ -621,10 +729,34 @@ def handle_post_save(
     registry.set_active_learning_enabled(bool(active_learning_enabled))
 
     text_payload = dict(text_payload or {})
+    save_intent = str(save_intent or "commit")
+    save_scope = str(save_scope or "layout")
+    before_summary = summarize_page_active_learning(
+        manuscript_root,
+        page,
+        current_text_payload=text_payload,
+        current_graph_payload=graph_payload,
+        current_textbox_labels=textbox_labels,
+        base_checkpoint_path=base_checkpoint_path,
+    )
     content_hash = build_revision_hash(graph_payload, text_payload, textbox_labels=textbox_labels)
     non_empty_text_lines = sum(1 for value in text_payload.values() if str(value or "").strip())
-    supervision_present = non_empty_text_lines > 0
+    supervision_present = save_intent == "commit" and save_scope == "text_only" and non_empty_text_lines > 0
     last_prediction = registry.get_last_prediction(page) or {}
+
+    print(
+        "[ocr-save] begin",
+        {
+            "manuscript": manuscript,
+            "page": page,
+            "save_intent": save_intent,
+            "save_scope": save_scope,
+            "active_learning_enabled": bool(active_learning_enabled),
+            "text_non_empty_line_count": int(non_empty_text_lines),
+            "supervision_present": bool(supervision_present),
+            "review_status_before": before_summary.get("review_status"),
+        },
+    )
 
     revision = registry.record_page_revision(
         page,
@@ -650,10 +782,9 @@ def handle_post_save(
 
     entered_active_learning = False
     queued_job_ids = []
-    save_intent = str(save_intent or "commit")
     runtime_recipe = _runtime_recipe()
 
-    if save_intent == "commit" and bool(active_learning_enabled) and not revision.is_duplicate:
+    if bool(supervision_present) and bool(active_learning_enabled) and not revision.is_duplicate:
         if registry.has_consumed_revision(page):
             registry.mark_rebase_needed("consumed_page_revision_changed", page)
             entered_active_learning = True
@@ -709,6 +840,27 @@ def handle_post_save(
         registry.set_status("idle", "Not updating right now")
     elif registry.data.get("needs_rebase"):
         registry.set_status("needs_rebase", "Ready to update from saved pages")
+
+    after_summary = summarize_page_active_learning(
+        manuscript_root,
+        page,
+        current_text_payload=text_payload,
+        current_graph_payload=graph_payload,
+        current_textbox_labels=textbox_labels,
+        base_checkpoint_path=base_checkpoint_path,
+    )
+    print(
+        "[ocr-save] complete",
+        {
+            "manuscript": manuscript,
+            "page": page,
+            "revision_number": revision.revision_number,
+            "revision_is_duplicate": bool(revision.is_duplicate),
+            "review_status_after": after_summary.get("review_status"),
+            "entered_active_learning": bool(entered_active_learning),
+            "queued_job_ids": queued_job_ids,
+        },
+    )
 
     return {
         "revision": revision.to_dict(),

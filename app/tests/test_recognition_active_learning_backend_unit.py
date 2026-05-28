@@ -92,6 +92,17 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertNotIn("verifier_revision_refs", orchestrator.jobs[0].payload)
         self.assertEqual(result["revision"]["revision_number"], 1)
         self.assertTrue(result["entered_active_learning"])
+        summary = summarize_page_active_learning(
+            manuscript_root,
+            "233_0001",
+            current_text_payload={"1": "rama"},
+            current_graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            current_textbox_labels=[0],
+            base_checkpoint_path=base_checkpoint,
+        )
+        self.assertEqual(summary["review_status"], "ground_truth_saved")
+        self.assertTrue(summary["has_ground_truth"])
+        self.assertTrue(summary["current_revision_is_ground_truth"])
 
     def test_commit_save_after_gemini_prediction_enqueues_builtin_finetune_job(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("gemini_prediction_supervision")
@@ -246,10 +257,27 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
             modifications=[],
             orchestrator=orchestrator,
         )
+        layout_with_text_result = handle_post_save(
+            manuscript="draft_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=True,
+            recognition_engine="local",
+            text_payload={"1": "layout text should not train"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            save_scope="layout",
+            orchestrator=orchestrator,
+        )
 
         self.assertEqual(orchestrator.jobs, [])
         self.assertFalse(draft_result["entered_active_learning"])
         self.assertFalse(layout_only_result["entered_active_learning"])
+        self.assertFalse(layout_with_text_result["entered_active_learning"])
+        self.assertFalse(layout_with_text_result["revision"]["supervision_present"])
 
     def test_commit_after_same_hash_draft_enqueues_finetune_job(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("draft_then_commit")
@@ -330,6 +358,9 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(summary["state"], "ready")
+        self.assertEqual(summary["review_status"], "ocr_prediction_unreviewed")
+        self.assertTrue(summary["has_ground_truth"])
+        self.assertFalse(summary["current_revision_is_ground_truth"])
         self.assertTrue(summary["can_edit_text"])
         self.assertTrue(summary["can_resume_recognition"])
         self.assertFalse(summary["needs_recognition"])
@@ -359,9 +390,37 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(summary["state"], "stale_layout")
+        self.assertEqual(summary["review_status"], "ground_truth_stale_layout" if summary["has_ground_truth"] else "ocr_prediction_unreviewed")
         self.assertFalse(summary["can_edit_text"])
         self.assertTrue(summary["needs_recognition"])
         self.assertFalse(summary["prediction"]["matches_current_layout"])
+
+    def test_page_summary_marks_ocr_prediction_without_commit_as_unreviewed(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("prediction_without_commit")
+        configure_runtime(base_checkpoint, orchestrator=None)
+        record_prediction(
+            manuscript_root=manuscript_root,
+            page_id="233_0001",
+            predicted_lines={"1": "rama"},
+            recognition_engine="local",
+            checkpoint_id="base",
+            checkpoint_path=base_checkpoint,
+            confidences={},
+            layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        summary = summarize_page_active_learning(
+            manuscript_root,
+            "233_0001",
+            current_text_payload={"1": "rama"},
+            current_layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        self.assertEqual(summary["review_status"], "ocr_prediction_unreviewed")
+        self.assertFalse(summary["has_ground_truth"])
+        self.assertFalse(summary["current_revision_is_ground_truth"])
 
     def test_compute_page_layout_fingerprint_ignores_equivalent_point_order_changes(self):
         manuscript_root, _ = self._make_manuscript_root("layout_fingerprint_point_order")
@@ -561,6 +620,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(summary["state"], "missing_page_xml")
+        self.assertEqual(summary["review_status"], "layout_ready_no_text")
         self.assertFalse(summary["can_edit_text"])
         self.assertFalse(summary["can_resume_recognition"])
         self.assertTrue(summary["needs_recognition"])
@@ -609,6 +669,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(summary["state"], "ready")
+        self.assertEqual(summary["review_status"], "ground_truth_saved")
         self.assertTrue(summary["can_edit_text"])
         self.assertTrue(summary["can_resume_recognition"])
         self.assertFalse(summary["needs_recognition"])
@@ -656,6 +717,9 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 
         self.assertEqual(summary["latest_revision_save_intent"], "draft")
         self.assertEqual(summary["latest_supervised_commit_revision_number"], 1)
+        self.assertEqual(summary["review_status"], "ground_truth_with_draft_changes")
+        self.assertTrue(summary["has_ground_truth"])
+        self.assertFalse(summary["current_revision_is_ground_truth"])
         self.assertTrue(summary["can_edit_text"])
         self.assertTrue(summary["can_resume_recognition"])
 
@@ -687,8 +751,71 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 
         self.assertEqual(summary["latest_revision_save_intent"], "draft")
         self.assertIsNone(summary["latest_supervised_commit_revision_number"])
+        self.assertEqual(summary["review_status"], "draft_saved")
+        self.assertFalse(summary["has_ground_truth"])
         self.assertTrue(summary["can_edit_text"])
         self.assertTrue(summary["can_resume_recognition"])
+
+    def test_page_summary_marks_imported_text_as_legacy_review_needed(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("legacy_manual_text")
+        configure_runtime(base_checkpoint, orchestrator=None)
+
+        summary = summarize_page_active_learning(
+            manuscript_root,
+            "233_0001",
+            current_text_payload={"1": "imported text"},
+            current_layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        self.assertEqual(summary["review_status"], "legacy_text_needs_review")
+        self.assertTrue(summary["can_edit_text"])
+        self.assertFalse(summary["has_ground_truth"])
+
+    def test_page_summary_marks_ground_truth_stale_after_layout_only_save(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("gt_stale_after_layout")
+        configure_runtime(base_checkpoint, orchestrator=None)
+        handle_post_save(
+            manuscript="gt_stale_after_layout_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={"1": "rama"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=None,
+        )
+        handle_post_save(
+            manuscript="gt_stale_after_layout_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=False,
+            recognition_engine="local",
+            text_payload={},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": [{"source": 0, "target": 0}]},
+            textbox_labels=[0],
+            modifications=[{"type": "delete"}],
+            save_scope="layout",
+            orchestrator=None,
+        )
+
+        summary = summarize_page_active_learning(
+            manuscript_root,
+            "233_0001",
+            current_text_payload={},
+            current_layout_fingerprint="layout-b",
+            base_checkpoint_path=base_checkpoint,
+        )
+
+        self.assertEqual(summary["review_status"], "ground_truth_stale_layout")
+        self.assertTrue(summary["has_ground_truth"])
+        self.assertFalse(summary["current_revision_is_ground_truth"])
 
     def test_manuscript_summary_clears_stale_pending_jobs_when_orchestrator_has_no_record(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("stale_pending_job")
