@@ -5,6 +5,9 @@
 - testing, recognize using gemini, fine-tune built in reader.
 - apply the reading order annotation to the Gemini recognition pipeline too..
 
+# document the image selection criteria
+- high resolution (CRAFT should be able to detect)
+
 # research
 - the proposed is too local..horizontal lines are treated as curved lines..
 - faster inference..should be more smooth.

@@ -8465,3 +8465,151 @@
 2026-05-27 13:18:28,734 - INFO - 127.0.0.1 - - [27/May/2026 13:18:28] "GET /manuscript/my_manuscript_gemini/active-learning HTTP/1.1" 200 -
 2026-05-27 13:19:29,744 - INFO - 127.0.0.1 - - [27/May/2026 13:19:29] "GET /manuscript/my_manuscript_gemini/active-learning HTTP/1.1" 200 -
 2026-05-27 13:20:30,740 - INFO - 127.0.0.1 - - [27/May/2026 13:20:30] "GET /manuscript/my_manuscript_gemini/active-learning HTTP/1.1" 200 -
+2026-05-28 13:38:02,644 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.197:5000
+2026-05-28 13:38:02,646 - INFO - [33mPress CTRL+C to quit[0m
+2026-05-28 13:38:02,650 - INFO -  * Restarting with stat
+2026-05-28 13:38:18,490 - WARNING -  * Debugger is active!
+2026-05-28 13:38:18,499 - INFO -  * Debugger PIN: 377-258-397
+2026-05-28 13:38:28,387 - INFO - 127.0.0.1 - - [28/May/2026 13:38:28] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-28 13:39:16,325 - INFO - 127.0.0.1 - - [28/May/2026 13:39:16] "POST /upload HTTP/1.1" 200 -
+2026-05-28 13:39:16,789 - INFO - 127.0.0.1 - - [28/May/2026 13:39:16] "GET /manuscript/my_manuscript_map/pages HTTP/1.1" 200 -
+2026-05-28 13:39:17,048 - INFO - 127.0.0.1 - - [28/May/2026 13:39:17] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-28 13:39:18,117 - INFO - 127.0.0.1 - - [28/May/2026 13:39:18] "GET /semi-segment/my_manuscript_map/INDIAN-Jaincosmic-Cd101011 HTTP/1.1" 200 -
+2026-05-28 13:39:18,235 - INFO - 127.0.0.1 - - [28/May/2026 13:39:18] "GET /manuscript/my_manuscript_map/active-learning HTTP/1.1" 200 -
+2026-05-28 13:40:28,667 - INFO - 127.0.0.1 - - [28/May/2026 13:40:28] "POST /upload HTTP/1.1" 200 -
+2026-05-28 13:40:28,684 - INFO - 127.0.0.1 - - [28/May/2026 13:40:28] "GET /manuscript/my_manuscript_map2/pages HTTP/1.1" 200 -
+2026-05-28 13:40:29,014 - INFO - 127.0.0.1 - - [28/May/2026 13:40:29] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-28 13:40:30,211 - INFO - 127.0.0.1 - - [28/May/2026 13:40:30] "GET /semi-segment/my_manuscript_map2/INDIAN-Jaincosmic-Cd101011 HTTP/1.1" 200 -
+2026-05-28 13:40:30,338 - INFO - 127.0.0.1 - - [28/May/2026 13:40:30] "GET /manuscript/my_manuscript_map2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:41:46,766 - INFO - 127.0.0.1 - - [28/May/2026 13:41:46] "POST /upload HTTP/1.1" 200 -
+2026-05-28 13:41:46,830 - INFO - 127.0.0.1 - - [28/May/2026 13:41:46] "GET /manuscript/my_manuscript_map4/pages HTTP/1.1" 200 -
+2026-05-28 13:41:47,169 - INFO - 127.0.0.1 - - [28/May/2026 13:41:47] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-28 13:41:48,561 - INFO - 127.0.0.1 - - [28/May/2026 13:41:48] "GET /semi-segment/my_manuscript_map4/INDIAN-Jaincosmic-Cd101011 HTTP/1.1" 200 -
+2026-05-28 13:41:48,808 - INFO - 127.0.0.1 - - [28/May/2026 13:41:48] "GET /manuscript/my_manuscript_map4/active-learning HTTP/1.1" 200 -
+2026-05-28 13:42:53,310 - INFO - 127.0.0.1 - - [28/May/2026 13:42:53] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-28 13:42:55,124 - INFO - 127.0.0.1 - - [28/May/2026 13:42:55] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-28 13:43:10,370 - INFO - 127.0.0.1 - - [28/May/2026 13:43:10] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-28 13:44:36,634 - INFO - 127.0.0.1 - - [28/May/2026 13:44:36] "POST /upload HTTP/1.1" 200 -
+2026-05-28 13:44:37,013 - INFO - 127.0.0.1 - - [28/May/2026 13:44:37] "GET /manuscript/my_manuscript_map4/pages HTTP/1.1" 200 -
+2026-05-28 13:44:37,256 - INFO - 127.0.0.1 - - [28/May/2026 13:44:37] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-28 13:44:40,009 - INFO - 127.0.0.1 - - [28/May/2026 13:44:40] "GET /semi-segment/my_manuscript_map4/DP-12309-005 HTTP/1.1" 200 -
+2026-05-28 13:44:40,285 - INFO - 127.0.0.1 - - [28/May/2026 13:44:40] "GET /manuscript/my_manuscript_map4/active-learning HTTP/1.1" 200 -
+2026-05-28 13:45:40,696 - INFO - 127.0.0.1 - - [28/May/2026 13:45:40] "GET /manuscript/my_manuscript_map4/active-learning HTTP/1.1" 200 -
+2026-05-28 13:47:00,452 - INFO - 127.0.0.1 - - [28/May/2026 13:47:00] "POST /upload HTTP/1.1" 200 -
+2026-05-28 13:47:00,486 - INFO - 127.0.0.1 - - [28/May/2026 13:47:00] "GET /manuscript/my_manuscript_test/pages HTTP/1.1" 200 -
+2026-05-28 13:47:00,824 - INFO - 127.0.0.1 - - [28/May/2026 13:47:00] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-28 13:47:01,375 - INFO - 127.0.0.1 - - [28/May/2026 13:47:01] "GET /semi-segment/my_manuscript_test/distort1 HTTP/1.1" 200 -
+2026-05-28 13:47:01,446 - INFO - 127.0.0.1 - - [28/May/2026 13:47:01] "GET /manuscript/my_manuscript_test/active-learning HTTP/1.1" 200 -
+2026-05-28 13:48:01,805 - INFO - 127.0.0.1 - - [28/May/2026 13:48:01] "GET /manuscript/my_manuscript_test/active-learning HTTP/1.1" 200 -
+2026-05-28 13:48:39,742 - INFO - 127.0.0.1 - - [28/May/2026 13:48:39] "POST /upload HTTP/1.1" 200 -
+2026-05-28 13:48:40,085 - INFO - 127.0.0.1 - - [28/May/2026 13:48:40] "GET /manuscript/my_manuscript_test2/pages HTTP/1.1" 200 -
+2026-05-28 13:48:40,349 - INFO - 127.0.0.1 - - [28/May/2026 13:48:40] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-28 13:48:40,630 - INFO - 127.0.0.1 - - [28/May/2026 13:48:40] "GET /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:48:40,705 - INFO - 127.0.0.1 - - [28/May/2026 13:48:40] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:49:18,628 - INFO - 127.0.0.1 - - [28/May/2026 13:49:18] "OPTIONS /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:49:18,953 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_v1 manuscript=my_manuscript_test2 page_id=distort1
+2026-05-28 13:49:26,041 - INFO - 127.0.0.1 - - [28/May/2026 13:49:26] "POST /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:49:26,231 - INFO - 127.0.0.1 - - [28/May/2026 13:49:26] "GET /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:49:26,585 - INFO - 127.0.0.1 - - [28/May/2026 13:49:26] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:49:26,866 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-05-28 13:49:27,898 - INFO - Model loaded successfully.
+2026-05-28 13:49:30,639 - INFO - Updated input_manuscripts\my_manuscript_test2\layout_analysis_output\page-xml-format\distort1.xml: 5 lines recognized.
+2026-05-28 13:49:30,779 - INFO - 127.0.0.1 - - [28/May/2026 13:49:30] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:49:43,031 - INFO - 127.0.0.1 - - [28/May/2026 13:49:43] "OPTIONS /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:49:43,434 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_v1 manuscript=my_manuscript_test2 page_id=distort1
+2026-05-28 13:49:49,670 - INFO - 127.0.0.1 - - [28/May/2026 13:49:49] "POST /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:49:51,999 - INFO - 127.0.0.1 - - [28/May/2026 13:49:51] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:49:54,884 - INFO - Updated input_manuscripts\my_manuscript_test2\layout_analysis_output\page-xml-format\distort1.xml: 5 lines recognized.
+2026-05-28 13:49:55,023 - INFO - 127.0.0.1 - - [28/May/2026 13:49:55] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:50:16,481 - INFO - 127.0.0.1 - - [28/May/2026 13:50:16] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:50:17,007 - INFO - AFC is enabled with max remote calls: 10.
+2026-05-28 13:50:55,964 - INFO - 127.0.0.1 - - [28/May/2026 13:50:55] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:51:57,269 - INFO - 127.0.0.1 - - [28/May/2026 13:51:57] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:52:58,275 - INFO - 127.0.0.1 - - [28/May/2026 13:52:58] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:53:59,266 - INFO - 127.0.0.1 - - [28/May/2026 13:53:59] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:54:21,019 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-05-28 13:54:21,428 - INFO - 127.0.0.1 - - [28/May/2026 13:54:21] "[35m[1mPOST /recognize-text HTTP/1.1[0m" 502 -
+2026-05-28 13:54:31,439 - INFO - 127.0.0.1 - - [28/May/2026 13:54:31] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:54:31,841 - INFO - AFC is enabled with max remote calls: 10.
+2026-05-28 13:54:40,764 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-05-28 13:54:41,002 - INFO - 127.0.0.1 - - [28/May/2026 13:54:41] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:55:10,605 - INFO - 127.0.0.1 - - [28/May/2026 13:55:10] "OPTIONS /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:55:11,324 - INFO - 127.0.0.1 - - [28/May/2026 13:55:11] "POST /semi-segment/my_manuscript_test2/distort1 HTTP/1.1" 200 -
+2026-05-28 13:55:11,802 - INFO - 127.0.0.1 - - [28/May/2026 13:55:11] "GET /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 13:56:12,306 - INFO - 127.0.0.1 - - [28/May/2026 13:56:12] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:14,972 - INFO - 127.0.0.1 - - [28/May/2026 13:56:14] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:18,295 - INFO - 127.0.0.1 - - [28/May/2026 13:56:18] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:20,978 - INFO - 127.0.0.1 - - [28/May/2026 13:56:20] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:24,287 - INFO - 127.0.0.1 - - [28/May/2026 13:56:24] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:26,982 - INFO - 127.0.0.1 - - [28/May/2026 13:56:26] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:30,282 - INFO - 127.0.0.1 - - [28/May/2026 13:56:30] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:32,974 - INFO - 127.0.0.1 - - [28/May/2026 13:56:32] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:36,358 - INFO - 127.0.0.1 - - [28/May/2026 13:56:36] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:38,975 - INFO - 127.0.0.1 - - [28/May/2026 13:56:38] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:42,313 - INFO - 127.0.0.1 - - [28/May/2026 13:56:42] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:44,980 - INFO - 127.0.0.1 - - [28/May/2026 13:56:44] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:48,272 - INFO - 127.0.0.1 - - [28/May/2026 13:56:48] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:51,093 - INFO - 127.0.0.1 - - [28/May/2026 13:56:51] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:54,289 - INFO - 127.0.0.1 - - [28/May/2026 13:56:54] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:56,337 - INFO - 127.0.0.1 - - [28/May/2026 13:56:56] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:56:58,702 - INFO - 127.0.0.1 - - [28/May/2026 13:56:58] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:00,974 - INFO - 127.0.0.1 - - [28/May/2026 13:57:00] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:04,288 - INFO - 127.0.0.1 - - [28/May/2026 13:57:04] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:06,969 - INFO - 127.0.0.1 - - [28/May/2026 13:57:06] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:09,331 - INFO - 127.0.0.1 - - [28/May/2026 13:57:09] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:11,380 - INFO - 127.0.0.1 - - [28/May/2026 13:57:11] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:13,730 - INFO - 127.0.0.1 - - [28/May/2026 13:57:13] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:15,779 - INFO - 127.0.0.1 - - [28/May/2026 13:57:15] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:18,139 - INFO - 127.0.0.1 - - [28/May/2026 13:57:18] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:20,177 - INFO - 127.0.0.1 - - [28/May/2026 13:57:20] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:22,532 - INFO - 127.0.0.1 - - [28/May/2026 13:57:22] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:24,587 - INFO - 127.0.0.1 - - [28/May/2026 13:57:24] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:26,950 - INFO - 127.0.0.1 - - [28/May/2026 13:57:26] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:28,998 - INFO - 127.0.0.1 - - [28/May/2026 13:57:28] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:31,346 - INFO - 127.0.0.1 - - [28/May/2026 13:57:31] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:33,395 - INFO - 127.0.0.1 - - [28/May/2026 13:57:33] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:35,762 - INFO - 127.0.0.1 - - [28/May/2026 13:57:35] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:37,802 - INFO - 127.0.0.1 - - [28/May/2026 13:57:37] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:40,146 - INFO - 127.0.0.1 - - [28/May/2026 13:57:40] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:42,188 - INFO - 127.0.0.1 - - [28/May/2026 13:57:42] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:44,547 - INFO - 127.0.0.1 - - [28/May/2026 13:57:44] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:46,595 - INFO - 127.0.0.1 - - [28/May/2026 13:57:46] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:48,962 - INFO - 127.0.0.1 - - [28/May/2026 13:57:48] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:51,972 - INFO - 127.0.0.1 - - [28/May/2026 13:57:51] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:55,282 - INFO - 127.0.0.1 - - [28/May/2026 13:57:55] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:57:57,976 - INFO - 127.0.0.1 - - [28/May/2026 13:57:57] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:58:00,910 - INFO - 127.0.0.1 - - [28/May/2026 13:58:00] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:58:02,949 - INFO - 127.0.0.1 - - [28/May/2026 13:58:02] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:58:05,296 - INFO - 127.0.0.1 - - [28/May/2026 13:58:05] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:58:07,339 - INFO - 127.0.0.1 - - [28/May/2026 13:58:07] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:58:09,682 - INFO - 127.0.0.1 - - [28/May/2026 13:58:09] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 13:58:15,277 - INFO - 127.0.0.1 - - [28/May/2026 13:58:15] "OPTIONS /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 13:58:15,716 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_v1 manuscript=my_manuscript_test2 page_id=distort2
+2026-05-28 13:58:22,868 - INFO - 127.0.0.1 - - [28/May/2026 13:58:22] "POST /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 13:58:23,088 - INFO - 127.0.0.1 - - [28/May/2026 13:58:23] "GET /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 13:58:23,485 - INFO - 127.0.0.1 - - [28/May/2026 13:58:23] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:58:23,844 - INFO - AFC is enabled with max remote calls: 10.
+2026-05-28 13:58:31,973 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-05-28 13:58:32,239 - INFO - 127.0.0.1 - - [28/May/2026 13:58:32] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:59:19,895 - INFO - 127.0.0.1 - - [28/May/2026 13:59:19] "OPTIONS /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 13:59:20,328 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_v1 manuscript=my_manuscript_test2 page_id=distort2
+2026-05-28 13:59:26,773 - INFO - 127.0.0.1 - - [28/May/2026 13:59:26] "POST /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 13:59:27,009 - INFO - 127.0.0.1 - - [28/May/2026 13:59:27] "GET /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 13:59:27,363 - INFO - 127.0.0.1 - - [28/May/2026 13:59:27] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-28 13:59:27,721 - INFO - AFC is enabled with max remote calls: 10.
+2026-05-28 14:00:26,969 - INFO - 127.0.0.1 - - [28/May/2026 14:00:26] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 14:01:28,319 - INFO - 127.0.0.1 - - [28/May/2026 14:01:28] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 14:02:28,689 - INFO - 127.0.0.1 - - [28/May/2026 14:02:28] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 14:03:29,057 - INFO - 127.0.0.1 - - [28/May/2026 14:03:29] "GET /manuscript/my_manuscript_test2/active-learning HTTP/1.1" 200 -
+2026-05-28 14:03:47,312 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-05-28 14:03:47,749 - INFO - 127.0.0.1 - - [28/May/2026 14:03:47] "[35m[1mPOST /recognize-text HTTP/1.1[0m" 502 -
+2026-05-28 14:04:06,129 - INFO - 127.0.0.1 - - [28/May/2026 14:04:06] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-28 14:04:06,453 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscript_test2\active_learning\recognition\checkpoints\ocr_distort1_r0003\training_run\best_norm_ED.pth...
+2026-05-28 14:04:07,471 - INFO - Model loaded successfully.
+2026-05-28 14:04:09,984 - INFO - Updated input_manuscripts\my_manuscript_test2\layout_analysis_output\page-xml-format\distort2.xml: 5 lines recognized.
+2026-05-28 14:04:10,183 - INFO - 127.0.0.1 - - [28/May/2026 14:04:10] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-28 14:04:36,696 - INFO - 127.0.0.1 - - [28/May/2026 14:04:36] "OPTIONS /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-28 14:04:37,407 - INFO - 127.0.0.1 - - [28/May/2026 14:04:37] "POST /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
