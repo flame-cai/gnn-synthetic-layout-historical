@@ -5,6 +5,8 @@ from typing import Mapping
 
 from .legacy_axis_bound import LegacyAxisBoundStrategy
 from .local_polygons import LocalPolygonsStrategy
+from .local_polygons_hstraight_smooth_unwrap import LocalPolygonsHorizontalStraightSmoothUnwrapStrategy
+from .local_polygons_stable_unwrap import LocalPolygonsStableUnwrapStrategy
 from .local_tangent_band import LocalTangentBandStrategy
 from .types import TextLineSegmentationRequest, TextLineSegmentationResult, TextLineSegmentationStrategy
 
@@ -12,6 +14,8 @@ from .types import TextLineSegmentationRequest, TextLineSegmentationResult, Text
 _STRATEGIES = {
     LegacyAxisBoundStrategy.name: LegacyAxisBoundStrategy(),
     LocalPolygonsStrategy.name: LocalPolygonsStrategy(),
+    LocalPolygonsHorizontalStraightSmoothUnwrapStrategy.name: LocalPolygonsHorizontalStraightSmoothUnwrapStrategy(),
+    LocalPolygonsStableUnwrapStrategy.name: LocalPolygonsStableUnwrapStrategy(),
     LocalTangentBandStrategy.name: LocalTangentBandStrategy(),
 }
 

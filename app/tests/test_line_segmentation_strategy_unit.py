@@ -82,6 +82,8 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertIn("legacy_axis_bound_v1", list_text_line_segmentation_strategies())
         self.assertIn("local_tangent_band_v1", list_text_line_segmentation_strategies())
         self.assertIn("local_polygons_v1", list_text_line_segmentation_strategies())
+        self.assertIn("local_polygons_hstraight_smooth_unwrap_v1", list_text_line_segmentation_strategies())
+        self.assertIn("local_polygons_stable_unwrap_v1", list_text_line_segmentation_strategies())
 
     def test_registry_returns_local_tangent_strategy(self):
         strategy = get_text_line_segmentation_strategy("local_tangent_band_v1")
@@ -92,6 +94,16 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         strategy = get_text_line_segmentation_strategy("local_polygons_v1")
 
         self.assertEqual(strategy.name, "local_polygons_v1")
+
+    def test_registry_returns_horizontal_straight_smooth_unwrap_strategy(self):
+        strategy = get_text_line_segmentation_strategy("local_polygons_hstraight_smooth_unwrap_v1")
+
+        self.assertEqual(strategy.name, "local_polygons_hstraight_smooth_unwrap_v1")
+
+    def test_registry_returns_stable_unwrap_strategy(self):
+        strategy = get_text_line_segmentation_strategy("local_polygons_stable_unwrap_v1")
+
+        self.assertEqual(strategy.name, "local_polygons_stable_unwrap_v1")
 
     def test_unknown_strategy_error_names_request(self):
         with self.assertRaisesRegex(ValueError, "does_not_exist"):
@@ -350,6 +362,109 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             crop_metadata["strategy_line_metadata"]["local_cleanup_model"],
             "legacy_remap_top_bottom_cc",
         )
+
+    def test_horizontal_straight_smooth_unwrap_strategy_changes_only_horizontal_crop_model(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "hstraight_smooth_unwrap",
+            "18,48 48,47 78,48",
+            [(18, 42, 60, 12)],
+        )
+        benchmark_metadata_path = tmp_root / "benchmark" / "metadata.json"
+        proposed_metadata_path = tmp_root / "proposed" / "metadata.json"
+        benchmark = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "benchmark" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=benchmark_metadata_path,
+        )
+        proposed = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "proposed" / "unit_page.xml",
+            strategy_name="local_polygons_hstraight_smooth_unwrap_v1",
+            metadata_path=proposed_metadata_path,
+        )
+
+        self.assertEqual(proposed.strategy_name, "local_polygons_hstraight_smooth_unwrap_v1")
+        self.assertEqual(
+            proposed.geometry_summary["geometry_delegate_strategy_name"],
+            "local_polygons_v1",
+        )
+        self.assertEqual(
+            benchmark.line_metadata[0]["coords_points"],
+            proposed.line_metadata[0]["coords_points"],
+        )
+        self.assertEqual(
+            proposed.line_metadata[0]["crop_model"],
+            "local_polygon_horizontal_straight_fit_unwrap",
+        )
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_polygons_hstraight_smooth_unwrap_v1",
+        )
+        crop_metadata = prepared.records[0].crop_metadata
+        self.assertTrue(crop_metadata["used_unwrap"])
+        self.assertEqual(crop_metadata["crop_model"], "local_polygon_horizontal_straight_fit_unwrap")
+        self.assertEqual(crop_metadata["unwrap_strategy"], "horizontal_straight_fit_tangent")
+        self.assertTrue(crop_metadata["horizontal_straight_fit"]["eligible"])
+
+    def test_stable_unwrap_strategy_changes_only_crop_model_for_all_local_polygon_lines(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_unwrap_circular",
+            "48,16 78,48 48,80 18,48 48,16 18,48 48,80 78,48",
+            [(16, 16, 64, 64)],
+        )
+        benchmark = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "benchmark" / "unit_page.xml",
+            strategy_name="local_polygons_v1",
+            metadata_path=tmp_root / "benchmark" / "metadata.json",
+        )
+        proposed = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "proposed" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            metadata_path=tmp_root / "proposed" / "metadata.json",
+        )
+
+        self.assertEqual(proposed.strategy_name, "local_polygons_stable_unwrap_v1")
+        self.assertEqual(
+            benchmark.line_metadata[0]["coords_points"],
+            proposed.line_metadata[0]["coords_points"],
+        )
+        self.assertEqual(proposed.line_metadata[0]["crop_model"], "local_polygon_stable_unwrap")
+        self.assertEqual(
+            proposed.geometry_summary["geometry_delegate_strategy_name"],
+            "local_polygons_v1",
+        )
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_polygons_stable_unwrap_v1",
+        )
+        crop_metadata = prepared.records[0].crop_metadata
+        self.assertTrue(crop_metadata["used_unwrap"])
+        self.assertEqual(crop_metadata["crop_model"], "local_polygon_stable_unwrap")
+        self.assertEqual(crop_metadata["unwrap_strategy"], "stable_arclength_tangent")
+        self.assertTrue(crop_metadata["stable_unwrap"]["used_stable_path"])
+        self.assertTrue(crop_metadata["stable_unwrap"]["vectorized_station_sampling"])
+        self.assertEqual(crop_metadata["stable_unwrap"]["station_sampling"], "endpoint_exclusive_closed")
 
     def test_local_polygons_vertical_line_keeps_open_final_mask_tight(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(

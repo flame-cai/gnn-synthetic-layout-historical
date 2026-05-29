@@ -9,15 +9,27 @@ from typing import Any
 import cv2
 import numpy as np
 
-from .unwrap import should_unwrap_strategy, unwrap_line_crop_for_ocr
+from .unwrap import (
+    should_unwrap_strategy,
+    unwrap_horizontal_straight_fit_line_crop_for_ocr,
+    unwrap_line_crop_for_ocr,
+    unwrap_stable_line_crop_for_ocr,
+)
 
 
 LOGGER = logging.getLogger(__name__)
 LOCAL_TANGENT_CROP_MODEL = "local_tangent_band"
 LOCAL_POLYGON_CROP_MODEL = "local_polygon_unwrap"
+LOCAL_POLYGON_HORIZONTAL_STRAIGHT_FIT_CROP_MODEL = "local_polygon_horizontal_straight_fit_unwrap"
+LOCAL_POLYGON_STABLE_CROP_MODEL = "local_polygon_stable_unwrap"
 LEGACY_DELEGATE_CROP_MODEL = "legacy_axis_bound_delegate"
 AXIS_ALIGNED_CROP_MODEL = "axis_aligned_masked_crop"
-UNWRAPPED_CROP_MODELS = {LOCAL_TANGENT_CROP_MODEL, LOCAL_POLYGON_CROP_MODEL}
+UNWRAPPED_CROP_MODELS = {
+    LOCAL_TANGENT_CROP_MODEL,
+    LOCAL_POLYGON_CROP_MODEL,
+    LOCAL_POLYGON_HORIZONTAL_STRAIGHT_FIT_CROP_MODEL,
+    LOCAL_POLYGON_STABLE_CROP_MODEL,
+}
 
 
 @dataclass(frozen=True)
@@ -155,7 +167,11 @@ def crop_line_record_for_ocr(
     if should_unwrap_record:
         try:
             unwrap_config = dict(crop_config or {})
-            if crop_model == LOCAL_POLYGON_CROP_MODEL:
+            if crop_model in {
+                LOCAL_POLYGON_CROP_MODEL,
+                LOCAL_POLYGON_HORIZONTAL_STRAIGHT_FIT_CROP_MODEL,
+                LOCAL_POLYGON_STABLE_CROP_MODEL,
+            }:
                 for key in ("local_s_min", "local_s_max", "local_n_min", "local_n_max"):
                     if key in line_metadata:
                         unwrap_config.setdefault(key, line_metadata[key])
@@ -165,7 +181,13 @@ def crop_line_record_for_ocr(
                     unwrap_config.setdefault("reading_direction", reading_annotation.get("reading_direction"))
                 if reading_annotation.get("cut_midpoint") is not None:
                     unwrap_config.setdefault("reading_cut_point", reading_annotation.get("cut_midpoint"))
-            crop_result = unwrap_line_crop_for_ocr(
+            if crop_model == LOCAL_POLYGON_HORIZONTAL_STRAIGHT_FIT_CROP_MODEL:
+                unwrap_func = unwrap_horizontal_straight_fit_line_crop_for_ocr
+            elif crop_model == LOCAL_POLYGON_STABLE_CROP_MODEL:
+                unwrap_func = unwrap_stable_line_crop_for_ocr
+            else:
+                unwrap_func = unwrap_line_crop_for_ocr
+            crop_result = unwrap_func(
                 processing_image,
                 _record_value(record, "polygon_points") or [],
                 _record_value(record, "baseline_points") or [],

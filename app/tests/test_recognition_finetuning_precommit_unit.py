@@ -79,7 +79,7 @@ class RecognitionFineTuningPrecommitUnitTest(unittest.TestCase):
         self.assertEqual(gate_config.strategy_ablation.benchmark.strategy_name, benchmark_strategy)
         self.assertEqual(gate_config.strategy_ablation.proposed.strategy_name, proposed_strategy)
         self.assertEqual(gate_config.strategy_ablation.benchmark.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
-        self.assertEqual(gate_config.strategy_ablation.proposed.strategy_config, {})
+        self.assertEqual(gate_config.strategy_ablation.proposed.strategy_config, {"BINARIZE_THRESHOLD": 0.45})
         self.assertEqual(float(gate_config.strategy_ablation.max_allowed_regression_abs), 0.02)
 
     def test_strategy_role_config_updates_dataset_geometry(self):

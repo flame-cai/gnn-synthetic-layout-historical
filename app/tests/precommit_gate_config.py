@@ -16,6 +16,12 @@ RESEARCH_STRATEGY_CONFIGS = {
     "local_polygons_v1": {
         "BINARIZE_THRESHOLD": 0.45,
     },
+    "local_polygons_hstraight_smooth_unwrap_v1": {
+        "BINARIZE_THRESHOLD": 0.45,
+    },
+    "local_polygons_stable_unwrap_v1": {
+        "BINARIZE_THRESHOLD": 0.45,
+    },
 }
 
 

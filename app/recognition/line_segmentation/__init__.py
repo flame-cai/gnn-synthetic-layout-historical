@@ -13,6 +13,8 @@ from .types import TextLineSegmentationRequest, TextLineSegmentationResult, Text
 if TYPE_CHECKING:
     from .legacy_axis_bound import DEFAULT_LEGACY_AXIS_BOUND_CONFIG, LegacyAxisBoundStrategy
     from .local_polygons import DEFAULT_LOCAL_POLYGON_CONFIG, LocalPolygonsStrategy
+    from .local_polygons_hstraight_smooth_unwrap import LocalPolygonsHorizontalStraightSmoothUnwrapStrategy
+    from .local_polygons_stable_unwrap import LocalPolygonsStableUnwrapStrategy
     from .local_tangent_band import DEFAULT_LOCAL_TANGENT_BAND_CONFIG, LocalTangentBandStrategy
 
 
@@ -56,6 +58,14 @@ def __getattr__(name: str):
             "DEFAULT_LOCAL_POLYGON_CONFIG": DEFAULT_LOCAL_POLYGON_CONFIG,
             "LocalPolygonsStrategy": LocalPolygonsStrategy,
         }[name]
+    if name == "LocalPolygonsHorizontalStraightSmoothUnwrapStrategy":
+        from .local_polygons_hstraight_smooth_unwrap import LocalPolygonsHorizontalStraightSmoothUnwrapStrategy
+
+        return LocalPolygonsHorizontalStraightSmoothUnwrapStrategy
+    if name == "LocalPolygonsStableUnwrapStrategy":
+        from .local_polygons_stable_unwrap import LocalPolygonsStableUnwrapStrategy
+
+        return LocalPolygonsStableUnwrapStrategy
     raise AttributeError(name)
 
 
@@ -65,6 +75,8 @@ __all__ = [
     "DEFAULT_LOCAL_TANGENT_BAND_CONFIG",
     "LegacyAxisBoundStrategy",
     "LocalPolygonsStrategy",
+    "LocalPolygonsHorizontalStraightSmoothUnwrapStrategy",
+    "LocalPolygonsStableUnwrapStrategy",
     "LocalTangentBandStrategy",
     "TextLineSegmentationRequest",
     "TextLineSegmentationResult",

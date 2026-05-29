@@ -75,10 +75,12 @@ The current checked-in strategy role source of truth is:
 The current concrete strategies are:
 
 - benchmark: `local_polygons_v1`
-- proposed: not configured
+- proposed: `local_polygons_stable_unwrap_v1`
 - production app: `local_polygons_v1`
 
 `local_polygons_v1` is the current research benchmark after promotion on 2026-05-22 and the current production app strategy after explicit adoption on 2026-05-23. It uses baseline-local heatmap contour masks so circular OCR crops are not sized from page-axis-aligned heatmap boxes. Its heatmap threshold is `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override. `legacy_axis_bound_v1` preserves the historical axis-aligned behavior and remains available for rollback and legacy-page fallback behavior. `local_tangent_band_v1` remains available as the earlier generalized benchmark for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
+
+`local_polygons_stable_unwrap_v1` is the current proposed research ablation. It keeps the benchmark PAGE geometry unchanged and only changes OCR crop preparation: local-polygon crops use stable arclength sampling, a smoothed centerline tangent field, endpoint-exclusive closed-loop sampling, vectorized remap grids, and the original PAGE `Coords` mask fill.
 
 Production now has a shared OCR crop preparation boundary in `app/recognition/line_segmentation/ocr_crops.py`. App line-image export, local OCR inference, and active-learning revision preparation all read saved PAGE `Coords` and optional strategy metadata through that layer. New `local_polygons_v1` layout saves write metadata that asks this layer for local-polygon unwrapping with a median-color background. Pages without usable metadata continue through the masked PAGE `Coords` fallback.
 

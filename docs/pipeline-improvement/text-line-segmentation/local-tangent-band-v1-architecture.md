@@ -1,6 +1,6 @@
 # `local_tangent_band_v1` Architecture
 
-This document is the blueprint for the current proposed text-line segmentation strategy, `local_tangent_band_v1`. It describes the implemented pipeline that converts PAGE-XML `Baseline` polylines, page images, and heatmaps into PAGE-space `Coords` polygons and OCR-ready line crops.
+This document is the blueprint for the historical proposed text-line segmentation strategy, `local_tangent_band_v1`. It describes the implemented pipeline that converts PAGE-XML `Baseline` polylines, page images, and heatmaps into PAGE-space `Coords` polygons and OCR-ready line crops.
 
 The important design rule is that PAGE-XML `Coords` remain manuscript page geometry. OCR unwrapping is a separate downstream representation and must never be written back as PAGE `Coords`.
 
@@ -329,7 +329,7 @@ benchmark slot. The harness has since advanced again. The current research
 harness roles are:
 
 - benchmark: `local_polygons_v1`
-- proposed: not configured
+- proposed: `local_polygons_stable_unwrap_v1`
 
 The current production app default has since advanced:
 

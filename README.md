@@ -158,6 +158,8 @@ The app and the research verifier use separate text-line segmentation role pins 
 
 The current production app strategy is `local_polygons_v1`, adopted explicitly after the research benchmark promotion. Research promotion still does not change the production app default by itself. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
 
+The current proposed research strategy is `local_polygons_stable_unwrap_v1`. It is a crop-only ablation over `local_polygons_v1`: PAGE `Coords` generation stays identical to the benchmark, while OCR crops use a stable arclength/tangent unwrap with smoothed centerline sampling, endpoint-exclusive closed-loop sampling, vectorized remap grids, and PAGE `Coords` mask filling.
+
 Production OCR crops now go through `app/recognition/line_segmentation/ocr_crops.py`. New `local_polygons_v1` saves write strategy metadata that lets local OCR, line-image export, and active-learning training use local-polygon unwrapping with a median-color background while keeping PAGE `Coords` as page-space geometry. Missing or unsupported metadata falls back to the legacy masked crop.
 
 In layout mode, shortcut `O` enables optional reading-direction annotation for a text line. Draw a short cross-line cut; the app records the rotated cut tangent as the line's reading direction, resolves it by component overlap on save, and stores it in a reading-direction sidecar. This resolves 180-degree ambiguity for vertical, slanted, curved, and circular lines without changing page-level line ordering.

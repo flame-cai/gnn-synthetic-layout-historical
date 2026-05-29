@@ -31,12 +31,12 @@ The durable generated evidence summary is checked in at:
 The current checked-in state is:
 
 - research benchmark: `local_polygons_v1`
-- research proposed: not configured
+- research proposed: `local_polygons_stable_unwrap_v1`
 - production app default: `local_polygons_v1`
 
 `local_polygons_v1` was adopted for production on 2026-05-23 after runtime support landed for strategy-owned config and reading-direction metadata. `legacy_axis_bound_v1` remains available after any research promotion or production adoption for rollback, historical comparison, and legacy-page fallback behavior.
-Configure a new `proposed_strategy_name` before running the next strategy ablation cycle.
-Research strategy configs that must survive role changes are keyed by strategy in `app/tests/precommit_gate_config.py`; the current local-polygons research config keeps `BINARIZE_THRESHOLD=0.45` whether it is benchmark or proposed.
+The current proposed strategy is a crop-only ablation over `local_polygons_v1`: PAGE `Coords` generation stays identical, while OCR crop preparation uses stable arclength/tangent sampling for all local-polygon crops.
+Research strategy configs that must survive role changes are keyed by strategy in `app/tests/precommit_gate_config.py`; the current local-polygons and stable-unwrap research configs keep `BINARIZE_THRESHOLD=0.45` whether either role changes.
 If no proposed strategy is configured, do not change the ablation gates to run benchmark-only as part of production adoption. Configure a proposed research strategy before running comparison gates again, or treat any benchmark-only health check as a separate research-harness maintenance change with its own review.
 
 ## Why The Lifecycles Are Separate

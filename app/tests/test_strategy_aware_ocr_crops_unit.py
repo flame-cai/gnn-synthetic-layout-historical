@@ -156,6 +156,64 @@ class StrategyAwareOcrCropsUnitTest(unittest.TestCase):
         self.assertIn("median_background_fraction", result.metadata)
         self.assertGreater(result.image.shape[1], result.image.shape[0])
 
+    def test_horizontal_straight_fit_crop_model_uses_vectorized_fit(self):
+        image = np.full((96, 128), 240, dtype=np.uint8)
+        image[42:54, 18:110] = 20
+        record = SimpleNamespace(
+            page_id="unit_page",
+            region_custom="textbox_label_0",
+            line_id="region_0_line_0",
+            line_custom="structure_line_id_7",
+            line_numeric_id=7,
+            text="test",
+            polygon_points=[[16, 38], [112, 38], [112, 58], [16, 58]],
+            baseline_points=[[18, 49], [48, 47], [78, 50], [110, 48]],
+        )
+
+        result = crop_line_record_for_ocr(
+            image,
+            record,
+            strategy_name="local_polygons_hstraight_smooth_unwrap_v1",
+            strategy_line_metadata={
+                "line_numeric_id": 7,
+                "crop_model": "local_polygon_horizontal_straight_fit_unwrap",
+                "local_s_min": -2.0,
+                "local_s_max": 96.0,
+                "local_n_min": -10.0,
+                "local_n_max": 10.0,
+            },
+        )
+
+        self.assertTrue(result.metadata["used_unwrap"])
+        self.assertEqual(result.metadata["unwrap_strategy"], "horizontal_straight_fit_tangent")
+        self.assertTrue(result.metadata["horizontal_straight_fit"]["eligible"])
+        self.assertTrue(result.metadata["horizontal_straight_fit"]["vectorized_map"])
+        self.assertGreater(result.image.shape[1], result.image.shape[0])
+
+    def test_stable_crop_model_uses_general_vectorized_unwrap(self):
+        image, record = self._image_and_record()
+
+        result = crop_line_record_for_ocr(
+            image,
+            record,
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_line_metadata={
+                "line_numeric_id": 7,
+                "crop_model": "local_polygon_stable_unwrap",
+                "local_s_min": 0.0,
+                "local_s_max": 60.0,
+                "local_n_min": -8.0,
+                "local_n_max": 8.0,
+            },
+        )
+
+        self.assertTrue(result.metadata["used_unwrap"])
+        self.assertEqual(result.metadata["crop_model"], "local_polygon_stable_unwrap")
+        self.assertEqual(result.metadata["unwrap_strategy"], "stable_arclength_tangent")
+        self.assertTrue(result.metadata["stable_unwrap"]["used_stable_path"])
+        self.assertTrue(result.metadata["stable_unwrap"]["vectorized_map"])
+        self.assertTrue(result.metadata["stable_unwrap"]["vectorized_station_sampling"])
+
     def test_local_polygon_reading_direction_annotation_reaches_unwrap(self):
         image, record = self._image_and_record()
 
