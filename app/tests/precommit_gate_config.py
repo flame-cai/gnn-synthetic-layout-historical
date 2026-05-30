@@ -8,6 +8,7 @@ from recognition.line_segmentation.strategy_config import (
     get_benchmark_strategy_name,
     get_proposed_strategy_name,
 )
+from recognition.line_segmentation.registry import validate_research_role_strategy
 
 TESTS_ROOT = Path(__file__).resolve().parent
 DEFAULT_BENCHMARK_STRATEGY_NAME = get_benchmark_strategy_name()
@@ -53,22 +54,37 @@ def _research_strategy_config(strategy_name: str | None) -> dict:
     return dict(RESEARCH_STRATEGY_CONFIGS.get(str(strategy_name or ""), {}))
 
 
+def _validate_research_role_config(role_config: StrategyRoleConfig) -> StrategyRoleConfig:
+    if role_config.strategy_name is not None:
+        validate_research_role_strategy(
+            role_config.strategy_name,
+            role_label=f"Research {role_config.role}",
+        )
+    return role_config
+
+
 def _default_strategy_ablation(
     *,
     max_allowed_regression_abs: float,
     strict_primary_improvement_required: bool = False,
 ) -> StrategyAblationConfig:
-    return StrategyAblationConfig(
-        benchmark=StrategyRoleConfig(
+    benchmark = _validate_research_role_config(
+        StrategyRoleConfig(
             role="benchmark",
             strategy_name=DEFAULT_BENCHMARK_STRATEGY_NAME,
             strategy_config=_research_strategy_config(DEFAULT_BENCHMARK_STRATEGY_NAME),
-        ),
-        proposed=StrategyRoleConfig(
+        )
+    )
+    proposed = _validate_research_role_config(
+        StrategyRoleConfig(
             role="proposed",
             strategy_name=DEFAULT_PROPOSED_STRATEGY_NAME,
             strategy_config=_research_strategy_config(DEFAULT_PROPOSED_STRATEGY_NAME),
-        ),
+        )
+    )
+    return StrategyAblationConfig(
+        benchmark=benchmark,
+        proposed=proposed,
         max_allowed_regression_abs=max_allowed_regression_abs,
         strict_primary_improvement_required=strict_primary_improvement_required,
     )

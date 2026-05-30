@@ -951,6 +951,8 @@ def _write_result_xml(
 
 class LocalPolygonsStrategy:
     name = "local_polygons_v1"
+    research_role_independent = True
+    production_role_independent = True
 
     def apply(self, request: TextLineSegmentationRequest) -> TextLineSegmentationResult:
         config = _normalise_config(dict(request.strategy_config or {}))

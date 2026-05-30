@@ -60,7 +60,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
             self.config_path,
             {
                 "benchmark_strategy_name": "legacy_axis_bound_v1",
-                "proposed_strategy_name": "local_tangent_band_v1",
+                "proposed_strategy_name": "local_polygons_v1",
                 "production_strategy_name": "legacy_axis_bound_v1",
                 "research_promotion_history": [],
                 "production_adoption_history": [],
@@ -71,7 +71,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         self,
         *,
         benchmark_strategy_name: str = "legacy_axis_bound_v1",
-        proposed_strategy_name: str = "local_tangent_band_v1",
+        proposed_strategy_name: str = "local_polygons_v1",
         all_passed: bool = True,
     ) -> Path:
         gate_artifacts = self.tmp_root / "gate_artifacts"
@@ -133,7 +133,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         before = self.config_path.read_text(encoding="utf-8")
 
         result = promote_text_line_strategy(
-            candidate="local_tangent_band_v1",
+            candidate="local_polygons_v1",
             previous_benchmark="legacy_axis_bound_v1",
             metrics_path=evidence_path,
             apply=False,
@@ -144,7 +144,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         self.assertTrue(result["changed"])
         self.assertFalse(result["applied"])
         self.assertEqual(before, after)
-        self.assertEqual(result["config_after"]["benchmark_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(result["config_after"]["benchmark_strategy_name"], "local_polygons_v1")
         self.assertIsNone(result["config_after"]["proposed_strategy_name"])
         self.assertEqual(result["config_after"]["production_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(result["config_after"]["production_adoption_history"], [])
@@ -153,7 +153,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         evidence_path = self._write_evidence()
 
         result = promote_text_line_strategy(
-            candidate="local_tangent_band_v1",
+            candidate="local_polygons_v1",
             previous_benchmark="legacy_axis_bound_v1",
             metrics_path=evidence_path,
             apply=True,
@@ -163,12 +163,12 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         self.assertTrue(result["changed"])
         self.assertTrue(result["applied"])
         payload = _load_config_payload(self.config_path)
-        self.assertEqual(payload["benchmark_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["benchmark_strategy_name"], "local_polygons_v1")
         self.assertIsNone(payload["proposed_strategy_name"])
         self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(payload["production_adoption_history"], [])
         self.assertEqual(len(payload["research_promotion_history"]), 1)
-        self.assertEqual(payload["research_promotion_history"][0]["promoted_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["research_promotion_history"][0]["promoted_strategy_name"], "local_polygons_v1")
 
     def test_checked_in_promotion_record_is_rendered_from_evidence(self):
         evidence_path = self._write_evidence()
@@ -181,7 +181,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         record = record_path.read_text(encoding="utf-8")
         self.assertIn("Text-Line Strategy Promotion Record", record)
         self.assertIn("`legacy_axis_bound_v1`", record)
-        self.assertIn("`local_tangent_band_v1`", record)
+        self.assertIn("`local_polygons_v1`", record)
         self.assertIn("`pipeline_eval_dataset`", record)
         self.assertIn("`ocr_eval_dataset`", record)
         self.assertIn("`circular_ocr_eval_dataset_v2`", record)
@@ -191,14 +191,14 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         evidence_path = self._write_evidence()
 
         first = promote_text_line_strategy(
-            candidate="local_tangent_band_v1",
+            candidate="local_polygons_v1",
             previous_benchmark="legacy_axis_bound_v1",
             metrics_path=evidence_path,
             apply=True,
             strategy_config_path=self.config_path,
         )
         second = promote_text_line_strategy(
-            candidate="local_tangent_band_v1",
+            candidate="local_polygons_v1",
             previous_benchmark="legacy_axis_bound_v1",
             metrics_path=evidence_path,
             apply=True,
@@ -216,7 +216,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
             self.config_path,
             {
                 "benchmark_strategy_name": "legacy_axis_bound_v1",
-                "proposed_strategy_name": "local_tangent_band_v1",
+                "proposed_strategy_name": "local_polygons_v1",
                 "production_strategy_name": "legacy_axis_bound_v1",
                 "research_promotion_history": [],
                 "production_adoption_history": [
@@ -233,7 +233,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         evidence_path = self._write_evidence()
 
         promote_text_line_strategy(
-            candidate="local_tangent_band_v1",
+            candidate="local_polygons_v1",
             previous_benchmark="legacy_axis_bound_v1",
             metrics_path=evidence_path,
             apply=True,
@@ -241,7 +241,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         )
 
         payload = _load_config_payload(self.config_path)
-        self.assertEqual(payload["benchmark_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["benchmark_strategy_name"], "local_polygons_v1")
         self.assertEqual(payload["production_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(len(payload["research_promotion_history"]), 1)
         self.assertEqual(len(payload["production_adoption_history"]), 1)
@@ -252,7 +252,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "Missing promotion evidence"):
             promote_text_line_strategy(
-                candidate="local_tangent_band_v1",
+                candidate="local_polygons_v1",
                 previous_benchmark="legacy_axis_bound_v1",
                 metrics_path=missing_path,
                 apply=False,
@@ -264,7 +264,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "did not recommend promotion"):
             promote_text_line_strategy(
-                candidate="local_tangent_band_v1",
+                candidate="local_polygons_v1",
                 previous_benchmark="legacy_axis_bound_v1",
                 metrics_path=evidence_path,
                 apply=False,
@@ -282,7 +282,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "evidence was stale"):
             promote_text_line_strategy(
-                candidate="local_tangent_band_v1",
+                candidate="local_polygons_v1",
                 previous_benchmark="legacy_axis_bound_v1",
                 metrics_path=evidence_path,
                 apply=False,
@@ -293,7 +293,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         wrong_candidate_evidence = self._write_evidence(proposed_strategy_name="legacy_axis_bound_v1")
         with self.assertRaisesRegex(ValueError, "did not match --candidate"):
             promote_text_line_strategy(
-                candidate="local_tangent_band_v1",
+                candidate="local_polygons_v1",
                 previous_benchmark="legacy_axis_bound_v1",
                 metrics_path=wrong_candidate_evidence,
                 apply=False,
@@ -303,7 +303,7 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         wrong_benchmark_evidence = self._write_evidence(benchmark_strategy_name="local_tangent_band_v1")
         with self.assertRaisesRegex(ValueError, "did not match --previous-benchmark"):
             promote_text_line_strategy(
-                candidate="local_tangent_band_v1",
+                candidate="local_polygons_v1",
                 previous_benchmark="legacy_axis_bound_v1",
                 metrics_path=wrong_benchmark_evidence,
                 apply=False,
@@ -316,6 +316,28 @@ class StrategyPromotionUnitTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "is not registered"):
             promote_text_line_strategy(
                 candidate="missing_strategy_v1",
+                previous_benchmark="legacy_axis_bound_v1",
+                metrics_path=evidence_path,
+                apply=False,
+                strategy_config_path=self.config_path,
+            )
+
+    def test_refuses_when_candidate_delegates_to_another_strategy(self):
+        write_strategy_role_config(
+            self.config_path,
+            {
+                "benchmark_strategy_name": "legacy_axis_bound_v1",
+                "proposed_strategy_name": "local_polygons_hstraight_smooth_unwrap_v1",
+                "production_strategy_name": "legacy_axis_bound_v1",
+                "research_promotion_history": [],
+                "production_adoption_history": [],
+            },
+        )
+        evidence_path = self._write_evidence(proposed_strategy_name="local_polygons_hstraight_smooth_unwrap_v1")
+
+        with self.assertRaisesRegex(ValueError, "not marked as an independent research-role strategy"):
+            promote_text_line_strategy(
+                candidate="local_polygons_hstraight_smooth_unwrap_v1",
                 previous_benchmark="legacy_axis_bound_v1",
                 metrics_path=evidence_path,
                 apply=False,

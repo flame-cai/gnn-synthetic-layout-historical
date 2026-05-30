@@ -278,6 +278,8 @@ def _write_result_xml(
 
 class LocalTangentBandStrategy:
     name = "local_tangent_band_v1"
+    research_role_independent = False
+    production_role_independent = False
 
     def apply(self, request: TextLineSegmentationRequest) -> TextLineSegmentationResult:
         config = _normalise_config(dict(request.strategy_config or {}))

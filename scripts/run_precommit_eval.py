@@ -379,8 +379,8 @@ def main() -> int:
                 )
                 print(f"[pre-commit] To promote the proposed strategy inside the research harness, run: {command}", flush=True)
                 print(
-                    "[pre-commit] This does not change the production app default; use "
-                    "scripts/adopt_text_line_strategy_for_app.py for explicit app adoption.",
+                    "[pre-commit] This does not change the production app default. If the same winner should roll out "
+                    "to app saves, use scripts/adopt_text_line_strategy_for_app.py as a separate production-gated step.",
                     flush=True,
                 )
             else:

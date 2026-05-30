@@ -217,6 +217,8 @@ def build_legacy_axis_bound_polygons(
 
 class LegacyAxisBoundStrategy:
     name = "legacy_axis_bound_v1"
+    research_role_independent = True
+    production_role_independent = True
 
     def apply(self, request: TextLineSegmentationRequest) -> TextLineSegmentationResult:
         config = _normalise_config(request.strategy_config)

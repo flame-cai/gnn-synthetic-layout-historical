@@ -309,7 +309,10 @@ def write_strategy_promotion_evidence(
 
 
 def _validate_registered_strategy(strategy_name: str, *, role_label: str) -> None:
-    from recognition.line_segmentation.registry import list_text_line_segmentation_strategies
+    from recognition.line_segmentation.registry import (
+        list_text_line_segmentation_strategies,
+        validate_research_role_strategy,
+    )
 
     available = set(list_text_line_segmentation_strategies())
     if strategy_name not in available:
@@ -317,6 +320,7 @@ def _validate_registered_strategy(strategy_name: str, *, role_label: str) -> Non
             f"{role_label} strategy {strategy_name!r} is not registered. "
             f"Available strategies: {', '.join(sorted(available))}"
         )
+    validate_research_role_strategy(strategy_name, role_label=role_label)
 
 
 def _load_and_validate_evidence(metrics_path: Path, *, candidate: str, previous_benchmark: str) -> dict[str, Any]:
@@ -559,20 +563,29 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
     args = _build_arg_parser().parse_args(argv)
-    result = promote_text_line_strategy(
-        candidate=args.candidate,
-        previous_benchmark=args.previous_benchmark,
-        metrics_path=Path(args.metrics),
-        apply=bool(args.apply),
-        strategy_config_path=Path(args.strategy_config_path),
-        author_or_tool=args.author_or_tool,
-    )
+    try:
+        result = promote_text_line_strategy(
+            candidate=args.candidate,
+            previous_benchmark=args.previous_benchmark,
+            metrics_path=Path(args.metrics),
+            apply=bool(args.apply),
+            strategy_config_path=Path(args.strategy_config_path),
+            author_or_tool=args.author_or_tool,
+        )
+    except ValueError as exc:
+        print(f"[research-promotion] Refused: {exc}", file=sys.stderr)
+        return 1
     print(f"[research-promotion] Evidence: {result['metrics_path']}")
     print(f"[research-promotion] Config: {result['config_path']}")
     print(f"[research-promotion] {result['message']}")
+    before = result["config_before"]
+    after = result["config_after"]
+    if before.get("production_strategy_name") == after.get("production_strategy_name"):
+        print(
+            "[research-promotion] Production app strategy unchanged; use "
+            "scripts/adopt_text_line_strategy_for_app.py for a separate production-gated adoption."
+        )
     if not args.apply:
-        before = result["config_before"]
-        after = result["config_after"]
         print(
             "[research-promotion] Dry run only. research benchmark: "
             f"{before['benchmark_strategy_name']} -> {after['benchmark_strategy_name']}"

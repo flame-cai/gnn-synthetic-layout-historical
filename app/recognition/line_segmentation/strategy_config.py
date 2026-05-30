@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any
 
 STRATEGY_ROLE_CONFIG_JSON = r"""{
-  "benchmark_strategy_name": "local_polygons_v1",
-  "proposed_strategy_name": "local_polygons_stable_unwrap_v1",
+  "benchmark_strategy_name": "local_polygons_stable_unwrap_v1",
+  "proposed_strategy_name": null,
   "production_strategy_name": "local_polygons_v1",
   "research_promotion_history": [
     {
@@ -111,6 +111,57 @@ STRATEGY_ROLE_CONFIG_JSON = r"""{
       },
       "promotion_timestamp_utc": "2026-05-22T07:31:01Z",
       "author_or_tool": "scripts/promote_text_line_strategy.py"
+    },
+    {
+      "promoted_strategy_name": "local_polygons_stable_unwrap_v1",
+      "previous_benchmark_strategy_name": "local_polygons_v1",
+      "evidence_metrics_path": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
+      "evidence_generated_at_utc": "2026-05-29T11:14:24Z",
+      "gate_artifact_paths": {
+        "pipeline_eval_dataset": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_162925_pipeline_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_162925_pipeline_ablation_eval_dataset_summary\\summary.md"
+        },
+        "ocr_eval_dataset": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_163930_ocr_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_163930_ocr_ablation_eval_dataset_summary\\summary.md"
+        },
+        "circular_ocr_eval_dataset_v2": {
+          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_164421_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_164421_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
+        }
+      },
+      "gate_metric_summary": {
+        "pipeline_eval_dataset": {
+          "primary_metric_name": "page_cer",
+          "benchmark_value": 0.321574161179053,
+          "proposed_value": 0.3180464095327689,
+          "operator": "<=",
+          "passed": true
+        },
+        "ocr_eval_dataset": {
+          "primary_metric_name": "curve_metric_value",
+          "benchmark_value": 0.26966154919748775,
+          "proposed_value": 0.26174110258199584,
+          "operator": "<=",
+          "passed": true
+        },
+        "circular_ocr_eval_dataset_v2": {
+          "primary_metric_name": "curve_metric_value",
+          "benchmark_value": 0.16358695652173913,
+          "proposed_value": 0.15625,
+          "operator": "<",
+          "passed": true
+        }
+      },
+      "promotion_timestamp_utc": "2026-05-30T08:59:54Z",
+      "author_or_tool": "scripts/promote_text_line_strategy.py"
     }
   ],
   "production_adoption_history": [
@@ -184,8 +235,30 @@ def normalize_strategy_role_config_payload(payload: dict[str, Any]) -> dict[str,
     }
 
 
+def validate_strategy_role_config_payload_roles(payload: dict[str, Any]) -> None:
+    normalized = normalize_strategy_role_config_payload(payload)
+
+    from .registry import validate_production_role_strategy, validate_research_role_strategy
+    from .runtime_config import PRODUCTION_STRATEGY_RUNTIME_CONFIGS
+
+    validate_research_role_strategy(normalized["benchmark_strategy_name"], role_label="Research benchmark")
+    proposed_strategy_name = normalized.get("proposed_strategy_name")
+    if proposed_strategy_name is not None:
+        validate_research_role_strategy(proposed_strategy_name, role_label="Research proposed")
+
+    production_strategy_name = normalized["production_strategy_name"]
+    validate_production_role_strategy(production_strategy_name, role_label="Production app")
+    if production_strategy_name not in PRODUCTION_STRATEGY_RUNTIME_CONFIGS:
+        raise ValueError(
+            f"Production app strategy {production_strategy_name!r} does not have a production runtime config. "
+            "Add an explicit config before using it for app saves."
+        )
+
+
 def get_strategy_role_config() -> dict[str, Any]:
-    return normalize_strategy_role_config_payload(STRATEGY_ROLE_CONFIG)
+    normalized = normalize_strategy_role_config_payload(STRATEGY_ROLE_CONFIG)
+    validate_strategy_role_config_payload_roles(normalized)
+    return normalized
 
 
 def get_benchmark_strategy_name() -> str:
@@ -246,5 +319,6 @@ __all__ = [
     "load_strategy_role_config_from_path",
     "normalize_strategy_role_config_payload",
     "render_strategy_role_config",
+    "validate_strategy_role_config_payload_roles",
     "write_strategy_role_config",
 ]

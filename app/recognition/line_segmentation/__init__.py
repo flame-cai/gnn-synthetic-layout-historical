@@ -7,6 +7,7 @@ from .strategy_config import (
     get_proposed_strategy_name,
     get_production_strategy_name,
     get_strategy_role_config,
+    validate_strategy_role_config_payload_roles,
 )
 from .types import TextLineSegmentationRequest, TextLineSegmentationResult, TextLineSegmentationStrategy
 
@@ -34,6 +35,18 @@ def list_text_line_segmentation_strategies(*args: Any, **kwargs: Any):
     from .registry import list_text_line_segmentation_strategies as _list
 
     return _list(*args, **kwargs)
+
+
+def validate_research_role_strategy(*args: Any, **kwargs: Any):
+    from .registry import validate_research_role_strategy as _validate
+
+    return _validate(*args, **kwargs)
+
+
+def validate_production_role_strategy(*args: Any, **kwargs: Any):
+    from .registry import validate_production_role_strategy as _validate
+
+    return _validate(*args, **kwargs)
 
 
 def __getattr__(name: str):
@@ -88,4 +101,7 @@ __all__ = [
     "get_strategy_role_config",
     "get_text_line_segmentation_strategy",
     "list_text_line_segmentation_strategies",
+    "validate_production_role_strategy",
+    "validate_research_role_strategy",
+    "validate_strategy_role_config_payload_roles",
 ]

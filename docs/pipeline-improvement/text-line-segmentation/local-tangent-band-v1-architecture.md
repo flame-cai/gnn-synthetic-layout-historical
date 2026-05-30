@@ -328,14 +328,16 @@ The research promotion described above moved `local_tangent_band_v1` into the
 benchmark slot. The harness has since advanced again. The current research
 harness roles are:
 
-- benchmark: `local_polygons_v1`
-- proposed: `local_polygons_stable_unwrap_v1`
+- benchmark: `local_polygons_stable_unwrap_v1`
+- proposed: unset
 
 The current production app default has since advanced:
 
 - production app: `local_polygons_v1`
 
 Research promotion moves only the benchmark/proposed harness roles. It does not change the production app default; the `local_polygons_v1` production rollout was a separate adoption step.
+
+As of the 2026-05-30 hardening pass, future benchmark/proposed strategies must be independently owned implementations. `local_tangent_band_v1` remains registered for historical comparison, but its legacy horizontal delegate means it is not marked as an allowed future research-role or production-role strategy until that delegate behavior is split into owned code.
 
 Current acceptance behavior:
 
@@ -363,7 +365,7 @@ It does not remove or replace `legacy_axis_bound_v1`. The legacy strategy remain
 
 Existing pages are not migrated automatically. GUI OCR inference and GUI active-learning training still read saved PAGE `Coords`, but they now pass those records through the shared crop layer. Missing metadata remains the legacy masked-crop fallback.
 
-That production/research split is intentional. The research harness can safely evaluate `local_tangent_band_v1` by starting from PAGE `Baseline`, page image, and heatmap, regenerating PAGE `Coords`, and preparing OCR crops from that regenerated geometry. The production GUI starts OCR crop preparation from the PAGE `Coords` already saved for the page and consults the sibling metadata sidecar when it exists. Making local-tangent geometry or unwrapped crops the production behavior still needs an explicit adoption decision and production validation.
+That production/research split is intentional. Historical harness runs evaluated `local_tangent_band_v1` by starting from PAGE `Baseline`, page image, and heatmap, regenerating PAGE `Coords`, and preparing OCR crops from that regenerated geometry. The production GUI starts OCR crop preparation from the PAGE `Coords` already saved for the page and consults the sibling metadata sidecar when it exists. Making local-tangent geometry or unwrapped crops the production behavior now requires removing strategy-to-strategy delegation, adding production runtime config, and making an explicit production adoption decision.
 
 ## Validation Commands
 

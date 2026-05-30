@@ -11,6 +11,8 @@ from .types import TextLineSegmentationRequest, TextLineSegmentationResult
 
 class LocalPolygonsHorizontalStraightSmoothUnwrapStrategy:
     name = "local_polygons_hstraight_smooth_unwrap_v1"
+    research_role_independent = False
+    production_role_independent = False
     geometry_delegate_strategy_name = LocalPolygonsStrategy.name
 
     def __init__(self) -> None:

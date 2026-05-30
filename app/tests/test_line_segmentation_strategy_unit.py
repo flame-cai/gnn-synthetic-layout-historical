@@ -445,9 +445,11 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             proposed.line_metadata[0]["coords_points"],
         )
         self.assertEqual(proposed.line_metadata[0]["crop_model"], "local_polygon_stable_unwrap")
+        self.assertNotIn("geometry_delegate_strategy_name", proposed.geometry_summary)
+        self.assertFalse(proposed.geometry_summary["production_coupled"])
         self.assertEqual(
-            proposed.geometry_summary["geometry_delegate_strategy_name"],
-            "local_polygons_v1",
+            proposed.geometry_summary["implementation_lineage"],
+            "frozen_from_local_polygons_v1_on_2026_05_30",
         )
 
         prepared = prepare_page_line_dataset(
@@ -465,6 +467,15 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertTrue(crop_metadata["stable_unwrap"]["used_stable_path"])
         self.assertTrue(crop_metadata["stable_unwrap"]["vectorized_station_sampling"])
         self.assertEqual(crop_metadata["stable_unwrap"]["station_sampling"], "endpoint_exclusive_closed")
+
+    def test_stable_unwrap_benchmark_does_not_import_production_strategy(self):
+        source = (APP_ROOT / "recognition" / "line_segmentation" / "local_polygons_stable_unwrap.py").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertNotIn("from .local_polygons", source)
+        self.assertNotIn("LocalPolygonsStrategy", source)
+        self.assertNotIn("geometry_delegate_strategy_name", source)
 
     def test_local_polygons_vertical_line_keeps_open_final_mask_tight(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(

@@ -32,6 +32,24 @@ def list_text_line_segmentation_strategies() -> tuple[str, ...]:
     return tuple(sorted(_STRATEGIES))
 
 
+def validate_research_role_strategy(strategy_name: str, *, role_label: str = "Research role") -> None:
+    strategy = get_text_line_segmentation_strategy(strategy_name)
+    if not bool(getattr(strategy, "research_role_independent", False)):
+        raise ValueError(
+            f"{role_label} strategy {strategy_name!r} is not marked as an independent research-role strategy. "
+            "Benchmark/proposed strategies must not delegate to another text-line strategy implementation."
+        )
+
+
+def validate_production_role_strategy(strategy_name: str, *, role_label: str = "Production role") -> None:
+    strategy = get_text_line_segmentation_strategy(strategy_name)
+    if not bool(getattr(strategy, "production_role_independent", False)):
+        raise ValueError(
+            f"{role_label} strategy {strategy_name!r} is not marked as an independent production-role strategy. "
+            "Production defaults must own their strategy implementation and runtime config."
+        )
+
+
 def apply_text_line_segmentation_strategy(
     page_image_path: Path,
     heatmap_path: Path,

@@ -59,7 +59,7 @@ class StrategyAdoptionUnitTest(unittest.TestCase):
         before = self.config_path.read_text(encoding="utf-8")
 
         result = adopt_text_line_strategy_for_app(
-            strategy="local_tangent_band_v1",
+            strategy="local_polygons_v1",
             reason="manual app rollout after review",
             apply=False,
             strategy_config_path=self.config_path,
@@ -70,7 +70,7 @@ class StrategyAdoptionUnitTest(unittest.TestCase):
         self.assertEqual(before, self.config_path.read_text(encoding="utf-8"))
         self.assertEqual(result["config_after"]["benchmark_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(result["config_after"]["proposed_strategy_name"], "local_tangent_band_v1")
-        self.assertEqual(result["config_after"]["production_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(result["config_after"]["production_strategy_name"], "local_polygons_v1")
         self.assertEqual(len(result["config_after"]["production_adoption_history"]), 1)
         self.assertEqual(
             result["config_after"]["production_adoption_history"][0]["reason"],
@@ -80,7 +80,7 @@ class StrategyAdoptionUnitTest(unittest.TestCase):
 
     def test_apply_updates_only_production_strategy_and_history(self):
         result = adopt_text_line_strategy_for_app(
-            strategy="local_tangent_band_v1",
+            strategy="local_polygons_v1",
             reason="operator accepted rollout",
             apply=True,
             strategy_config_path=self.config_path,
@@ -92,22 +92,22 @@ class StrategyAdoptionUnitTest(unittest.TestCase):
         self.assertEqual(payload["benchmark_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(payload["proposed_strategy_name"], "local_tangent_band_v1")
         self.assertEqual(payload["research_promotion_history"], [])
-        self.assertEqual(payload["production_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["production_strategy_name"], "local_polygons_v1")
         self.assertEqual(len(payload["production_adoption_history"]), 1)
         history_entry = payload["production_adoption_history"][0]
-        self.assertEqual(history_entry["adopted_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(history_entry["adopted_strategy_name"], "local_polygons_v1")
         self.assertEqual(history_entry["previous_production_strategy_name"], "legacy_axis_bound_v1")
         self.assertEqual(history_entry["author_or_tool"], "scripts/adopt_text_line_strategy_for_app.py")
         self.assertEqual(history_entry["reason"], "operator accepted rollout")
 
     def test_idempotent_when_strategy_already_adopted(self):
         first = adopt_text_line_strategy_for_app(
-            strategy="local_tangent_band_v1",
+            strategy="local_polygons_v1",
             apply=True,
             strategy_config_path=self.config_path,
         )
         second = adopt_text_line_strategy_for_app(
-            strategy="local_tangent_band_v1",
+            strategy="local_polygons_v1",
             reason="same strategy again",
             apply=True,
             strategy_config_path=self.config_path,
@@ -117,13 +117,29 @@ class StrategyAdoptionUnitTest(unittest.TestCase):
         self.assertFalse(second["changed"])
         self.assertTrue(second["idempotent"])
         payload = _load_config_payload(self.config_path)
-        self.assertEqual(payload["production_strategy_name"], "local_tangent_band_v1")
+        self.assertEqual(payload["production_strategy_name"], "local_polygons_v1")
         self.assertEqual(len(payload["production_adoption_history"]), 1)
 
     def test_rejects_unknown_strategy(self):
         with self.assertRaisesRegex(ValueError, "is not registered"):
             adopt_text_line_strategy_for_app(
                 strategy="missing_strategy_v1",
+                apply=False,
+                strategy_config_path=self.config_path,
+            )
+
+    def test_rejects_strategy_without_production_independence(self):
+        with self.assertRaisesRegex(ValueError, "not marked as an independent production-role strategy"):
+            adopt_text_line_strategy_for_app(
+                strategy="local_polygons_hstraight_smooth_unwrap_v1",
+                apply=False,
+                strategy_config_path=self.config_path,
+            )
+
+    def test_rejects_strategy_with_runtime_config_but_no_production_independence(self):
+        with self.assertRaisesRegex(ValueError, "not marked as an independent production-role strategy"):
+            adopt_text_line_strategy_for_app(
+                strategy="local_tangent_band_v1",
                 apply=False,
                 strategy_config_path=self.config_path,
             )

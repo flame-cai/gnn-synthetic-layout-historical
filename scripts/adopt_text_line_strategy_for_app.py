@@ -16,7 +16,11 @@ if str(APP_ROOT) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from recognition.line_segmentation.registry import list_text_line_segmentation_strategies
+from recognition.line_segmentation.registry import (
+    list_text_line_segmentation_strategies,
+    validate_production_role_strategy,
+)
+from recognition.line_segmentation.runtime_config import PRODUCTION_STRATEGY_RUNTIME_CONFIGS
 from recognition.line_segmentation.strategy_config import (
     STRATEGY_ROLE_CONFIG_PATH,
     load_strategy_role_config_from_path,
@@ -37,6 +41,12 @@ def _validate_registered_strategy(strategy_name: str) -> None:
         raise ValueError(
             f"Production strategy {strategy_name!r} is not registered. "
             f"Available strategies: {', '.join(sorted(available))}"
+        )
+    validate_production_role_strategy(strategy_name)
+    if strategy_name not in PRODUCTION_STRATEGY_RUNTIME_CONFIGS:
+        raise ValueError(
+            f"Production strategy {strategy_name!r} does not have a production runtime config. "
+            "Add an explicit config before adopting it for app saves."
         )
 
 
@@ -144,13 +154,17 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
     args = _build_arg_parser().parse_args(argv)
-    result = adopt_text_line_strategy_for_app(
-        strategy=args.strategy,
-        reason=args.reason,
-        apply=bool(args.apply),
-        strategy_config_path=Path(args.strategy_config_path),
-        author_or_tool=args.author_or_tool,
-    )
+    try:
+        result = adopt_text_line_strategy_for_app(
+            strategy=args.strategy,
+            reason=args.reason,
+            apply=bool(args.apply),
+            strategy_config_path=Path(args.strategy_config_path),
+            author_or_tool=args.author_or_tool,
+        )
+    except ValueError as exc:
+        print(f"[production-adoption] Refused: {exc}", file=sys.stderr)
+        return 1
     before = result["config_before"]
     after = result["config_after"]
     print(f"[production-adoption] Config: {result['config_path']}")
