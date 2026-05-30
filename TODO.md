@@ -1,18 +1,18 @@
-can you please now promote the current benchmark strategy in the research harness (which was proposed in the research harness) to the production app?
-
-please carefully study the scope of the change, and precisely update without causing any unexpected downstream or upstream effects.
-
-Am I right in understanding that we wont be changing the PAGE-XML preparation, and we would only be changing how we prepare the generalized unwrapped text-line images for the OCR model for fine-tuning and inference?
-
-Also make sure the scope is precise that we don't break anything in the GUI or the active learning UX flow, or the Gemini Inference etc.
+# demo video
+- upload page
+- fix nodes edges (4000, 8 hyperparams)
+- mark regions
+- mark orientation
+- recognize
+- recognize with Gemini
+- export as PAGE-XML.
 
 
 # production
-- change switch to Gemini Reader Note: Just warn user that existing changes will be erased..
-- "Could not update from saved corrections"
-
-- testing, recognize using gemini, fine-tune built in reader.
-- apply the reading order annotation to the Gemini recognition pipeline too..
+- median color looks darker?
+- do not have red edges, only color code the nodes!
+- line orientation annotation smoothers
+- recheck orientation GUI
 
 # document the image selection criteria
 - high resolution (CRAFT should be able to detect)
