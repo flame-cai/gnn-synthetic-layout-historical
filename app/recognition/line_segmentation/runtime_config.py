@@ -4,6 +4,7 @@ from typing import Mapping
 
 from .legacy_axis_bound import DEFAULT_LEGACY_AXIS_BOUND_CONFIG
 from .local_polygons import DEFAULT_LOCAL_POLYGON_CONFIG
+from .local_polygons_stable_unwrap import DEFAULT_LOCAL_POLYGON_CONFIG as DEFAULT_STABLE_UNWRAP_CONFIG
 from .local_tangent_band import DEFAULT_LOCAL_TANGENT_BAND_CONFIG
 
 
@@ -12,6 +13,10 @@ PRODUCTION_STRATEGY_RUNTIME_CONFIGS: dict[str, dict] = {
     "local_tangent_band_v1": dict(DEFAULT_LOCAL_TANGENT_BAND_CONFIG),
     "local_polygons_v1": {
         **dict(DEFAULT_LOCAL_POLYGON_CONFIG),
+        "BINARIZE_THRESHOLD": 0.45,
+    },
+    "local_polygons_stable_unwrap_v1": {
+        **dict(DEFAULT_STABLE_UNWRAP_CONFIG),
         "BINARIZE_THRESHOLD": 0.45,
     },
 }

@@ -333,9 +333,9 @@ harness roles are:
 
 The current production app default has since advanced:
 
-- production app: `local_polygons_v1`
+- production app: `local_polygons_stable_unwrap_v1`
 
-Research promotion moves only the benchmark/proposed harness roles. It does not change the production app default; the `local_polygons_v1` production rollout was a separate adoption step.
+Research promotion moves only the benchmark/proposed harness roles. It does not change the production app default; the `local_polygons_v1` production rollout was a separate adoption step, and the app default later advanced to `local_polygons_stable_unwrap_v1` through a separate 2026-05-30 production adoption.
 
 As of the 2026-05-30 hardening pass, future benchmark/proposed strategies must be independently owned implementations. `local_tangent_band_v1` remains registered for historical comparison, but its legacy horizontal delegate means it is not marked as an allowed future research-role or production-role strategy until that delegate behavior is split into owned code.
 

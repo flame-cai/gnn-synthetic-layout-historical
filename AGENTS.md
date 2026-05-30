@@ -125,7 +125,7 @@ Future proposed strategies must be independently owned before they enter the ben
 
 The intended lifecycle is: an independent proposed strategy competes against an independent research benchmark; if all comparison gates pass, the promotion script makes that proposed strategy the new research benchmark and clears `proposed_strategy_name`; if the same winner should become the app default, run the production adoption script as a separate apply step after the strategy is marked production-independent and has runtime config. Research promotion must not silently edit `production_strategy_name`.
 
-Current role pins after the 2026-05-30 promotion are: research benchmark `local_polygons_stable_unwrap_v1`, no configured research proposed strategy, and production app `local_polygons_v1`. The current research benchmark is not production-adopted yet.
+Current role pins after the 2026-05-30 production adoption are: research benchmark `local_polygons_stable_unwrap_v1`, no configured research proposed strategy, and production app `local_polygons_stable_unwrap_v1`. The current research benchmark is now production-adopted through the separate production adoption workflow.
 
 Existing PAGE XML, OCR line images, and active-learning checkpoint lineage are not migrated automatically by either workflow. Production OCR still reads saved PAGE `Coords`, but app line-image export, local OCR inference, and GUI active-learning training now use the shared strategy-aware crop layer. Missing metadata, legacy metadata, malformed metadata, and non-local-tangent metadata all fall back to the historical masked PAGE `Coords` crop.
 

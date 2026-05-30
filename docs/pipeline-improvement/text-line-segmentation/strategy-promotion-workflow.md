@@ -32,10 +32,10 @@ The current checked-in state is:
 
 - research benchmark: `local_polygons_stable_unwrap_v1`
 - research proposed: unset
-- production app default: `local_polygons_v1`
+- production app default: `local_polygons_stable_unwrap_v1`
 
 `local_polygons_v1` was adopted for production on 2026-05-23 after runtime support landed for strategy-owned config and reading-direction metadata. `legacy_axis_bound_v1` remains available after any research promotion or production adoption for rollback, historical comparison, and legacy-page fallback behavior.
-`local_polygons_stable_unwrap_v1` was promoted into the research benchmark role on 2026-05-30 after passing the 2026-05-29 gate evidence. It is now a frozen research-owned implementation rather than a wrapper around the production `local_polygons_v1` class. It is not the production default and should not be adopted into production until app runtime config and production-readiness validation are added.
+`local_polygons_stable_unwrap_v1` was promoted into the research benchmark role on 2026-05-30 after passing the 2026-05-29 gate evidence. It is now a frozen independently owned implementation rather than a wrapper around the production `local_polygons_v1` class. It was separately adopted for production on 2026-05-30 after adding explicit app runtime config and marking the implementation production-independent.
 Research strategy configs that must survive role changes are keyed by strategy in `app/tests/precommit_gate_config.py`; the current local-polygons and stable-unwrap research configs keep `BINARIZE_THRESHOLD=0.45` whether either role changes.
 If no proposed strategy is configured, do not change the ablation gates to run benchmark-only as part of production adoption. Configure a proposed research strategy before running comparison gates again, or treat any benchmark-only health check as a separate research-harness maintenance change with its own review.
 
@@ -184,6 +184,13 @@ $env:CONDA_NO_PLUGINS='true'
 conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_v1 --reason "Adopt current research benchmark with strategy-owned runtime config and reading-direction metadata support." --apply
 ```
 
+The 2026-05-30 production adoption command, after `local_polygons_stable_unwrap_v1` became the reviewed research benchmark and gained production runtime config, was:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_stable_unwrap_v1 --reason "Adopt current research benchmark for production after stable unwrap runtime validation." --apply
+```
+
 ## App OCR Behavior
 
 The GUI runtime now uses the shared strategy-aware crop layer:
@@ -192,7 +199,7 @@ The GUI runtime now uses the shared strategy-aware crop layer:
 - local OCR inference discovers sibling line-segmentation metadata and falls back safely when it is absent
 - active-learning revision snapshots preserve metadata sidecars and train from saved PAGE `Coords` plus metadata
 
-With the current production pin `local_polygons_v1`, new layout saves write metadata that requests `crop_model="local_polygon_unwrap"`. Production OCR then uses local-polygon unwrapping and median-color background through the shared crop layer. Existing pages without usable metadata still use the historical masked PAGE `Coords` crop.
+With the current production pin `local_polygons_stable_unwrap_v1`, new layout saves write metadata that requests `crop_model="local_polygon_stable_unwrap"`. Production OCR then uses the stable local-polygon unwrap through the shared crop layer. Existing pages without usable metadata still use the historical masked PAGE `Coords` crop.
 
 The app also stores optional reading-direction sidecars next to PAGE XML. Layout-mode `O` gestures write cross-line cuts that resolve open-line 180-degree ambiguity and circular unwrap start/direction. Active-learning snapshots copy this sidecar with PAGE XML and line-segmentation metadata. Missing, malformed, or stale annotations fall back to script defaults.
 

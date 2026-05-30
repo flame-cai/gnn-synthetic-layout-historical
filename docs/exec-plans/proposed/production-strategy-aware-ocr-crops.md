@@ -81,6 +81,8 @@ Implemented on 2026-05-15. The production app behavior initially remained masked
 
 Follow-up implemented on 2026-05-23: production adopted `local_polygons_v1` for future layout saves/regenerations. New saves now write strategy metadata for `crop_model="local_polygon_unwrap"` and optional reading-direction metadata. Existing pages remain unmigrated and continue to use the masked PAGE `Coords` fallback when metadata is missing or unsupported.
 
+Follow-up implemented on 2026-05-30: production adopted `local_polygons_stable_unwrap_v1` after the strategy became the research benchmark and gained explicit production runtime config. New saves now write strategy metadata for `crop_model="local_polygon_stable_unwrap"`. The strategy preserves `local_polygons_v1` PAGE `Coords` geometry for the same inputs while changing the derived OCR line image to the stable unwrap path.
+
 Validation run on 2026-05-15:
 
     conda run -n gnn_layout python -m unittest app.tests.test_strategy_aware_ocr_crops_unit -v
@@ -97,7 +99,7 @@ The slow surrogate OCR e2e gates were not run in this implementation pass.
 
 This repository has a semi-automatic manuscript annotation app under `app/`. The app writes PAGE XML, a document layout format where each `TextLine` may contain a `Baseline` and `Coords`. In this plan, `Baseline` means a polyline that follows the center path of a text line. `Coords` means a page-space polygon around that text line.
 
-The current strategy registry is in `app/recognition/line_segmentation/registry.py`. It registers `legacy_axis_bound_v1`, `local_tangent_band_v1`, and `local_polygons_v1`.
+The current strategy registry is in `app/recognition/line_segmentation/registry.py`. It registers `legacy_axis_bound_v1`, `local_tangent_band_v1`, `local_polygons_v1`, `local_polygons_hstraight_smooth_unwrap_v1`, and `local_polygons_stable_unwrap_v1`.
 
 `legacy_axis_bound_v1` is the current production strategy. It reads PAGE `Baseline`, the page image, and a heatmap, then writes page-space `Coords` using the historical axis-bound polygon method. Its OCR crop behavior is the old masked crop: take a bounding rectangle around `Coords`, fill a new image with the page median color, and copy pixels inside the polygon mask.
 
@@ -347,13 +349,13 @@ Acceptance requires behavior that a human can observe.
 
 Acceptance for this refactor is not the same as acceptance for `local_tangent_band_v1` production adoption. This refactor is accepted when production can route OCR crop preparation through the shared cropper while preserving current legacy behavior. A later production adoption is accepted only after proving the adopted strategy's OCR crops and active-learning behavior are acceptable in production-like workflows.
 
-At the time of the initial refactor, `production_strategy_name` remained `legacy_axis_bound_v1`. After the 2026-05-23 adoption, `production_strategy_name` is `local_polygons_v1`; future GUI layout saves should still produce:
+At the time of the initial refactor, `production_strategy_name` remained `legacy_axis_bound_v1`. After the 2026-05-30 adoption, `production_strategy_name` is `local_polygons_stable_unwrap_v1`; future GUI layout saves should still produce:
 
     layout_analysis_output/page-xml-format/<page>.xml
     layout_analysis_output/page-xml-format/<page>_line_segmentation_metadata.json
     layout_analysis_output/image-format/<page>/<textbox_label>/line_<id>.jpg
 
-Legacy lines and pages without usable metadata should still be axis-aligned masked crops. New `local_polygons_v1` lines with valid metadata should use local-polygon unwrapping. Unit tests should demonstrate both the masked fallback and strategy-aware unwrap paths.
+Legacy lines and pages without usable metadata should still be axis-aligned masked crops. New `local_polygons_stable_unwrap_v1` lines with valid metadata should use stable local-polygon unwrapping. Unit tests should demonstrate both the masked fallback and strategy-aware unwrap paths.
 
 Local OCR inference should still work when no metadata sidecar exists. A test should call the extraction path on a synthetic PAGE XML with `Coords` and confirm it returns at least one crop using the masked-crop fallback.
 

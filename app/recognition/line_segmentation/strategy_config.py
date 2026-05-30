@@ -8,7 +8,7 @@ from typing import Any
 STRATEGY_ROLE_CONFIG_JSON = r"""{
   "benchmark_strategy_name": "local_polygons_stable_unwrap_v1",
   "proposed_strategy_name": null,
-  "production_strategy_name": "local_polygons_v1",
+  "production_strategy_name": "local_polygons_stable_unwrap_v1",
   "research_promotion_history": [
     {
       "promoted_strategy_name": "local_tangent_band_v1",
@@ -171,6 +171,13 @@ STRATEGY_ROLE_CONFIG_JSON = r"""{
       "adoption_timestamp_utc": "2026-05-23T07:30:13Z",
       "author_or_tool": "scripts/adopt_text_line_strategy_for_app.py",
       "reason": "Adopt current research benchmark with strategy-owned runtime config and reading-direction metadata support."
+    },
+    {
+      "adopted_strategy_name": "local_polygons_stable_unwrap_v1",
+      "previous_production_strategy_name": "local_polygons_v1",
+      "adoption_timestamp_utc": "2026-05-30T09:37:04Z",
+      "author_or_tool": "scripts/adopt_text_line_strategy_for_app.py",
+      "reason": "Adopt current research benchmark for production after stable unwrap runtime validation."
     }
   ]
 }

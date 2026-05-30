@@ -6,7 +6,7 @@ It also places the strategy in the context of the behavior-preserving production
 
 ## Current Role
 
-`legacy_axis_bound_v1` is the historical axis-aligned strategy for the text-line segmentation harness. It is no longer the production default after the 2026-05-23 `local_polygons_v1` adoption, but it remains registered for rollback, historical comparison, and masked-crop fallback behavior.
+`legacy_axis_bound_v1` is the historical axis-aligned strategy for the text-line segmentation harness. It is no longer the production default after the 2026-05-23 `local_polygons_v1` adoption and the later 2026-05-30 `local_polygons_stable_unwrap_v1` adoption, but it remains registered for rollback, historical comparison, and masked-crop fallback behavior.
 
 The strategy generates PAGE `TextLine/Coords` polygons from:
 
@@ -21,7 +21,7 @@ The strategy is "legacy" because most of its geometry comes from the older `src/
 
 ## Production Refactor Context
 
-The production refactor first preserved behavior for `legacy_axis_bound_v1` while making the production path modular enough for later strategies such as `local_tangent_band_v1` and `local_polygons_v1`.
+The production refactor first preserved behavior for `legacy_axis_bound_v1` while making the production path modular enough for later strategies such as `local_tangent_band_v1`, `local_polygons_v1`, and `local_polygons_stable_unwrap_v1`.
 
 The production behavior is explicitly two-phase:
 
@@ -92,9 +92,9 @@ The final PAGE XML is written under:
 layout_analysis_output/page-xml-format/<page_id>.xml
 ```
 
-For the current production default, the strategy is `local_polygons_v1`, its runtime config keeps `BINARIZE_THRESHOLD=0.45`, and `include_empty_text_lines` is passed as `true`.
+For the current production default, the strategy is `local_polygons_stable_unwrap_v1`, its runtime config keeps `BINARIZE_THRESHOLD=0.45`, and `include_empty_text_lines` is passed as `true`.
 
-After the final PAGE XML is written, production regenerates app line images from that final PAGE XML. The crop path reads the generated `TextLine/Coords`, loads the sibling line-segmentation metadata when present, and calls the shared crop layer. For new `local_polygons_v1` saves, the selected crop is `local_polygon_unwrap`; for legacy or missing metadata, the selected crop remains the generic masked polygon crop.
+After the final PAGE XML is written, production regenerates app line images from that final PAGE XML. The crop path reads the generated `TextLine/Coords`, loads the sibling line-segmentation metadata when present, and calls the shared crop layer. For new `local_polygons_stable_unwrap_v1` saves, the selected crop is `local_polygon_stable_unwrap`; for legacy or missing metadata, the selected crop remains the generic masked polygon crop.
 
 This means a user layout change affects OCR geometry in this order:
 
@@ -105,7 +105,7 @@ edited graph nodes/edges
     -> Coords-derived OCR crop
 ```
 
-So if a user adds a node and that node changes the connected component path, the saved PAGE baseline changes. Because the production strategy starts from the current PAGE baseline, the generated `Coords` may also change. The OCR crop then changes because it is prepared from the new final `Coords` and, for `local_polygons_v1`, from the new strategy metadata.
+So if a user adds a node and that node changes the connected component path, the saved PAGE baseline changes. Because the production strategy starts from the current PAGE baseline, the generated `Coords` may also change. The OCR crop then changes because it is prepared from the new final `Coords` and, for `local_polygons_stable_unwrap_v1`, from the new strategy metadata.
 
 ## Source Files
 

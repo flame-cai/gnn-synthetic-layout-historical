@@ -167,7 +167,8 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             line_segmentation_strategy_name="local_polygons_v1",
         )
 
-        self.assertEqual(implicit.line_segmentation_strategy_name, "local_polygons_v1")
+        self.assertEqual(implicit.line_segmentation_strategy_name, get_production_strategy_name())
+        self.assertEqual(implicit.line_segmentation_strategy_name, "local_polygons_stable_unwrap_v1")
         self.assertEqual(explicit.line_segmentation_strategy_name, "local_polygons_v1")
         self.assertEqual(len(implicit.records), len(explicit.records))
         self.assertEqual(
@@ -178,6 +179,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             implicit.geometry_summary["source_line_coverage"],
             explicit.geometry_summary["source_line_coverage"],
         )
+        self.assertEqual(implicit.records[0].crop_metadata["crop_model"], "local_polygon_stable_unwrap")
 
     def test_app_save_module_uses_named_strategy_registry(self):
         source = (APP_ROOT / "gnn_inference.py").read_text(encoding="utf-8")
@@ -189,12 +191,12 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertNotIn("get_benchmark_strategy_name", pagexml_source)
         self.assertIn("apply_text_line_segmentation_strategy", source)
         self.assertIn("get_strategy_runtime_config", source)
-        self.assertEqual(get_production_strategy_name(), "local_polygons_v1")
+        self.assertEqual(get_production_strategy_name(), "local_polygons_stable_unwrap_v1")
 
-    def test_production_local_polygons_runtime_config_uses_benchmark_threshold(self):
+    def test_production_stable_unwrap_runtime_config_uses_benchmark_threshold(self):
         config = get_strategy_runtime_config(get_production_strategy_name(), include_empty_text_lines=True)
 
-        self.assertEqual(get_production_strategy_name(), "local_polygons_v1")
+        self.assertEqual(get_production_strategy_name(), "local_polygons_stable_unwrap_v1")
         self.assertEqual(float(config["BINARIZE_THRESHOLD"]), 0.45)
         self.assertTrue(config["include_empty_text_lines"])
         self.assertEqual(float(config["final_mask_normal_pad_px"]), 0.0)

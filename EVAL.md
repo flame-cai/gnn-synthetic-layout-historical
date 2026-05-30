@@ -63,23 +63,23 @@ The strategy docs live in:
 
 The checked-in current role mapping for this harness is:
 
-- benchmark: `local_polygons_v1`
-- proposed: `local_polygons_stable_unwrap_v1`
-- production app: `local_polygons_v1`
+- benchmark: `local_polygons_stable_unwrap_v1`
+- proposed: unset
+- production app: `local_polygons_stable_unwrap_v1`
 
-`local_polygons_v1` is the current research benchmark after harness promotion on 2026-05-22 and the current production app strategy after explicit production adoption on 2026-05-23.
+`local_polygons_stable_unwrap_v1` is the current research benchmark after harness promotion on 2026-05-30 and the current production app strategy after explicit production adoption on 2026-05-30.
 
 `legacy_axis_bound_v1` is the preserved historical benchmark and remains registered for rollback, historical comparison, and legacy-page fallback behavior.
 
 `local_tangent_band_v1` is the first generalized strategy for vertical, curved, and circular text. It keeps the older behavior for simple horizontal lines by delegating those cases back to the legacy implementation.
 
-`local_polygons_v1` builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text. Its research-harness heatmap contours are binarized at `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override. `app/tests/precommit_gate_config.py` attaches that research override by strategy name so it remains in force when the strategy changes from proposed to benchmark.
+`local_polygons_v1` builds PAGE `Coords` in a baseline-local frame from heatmap contour evidence, applies local top/bottom cleanup, and requests local-polygon unwrapping for OCR crops. Its contour-based local mask projection avoids treating large page-axis-aligned heatmap boxes as the true normal height for circular text. Its research-harness heatmap contours are binarized at `0.45` before local cleanup so weak detached-mark evidence reaches the boundary trimmer; open-line final-mask normal padding stays at zero, while closed circular lines retain a separate final-mask override.
 
-`local_polygons_stable_unwrap_v1` is the current proposed crop-only ablation. It keeps PAGE `Coords` generation identical to `local_polygons_v1` and changes only OCR crop preparation: every local-polygon crop uses a stable arclength tangent unwrap with smoothed centerline sampling, endpoint-exclusive closed-loop sampling, vectorized remap grids, median-color PAGE `Coords` masking, and benchmark unwrap fallback when geometry guards fail.
+`local_polygons_stable_unwrap_v1` is the current benchmark and production strategy. It keeps PAGE `Coords` generation identical to `local_polygons_v1` for the same inputs and changes OCR crop preparation: every local-polygon crop uses a stable arclength tangent unwrap with smoothed centerline sampling, endpoint-exclusive closed-loop sampling, vectorized remap grids, median-color PAGE `Coords` masking, and benchmark unwrap fallback when geometry guards fail. `app/tests/precommit_gate_config.py` attaches the `0.45` research override by strategy name, and `app/recognition/line_segmentation/runtime_config.py` now carries the matching explicit production runtime config.
 
 `production_strategy_name` is independent of the research roles. The app uses it for future PAGE `Coords` generation during layout saves/regenerations, and production OCR crop preparation routes through the same strategy-aware crop layer. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when the production strategy changes.
 
-The crop-preparation boundary is intentional. The production GUI prepares OCR line images from saved PAGE `TextLine/Coords` and optional sibling line-segmentation metadata through `app/recognition/line_segmentation/ocr_crops.py`. For new `local_polygons_v1` saves, line metadata requests `crop_model="local_polygon_unwrap"` so local OCR, app line-image export, and active-learning revision training consume the same unwrapped median-background crop used by the benchmark harness. Missing, malformed, stale, legacy, or unsupported metadata falls back to the existing masked PAGE `Coords` crop. The research OCR ablation gates instead start from PAGE `Baseline` plus the page image and heatmap, regenerate `Coords` through the selected strategy, and then use the same crop decision layer on the regenerated geometry. Because those paths do not have the same operational contract, production adoption remains explicit rather than a silent consequence of harness promotion.
+The crop-preparation boundary is intentional. The production GUI prepares OCR line images from saved PAGE `TextLine/Coords` and optional sibling line-segmentation metadata through `app/recognition/line_segmentation/ocr_crops.py`. For new `local_polygons_stable_unwrap_v1` saves, line metadata requests `crop_model="local_polygon_stable_unwrap"` so local OCR, app line-image export, and active-learning revision training consume the stable unwrapped crop used by the benchmark harness. Missing, malformed, stale, legacy, or unsupported metadata falls back to the existing masked PAGE `Coords` crop. The research OCR ablation gates instead start from PAGE `Baseline` plus the page image and heatmap, regenerate `Coords` through the selected strategy, and then use the same crop decision layer on the regenerated geometry. Because those paths do not have the same operational contract, production adoption remains explicit rather than a silent consequence of harness promotion.
 
 Reading-direction annotations are optional production metadata. The layout GUI writes `<page>_reading_direction_metadata.json` from cross-line `O` gestures. The app resolves annotations by component overlap on save, marks stale annotations instead of guessing, and includes the sidecar in layout fingerprints and active-learning revision snapshots. If no active annotation exists, the strategy uses script defaults: horizontal left-to-right, vertical top-to-bottom, and circular clockwise with a top cut.
 
@@ -288,14 +288,14 @@ Dry run:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_stable_unwrap_v1 --previous-benchmark local_polygons_v1 --metrics app/tests/logs/strategy_promotion_latest.json
 ```
 
 Apply:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
+conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate local_polygons_stable_unwrap_v1 --previous-benchmark local_polygons_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
 ```
 
 The promotion script refuses to write when:
@@ -318,19 +318,19 @@ Dry run:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence"
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_stable_unwrap_v1 --reason "Adopt current research benchmark for production after stable unwrap runtime validation."
 ```
 
 Apply:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
-conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence" --apply
+conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_stable_unwrap_v1 --reason "Adopt current research benchmark for production after stable unwrap runtime validation." --apply
 ```
 
 The adoption script validates that the named strategy is registered. On success it updates only `production_strategy_name` and `production_adoption_history`; it does not mutate the research benchmark/proposed roles and does not require verifier evidence.
 
-The 2026-05-23 production adoption used the same command shape with `--strategy local_polygons_v1` and recorded the change in `production_adoption_history`.
+The 2026-05-30 production adoption used the same command shape with `--strategy local_polygons_stable_unwrap_v1` and recorded the change in `production_adoption_history`.
 
 No migration happens automatically. Existing PAGE XML, existing OCR line images, and active-learning checkpoint lineage remain as they are. GUI OCR inference, app line-image export, and active-learning training all read saved PAGE `Coords`; when a sibling strategy metadata sidecar exists, they use it only to decide the derived OCR crop representation. Missing metadata remains a valid masked-crop fallback.
 

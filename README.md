@@ -156,11 +156,11 @@ The app and the research verifier use separate text-line segmentation role pins 
 - `benchmark_strategy_name` and `proposed_strategy_name` are research harness roles.
 - `production_strategy_name` is the app default used for future layout saves/regenerations and for strategy-aware OCR crop preparation.
 
-The current production app strategy is `local_polygons_v1`, adopted explicitly after the research benchmark promotion. Research promotion still does not change the production app default by itself. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
+The current production app strategy is `local_polygons_stable_unwrap_v1`, adopted explicitly after the 2026-05-30 research benchmark promotion. Research promotion still does not change the production app default by itself. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
 
-The current proposed research strategy is `local_polygons_stable_unwrap_v1`. It is a crop-only ablation over `local_polygons_v1`: PAGE `Coords` generation stays identical to the benchmark, while OCR crops use a stable arclength/tangent unwrap with smoothed centerline sampling, endpoint-exclusive closed-loop sampling, vectorized remap grids, and PAGE `Coords` mask filling.
+There is currently no configured proposed research strategy. The current benchmark and production strategy, `local_polygons_stable_unwrap_v1`, keeps PAGE `Coords` generation identical to `local_polygons_v1` for the same inputs while changing OCR crops to a stable arclength/tangent unwrap with smoothed centerline sampling, endpoint-exclusive closed-loop sampling, vectorized remap grids, and PAGE `Coords` mask filling.
 
-Production OCR crops now go through `app/recognition/line_segmentation/ocr_crops.py`. New `local_polygons_v1` saves write strategy metadata that lets local OCR, line-image export, and active-learning training use local-polygon unwrapping with a median-color background while keeping PAGE `Coords` as page-space geometry. Missing or unsupported metadata falls back to the legacy masked crop.
+Production OCR crops now go through `app/recognition/line_segmentation/ocr_crops.py`. New `local_polygons_stable_unwrap_v1` saves write strategy metadata that lets local OCR, line-image export, and active-learning training use stable local-polygon unwrapping while keeping PAGE `Coords` as page-space geometry. Missing or unsupported metadata falls back to the legacy masked crop.
 
 In layout mode, shortcut `O` enables optional reading-direction annotation for a text line. Draw a short cross-line cut; the app records the rotated cut tangent as the line's reading direction, resolves it by component overlap on save, and stores it in a reading-direction sidecar. This resolves 180-degree ambiguity for vertical, slanted, curved, and circular lines without changing page-level line ordering.
 
@@ -229,11 +229,11 @@ Passing phases in `scripts/run_precommit_eval.py` delete their large benchmark/p
 
 The `app/tests/logs/` outputs are generated local artifacts. The checked-in promotion record is the durable summary to review and commit with any research promotion.
 
-To promote the proposed strategy inside the research harness after reviewing those artifacts, run the command written into the generated promotion record. For the promotion recorded on 2026-05-22, that command is:
+To promote the proposed strategy inside the research harness after reviewing those artifacts, run the command written into the generated promotion record. For the promotion recorded on 2026-05-30, that command was:
 
 ```bash
 conda activate gnn_layout
-python scripts/promote_text_line_strategy.py --candidate local_polygons_v1 --previous-benchmark local_tangent_band_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
+python scripts/promote_text_line_strategy.py --candidate local_polygons_stable_unwrap_v1 --previous-benchmark local_polygons_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
 ```
 
 The exact benchmark and proposed names come from `app/recognition/line_segmentation/strategy_config.py`. After a research promotion, the proposed slot is cleared; configure the next proposed strategy before the next ablation cycle.
@@ -242,14 +242,14 @@ To adopt a registered strategy as the production app default, run a separate dry
 
 ```bash
 conda activate gnn_layout
-python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence"
+python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_stable_unwrap_v1 --reason "Adopt current research benchmark for production after stable unwrap runtime validation."
 ```
 
 Then apply only after reviewing the dry-run output:
 
 ```bash
 conda activate gnn_layout
-python scripts/adopt_text_line_strategy_for_app.py --strategy local_tangent_band_v1 --reason "adopt after reviewed harness evidence" --apply
+python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_stable_unwrap_v1 --reason "Adopt current research benchmark for production after stable unwrap runtime validation." --apply
 ```
 
 Production adoption changes only `production_strategy_name` and `production_adoption_history`; it does not mutate the benchmark/proposed research roles.

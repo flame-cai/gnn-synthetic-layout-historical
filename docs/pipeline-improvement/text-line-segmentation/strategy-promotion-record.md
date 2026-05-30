@@ -51,8 +51,12 @@ conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate
 
 ## Applied Promotion And Hardening
 
-Promotion was applied on `2026-05-30`, making `local_polygons_stable_unwrap_v1` the research benchmark and clearing the proposed slot. The production app default remained `local_polygons_v1`.
+Promotion was applied on `2026-05-30`, making `local_polygons_stable_unwrap_v1` the research benchmark and clearing the proposed slot. At the time of promotion, the production app default remained `local_polygons_v1`.
 
 After promotion, `local_polygons_stable_unwrap_v1` was converted from a wrapper around `local_polygons_v1` into a frozen research-owned implementation. Future benchmark/proposed roles must be marked research-independent and must not delegate to another registered strategy. Production adoption now also requires a production-independent strategy with explicit runtime config.
 
 This promotion did not adopt `local_polygons_stable_unwrap_v1` into the app because app rollout is a separate production-adoption step. A future research winner that is intended to become the production default should first pass the same independent benchmark/proposed gates, then pass production-readiness validation and be adopted with `scripts/adopt_text_line_strategy_for_app.py`.
+
+## Subsequent Production Adoption
+
+On `2026-05-30`, `local_polygons_stable_unwrap_v1` was made production-independent, given explicit app runtime config, and adopted as the production app default through `scripts/adopt_text_line_strategy_for_app.py`. This later adoption did not change the research benchmark/proposed roles or the promotion evidence above.
