@@ -2,7 +2,6 @@
   <div class="manuscript-viewer">
     
     <!-- TOP RAIL: Navigation & Global Actions -->
-<!-- TOP RAIL: Navigation & Global Actions -->
     <div class="top-bar fixed-ui-compensated" :style="fixedUiCompensationStyle">
       
       <!-- 1) TOP BAR LEFT -->
@@ -471,6 +470,19 @@
               </div>
             </div>
 
+            <!-- Orientation Card -->
+            <div class="help-card horizontal-layout">
+              <div class="media-container-square orientation-help-visual" aria-hidden="true">
+                <span class="orientation-help-key">O</span>
+                <span class="orientation-help-line"></span>
+              </div>
+              <div class="card-text">
+                <h4>Direction</h4>
+                <p>Hold <span class="key-badge">O</span> and hover to mark line-orientation (in the case of slant or upside down text-lines.)</p>
+                <p>Hover and cut a text-line from it's bottom to it's top to mark its orientation</p>
+              </div>
+            </div>
+
           </div>
 
           <!-- Hotkey Footer -->
@@ -578,7 +590,7 @@ const setMode = (mode) => {
   isDKeyPressed.value = false
   isEKeyPressed.value = false
   isOKeyPressed.value = false
-  readingDirectionDraft.value = null
+  resetReadingDirectionHoverState()
   resetSelection()
 
   if (mode === 'layout') {
@@ -642,6 +654,14 @@ const readingDirectionAnnotations = ref({})
 const readingDirectionDraft = ref(null)
 const savedReadingDirectionAnnotationsSnapshot = ref('[]')
 let suppressNextBackgroundClick = false
+let readingDirectionHoverStartPoint = null
+const readingDirectionHoverAnnotatedLineIds = new Set()
+
+function resetReadingDirectionHoverState() {
+  readingDirectionHoverStartPoint = null
+  readingDirectionHoverAnnotatedLineIds.clear()
+  readingDirectionDraft.value = null
+}
 
 // Recognition Data
 const localTextContent = reactive({}) 
@@ -1574,6 +1594,9 @@ const tempEdgeStrokeWidth = computed(() =>
 )
 const nodeHoverRadiusPx = computed(() => Math.max(baseNodeRadiusPx.value * 1.6, baseNodeRadiusPx.value + 2.5))
 const edgeHoverThresholdPx = computed(() => Math.max(baseEdgeStrokePx.value * 1.8, 4))
+const readingDirectionHoverMinStrokeRaw = computed(() =>
+  clamp(pageMedianNeighborDistanceRaw.value * 0.35, 8, 30)
+)
 
 const getMedian = (values) => {
   if (!Array.isArray(values) || values.length === 0) return null
@@ -2140,7 +2163,7 @@ const getNodeRadius = (nodeIndex) => {
   if (isNodeSelected(nodeIndex)) return clamp(baseRadius * 1.25, MIN_NODE_RADIUS_PX, MAX_NODE_RADIUS_PX + 1.2)
   return nodeEdgeCounts.value[nodeIndex] < 2 ? clamp(baseRadius * 0.95, MIN_NODE_RADIUS_PX, MAX_NODE_RADIUS_PX) : baseRadius
 }
-const getEdgeColor = (edge) => (edge.modified ? '#f44336' : '#ffffff')
+const getEdgeColor = (edge) => (edge.modified ? '#ffffff' : '#ffffff')
 const getEdgeStrokeWidth = (edge) => {
   const baseWidth = baseEdgeStrokePx.value
   if (isEdgeSelected(edge)) return clamp(baseWidth * 1.35, MIN_EDGE_STROKE_PX, MAX_EDGE_STROKE_PX + 1)
@@ -2376,77 +2399,105 @@ const nearestTextlineIdForImagePoint = (point) => {
   return best.distance <= maxDistance ? best.id : null
 }
 
-const handleSvgMouseDown = (event) => {
-  if (!layoutModeActive.value || !isOKeyPressed.value || recognitionModeActive.value) return
-  const point = imagePointFromMouseEvent(event)
-  if (!point) return
-  event.preventDefault()
-  event.stopPropagation()
-  resetSelection()
-  readingDirectionDraft.value = {
-    cut_start: point,
-    cut_end: point,
-  }
-}
-
-const handleSvgMouseUp = (event) => {
-  if (!layoutModeActive.value || !readingDirectionDraft.value) return
-  const endPoint = imagePointFromMouseEvent(event)
-  if (!endPoint) return
-  event.preventDefault()
-  event.stopPropagation()
-  readingDirectionDraft.value.cut_end = endPoint
-  const start = readingDirectionDraft.value.cut_start
+const commitReadingDirectionStroke = (start, endPoint, options = {}) => {
   const dx = endPoint[0] - start[0]
   const dy = endPoint[1] - start[1]
   const strokeLength = Math.hypot(dx, dy)
-  if (strokeLength >= 4) {
-    const midpoint = [(start[0] + endPoint[0]) / 2, (start[1] + endPoint[1]) / 2]
-    const readingDirection = [-dy / strokeLength, dx / strokeLength]
-    let textlineMatches = findTextlineCutMatches(start, endPoint)
-    if (textlineMatches.length === 0) {
-      const fallbackTextlineId = nearestTextlineIdForImagePoint(midpoint)
-      if (fallbackTextlineId !== null && textlines.value[fallbackTextlineId]) {
-        textlineMatches = [{
-          lineId: String(fallbackTextlineId),
-          cutPoint: midpoint,
-          cutRatio: 0.5,
-          distance: 0,
-          midpoint,
-        }]
-      }
-    }
-    if (textlineMatches.length > 0) {
-      const nextAnnotations = { ...readingDirectionAnnotations.value }
-      const useOriginalStroke = textlineMatches.length === 1
-      const updatedAt = new Date().toISOString()
-      textlineMatches.forEach((match) => {
-        const textlineId = String(match.lineId)
-        if (!textlines.value[textlineId]) return
-        const localCut = localCutSegmentForTextlineMatch(match, start, endPoint, strokeLength, useOriginalStroke)
-        const annotation = {
-          annotation_id: String(textlineId),
-          frontend_line_id: String(textlineId),
-          component_node_indices: [...textlines.value[textlineId]].sort((a, b) => a - b),
-          cut_start: localCut.cutStart,
-          cut_end: localCut.cutEnd,
-          cut_midpoint: localCut.cutMidpoint,
-          reading_direction: readingDirection,
-          source: 'user_cross_cut',
-          updated_at: updatedAt,
-        }
-        const previousAnnotation = readingDirectionAnnotations.value[String(textlineId)] || null
-        nextAnnotations[String(textlineId)] = annotation
-        modifications.value.push({
-          type: 'reading_direction',
-          lineId: String(textlineId),
-          previousAnnotation,
-        })
-      })
-      readingDirectionAnnotations.value = nextAnnotations
+  if (!Number.isFinite(strokeLength) || strokeLength < 4) return []
+
+  const excludedLineIds = options.excludedLineIds || null
+  const midpoint = [(start[0] + endPoint[0]) / 2, (start[1] + endPoint[1]) / 2]
+  const readingDirection = [-dy / strokeLength, dx / strokeLength]
+  let textlineMatches = findTextlineCutMatches(start, endPoint)
+  if (textlineMatches.length === 0) {
+    const fallbackTextlineId = nearestTextlineIdForImagePoint(midpoint)
+    if (fallbackTextlineId !== null && textlines.value[fallbackTextlineId]) {
+      textlineMatches = [{
+        lineId: String(fallbackTextlineId),
+        cutPoint: midpoint,
+        cutRatio: 0.5,
+        distance: 0,
+        midpoint,
+      }]
     }
   }
-  readingDirectionDraft.value = null
+  if (excludedLineIds?.size) {
+    textlineMatches = textlineMatches.filter((match) => !excludedLineIds.has(String(match.lineId)))
+  }
+  if (textlineMatches.length === 0) return []
+
+  const committedLineIds = []
+  const nextAnnotations = { ...readingDirectionAnnotations.value }
+  const useOriginalStroke = textlineMatches.length === 1
+  const updatedAt = new Date().toISOString()
+  textlineMatches.forEach((match) => {
+    const textlineId = String(match.lineId)
+    if (!textlines.value[textlineId]) return
+    const localCut = localCutSegmentForTextlineMatch(match, start, endPoint, strokeLength, useOriginalStroke)
+    const annotation = {
+      annotation_id: String(textlineId),
+      frontend_line_id: String(textlineId),
+      component_node_indices: [...textlines.value[textlineId]].sort((a, b) => a - b),
+      cut_start: localCut.cutStart,
+      cut_end: localCut.cutEnd,
+      cut_midpoint: localCut.cutMidpoint,
+      reading_direction: readingDirection,
+      source: 'user_cross_cut',
+      updated_at: updatedAt,
+    }
+    const previousAnnotation = readingDirectionAnnotations.value[String(textlineId)] || null
+    nextAnnotations[String(textlineId)] = annotation
+    modifications.value.push({
+      type: 'reading_direction',
+      lineId: String(textlineId),
+      previousAnnotation,
+    })
+    committedLineIds.push(textlineId)
+  })
+  if (committedLineIds.length > 0) {
+    readingDirectionAnnotations.value = nextAnnotations
+  }
+  return committedLineIds
+}
+
+const handleReadingDirectionHover = (point) => {
+  if (!point) return
+  if (!readingDirectionHoverStartPoint) {
+    readingDirectionHoverStartPoint = point
+    readingDirectionDraft.value = {
+      cut_start: point,
+      cut_end: point,
+    }
+    return
+  }
+
+  const start = readingDirectionHoverStartPoint
+  const strokeLength = Math.hypot(point[0] - start[0], point[1] - start[1])
+  readingDirectionDraft.value = {
+    cut_start: start,
+    cut_end: point,
+  }
+  if (!Number.isFinite(strokeLength) || strokeLength < readingDirectionHoverMinStrokeRaw.value) return
+
+  const committedLineIds = commitReadingDirectionStroke(start, point, {
+    excludedLineIds: readingDirectionHoverAnnotatedLineIds,
+  })
+  committedLineIds.forEach((lineId) => readingDirectionHoverAnnotatedLineIds.add(String(lineId)))
+  readingDirectionHoverStartPoint = point
+}
+
+const handleSvgMouseDown = (event) => {
+  if (!layoutModeActive.value || !isOKeyPressed.value || recognitionModeActive.value) return
+  event.preventDefault()
+  event.stopPropagation()
+  suppressNextBackgroundClick = true
+  resetSelection()
+}
+
+const handleSvgMouseUp = (event) => {
+  if (!layoutModeActive.value || !isOKeyPressed.value || recognitionModeActive.value) return
+  event.preventDefault()
+  event.stopPropagation()
   suppressNextBackgroundClick = true
 }
 
@@ -2520,12 +2571,8 @@ const handleSvgMouseMove = (event) => {
   const mouseY = event.clientY - top
 
   if (isOKeyPressed.value) {
-    if (readingDirectionDraft.value) {
-      readingDirectionDraft.value = {
-        ...readingDirectionDraft.value,
-        cut_end: [mouseX / scaleFactor, mouseY / scaleFactor],
-      }
-    }
+    event.preventDefault()
+    handleReadingDirectionHover([mouseX / scaleFactor, mouseY / scaleFactor])
     tempEndPoint.value = null
     return
   }
@@ -2570,7 +2617,7 @@ const handleSvgMouseMove = (event) => {
 const handleSvgMouseLeave = () => {
   if (selectedNodes.value.length === 1) tempEndPoint.value = null
   hoveredTextlineId.value = null
-  readingDirectionDraft.value = null
+  resetReadingDirectionHoverState()
 }
 
 const labelTextline = () => {
@@ -2642,7 +2689,7 @@ const handleGlobalKeyDown = (e) => {
   if (key === 'escape' && !e.repeat && !isInput && layoutModeActive.value && isOKeyPressed.value) {
     e.preventDefault()
     isOKeyPressed.value = false
-    readingDirectionDraft.value = null
+    resetReadingDirectionHoverState()
     return
   }
   if (key === 'escape' && recognitionModeActive.value && isInput) { e.preventDefault(); focusedLineId.value = null; return }
@@ -2653,19 +2700,22 @@ const handleGlobalKeyDown = (e) => {
       return
   }
 
-  if (layoutModeActive.value && !e.repeat && !isInput) {
+  if (layoutModeActive.value && !isInput) {
       if (key === 'o') {
         e.preventDefault()
-        isOKeyPressed.value = !isOKeyPressed.value
-        readingDirectionDraft.value = null
-        hoveredNodesForMST.clear()
-        resetSelection()
+        if (!isOKeyPressed.value) {
+          isOKeyPressed.value = true
+          resetReadingDirectionHoverState()
+          hoveredNodesForMST.clear()
+          resetSelection()
+        }
         return
       }
       if (isOKeyPressed.value) {
         e.preventDefault()
         return
       }
+      if (e.repeat) return
       if (key === 'e') { e.preventDefault(); isEKeyPressed.value = true; return }
       if (key === 'd') { e.preventDefault(); isDKeyPressed.value = true; resetSelection(); return }
       if (key === 'a') { e.preventDefault(); isAKeyPressed.value = true; hoveredNodesForMST.clear(); resetSelection(); return }
@@ -2677,6 +2727,11 @@ const handleGlobalKeyUp = (e) => {
   if (key === 'v') { isVKeyPressed.value = false }
 
   if (layoutModeActive.value) {
+      if (key === 'o') {
+        isOKeyPressed.value = false
+        resetReadingDirectionHoverState()
+        return
+      }
       if (key === 'e') {
         isEKeyPressed.value = false
         textboxLabels.value++ 
@@ -2688,6 +2743,12 @@ const handleGlobalKeyUp = (e) => {
         hoveredNodesForMST.clear()
       }
   }
+}
+
+const handleWindowBlur = () => {
+  if (!isOKeyPressed.value) return
+  isOKeyPressed.value = false
+  resetReadingDirectionHoverState()
 }
 
 const edgeExists = (nodeA, nodeB) =>
@@ -3135,6 +3196,7 @@ onMounted(async () => {
   zoomPollIntervalId = window.setInterval(updateBrowserZoomLevel, 500)
   window.addEventListener('keydown', handleGlobalKeyDown)
   window.addEventListener('keyup', handleGlobalKeyUp)
+  window.addEventListener('blur', handleWindowBlur)
 })
 
 onBeforeUnmount(() => {
@@ -3157,6 +3219,7 @@ onBeforeUnmount(() => {
   }
   window.removeEventListener('keydown', handleGlobalKeyDown)
   window.removeEventListener('keyup', handleGlobalKeyUp)
+  window.removeEventListener('blur', handleWindowBlur)
   if(autoSaveInterval.value) clearInterval(autoSaveInterval.value);
   if (readerSwitchNoticeTimeoutId !== null) {
     window.clearTimeout(readerSwitchNoticeTimeoutId)
@@ -4020,7 +4083,9 @@ input:checked + .slider:before { transform: translateX(14px); }
   align-items: center;
   height: 100%;
   max-height: 140px; /* Prevent cards from getting too tall */
-  width: 32%; /* Ensure 3 cards fit side-by-side */
+  flex: 1 1 230px;
+  min-width: 0;
+  width: auto;
 }
 
 .media-container-square {
@@ -4032,6 +4097,33 @@ input:checked + .slider:before { transform: translateX(14px); }
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.orientation-help-visual {
+  position: relative;
+  overflow: hidden;
+}
+
+.orientation-help-key {
+  color: #ffb74d;
+  font-family: monospace;
+  font-size: 1.4rem;
+  font-weight: bold;
+  padding: 6px 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #242424;
+  z-index: 1;
+}
+
+.orientation-help-line {
+  position: absolute;
+  width: 72%;
+  height: 3px;
+  background: #ffd54f;
+  border-radius: 999px;
+  transform: rotate(-24deg);
+  box-shadow: 0 0 8px rgba(255, 213, 79, 0.45);
 }
 
 /* Adjust text padding for horizontal layout */

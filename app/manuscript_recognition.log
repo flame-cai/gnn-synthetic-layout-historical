@@ -8613,3 +8613,219 @@
 2026-05-28 14:04:10,183 - INFO - 127.0.0.1 - - [28/May/2026 14:04:10] "POST /recognize-text HTTP/1.1" 200 -
 2026-05-28 14:04:36,696 - INFO - 127.0.0.1 - - [28/May/2026 14:04:36] "OPTIONS /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
 2026-05-28 14:04:37,407 - INFO - 127.0.0.1 - - [28/May/2026 14:04:37] "POST /semi-segment/my_manuscript_test2/distort2 HTTP/1.1" 200 -
+2026-05-30 15:17:46,198 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.197:5000
+2026-05-30 15:17:46,199 - INFO - [33mPress CTRL+C to quit[0m
+2026-05-30 15:17:46,199 - INFO -  * Restarting with stat
+2026-05-30 15:17:57,630 - WARNING -  * Debugger is active!
+2026-05-30 15:17:57,650 - INFO -  * Debugger PIN: 377-258-397
+2026-05-30 15:18:29,447 - INFO - 127.0.0.1 - - [30/May/2026 15:18:29] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-30 15:19:06,570 - INFO - 127.0.0.1 - - [30/May/2026 15:19:06] "POST /upload HTTP/1.1" 200 -
+2026-05-30 15:19:06,937 - INFO - 127.0.0.1 - - [30/May/2026 15:19:06] "GET /manuscript/my_manuscript_adhipa/pages HTTP/1.1" 200 -
+2026-05-30 15:19:07,196 - INFO - 127.0.0.1 - - [30/May/2026 15:19:07] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-30 15:19:08,594 - INFO - 127.0.0.1 - - [30/May/2026 15:19:08] "GET /semi-segment/my_manuscript_adhipa/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:19:08,697 - INFO - 127.0.0.1 - - [30/May/2026 15:19:08] "GET /manuscript/my_manuscript_adhipa/active-learning HTTP/1.1" 200 -
+2026-05-30 15:19:43,829 - INFO - 127.0.0.1 - - [30/May/2026 15:19:43] "POST /upload HTTP/1.1" 200 -
+2026-05-30 15:19:43,881 - INFO - 127.0.0.1 - - [30/May/2026 15:19:43] "GET /manuscript/my_manuscript_adhipa2/pages HTTP/1.1" 200 -
+2026-05-30 15:19:44,250 - INFO - 127.0.0.1 - - [30/May/2026 15:19:44] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-30 15:19:45,301 - INFO - 127.0.0.1 - - [30/May/2026 15:19:45] "GET /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:19:45,422 - INFO - 127.0.0.1 - - [30/May/2026 15:19:45] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:20:45,765 - INFO - 127.0.0.1 - - [30/May/2026 15:20:45] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:21:46,703 - INFO - 127.0.0.1 - - [30/May/2026 15:21:46] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:22:46,734 - INFO - 127.0.0.1 - - [30/May/2026 15:22:46] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:23:47,072 - INFO - 127.0.0.1 - - [30/May/2026 15:23:47] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:24:47,099 - INFO - 127.0.0.1 - - [30/May/2026 15:24:47] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:25:01,462 - INFO - 127.0.0.1 - - [30/May/2026 15:25:01] "OPTIONS /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:25:01,808 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_adhipa2 page_id=MS-ADD-01766-000-00011
+2026-05-30 15:25:11,471 - INFO - 127.0.0.1 - - [30/May/2026 15:25:11] "POST /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:25:20,468 - INFO - 127.0.0.1 - - [30/May/2026 15:25:20] "OPTIONS /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:25:21,096 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_adhipa2 page_id=MS-ADD-01766-000-00011
+2026-05-30 15:25:29,890 - INFO - 127.0.0.1 - - [30/May/2026 15:25:29] "POST /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:25:30,127 - INFO - 127.0.0.1 - - [30/May/2026 15:25:30] "GET /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:25:30,528 - INFO - 127.0.0.1 - - [30/May/2026 15:25:30] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:25:30,808 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-05-30 15:25:31,849 - INFO - Model loaded successfully.
+2026-05-30 15:25:48,776 - INFO - Updated input_manuscripts\my_manuscript_adhipa2\layout_analysis_output\page-xml-format\MS-ADD-01766-000-00011.xml: 114 lines recognized.
+2026-05-30 15:25:48,999 - INFO - 127.0.0.1 - - [30/May/2026 15:25:48] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:26:49,370 - INFO - 127.0.0.1 - - [30/May/2026 15:26:49] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:27:49,480 - INFO - 127.0.0.1 - - [30/May/2026 15:27:49] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:27:55,103 - INFO - 127.0.0.1 - - [30/May/2026 15:27:55] "OPTIONS /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:27:55,695 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_adhipa2 page_id=MS-ADD-01766-000-00011
+2026-05-30 15:28:05,029 - INFO - 127.0.0.1 - - [30/May/2026 15:28:05] "POST /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:28:05,359 - INFO - 127.0.0.1 - - [30/May/2026 15:28:05] "GET /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:28:05,774 - INFO - 127.0.0.1 - - [30/May/2026 15:28:05] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:28:21,958 - INFO - Updated input_manuscripts\my_manuscript_adhipa2\layout_analysis_output\page-xml-format\MS-ADD-01766-000-00011.xml: 110 lines recognized.
+2026-05-30 15:28:22,206 - INFO - 127.0.0.1 - - [30/May/2026 15:28:22] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:29:22,720 - INFO - 127.0.0.1 - - [30/May/2026 15:29:22] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:30:23,711 - INFO - 127.0.0.1 - - [30/May/2026 15:30:23] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:31:23,760 - INFO - 127.0.0.1 - - [30/May/2026 15:31:23] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:32:24,104 - INFO - 127.0.0.1 - - [30/May/2026 15:32:24] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:33:24,161 - INFO - 127.0.0.1 - - [30/May/2026 15:33:24] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:34:24,595 - INFO - 127.0.0.1 - - [30/May/2026 15:34:24] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:34:29,866 - INFO - 127.0.0.1 - - [30/May/2026 15:34:29] "OPTIONS /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:34:30,524 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_adhipa2 page_id=MS-ADD-01766-000-00011
+2026-05-30 15:34:39,974 - INFO - 127.0.0.1 - - [30/May/2026 15:34:39] "POST /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:34:40,308 - INFO - 127.0.0.1 - - [30/May/2026 15:34:40] "GET /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:34:40,748 - INFO - 127.0.0.1 - - [30/May/2026 15:34:40] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:34:57,053 - INFO - Updated input_manuscripts\my_manuscript_adhipa2\layout_analysis_output\page-xml-format\MS-ADD-01766-000-00011.xml: 111 lines recognized.
+2026-05-30 15:34:57,298 - INFO - 127.0.0.1 - - [30/May/2026 15:34:57] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:35:57,656 - INFO - 127.0.0.1 - - [30/May/2026 15:35:57] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:36:57,713 - INFO - 127.0.0.1 - - [30/May/2026 15:36:57] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:37:58,072 - INFO - 127.0.0.1 - - [30/May/2026 15:37:58] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:38:58,133 - INFO - 127.0.0.1 - - [30/May/2026 15:38:58] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:39:32,402 - INFO - 127.0.0.1 - - [30/May/2026 15:39:32] "OPTIONS /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:39:33,066 - INFO - 127.0.0.1 - - [30/May/2026 15:39:33] "POST /semi-segment/my_manuscript_adhipa2/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-30 15:40:33,767 - INFO - 127.0.0.1 - - [30/May/2026 15:40:33] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:36,417 - INFO - 127.0.0.1 - - [30/May/2026 15:40:36] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:39,763 - INFO - 127.0.0.1 - - [30/May/2026 15:40:39] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:42,411 - INFO - 127.0.0.1 - - [30/May/2026 15:40:42] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:45,735 - INFO - 127.0.0.1 - - [30/May/2026 15:40:45] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:48,403 - INFO - 127.0.0.1 - - [30/May/2026 15:40:48] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:51,719 - INFO - 127.0.0.1 - - [30/May/2026 15:40:51] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:54,402 - INFO - 127.0.0.1 - - [30/May/2026 15:40:54] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:40:57,716 - INFO - 127.0.0.1 - - [30/May/2026 15:40:57] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:00,425 - INFO - 127.0.0.1 - - [30/May/2026 15:41:00] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:03,709 - INFO - 127.0.0.1 - - [30/May/2026 15:41:03] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:06,414 - INFO - 127.0.0.1 - - [30/May/2026 15:41:06] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:09,716 - INFO - 127.0.0.1 - - [30/May/2026 15:41:09] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:12,393 - INFO - 127.0.0.1 - - [30/May/2026 15:41:12] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:15,701 - INFO - 127.0.0.1 - - [30/May/2026 15:41:15] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:18,411 - INFO - 127.0.0.1 - - [30/May/2026 15:41:18] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:21,713 - INFO - 127.0.0.1 - - [30/May/2026 15:41:21] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:24,420 - INFO - 127.0.0.1 - - [30/May/2026 15:41:24] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:27,709 - INFO - 127.0.0.1 - - [30/May/2026 15:41:27] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:30,402 - INFO - 127.0.0.1 - - [30/May/2026 15:41:30] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:33,689 - INFO - 127.0.0.1 - - [30/May/2026 15:41:33] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:36,423 - INFO - 127.0.0.1 - - [30/May/2026 15:41:36] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:39,712 - INFO - 127.0.0.1 - - [30/May/2026 15:41:39] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:42,425 - INFO - 127.0.0.1 - - [30/May/2026 15:41:42] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:45,729 - INFO - 127.0.0.1 - - [30/May/2026 15:41:45] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:48,408 - INFO - 127.0.0.1 - - [30/May/2026 15:41:48] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:51,725 - INFO - 127.0.0.1 - - [30/May/2026 15:41:51] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:54,389 - INFO - 127.0.0.1 - - [30/May/2026 15:41:54] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:56,747 - INFO - 127.0.0.1 - - [30/May/2026 15:41:56] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:41:58,801 - INFO - 127.0.0.1 - - [30/May/2026 15:41:58] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:01,155 - INFO - 127.0.0.1 - - [30/May/2026 15:42:01] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:03,209 - INFO - 127.0.0.1 - - [30/May/2026 15:42:03] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:05,558 - INFO - 127.0.0.1 - - [30/May/2026 15:42:05] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:07,602 - INFO - 127.0.0.1 - - [30/May/2026 15:42:07] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:09,990 - INFO - 127.0.0.1 - - [30/May/2026 15:42:09] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:12,033 - INFO - 127.0.0.1 - - [30/May/2026 15:42:12] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:14,389 - INFO - 127.0.0.1 - - [30/May/2026 15:42:14] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:16,431 - INFO - 127.0.0.1 - - [30/May/2026 15:42:16] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:18,790 - INFO - 127.0.0.1 - - [30/May/2026 15:42:18] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:20,839 - INFO - 127.0.0.1 - - [30/May/2026 15:42:20] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:23,217 - INFO - 127.0.0.1 - - [30/May/2026 15:42:23] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:25,268 - INFO - 127.0.0.1 - - [30/May/2026 15:42:25] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:27,938 - INFO - 127.0.0.1 - - [30/May/2026 15:42:27] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:42:27,998 - INFO - 127.0.0.1 - - [30/May/2026 15:42:27] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:28,467 - INFO - AFC is enabled with max remote calls: 10.
+2026-05-30 15:42:30,041 - INFO - 127.0.0.1 - - [30/May/2026 15:42:30] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:32,454 - INFO - 127.0.0.1 - - [30/May/2026 15:42:32] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:34,827 - INFO - 127.0.0.1 - - [30/May/2026 15:42:34] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:37,195 - INFO - 127.0.0.1 - - [30/May/2026 15:42:37] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:39,558 - INFO - 127.0.0.1 - - [30/May/2026 15:42:39] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:41,948 - INFO - 127.0.0.1 - - [30/May/2026 15:42:41] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:44,313 - INFO - 127.0.0.1 - - [30/May/2026 15:42:44] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:46,660 - INFO - 127.0.0.1 - - [30/May/2026 15:42:46] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:49,008 - INFO - 127.0.0.1 - - [30/May/2026 15:42:49] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:51,371 - INFO - 127.0.0.1 - - [30/May/2026 15:42:51] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:53,733 - INFO - 127.0.0.1 - - [30/May/2026 15:42:53] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:56,101 - INFO - 127.0.0.1 - - [30/May/2026 15:42:56] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:42:58,454 - INFO - 127.0.0.1 - - [30/May/2026 15:42:58] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:00,837 - INFO - 127.0.0.1 - - [30/May/2026 15:43:00] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:03,207 - INFO - 127.0.0.1 - - [30/May/2026 15:43:03] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:05,589 - INFO - 127.0.0.1 - - [30/May/2026 15:43:05] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:07,950 - INFO - 127.0.0.1 - - [30/May/2026 15:43:07] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:10,306 - INFO - 127.0.0.1 - - [30/May/2026 15:43:10] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:12,644 - INFO - 127.0.0.1 - - [30/May/2026 15:43:12] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:15,009 - INFO - 127.0.0.1 - - [30/May/2026 15:43:15] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:17,379 - INFO - 127.0.0.1 - - [30/May/2026 15:43:17] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:19,730 - INFO - 127.0.0.1 - - [30/May/2026 15:43:19] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:22,090 - INFO - 127.0.0.1 - - [30/May/2026 15:43:22] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:24,455 - INFO - 127.0.0.1 - - [30/May/2026 15:43:24] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:25,090 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-05-30 15:43:25,660 - INFO - 127.0.0.1 - - [30/May/2026 15:43:25] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-30 15:43:28,017 - INFO - 127.0.0.1 - - [30/May/2026 15:43:28] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:30,054 - INFO - 127.0.0.1 - - [30/May/2026 15:43:30] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:32,410 - INFO - 127.0.0.1 - - [30/May/2026 15:43:32] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:34,441 - INFO - 127.0.0.1 - - [30/May/2026 15:43:34] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:36,792 - INFO - 127.0.0.1 - - [30/May/2026 15:43:36] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:38,837 - INFO - 127.0.0.1 - - [30/May/2026 15:43:38] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:41,199 - INFO - 127.0.0.1 - - [30/May/2026 15:43:41] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:43,247 - INFO - 127.0.0.1 - - [30/May/2026 15:43:43] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:45,616 - INFO - 127.0.0.1 - - [30/May/2026 15:43:45] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:47,639 - INFO - 127.0.0.1 - - [30/May/2026 15:43:47] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:49,997 - INFO - 127.0.0.1 - - [30/May/2026 15:43:49] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:52,040 - INFO - 127.0.0.1 - - [30/May/2026 15:43:52] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:54,391 - INFO - 127.0.0.1 - - [30/May/2026 15:43:54] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:56,428 - INFO - 127.0.0.1 - - [30/May/2026 15:43:56] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:43:58,767 - INFO - 127.0.0.1 - - [30/May/2026 15:43:58] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:00,810 - INFO - 127.0.0.1 - - [30/May/2026 15:44:00] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:03,173 - INFO - 127.0.0.1 - - [30/May/2026 15:44:03] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:05,222 - INFO - 127.0.0.1 - - [30/May/2026 15:44:05] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:07,579 - INFO - 127.0.0.1 - - [30/May/2026 15:44:07] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:09,616 - INFO - 127.0.0.1 - - [30/May/2026 15:44:09] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:12,717 - INFO - 127.0.0.1 - - [30/May/2026 15:44:12] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:15,404 - INFO - 127.0.0.1 - - [30/May/2026 15:44:15] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:18,726 - INFO - 127.0.0.1 - - [30/May/2026 15:44:18] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:21,396 - INFO - 127.0.0.1 - - [30/May/2026 15:44:21] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:24,735 - INFO - 127.0.0.1 - - [30/May/2026 15:44:24] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:27,402 - INFO - 127.0.0.1 - - [30/May/2026 15:44:27] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:30,727 - INFO - 127.0.0.1 - - [30/May/2026 15:44:30] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:33,391 - INFO - 127.0.0.1 - - [30/May/2026 15:44:33] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:36,726 - INFO - 127.0.0.1 - - [30/May/2026 15:44:36] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:39,397 - INFO - 127.0.0.1 - - [30/May/2026 15:44:39] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:42,725 - INFO - 127.0.0.1 - - [30/May/2026 15:44:42] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:45,408 - INFO - 127.0.0.1 - - [30/May/2026 15:44:45] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:48,771 - INFO - 127.0.0.1 - - [30/May/2026 15:44:48] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:51,412 - INFO - 127.0.0.1 - - [30/May/2026 15:44:51] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:54,710 - INFO - 127.0.0.1 - - [30/May/2026 15:44:54] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:44:57,415 - INFO - 127.0.0.1 - - [30/May/2026 15:44:57] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:00,747 - INFO - 127.0.0.1 - - [30/May/2026 15:45:00] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:03,404 - INFO - 127.0.0.1 - - [30/May/2026 15:45:03] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:06,719 - INFO - 127.0.0.1 - - [30/May/2026 15:45:06] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:09,399 - INFO - 127.0.0.1 - - [30/May/2026 15:45:09] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:12,703 - INFO - 127.0.0.1 - - [30/May/2026 15:45:12] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:15,413 - INFO - 127.0.0.1 - - [30/May/2026 15:45:15] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:18,726 - INFO - 127.0.0.1 - - [30/May/2026 15:45:18] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:21,403 - INFO - 127.0.0.1 - - [30/May/2026 15:45:21] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:24,720 - INFO - 127.0.0.1 - - [30/May/2026 15:45:24] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:27,409 - INFO - 127.0.0.1 - - [30/May/2026 15:45:27] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:30,738 - INFO - 127.0.0.1 - - [30/May/2026 15:45:30] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:33,411 - INFO - 127.0.0.1 - - [30/May/2026 15:45:33] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:36,752 - INFO - 127.0.0.1 - - [30/May/2026 15:45:36] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-30 15:45:39,394 - INFO - 127.0.0.1 - - [30/May/2026 15:45:39] "GET /manuscript/my_manuscript_adhipa2/active-learning HTTP/1.1" 200 -
+2026-05-31 18:38:45,772 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.197:5000
+2026-05-31 18:38:45,773 - INFO - [33mPress CTRL+C to quit[0m
+2026-05-31 18:38:45,774 - INFO -  * Restarting with stat
+2026-05-31 18:38:59,081 - WARNING -  * Debugger is active!
+2026-05-31 18:38:59,081 - INFO -  * Debugger PIN: 305-449-971
+2026-05-31 18:38:59,198 - INFO - 127.0.0.1 - - [31/May/2026 18:38:59] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-05-31 18:39:19,490 - INFO - 127.0.0.1 - - [31/May/2026 18:39:19] "POST /upload HTTP/1.1" 200 -
+2026-05-31 18:39:19,869 - INFO - 127.0.0.1 - - [31/May/2026 18:39:19] "GET /manuscript/my_manuscript_31_may/pages HTTP/1.1" 200 -
+2026-05-31 18:39:20,134 - INFO - 127.0.0.1 - - [31/May/2026 18:39:20] "GET /recognition/readers HTTP/1.1" 200 -
+2026-05-31 18:39:22,044 - INFO - 127.0.0.1 - - [31/May/2026 18:39:22] "GET /semi-segment/my_manuscript_31_may/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-31 18:39:22,184 - INFO - 127.0.0.1 - - [31/May/2026 18:39:22] "GET /manuscript/my_manuscript_31_may/active-learning HTTP/1.1" 200 -
+2026-05-31 18:40:22,544 - INFO - 127.0.0.1 - - [31/May/2026 18:40:22] "GET /manuscript/my_manuscript_31_may/active-learning HTTP/1.1" 200 -
+2026-05-31 18:41:22,591 - INFO - 127.0.0.1 - - [31/May/2026 18:41:22] "GET /manuscript/my_manuscript_31_may/active-learning HTTP/1.1" 200 -
+2026-05-31 18:42:22,944 - INFO - 127.0.0.1 - - [31/May/2026 18:42:22] "GET /manuscript/my_manuscript_31_may/active-learning HTTP/1.1" 200 -
+2026-05-31 18:43:22,979 - INFO - 127.0.0.1 - - [31/May/2026 18:43:22] "GET /manuscript/my_manuscript_31_may/active-learning HTTP/1.1" 200 -
+2026-05-31 18:44:23,338 - INFO - 127.0.0.1 - - [31/May/2026 18:44:23] "GET /manuscript/my_manuscript_31_may/active-learning HTTP/1.1" 200 -
+2026-05-31 18:45:23,455 - INFO - 127.0.0.1 - - [31/May/2026 18:45:23] "GET /manuscript/my_manuscript_31_may/active-learning HTTP/1.1" 200 -
+2026-05-31 18:46:12,472 - INFO - 127.0.0.1 - - [31/May/2026 18:46:12] "OPTIONS /semi-segment/my_manuscript_31_may/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-31 18:46:12,864 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_31_may page_id=MS-ADD-01766-000-00011
+2026-05-31 18:46:22,281 - INFO - 127.0.0.1 - - [31/May/2026 18:46:22] "POST /semi-segment/my_manuscript_31_may/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-31 18:46:22,541 - INFO - 127.0.0.1 - - [31/May/2026 18:46:22] "GET /semi-segment/my_manuscript_31_may/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-31 18:46:22,974 - INFO - 127.0.0.1 - - [31/May/2026 18:46:22] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-05-31 18:46:23,252 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-05-31 18:46:24,377 - INFO - Model loaded successfully.
+2026-05-31 18:46:41,109 - INFO - Updated input_manuscripts\my_manuscript_31_may\layout_analysis_output\page-xml-format\MS-ADD-01766-000-00011.xml: 111 lines recognized.
+2026-05-31 18:46:41,331 - INFO - 127.0.0.1 - - [31/May/2026 18:46:41] "POST /recognize-text HTTP/1.1" 200 -
+2026-05-31 18:47:40,395 - INFO - 127.0.0.1 - - [31/May/2026 18:47:40] "OPTIONS /semi-segment/my_manuscript_31_may/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-05-31 18:47:41,121 - INFO - 127.0.0.1 - - [31/May/2026 18:47:41] "POST /semi-segment/my_manuscript_31_may/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
