@@ -478,8 +478,8 @@
               </div>
               <div class="card-text">
                 <h4>Direction</h4>
-                <p>Hold <span class="key-badge">O</span> and hover to mark line-orientation (in the case of slant or upside down text-lines.)</p>
-                <p>Hover and cut a text-line from it's bottom to it's top to mark its orientation</p>
+                <p>Hold <span class="key-badge">O</span> and hover to mark orientation</p>
+                <p>Hover over a text-line from it's bottom to it's top</p>
               </div>
             </div>
 
