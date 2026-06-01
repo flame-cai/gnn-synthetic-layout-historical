@@ -48,6 +48,7 @@ import concurrent.futures
 load_dotenv() 
 import traceback
 from PIL import Image, ImageDraw, ImageOps
+from urllib.parse import quote
 
 from google.api_core import retry
 from google.genai import types
@@ -67,7 +68,12 @@ from recognition.line_segmentation.reading_direction import (
     load_reading_direction_annotations_by_line_id,
     load_reading_direction_metadata,
 )
+from recognition.line_segmentation.ocr_crops import (
+    default_line_segmentation_metadata_path,
+    load_line_segmentation_metadata_by_numeric_id,
+)
 from recognition.line_segmentation.geometry import normalize_baseline_topology
+from recognition.pagexml_line_dataset import load_pagexml_lines
 from segmentation.utils import load_images_from_folder
 from job_orchestrator import JobOrchestrator
 from ocr_active_learning_runtime import (
@@ -219,6 +225,136 @@ def get_existing_reading_direction_annotations(xml_path):
         "lineAnnotations": payload.get("line_annotations", []),
         "staleAnnotations": payload.get("stale_annotations", []),
     }
+
+
+def _path_is_within(child, parent):
+    try:
+        Path(child).resolve().relative_to(Path(parent).resolve())
+        return True
+    except Exception:
+        return False
+
+
+def _safe_manuscript_root(manuscript):
+    upload_root = Path(UPLOAD_FOLDER).resolve()
+    manuscript_root = (upload_root / manuscript).resolve()
+    if not _path_is_within(manuscript_root, upload_root):
+        return None
+    return manuscript_root
+
+
+def _safe_existing_file(candidate_path, root_path):
+    try:
+        resolved_path = Path(candidate_path).resolve()
+        resolved_root = Path(root_path).resolve()
+    except Exception:
+        return None
+    if not _path_is_within(resolved_path, resolved_root):
+        return None
+    return resolved_path if resolved_path.is_file() else None
+
+
+def _processed_line_image_root(manuscript_root, page):
+    return manuscript_root / "layout_analysis_output" / "image-format" / page
+
+
+def _find_processed_line_image(manuscript_root, page, line_numeric_id, region_custom=None):
+    image_root = _processed_line_image_root(manuscript_root, page)
+    if not image_root.exists():
+        return None
+
+    filename = f"line_{int(line_numeric_id)}.jpg"
+    if region_custom:
+        candidate = _safe_existing_file(image_root / str(region_custom) / filename, image_root)
+        if candidate is not None:
+            return candidate
+
+    for candidate in sorted(image_root.glob(f"*/{filename}")):
+        safe_candidate = _safe_existing_file(candidate, image_root)
+        if safe_candidate is not None:
+            return safe_candidate
+    return None
+
+
+def _line_kind_from_metadata(line_metadata):
+    if not isinstance(line_metadata, dict):
+        return None
+    line_kind = line_metadata.get("line_kind")
+    if line_kind:
+        return str(line_kind)
+    topology = line_metadata.get("topology")
+    if isinstance(topology, dict) and topology.get("line_kind"):
+        return str(topology["line_kind"])
+    return None
+
+
+def get_existing_line_image_previews(manuscript, page, xml_path):
+    previews = {}
+    xml_path = Path(xml_path)
+    if not xml_path.exists():
+        return previews
+
+    manuscript_root = _safe_manuscript_root(manuscript)
+    if manuscript_root is None or not manuscript_root.exists():
+        return previews
+
+    metadata_path = default_line_segmentation_metadata_path(xml_path)
+    metadata_by_numeric_id = load_line_segmentation_metadata_by_numeric_id(metadata_path)
+    reading_annotations_by_line_id = load_reading_direction_annotations_by_line_id(
+        default_reading_direction_metadata_path(xml_path)
+    )
+
+    try:
+        _, records = load_pagexml_lines(xml_path, include_empty_text_lines=True)
+    except Exception as exc:
+        print(f"[{page}] Warning: could not load PAGE lines for image previews: {exc}")
+        return previews
+
+    for record in records:
+        line_numeric_id = int(record.line_numeric_id)
+        line_metadata = metadata_by_numeric_id.get(line_numeric_id, {})
+        line_kind = _line_kind_from_metadata(line_metadata)
+        has_reading_annotation = bool(
+            reading_annotations_by_line_id.get(line_numeric_id)
+            or (
+                isinstance(line_metadata, dict)
+                and isinstance(line_metadata.get("reading_direction_annotation"), dict)
+            )
+        )
+        should_show_preview = has_reading_annotation or (
+            line_kind is not None and line_kind != "horizontal_straight"
+        )
+        if not should_show_preview:
+            continue
+
+        image_path = _find_processed_line_image(
+            manuscript_root,
+            page,
+            line_numeric_id,
+            region_custom=record.region_custom,
+        )
+        if image_path is None:
+            continue
+
+        try:
+            with Image.open(image_path) as line_image:
+                image_width, image_height = line_image.size
+        except Exception as exc:
+            print(f"[{page}] Warning: could not read line preview image {image_path}: {exc}")
+            continue
+
+        previews[str(line_numeric_id)] = {
+            "lineKind": line_kind,
+            "hasReadingDirectionAnnotation": has_reading_annotation,
+            "imageWidth": image_width,
+            "imageHeight": image_height,
+            "imageUrl": (
+                f"/line-image/{quote(str(manuscript), safe='')}/"
+                f"{quote(str(page), safe='')}/{line_numeric_id}"
+                f"?v={image_path.stat().st_mtime_ns}"
+            ),
+        }
+    return previews
 
 
 def update_page_text_content(xml_path, text_content=None, confidences=None):
@@ -596,11 +732,13 @@ def get_page_prediction(manuscript, page):
         polygons = {}
         existing_data = {"text": {}, "confidences": {}}
         reading_direction_annotations = {"lineAnnotations": [], "staleAnnotations": []}
+        line_image_previews = {}
         
         if xml_path.exists():
             polygons = parse_page_xml_polygons(str(xml_path))
             existing_data = get_existing_text_content(str(xml_path))
             reading_direction_annotations = get_existing_reading_direction_annotations(str(xml_path))
+            line_image_previews = get_existing_line_image_previews(manuscript, page, xml_path)
 
         active_learning = _get_manuscript_active_learning_state(manuscript)
         response = {
@@ -614,6 +752,7 @@ def get_page_prediction(manuscript, page):
             "textContent": existing_data["text"],
             "textConfidences": existing_data["confidences"],
             "readingDirectionAnnotations": reading_direction_annotations,
+            "lineImagePreviews": line_image_previews,
             "activeLearning": active_learning,
             "pageWorkflow": _build_page_workflow(
                 manuscript_path,
@@ -630,6 +769,19 @@ def get_page_prediction(manuscript, page):
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/line-image/<manuscript>/<page>/<int:line_numeric_id>', methods=['GET'])
+def get_processed_line_image(manuscript, page, line_numeric_id):
+    manuscript_root = _safe_manuscript_root(manuscript)
+    if manuscript_root is None or not manuscript_root.exists():
+        return jsonify({"error": "Manuscript not found"}), 404
+
+    image_path = _find_processed_line_image(manuscript_root, page, line_numeric_id)
+    if image_path is None:
+        return jsonify({"error": "Line image not found"}), 404
+
+    return send_file(image_path, mimetype="image/jpeg")
 
 
 def ensemble_text_samples(samples):
@@ -1358,7 +1510,7 @@ def save_overlay(manuscript, page):
         # 1. Load Original Image
         original_dir = manuscript_path / "images"
         orig_img_path = None
-        for ext in ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.JPG', '.JPEG', '.PNG']:
+        for ext in ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.JPG', '.JPEG', '.PNG', '.AVIF', '.avif']:
             candidate = original_dir / f"{page}{ext}"
             if candidate.exists():
                 orig_img_path = candidate

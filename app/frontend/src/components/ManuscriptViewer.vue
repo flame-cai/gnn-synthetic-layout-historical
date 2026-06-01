@@ -326,6 +326,7 @@
             <div
                 v-if="recognitionModeActive && effectivePageWorkflow.can_edit_text && focusedLineId && pagePolygons[focusedLineId]"
                 class="input-floater"
+                :class="{ 'has-line-preview': activeLineImagePreview }"
                 :style="getActiveInputStyle()"
             >
                 <input 
@@ -343,6 +344,17 @@
                         marginBottom: '4px' 
                     }"
                 />
+                <div
+                    v-if="activeLineImagePreview"
+                    class="line-image-preview"
+                >
+                    <img
+                        :src="backendAssetUrl(activeLineImagePreview.imageUrl)"
+                        class="line-image-preview-img"
+                        alt=""
+                        draggable="false"
+                    />
+                </div>
                 <div 
                     v-if="localTextConfidence[focusedLineId]" 
                     class="confidence-strip"
@@ -666,6 +678,7 @@ function resetReadingDirectionHoverState() {
 // Recognition Data
 const localTextContent = reactive({}) 
 const pagePolygons = ref({}) 
+const lineImagePreviews = ref({})
 const focusedLineId = ref(null)
 const sortedLineIds = ref([])
 const autoRecogEnabled = ref(localStorage.getItem('auto_prepare_next_page') === 'true')
@@ -1707,6 +1720,33 @@ const pointsToSvgString = (pts) => {
     return pts.map(p => `${scaleX(p[0])},${scaleY(p[1])}`).join(" ");
 }
 
+const backendAssetUrl = (path) => {
+    if (!path) return "";
+    if (/^(https?:|data:)/i.test(path)) return path;
+    const baseUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    return `${baseUrl}${normalizedPath}`;
+}
+
+const activeLineImagePreview = computed(() => {
+    if (!focusedLineId.value) return null;
+    const preview = lineImagePreviews.value[String(focusedLineId.value)];
+    return preview?.imageUrl ? preview : null;
+})
+
+const getLinePreviewDisplayWidthPx = (preview) => {
+    if (!preview) return null;
+    const naturalWidth = Number(preview.imageWidth);
+    const maxWidth = Math.max(240, Math.min(760, scaledWidth.value - 8));
+    if (!Number.isFinite(naturalWidth) || naturalWidth <= 0) return Math.min(420, maxWidth);
+    return clamp(naturalWidth * scaleFactor, 260, maxWidth);
+}
+
+const clampFloaterLeft = (left, width) => {
+    const maxLeft = Math.max(4, scaledWidth.value - width - 4);
+    return clamp(left, 4, maxLeft);
+}
+
 const sortLinesTopToBottom = () => {
     const ids = Object.keys(pagePolygons.value);
     if(ids.length === 0) {
@@ -1750,6 +1790,7 @@ const getActiveInputStyle = () => {
     const rawHeight = maxY - minY;
 
     const isVertical = rawHeight > (rawWidth * 1.2); 
+    const previewWidth = getLinePreviewDisplayWidthPx(activeLineImagePreview.value);
 
     const style = {
         position: 'absolute',
@@ -1764,17 +1805,19 @@ const getActiveInputStyle = () => {
         const INPUT_WIDTH_PX = 250; 
         
         style.top = `${scaleY(minY)}px`; 
-        style.width = `${INPUT_WIDTH_PX}px`;
+        const targetWidth = previewWidth || INPUT_WIDTH_PX;
+        style.width = `${targetWidth}px`;
 
         if (polyCenterX > pageCenterX) {
-            style.left = `${scaleX(minX) - INPUT_WIDTH_PX - 10}px`;
+            style.left = `${clampFloaterLeft(scaleX(minX) - targetWidth - 10, targetWidth)}px`;
         } else {
-            style.left = `${scaleX(maxX) + 10}px`;
+            style.left = `${clampFloaterLeft(scaleX(maxX) + 10, targetWidth)}px`;
         }
     } else {
+        const targetWidth = previewWidth || scaleX(rawWidth);
         style.top = `${scaleY(maxY) + 5}px`;
-        style.left = `${scaleX(minX)}px`;
-        style.width = `${scaleX(rawWidth)}px`;
+        style.left = `${clampFloaterLeft(scaleX(minX), targetWidth)}px`;
+        style.width = `${targetWidth}px`;
     }
 
     return style;
@@ -1787,7 +1830,7 @@ const getDynamicFontSize = () => {
     const pts = pagePolygons.value[focusedLineId.value];
     if(!pts) return '16px';
     const xs = pts.map(p => p[0]);
-    const width = (Math.max(...xs) - Math.min(...xs)) * scaleFactor;
+    const width = getLinePreviewDisplayWidthPx(activeLineImagePreview.value) || ((Math.max(...xs) - Math.min(...xs)) * scaleFactor);
     let calcSize = (width / charCount) * 1.8;
     calcSize = Math.max(14, Math.min(calcSize, 40));
     return `${calcSize}px`;
@@ -1947,6 +1990,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
   replaceLocalRecognitionData({}, {})
   pagePolygons.value = {}
+  lineImagePreviews.value = {}
   sortedLineIds.value = []
   let shouldAutoPrepareCurrentPage = false
   let pageData = null
@@ -1985,6 +2029,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
     }
     
     if (data.polygons) pagePolygons.value = data.polygons;
+    lineImagePreviews.value = data.lineImagePreviews || {}
     replaceLocalRecognitionData(data.textContent || {}, data.textConfidences || {})
     if (data.activeLearning) {
       applyActiveLearningState(data.activeLearning)
@@ -3793,6 +3838,31 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     font-family: monospace;
     outline: none;
     transition: font-size 0.2s;
+}
+
+.input-floater.has-line-preview .line-input {
+    box-sizing: border-box;
+}
+
+.line-image-preview {
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 4px;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.78);
+    border: 1px solid rgba(255, 213, 79, 0.65);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+}
+
+.line-image-preview-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 140px;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
 }
 
 /* Polygons */
