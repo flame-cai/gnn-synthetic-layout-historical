@@ -27,6 +27,7 @@ LOCAL_POLYGON_CROP_MODEL = "local_polygon_stable_unwrap"
 CROP_ABLATION_MODEL = "stable_arclength_tangent"
 COMPONENT_PROJECTION_MODEL = "heatmap_component_contour_mask"
 COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
+AMBIGUOUS_COMPONENT_SPLIT_MODEL = "node_overlap_nearest_baseline_split"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
     "BINARIZE_THRESHOLD": 0.45,
@@ -56,6 +57,10 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "local_canvas_margin_px": 4.0,
     "reading_order": "left_to_right",
     "circular_direction": "clockwise",
+    "ambiguous_component_split_enabled": True,
+    "ambiguous_component_node_overlap_radius_px": 18.0,
+    "ambiguous_component_node_radius_scale": 1.0,
+    "ambiguous_component_split_min_pixels": 8,
 }
 
 
@@ -87,14 +92,18 @@ def _normalise_config(config: dict | None) -> dict:
         "simplify_epsilon_px",
         "minimum_page_mapping_step_px",
         "local_canvas_margin_px",
+        "ambiguous_component_node_overlap_radius_px",
+        "ambiguous_component_node_radius_scale",
     ):
         merged[key] = float(merged[key])
     merged["min_mirror_pairs"] = int(merged["min_mirror_pairs"])
     merged["max_polygon_points"] = int(merged["max_polygon_points"])
+    merged["ambiguous_component_split_min_pixels"] = int(merged["ambiguous_component_split_min_pixels"])
     merged["include_empty_text_lines"] = bool(
         merged.get("include_empty_text_lines", merged.get("INCLUDE_EMPTY_TEXT_LINES", False))
     )
     merged["bridge_all_component_groups"] = bool(merged["bridge_all_component_groups"])
+    merged["ambiguous_component_split_enabled"] = bool(merged["ambiguous_component_split_enabled"])
     merged["reading_order"] = str(merged["reading_order"])
     merged["circular_direction"] = str(merged["circular_direction"])
     if not isinstance(merged.get("reading_direction_annotations_by_line_id"), dict):
@@ -130,6 +139,9 @@ def _heatmap_boxes(image_path: Path, heatmap_path: Path, threshold: float) -> tu
     contours, _ = cv2.findContours(binary_heatmap, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for contour in contours:
         x_val, y_val, width, height = cv2.boundingRect(contour)
+        local_contour = contour - np.asarray([[[x_val, y_val]]], dtype=contour.dtype)
+        contour_mask = np.zeros((int(height), int(width)), dtype=np.uint8)
+        cv2.fillPoly(contour_mask, [local_contour], 255)
         width = float(width)
         height = float(height)
         contour_points = contour.reshape(-1, 2).astype(float).tolist()
@@ -143,6 +155,8 @@ def _heatmap_boxes(image_path: Path, heatmap_path: Path, threshold: float) -> tu
                 "max_side": max(width, height),
                 "contour_points": contour_points,
                 "contour_point_count": len(contour_points),
+                "contour_mask": contour_mask,
+                "contour_area_px": int(np.count_nonzero(contour_mask)),
             }
         )
     return boxes, {"heatmap_box_count": len(boxes)}
@@ -726,6 +740,211 @@ def _local_to_page_point(
     )
 
 
+def _normalised_graph_nodes_by_line_id(topologies: dict[int, BaselineTopology], config: dict) -> dict[int, list[dict]]:
+    raw_nodes = config.get("graph_nodes_by_line_id")
+    if not isinstance(raw_nodes, dict):
+        return {}
+
+    nodes_by_line_id: dict[int, list[dict]] = {}
+    for line_numeric_id in topologies:
+        raw_for_line = raw_nodes.get(line_numeric_id)
+        if raw_for_line is None:
+            raw_for_line = raw_nodes.get(str(line_numeric_id))
+        if not isinstance(raw_for_line, list):
+            continue
+
+        nodes = []
+        for raw_node in raw_for_line:
+            if not isinstance(raw_node, dict):
+                continue
+            try:
+                x_val = float(raw_node["x"])
+                y_val = float(raw_node["y"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            radius = raw_node.get("radius", raw_node.get("r", raw_node.get("s", 0.0)))
+            try:
+                radius = float(radius)
+            except (TypeError, ValueError):
+                radius = 0.0
+            nodes.append({"x": x_val, "y": y_val, "radius": max(0.0, radius)})
+        if nodes:
+            nodes_by_line_id[int(line_numeric_id)] = nodes
+    return nodes_by_line_id
+
+
+def _node_disk_overlaps_contour(box: dict, node: dict, config: dict) -> bool:
+    mask = box.get("contour_mask")
+    if mask is None or mask.size == 0:
+        return False
+
+    x0 = int(round(float(box["x"])))
+    y0 = int(round(float(box["y"])))
+    center_x = float(node["x"])
+    center_y = float(node["y"])
+    radius = max(
+        float(config["ambiguous_component_node_overlap_radius_px"]),
+        float(node.get("radius", 0.0)) * float(config["ambiguous_component_node_radius_scale"]),
+    )
+
+    local_x_min = max(0, int(math.floor(center_x - radius)) - x0)
+    local_x_max = min(mask.shape[1], int(math.ceil(center_x + radius)) - x0 + 1)
+    local_y_min = max(0, int(math.floor(center_y - radius)) - y0)
+    local_y_max = min(mask.shape[0], int(math.ceil(center_y + radius)) - y0 + 1)
+    if local_x_max <= local_x_min or local_y_max <= local_y_min:
+        return False
+
+    local_mask = mask[local_y_min:local_y_max, local_x_min:local_x_max]
+    local_y, local_x = np.ogrid[local_y_min:local_y_max, local_x_min:local_x_max]
+    disk = ((local_x + x0 - center_x) ** 2 + (local_y + y0 - center_y) ** 2) <= radius**2
+    return bool(np.any(local_mask[disk] > 0))
+
+
+def _candidate_lines_from_overlapping_nodes(
+    box: dict,
+    graph_nodes_by_line_id: dict[int, list[dict]],
+    config: dict,
+) -> list[int]:
+    candidate_line_ids = []
+    for line_numeric_id, nodes in graph_nodes_by_line_id.items():
+        if any(_node_disk_overlaps_contour(box, node, config) for node in nodes):
+            candidate_line_ids.append(int(line_numeric_id))
+    return candidate_line_ids
+
+
+def _squared_distances_to_topology(
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    topology: BaselineTopology,
+) -> np.ndarray:
+    points = topology.normalized_points
+    if not points:
+        return np.full_like(x_values, np.inf, dtype=float)
+    if len(points) == 1:
+        point = points[0]
+        return (x_values - float(point[0])) ** 2 + (y_values - float(point[1])) ** 2
+
+    best = np.full(x_values.shape, np.inf, dtype=float)
+    for start, end in zip(points, points[1:]):
+        start_x = float(start[0])
+        start_y = float(start[1])
+        vector_x = float(end[0]) - start_x
+        vector_y = float(end[1]) - start_y
+        denom = vector_x * vector_x + vector_y * vector_y
+        if denom <= 1e-6:
+            dist2 = (x_values - start_x) ** 2 + (y_values - start_y) ** 2
+        else:
+            t_val = ((x_values - start_x) * vector_x + (y_values - start_y) * vector_y) / denom
+            t_val = np.clip(t_val, 0.0, 1.0)
+            projection_x = start_x + t_val * vector_x
+            projection_y = start_y + t_val * vector_y
+            dist2 = (x_values - projection_x) ** 2 + (y_values - projection_y) ** 2
+        best = np.minimum(best, dist2)
+    return best
+
+
+def _box_from_split_contour(
+    source_box: dict,
+    submask: np.ndarray,
+    contour: np.ndarray,
+    line_numeric_id: int,
+    candidate_line_ids: list[int],
+    pixel_count: int,
+) -> dict | None:
+    x0 = int(round(float(source_box["x"])))
+    y0 = int(round(float(source_box["y"])))
+    local_x, local_y, width, height = cv2.boundingRect(contour)
+    if width <= 0 or height <= 0:
+        return None
+
+    contour_points = (contour.reshape(-1, 2) + np.asarray([x0, y0])).astype(float).tolist()
+    x_val = float(x0 + local_x)
+    y_val = float(y0 + local_y)
+    width_val = float(width)
+    height_val = float(height)
+    roi = submask[local_y : local_y + height, local_x : local_x + width].copy()
+    return {
+        "x": x_val,
+        "y": y_val,
+        "width": width_val,
+        "height": height_val,
+        "center": (x_val + width_val / 2.0, y_val + height_val / 2.0),
+        "max_side": max(width_val, height_val),
+        "contour_points": contour_points,
+        "contour_point_count": len(contour_points),
+        "contour_mask": roi,
+        "contour_area_px": int(pixel_count),
+        "split_from_ambiguous_component": True,
+        "split_model": AMBIGUOUS_COMPONENT_SPLIT_MODEL,
+        "split_line_numeric_id": int(line_numeric_id),
+        "split_candidate_line_ids": [int(value) for value in candidate_line_ids],
+        "split_source_bbox": [
+            float(source_box["x"]),
+            float(source_box["y"]),
+            float(source_box["width"]),
+            float(source_box["height"]),
+        ],
+        "split_source_contour_area_px": int(source_box.get("contour_area_px", 0)),
+    }
+
+
+def _split_box_by_nearest_baseline(
+    box: dict,
+    candidate_line_ids: list[int],
+    topologies: dict[int, BaselineTopology],
+    config: dict,
+) -> list[tuple[int, dict]]:
+    mask = box.get("contour_mask")
+    if mask is None or mask.size == 0:
+        return []
+
+    y_coords, x_coords = np.where(mask > 0)
+    min_pixels = max(1, int(config["ambiguous_component_split_min_pixels"]))
+    if len(x_coords) < min_pixels:
+        return []
+
+    x0 = int(round(float(box["x"])))
+    y0 = int(round(float(box["y"])))
+    absolute_x = x_coords.astype(float) + float(x0)
+    absolute_y = y_coords.astype(float) + float(y0)
+
+    valid_line_ids = [int(line_id) for line_id in candidate_line_ids if int(line_id) in topologies]
+    if len(valid_line_ids) < 2:
+        return []
+
+    distance_stack = np.vstack(
+        [_squared_distances_to_topology(absolute_x, absolute_y, topologies[line_id]) for line_id in valid_line_ids]
+    )
+    winners = np.argmin(distance_stack, axis=0)
+    split_boxes: list[tuple[int, dict]] = []
+    for candidate_index, line_numeric_id in enumerate(valid_line_ids):
+        selected = winners == candidate_index
+        selected_count = int(np.count_nonzero(selected))
+        if selected_count < min_pixels:
+            continue
+
+        submask = np.zeros(mask.shape, dtype=np.uint8)
+        submask[y_coords[selected], x_coords[selected]] = 255
+        contours, _ = cv2.findContours(submask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for contour in contours:
+            local_x, local_y, width, height = cv2.boundingRect(contour)
+            contour_roi = submask[local_y : local_y + height, local_x : local_x + width]
+            pixel_count = int(np.count_nonzero(contour_roi))
+            if pixel_count < min_pixels:
+                continue
+            split_box = _box_from_split_contour(
+                box,
+                submask,
+                contour,
+                line_numeric_id,
+                valid_line_ids,
+                pixel_count,
+            )
+            if split_box is not None:
+                split_boxes.append((line_numeric_id, split_box))
+    return split_boxes
+
+
 def _build_local_polygon(
     topology: BaselineTopology,
     rects: list[dict],
@@ -904,7 +1123,40 @@ def _assign_components_to_lines(
     assignments = {line_numeric_id: [] for line_numeric_id in topologies}
     rejected_counts = {"too_far_from_baseline": 0, "no_baseline": 0}
     assigned_distances = []
+    graph_nodes_by_line_id = _normalised_graph_nodes_by_line_id(topologies, config)
+    ambiguous_component_count = 0
+    split_component_count = 0
+    ambiguous_component_unsplit_count = 0
     for box in boxes:
+        if config["ambiguous_component_split_enabled"] and graph_nodes_by_line_id:
+            candidate_line_ids = _candidate_lines_from_overlapping_nodes(box, graph_nodes_by_line_id, config)
+            if len(candidate_line_ids) > 1:
+                ambiguous_component_count += 1
+                split_boxes = _split_box_by_nearest_baseline(box, candidate_line_ids, topologies, config)
+                if split_boxes:
+                    split_component_count += len(split_boxes)
+                    source_best_distance = float("inf")
+                    for line_numeric_id, split_box in split_boxes:
+                        nearest = nearest_point_on_polyline(split_box["center"], topologies[line_numeric_id].normalized_points)
+                        threshold = max(
+                            float(config["component_max_distance_px"]),
+                            split_box["max_side"] * float(config["component_distance_scale"]),
+                        )
+                        if nearest.distance > threshold:
+                            rejected_counts["too_far_from_baseline"] += 1
+                            continue
+                        component = _component_local_rect(split_box, topologies[line_numeric_id], config)
+                        component["baseline_distance"] = float(nearest.distance)
+                        component["ambiguous_component_split_model"] = AMBIGUOUS_COMPONENT_SPLIT_MODEL
+                        assignments[line_numeric_id].append(component)
+                        source_best_distance = min(source_best_distance, float(nearest.distance))
+                    if math.isfinite(source_best_distance):
+                        assigned_distances.append(source_best_distance)
+                    else:
+                        rejected_counts["too_far_from_baseline"] += 1
+                    continue
+                ambiguous_component_unsplit_count += 1
+
         best_line_id = None
         best_distance = float("inf")
         for line_numeric_id, topology in topologies.items():
@@ -931,6 +1183,10 @@ def _assign_components_to_lines(
         "heatmap_box_assignment_rate": (len(assigned_distances) / len(boxes)) if boxes else None,
         "max_assignment_distance": max(assigned_distances) if assigned_distances else None,
         "mean_assignment_distance": float(np.mean(assigned_distances)) if assigned_distances else None,
+        "ambiguous_component_split_model": AMBIGUOUS_COMPONENT_SPLIT_MODEL,
+        "ambiguous_component_count": ambiguous_component_count,
+        "ambiguous_component_split_output_count": split_component_count,
+        "ambiguous_component_unsplit_count": ambiguous_component_unsplit_count,
     }
     return assignments, summary
 

@@ -9413,3 +9413,141 @@
 2026-06-01 15:52:49,070 - INFO - AFC is enabled with max remote calls: 10.
 2026-06-01 15:53:08,546 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
 2026-06-01 15:53:08,815 - INFO - 127.0.0.1 - - [01/Jun/2026 15:53:08] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-02 17:14:29,261 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.44.0.79:5000
+2026-06-02 17:14:29,261 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-02 17:14:29,264 - INFO -  * Restarting with stat
+2026-06-02 17:14:44,566 - WARNING -  * Debugger is active!
+2026-06-02 17:14:44,571 - INFO -  * Debugger PIN: 305-449-971
+2026-06-02 17:14:44,794 - INFO - 127.0.0.1 - - [02/Jun/2026 17:14:44] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-02 17:15:13,923 - INFO - 127.0.0.1 - - [02/Jun/2026 17:15:13] "POST /upload HTTP/1.1" 200 -
+2026-06-02 17:15:14,286 - INFO - 127.0.0.1 - - [02/Jun/2026 17:15:14] "GET /manuscript/my_manuscript_testing/pages HTTP/1.1" 200 -
+2026-06-02 17:15:14,546 - INFO - 127.0.0.1 - - [02/Jun/2026 17:15:14] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-02 17:15:15,606 - INFO - 127.0.0.1 - - [02/Jun/2026 17:15:15] "GET /semi-segment/my_manuscript_testing/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-02 17:15:15,666 - INFO - 127.0.0.1 - - [02/Jun/2026 17:15:15] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:16:16,025 - INFO - 127.0.0.1 - - [02/Jun/2026 17:16:16] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:17:16,059 - INFO - 127.0.0.1 - - [02/Jun/2026 17:17:16] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:17:30,960 - INFO - 127.0.0.1 - - [02/Jun/2026 17:17:30] "OPTIONS /semi-segment/my_manuscript_testing/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-02 17:17:31,290 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_testing page_id=il_1588xN.7114987892_5f68
+2026-06-02 17:17:36,549 - INFO - 127.0.0.1 - - [02/Jun/2026 17:17:36] "POST /semi-segment/my_manuscript_testing/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-02 17:17:37,497 - INFO - 127.0.0.1 - - [02/Jun/2026 17:17:37] "GET /semi-segment/my_manuscript_testing/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-02 17:17:37,869 - INFO - 127.0.0.1 - - [02/Jun/2026 17:17:37] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-02 17:17:38,295 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-02 17:18:02,762 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-02 17:18:02,934 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:02] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-02 17:18:10,521 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:10] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/22?v=1780400855546448500 HTTP/1.1" 200 -
+2026-06-02 17:18:13,747 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:13] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/27?v=1780400855628717300 HTTP/1.1" 200 -
+2026-06-02 17:18:15,389 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:15] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/30?v=1780400855723221200 HTTP/1.1" 200 -
+2026-06-02 17:18:16,386 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:16] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/9?v=1780400855188215200 HTTP/1.1" 200 -
+2026-06-02 17:18:18,908 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:18] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/14?v=1780400855207374500 HTTP/1.1" 200 -
+2026-06-02 17:18:21,027 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:21] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/35?v=1780400855848860600 HTTP/1.1" 200 -
+2026-06-02 17:18:22,683 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:22] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/37?v=1780400855890114200 HTTP/1.1" 200 -
+2026-06-02 17:18:23,786 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:23] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/28?v=1780400855696796400 HTTP/1.1" 200 -
+2026-06-02 17:18:25,470 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:25] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/25?v=1780400855608721500 HTTP/1.1" 200 -
+2026-06-02 17:18:27,165 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:27] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/36?v=1780400855868139700 HTTP/1.1" 200 -
+2026-06-02 17:18:29,983 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:29] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/37?v=1780400855890114200 HTTP/1.1[0m" 304 -
+2026-06-02 17:18:30,764 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:30] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/35?v=1780400855848860600 HTTP/1.1[0m" 304 -
+2026-06-02 17:18:31,967 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:31] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/30?v=1780400855723221200 HTTP/1.1[0m" 304 -
+2026-06-02 17:18:33,454 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:33] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/33?v=1780400855787220900 HTTP/1.1" 200 -
+2026-06-02 17:18:35,310 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:35] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/27?v=1780400855628717300 HTTP/1.1[0m" 304 -
+2026-06-02 17:18:36,570 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:36] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/31?v=1780400855745222700 HTTP/1.1" 200 -
+2026-06-02 17:18:38,186 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:38] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/32?v=1780400855808860800 HTTP/1.1" 200 -
+2026-06-02 17:18:40,926 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:40] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/34?v=1780400855826860900 HTTP/1.1" 200 -
+2026-06-02 17:18:43,186 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:43] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/23?v=1780400855588450800 HTTP/1.1" 200 -
+2026-06-02 17:18:45,431 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:45] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/18?v=1780400855386626100 HTTP/1.1" 200 -
+2026-06-02 17:18:47,921 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:47] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/20?v=1780400855567449500 HTTP/1.1" 200 -
+2026-06-02 17:18:49,806 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:49] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/0?v=1780400855482830000 HTTP/1.1" 200 -
+2026-06-02 17:18:53,709 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:53] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/6?v=1780400855112964600 HTTP/1.1" 200 -
+2026-06-02 17:18:54,640 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:54] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/4?v=1780400855092948300 HTTP/1.1" 200 -
+2026-06-02 17:18:56,430 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:56] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/3?v=1780400855071960500 HTTP/1.1" 200 -
+2026-06-02 17:18:58,521 - INFO - 127.0.0.1 - - [02/Jun/2026 17:18:58] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/5?v=1780400855135302500 HTTP/1.1" 200 -
+2026-06-02 17:19:00,452 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:00] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/13?v=1780400855246369500 HTTP/1.1" 200 -
+2026-06-02 17:19:01,171 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:01] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/11?v=1780400855312624800 HTTP/1.1" 200 -
+2026-06-02 17:19:03,202 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:03] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/25?v=1780400855608721500 HTTP/1.1[0m" 304 -
+2026-06-02 17:19:03,329 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:03] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:19:03,959 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:03] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/28?v=1780400855696796400 HTTP/1.1[0m" 304 -
+2026-06-02 17:19:05,578 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:05] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/10?v=1780400855269293000 HTTP/1.1" 200 -
+2026-06-02 17:19:06,357 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:06] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/8?v=1780400855226374500 HTTP/1.1" 200 -
+2026-06-02 17:19:21,748 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:21] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/32?v=1780400855808860800 HTTP/1.1[0m" 304 -
+2026-06-02 17:19:22,468 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:22] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/31?v=1780400855745222700 HTTP/1.1[0m" 304 -
+2026-06-02 17:19:25,438 - INFO - 127.0.0.1 - - [02/Jun/2026 17:19:25] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/10?v=1780400855269293000 HTTP/1.1[0m" 304 -
+2026-06-02 17:20:04,355 - INFO - 127.0.0.1 - - [02/Jun/2026 17:20:04] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:21:05,342 - INFO - 127.0.0.1 - - [02/Jun/2026 17:21:05] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:22:06,365 - INFO - 127.0.0.1 - - [02/Jun/2026 17:22:06] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:22:29,573 - INFO - 127.0.0.1 - - [02/Jun/2026 17:22:29] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/38?v=1780400855918205800 HTTP/1.1" 200 -
+2026-06-02 17:23:07,351 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:07] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:23:08,967 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:08] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/10?v=1780400855269293000 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:23,439 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:23] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/29?v=1780400855646729200 HTTP/1.1" 200 -
+2026-06-02 17:23:25,048 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:25] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/26?v=1780400855676793000 HTTP/1.1" 200 -
+2026-06-02 17:23:27,359 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:27] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/20?v=1780400855567449500 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:28,367 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:28] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/32?v=1780400855808860800 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:29,671 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:29] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/31?v=1780400855745222700 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:30,397 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:30] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/32?v=1780400855808860800 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:35,414 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:35] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/13?v=1780400855246369500 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:36,119 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:36] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/11?v=1780400855312624800 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:37,529 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:37] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/20?v=1780400855567449500 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:39,567 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:39] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/23?v=1780400855588450800 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:40,985 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:40] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/38?v=1780400855918205800 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:47,082 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:47] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/10?v=1780400855269293000 HTTP/1.1[0m" 304 -
+2026-06-02 17:23:49,898 - INFO - 127.0.0.1 - - [02/Jun/2026 17:23:49] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/38?v=1780400855918205800 HTTP/1.1[0m" 304 -
+2026-06-02 17:24:07,416 - INFO - 127.0.0.1 - - [02/Jun/2026 17:24:07] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:25:08,362 - INFO - 127.0.0.1 - - [02/Jun/2026 17:25:08] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:26:09,347 - INFO - 127.0.0.1 - - [02/Jun/2026 17:26:09] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:26:18,360 - INFO - 127.0.0.1 - - [02/Jun/2026 17:26:18] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/0?v=1780400855482830000 HTTP/1.1[0m" 304 -
+2026-06-02 17:26:19,538 - INFO - 127.0.0.1 - - [02/Jun/2026 17:26:19] "GET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/15?v=1780400855365628300 HTTP/1.1" 200 -
+2026-06-02 17:26:20,821 - INFO - 127.0.0.1 - - [02/Jun/2026 17:26:20] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/10?v=1780400855269293000 HTTP/1.1[0m" 304 -
+2026-06-02 17:26:21,685 - INFO - 127.0.0.1 - - [02/Jun/2026 17:26:21] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/8?v=1780400855226374500 HTTP/1.1[0m" 304 -
+2026-06-02 17:26:23,489 - INFO - 127.0.0.1 - - [02/Jun/2026 17:26:23] "[36mGET /line-image/my_manuscript_testing/il_1588xN.7114987892_5f68/10?v=1780400855269293000 HTTP/1.1[0m" 304 -
+2026-06-02 17:27:10,352 - INFO - 127.0.0.1 - - [02/Jun/2026 17:27:10] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:28:11,367 - INFO - 127.0.0.1 - - [02/Jun/2026 17:28:11] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:29:12,353 - INFO - 127.0.0.1 - - [02/Jun/2026 17:29:12] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:30:13,385 - INFO - 127.0.0.1 - - [02/Jun/2026 17:30:13] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:31:14,421 - INFO - 127.0.0.1 - - [02/Jun/2026 17:31:14] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:32:15,347 - INFO - 127.0.0.1 - - [02/Jun/2026 17:32:15] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:33:16,345 - INFO - 127.0.0.1 - - [02/Jun/2026 17:33:16] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:34:17,355 - INFO - 127.0.0.1 - - [02/Jun/2026 17:34:17] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:35:18,354 - INFO - 127.0.0.1 - - [02/Jun/2026 17:35:18] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:36:19,354 - INFO - 127.0.0.1 - - [02/Jun/2026 17:36:19] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:37:20,368 - INFO - 127.0.0.1 - - [02/Jun/2026 17:37:20] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:38:21,353 - INFO - 127.0.0.1 - - [02/Jun/2026 17:38:21] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:39:22,350 - INFO - 127.0.0.1 - - [02/Jun/2026 17:39:22] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:40:23,349 - INFO - 127.0.0.1 - - [02/Jun/2026 17:40:23] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:41:24,368 - INFO - 127.0.0.1 - - [02/Jun/2026 17:41:24] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:42:25,349 - INFO - 127.0.0.1 - - [02/Jun/2026 17:42:25] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:43:26,351 - INFO - 127.0.0.1 - - [02/Jun/2026 17:43:26] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:44:27,343 - INFO - 127.0.0.1 - - [02/Jun/2026 17:44:27] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:45:28,387 - INFO - 127.0.0.1 - - [02/Jun/2026 17:45:28] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:46:29,340 - INFO - 127.0.0.1 - - [02/Jun/2026 17:46:29] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:47:30,353 - INFO - 127.0.0.1 - - [02/Jun/2026 17:47:30] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:48:31,355 - INFO - 127.0.0.1 - - [02/Jun/2026 17:48:31] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:49:32,381 - INFO - 127.0.0.1 - - [02/Jun/2026 17:49:32] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:50:33,355 - INFO - 127.0.0.1 - - [02/Jun/2026 17:50:33] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:51:34,346 - INFO - 127.0.0.1 - - [02/Jun/2026 17:51:34] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:51:44,680 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-02 17:51:47,297 - INFO -  * Restarting with stat
+2026-06-02 17:52:02,780 - WARNING -  * Debugger is active!
+2026-06-02 17:52:02,784 - INFO -  * Debugger PIN: 305-449-971
+2026-06-02 17:52:35,350 - INFO - 127.0.0.1 - - [02/Jun/2026 17:52:35] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:53:10,052 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-02 17:53:13,494 - INFO -  * Restarting with stat
+2026-06-02 17:53:28,061 - WARNING -  * Debugger is active!
+2026-06-02 17:53:28,067 - INFO -  * Debugger PIN: 305-449-971
+2026-06-02 17:53:36,354 - INFO - 127.0.0.1 - - [02/Jun/2026 17:53:36] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:53:39,196 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\gnn_inference.py', reloading
+2026-06-02 17:53:42,408 - INFO -  * Restarting with stat
+2026-06-02 17:53:57,147 - WARNING -  * Debugger is active!
+2026-06-02 17:53:57,154 - INFO -  * Debugger PIN: 305-449-971
+2026-06-02 17:54:37,346 - INFO - 127.0.0.1 - - [02/Jun/2026 17:54:37] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:55:38,360 - INFO - 127.0.0.1 - - [02/Jun/2026 17:55:38] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:56:22,549 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_line_segmentation_strategy_unit.py', reloading
+2026-06-02 17:56:25,858 - INFO -  * Restarting with stat
+2026-06-02 17:56:42,035 - WARNING -  * Debugger is active!
+2026-06-02 17:56:42,042 - INFO -  * Debugger PIN: 305-449-971
+2026-06-02 17:56:42,178 - INFO - 127.0.0.1 - - [02/Jun/2026 17:56:42] "GET /manuscript/my_manuscript_testing/active-learning HTTP/1.1" 200 -
+2026-06-02 17:56:48,790 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_line_segmentation_strategy_unit.py', reloading
+2026-06-02 17:56:52,247 - INFO -  * Restarting with stat
+2026-06-02 17:57:07,214 - WARNING -  * Debugger is active!
+2026-06-02 17:57:07,220 - INFO -  * Debugger PIN: 305-449-971
+2026-06-02 17:57:16,286 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_line_segmentation_strategy_unit.py', reloading

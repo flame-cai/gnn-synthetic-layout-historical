@@ -479,6 +479,68 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertNotIn("LocalPolygonsStrategy", source)
         self.assertNotIn("geometry_delegate_strategy_name", source)
 
+    def test_stable_unwrap_splits_ambiguous_heatmap_component_by_graph_nodes(self):
+        tmp_root = TESTS_ROOT / "_tmp_line_segmentation_strategy_unit" / "stable_split_ambiguous_component"
+        if tmp_root.exists():
+            shutil.rmtree(tmp_root)
+        tmp_root.mkdir(parents=True, exist_ok=True)
+
+        image_path = tmp_root / "unit_page.jpg"
+        heatmap_path = tmp_root / "unit_page_heatmap.jpg"
+        xml_path = tmp_root / "unit_page.xml"
+        image = np.full((96, 96), 240, dtype=np.uint8)
+        heatmap = np.zeros((96, 96), dtype=np.uint8)
+        image[24:66, 32:70] = 20
+        heatmap[24:66, 32:70] = 255
+        cv2.imwrite(str(image_path), image)
+        cv2.imwrite(str(heatmap_path), heatmap)
+
+        ns = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
+        ET.register_namespace("", ns)
+        xml_path.write_text(
+            f"""<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="{ns}">
+  <Page imageFilename="unit_page.jpg" imageWidth="96" imageHeight="96">
+    <TextRegion id="region_0" custom="textbox_label_0">
+      <TextLine id="region_0_line_0" custom="structure_line_id_1">
+        <TextEquiv><Unicode>top</Unicode></TextEquiv>
+        <Baseline points="24,30 80,30" />
+      </TextLine>
+      <TextLine id="region_0_line_1" custom="structure_line_id_2">
+        <TextEquiv><Unicode>bottom</Unicode></TextEquiv>
+        <Baseline points="24,60 80,60" />
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+
+        metadata_path = tmp_root / "out" / "metadata.json"
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config={
+                "include_empty_text_lines": True,
+                "graph_nodes_by_line_id": {
+                    1: [{"x": 40.0, "y": 30.0}, {"x": 64.0, "y": 30.0}],
+                    2: [{"x": 40.0, "y": 60.0}, {"x": 64.0, "y": 60.0}],
+                },
+            },
+            metadata_path=metadata_path,
+        )
+
+        self.assertEqual(result.geometry_summary["ambiguous_component_count"], 1)
+        self.assertEqual(result.geometry_summary["ambiguous_component_split_output_count"], 2)
+        top_line = next(item for item in result.line_metadata if item["line_numeric_id"] == 1)
+        bottom_line = next(item for item in result.line_metadata if item["line_numeric_id"] == 2)
+        self.assertLess(top_line["local_n_max"] - top_line["local_n_min"], 50.0)
+        self.assertLess(bottom_line["local_n_max"] - bottom_line["local_n_min"], 50.0)
+
     def test_local_polygons_vertical_line_keeps_open_final_mask_tight(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "local_polygons_vertical",

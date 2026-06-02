@@ -219,6 +219,19 @@ def generate_xml_and_images_for_page(
         overrides=args_dict or {},
         include_empty_text_lines=True,
     )
+    graph_nodes_by_line_id = defaultdict(list)
+    for node_index, point in enumerate(points_unnormalized):
+        if node_index >= len(final_structural_labels):
+            continue
+        line_numeric_id = int(final_structural_labels[node_index])
+        graph_nodes_by_line_id[line_numeric_id].append(
+            {
+                "x": float(point[0] * 2.0),
+                "y": float(point[1] * 2.0),
+                "radius": float(max(point[2] * 2.0, 0.0)),
+            }
+        )
+    strategy_config["graph_nodes_by_line_id"] = dict(graph_nodes_by_line_id)
     strategy_config["reading_direction_annotations_by_line_id"] = reading_direction_annotations_by_line_id
     LOGGER.info(
         "Applying production text-line segmentation strategy strategy=%s manuscript=%s page_id=%s",
