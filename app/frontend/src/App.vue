@@ -33,6 +33,19 @@
           <label>Min Distance (Peak Detection):</label>
           <input v-model.number="formMinDistance" type="number" title="Distance between char centers" />
         </div>
+
+        <div class="form-group">
+          <label>Binarization Threshold (Optional):</label>
+          <input
+            v-model="formBinarizationThreshold"
+            type="number"
+            min="0"
+            max="1"
+            step="0.01"
+            placeholder="Default: 0.45"
+            title="Normalized heatmap threshold for text-line polygon generation"
+          />
+        </div>
         
         <div class="form-group">
           <label>Images:</label>
@@ -71,6 +84,7 @@ const pageList = ref([])
 const formName = ref('my_manuscript')
 const formLongestSide = ref(2500)
 const formMinDistance = ref(20)
+const formBinarizationThreshold = ref('')
 const selectedFiles = ref([])
 const uploading = ref(false)
 const uploadStatus = ref('')
@@ -97,10 +111,23 @@ const upload = async () => {
   uploading.value = true
   uploadStatus.value = 'Uploading and generating heatmaps/points. This may take a while...'
 
+  const thresholdOverride = String(formBinarizationThreshold.value ?? '').trim()
+  if (thresholdOverride !== '') {
+    const parsedThreshold = Number(thresholdOverride)
+    if (!Number.isFinite(parsedThreshold) || parsedThreshold < 0 || parsedThreshold > 1) {
+      uploadStatus.value = 'Error: Binarization threshold must be between 0 and 1.'
+      uploading.value = false
+      return
+    }
+  }
+
   const formData = new FormData()
   formData.append('manuscriptName', formName.value)
   formData.append('longestSide', formLongestSide.value)
   formData.append('minDistance', formMinDistance.value)
+  if (thresholdOverride !== '') {
+    formData.append('binarizationThreshold', thresholdOverride)
+  }
   selectedFiles.value.forEach(file => formData.append('images', file))
 
   try {

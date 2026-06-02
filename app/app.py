@@ -96,6 +96,77 @@ DATASET_CONFIG = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
 OCR_MODEL_MANAGER = ManuscriptAwareOcrModelManager()
 JOB_ORCHESTRATOR = JobOrchestrator()
 SUPPORTED_RECOGNITION_ENGINES = {"local", "gemini"}
+MANUSCRIPT_PROCESSING_SETTINGS_FILENAME = "processing_settings.json"
+BINARIZE_THRESHOLD_OVERRIDE_KEY = "BINARIZE_THRESHOLD"
+
+
+def _coerce_optional_binarize_threshold(value, field_name="binarizationThreshold"):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = value.strip()
+        if value == "":
+            return None
+    try:
+        threshold = float(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"{field_name} must be a number between 0 and 1.")
+    if not math.isfinite(threshold) or threshold < 0.0 or threshold > 1.0:
+        raise ValueError(f"{field_name} must be a number between 0 and 1.")
+    return threshold
+
+
+def _manuscript_processing_settings_path(manuscript_path):
+    return Path(manuscript_path) / MANUSCRIPT_PROCESSING_SETTINGS_FILENAME
+
+
+def _write_manuscript_processing_settings(
+    manuscript_path,
+    *,
+    target_longest_side,
+    min_distance,
+    binarize_threshold=None,
+):
+    line_segmentation_args = {}
+    if binarize_threshold is not None:
+        line_segmentation_args[BINARIZE_THRESHOLD_OVERRIDE_KEY] = binarize_threshold
+
+    settings = {
+        "target_longest_side": int(target_longest_side),
+        "min_distance": int(min_distance),
+        "line_segmentation_args": line_segmentation_args,
+    }
+    settings_path = _manuscript_processing_settings_path(manuscript_path)
+    settings_path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+    return settings
+
+
+def _load_manuscript_line_segmentation_args(manuscript_path):
+    settings_path = _manuscript_processing_settings_path(manuscript_path)
+    if not settings_path.exists():
+        return {}
+    try:
+        payload = json.loads(settings_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Warning: Could not read manuscript processing settings at {settings_path}: {exc}")
+        return {}
+
+    raw_args = payload.get("line_segmentation_args", {})
+    if not isinstance(raw_args, dict):
+        return {}
+
+    try:
+        threshold = _coerce_optional_binarize_threshold(
+            raw_args.get(BINARIZE_THRESHOLD_OVERRIDE_KEY),
+            field_name=f"stored {BINARIZE_THRESHOLD_OVERRIDE_KEY}",
+        )
+    except ValueError as exc:
+        print(f"Warning: Ignoring invalid manuscript binarization override: {exc}")
+        return {}
+
+    if threshold is None:
+        return {}
+    return {BINARIZE_THRESHOLD_OVERRIDE_KEY: threshold}
 
 
 def _normalize_recognition_engine(value):
@@ -636,8 +707,14 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
 @app.route('/upload', methods=['POST'])
 def upload_manuscript():
     manuscript_name = request.form.get('manuscriptName', 'default_manuscript')
-    longest_side = int(request.form.get('longestSide', 2500))
-    min_distance = int(request.form.get('minDistance', 20)) 
+    try:
+        longest_side = int(request.form.get('longestSide', 2500))
+        min_distance = int(request.form.get('minDistance', 20))
+        binarize_threshold = _coerce_optional_binarize_threshold(
+            request.form.get('binarizationThreshold')
+        )
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
     
     manuscript_path = os.path.join(UPLOAD_FOLDER, manuscript_name)
     images_path = os.path.join(manuscript_path, "images")
@@ -645,6 +722,12 @@ def upload_manuscript():
     if os.path.exists(manuscript_path):
         shutil.rmtree(manuscript_path)
     os.makedirs(images_path)
+    _write_manuscript_processing_settings(
+        manuscript_path,
+        target_longest_side=longest_side,
+        min_distance=min_distance,
+        binarize_threshold=binarize_threshold,
+    )
 
     files = request.files.getlist('images')
     if not files:
@@ -1168,12 +1251,13 @@ def save_correction(manuscript, page):
         if save_scope == 'text_only' and xml_path.exists():
             result = update_page_text_content(xml_path, text_content=text_content)
         else:
+            line_segmentation_args = _load_manuscript_line_segmentation_args(manuscript_path)
             result = generate_xml_and_images_for_page(
                 str(manuscript_path),
                 page,
                 textline_labels,
                 graph_data['edges'],
-                {},
+                line_segmentation_args,
                 textbox_labels=textbox_labels,
                 nodes=nodes_data,
                 text_content=text_content,
