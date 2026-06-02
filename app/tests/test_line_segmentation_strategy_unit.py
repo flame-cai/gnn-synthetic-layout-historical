@@ -541,6 +541,35 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertLess(top_line["local_n_max"] - top_line["local_n_min"], 50.0)
         self.assertLess(bottom_line["local_n_max"] - bottom_line["local_n_min"], 50.0)
 
+    def test_stable_unwrap_extends_endpoint_to_uncovered_graph_node(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_endpoint_anchor",
+            "16,48 80,48",
+            [(16, 42, 34, 12)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config={
+                "include_empty_text_lines": True,
+                "graph_nodes_by_line_id": {
+                    7: [{"x": 24.0, "y": 48.0}, {"x": 80.0, "y": 48.0}],
+                },
+            },
+            metadata_path=metadata_path,
+        )
+
+        line = result.line_metadata[0]
+        self.assertEqual(line["endpoint_anchor_added_count"], 1)
+        self.assertEqual(line["endpoint_anchor_trailing_count"], 1)
+        x_values = [point[0] for point in line["coords_points"]]
+        self.assertGreaterEqual(max(x_values), 78)
+
     def test_local_polygons_vertical_line_keeps_open_final_mask_tight(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "local_polygons_vertical",

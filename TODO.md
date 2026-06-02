@@ -1,3 +1,19 @@
+okay great. Now can we focus on the following possible bugs?
+
+If the whole line has no assigned heatmap boxes, the strategy falls back to a minimum-width band over the full baseline. 
+This minimum-width band is too small. To fix this, perhaps
+example:
+C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscript_testing_2\layout_analysis_output\image-format\233_0002\textbox_label_0\line_22.jpg
+
+
+
+
+If the missing character is only at the leading or trailing end, and there is no heatmap component there, the polygon may not fully extend to that manually added endpoint unless padding/fallback happens to cover it. Perhaps we can use the average contour height of that text-line to extend upto the newly added nodes?
+We observe this bug in the below example:
+C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscript_testing_2\layout_analysis_output\image-format\233_0002\textbox_label_0\line_5.jpg
+
+
+
 # demo video
 - upload page
 - fix nodes edges (4000, 8 hyperparams)

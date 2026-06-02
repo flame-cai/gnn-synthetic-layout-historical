@@ -28,6 +28,7 @@ CROP_ABLATION_MODEL = "stable_arclength_tangent"
 COMPONENT_PROJECTION_MODEL = "heatmap_component_contour_mask"
 COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
 AMBIGUOUS_COMPONENT_SPLIT_MODEL = "node_overlap_nearest_baseline_split"
+ENDPOINT_ANCHOR_MODEL = "graph_endpoint_average_component_anchor"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
     "BINARIZE_THRESHOLD": 0.45,
@@ -61,6 +62,12 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "ambiguous_component_node_overlap_radius_px": 18.0,
     "ambiguous_component_node_radius_scale": 1.0,
     "ambiguous_component_split_min_pixels": 8,
+    "endpoint_graph_node_anchor_enabled": True,
+    "endpoint_anchor_min_gap_px": 2.0,
+    "endpoint_anchor_outer_pad_px": 2.0,
+    "endpoint_anchor_station_half_width_scale": 1.0,
+    "endpoint_anchor_normal_half_width_scale": 1.0,
+    "endpoint_anchor_max_normal_offset_ratio": 2.0,
 }
 
 
@@ -94,6 +101,11 @@ def _normalise_config(config: dict | None) -> dict:
         "local_canvas_margin_px",
         "ambiguous_component_node_overlap_radius_px",
         "ambiguous_component_node_radius_scale",
+        "endpoint_anchor_min_gap_px",
+        "endpoint_anchor_outer_pad_px",
+        "endpoint_anchor_station_half_width_scale",
+        "endpoint_anchor_normal_half_width_scale",
+        "endpoint_anchor_max_normal_offset_ratio",
     ):
         merged[key] = float(merged[key])
     merged["min_mirror_pairs"] = int(merged["min_mirror_pairs"])
@@ -104,6 +116,7 @@ def _normalise_config(config: dict | None) -> dict:
     )
     merged["bridge_all_component_groups"] = bool(merged["bridge_all_component_groups"])
     merged["ambiguous_component_split_enabled"] = bool(merged["ambiguous_component_split_enabled"])
+    merged["endpoint_graph_node_anchor_enabled"] = bool(merged["endpoint_graph_node_anchor_enabled"])
     merged["reading_order"] = str(merged["reading_order"])
     merged["circular_direction"] = str(merged["circular_direction"])
     if not isinstance(merged.get("reading_direction_annotations_by_line_id"), dict):
@@ -945,6 +958,92 @@ def _split_box_by_nearest_baseline(
     return split_boxes
 
 
+def _graph_endpoint_anchor_rects(
+    topology: BaselineTopology,
+    rects: list[dict],
+    graph_nodes: list[dict] | None,
+    config: dict,
+) -> tuple[list[dict], dict]:
+    summary = {
+        "endpoint_anchor_model": ENDPOINT_ANCHOR_MODEL,
+        "endpoint_anchor_input_node_count": len(graph_nodes or []),
+        "endpoint_anchor_added_count": 0,
+        "endpoint_anchor_leading_count": 0,
+        "endpoint_anchor_trailing_count": 0,
+    }
+    if not config["endpoint_graph_node_anchor_enabled"] or not rects or not graph_nodes:
+        return [], summary
+
+    coverage_s_min = min(float(rect["s_min"]) for rect in rects)
+    coverage_s_max = max(float(rect["s_max"]) for rect in rects)
+    station_half_widths = [
+        max(0.5, (float(rect["s_max"]) - float(rect["s_min"])) / 2.0)
+        for rect in rects
+        if float(rect["s_max"]) > float(rect["s_min"])
+    ]
+    if not station_half_widths:
+        return [], summary
+
+    station_half_width = max(
+        float(config["minimum_along_pad_px"]),
+        float(np.median(np.asarray(station_half_widths, dtype=float)))
+        * float(config["endpoint_anchor_station_half_width_scale"]),
+    )
+    normal_half_width = max(
+        float(config["minimum_half_width_px"]),
+        _estimate_half_width(rects, config) * float(config["endpoint_anchor_normal_half_width_scale"]),
+    )
+    max_normal_offset = max(
+        float(config["maximum_half_width_px"]),
+        normal_half_width * float(config["endpoint_anchor_max_normal_offset_ratio"]),
+    )
+    min_gap = float(config["endpoint_anchor_min_gap_px"])
+    outer_pad = max(0.0, float(config["endpoint_anchor_outer_pad_px"]))
+
+    anchors = []
+    for node in graph_nodes:
+        try:
+            node_point = (float(node["x"]), float(node["y"]))
+        except (KeyError, TypeError, ValueError):
+            continue
+        station, normal = _project_point_to_local(node_point, topology)
+        if abs(normal) > max_normal_offset:
+            continue
+        if station < coverage_s_min - min_gap:
+            side = "leading"
+            s_min = float(station - outer_pad)
+            s_max = float(station + station_half_width)
+        elif station > coverage_s_max + min_gap:
+            side = "trailing"
+            s_min = float(station - station_half_width)
+            s_max = float(station + outer_pad)
+        else:
+            continue
+
+        anchors.append(
+            {
+                "s_min": s_min,
+                "s_max": s_max,
+                "n_min": float(normal - normal_half_width),
+                "n_max": float(normal + normal_half_width),
+                "center_station": float(station),
+                "center_normal": float(normal),
+                "station_half_extent": float(station_half_width),
+                "normal_half_extent": float(normal_half_width),
+                "station_pad": 0.0,
+                "normal_pad": 0.0,
+                "local_outline_points": [],
+                "component_projection_model": ENDPOINT_ANCHOR_MODEL,
+                "endpoint_anchor": True,
+                "endpoint_anchor_side": side,
+            }
+        )
+        summary["endpoint_anchor_added_count"] += 1
+        summary[f"endpoint_anchor_{side}_count"] += 1
+
+    return anchors, summary
+
+
 def _build_local_polygon(
     topology: BaselineTopology,
     rects: list[dict],
@@ -952,9 +1051,13 @@ def _build_local_polygon(
     processing_image: np.ndarray,
     image_width: int,
     image_height: int,
+    graph_nodes: list[dict] | None = None,
 ) -> tuple[list[list[int]], dict]:
     baseline_length = max(float(topology.baseline_length), 1.0)
     rects = _normalised_rects_for_topology(rects, topology)
+    anchor_rects, endpoint_anchor_summary = _graph_endpoint_anchor_rects(topology, rects, graph_nodes, config)
+    if anchor_rects:
+        rects = [*rects, *anchor_rects]
     cleanup_summary = {
         "local_cleanup_model": LOCAL_CLEANUP_MODEL,
         "local_cleanup_input_component_count": len(rects),
@@ -1061,6 +1164,7 @@ def _build_local_polygon(
         fallback_used = True
         return polygon, {
             **cleanup_summary,
+            **endpoint_anchor_summary,
             "fallback_used": fallback_used,
             "fallback_reason": "empty_local_mask",
             "local_canvas_width_px": width,
@@ -1096,6 +1200,7 @@ def _build_local_polygon(
 
     return page_points, {
         **cleanup_summary,
+        **endpoint_anchor_summary,
         "fallback_used": fallback_used,
         "fallback_reason": "no_assigned_components" if used_component_fallback else None,
         "local_canvas_width_px": width,
@@ -1231,6 +1336,7 @@ class LocalPolygonsStableUnwrapStrategy:
             Path(request.heatmap_path),
             config["BINARIZE_THRESHOLD"],
         )
+        graph_nodes_by_line_id = _normalised_graph_nodes_by_line_id(topologies, config)
         assignments, assignment_summary = _assign_components_to_lines(boxes, topologies, config)
 
         polygons_by_line_numeric_id = {}
@@ -1244,6 +1350,7 @@ class LocalPolygonsStableUnwrapStrategy:
                 processing_image,
                 image_width,
                 image_height,
+                graph_nodes=graph_nodes_by_line_id.get(int(line_numeric_id), []),
             )
             polygons_by_line_numeric_id[line_numeric_id] = polygon
             line_details[line_numeric_id] = {
