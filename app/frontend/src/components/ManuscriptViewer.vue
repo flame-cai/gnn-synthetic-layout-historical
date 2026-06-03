@@ -465,8 +465,8 @@
               </div>
               <div class="card-text">
                 <h4>Links</h4>
-                <p>Hold <span class="key-badge">A</span> and hover to connect points</p>
-                <p>Hold <span class="key-badge">D</span> and hover to remove a link</p>
+                <p>Hold <span class="key-badge">a</span> and hover to connect points</p>
+                <p>Hold <span class="key-badge">d</span> and hover to remove a link</p>
               </div>
             </div>
 
@@ -477,7 +477,7 @@
               </div>
               <div class="card-text">
                 <h4>Regions</h4>
-                <p>Hold <span class="key-badge">E</span> and hover to mark a region</p>
+                <p>Hold <span class="key-badge">e</span> and hover to mark a region</p>
                 <p>Release and repeat to start a new region</p>
               </div>
             </div>
@@ -485,12 +485,12 @@
             <!-- Orientation Card -->
             <div class="help-card horizontal-layout">
               <div class="media-container-square orientation-help-visual" aria-hidden="true">
-                <span class="orientation-help-key">O</span>
+                <span class="orientation-help-key">q</span>
                 <span class="orientation-help-line"></span>
               </div>
               <div class="card-text">
                 <h4>Direction</h4>
-                <p>Hold <span class="key-badge">O</span> and hover to mark orientation</p>
+                <p>Hold <span class="key-badge">q</span> and hover to mark orientation</p>
                 <p>Hover over a text-line from it's bottom to it's top</p>
               </div>
             </div>
@@ -499,7 +499,7 @@
 
           <!-- Hotkey Footer -->
           <div class="hotkey-footer">
-            <span class="key-hint"><span class="key-badge">V</span> Hold to Hide Graph</span>
+            <span class="key-hint"><span class="key-badge">v</span> Hold to Hide Graph</span>
           </div>
 
         </div>
@@ -2746,7 +2746,7 @@ const handleGlobalKeyDown = (e) => {
   }
 
   if (layoutModeActive.value && !isInput) {
-      if (key === 'o') {
+      if (key === 'q') {
         e.preventDefault()
         if (!isOKeyPressed.value) {
           isOKeyPressed.value = true
@@ -2772,7 +2772,7 @@ const handleGlobalKeyUp = (e) => {
   if (key === 'v') { isVKeyPressed.value = false }
 
   if (layoutModeActive.value) {
-      if (key === 'o') {
+      if (key === 'q') {
         isOKeyPressed.value = false
         resetReadingDirectionHoverState()
         return

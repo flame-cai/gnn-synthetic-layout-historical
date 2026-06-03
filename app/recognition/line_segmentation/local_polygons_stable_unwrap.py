@@ -27,8 +27,8 @@ LOCAL_POLYGON_CROP_MODEL = "local_polygon_stable_unwrap"
 CROP_ABLATION_MODEL = "stable_arclength_tangent"
 COMPONENT_PROJECTION_MODEL = "heatmap_component_contour_mask"
 COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
-AMBIGUOUS_COMPONENT_SPLIT_MODEL = "node_overlap_nearest_baseline_split"
-ENDPOINT_ANCHOR_MODEL = "graph_endpoint_average_component_anchor"
+AMBIGUOUS_COMPONENT_SPLIT_MODEL = "baseline_overlap_nearest_baseline_split"
+ENDPOINT_ANCHOR_MODEL = "baseline_endpoint_component_anchor"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
     "BINARIZE_THRESHOLD": 0.45,
@@ -59,10 +59,9 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "reading_order": "left_to_right",
     "circular_direction": "clockwise",
     "ambiguous_component_split_enabled": True,
-    "ambiguous_component_node_overlap_radius_px": 18.0,
-    "ambiguous_component_node_radius_scale": 1.0,
+    "ambiguous_component_baseline_claim_distance_px": 18.0,
     "ambiguous_component_split_min_pixels": 8,
-    "endpoint_graph_node_anchor_enabled": True,
+    "endpoint_baseline_anchor_enabled": True,
     "endpoint_anchor_min_gap_px": 2.0,
     "endpoint_anchor_outer_pad_px": 2.0,
     "endpoint_anchor_station_half_width_scale": 1.0,
@@ -75,8 +74,9 @@ LOCAL_CLEANUP_MODEL = "legacy_remap_top_bottom_cc"
 
 
 def _normalise_config(config: dict | None) -> dict:
+    raw_config = dict(config or {})
     merged = dict(DEFAULT_LOCAL_POLYGON_CONFIG)
-    merged.update(dict(config or {}))
+    merged.update(raw_config)
     for key in (
         "BINARIZE_THRESHOLD",
         "BBOX_PAD_V",
@@ -99,8 +99,7 @@ def _normalise_config(config: dict | None) -> dict:
         "simplify_epsilon_px",
         "minimum_page_mapping_step_px",
         "local_canvas_margin_px",
-        "ambiguous_component_node_overlap_radius_px",
-        "ambiguous_component_node_radius_scale",
+        "ambiguous_component_baseline_claim_distance_px",
         "endpoint_anchor_min_gap_px",
         "endpoint_anchor_outer_pad_px",
         "endpoint_anchor_station_half_width_scale",
@@ -116,7 +115,13 @@ def _normalise_config(config: dict | None) -> dict:
     )
     merged["bridge_all_component_groups"] = bool(merged["bridge_all_component_groups"])
     merged["ambiguous_component_split_enabled"] = bool(merged["ambiguous_component_split_enabled"])
-    merged["endpoint_graph_node_anchor_enabled"] = bool(merged["endpoint_graph_node_anchor_enabled"])
+    if "endpoint_baseline_anchor_enabled" in raw_config:
+        endpoint_anchor_enabled = raw_config["endpoint_baseline_anchor_enabled"]
+    elif "endpoint_graph_node_anchor_enabled" in raw_config:
+        endpoint_anchor_enabled = raw_config["endpoint_graph_node_anchor_enabled"]
+    else:
+        endpoint_anchor_enabled = merged["endpoint_baseline_anchor_enabled"]
+    merged["endpoint_baseline_anchor_enabled"] = bool(endpoint_anchor_enabled)
     merged["reading_order"] = str(merged["reading_order"])
     merged["circular_direction"] = str(merged["circular_direction"])
     if not isinstance(merged.get("reading_direction_annotations_by_line_id"), dict):
@@ -753,78 +758,6 @@ def _local_to_page_point(
     )
 
 
-def _normalised_graph_nodes_by_line_id(topologies: dict[int, BaselineTopology], config: dict) -> dict[int, list[dict]]:
-    raw_nodes = config.get("graph_nodes_by_line_id")
-    if not isinstance(raw_nodes, dict):
-        return {}
-
-    nodes_by_line_id: dict[int, list[dict]] = {}
-    for line_numeric_id in topologies:
-        raw_for_line = raw_nodes.get(line_numeric_id)
-        if raw_for_line is None:
-            raw_for_line = raw_nodes.get(str(line_numeric_id))
-        if not isinstance(raw_for_line, list):
-            continue
-
-        nodes = []
-        for raw_node in raw_for_line:
-            if not isinstance(raw_node, dict):
-                continue
-            try:
-                x_val = float(raw_node["x"])
-                y_val = float(raw_node["y"])
-            except (KeyError, TypeError, ValueError):
-                continue
-            radius = raw_node.get("radius", raw_node.get("r", raw_node.get("s", 0.0)))
-            try:
-                radius = float(radius)
-            except (TypeError, ValueError):
-                radius = 0.0
-            nodes.append({"x": x_val, "y": y_val, "radius": max(0.0, radius)})
-        if nodes:
-            nodes_by_line_id[int(line_numeric_id)] = nodes
-    return nodes_by_line_id
-
-
-def _node_disk_overlaps_contour(box: dict, node: dict, config: dict) -> bool:
-    mask = box.get("contour_mask")
-    if mask is None or mask.size == 0:
-        return False
-
-    x0 = int(round(float(box["x"])))
-    y0 = int(round(float(box["y"])))
-    center_x = float(node["x"])
-    center_y = float(node["y"])
-    radius = max(
-        float(config["ambiguous_component_node_overlap_radius_px"]),
-        float(node.get("radius", 0.0)) * float(config["ambiguous_component_node_radius_scale"]),
-    )
-
-    local_x_min = max(0, int(math.floor(center_x - radius)) - x0)
-    local_x_max = min(mask.shape[1], int(math.ceil(center_x + radius)) - x0 + 1)
-    local_y_min = max(0, int(math.floor(center_y - radius)) - y0)
-    local_y_max = min(mask.shape[0], int(math.ceil(center_y + radius)) - y0 + 1)
-    if local_x_max <= local_x_min or local_y_max <= local_y_min:
-        return False
-
-    local_mask = mask[local_y_min:local_y_max, local_x_min:local_x_max]
-    local_y, local_x = np.ogrid[local_y_min:local_y_max, local_x_min:local_x_max]
-    disk = ((local_x + x0 - center_x) ** 2 + (local_y + y0 - center_y) ** 2) <= radius**2
-    return bool(np.any(local_mask[disk] > 0))
-
-
-def _candidate_lines_from_overlapping_nodes(
-    box: dict,
-    graph_nodes_by_line_id: dict[int, list[dict]],
-    config: dict,
-) -> list[int]:
-    candidate_line_ids = []
-    for line_numeric_id, nodes in graph_nodes_by_line_id.items():
-        if any(_node_disk_overlaps_contour(box, node, config) for node in nodes):
-            candidate_line_ids.append(int(line_numeric_id))
-    return candidate_line_ids
-
-
 def _squared_distances_to_topology(
     x_values: np.ndarray,
     y_values: np.ndarray,
@@ -854,6 +787,44 @@ def _squared_distances_to_topology(
             dist2 = (x_values - projection_x) ** 2 + (y_values - projection_y) ** 2
         best = np.minimum(best, dist2)
     return best
+
+
+def _candidate_lines_from_baseline_overlap(
+    box: dict,
+    topologies: dict[int, BaselineTopology],
+    config: dict,
+) -> list[int]:
+    mask = box.get("contour_mask")
+    if mask is None or mask.size == 0 or len(topologies) < 2:
+        return []
+
+    y_coords, x_coords = np.where(mask > 0)
+    min_pixels = max(1, int(config["ambiguous_component_split_min_pixels"]))
+    if len(x_coords) < min_pixels:
+        return []
+
+    x0 = int(round(float(box["x"])))
+    y0 = int(round(float(box["y"])))
+    absolute_x = x_coords.astype(float) + float(x0)
+    absolute_y = y_coords.astype(float) + float(y0)
+    valid_line_ids = [int(line_id) for line_id, topology in topologies.items() if topology.normalized_points]
+    if len(valid_line_ids) < 2:
+        return []
+
+    distance_stack = np.vstack(
+        [_squared_distances_to_topology(absolute_x, absolute_y, topologies[line_id]) for line_id in valid_line_ids]
+    )
+    nearest_indices = np.argmin(distance_stack, axis=0)
+    nearest_distances = np.min(distance_stack, axis=0)
+    claim_distance_px = max(0.0, float(config["ambiguous_component_baseline_claim_distance_px"]))
+    max_claim_distance_squared = claim_distance_px * claim_distance_px
+
+    candidate_line_ids = []
+    for candidate_index, line_numeric_id in enumerate(valid_line_ids):
+        selected = (nearest_indices == candidate_index) & (nearest_distances <= max_claim_distance_squared)
+        if int(np.count_nonzero(selected)) >= min_pixels:
+            candidate_line_ids.append(int(line_numeric_id))
+    return candidate_line_ids
 
 
 def _box_from_split_contour(
@@ -958,24 +929,25 @@ def _split_box_by_nearest_baseline(
     return split_boxes
 
 
-def _graph_endpoint_anchor_rects(
+def _baseline_endpoint_anchor_rects(
     topology: BaselineTopology,
     rects: list[dict],
-    graph_nodes: list[dict] | None,
     config: dict,
 ) -> tuple[list[dict], dict]:
     summary = {
         "endpoint_anchor_model": ENDPOINT_ANCHOR_MODEL,
-        "endpoint_anchor_input_node_count": len(graph_nodes or []),
+        "endpoint_anchor_input_baseline_point_count": len(topology.normalized_points),
+        "endpoint_anchor_input_node_count": 0,
         "endpoint_anchor_added_count": 0,
         "endpoint_anchor_leading_count": 0,
         "endpoint_anchor_trailing_count": 0,
     }
-    if not config["endpoint_graph_node_anchor_enabled"] or not rects or not graph_nodes:
+    if not config["endpoint_baseline_anchor_enabled"] or topology.is_closed or not rects:
         return [], summary
 
     coverage_s_min = min(float(rect["s_min"]) for rect in rects)
     coverage_s_max = max(float(rect["s_max"]) for rect in rects)
+    baseline_length = max(float(topology.baseline_length), 1.0)
     station_half_widths = [
         max(0.5, (float(rect["s_max"]) - float(rect["s_min"])) / 2.0)
         for rect in rects
@@ -993,41 +965,35 @@ def _graph_endpoint_anchor_rects(
         float(config["minimum_half_width_px"]),
         _estimate_half_width(rects, config) * float(config["endpoint_anchor_normal_half_width_scale"]),
     )
-    max_normal_offset = max(
-        float(config["maximum_half_width_px"]),
-        normal_half_width * float(config["endpoint_anchor_max_normal_offset_ratio"]),
+    center_normal = float(
+        np.median(np.asarray([float(rect["center_normal"]) for rect in rects], dtype=float))
     )
     min_gap = float(config["endpoint_anchor_min_gap_px"])
     outer_pad = max(0.0, float(config["endpoint_anchor_outer_pad_px"]))
 
     anchors = []
-    for node in graph_nodes:
-        try:
-            node_point = (float(node["x"]), float(node["y"]))
-        except (KeyError, TypeError, ValueError):
-            continue
-        station, normal = _project_point_to_local(node_point, topology)
-        if abs(normal) > max_normal_offset:
-            continue
-        if station < coverage_s_min - min_gap:
-            side = "leading"
-            s_min = float(station - outer_pad)
-            s_max = float(station + station_half_width)
-        elif station > coverage_s_max + min_gap:
-            side = "trailing"
-            s_min = float(station - station_half_width)
-            s_max = float(station + outer_pad)
-        else:
-            continue
+    anchor_specs = []
+    if coverage_s_min > min_gap:
+        anchor_specs.append(("leading", 0.0, -outer_pad, station_half_width))
+    if coverage_s_max < baseline_length - min_gap:
+        anchor_specs.append(
+            (
+                "trailing",
+                baseline_length,
+                baseline_length - station_half_width,
+                baseline_length + outer_pad,
+            )
+        )
 
+    for side, station, s_min, s_max in anchor_specs:
         anchors.append(
             {
-                "s_min": s_min,
-                "s_max": s_max,
-                "n_min": float(normal - normal_half_width),
-                "n_max": float(normal + normal_half_width),
+                "s_min": float(s_min),
+                "s_max": float(s_max),
+                "n_min": float(center_normal - normal_half_width),
+                "n_max": float(center_normal + normal_half_width),
                 "center_station": float(station),
-                "center_normal": float(normal),
+                "center_normal": float(center_normal),
                 "station_half_extent": float(station_half_width),
                 "normal_half_extent": float(normal_half_width),
                 "station_pad": 0.0,
@@ -1035,6 +1001,7 @@ def _graph_endpoint_anchor_rects(
                 "local_outline_points": [],
                 "component_projection_model": ENDPOINT_ANCHOR_MODEL,
                 "endpoint_anchor": True,
+                "endpoint_anchor_source": "page_baseline_endpoint",
                 "endpoint_anchor_side": side,
             }
         )
@@ -1051,11 +1018,10 @@ def _build_local_polygon(
     processing_image: np.ndarray,
     image_width: int,
     image_height: int,
-    graph_nodes: list[dict] | None = None,
 ) -> tuple[list[list[int]], dict]:
     baseline_length = max(float(topology.baseline_length), 1.0)
     rects = _normalised_rects_for_topology(rects, topology)
-    anchor_rects, endpoint_anchor_summary = _graph_endpoint_anchor_rects(topology, rects, graph_nodes, config)
+    anchor_rects, endpoint_anchor_summary = _baseline_endpoint_anchor_rects(topology, rects, config)
     if anchor_rects:
         rects = [*rects, *anchor_rects]
     cleanup_summary = {
@@ -1228,13 +1194,12 @@ def _assign_components_to_lines(
     assignments = {line_numeric_id: [] for line_numeric_id in topologies}
     rejected_counts = {"too_far_from_baseline": 0, "no_baseline": 0}
     assigned_distances = []
-    graph_nodes_by_line_id = _normalised_graph_nodes_by_line_id(topologies, config)
     ambiguous_component_count = 0
     split_component_count = 0
     ambiguous_component_unsplit_count = 0
     for box in boxes:
-        if config["ambiguous_component_split_enabled"] and graph_nodes_by_line_id:
-            candidate_line_ids = _candidate_lines_from_overlapping_nodes(box, graph_nodes_by_line_id, config)
+        if config["ambiguous_component_split_enabled"]:
+            candidate_line_ids = _candidate_lines_from_baseline_overlap(box, topologies, config)
             if len(candidate_line_ids) > 1:
                 ambiguous_component_count += 1
                 split_boxes = _split_box_by_nearest_baseline(box, candidate_line_ids, topologies, config)
@@ -1336,7 +1301,6 @@ class LocalPolygonsStableUnwrapStrategy:
             Path(request.heatmap_path),
             config["BINARIZE_THRESHOLD"],
         )
-        graph_nodes_by_line_id = _normalised_graph_nodes_by_line_id(topologies, config)
         assignments, assignment_summary = _assign_components_to_lines(boxes, topologies, config)
 
         polygons_by_line_numeric_id = {}
@@ -1350,7 +1314,6 @@ class LocalPolygonsStableUnwrapStrategy:
                 processing_image,
                 image_width,
                 image_height,
-                graph_nodes=graph_nodes_by_line_id.get(int(line_numeric_id), []),
             )
             polygons_by_line_numeric_id[line_numeric_id] = polygon
             line_details[line_numeric_id] = {

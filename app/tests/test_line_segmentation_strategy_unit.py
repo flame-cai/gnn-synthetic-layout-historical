@@ -191,6 +191,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertNotIn("get_benchmark_strategy_name", pagexml_source)
         self.assertIn("apply_text_line_segmentation_strategy", source)
         self.assertIn("get_strategy_runtime_config", source)
+        self.assertNotIn("graph_nodes_by_line_id", source)
         self.assertEqual(get_production_strategy_name(), "local_polygons_stable_unwrap_v1")
 
     def test_production_stable_unwrap_runtime_config_uses_benchmark_threshold(self):
@@ -479,7 +480,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertNotIn("LocalPolygonsStrategy", source)
         self.assertNotIn("geometry_delegate_strategy_name", source)
 
-    def test_stable_unwrap_splits_ambiguous_heatmap_component_by_graph_nodes(self):
+    def test_stable_unwrap_splits_ambiguous_heatmap_component_by_baselines(self):
         tmp_root = TESTS_ROOT / "_tmp_line_segmentation_strategy_unit" / "stable_split_ambiguous_component"
         if tmp_root.exists():
             shutil.rmtree(tmp_root)
@@ -526,14 +527,14 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             strategy_name="local_polygons_stable_unwrap_v1",
             strategy_config={
                 "include_empty_text_lines": True,
-                "graph_nodes_by_line_id": {
-                    1: [{"x": 40.0, "y": 30.0}, {"x": 64.0, "y": 30.0}],
-                    2: [{"x": 40.0, "y": 60.0}, {"x": 64.0, "y": 60.0}],
-                },
             },
             metadata_path=metadata_path,
         )
 
+        self.assertEqual(
+            result.geometry_summary["ambiguous_component_split_model"],
+            "baseline_overlap_nearest_baseline_split",
+        )
         self.assertEqual(result.geometry_summary["ambiguous_component_count"], 1)
         self.assertEqual(result.geometry_summary["ambiguous_component_split_output_count"], 2)
         top_line = next(item for item in result.line_metadata if item["line_numeric_id"] == 1)
@@ -541,7 +542,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertLess(top_line["local_n_max"] - top_line["local_n_min"], 50.0)
         self.assertLess(bottom_line["local_n_max"] - bottom_line["local_n_min"], 50.0)
 
-    def test_stable_unwrap_extends_endpoint_to_uncovered_graph_node(self):
+    def test_stable_unwrap_extends_endpoint_to_uncovered_baseline_end(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "stable_endpoint_anchor",
             "16,48 80,48",
@@ -557,14 +558,12 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             strategy_name="local_polygons_stable_unwrap_v1",
             strategy_config={
                 "include_empty_text_lines": True,
-                "graph_nodes_by_line_id": {
-                    7: [{"x": 24.0, "y": 48.0}, {"x": 80.0, "y": 48.0}],
-                },
             },
             metadata_path=metadata_path,
         )
 
         line = result.line_metadata[0]
+        self.assertEqual(line["endpoint_anchor_model"], "baseline_endpoint_component_anchor")
         self.assertEqual(line["endpoint_anchor_added_count"], 1)
         self.assertEqual(line["endpoint_anchor_trailing_count"], 1)
         x_values = [point[0] for point in line["coords_points"]]
