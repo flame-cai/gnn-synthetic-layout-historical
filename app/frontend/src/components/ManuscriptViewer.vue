@@ -197,18 +197,15 @@
               @mouseleave="handleSvgMouseLeave"
               ref="svgOverlayRef"
             >
-              <line
-                v-for="annotation in readingDirectionAnnotationList"
-                :key="`reading-cut-${annotation.annotation_id}`"
-                :x1="scaleX(annotation.cut_start[0])"
-                :y1="scaleY(annotation.cut_start[1])"
-                :x2="scaleX(annotation.cut_end[0])"
-                :y2="scaleY(annotation.cut_end[1])"
-                stroke="#ffd54f"
-                stroke-width="3"
-                stroke-linecap="round"
-                opacity="0.9"
-              />
+              <defs>
+                <filter id="reading-direction-glow" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="2.2" result="readingDirectionBlur" />
+                  <feMerge>
+                    <feMergeNode in="readingDirectionBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
 
               <line
                 v-for="(edge, index) in workingGraph.edges"
@@ -252,16 +249,28 @@
                 stroke-dasharray="5,5"
               />
 
-              <line
-                v-if="readingDirectionDraft"
-                :x1="scaleX(readingDirectionDraft.cut_start[0])"
-                :y1="scaleY(readingDirectionDraft.cut_start[1])"
-                :x2="scaleX(readingDirectionDraft.cut_end[0])"
-                :y2="scaleY(readingDirectionDraft.cut_end[1])"
-                stroke="#ffd54f"
-                :stroke-width="tempEdgeStrokeWidth"
-                stroke-linecap="round"
-              />
+              <g
+                v-if="showReadingDirectionOverlay"
+                class="reading-direction-overlay"
+                aria-hidden="true"
+              >
+                <path
+                  v-for="rail in readingDirectionPathOverlays"
+                  :key="`reading-rail-${rail.id}`"
+                  class="reading-direction-rail"
+                  :d="rail.d"
+                  :stroke-width="rail.strokeWidth"
+                />
+                <g
+                  v-for="arrow in readingDirectionArrowOverlays"
+                  :key="`reading-arrow-${arrow.id}`"
+                  class="reading-direction-arrow"
+                  :transform="arrow.transform"
+                  :style="{ animationDelay: arrow.animationDelay }"
+                >
+                  <path d="M -9 -5 L 1.5 -5 L 1.5 -8.5 L 12 0 L 1.5 8.5 L 1.5 5 L -9 5 Z" />
+                </g>
+              </g>
             </svg>
 
             <!-- SVG Polygon Layer (Visible in Recognition Mode) -->
@@ -878,6 +887,413 @@ const buildReadingDirectionAnnotationsPayload = () =>
     .sort((a, b) => a.annotation_id.localeCompare(b.annotation_id))
 
 const readingDirectionAnnotationList = computed(() => buildReadingDirectionAnnotationsPayload())
+const READING_DIRECTION_ARROW_MAX_PER_LINE = 8
+const READING_DIRECTION_RENDER_POINT_CAP = 220
+const READING_DIRECTION_OVERLAY_LOG_LIMIT = 40
+const readingDirectionOverlayLogKeys = new Set()
+
+const showReadingDirectionOverlay = computed(() =>
+  graphIsLoaded.value &&
+  layoutModeActive.value &&
+  isOKeyPressed.value &&
+  !recognitionModeActive.value
+)
+
+const logReadingDirectionOverlayIssue = (reason, payload = {}) => {
+  const annotationId = payload.annotationId || payload.lineId || 'unknown'
+  const key = `${reason}:${annotationId}`
+  if (readingDirectionOverlayLogKeys.has(key)) return
+  if (readingDirectionOverlayLogKeys.size >= READING_DIRECTION_OVERLAY_LOG_LIMIT) return
+  readingDirectionOverlayLogKeys.add(key)
+  console.debug('[reading-direction-overlay]', reason, payload)
+}
+
+const svgNumber = (value) => Number.isFinite(value) ? value.toFixed(2) : '0'
+
+const toFinitePoint = (point) => {
+  if (!Array.isArray(point) || point.length < 2) return null
+  const x = Number(point[0])
+  const y = Number(point[1])
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null
+  return [x, y]
+}
+
+const normalizeVector2d = (x, y) => {
+  const dx = Number(x)
+  const dy = Number(y)
+  const length = Math.hypot(dx, dy)
+  if (!Number.isFinite(length) || length <= 1e-9) return null
+  return [dx / length, dy / length]
+}
+
+const dot2d = (a, b) => (a[0] * b[0]) + (a[1] * b[1])
+const distanceRaw = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1])
+
+const nodePointRaw = (nodeIndex) => {
+  const node = workingGraph.nodes[Number(nodeIndex)]
+  if (!node) return null
+  const x = Number(node.x)
+  const y = Number(node.y)
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null
+  return [x, y]
+}
+
+const annotationReadingDirectionVector = (annotation) => {
+  const vector = Array.isArray(annotation?.reading_direction) ? annotation.reading_direction : null
+  return vector ? normalizeVector2d(vector[0], vector[1]) : null
+}
+
+const annotationCutPoint = (annotation) => {
+  const midpoint = toFinitePoint(annotation?.cut_midpoint)
+  if (midpoint) return midpoint
+  const start = toFinitePoint(annotation?.cut_start)
+  const end = toFinitePoint(annotation?.cut_end)
+  if (!start || !end) return null
+  return [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2]
+}
+
+const lineNodeIndicesForAnnotation = (annotation) => {
+  const lineId = String(annotation?.frontend_line_id || annotation?.annotation_id || '')
+  const liveLineNodes = lineId !== '' ? textlines.value[lineId] : null
+  const rawIndices = Array.isArray(liveLineNodes) && liveLineNodes.length > 0
+    ? liveLineNodes
+    : annotation?.component_node_indices
+  if (!Array.isArray(rawIndices)) return []
+  return [...new Set(
+    rawIndices
+      .map(Number)
+      .filter((nodeIndex) => Number.isInteger(nodeIndex) && nodePointRaw(nodeIndex))
+  )]
+}
+
+const buildTextlineOverlayGraph = (nodeIndices) => {
+  const nodeSet = new Set(nodeIndices)
+  const adjacency = new Map(nodeIndices.map((nodeIndex) => [nodeIndex, []]))
+  workingGraph.edges.forEach((edge) => {
+    const source = Number(edge.source)
+    const target = Number(edge.target)
+    if (!Number.isInteger(source) || !Number.isInteger(target) || source === target) return
+    if (!nodeSet.has(source) || !nodeSet.has(target)) return
+    adjacency.get(source).push(target)
+    adjacency.get(target).push(source)
+  })
+  adjacency.forEach((neighbors, nodeIndex) => {
+    const point = nodePointRaw(nodeIndex)
+    neighbors.sort((left, right) => {
+      const leftPoint = nodePointRaw(left)
+      const rightPoint = nodePointRaw(right)
+      if (!point || !leftPoint || !rightPoint) return 0
+      return distanceRaw(point, leftPoint) - distanceRaw(point, rightPoint)
+    })
+  })
+  return { nodeIndices, adjacency }
+}
+
+const chooseNextTextlineNode = (current, previous, candidates) => {
+  if (candidates.length <= 1) return candidates[0] ?? null
+  const currentPoint = nodePointRaw(current)
+  const previousPoint = previous !== null ? nodePointRaw(previous) : null
+  if (!currentPoint || !previousPoint) return candidates[0]
+  const incoming = normalizeVector2d(currentPoint[0] - previousPoint[0], currentPoint[1] - previousPoint[1])
+  if (!incoming) return candidates[0]
+
+  return candidates.reduce((best, candidate) => {
+    const candidatePoint = nodePointRaw(candidate)
+    if (!candidatePoint) return best
+    const outgoing = normalizeVector2d(candidatePoint[0] - currentPoint[0], candidatePoint[1] - currentPoint[1])
+    if (!outgoing) return best
+    const score = dot2d(incoming, outgoing)
+    const length = distanceRaw(currentPoint, candidatePoint)
+    if (!best || score > best.score || (score === best.score && length < best.length)) {
+      return { nodeIndex: candidate, score, length }
+    }
+    return best
+  }, null)?.nodeIndex ?? candidates[0]
+}
+
+const pathLengthRawFromIndices = (indices) => {
+  let length = 0
+  for (let i = 1; i < indices.length; i++) {
+    const previousPoint = nodePointRaw(indices[i - 1])
+    const point = nodePointRaw(indices[i])
+    if (previousPoint && point) length += distanceRaw(previousPoint, point)
+  }
+  return length
+}
+
+const buildGreedyTextlineWalk = (startIndex, adjacency) => {
+  const ordered = []
+  const visited = new Set()
+  let previous = null
+  let current = startIndex
+
+  while (current !== null && !visited.has(current)) {
+    ordered.push(current)
+    visited.add(current)
+    const nextCandidates = (adjacency.get(current) || [])
+      .filter((candidate) => candidate !== previous && !visited.has(candidate))
+    const next = chooseNextTextlineNode(current, previous, nextCandidates)
+    previous = current
+    current = next
+  }
+  return ordered
+}
+
+const nearestNodeIndexToPoint = (nodeIndices, point) => {
+  if (!point) return nodeIndices[0] ?? null
+  return nodeIndices.reduce((best, nodeIndex) => {
+    const nodePoint = nodePointRaw(nodeIndex)
+    if (!nodePoint) return best
+    const distance = distanceRaw(nodePoint, point)
+    if (!best || distance < best.distance) return { nodeIndex, distance }
+    return best
+  }, null)?.nodeIndex ?? null
+}
+
+const buildCycleTextlineWalk = (startIndex, firstNext, adjacency) => {
+  const ordered = [startIndex]
+  const visited = new Set([startIndex])
+  let previous = startIndex
+  let current = firstNext
+  const maxSteps = adjacency.size + 2
+
+  while (current !== null && ordered.length <= maxSteps) {
+    if (current === startIndex) {
+      ordered.push(startIndex)
+      break
+    }
+    if (visited.has(current)) break
+    ordered.push(current)
+    visited.add(current)
+    const nextCandidates = (adjacency.get(current) || [])
+      .filter((candidate) => candidate !== previous && (candidate === startIndex || !visited.has(candidate)))
+    const next = chooseNextTextlineNode(current, previous, nextCandidates)
+    previous = current
+    current = next
+  }
+  return ordered
+}
+
+const fallbackProjectionWalk = (nodeIndices, readingDirection) =>
+  [...nodeIndices].sort((left, right) => {
+    const leftPoint = nodePointRaw(left)
+    const rightPoint = nodePointRaw(right)
+    if (!leftPoint || !rightPoint) return 0
+    return dot2d(leftPoint, readingDirection) - dot2d(rightPoint, readingDirection)
+  })
+
+const indicesToPolylinePoints = (indices) =>
+  indices
+    .map(nodePointRaw)
+    .filter(Boolean)
+    .filter((point, index, points) => index === 0 || distanceRaw(point, points[index - 1]) > 1e-6)
+
+const buildOrderedTextlinePolyline = (annotation) => {
+  const annotationId = annotation?.annotation_id || annotation?.frontend_line_id || 'unknown'
+  const readingDirection = annotationReadingDirectionVector(annotation)
+  if (!readingDirection) {
+    logReadingDirectionOverlayIssue('missing-reading-direction', { annotationId })
+    return null
+  }
+
+  const nodeIndices = lineNodeIndicesForAnnotation(annotation)
+  if (nodeIndices.length < 2) {
+    logReadingDirectionOverlayIssue('insufficient-line-nodes', { annotationId, nodeCount: nodeIndices.length })
+    return buildFallbackReadingDirectionPolyline(annotation, readingDirection)
+  }
+
+  const cutPoint = annotationCutPoint(annotation)
+  const { adjacency } = buildTextlineOverlayGraph(nodeIndices)
+  const endpoints = nodeIndices.filter((nodeIndex) => (adjacency.get(nodeIndex) || []).length <= 1)
+  let orderedIndices = []
+  let closed = false
+
+  if (endpoints.length >= 1) {
+    const starts = endpoints.length >= 2 ? endpoints : [endpoints[0]]
+    orderedIndices = starts
+      .map((startIndex) => buildGreedyTextlineWalk(startIndex, adjacency))
+      .sort((left, right) =>
+        (right.length - left.length) ||
+        (pathLengthRawFromIndices(right) - pathLengthRawFromIndices(left))
+      )[0] || []
+  } else {
+    const startIndex = nearestNodeIndexToPoint(nodeIndices, cutPoint)
+    const firstNeighbors = startIndex !== null ? (adjacency.get(startIndex) || []) : []
+    orderedIndices = firstNeighbors
+      .map((neighborIndex) => buildCycleTextlineWalk(startIndex, neighborIndex, adjacency))
+      .sort((left, right) =>
+        (right.length - left.length) ||
+        (pathLengthRawFromIndices(right) - pathLengthRawFromIndices(left))
+      )[0] || []
+    closed = orderedIndices.length > 2 && orderedIndices[0] === orderedIndices[orderedIndices.length - 1]
+  }
+
+  const uniqueVisitedCount = new Set(orderedIndices).size
+  if (orderedIndices.length < 2 || uniqueVisitedCount < Math.min(nodeIndices.length, 2)) {
+    orderedIndices = fallbackProjectionWalk(nodeIndices, readingDirection)
+    closed = false
+    logReadingDirectionOverlayIssue('projection-fallback', { annotationId, nodeCount: nodeIndices.length })
+  } else if (uniqueVisitedCount < nodeIndices.length) {
+    logReadingDirectionOverlayIssue('partial-manifold-walk', {
+      annotationId,
+      visitedNodeCount: uniqueVisitedCount,
+      nodeCount: nodeIndices.length,
+    })
+  }
+
+  const points = orientPolylineToReadingDirection(
+    indicesToPolylinePoints(orderedIndices),
+    readingDirection,
+    cutPoint,
+    closed,
+  )
+  return points.length >= 2 ? points : buildFallbackReadingDirectionPolyline(annotation, readingDirection)
+}
+
+const nearestPolylineTangent = (targetPoint, points) => {
+  if (!targetPoint || points.length < 2) return null
+  let best = null
+  for (let i = 1; i < points.length; i++) {
+    const start = points[i - 1]
+    const end = points[i]
+    const segmentVector = [end[0] - start[0], end[1] - start[1]]
+    const segmentLengthSq = (segmentVector[0] * segmentVector[0]) + (segmentVector[1] * segmentVector[1])
+    if (segmentLengthSq <= 1e-9) continue
+    const ratio = clamp(
+      (((targetPoint[0] - start[0]) * segmentVector[0]) + ((targetPoint[1] - start[1]) * segmentVector[1])) / segmentLengthSq,
+      0,
+      1,
+    )
+    const closest = [
+      start[0] + (ratio * segmentVector[0]),
+      start[1] + (ratio * segmentVector[1]),
+    ]
+    const tangent = normalizeVector2d(segmentVector[0], segmentVector[1])
+    if (!tangent) continue
+    const distance = distanceRaw(targetPoint, closest)
+    if (!best || distance < best.distance) best = { tangent, distance }
+  }
+  return best?.tangent ?? null
+}
+
+const reversePolylinePoints = (points, closed) => {
+  if (!closed) return [...points].reverse()
+  if (points.length < 3) return [...points].reverse()
+  const anchor = points[0]
+  const body = points.slice(1, -1).reverse()
+  return [anchor, ...body, anchor]
+}
+
+function orientPolylineToReadingDirection(points, readingDirection, cutPoint, closed) {
+  if (points.length < 2) return points
+  const tangent = nearestPolylineTangent(cutPoint, points) ||
+    normalizeVector2d(points[points.length - 1][0] - points[0][0], points[points.length - 1][1] - points[0][1])
+  if (tangent && dot2d(tangent, readingDirection) < 0) return reversePolylinePoints(points, closed)
+  return points
+}
+
+function buildFallbackReadingDirectionPolyline(annotation, readingDirection) {
+  const point = annotationCutPoint(annotation)
+  if (!point) return null
+  const halfLength = Math.max(pageMedianNeighborDistanceRaw.value * 1.4, 28)
+  return [
+    [point[0] - (readingDirection[0] * halfLength), point[1] - (readingDirection[1] * halfLength)],
+    [point[0] + (readingDirection[0] * halfLength), point[1] + (readingDirection[1] * halfLength)],
+  ]
+}
+
+const simplifyPolylineForRender = (points) => {
+  const closed = points.length > 2 && distanceRaw(points[0], points[points.length - 1]) <= 1e-6
+  const body = closed ? points.slice(0, -1) : points
+  if (body.length <= READING_DIRECTION_RENDER_POINT_CAP) return points
+
+  const minStep = Math.max(pageMedianNeighborDistanceRaw.value * 0.35, 6)
+  const simplified = [body[0]]
+  body.slice(1, -1).forEach((point) => {
+    if (distanceRaw(point, simplified[simplified.length - 1]) >= minStep) simplified.push(point)
+  })
+  simplified.push(body[body.length - 1])
+
+  if (simplified.length > READING_DIRECTION_RENDER_POINT_CAP) {
+    const stride = Math.ceil(simplified.length / READING_DIRECTION_RENDER_POINT_CAP)
+    const strided = simplified.filter((_, index) => index === 0 || index === simplified.length - 1 || index % stride === 0)
+    return closed ? [...strided, strided[0]] : strided
+  }
+  return closed ? [...simplified, simplified[0]] : simplified
+}
+
+const polylinePathD = (points) =>
+  points
+    .map((point, index) => `${index === 0 ? 'M' : 'L'} ${svgNumber(scaleX(point[0]))} ${svgNumber(scaleY(point[1]))}`)
+    .join(' ')
+
+const samplePolylineAtDistance = (points, targetDistance) => {
+  let traversed = 0
+  for (let i = 1; i < points.length; i++) {
+    const start = points[i - 1]
+    const end = points[i]
+    const segmentLength = distanceRaw(start, end) * scaleFactor
+    if (segmentLength <= 1e-6) continue
+    if (traversed + segmentLength >= targetDistance) {
+      const ratio = clamp((targetDistance - traversed) / segmentLength, 0, 1)
+      const x = scaleX(start[0] + ((end[0] - start[0]) * ratio))
+      const y = scaleY(start[1] + ((end[1] - start[1]) * ratio))
+      const angle = Math.atan2(end[1] - start[1], end[0] - start[0]) * 180 / Math.PI
+      return { x, y, angle }
+    }
+    traversed += segmentLength
+  }
+  return null
+}
+
+const buildArrowOverlaysForPolyline = (points, annotationId) => {
+  const totalLength = points.slice(1).reduce((sum, point, index) => (
+    sum + (distanceRaw(points[index], point) * scaleFactor)
+  ), 0)
+  if (!Number.isFinite(totalLength) || totalLength < 8) return []
+
+  const spacingPx = clamp(pageMedianNeighborDistanceRaw.value * scaleFactor * 3.2, 34, 72)
+  const arrowCount = Math.min(
+    READING_DIRECTION_ARROW_MAX_PER_LINE,
+    Math.max(1, Math.floor(totalLength / spacingPx)),
+  )
+
+  return Array.from({ length: arrowCount }, (_, index) => {
+    const sample = samplePolylineAtDistance(points, totalLength * (index + 1) / (arrowCount + 1))
+    if (!sample) return null
+    return {
+      id: `${annotationId}-${index}`,
+      transform: `translate(${svgNumber(sample.x)} ${svgNumber(sample.y)}) rotate(${svgNumber(sample.angle)})`,
+      animationDelay: `${index * 38}ms`,
+    }
+  }).filter(Boolean)
+}
+
+const readingDirectionOverlay = computed(() => {
+  if (!showReadingDirectionOverlay.value) return { paths: [], arrows: [] }
+  const paths = []
+  const arrows = []
+
+  readingDirectionAnnotationList.value.forEach((annotation) => {
+    const annotationId = annotation.annotation_id || annotation.frontend_line_id || String(paths.length)
+    const orderedPoints = buildOrderedTextlinePolyline(annotation)
+    if (!orderedPoints || orderedPoints.length < 2) return
+    const renderPoints = simplifyPolylineForRender(orderedPoints)
+    const d = polylinePathD(renderPoints)
+    if (!d) return
+    paths.push({
+      id: annotationId,
+      d,
+      strokeWidth: clamp(baseEdgeStrokePx.value * 1.05, 2, 5),
+    })
+    arrows.push(...buildArrowOverlaysForPolyline(orderedPoints, annotationId))
+  })
+
+  return { paths, arrows }
+})
+
+const readingDirectionPathOverlays = computed(() => readingDirectionOverlay.value.paths)
+const readingDirectionArrowOverlays = computed(() => readingDirectionOverlay.value.arrows)
 
 const syncSavedTextboxLabelsSnapshot = (numNodes = workingGraph.nodes?.length || graph.value?.nodes?.length || 0) => {
   savedTextboxLabelsSnapshot.value = JSON.stringify(buildTextboxLabelsPayload(numNodes))
@@ -1985,6 +2401,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
   modifications.value = []
   readingDirectionAnnotations.value = {}
   readingDirectionDraft.value = null
+  readingDirectionOverlayLogKeys.clear()
   syncSavedReadingDirectionAnnotationsSnapshot()
   
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
@@ -3822,6 +4239,63 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .manuscript-image { display: block; user-select: none; opacity: 0.7; }
 .graph-overlay { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .graph-overlay.is-visible { opacity: 1; pointer-events: auto; }
+.reading-direction-overlay {
+  pointer-events: none;
+}
+.reading-direction-rail {
+  fill: none;
+  stroke: rgba(255, 213, 79, 0.78);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 14 10;
+  filter: url(#reading-direction-glow);
+  vector-effect: non-scaling-stroke;
+  animation: reading-direction-rail-sweep 420ms ease-out both;
+}
+.reading-direction-arrow {
+  pointer-events: none;
+  opacity: 0;
+  filter: url(#reading-direction-glow);
+  animation: reading-direction-arrow-pop 260ms cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+.reading-direction-arrow path {
+  fill: #fff2a8;
+  stroke: rgba(52, 38, 0, 0.62);
+  stroke-width: 0.8;
+  paint-order: stroke fill;
+  vector-effect: non-scaling-stroke;
+}
+
+@keyframes reading-direction-rail-sweep {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 32;
+  }
+  100% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes reading-direction-arrow-pop {
+  0% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reading-direction-rail,
+  .reading-direction-arrow {
+    animation: none;
+    opacity: 1;
+  }
+}
 
 /* Input Floater */
 .input-floater {
