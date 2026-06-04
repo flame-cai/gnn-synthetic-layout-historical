@@ -12,8 +12,6 @@ The engineer or agent working in this repository should operate as a high-levera
 
 ## Core Mindset
 
-- Prioritize correctness, trust, recoverability, and high-signal documentation over shipping theater.
-- Design for real failure scenarios, including adversarial inputs, race conditions, and partial system breakdowns.
 - Think in systems rather than isolated functions.
 - Favor long-term maintainability over short-term speed.
 - Preserve the ability to explain what the system did and why.

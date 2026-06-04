@@ -9672,3 +9672,125 @@
 2026-06-02 18:35:16,723 - INFO - 127.0.0.1 - - [02/Jun/2026 18:35:16] "GET /manuscript/my_manuscript_testing_2/active-learning HTTP/1.1" 200 -
 2026-06-02 18:35:21,238 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
 2026-06-02 18:35:24,765 - INFO -  * Restarting with stat
+2026-06-03 13:54:46,278 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.197:5000
+2026-06-03 13:54:46,280 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-03 13:54:46,282 - INFO -  * Restarting with stat
+2026-06-03 13:54:57,874 - WARNING -  * Debugger is active!
+2026-06-03 13:54:57,880 - INFO -  * Debugger PIN: 305-449-971
+2026-06-03 13:54:59,101 - INFO - 127.0.0.1 - - [03/Jun/2026 13:54:59] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-03 13:54:59,780 - INFO - 127.0.0.1 - - [03/Jun/2026 13:54:59] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-03 13:55:10,256 - INFO - 127.0.0.1 - - [03/Jun/2026 13:55:10] "GET /manuscript/my_manuscriptdsad/pages HTTP/1.1" 200 -
+2026-06-03 13:55:10,512 - INFO - 127.0.0.1 - - [03/Jun/2026 13:55:10] "GET /manuscript/my_manuscriptdsad/pages HTTP/1.1" 200 -
+2026-06-03 13:55:10,606 - INFO - 127.0.0.1 - - [03/Jun/2026 13:55:10] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-03 13:55:11,798 - INFO - 127.0.0.1 - - [03/Jun/2026 13:55:11] "GET /semi-segment/my_manuscriptdsad/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-06-03 13:55:12,022 - INFO - 127.0.0.1 - - [03/Jun/2026 13:55:12] "GET /manuscript/my_manuscriptdsad/active-learning HTTP/1.1" 200 -
+2026-06-03 13:56:12,396 - INFO - 127.0.0.1 - - [03/Jun/2026 13:56:12] "GET /manuscript/my_manuscriptdsad/active-learning HTTP/1.1" 200 -
+2026-06-03 13:56:23,114 - INFO - 127.0.0.1 - - [03/Jun/2026 13:56:23] "OPTIONS /semi-segment/my_manuscriptdsad/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-06-03 13:56:23,799 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscriptdsad page_id=MS-ADD-01766-000-00011
+2026-06-03 13:56:51,802 - INFO - 127.0.0.1 - - [03/Jun/2026 13:56:51] "POST /semi-segment/my_manuscriptdsad/MS-ADD-01766-000-00011 HTTP/1.1" 200 -
+2026-06-03 13:57:18,842 - INFO - 127.0.0.1 - - [03/Jun/2026 13:57:18] "POST /upload HTTP/1.1" 200 -
+2026-06-03 13:57:19,184 - INFO - 127.0.0.1 - - [03/Jun/2026 13:57:19] "GET /manuscript/my_manuscript_june3_3/pages HTTP/1.1" 200 -
+2026-06-03 13:57:19,452 - INFO - 127.0.0.1 - - [03/Jun/2026 13:57:19] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-03 13:57:20,146 - INFO - 127.0.0.1 - - [03/Jun/2026 13:57:20] "GET /semi-segment/my_manuscript_june3_3/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-03 13:57:20,201 - INFO - 127.0.0.1 - - [03/Jun/2026 13:57:20] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 13:58:20,548 - INFO - 127.0.0.1 - - [03/Jun/2026 13:58:20] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 13:59:20,577 - INFO - 127.0.0.1 - - [03/Jun/2026 13:59:20] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:00:20,905 - INFO - 127.0.0.1 - - [03/Jun/2026 14:00:20] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:00:32,064 - INFO - 127.0.0.1 - - [03/Jun/2026 14:00:32] "OPTIONS /semi-segment/my_manuscript_june3_3/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-03 14:00:32,465 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_june3_3 page_id=il_1588xN.7114987892_5f68
+2026-06-03 14:00:37,975 - INFO - 127.0.0.1 - - [03/Jun/2026 14:00:37] "POST /semi-segment/my_manuscript_june3_3/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-03 14:00:38,510 - INFO - 127.0.0.1 - - [03/Jun/2026 14:00:38] "GET /semi-segment/my_manuscript_june3_3/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-03 14:00:38,891 - INFO - 127.0.0.1 - - [03/Jun/2026 14:00:38] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-03 14:00:39,183 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-03 14:00:40,057 - INFO - Model loaded successfully.
+2026-06-03 14:00:46,110 - INFO - Updated input_manuscripts\my_manuscript_june3_3\layout_analysis_output\page-xml-format\il_1588xN.7114987892_5f68.xml: 39 lines recognized.
+2026-06-03 14:00:46,225 - INFO - 127.0.0.1 - - [03/Jun/2026 14:00:46] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-03 14:01:02,531 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:02] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/12?v=1780475437086590100 HTTP/1.1" 200 -
+2026-06-03 14:01:03,449 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:03] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/15?v=1780475437152833900 HTTP/1.1" 200 -
+2026-06-03 14:01:06,220 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:06] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/16?v=1780475437132713300 HTTP/1.1" 200 -
+2026-06-03 14:01:08,396 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:08] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/32?v=1780475437532852000 HTTP/1.1" 200 -
+2026-06-03 14:01:10,442 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:10] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/29?v=1780475437403712600 HTTP/1.1" 200 -
+2026-06-03 14:01:13,962 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:13] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/26?v=1780475437424053800 HTTP/1.1" 200 -
+2026-06-03 14:01:17,798 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:17] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/38?v=1780475437617449100 HTTP/1.1" 200 -
+2026-06-03 14:01:19,826 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:19] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/36?v=1780475437582488100 HTTP/1.1" 200 -
+2026-06-03 14:01:22,056 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:22] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/19?v=1780475437332936900 HTTP/1.1" 200 -
+2026-06-03 14:01:23,232 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:23] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/18?v=1780475437315326500 HTTP/1.1" 200 -
+2026-06-03 14:01:24,708 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:24] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/31?v=1780475437462492800 HTTP/1.1" 200 -
+2026-06-03 14:01:25,608 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:25] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/32?v=1780475437532852000 HTTP/1.1[0m" 304 -
+2026-06-03 14:01:27,502 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:27] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/13?v=1780475437051060300 HTTP/1.1" 200 -
+2026-06-03 14:01:29,126 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:29] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/3?v=1780475436893321000 HTTP/1.1" 200 -
+2026-06-03 14:01:31,202 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:31] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/4?v=1780475436914864800 HTTP/1.1" 200 -
+2026-06-03 14:01:32,422 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:32] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/6?v=1780475436932377600 HTTP/1.1" 200 -
+2026-06-03 14:01:34,111 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:34] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/8?v=1780475437015054700 HTTP/1.1" 200 -
+2026-06-03 14:01:35,030 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:35] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/10?v=1780475437067740300 HTTP/1.1" 200 -
+2026-06-03 14:01:37,096 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:37] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/25?v=1780475437369810400 HTTP/1.1" 200 -
+2026-06-03 14:01:38,910 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:38] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/28?v=1780475437441805700 HTTP/1.1" 200 -
+2026-06-03 14:01:40,702 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:40] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/29?v=1780475437403712600 HTTP/1.1[0m" 304 -
+2026-06-03 14:01:41,963 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:41] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/26?v=1780475437424053800 HTTP/1.1[0m" 304 -
+2026-06-03 14:01:45,550 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:45] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/19?v=1780475437332936900 HTTP/1.1[0m" 304 -
+2026-06-03 14:01:46,523 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:46] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/18?v=1780475437315326500 HTTP/1.1[0m" 304 -
+2026-06-03 14:01:46,558 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:46] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:01:48,401 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:48] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/24?v=1780475437246197500 HTTP/1.1" 200 -
+2026-06-03 14:01:50,156 - INFO - 127.0.0.1 - - [03/Jun/2026 14:01:50] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/13?v=1780475437051060300 HTTP/1.1[0m" 304 -
+2026-06-03 14:02:00,826 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:00] "OPTIONS /semi-segment/my_manuscript_june3_3/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-03 14:02:01,321 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_june3_3 page_id=il_1588xN.7114987892_5f68
+2026-06-03 14:02:07,534 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:07] "POST /semi-segment/my_manuscript_june3_3/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-03 14:02:08,253 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:08] "GET /semi-segment/my_manuscript_june3_3/il_1588xN.7114987892_5f68 HTTP/1.1" 200 -
+2026-06-03 14:02:08,653 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:08] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-03 14:02:14,908 - INFO - Updated input_manuscripts\my_manuscript_june3_3\layout_analysis_output\page-xml-format\il_1588xN.7114987892_5f68.xml: 39 lines recognized.
+2026-06-03 14:02:15,073 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:15] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-03 14:02:18,138 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:18] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/29?v=1780475526699688600 HTTP/1.1" 200 -
+2026-06-03 14:02:20,019 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:20] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/26?v=1780475526718725500 HTTP/1.1" 200 -
+2026-06-03 14:02:23,970 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:23] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/22?v=1780475526641762400 HTTP/1.1" 200 -
+2026-06-03 14:02:25,126 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:25] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/15?v=1780475526435403600 HTTP/1.1" 200 -
+2026-06-03 14:02:26,651 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:26] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/12?v=1780475526364536500 HTTP/1.1" 200 -
+2026-06-03 14:02:29,588 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:29] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/27?v=1780475526682664400 HTTP/1.1" 200 -
+2026-06-03 14:02:31,704 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:31] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/25?v=1780475526662692900 HTTP/1.1" 200 -
+2026-06-03 14:02:34,518 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:34] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/35?v=1780475526864831600 HTTP/1.1" 200 -
+2026-06-03 14:02:38,473 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:38] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/0?v=1780475526567665700 HTTP/1.1" 200 -
+2026-06-03 14:02:43,844 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:43] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/3?v=1780475526153650500 HTTP/1.1" 200 -
+2026-06-03 14:02:45,696 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:45] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/13?v=1780475526324203600 HTTP/1.1" 200 -
+2026-06-03 14:02:46,585 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:46] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/11?v=1780475526383735900 HTTP/1.1" 200 -
+2026-06-03 14:02:48,987 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:48] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/26?v=1780475526718725500 HTTP/1.1[0m" 304 -
+2026-06-03 14:02:50,704 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:50] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/29?v=1780475526699688600 HTTP/1.1[0m" 304 -
+2026-06-03 14:02:54,468 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:54] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/20?v=1780475526586535300 HTTP/1.1" 200 -
+2026-06-03 14:02:55,636 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:55] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/18?v=1780475526604583600 HTTP/1.1" 200 -
+2026-06-03 14:02:57,296 - INFO - 127.0.0.1 - - [03/Jun/2026 14:02:57] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/0?v=1780475526567665700 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:03,486 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:03] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/21?v=1780475526503596900 HTTP/1.1" 200 -
+2026-06-03 14:03:05,209 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:05] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/20?v=1780475526586535300 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:06,305 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:06] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/18?v=1780475526604583600 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:07,188 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:07] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/22?v=1780475526641762400 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:08,079 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:08] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/21?v=1780475526503596900 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:09,148 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:09] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/19?v=1780475526623737800 HTTP/1.1" 200 -
+2026-06-03 14:03:09,437 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:09] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/25?v=1780475526662692900 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:10,301 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:10] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/23?v=1780475526466164800 HTTP/1.1" 200 -
+2026-06-03 14:03:10,572 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:10] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/24?v=1780475526534164000 HTTP/1.1" 200 -
+2026-06-03 14:03:11,631 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:11] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/26?v=1780475526718725500 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:11,893 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:11] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/28?v=1780475526737249100 HTTP/1.1" 200 -
+2026-06-03 14:03:12,408 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:12] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/30?v=1780475526775532800 HTTP/1.1" 200 -
+2026-06-03 14:03:13,443 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:13] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/27?v=1780475526682664400 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:13,888 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:13] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/29?v=1780475526699688600 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:15,125 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:15] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/31?v=1780475526757239300 HTTP/1.1" 200 -
+2026-06-03 14:03:15,417 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:15] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:03:15,662 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:15] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/32?v=1780475526826380300 HTTP/1.1" 200 -
+2026-06-03 14:03:17,121 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:17] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/33?v=1780475526807610200 HTTP/1.1" 200 -
+2026-06-03 14:03:17,789 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:17] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/34?v=1780475526845725400 HTTP/1.1" 200 -
+2026-06-03 14:03:19,292 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:19] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/35?v=1780475526864831600 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:20,075 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:20] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/36?v=1780475526883864400 HTTP/1.1" 200 -
+2026-06-03 14:03:21,092 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:21] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/37?v=1780475526902666600 HTTP/1.1" 200 -
+2026-06-03 14:03:21,352 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:21] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/38?v=1780475526922928400 HTTP/1.1" 200 -
+2026-06-03 14:03:21,564 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:21] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/0?v=1780475526567665700 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:21,844 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:21] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/4?v=1780475526172307500 HTTP/1.1" 200 -
+2026-06-03 14:03:24,899 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:24] "GET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/1?v=1780475526119524500 HTTP/1.1" 200 -
+2026-06-03 14:03:28,402 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:28] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/38?v=1780475526922928400 HTTP/1.1[0m" 304 -
+2026-06-03 14:03:28,659 - INFO - 127.0.0.1 - - [03/Jun/2026 14:03:28] "[36mGET /line-image/my_manuscript_june3_3/il_1588xN.7114987892_5f68/0?v=1780475526567665700 HTTP/1.1[0m" 304 -
+2026-06-03 14:04:16,112 - INFO - 127.0.0.1 - - [03/Jun/2026 14:04:16] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:05:17,112 - INFO - 127.0.0.1 - - [03/Jun/2026 14:05:17] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:06:18,149 - INFO - 127.0.0.1 - - [03/Jun/2026 14:06:18] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:07:19,169 - INFO - 127.0.0.1 - - [03/Jun/2026 14:07:19] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:08:20,114 - INFO - 127.0.0.1 - - [03/Jun/2026 14:08:20] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:09:21,131 - INFO - 127.0.0.1 - - [03/Jun/2026 14:09:21] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
+2026-06-03 14:10:22,110 - INFO - 127.0.0.1 - - [03/Jun/2026 14:10:22] "GET /manuscript/my_manuscript_june3_3/active-learning HTTP/1.1" 200 -
