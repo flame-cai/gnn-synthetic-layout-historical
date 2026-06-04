@@ -11,7 +11,7 @@ Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https
 
 
 **Version:** 4.0  
-**Last Updated:** May 02, 2026
+**Last Updated:** June 04, 2026
 
 ## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
@@ -101,9 +101,9 @@ The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Cas
 ##### Gemini
 If you are using Gemini for text recognition, you may need to adjust the prompt within the `_run_gemini_recognition_internal` function located in `app/app.py` based on your use case and the language/script of the manuscript in question.
 
-By default, the application uses:
-`model = genai.GenerativeModel('gemini-2.5-flash')`
-You can update this string in the same function to utilize the latest Gemini releases.
+By default, the current implementation calls:
+`client.models.generate_content(model='gemini-3.5-flash', ...)`
+You can update this model string in the same function to use a different Gemini release.
 
 To configure your Gemini API key:
 1. Create an API key in [Google AI Studio](https://aistudio.google.com/).
@@ -146,133 +146,36 @@ Access the UI at `http://localhost:5173`.
 ```npm install``` only needs to be run once for the first time. To launch the front-end subsequently, we need to only need to run ```npm run dev```.
 
 #### Current OCR Active Learning Runtime
-The app now exposes an `Active Learning` toggle in the top bar. It defaults to on, is persisted in browser `localStorage`, and controls the manuscript-local OCR fine-tuning runtime (Recognition Model) for the local checkpoint family.
+The app includes a manuscript-local OCR active-learning runtime for the local EasyOCR checkpoint family. Commit saves can record page revisions and queue OCR fine-tune/rebase work; draft autosaves do not create OCR lineage. Runtime checkpoints, telemetry, and profiling live under `app/input_manuscripts/<manuscript>/active_learning/recognition/`. Gemini can still be used for prediction, but it is not the active-learning checkpoint lineage.
 
-Current behavior:
-
-- commit saves record durable page revisions and can enqueue manuscript-local OCR fine-tune or rebase work
-- draft autosaves still persist the page, but they do not create OCR lineage or queue training
-- the UI surfaces runtime state inline as `AL: ...`
-- manuscript-local checkpoints, telemetry, and profiling are stored under `app/input_manuscripts/<manuscript>/active_learning/recognition/`
-
-Gemini can still be used for prediction, but the active-learning lineage is built around the local OCR checkpoint family (EasyOCR based recognition model 'vadakautuhala.pth') and its manuscript-specific promotions.
+Detailed recipe, checkpoint, telemetry, and gate behavior live in `EVAL.md`.
 
 
-#### Text-Line Strategy Roles
-The app and the research verifier use separate text-line segmentation role pins in `app/recognition/line_segmentation/strategy_config.py`.
+#### Text-Line Strategy Evaluation And Promotion
+Text-line segmentation improvements use the verifier-driven loop described in [VISION.md](./VISION.md): an LLM-assisted agent can propose and implement a narrow strategy change, but external GUI-free verifiers decide whether that proposed strategy is good enough to replace the current benchmark. The verifier evidence is reviewed before promotion, so strategy changes are reproducible, explicit, and reversible.
 
-- `benchmark_strategy_name` and `proposed_strategy_name` are research harness roles.
-- `production_strategy_name` is the app default used for future layout saves/regenerations and for strategy-aware OCR crop preparation.
+For the current text-line-segmentation-to-OCR-crops harness, role pins live in `app/recognition/line_segmentation/strategy_config.py`. The current checked-in state is: research benchmark `local_polygons_stable_unwrap_v1`, no proposed research strategy, and production app strategy `local_polygons_stable_unwrap_v1`.
 
-The current production app strategy is `local_polygons_stable_unwrap_v1`, adopted explicitly after the 2026-05-30 research benchmark promotion. Research promotion still does not change the production app default by itself. Existing PAGE XML, existing OCR line images, and active-learning lineage are not migrated automatically when production adoption changes.
+A proposed strategy is promoted only after it passes the GUI-free comparison gates against the current benchmark. Passing gates create the evidence for promotion; they do not silently change the app or research config. After reviewing the generated evidence, run the explicit promotion command recorded by the launcher. Production adoption is a separate workflow, so promoting a research benchmark does not automatically change existing PAGE XML, OCR line images, or active-learning lineage.
 
-There is currently no configured proposed research strategy. The current benchmark and production strategy, `local_polygons_stable_unwrap_v1`, keeps PAGE `Coords` generation identical to `local_polygons_v1` for the same inputs while changing OCR crops to a stable arclength/tangent unwrap with smoothed centerline sampling, endpoint-exclusive closed-loop sampling, vectorized remap grids, and PAGE `Coords` mask filling.
-
-Production OCR crops now go through `app/recognition/line_segmentation/ocr_crops.py`. New `local_polygons_stable_unwrap_v1` saves write strategy metadata that lets local OCR, line-image export, and active-learning training use stable local-polygon unwrapping while keeping PAGE `Coords` as page-space geometry. Missing or unsupported metadata falls back to the legacy masked crop.
-
-In layout mode, shortcut `O` enables optional reading-direction annotation for a text line. Draw a short cross-line cut; the app records the rotated cut tangent as the line's reading direction, resolves it by component overlap on save, and stores it in a reading-direction sidecar. This resolves 180-degree ambiguity for vertical, slanted, curved, and circular lines without changing page-level line ordering.
-
-This separation is intentional because the verifier and the app do not prepare OCR crops from the same starting geometry. The research OCR ablation gates start from PAGE `Baseline` plus eval heatmaps/images, regenerate `Coords` through the selected strategy, and then crop from that regenerated geometry. The production GUI path uses the PAGE `Coords` already present on the saved page and optional line-segmentation metadata sidecars. Moving a baseline-derived strategy into production therefore remains an explicit adoption decision with production validation.
-
-
-#### Automated Evaluation Checks (GUI-free)
-The repository now has three GUI-free pre-commit gates for text-line segmentation strategy ablations:
+The comparison launcher runs three checks when a proposed research strategy is configured:
 
 - a pretrained full-pipeline gate on `app/tests/eval_dataset/`
 - a surrogate OCR fine-tuning gate on `app/tests/eval_dataset/`
 - a circular-layout OCR fine-tuning gate on `app/tests/eval_dataset_v2/`
 
-Each gate runs the checked-in `benchmark_strategy` and `proposed_strategy` through the same implementation path. The gate artifacts are evidence only. Promotion of the proposed strategy is a separate explicit research-harness command, not an app rollout.
-
-To run only the pretrained full-pipeline validation flow without opening the GUI, use the dedicated integration test from the `app/` directory:
-
-```bash
-cd app
-conda activate gnn_layout
-python -m unittest discover -s tests -p "test_ci_e2e.py" -v
-```
-
-To run only the OCR fine-tuning surrogate gate on `eval_dataset`, use:
-
-```bash
-cd app
-conda activate gnn_layout
-python -m unittest tests.test_recognition_finetuning_precommit_e2e -v
-```
-
-To run the circular OCR fine-tuning surrogate gate on `eval_dataset_v2`, use:
-
-```bash
-cd app
-conda activate gnn_layout
-python -m unittest tests.test_circular_recognition_finetuning_precommit_e2e -v
-```
-
-To run the full three-gate sequence and write aggregate promotion evidence, run from the repository root:
+To run the full sequence manually from the repository root:
 
 ```bash
 conda activate gnn_layout
 python scripts/run_precommit_eval.py
 ```
 
-To make this test run automatically before every commit in a fresh clone, configure the repository hooks once from the repository root:
+The checked-in `.githooks/pre-commit` currently exits immediately at the top. `scripts/install_git_hooks.py` configures `core.hooksPath`, but automatic evaluation will not run on commit until that guard is intentionally removed or re-enabled.
 
-```bash
-python scripts/install_git_hooks.py
-```
+Future production saves generate PAGE `TextLine/Coords` through `production_strategy_name`; local OCR, line-image export, and active-learning training use strategy-aware crops when valid metadata exists and otherwise fall back to the historical masked PAGE `Coords` crop. In layout mode, hold `q` to add optional reading-direction annotations for ambiguous line orientation.
 
-On Windows, `py -3 scripts/install_git_hooks.py` is also fine.
-
-The full-pipeline gate automatically uploads the 15-page evaluation dataset in `app/tests/eval_dataset/images/`, runs CRAFT + GNN inference, saves PAGE-XML outputs, runs local OCR recognition on every page, and evaluates the predictions against `app/tests/eval_dataset/labels/PAGE-XML/`. The gate writes local run artifacts and prints their paths at the end of the run; those generated artifacts are useful for debugging but are not treated as checked-in documentation.
-
-The OCR fine-tuning surrogate gates run the explicit hybrid continuation recipe `page_plus_random_history + history_sample_line_count=10 + batch_max_pad + no oversampling + no augmentation + Adadelta lr=0.2 + num_iter=60`. Their pre-commit training-page prefix is configured in `app/tests/precommit_gate_config.py` and defaults to three pages so the regular gate does not rerun the longer offline study shape. Their line crops are not read from PAGE `Coords`; they are regenerated from PAGE `Baseline` points plus the eval heatmaps/images through the app-aligned polygon pipeline. The geometry guard before OCR fine-tuning is `source_line_coverage >= 0.90` and `heatmap_box_assignment_rate >= 0.90`. The checked-in thresholds and research strategy overrides live in `app/tests/precommit_gate_config.py`; strategy overrides follow the strategy name across benchmark/proposed promotion. The regular OCR gate allows small absolute regression relative to the benchmark, while the circular OCR gate requires strict improvement on the primary curve metric.
-
-When all three gates pass, `scripts/run_precommit_eval.py` writes:
-
-- `app/tests/logs/strategy_promotion_latest.json`
-- `app/tests/logs/strategy_promotion_latest.md`
-- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
-
-Passing phases in `scripts/run_precommit_eval.py` delete their large benchmark/proposed role-run directories by default after the latest aliases are written, so repeated OCR checks do not retain per-step `models/` trees. Passing OCR role plots are copied into the retained gate summary directory under `plots/` before those large role runs are pruned. Failed phases keep their role-run directories for debugging. Set `CLEAN_UP=0` before the launcher when you need full role artifacts from passing phases.
-
-The `app/tests/logs/` outputs are generated local artifacts. The checked-in promotion record is the durable summary to review and commit with any research promotion.
-
-To promote the proposed strategy inside the research harness after reviewing those artifacts, run the command written into the generated promotion record. For the promotion recorded on 2026-05-30, that command was:
-
-```bash
-conda activate gnn_layout
-python scripts/promote_text_line_strategy.py --candidate local_polygons_stable_unwrap_v1 --previous-benchmark local_polygons_v1 --metrics app/tests/logs/strategy_promotion_latest.json --apply
-```
-
-The exact benchmark and proposed names come from `app/recognition/line_segmentation/strategy_config.py`. After a research promotion, the proposed slot is cleared; configure the next proposed strategy before the next ablation cycle.
-
-To adopt a registered strategy as the production app default, run a separate dry run first:
-
-```bash
-conda activate gnn_layout
-python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_stable_unwrap_v1 --reason "Adopt current research benchmark for production after stable unwrap runtime validation."
-```
-
-Then apply only after reviewing the dry-run output:
-
-```bash
-conda activate gnn_layout
-python scripts/adopt_text_line_strategy_for_app.py --strategy local_polygons_stable_unwrap_v1 --reason "Adopt current research benchmark for production after stable unwrap runtime validation." --apply
-```
-
-Production adoption changes only `production_strategy_name` and `production_adoption_history`; it does not mutate the benchmark/proposed research roles.
-
-By default the temporary manuscript artifacts are deleted after the test. Set `KEEP_CI_ARTIFACTS=1` before the command if you want to inspect the generated manuscript outputs under `app/input_manuscripts/_ci_root/`.
-
-The pre-commit launcher tries to find the `gnn_layout` Python automatically. If your environment lives in a non-standard location, set `GNN_LAYOUT_PYTHON` to the full path of that environment's Python executable before committing.
-
-If you intentionally need to bypass the pre-commit evaluation once, use standard git bypass with `git commit --no-verify`. The hook also supports:
-- `SKIP_EVAL_HOOK=1` to skip all phases
-- `SKIP_PIPELINE_EVAL_HOOK=1` to skip only the pretrained full-pipeline phase
-- `SKIP_RECOGNITION_FT_HOOK=1` to skip only the OCR fine-tuning surrogate phase
-- `SKIP_CIRCULAR_RECOGNITION_FT_HOOK=1` to skip only the circular OCR fine-tuning surrogate phase
-
-The evaluation architecture, thresholds, artifacts, and adaptation guidance for future strategy harnesses live in `EVAL.md`.
+For details, see [EVAL.md](./EVAL.md), [VISION.md](./VISION.md), the [strategy promotion workflow](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-workflow.md), and the checked-in [strategy promotion record](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md).
 
 ##  💻 **Graph Neural Network based Text-Line Segmentation Core ```src/```**
 Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. 
