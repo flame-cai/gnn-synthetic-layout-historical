@@ -38,7 +38,7 @@ The generic pattern is:
 
 1. Define one narrow pipeline stage with explicit inputs and outputs.
 2. Keep one checked-in `benchmark_strategy`.
-3. Implement one checked-in `proposed_strategy`.
+3. Implement one checked-in `proposed_strategy`, with independent code.
 4. Run the same external verifiers against both roles.
 5. Aggregate the gate evidence.
 6. Promote the proposed strategy explicitly inside the research harness only after all gates pass.
@@ -78,13 +78,13 @@ The current concrete strategies are:
 - proposed: unset
 - production app: `local_polygons_stable_unwrap_v1`
 
-`local_polygons_stable_unwrap_v1` is the current research benchmark after promotion on 2026-05-30 and the current production app strategy after explicit adoption on 2026-05-30. It uses the same baseline-local PAGE geometry as `local_polygons_v1` for the same inputs, keeps the `0.45` heatmap threshold before local cleanup, and changes the OCR crop representation to the stable arclength/tangent unwrap. `legacy_axis_bound_v1` preserves the historical axis-aligned behavior and remains available for rollback and legacy-page fallback behavior. `local_tangent_band_v1` remains available as the earlier generalized benchmark for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
+`local_polygons_stable_unwrap_v1` is the current research benchmark after promotion on 2026-05-30 and the current production app strategy after explicit adoption on 2026-05-30. It owns a frozen baseline-local PAGE geometry implementation descended from `local_polygons_v1`, keeps the `0.45` heatmap threshold before local cleanup, and changes the OCR crop representation to the stable arclength/tangent unwrap. Its PAGE `Coords` generation now also handles two production-relevant geometry edge cases: baseline endpoint anchors extend open-line polygons when a corrected baseline reaches beyond heatmap evidence, and ambiguous joined heatmap components are split by nearest baseline before local polygon construction. `legacy_axis_bound_v1` preserves the historical axis-aligned behavior and remains available for rollback and legacy-page fallback behavior. `local_tangent_band_v1` remains available as the earlier generalized benchmark for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
 
-There is currently no configured proposed research strategy. The stable unwrap benchmark keeps the previous benchmark PAGE geometry unchanged and changes OCR crop preparation: local-polygon crops use stable arclength sampling, a smoothed centerline tangent field, endpoint-exclusive closed-loop sampling, vectorized remap grids, and the original PAGE `Coords` mask fill.
+There is currently no configured proposed research strategy. Production and the research harness both call the registered text-line strategy through `apply_text_line_segmentation_strategy(...)` when they need to generate PAGE `TextLine/Coords`. The production GUI first converts the live corrected graph, including manual node and edge edits, into a baseline PAGE XML file and then applies `production_strategy_name`. The research harness starts from checked-in PAGE `Baseline` labels plus the page image and heatmap, then applies the benchmark/proposed strategy role. When those role names point to `local_polygons_stable_unwrap_v1`, both paths reuse the same PAGE `Coords` generation code, but their upstream baseline sources and runtime config are intentionally different.
 
 Production now has a shared OCR crop preparation boundary in `app/recognition/line_segmentation/ocr_crops.py`. App line-image export, local OCR inference, and active-learning revision preparation all read saved PAGE `Coords` and optional strategy metadata through that layer. New `local_polygons_stable_unwrap_v1` layout saves write metadata that asks this layer for stable local-polygon unwrapping. Pages without usable metadata continue through the masked PAGE `Coords` fallback.
 
-Layout mode also has optional intra-line reading-direction annotation. The `O` shortcut records a cross-line cut, resolves it to the final line by component overlap, and stores it in a reading-direction sidecar. Open lines use the local cut tangent to resolve 180-degree ambiguity; circular lines use it to choose both unwrap start station and direction. Missing or stale annotations fall back to script-specific defaults.
+Layout mode also has optional intra-line reading-direction annotation. The `q` shortcut records a cross-line cut, resolves it to the final line by component overlap, and stores it in a reading-direction sidecar. Open lines use the local cut tangent to resolve 180-degree ambiguity; circular lines use it to choose both unwrap start station and direction. Missing or stale annotations fall back to script-specific defaults.
 
 The current explicit workflow is:
 

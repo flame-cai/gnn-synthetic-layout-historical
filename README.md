@@ -17,7 +17,7 @@ Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
 *   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** `app\`: This is the full semi-automatic application, which has the entire manuscript digitization pipeline, and  allows the human to make various types of post-corrections.
 
-* **🕸️ Graph Neural Network Based Text-line Segmentation**
+*   **🕸️ Graph Neural Network Based Text-line Segmentation**
 `src\`: This contains synthetic data generation, augmentation, data preparation, training, and inference code for GNN based text-lines segmentation.
   * **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):**  
     Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
@@ -34,11 +34,18 @@ Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https
 
 ## 🚀 **Getting Started**
 
-#### Minimum Requirements
+#### Recommended System Requirements
 
 - CPU: Modern multi-core processor  
 - RAM: ≥ 8 GB  
 - GPU: NVIDIA GPU with CUDA support (≥ 4 GB VRAM)
+
+#### Minimum System Requirements
+CPU mode is intended only for inference and possibly OCR Fine-tuning using CPU, which can be a slow.
+
+- CPU: Intel Core i3-3120M CPU
+- RAM: 6 GB
+
 
 #### Clone the repository:
 ```bash
@@ -53,6 +60,7 @@ cd gnn-synthetic-layout-historical
 conda create -n gnn_layout python=3.11 -y
 conda activate gnn_layout
 pip install -r requirements.txt
+# pip install -r requirements_cpu.txt  # Use requirements_cpu.txt for installing on machines without a GPU
 ```
 
 ## 🧩 **Semi Automatic Annotation Tool ```app/```**
