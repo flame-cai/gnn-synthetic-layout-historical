@@ -18,6 +18,8 @@ app/input_manuscripts/*/
 app/input_manuscripts_original_backup/*/
 app/manuscript_recognition.log
 
+# do not commit the papers directory and it's contents
+paper/*
 
 # Env files
 app/frontend/.env

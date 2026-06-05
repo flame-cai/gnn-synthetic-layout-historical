@@ -1,10 +1,6 @@
 
-okay great. Now can we focus on the following possible bugs?
 
-If the whole line has no assigned heatmap boxes, the strategy falls back to a minimum-width band over the full baseline. 
-This minimum-width band is too small. To fix this, perhaps
-example:
-C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscript_testing_2\layout_analysis_output\image-format\233_0002\textbox_label_0\line_22.jpg
+If the whole line has no assigned heatmap boxes, the strategy falls back to a minimum-width band over the full baseline. This minimum-width band is too small. To fix this, perhaps can use the local binazrize image..or do the gemini magic button
 
 
 
