@@ -5,7 +5,7 @@ This repository exists to reduce the total human effort required to digitize his
 
 The repository currently has two connected products:
 1. `src/`: the graph neural network text-line segmentation core (this is for doing GNN improvements and research)
-2. `app/`: this contain the full-fledged Semi-automatic annotation tool with a frontend, a backend, an Verifier-Driven Evolution Harness (for the text-line segmentation strategy), and an active-learning runtime (for the OCR model).
+2. `app/`: this contain the full-fledged Semi-automatic annotation tool with a frontend, a backend, an Verifier-Driven Evolution Harness (for the text-line segmentation strategy and OCR fine-tuning hyperparameters), and an active-learning runtime (for the OCR model).
 
 ## Semi-automatic annotation tool pipeline:
 In a broad sense, the digitization pipeline is as follows (and it requires manual human annotation at various stages):
@@ -67,13 +67,15 @@ The retained OCR continuation recipe remains the hybrid `page_plus_random_histor
 - `lr=0.2`
 - `num_iter=60`
 
+These hyperparameters were selected using the verifier-driven OCR fine-tuning research harness. In that verifier setting, this recipe was confirmed to always improve the model after fine-tuning.
+
 In the production GUI, reviewed ground truth is a save-state contract rather than a separate lock button. `Save Page` and `Save & Next Page` in Text Review commit reviewed text as supervised OCR ground truth. Draft autosaves, raw OCR predictions, and Page Layout saves remain recoverability or layout-lineage states and do not enter OCR fine-tuning.
 
-We also do manuscript-local OCR checkpoint promotion inside the runtime (a better model replaces the previous model)
+We also do manuscript-local OCR checkpoint promotion inside the runtime. The runtime uses the verified recipe and promotes the trained candidate; it does not run the full research verifier again for every GUI save.
 
 
 ### Verifier-Driven Evolution Harness: 
-Any change we make to the pipeline, should pass an external verifier. We are currently using this motif to refine and improve Step 3, i.e the text-line segmentation strategy, but we can adapt this improve any other part of the pipeline too.
+Any change we make to the pipeline, should pass an external verifier. We are currently using this motif in two concrete places: to refine and improve Step 3, i.e the text-line segmentation strategy, and to refine the OCR fine-tuning hyperparameters. We can adapt this to improve any other part of the pipeline too.
 
 
 #### Current Verifier-Driven Evolution Harness
@@ -174,6 +176,15 @@ The current strategy docs live under:
 The detailed evaluation architecture, thresholds, artifacts, and adaptation guidance live in:
 
 - `EVAL.md`
+
+
+#### Current Harness Instance: OCR Fine-Tuning Hyperparameters
+
+The second concrete verifier instance is the OCR fine-tuning recipe. This instance does not change PAGE geometry. It changes the training policy used after corrected OCR text is committed.
+
+The verifier was used to compare continuation policy, history replay, width policy, oversampling, augmentation, optimizer, learning rate, and iteration count. The retained output of that work is the hybrid `page_plus_random_history` recipe listed above. These hyperparameters are therefore not arbitrary defaults; they are the verifier-selected settings that were confirmed to always improve the OCR model after fine-tuning.
+
+Future changes to these hyperparameters should go back through the verifier before they become the GUI runtime recipe.
 
 
 #### Broader Research Direction
