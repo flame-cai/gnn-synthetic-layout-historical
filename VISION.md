@@ -1,20 +1,34 @@
 # VISION.md
 
-This repository exists to reduce the total human effort required to digitize historical manuscripts. The product goal is not only better raw model accuracy, but a digitization workflow where corrected pages make later pages cheaper to annotate, easier to review, and safer to promote.
+# VISION
+This repository exists to reduce the total human effort required to digitize historical manuscripts. The goal is to build an historical manuscript digitization workflow, where previously corrected pages (annotated data) is used to train AI models which make better predictions on lsubsequent pages, reducing the burden of annotation continuously in a loop.
 
 The repository currently has two connected products:
+1. `src/`: the graph neural network text-line segmentation core (this is for doing GNN improvements and research)
+2. `app/`: this contain the full-fledged Semi-automatic annotation tool with a frontend, a backend, an Verifier-Driven Evolution Harness (for the text-line segmentation strategy), and an active-learning runtime (for the OCR model).
 
-1. `src/`: the graph neural network text-line segmentation core.
-2. `app/`: the semi-automatic annotation tool, OCR stack, evaluation harnesses, and active-learning runtime.
+## Semi-automatic annotation tool pipeline:
+In a broad sense, the digitization pipeline is as follows (and it requires manual human annotation at various stages):
 
-## Product Vision
+Step 1: CRAFT based character detection: In the first step of the pipeline, we detect characters on the page using CRAFT. Sometimes CRAFT makes mistakes. Hence the Layout Mode GUI allows the user to manually add or delete false negatives and false positive character detections respectively.
 
-The manuscript pipeline has two user-visible stages:
+Step 2: GNN based Binary edge classification: Once the characters are detected, we use a GNN to connect characters in such a way that characters belonging to the same text-line are connected together. But sometimes the GNN makes mistakes. Hence the Layout Mode GUI allows the user to manually add or delete edges which have been incorrectly classified (false negatives and false positives). The GNN pipeline currently only does automatic binary edge classification, but we want the GNN to automatically perform the following tasks too (which are currently only performed by the human manually using the GUI):
+- text-region labelling: all characters (nodes) belonging to the text-region should have the same node labels. This is only done manually in the GUI right now.
+- text-line orientation annotation: classifying the orientation of the text-line (which decides the read-order of the text-lines based on the script being used). This is only done manually in the GUI right now.
 
-1. Layout analysis: detect characters, group them into text lines, group text lines into text regions, and write PAGE-XML geometry.
-2. Text recognition: turn segmented text-line images into Unicode text and let the annotator correct the output.
 
-The long-term product target is a manuscript-local learning loop:
+Step 3: Once the graph based text-lines are formed, they are converted to the standard PAGE-XML baselines. These baselines are used, along with the CRAFT heatmaps, and the original images, to get PAGE-XML Coords. The Coords are used to prepare text-line images for inference and training of the local Built-in OCR model. This is our the text-line segmentation strategy, which is not AI based but is based on algorithms and traditional computer vision algorithms. There is no human manual correction involved here as of now.
+
+Step 4: Once the text-line images are prepared for the OCR model (a CNN-BiLSTM-CTC), the OCR model perdicts the text content from the text-line images. This predicted text content contains mistakes. Hence the GUI Read Mode allows users to manually correct the predicted text (measured by Character Error Rate).
+
+## DEVELOPMENT MOTIFS
+There are also two main motifs of development we have in the vision:
+
+
+### Active learning: 
+We to iteratively improve AI models (CRAFT,GNN,OCR Models) using manual human annotations, so that the AI models make better subsequent predictions, reducing the burden of manual annotation after each training iteration. Current we are using this to iteratively improve the OCR model, but we aim to do the same for CRAFT and GNN too.
+
+The long-term product target is a manuscript-local active learning loop:
 
 1. Earlier pages need the most correction.
 2. Those corrections become training or adaptation signals.
@@ -30,7 +44,39 @@ Success is therefore multi-objective:
 - reproducible evidence for research claims
 - a frontend workflow that remains predictable while background work happens
 
-## Verifier-Driven Evolution Harness
+#### OCR Active Learning Reality
+
+The OCR side of the repository remains the most mature active-learning subsystem. The important checked-in files are still:
+
+- `app/recognition/active_learning.py`
+- `app/recognition/active_learning_recipe.py`
+- `app/ocr_active_learning_runtime.py`
+- `app/manuscript_ocr_registry.py`
+- `app/job_orchestrator.py`
+- `app/tests/precommit_gate_config.py`
+- `app/tests/recognition_finetuning_config.py`
+- `app/tests/recognition_finetuning_experiment.py`
+
+The retained OCR continuation recipe remains the hybrid `page_plus_random_history` recipe with:
+
+- `history_sample_line_count=10`
+- `width_policy=batch_max_pad`
+- `oversampling_policy=none`
+- `augmentation_policy=none`
+- `optimizer=Adadelta`
+- `lr=0.2`
+- `num_iter=60`
+
+In the production GUI, reviewed ground truth is a save-state contract rather than a separate lock button. `Save Page` and `Save & Next Page` in Text Review commit reviewed text as supervised OCR ground truth. Draft autosaves, raw OCR predictions, and Page Layout saves remain recoverability or layout-lineage states and do not enter OCR fine-tuning.
+
+We also do manuscript-local OCR checkpoint promotion inside the runtime (a better model replaces the previous model)
+
+
+### Verifier-Driven Evolution Harness: 
+Any change we make to the pipeline, should pass an external verifier. We are currently using this motif to refine and improve Step 3, i.e the text-line segmentation strategy, but we can adapt this improve any other part of the pipeline too.
+
+
+#### Current Verifier-Driven Evolution Harness
 
 The repository now has a reusable research harness for step-by-step improvement of a specific pipeline stage with LLM-assisted code changes and external verifier metrics.
 
@@ -44,6 +90,7 @@ The generic pattern is:
 6. Promote the proposed strategy explicitly inside the research harness only after all gates pass.
 7. Adopt a strategy for production app use through a separate explicit command that changes future PAGE geometry generation and the crop metadata honored by production OCR preparation.
 8. Keep the old strategy code and history for rollback and future ablations.
+9. The implementation in code of the `benchmark_strategy`, `proposed_strategy` and the production app strategy should be independent
 
 This harness is intentionally broader than text-line segmentation. A future agent can adapt it to another pipeline component if it first writes down:
 
@@ -55,7 +102,7 @@ This harness is intentionally broader than text-line segmentation. A future agen
 
 The important design rule is that generated logs are evidence, but checked-in source config is the source of truth for which strategy currently owns the research benchmark role and which strategy the app uses in production. Because generated logs under `app/tests/logs/` are ignored, `scripts/run_precommit_eval.py` also refreshes `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md` as the checked-in promotion evidence summary.
 
-## Current Harness Instance: Text-Line Segmentation To OCR Crops
+#### Current Harness Instance: Text-Line Segmentation To OCR Crops
 
 The active non-OCR harness target is the step that converts:
 
@@ -98,7 +145,7 @@ The current explicit workflow is:
 
 This keeps promotion and production rollout reviewable. The pre-commit path does not silently mutate tracked config after Git has already prepared the commit, and research promotion is not a GUI/app rollout.
 
-## Current Evaluation And Promotion State
+#### Current Evaluation And Promotion State
 
 The text-line segmentation harness currently uses three external verifier gates:
 
@@ -128,38 +175,61 @@ The detailed evaluation architecture, thresholds, artifacts, and adaptation guid
 
 - `EVAL.md`
 
-## OCR Active Learning Reality
 
-The OCR side of the repository remains the most mature active-learning subsystem. The important checked-in files are still:
 
-- `app/recognition/active_learning.py`
-- `app/recognition/active_learning_recipe.py`
-- `app/ocr_active_learning_runtime.py`
-- `app/manuscript_ocr_registry.py`
-- `app/job_orchestrator.py`
-- `app/tests/precommit_gate_config.py`
-- `app/tests/recognition_finetuning_config.py`
-- `app/tests/recognition_finetuning_experiment.py`
 
-The retained OCR continuation recipe remains the hybrid `page_plus_random_history` recipe with:
 
-- `history_sample_line_count=10`
-- `width_policy=batch_max_pad`
-- `oversampling_policy=none`
-- `augmentation_policy=none`
-- `optimizer=Adadelta`
-- `lr=0.2`
-- `num_iter=60`
 
-In the production GUI, reviewed ground truth is a save-state contract rather than a separate lock button. `Save Page` and `Save & Next Page` in Text Review commit reviewed text as supervised OCR ground truth. Draft autosaves, raw OCR predictions, and Page Layout saves remain recoverability or layout-lineage states and do not enter OCR fine-tuning.
 
-The repository therefore has two complementary promotion/adoption concepts today:
 
-1. manuscript-local OCR checkpoint promotion inside the runtime
-2. repository-level text-line segmentation research promotion through checked-in config
-3. repository-level text-line segmentation production adoption through checked-in config
 
-They follow the same product rule: promotion or adoption must be explicit, reviewable, and not silent.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Broader Research Direction
 
@@ -186,3 +256,4 @@ For each new stage, future agents should preserve the same discipline:
 - Promotions and production adoptions must be explicit, reviewable, and reproducible.
 - Generated artifacts must not be the only place where important conclusions live.
 - Human-effort reduction should become a first-class logged metric, not only an anecdotal goal.
+- The implementation in code of the `benchmark_strategy`, `proposed_strategy` and the production app strategy should be independent.
