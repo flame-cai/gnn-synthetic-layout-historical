@@ -17,7 +17,7 @@ Step 2: GNN based Binary edge classification: Once the characters are detected, 
 - text-line orientation annotation: classifying the orientation of the text-line (which decides the read-order of the text-lines based on the script being used). This is only done manually in the GUI right now.
 
 
-Step 3: Once the graph based text-lines are formed, they are converted to the standard PAGE-XML baselines. These baselines are used, along with the CRAFT heatmaps, and the original images, to get PAGE-XML Coords. The Coords are used to prepare text-line images for inference and training of the local Built-in OCR model. This is our the text-line segmentation strategy, which is not AI based but is based on algorithms and traditional computer vision algorithms. There is no human manual correction involved here as of now.
+Step 3: Once the graph based text-lines are formed, they are converted to the standard PAGE-XML baselines. These baselines are used, along with the CRAFT heatmaps, and the original images, to get PAGE-XML Coords. The Coords are used to prepare text-line images for inference and training of the local Built-in OCR model. This is our the text-line segmentation strategy, which is not AI based but is based on algorithms and traditional computer vision algorithms. There is no human manual correction involved here as of now (although the text-line orientation annotations in Step 2 do influence the orientation of the text-line images prepared for the OCR model in Step 3)
 
 Step 4: Once the text-line images are prepared for the OCR model (a CNN-BiLSTM-CTC), the OCR model perdicts the text content from the text-line images. This predicted text content contains mistakes. Hence the GUI Read Mode allows users to manually correct the predicted text (measured by Character Error Rate).
 
@@ -125,7 +125,7 @@ The current concrete strategies are:
 - proposed: unset
 - production app: `local_polygons_stable_unwrap_v1`
 
-`local_polygons_stable_unwrap_v1` is the current research benchmark after promotion on 2026-05-30 and the current production app strategy after explicit adoption on 2026-05-30. It owns a frozen baseline-local PAGE geometry implementation descended from `local_polygons_v1`, keeps the `0.45` heatmap threshold before local cleanup, and changes the OCR crop representation to the stable arclength/tangent unwrap. Its PAGE `Coords` generation now also handles two production-relevant geometry edge cases: baseline endpoint anchors extend open-line polygons when a corrected baseline reaches beyond heatmap evidence, and ambiguous joined heatmap components are split by nearest baseline before local polygon construction. `legacy_axis_bound_v1` preserves the historical axis-aligned behavior and remains available for rollback and legacy-page fallback behavior. `local_tangent_band_v1` remains available as the earlier generalized benchmark for vertical, curved, and circular text while preserving horizontal behavior through selective legacy delegation.
+`local_polygons_stable_unwrap_v1` is the current research benchmark after promotion on 2026-05-30 and the current production app strategy after explicit adoption on 2026-05-30. It owns a frozen baseline-local PAGE geometry implementation descended from `local_polygons_v1`, keeps the `0.45` heatmap threshold before local cleanup, and changes the OCR crop representation to the stable arclength/tangent unwrap. Its PAGE `Coords` generation now also handles two production-relevant geometry edge cases: baseline endpoint anchors extend open-line polygons when a corrected baseline reaches beyond heatmap evidence, and ambiguous joined heatmap components are split by nearest baseline before local polygon construction. `legacy_axis_bound_v1` preserves the historical axis-aligned behavior and remains available for rollback and legacy-page fallback behavior. `local_tangent_band_v1` is still registered as historical strategy code, but its research and production role-independent flags are false, so role validation rejects it as a benchmark, proposed, or production pin.
 
 There is currently no configured proposed research strategy. Production and the research harness both call the registered text-line strategy through `apply_text_line_segmentation_strategy(...)` when they need to generate PAGE `TextLine/Coords`. The production GUI first converts the live corrected graph, including manual node and edge edits, into a baseline PAGE XML file and then applies `production_strategy_name`. The research harness starts from checked-in PAGE `Baseline` labels plus the page image and heatmap, then applies the benchmark/proposed strategy role. When those role names point to `local_polygons_stable_unwrap_v1`, both paths reuse the same PAGE `Coords` generation code, but their upstream baseline sources and runtime config are intentionally different.
 
@@ -176,62 +176,7 @@ The detailed evaluation architecture, thresholds, artifacts, and adaptation guid
 - `EVAL.md`
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Broader Research Direction
+#### Broader Research Direction
 
 Over time, the same verifier-driven improvement pattern should be extended to other stages:
 
@@ -251,7 +196,7 @@ For each new stage, future agents should preserve the same discipline:
 
 ## Non-Negotiable Constraints
 
-- The app must remain usable while research code changes.
+- The app must remain usable while research harness code changes.
 - A successful gate run must never silently edit tracked source config.
 - Promotions and production adoptions must be explicit, reviewable, and reproducible.
 - Generated artifacts must not be the only place where important conclusions live.
