@@ -135,7 +135,9 @@ Production now has a shared OCR crop preparation boundary in `app/recognition/li
 
 Layout mode also has optional intra-line reading-direction annotation. The `q` shortcut records a cross-line cut, resolves it to the final line by component overlap, and stores it in a reading-direction sidecar. Open lines use the local cut tangent to resolve 180-degree ambiguity; circular lines use it to choose both unwrap start station and direction. Missing or stale annotations fall back to script-specific defaults.
 
-The current explicit workflow is:
+#### Current Text-Line Segmentation Workflow And Evaluation State
+
+The current explicit text-line segmentation workflow is:
 
 1. A researcher suggests a new `proposed_strategy`.
 2. Agents implement the code and update docs/config.
@@ -146,8 +148,6 @@ The current explicit workflow is:
 7. A separate operator decision runs `scripts/adopt_text_line_strategy_for_app.py --apply` if the app should use a different production strategy for future geometry and crop behavior.
 
 This keeps promotion and production rollout reviewable. The pre-commit path does not silently mutate tracked config after Git has already prepared the commit, and research promotion is not a GUI/app rollout.
-
-#### Current Evaluation And Promotion State
 
 The text-line segmentation harness currently uses three external verifier gates:
 
