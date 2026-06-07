@@ -10122,3 +10122,431 @@
 2026-06-07 16:30:24,529 - INFO - 127.0.0.1 - - [07/Jun/2026 16:30:24] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
 2026-06-07 16:31:25,512 - INFO - 127.0.0.1 - - [07/Jun/2026 16:31:25] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
 2026-06-07 16:32:26,522 - INFO - 127.0.0.1 - - [07/Jun/2026 16:32:26] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:43:25,297 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.110:5000
+2026-06-07 16:43:25,297 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-07 16:43:25,297 - INFO -  * Restarting with stat
+2026-06-07 16:43:39,048 - WARNING -  * Debugger is active!
+2026-06-07 16:43:39,048 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 16:43:51,450 - INFO - 127.0.0.1 - - [07/Jun/2026 16:43:51] "POST /upload HTTP/1.1" 200 -
+2026-06-07 16:43:51,511 - INFO - 127.0.0.1 - - [07/Jun/2026 16:43:51] "GET /manuscript/demo/pages HTTP/1.1" 200 -
+2026-06-07 16:43:51,865 - INFO - 127.0.0.1 - - [07/Jun/2026 16:43:51] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 16:43:53,166 - INFO - 127.0.0.1 - - [07/Jun/2026 16:43:53] "GET /semi-segment/demo/1 HTTP/1.1" 200 -
+2026-06-07 16:43:53,264 - INFO - 127.0.0.1 - - [07/Jun/2026 16:43:53] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:44:53,607 - INFO - 127.0.0.1 - - [07/Jun/2026 16:44:53] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:45:53,629 - INFO - 127.0.0.1 - - [07/Jun/2026 16:45:53] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:45:55,339 - INFO - 127.0.0.1 - - [07/Jun/2026 16:45:55] "OPTIONS /semi-segment/demo/1 HTTP/1.1" 200 -
+2026-06-07 16:45:55,682 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo page_id=1
+2026-06-07 16:46:02,571 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:02] "POST /semi-segment/demo/1 HTTP/1.1" 200 -
+2026-06-07 16:46:03,191 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:03] "GET /semi-segment/demo/1 HTTP/1.1" 200 -
+2026-06-07 16:46:03,569 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:03] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:46:03,854 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-07 16:46:04,917 - INFO - Model loaded successfully.
+2026-06-07 16:46:11,394 - INFO - Updated input_manuscripts\demo\layout_analysis_output\page-xml-format\1.xml: 40 lines recognized.
+2026-06-07 16:46:11,583 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:11] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:46:47,805 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:47] "GET /line-image/demo/1/17?v=1780830961794835500 HTTP/1.1" 200 -
+2026-06-07 16:46:48,764 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:48] "GET /line-image/demo/1/20?v=1780830961907137200 HTTP/1.1" 200 -
+2026-06-07 16:46:49,496 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:49] "GET /line-image/demo/1/18?v=1780830961921121900 HTTP/1.1" 200 -
+2026-06-07 16:46:50,224 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:50] "GET /line-image/demo/1/23?v=1780830961937048500 HTTP/1.1" 200 -
+2026-06-07 16:46:51,133 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:51] "GET /line-image/demo/1/22?v=1780830961959008500 HTTP/1.1" 200 -
+2026-06-07 16:46:51,381 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:51] "GET /line-image/demo/1/19?v=1780830961763203600 HTTP/1.1" 200 -
+2026-06-07 16:46:52,024 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:52] "GET /line-image/demo/1/21?v=1780830961826452200 HTTP/1.1" 200 -
+2026-06-07 16:46:53,122 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:53] "GET /line-image/demo/1/26?v=1780830961978889900 HTTP/1.1" 200 -
+2026-06-07 16:46:53,371 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:53] "GET /line-image/demo/1/24?v=1780830961791836100 HTTP/1.1" 200 -
+2026-06-07 16:46:55,356 - INFO - 127.0.0.1 - - [07/Jun/2026 16:46:55] "GET /line-image/demo/1/0?v=1780830961889323100 HTTP/1.1" 200 -
+2026-06-07 16:47:10,678 - INFO - 127.0.0.1 - - [07/Jun/2026 16:47:10] "GET /line-image/demo/1/36?v=1780830962153079800 HTTP/1.1" 200 -
+2026-06-07 16:47:11,793 - INFO - 127.0.0.1 - - [07/Jun/2026 16:47:11] "[36mGET /line-image/demo/1/26?v=1780830961978889900 HTTP/1.1[0m" 304 -
+2026-06-07 16:47:11,911 - INFO - 127.0.0.1 - - [07/Jun/2026 16:47:11] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:47:22,374 - INFO - 127.0.0.1 - - [07/Jun/2026 16:47:22] "[36mGET /line-image/demo/1/0?v=1780830961889323100 HTTP/1.1[0m" 304 -
+2026-06-07 16:47:30,120 - INFO - 127.0.0.1 - - [07/Jun/2026 16:47:30] "OPTIONS /semi-segment/demo/1 HTTP/1.1" 200 -
+2026-06-07 16:47:30,683 - INFO - 127.0.0.1 - - [07/Jun/2026 16:47:30] "POST /semi-segment/demo/1 HTTP/1.1" 200 -
+2026-06-07 16:47:31,072 - INFO - 127.0.0.1 - - [07/Jun/2026 16:47:31] "GET /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:48:31,021 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:31] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:33,046 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:33] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:35,416 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:35] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:37,453 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:37] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:39,787 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:39] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:41,828 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:41] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:44,167 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:44] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:46,210 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:46] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:48,544 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:48] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:50,586 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:50] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:52,921 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:52] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:54,972 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:54] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:55,496 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:55] "OPTIONS /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:48:55,827 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo page_id=2
+2026-06-07 16:48:57,063 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:57] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:48:59,419 - INFO - 127.0.0.1 - - [07/Jun/2026 16:48:59] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:01,899 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:01] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:04,039 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:04] "POST /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:49:04,249 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:04] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:04,630 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:04] "GET /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:49:04,998 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:49:06,305 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:06] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:07,067 - INFO - Updated input_manuscripts\demo\layout_analysis_output\page-xml-format\2.xml: 5 lines recognized.
+2026-06-07 16:49:07,219 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:07] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:49:09,564 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:09] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:10,753 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:10] "GET /line-image/demo/2/0?v=1780831143346971200 HTTP/1.1" 200 -
+2026-06-07 16:49:11,596 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:11] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:13,925 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:13] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:15,486 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:15] "GET /line-image/demo/2/4?v=1780831143494293000 HTTP/1.1" 200 -
+2026-06-07 16:49:15,955 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:15] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:18,281 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:18] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:20,307 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:20] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:22,644 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:22] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:23,451 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:23] "GET /line-image/demo/2/2?v=1780831143410835300 HTTP/1.1" 200 -
+2026-06-07 16:49:24,668 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:24] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:26,995 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:26] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:29,027 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:29] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:31,364 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:31] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:33,628 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:33] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:49:33,984 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:33] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:34,116 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-07 16:49:36,016 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:36] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:38,376 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:38] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:40,702 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:40] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:43,051 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:43] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:45,399 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:45] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:47,738 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:47] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:50,085 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:50] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:51,937 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-07 16:49:52,144 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:52] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:49:52,432 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:52] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:54,788 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:54] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:56,836 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:56] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:49:59,223 - INFO - 127.0.0.1 - - [07/Jun/2026 16:49:59] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:00,205 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:00] "GET /line-image/demo/2/1?v=1780831143232375900 HTTP/1.1" 200 -
+2026-06-07 16:50:01,274 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:01] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:03,660 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:03] "[36mGET /line-image/demo/2/0?v=1780831143346971200 HTTP/1.1[0m" 304 -
+2026-06-07 16:50:03,721 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:03] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:05,773 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:05] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:08,130 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:08] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:10,175 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:10] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:12,528 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:12] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:14,574 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:14] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:16,947 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:16] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:19,008 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:19] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:21,374 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:21] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:50:24,690 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:24] "OPTIONS /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:50:25,272 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:25] "POST /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:50:35,996 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:35] "OPTIONS /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:50:36,611 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:36] "POST /semi-segment/demo/2 HTTP/1.1" 200 -
+2026-06-07 16:50:36,973 - INFO - 127.0.0.1 - - [07/Jun/2026 16:50:36] "GET /semi-segment/demo/3 HTTP/1.1" 200 -
+2026-06-07 16:51:36,968 - INFO - 127.0.0.1 - - [07/Jun/2026 16:51:36] "GET /manuscript/demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:52:12,225 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:12] "OPTIONS /semi-segment/demo/3 HTTP/1.1" 200 -
+2026-06-07 16:52:12,610 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo page_id=3
+2026-06-07 16:52:19,101 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:19] "POST /semi-segment/demo/3 HTTP/1.1" 200 -
+2026-06-07 16:52:19,346 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:19] "GET /semi-segment/demo/3 HTTP/1.1" 200 -
+2026-06-07 16:52:19,707 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:19] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:52:20,023 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-07 16:52:30,892 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-07 16:52:31,077 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:31] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:52:35,334 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:35] "GET /line-image/demo/3/2?v=1780831338560115700 HTTP/1.1" 200 -
+2026-06-07 16:52:41,464 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:41] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:52:41,820 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\demo\active_learning\recognition\checkpoints\ocr_2_r0003\training_run\best_norm_ED.pth...
+2026-06-07 16:52:42,513 - INFO - Model loaded successfully.
+2026-06-07 16:52:43,615 - INFO - Updated input_manuscripts\demo\layout_analysis_output\page-xml-format\3.xml: 5 lines recognized.
+2026-06-07 16:52:43,770 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:43] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:52:58,143 - INFO - 127.0.0.1 - - [07/Jun/2026 16:52:58] "GET /line-image/demo/3/4?v=1780831338626703300 HTTP/1.1" 200 -
+2026-06-07 16:53:37,493 - INFO - 127.0.0.1 - - [07/Jun/2026 16:53:37] "POST /upload HTTP/1.1" 200 -
+2026-06-07 16:53:37,832 - INFO - 127.0.0.1 - - [07/Jun/2026 16:53:37] "GET /manuscript/demo22/pages HTTP/1.1" 200 -
+2026-06-07 16:53:38,088 - INFO - 127.0.0.1 - - [07/Jun/2026 16:53:38] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 16:53:38,428 - INFO - 127.0.0.1 - - [07/Jun/2026 16:53:38] "GET /semi-segment/demo22/1 HTTP/1.1" 200 -
+2026-06-07 16:53:38,513 - INFO - 127.0.0.1 - - [07/Jun/2026 16:53:38] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:54:38,879 - INFO - 127.0.0.1 - - [07/Jun/2026 16:54:38] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:55:22,901 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:22] "OPTIONS /semi-segment/demo22/1 HTTP/1.1" 200 -
+2026-06-07 16:55:23,279 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo22 page_id=1
+2026-06-07 16:55:29,047 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:29] "POST /semi-segment/demo22/1 HTTP/1.1" 200 -
+2026-06-07 16:55:29,657 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:29] "GET /semi-segment/demo22/1 HTTP/1.1" 200 -
+2026-06-07 16:55:30,008 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:30] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:55:36,323 - INFO - Updated input_manuscripts\demo22\layout_analysis_output\page-xml-format\1.xml: 38 lines recognized.
+2026-06-07 16:55:36,450 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:36] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:55:48,043 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:48] "GET /line-image/demo22/1/21?v=1780831528292355500 HTTP/1.1" 200 -
+2026-06-07 16:55:49,735 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:49] "GET /line-image/demo22/1/24?v=1780831528348956700 HTTP/1.1" 200 -
+2026-06-07 16:55:50,443 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:50] "GET /line-image/demo22/1/23?v=1780831528206961600 HTTP/1.1" 200 -
+2026-06-07 16:55:50,698 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:50] "GET /line-image/demo22/1/25?v=1780831528403173700 HTTP/1.1" 200 -
+2026-06-07 16:55:51,074 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:51] "GET /line-image/demo22/1/27?v=1780831528421582800 HTTP/1.1" 200 -
+2026-06-07 16:55:51,637 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:51] "GET /line-image/demo22/1/29?v=1780831528462492100 HTTP/1.1" 200 -
+2026-06-07 16:55:51,891 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:51] "GET /line-image/demo22/1/26?v=1780831528366145100 HTTP/1.1" 200 -
+2026-06-07 16:55:51,976 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:51] "GET /line-image/demo22/1/28?v=1780831528384209600 HTTP/1.1" 200 -
+2026-06-07 16:55:52,261 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:52] "GET /line-image/demo22/1/30?v=1780831528440485300 HTTP/1.1" 200 -
+2026-06-07 16:55:52,552 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:52] "GET /line-image/demo22/1/31?v=1780831528514976400 HTTP/1.1" 200 -
+2026-06-07 16:55:52,801 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:52] "GET /line-image/demo22/1/32?v=1780831528495396000 HTTP/1.1" 200 -
+2026-06-07 16:55:53,049 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:53] "GET /line-image/demo22/1/33?v=1780831528531972900 HTTP/1.1" 200 -
+2026-06-07 16:55:53,704 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:53] "GET /line-image/demo22/1/35?v=1780831528566977800 HTTP/1.1" 200 -
+2026-06-07 16:55:53,940 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:53] "GET /line-image/demo22/1/36?v=1780831528584202700 HTTP/1.1" 200 -
+2026-06-07 16:55:54,166 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:54] "GET /line-image/demo22/1/37?v=1780831528602382100 HTTP/1.1" 200 -
+2026-06-07 16:55:54,347 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:54] "GET /line-image/demo22/1/0?v=1780831528238332500 HTTP/1.1" 200 -
+2026-06-07 16:55:55,389 - INFO - 127.0.0.1 - - [07/Jun/2026 16:55:55] "GET /line-image/demo22/1/4?v=1780831527919131900 HTTP/1.1" 200 -
+2026-06-07 16:56:05,554 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:05] "GET /semi-segment/demo22/2 HTTP/1.1" 200 -
+2026-06-07 16:56:36,792 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:36] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:56:44,205 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:44] "OPTIONS /semi-segment/demo22/2 HTTP/1.1" 200 -
+2026-06-07 16:56:44,590 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo22 page_id=2
+2026-06-07 16:56:50,603 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:50] "POST /semi-segment/demo22/2 HTTP/1.1" 200 -
+2026-06-07 16:56:50,863 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:50] "GET /semi-segment/demo22/2 HTTP/1.1" 200 -
+2026-06-07 16:56:51,213 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:51] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:56:52,841 - INFO - Updated input_manuscripts\demo22\layout_analysis_output\page-xml-format\2.xml: 5 lines recognized.
+2026-06-07 16:56:52,972 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:52] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:56:54,750 - INFO - 127.0.0.1 - - [07/Jun/2026 16:56:54] "GET /line-image/demo22/2/0?v=1780831610039290800 HTTP/1.1" 200 -
+2026-06-07 16:57:03,045 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:03] "GET /line-image/demo22/2/3?v=1780831610115687700 HTTP/1.1" 200 -
+2026-06-07 16:57:07,829 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:07] "GET /line-image/demo22/2/2?v=1780831610084727000 HTTP/1.1" 200 -
+2026-06-07 16:57:15,037 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:15] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:57:15,404 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-07 16:57:30,363 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-07 16:57:30,705 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:30] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 16:57:34,715 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:34] "[36mGET /line-image/demo22/2/3?v=1780831610115687700 HTTP/1.1[0m" 304 -
+2026-06-07 16:57:40,718 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:40] "GET /line-image/demo22/2/1?v=1780831609958005000 HTTP/1.1" 200 -
+2026-06-07 16:57:43,587 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:43] "[36mGET /line-image/demo22/2/0?v=1780831610039290800 HTTP/1.1[0m" 304 -
+2026-06-07 16:57:54,036 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:54] "OPTIONS /semi-segment/demo22/2 HTTP/1.1" 200 -
+2026-06-07 16:57:54,630 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:54] "POST /semi-segment/demo22/2 HTTP/1.1" 200 -
+2026-06-07 16:57:54,969 - INFO - 127.0.0.1 - - [07/Jun/2026 16:57:54] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 16:58:54,971 - INFO - 127.0.0.1 - - [07/Jun/2026 16:58:54] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:58:57,019 - INFO - 127.0.0.1 - - [07/Jun/2026 16:58:57] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:58:59,365 - INFO - 127.0.0.1 - - [07/Jun/2026 16:58:59] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:01,413 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:01] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:03,755 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:03] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:05,805 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:05] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:08,151 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:08] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:10,189 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:10] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:12,546 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:12] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:14,579 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:14] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:16,921 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:16] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:18,958 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:18] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:21,298 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:21] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:23,348 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:23] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:25,695 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:25] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:27,732 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:27] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:30,089 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:30] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:32,132 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:32] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:34,480 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:34] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:36,516 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:36] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:38,875 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:38] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:40,915 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:40] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:43,267 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:43] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:45,309 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:45] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:47,691 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:47] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:49,732 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:49] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:52,085 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:52] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:54,134 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:54] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:56,498 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:56] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 16:59:59,185 - INFO - 127.0.0.1 - - [07/Jun/2026 16:59:59] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:02,518 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:02] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:05,199 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:05] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:07,546 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:07] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:09,594 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:09] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:11,941 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:11] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:13,998 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:13] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:16,521 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:16] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:00:48,297 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:48] "OPTIONS /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:00:48,688 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo22 page_id=3
+2026-06-07 17:00:55,203 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:55] "POST /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:00:55,496 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:55] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:00:55,844 - INFO - 127.0.0.1 - - [07/Jun/2026 17:00:55] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:00:56,181 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-07 17:01:55,247 - INFO - 127.0.0.1 - - [07/Jun/2026 17:01:55] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:02:56,509 - INFO - 127.0.0.1 - - [07/Jun/2026 17:02:56] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:03:57,564 - INFO - 127.0.0.1 - - [07/Jun/2026 17:03:57] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:04:39,704 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-07 17:04:40,909 - INFO - 127.0.0.1 - - [07/Jun/2026 17:04:40] "[35m[1mPOST /recognize-text HTTP/1.1[0m" 502 -
+2026-06-07 17:04:54,582 - INFO - 127.0.0.1 - - [07/Jun/2026 17:04:54] "OPTIONS /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:04:54,917 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo22 page_id=3
+2026-06-07 17:04:57,640 - INFO - 127.0.0.1 - - [07/Jun/2026 17:04:57] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:05:00,937 - INFO - 127.0.0.1 - - [07/Jun/2026 17:05:00] "POST /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:05:01,554 - INFO - 127.0.0.1 - - [07/Jun/2026 17:05:01] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:05:01,611 - INFO - 127.0.0.1 - - [07/Jun/2026 17:05:01] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:05:01,994 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-07 17:05:26,130 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-07 17:05:26,707 - INFO - 127.0.0.1 - - [07/Jun/2026 17:05:26] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:05:51,805 - INFO - 127.0.0.1 - - [07/Jun/2026 17:05:51] "GET /line-image/demo22/3/4?v=1780832100469433000 HTTP/1.1" 200 -
+2026-06-07 17:05:56,412 - INFO - 127.0.0.1 - - [07/Jun/2026 17:05:56] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:05:56,768 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\demo22\active_learning\recognition\checkpoints\ocr_2_r0002\training_run\best_norm_ED.pth...
+2026-06-07 17:05:57,881 - INFO - Model loaded successfully.
+2026-06-07 17:05:59,293 - INFO - Updated input_manuscripts\demo22\layout_analysis_output\page-xml-format\3.xml: 5 lines recognized.
+2026-06-07 17:05:59,436 - INFO - 127.0.0.1 - - [07/Jun/2026 17:05:59] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:06:03,806 - INFO - 127.0.0.1 - - [07/Jun/2026 17:06:03] "GET /line-image/demo22/3/3?v=1780832100432603000 HTTP/1.1" 200 -
+2026-06-07 17:06:05,920 - INFO - 127.0.0.1 - - [07/Jun/2026 17:06:05] "GET /line-image/demo22/3/2?v=1780832100400704000 HTTP/1.1" 200 -
+2026-06-07 17:07:00,489 - INFO - 127.0.0.1 - - [07/Jun/2026 17:07:00] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:08:01,503 - INFO - 127.0.0.1 - - [07/Jun/2026 17:08:01] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:09:02,494 - INFO - 127.0.0.1 - - [07/Jun/2026 17:09:02] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:10:03,488 - INFO - 127.0.0.1 - - [07/Jun/2026 17:10:03] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:11:04,501 - INFO - 127.0.0.1 - - [07/Jun/2026 17:11:04] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:11:50,424 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\profiling.py', reloading
+2026-06-07 17:11:53,834 - INFO -  * Restarting with stat
+2026-06-07 17:12:14,533 - WARNING -  * Debugger is active!
+2026-06-07 17:12:14,539 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:12:14,685 - INFO - 127.0.0.1 - - [07/Jun/2026 17:12:14] "GET /manuscript/demo22/pages HTTP/1.1" 200 -
+2026-06-07 17:12:14,713 - INFO - 127.0.0.1 - - [07/Jun/2026 17:12:14] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:12:15,007 - INFO - 127.0.0.1 - - [07/Jun/2026 17:12:15] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 17:12:15,513 - INFO - 127.0.0.1 - - [07/Jun/2026 17:12:15] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:12:15,645 - INFO - 127.0.0.1 - - [07/Jun/2026 17:12:15] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:12:47,874 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-06-07 17:12:51,599 - INFO -  * Restarting with stat
+2026-06-07 17:13:05,138 - WARNING -  * Debugger is active!
+2026-06-07 17:13:05,142 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:13:15,495 - INFO - 127.0.0.1 - - [07/Jun/2026 17:13:15] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:13:16,200 - INFO - 127.0.0.1 - - [07/Jun/2026 17:13:16] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:14:08,199 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_profiling_unit.py', reloading
+2026-06-07 17:14:11,845 - INFO -  * Restarting with stat
+2026-06-07 17:14:25,899 - WARNING -  * Debugger is active!
+2026-06-07 17:14:25,916 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:14:26,069 - INFO - 127.0.0.1 - - [07/Jun/2026 17:14:26] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:14:26,104 - INFO - 127.0.0.1 - - [07/Jun/2026 17:14:26] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:15:26,527 - INFO - 127.0.0.1 - - [07/Jun/2026 17:15:26] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:15:26,757 - INFO - 127.0.0.1 - - [07/Jun/2026 17:15:26] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:16:27,506 - INFO - 127.0.0.1 - - [07/Jun/2026 17:16:27] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:16:27,780 - INFO - 127.0.0.1 - - [07/Jun/2026 17:16:27] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:17:28,512 - INFO - 127.0.0.1 - - [07/Jun/2026 17:17:28] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:17:28,753 - INFO - 127.0.0.1 - - [07/Jun/2026 17:17:28] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:18:29,496 - INFO - 127.0.0.1 - - [07/Jun/2026 17:18:29] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:18:29,751 - INFO - 127.0.0.1 - - [07/Jun/2026 17:18:29] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:19:13,536 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-06-07 17:19:17,075 - INFO -  * Restarting with stat
+2026-06-07 17:19:30,232 - WARNING -  * Debugger is active!
+2026-06-07 17:19:30,243 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:19:30,515 - INFO - 127.0.0.1 - - [07/Jun/2026 17:19:30] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:19:30,754 - INFO - 127.0.0.1 - - [07/Jun/2026 17:19:30] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:20:31,494 - INFO - 127.0.0.1 - - [07/Jun/2026 17:20:31] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:20:31,749 - INFO - 127.0.0.1 - - [07/Jun/2026 17:20:31] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:20:33,231 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-06-07 17:20:36,863 - INFO -  * Restarting with stat
+2026-06-07 17:20:50,589 - WARNING -  * Debugger is active!
+2026-06-07 17:20:50,589 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:21:18,015 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-06-07 17:21:21,593 - INFO -  * Restarting with stat
+2026-06-07 17:21:36,231 - WARNING -  * Debugger is active!
+2026-06-07 17:21:36,231 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:21:36,374 - INFO - 127.0.0.1 - - [07/Jun/2026 17:21:36] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:21:36,446 - INFO - 127.0.0.1 - - [07/Jun/2026 17:21:36] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:21:48,785 - INFO - 127.0.0.1 - - [07/Jun/2026 17:21:48] "GET /manuscript/demo22/pages HTTP/1.1" 200 -
+2026-06-07 17:21:49,035 - INFO - 127.0.0.1 - - [07/Jun/2026 17:21:49] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 17:21:49,265 - INFO - 127.0.0.1 - - [07/Jun/2026 17:21:49] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:21:49,377 - INFO - 127.0.0.1 - - [07/Jun/2026 17:21:49] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:22:05,419 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:05] "GET /manuscript/demo22/pages HTTP/1.1" 200 -
+2026-06-07 17:22:05,744 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:05] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 17:22:06,191 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:06] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:22:06,362 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:06] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:22:14,526 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:14] "GET /manuscript/demo22/pages HTTP/1.1" 200 -
+2026-06-07 17:22:14,791 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:14] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 17:22:14,984 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:14] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:22:15,129 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:15] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:22:27,982 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:27] "GET /manuscript/demo22/pages HTTP/1.1" 200 -
+2026-06-07 17:22:28,309 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:28] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 17:22:28,835 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:28] "GET /semi-segment/demo22/3 HTTP/1.1" 200 -
+2026-06-07 17:22:28,950 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:28] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:22:37,495 - INFO - 127.0.0.1 - - [07/Jun/2026 17:22:37] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:23:25,285 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-06-07 17:23:28,655 - INFO -  * Restarting with stat
+2026-06-07 17:23:41,300 - WARNING -  * Debugger is active!
+2026-06-07 17:23:41,315 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:23:41,480 - INFO - 127.0.0.1 - - [07/Jun/2026 17:23:41] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:23:41,517 - INFO - 127.0.0.1 - - [07/Jun/2026 17:23:41] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:24:42,513 - INFO - 127.0.0.1 - - [07/Jun/2026 17:24:42] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:24:42,750 - INFO - 127.0.0.1 - - [07/Jun/2026 17:24:42] "GET /manuscript/demo22/active-learning HTTP/1.1" 200 -
+2026-06-07 17:31:12,028 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.110:5000
+2026-06-07 17:31:12,029 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-07 17:31:12,032 - INFO -  * Restarting with stat
+2026-06-07 17:31:27,378 - WARNING -  * Debugger is active!
+2026-06-07 17:31:27,382 - INFO -  * Debugger PIN: 305-449-971
+2026-06-07 17:31:36,833 - INFO - 127.0.0.1 - - [07/Jun/2026 17:31:36] "POST /upload HTTP/1.1" 200 -
+2026-06-07 17:31:36,870 - INFO - 127.0.0.1 - - [07/Jun/2026 17:31:36] "GET /manuscript/demo221/pages HTTP/1.1" 200 -
+2026-06-07 17:31:37,215 - INFO - 127.0.0.1 - - [07/Jun/2026 17:31:37] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 17:31:38,332 - INFO - 127.0.0.1 - - [07/Jun/2026 17:31:38] "GET /semi-segment/demo221/2 HTTP/1.1" 200 -
+2026-06-07 17:31:38,416 - INFO - 127.0.0.1 - - [07/Jun/2026 17:31:38] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:32:14,652 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:14] "OPTIONS /semi-segment/demo221/2 HTTP/1.1" 200 -
+2026-06-07 17:32:14,968 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo221 page_id=2
+2026-06-07 17:32:21,915 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:21] "POST /semi-segment/demo221/2 HTTP/1.1" 200 -
+2026-06-07 17:32:22,140 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:22] "GET /semi-segment/demo221/2 HTTP/1.1" 200 -
+2026-06-07 17:32:22,271 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:22] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:32:22,489 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:22] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:32:22,819 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-07 17:32:23,787 - INFO - Model loaded successfully.
+2026-06-07 17:32:24,995 - INFO - Updated input_manuscripts\demo221\layout_analysis_output\page-xml-format\2.xml: 5 lines recognized.
+2026-06-07 17:32:25,198 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:25] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:32:25,248 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:25] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:32:45,063 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:45] "GET /line-image/demo221/2/2?v=1780833741340814200 HTTP/1.1" 200 -
+2026-06-07 17:32:46,520 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:46] "GET /line-image/demo221/2/3?v=1780833741373366400 HTTP/1.1" 200 -
+2026-06-07 17:32:52,849 - INFO - 127.0.0.1 - - [07/Jun/2026 17:32:52] "GET /line-image/demo221/2/0?v=1780833741290285500 HTTP/1.1" 200 -
+2026-06-07 17:33:05,939 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:05] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:33:06,340 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-07 17:33:21,146 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-07 17:33:21,379 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:21] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:33:21,448 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:21] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:23,494 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:23] "[36mGET /line-image/demo221/2/2?v=1780833741340814200 HTTP/1.1[0m" 304 -
+2026-06-07 17:33:27,423 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:27] "GET /line-image/demo221/2/1?v=1780833741199080300 HTTP/1.1" 200 -
+2026-06-07 17:33:28,978 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:28] "[36mGET /line-image/demo221/2/3?v=1780833741373366400 HTTP/1.1[0m" 304 -
+2026-06-07 17:33:31,596 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:31] "[36mGET /line-image/demo221/2/0?v=1780833741290285500 HTTP/1.1[0m" 304 -
+2026-06-07 17:33:37,094 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:37] "OPTIONS /semi-segment/demo221/2 HTTP/1.1" 200 -
+2026-06-07 17:33:37,706 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:37] "POST /semi-segment/demo221/2 HTTP/1.1" 200 -
+2026-06-07 17:33:38,057 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:38] "GET /semi-segment/demo221/3 HTTP/1.1" 200 -
+2026-06-07 17:33:38,089 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:38] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:39,446 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:39] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:40,489 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:40] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:41,843 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:41] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:42,884 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:42] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:44,239 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:44] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:45,279 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:45] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:46,638 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:46] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:47,686 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:47] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:49,048 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:49] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:50,099 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:50] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:51,457 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:51] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:52,506 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:52] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:53,874 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:53] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:54,929 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:54] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:56,280 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:56] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:57,316 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:57] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:58,678 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:58] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:33:59,729 - INFO - 127.0.0.1 - - [07/Jun/2026 17:33:59] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:01,081 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:01] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:02,123 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:02] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:03,469 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:03] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:04,517 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:04] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:05,899 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:05] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:06,951 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:06] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:08,334 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:08] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:09,386 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:09] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:10,763 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:10] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:11,820 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:11] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:13,174 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:13] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:14,221 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:14] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:15,589 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:15] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:16,631 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:16] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:17,987 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:17] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:19,035 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:19] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:20,394 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:20] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:21,446 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:21] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:23,503 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:23] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:27,165 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:27] "OPTIONS /semi-segment/demo221/3 HTTP/1.1" 200 -
+2026-06-07 17:34:27,530 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=demo221 page_id=3
+2026-06-07 17:34:33,731 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:33] "POST /semi-segment/demo221/3 HTTP/1.1" 200 -
+2026-06-07 17:34:33,971 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:33] "GET /semi-segment/demo221/3 HTTP/1.1" 200 -
+2026-06-07 17:34:34,091 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:34] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:34:34,323 - INFO - 127.0.0.1 - - [07/Jun/2026 17:34:34] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:34:34,680 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-07 17:35:22,035 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:22] "[35m[1mPOST /recognize-text HTTP/1.1[0m" 502 -
+2026-06-07 17:35:34,134 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:34] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:35:34,537 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:34] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:35:34,824 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\demo221\active_learning\recognition\checkpoints\ocr_2_r0002\training_run\best_norm_ED.pth...
+2026-06-07 17:35:35,603 - INFO - Model loaded successfully.
+2026-06-07 17:35:36,672 - INFO - Updated input_manuscripts\demo221\layout_analysis_output\page-xml-format\3.xml: 5 lines recognized.
+2026-06-07 17:35:36,850 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:36] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-07 17:35:36,901 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:36] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:35:38,958 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:38] "GET /line-image/demo221/3/2?v=1780833873050531400 HTTP/1.1" 200 -
+2026-06-07 17:35:40,430 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:40] "GET /line-image/demo221/3/3?v=1780833873084163100 HTTP/1.1" 200 -
+2026-06-07 17:35:42,562 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:42] "GET /line-image/demo221/3/1?v=1780833872903128100 HTTP/1.1" 200 -
+2026-06-07 17:35:44,447 - INFO - 127.0.0.1 - - [07/Jun/2026 17:35:44] "GET /line-image/demo221/3/0?v=1780833872999539400 HTTP/1.1" 200 -
+2026-06-07 17:36:37,507 - INFO - 127.0.0.1 - - [07/Jun/2026 17:36:37] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:37:38,490 - INFO - 127.0.0.1 - - [07/Jun/2026 17:37:38] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:38:11,732 - INFO - 127.0.0.1 - - [07/Jun/2026 17:38:11] "GET /manuscript/demo221/pages HTTP/1.1" 200 -
+2026-06-07 17:38:12,068 - INFO - 127.0.0.1 - - [07/Jun/2026 17:38:12] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 17:38:12,566 - INFO - 127.0.0.1 - - [07/Jun/2026 17:38:12] "GET /semi-segment/demo221/3 HTTP/1.1" 200 -
+2026-06-07 17:38:12,708 - INFO - 127.0.0.1 - - [07/Jun/2026 17:38:12] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:39:13,521 - INFO - 127.0.0.1 - - [07/Jun/2026 17:39:13] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:40:14,504 - INFO - 127.0.0.1 - - [07/Jun/2026 17:40:14] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-07 17:40:29,968 - INFO - 127.0.0.1 - - [07/Jun/2026 17:40:29] "[36mGET /line-image/demo221/3/2?v=1780833873050531400 HTTP/1.1[0m" 304 -
+2026-06-07 17:40:30,578 - INFO - 127.0.0.1 - - [07/Jun/2026 17:40:30] "[36mGET /line-image/demo221/3/3?v=1780833873084163100 HTTP/1.1[0m" 304 -

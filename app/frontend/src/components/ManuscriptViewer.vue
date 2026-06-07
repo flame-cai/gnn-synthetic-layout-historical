@@ -148,8 +148,41 @@
         {{ recognitionInFlight ? recognitionBusyLabel : 'Saving your changes. Please wait.' }}
       </div>
 
-      <div v-if="error" class="error-message">
+      <div v-if="error && !recognitionRecoveryPrompt" class="error-message">
         {{ error }}
+      </div>
+
+      <div
+        v-if="recognitionRecoveryPrompt"
+        class="recognition-recovery-backdrop"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="recognition-recovery-title"
+      >
+        <div class="recognition-recovery-card">
+          <span class="recognition-recovery-badge">Text Reading Failed</span>
+          <h3 id="recognition-recovery-title">Gemini could not read this page</h3>
+          <p>{{ recognitionRecoveryPrompt.message }}</p>
+          <div class="recognition-recovery-actions">
+            <button
+              class="action-btn secondary-action"
+              @click="retryRecognitionAfterFailure('gemini')"
+              :disabled="recognitionInFlight || isProcessingSave || !isRecognitionEngineAvailable('gemini')"
+            >
+              Try Gemini Again
+            </button>
+            <button
+              class="action-btn"
+              @click="retryRecognitionAfterFailure('local')"
+              :disabled="recognitionInFlight || isProcessingSave"
+            >
+              Use Built-in Reader
+            </button>
+            <button class="action-btn secondary-action" @click="dismissRecognitionRecovery">
+              Dismiss
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 2. Loading Indicator (Only for initial page load) -->
@@ -304,7 +337,7 @@
             </svg>
 
             <div
-              v-if="recognitionModeActive && !effectivePageWorkflow.can_edit_text && !isProcessingSave && !recognitionInFlight"
+              v-if="showRecognitionGuardCard"
               class="recognition-guard-card"
             >
               <span class="recognition-guard-badge">{{ effectivePageWorkflow.label }}</span>
@@ -595,7 +628,8 @@ const RECOGNITION_READER_LABELS = {
 }
 const normalizeRecognitionEngine = (value) => (value === 'gemini' ? 'gemini' : 'local')
 const activeLearningPollDelayMs = {
-  active: 2000,
+  immediate: 0,
+  active: 1000,
   idle: 60000,
 }
 
@@ -700,6 +734,7 @@ const recognitionDraftDirty = ref(false)
 const suppressTextDirtyTracking = ref(false)
 const pendingPageEntryPreference = ref(null)
 const readerSwitchNotice = ref('')
+const recognitionRecoveryPrompt = ref(null)
 const readerCapabilities = reactive({
   local: {
     available: true,
@@ -1436,6 +1471,13 @@ const effectivePageWorkflow = computed(() => {
 const recognitionModeRequiresLayoutReturn = computed(() =>
   recognitionModeActive.value && pageWorkflowRequiresLayoutMode(effectivePageWorkflow.value)
 )
+const showRecognitionGuardCard = computed(() =>
+  recognitionModeActive.value &&
+  !recognitionRecoveryPrompt.value &&
+  !effectivePageWorkflow.value.can_edit_text &&
+  !isProcessingSave.value &&
+  !recognitionInFlight.value
+)
 
 const workflowStateClass = computed(() => `state-${effectivePageWorkflow.value.state}`)
 const workflowPanelEyebrow = computed(() => {
@@ -1748,6 +1790,39 @@ const showReaderSwitchNotice = (message) => {
       readerSwitchNoticeTimeoutId = null
     }, 7000)
   }
+}
+
+const shouldOfferRecognitionRecovery = (payload = {}, attemptedEngine = recognitionEngine.value) => {
+  const failedEngine = normalizeRecognitionEngine(payload.failedEngine || payload.recognitionEngine || attemptedEngine)
+  return failedEngine === 'gemini' && payload.retryable !== false
+}
+
+const showRecognitionRecovery = (payload = {}, attemptedEngine = recognitionEngine.value) => {
+  const message = payload.error || 'Gemini could not return usable text for this page.'
+  recognitionRecoveryPrompt.value = {
+    failedEngine: normalizeRecognitionEngine(payload.failedEngine || attemptedEngine),
+    errorCode: payload.errorCode || null,
+    fallbackEngines: Array.isArray(payload.fallbackEngines) ? payload.fallbackEngines : ['local'],
+    message,
+  }
+}
+
+const dismissRecognitionRecovery = () => {
+  recognitionRecoveryPrompt.value = null
+}
+
+const retryRecognitionAfterFailure = async (engine) => {
+  const nextEngine = normalizeRecognitionEngine(engine)
+  recognitionRecoveryPrompt.value = null
+  if (!isRecognitionEngineAvailable(nextEngine)) {
+    const message = recognitionEngineUnavailableMessage(nextEngine)
+    error.value = message
+    alert(message)
+    return false
+  }
+  setRecognitionEngineSilently(nextEngine)
+  showReaderSwitchNotice(readerSelectionNotice(nextEngine))
+  return recognizeCurrentPage({ focusAfter: true })
 }
 
 const logRecognitionReaderSelection = (eventName, details = {}) => {
@@ -2398,6 +2473,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
   }
 
   error.value = null
+  recognitionRecoveryPrompt.value = null
   modifications.value = []
   readingDirectionAnnotations.value = {}
   readingDirectionDraft.value = null
@@ -2498,6 +2574,8 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
 
   recognitionInFlight.value = true
   error.value = null
+  recognitionRecoveryPrompt.value = null
+  const attemptedEngine = recognitionEngine.value
   try {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/recognize-text`, {
       method: 'POST',
@@ -2505,18 +2583,26 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
       body: JSON.stringify({
         manuscript: localManuscriptName.value,
         page: localCurrentPage.value,
-        recognitionEngine: recognitionEngine.value,
+        recognitionEngine: attemptedEngine,
       }),
     })
     if (!response.ok) {
-      const payload = await response.json()
-      throw new Error(payload.error || 'Could not read the page')
+      let payload = {}
+      try {
+        payload = await response.json()
+      } catch (parseError) {
+        payload = {}
+      }
+      const requestError = new Error(payload.error || 'Could not read the page')
+      requestError.payload = payload
+      requestError.failedEngine = payload.failedEngine || payload.recognitionEngine || attemptedEngine
+      throw requestError
     }
 
     const data = await response.json()
     replaceLocalRecognitionData(data.text || {}, data.confidences || {})
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
-    rescheduleActiveLearningPolling()
+    rescheduleActiveLearningPolling(activeLearningPollDelayMs.immediate)
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
     sortLinesTopToBottom()
     if (focusAfter && sortedLineIds.value.length > 0) {
@@ -2525,7 +2611,14 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
     return true
   } catch (err) {
     error.value = err.message
-    if (!suppressErrors) alert(`Could not read the page: ${err.message}`)
+    if (!suppressErrors) {
+      const payload = err.payload || { error: err.message, failedEngine: err.failedEngine || attemptedEngine }
+      if (shouldOfferRecognitionRecovery(payload, attemptedEngine)) {
+        showRecognitionRecovery(payload, attemptedEngine)
+      } else {
+        alert(`Could not read the page: ${err.message}`)
+      }
+    }
     return false
   } finally {
     recognitionInFlight.value = false
@@ -3383,7 +3476,7 @@ const saveModifications = async (background = false, options = {}) => {
     // If auto-recog was run, update text
     const data = await res.json()
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
-    rescheduleActiveLearningPolling()
+    rescheduleActiveLearningPolling(activeLearningPollDelayMs.immediate)
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
 
     if (saveScope === 'layout') {
@@ -4370,6 +4463,59 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .processing-save-notice { background: rgba(33,33,33,0.95); border: 1px solid #444; color: #fff; }
 .error-message { background: #c62828; color: white; }
 .loading { font-size: 1.2rem; color: #aaa; background: rgba(0,0,0,0.5); }
+
+.recognition-recovery-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.recognition-recovery-card {
+  width: min(460px, 100%);
+  padding: 22px 24px;
+  border-radius: 8px;
+  background: rgba(18, 18, 18, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  text-align: left;
+}
+
+.recognition-recovery-card h3 {
+  margin: 10px 0 8px;
+  font-size: 1.08rem;
+}
+
+.recognition-recovery-card p {
+  margin: 0 0 18px;
+  color: #d6d6d6;
+  line-height: 1.45;
+}
+
+.recognition-recovery-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 216, 159, 0.38);
+  background: rgba(255, 216, 159, 0.12);
+  color: #ffd89f;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.recognition-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
 .recognition-guard-card {
   position: absolute;

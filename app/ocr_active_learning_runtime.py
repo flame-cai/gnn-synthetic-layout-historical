@@ -862,9 +862,15 @@ def handle_post_save(
         },
     )
 
+    active_learning_status = summarize_manuscript_active_learning(
+        manuscript_root,
+        base_checkpoint_path=base_checkpoint_path,
+        orchestrator=orchestrator_instance,
+    )
+
     return {
         "revision": revision.to_dict(),
-        "active_learning": _build_status_payload(registry),
+        "active_learning": active_learning_status,
         "queued_job_ids": queued_job_ids,
         "entered_active_learning": entered_active_learning,
     }

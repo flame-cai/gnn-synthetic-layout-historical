@@ -98,6 +98,7 @@ JOB_ORCHESTRATOR = JobOrchestrator()
 SUPPORTED_RECOGNITION_ENGINES = {"local", "gemini"}
 MANUSCRIPT_PROCESSING_SETTINGS_FILENAME = "processing_settings.json"
 BINARIZE_THRESHOLD_OVERRIDE_KEY = "BINARIZE_THRESHOLD"
+DEFAULT_GEMINI_OCR_TIMEOUT_SECONDS = 45.0
 
 
 def _coerce_optional_binarize_threshold(value, field_name="binarizationThreshold"):
@@ -178,6 +179,61 @@ def _server_gemini_api_key():
     return (os.getenv("GEMINI_API_KEY") or "").strip()
 
 
+def _gemini_ocr_timeout_seconds():
+    raw_value = os.getenv("GEMINI_OCR_TIMEOUT_SECONDS")
+    if raw_value is None or str(raw_value).strip() == "":
+        return DEFAULT_GEMINI_OCR_TIMEOUT_SECONDS
+
+    try:
+        timeout_seconds = float(raw_value)
+    except (TypeError, ValueError):
+        print(
+            f"Warning: Ignoring invalid GEMINI_OCR_TIMEOUT_SECONDS={raw_value!r}; "
+            f"using {DEFAULT_GEMINI_OCR_TIMEOUT_SECONDS:g}s."
+        )
+        return DEFAULT_GEMINI_OCR_TIMEOUT_SECONDS
+
+    if not math.isfinite(timeout_seconds) or timeout_seconds <= 0:
+        print(
+            f"Warning: Ignoring invalid GEMINI_OCR_TIMEOUT_SECONDS={raw_value!r}; "
+            f"using {DEFAULT_GEMINI_OCR_TIMEOUT_SECONDS:g}s."
+        )
+        return DEFAULT_GEMINI_OCR_TIMEOUT_SECONDS
+
+    return max(5.0, min(timeout_seconds, 300.0))
+
+
+def _gemini_ocr_http_options():
+    timeout_ms = int(_gemini_ocr_timeout_seconds() * 1000)
+    return types.HttpOptions(
+        timeout=timeout_ms,
+        retryOptions=types.HttpRetryOptions(attempts=1),
+    )
+
+
+def _is_timeout_exception(exc):
+    if isinstance(exc, TimeoutError):
+        return True
+    exc_name = exc.__class__.__name__.lower()
+    message = str(exc).lower()
+    return (
+        "timeout" in exc_name
+        or "timed out" in message
+        or "deadline exceeded" in message
+    )
+
+
+def _recognition_failure_payload(result, engine):
+    payload = dict(result or {})
+    payload.setdefault("error", "Could not read the page.")
+    payload.setdefault("recognitionEngine", engine)
+    payload.setdefault("failedEngine", engine)
+    if engine == "gemini":
+        payload.setdefault("retryable", True)
+        payload.setdefault("fallbackEngines", ["local"])
+    return payload
+
+
 def _recognition_reader_capabilities():
     gemini_configured = bool(_server_gemini_api_key())
     return {
@@ -192,6 +248,7 @@ def _recognition_reader_capabilities():
                 "available": gemini_configured,
                 "label": "Gemini",
                 "serverConfigured": gemini_configured,
+                "requestTimeoutSeconds": _gemini_ocr_timeout_seconds(),
                 "unavailableReason": None if gemini_configured else "Gemini is not configured on this server.",
             },
         },
@@ -935,6 +992,73 @@ def ensemble_text_samples(samples):
     return "".join(result_chars), result_confidences
 
 
+def _json_from_gemini_text(raw_text):
+    text = str(raw_text or "").strip()
+    if not text:
+        raise ValueError("Gemini returned an empty response.")
+
+    parse_candidates = [text]
+    fenced_match = re.search(r"```(?:json)?\s*(.*?)```", text, flags=re.IGNORECASE | re.DOTALL)
+    if fenced_match:
+        parse_candidates.insert(0, fenced_match.group(1).strip())
+
+    array_start = text.find("[")
+    array_end = text.rfind("]")
+    if 0 <= array_start < array_end:
+        parse_candidates.append(text[array_start : array_end + 1])
+
+    object_start = text.find("{")
+    object_end = text.rfind("}")
+    if 0 <= object_start < object_end:
+        parse_candidates.append(text[object_start : object_end + 1])
+
+    last_error = None
+    for candidate in parse_candidates:
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError as exc:
+            last_error = exc
+
+    raise ValueError(f"Gemini returned invalid JSON: {last_error}")
+
+
+def _parse_gemini_transcriptions(raw_text):
+    data = _json_from_gemini_text(raw_text)
+
+    if isinstance(data, dict):
+        for key in ("transcriptions", "lines", "results"):
+            if isinstance(data.get(key), list):
+                data = data[key]
+                break
+        else:
+            if "id" in data and "text" in data:
+                data = [data]
+            else:
+                raise ValueError("Gemini JSON did not contain a transcription list.")
+
+    if not isinstance(data, list):
+        raise ValueError("Gemini JSON must be a transcription list.")
+
+    parsed = {}
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        if "id" not in item or "text" not in item:
+            continue
+        line_id = str(item.get("id", "")).strip()
+        if not line_id:
+            continue
+        raw_line_text = item.get("text")
+        line_text = "" if raw_line_text is None else str(raw_line_text).strip()
+        if line_text:
+            parsed[line_id] = line_text
+
+    if not parsed:
+        raise ValueError("Gemini returned no line-level text for this page.")
+
+    return parsed
+
+
 def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_trace_points=4):
     started_at = time.monotonic()
     print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
@@ -1039,7 +1163,10 @@ def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_tr
         if not lines_geometry:
             return {"error": "No text-line baselines are available for Gemini recognition."}
 
-        client = genai.Client(api_key=api_key)
+        timeout_seconds = _gemini_ocr_timeout_seconds()
+        client = genai.Client(api_key=api_key, http_options=_gemini_ocr_http_options())
+        sample_errors = []
+        sample_errors_lock = threading.Lock()
 
         # model = genai.GenerativeModel('gemini-3.5-flash')
 
@@ -1095,11 +1222,11 @@ def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_tr
                     )
                 )
 
-                data = json.loads(response.text)
-                if isinstance(data, dict) and "transcriptions" in data: data = data["transcriptions"]
-                return {str(i['id']): str(i['text']).strip() for i in data if 'id' in i}
+                return _parse_gemini_transcriptions(response.text)
             except Exception as e:
-                print(f"Sample {sample_idx} error: {e}")
+                with sample_errors_lock:
+                    sample_errors.append(e)
+                print(f"Sample {sample_idx} error: {e.__class__.__name__}: {e}")
                 return None
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=N) as executor:
@@ -1111,7 +1238,26 @@ def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_tr
                     all_samples_results.append(sample_result)
 
         if not all_samples_results:
-            return {"error": "Gemini did not return a usable transcription."}
+            if any(_is_timeout_exception(error) for error in sample_errors):
+                return {
+                    "error": (
+                        f"Gemini did not finish within {timeout_seconds:g} seconds. "
+                        "You can retry Gemini or use the built-in reader."
+                    ),
+                    "errorCode": "gemini_timeout",
+                    "retryable": True,
+                }
+            if any("empty response" in str(error).lower() for error in sample_errors):
+                return {
+                    "error": "Gemini returned an empty response.",
+                    "errorCode": "gemini_empty_response",
+                    "retryable": True,
+                }
+            return {
+                "error": "Gemini did not return a usable transcription.",
+                "errorCode": "gemini_invalid_response",
+                "retryable": True,
+            }
 
         # --- 3. CHARACTER-LEVEL ENSEMBLE ---
         final_map = {}
@@ -1156,7 +1302,11 @@ def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_tr
                 print(f"[{page}] XML updated with robust ensemble text.")
 
         if not final_map:
-            return {"error": "Gemini returned no line-level text for this page."}
+            return {
+                "error": "Gemini returned no line-level text for this page.",
+                "errorCode": "gemini_empty_response",
+                "retryable": True,
+            }
 
         elapsed_seconds = time.monotonic() - started_at
         print(f"[{page}] Gemini recognition completed in {elapsed_seconds:.1f}s for {len(final_map)} lines.")
@@ -1362,7 +1512,7 @@ def recognize_text():
             return jsonify({"error": "Gemini is not configured on this server."}), 400
         result = _run_gemini_recognition_internal(manuscript, page)
         if result.get("error"):
-            return jsonify(result), 502
+            return jsonify(_recognition_failure_payload(result, "gemini")), 502
         record_prediction(
             manuscript_root=Path(UPLOAD_FOLDER) / manuscript,
             page_id=page,

@@ -44,6 +44,43 @@ class _StubOrchestrator:
         return {}
 
 
+class _StatusRecordingOrchestrator(_StubOrchestrator):
+    def __init__(self):
+        super().__init__()
+        self.statuses = {}
+
+    def enqueue(self, job):
+        job_id = super().enqueue(job)
+        status = {
+            "job_id": job_id,
+            "job_type": str(job.job_type),
+            "state": "queued",
+            "priority": int(job.priority),
+            "manuscript": job.manuscript,
+            "payload": dict(job.payload),
+            "created_at": job.created_at,
+            "started_at": None,
+        }
+        self.statuses[job_id] = status
+        registry = load_registry(job.manuscript_root, job.payload["base_checkpoint_path"])
+        registry.enqueue_pending_job(
+            {
+                "job_id": job_id,
+                "job_type": str(job.job_type),
+                "page_id": job.payload.get("page_id"),
+                "revision_number": job.payload.get("revision_number"),
+                "priority": int(job.priority),
+                "state": "queued",
+                "created_at": job.created_at,
+            }
+        )
+        registry.set_status("queued", f"Waiting to learn from page {job.payload.get('page_id')}", job_id=job_id)
+        return job_id
+
+    def get_job_status(self, job_id):
+        return dict(self.statuses.get(str(job_id), {}))
+
+
 class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
@@ -104,6 +141,33 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertTrue(summary["has_ground_truth"])
         self.assertTrue(summary["current_revision_is_ground_truth"])
 
+    def test_commit_save_returns_fresh_queued_active_learning_status(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("fresh_queued_status")
+        orchestrator = _StatusRecordingOrchestrator()
+        configure_runtime(base_checkpoint, orchestrator=None)
+
+        result = handle_post_save(
+            manuscript="fresh_queued_status_manuscript",
+            page="233_0001",
+            save_intent="commit",
+            active_learning_enabled=True,
+            recognition_engine="local",
+            text_payload={"1": "rama"},
+            manuscript_root=manuscript_root,
+            base_checkpoint_path=base_checkpoint,
+            graph_payload={"nodes": [{"x": 1, "y": 2}], "edges": []},
+            textbox_labels=[0],
+            modifications=[],
+            orchestrator=orchestrator,
+        )
+
+        self.assertEqual(result["active_learning"]["code"], "queued")
+        self.assertEqual(len(result["active_learning"]["pending_jobs"]), 1)
+        self.assertEqual(
+            result["active_learning"]["pending_jobs"][0]["job_id"],
+            result["queued_job_ids"][0],
+        )
+
     def test_commit_save_after_gemini_prediction_enqueues_builtin_finetune_job(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("gemini_prediction_supervision")
         orchestrator = _StubOrchestrator()
@@ -151,14 +215,63 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
     def test_reader_capabilities_report_server_configured_gemini(self):
         client = backend_app_module.app.test_client()
 
-        with mock.patch.object(backend_app_module, "_server_gemini_api_key", return_value="server-key"):
+        with (
+            mock.patch.object(backend_app_module, "_server_gemini_api_key", return_value="server-key"),
+            mock.patch.dict(backend_app_module.os.environ, {"GEMINI_OCR_TIMEOUT_SECONDS": "12"}, clear=False),
+        ):
             response = client.get("/recognition/readers")
 
         response_json = response.get_json()
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response_json["readers"]["local"]["available"])
         self.assertTrue(response_json["readers"]["gemini"]["available"])
+        self.assertEqual(response_json["readers"]["gemini"]["requestTimeoutSeconds"], 12.0)
         self.assertEqual(response_json["defaultEngine"], "local")
+
+    def test_gemini_failure_response_includes_recovery_metadata(self):
+        client = backend_app_module.app.test_client()
+
+        with (
+            mock.patch.object(backend_app_module, "_server_gemini_api_key", return_value="server-key"),
+            mock.patch.object(
+                backend_app_module,
+                "_run_gemini_recognition_internal",
+                return_value={
+                    "error": "Gemini did not finish within 12 seconds.",
+                    "errorCode": "gemini_timeout",
+                },
+            ),
+        ):
+            response = client.post(
+                "/recognize-text",
+                json={
+                    "manuscript": "any_manuscript",
+                    "page": "233_0001",
+                    "recognitionEngine": "gemini",
+                },
+            )
+
+        response_json = response.get_json()
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response_json["errorCode"], "gemini_timeout")
+        self.assertEqual(response_json["failedEngine"], "gemini")
+        self.assertTrue(response_json["retryable"])
+        self.assertEqual(response_json["fallbackEngines"], ["local"])
+
+    def test_parse_gemini_transcriptions_accepts_common_json_wrappers(self):
+        wrapped_payload = """
+        ```json
+        {"transcriptions": [{"id": 0, "text": "zero"}, {"id": 7, "text": "rama"}, {"id": "8", "text": " sita "}]}
+        ```
+        """
+
+        parsed = backend_app_module._parse_gemini_transcriptions(wrapped_payload)
+
+        self.assertEqual(parsed, {"0": "zero", "7": "rama", "8": "sita"})
+
+    def test_parse_gemini_transcriptions_rejects_empty_output(self):
+        with self.assertRaises(ValueError):
+            backend_app_module._parse_gemini_transcriptions("[]")
 
     def test_snapshot_page_revision_copies_line_segmentation_metadata_sidecar(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("snapshot_metadata")

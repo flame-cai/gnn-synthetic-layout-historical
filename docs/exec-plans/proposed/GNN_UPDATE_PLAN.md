@@ -1,6 +1,8 @@
 # Safe GNN Checkpoint Loading And Migration Plan
 
 ## Summary
+- Keep using the existing `gnn_layout` conda environment and the current older PyTorch stack for this checkpoint hardening pass.
+- Do not use `gnn_layout_new`, do not upgrade PyTorch in this plan, and do not introduce `safetensors`.
 - Move GNN checkpoints from full Python-object pickle checkpoints to tensor-only `state_dict` checkpoints.
 - Keep existing production paths unchanged: `app/pretrained_gnn/v2.pt`, `src/gnn_inference/pretrained_gnn/v2.pt`, and their paired YAML files.
 - Migrate the current trusted `v2.pt` once, without retraining.
@@ -28,7 +30,7 @@
   - Replace `'model': model` checkpoint saves with `model_state_dict`.
   - Update final evaluation reload to reconstruct the model and call `load_state_dict`.
   - Add an optional `--preprocessing_config` CLI argument so training checkpoints can record the preprocessing YAML hash.
-  - Keep optimizer state only for training-resume/debug use; inference ignores it.
+  - Keep optimizer state for training resume and future iterative GNN fine-tuning; inference ignores it.
   - Add logging for checkpoint path, format version, model name, feature dims, epoch, metrics, and preprocessing hash presence.
 
 - Update app and src inference:
@@ -41,14 +43,15 @@
 - Migration:
   - Add `scripts/migrate_gnn_checkpoint.py`.
   - Require an explicit trusted-legacy flag before using `weights_only=False`.
-  - Load the current trusted `v2.pt` once, extract `model.state_dict()`, attach `SplineCNN` metadata and the current preprocessing YAML hash, save a safe v2 checkpoint, and copy the same migrated bytes to both pretrained GNN folders.
+  - Load the current trusted `v2.pt` once, extract `model.state_dict()`, preserve `optimizer_state_dict` if present, attach `SplineCNN` metadata and the current preprocessing YAML hash, save a safe v2 checkpoint, and copy the same migrated bytes to both pretrained GNN folders.
   - Verify the migrated checkpoint loads with `weights_only=True`.
   - Verify old-model vs reconstructed-model logits match on a deterministic synthetic graph before replacing artifacts.
 
 - Dependency compatibility:
-  - Update requirements to PyTorch `2.6.0`, `torchvision 0.21.0`, and `torchaudio 2.6.0`.
-  - Use PyTorch’s `cu124` wheel index for GPU requirements and `cpu` for CPU requirements.
-  - Keep PyG packages compatible with `torch-2.6.0` wheels.
+  - Do not change `requirements.txt`, `requirements_cpu.txt`, or the active conda environment as part of this plan.
+  - Keep running verification in `gnn_layout`.
+  - Treat `torch.load(..., weights_only=True)` on the current older PyTorch as a practical hardening step, not as the full upstream CVE remediation.
+  - Document that GitHub may continue flagging the pinned PyTorch dependency until a separate compatible PyTorch upgrade is possible.
   - Treat PyG processed dataset cache loading separately as trusted local training data, because it is not a shipped model checkpoint.
 
 ## Verification
@@ -78,12 +81,14 @@
   - Run only against the migrated production `v2.pt`, not the toy MPNN:
     ```powershell
     $env:CONDA_NO_PLUGINS='true'
-    conda run -n gnn_layout_new python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
+    conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_ci_e2e.py" -v
     ```
   - This verifies the real app pipeline still loads and runs with the migrated safe checkpoint.
 
 ## Assumptions
-- `gnn_layout_new` will contain `torch==2.6.0` and compatible PyG packages.
+- `gnn_layout` remains the active environment for this work.
+- No PyTorch upgrade, `gnn_layout_new` usage, or `safetensors` adoption is part of this plan.
+- This plan hardens GNN checkpoint loading/saving behavior but may not silence GitHub's PyTorch dependency alert while the older PyTorch pin remains.
 - The toy MPNN is a load/save/inference smoke test only; it is not expected to pass production quality thresholds.
 - The preprocessing YAML remains tightly coupled to weights, but the coupling becomes explicit through checkpoint hash validation.
 - No CRAFT, OCR, text-line strategy, or app workflow behavior should change beyond GNN checkpoint loading.

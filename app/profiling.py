@@ -36,15 +36,18 @@ def summarize_gpu_job(job_name: str, metadata: dict, fn: Callable[[], T]) -> tup
         torch.cuda.reset_peak_memory_stats()
         torch.cuda.synchronize()
 
+    started_at = _utc_now_iso()
     start = time.perf_counter()
     result = fn()
 
     if cuda_available:
         torch.cuda.synchronize()
 
+    finished_at = _utc_now_iso()
     summary = {
         "job_name": job_name,
-        "started_at": _utc_now_iso(),
+        "started_at": started_at,
+        "finished_at": finished_at,
         "wall_time_seconds": time.perf_counter() - start,
         "cuda_available": cuda_available,
         "device": device_name,
@@ -78,8 +81,8 @@ def maybe_write_cuda_trace(job_name: str, output_dir: str | Path, enabled: bool,
 
 
 def should_capture_cuda_trace(job_family: str, profiling_root: str | Path) -> bool:
-    if os.getenv("ACTIVE_LEARNING_PROFILE_CUDA") == "1":
-        return True
+    if os.getenv("ACTIVE_LEARNING_PROFILE_CUDA") != "1":
+        return False
     profiling_root = Path(profiling_root)
     marker = profiling_root / f"{job_family}_trace_seen.marker"
     if marker.exists():
