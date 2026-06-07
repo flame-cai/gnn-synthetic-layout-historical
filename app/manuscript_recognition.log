@@ -10051,3 +10051,74 @@
 2026-06-05 13:14:12,047 - INFO - 127.0.0.1 - - [05/Jun/2026 13:14:12] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
 2026-06-05 13:15:13,022 - INFO - 127.0.0.1 - - [05/Jun/2026 13:15:13] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
 2026-06-05 18:02:05,332 - INFO - 127.0.0.1 - - [05/Jun/2026 18:02:05] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-07 16:05:58,005 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.110:5000
+2026-06-07 16:05:58,005 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-07 16:05:58,067 - INFO -  * Restarting with stat
+2026-06-07 16:06:13,743 - WARNING -  * Debugger is active!
+2026-06-07 16:06:13,749 - INFO -  * Debugger PIN: 589-853-336
+2026-06-07 16:06:55,101 - INFO - 127.0.0.1 - - [07/Jun/2026 16:06:55] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-07 16:07:04,118 - INFO - 127.0.0.1 - - [07/Jun/2026 16:07:04] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-07 16:09:12,179 - INFO - 127.0.0.1 - - [07/Jun/2026 16:09:12] "POST /upload HTTP/1.1" 200 -
+2026-06-07 16:09:12,270 - INFO - 127.0.0.1 - - [07/Jun/2026 16:09:12] "GET /manuscript/demo_dataset_test/pages HTTP/1.1" 200 -
+2026-06-07 16:09:12,599 - INFO - 127.0.0.1 - - [07/Jun/2026 16:09:12] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 16:09:13,483 - INFO - 127.0.0.1 - - [07/Jun/2026 16:09:13] "[35m[1mGET /semi-segment/demo_dataset_test/1 HTTP/1.1[0m" 500 -
+2026-06-07 16:09:13,514 - INFO - 127.0.0.1 - - [07/Jun/2026 16:09:13] "GET /manuscript/demo_dataset_test/active-learning HTTP/1.1" 200 -
+2026-06-07 16:10:14,506 - INFO - 127.0.0.1 - - [07/Jun/2026 16:10:14] "GET /manuscript/demo_dataset_test/active-learning HTTP/1.1" 200 -
+2026-06-07 16:11:15,488 - INFO - 127.0.0.1 - - [07/Jun/2026 16:11:15] "GET /manuscript/demo_dataset_test/active-learning HTTP/1.1" 200 -
+2026-06-07 16:12:16,500 - INFO - 127.0.0.1 - - [07/Jun/2026 16:12:16] "GET /manuscript/demo_dataset_test/active-learning HTTP/1.1" 200 -
+2026-06-07 16:13:17,502 - INFO - 127.0.0.1 - - [07/Jun/2026 16:13:17] "GET /manuscript/demo_dataset_test/active-learning HTTP/1.1" 200 -
+2026-06-07 16:15:57,722 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.110:5000
+2026-06-07 16:15:57,723 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-07 16:15:57,730 - INFO -  * Restarting with stat
+2026-06-07 16:16:13,230 - WARNING -  * Debugger is active!
+2026-06-07 16:16:13,230 - INFO -  * Debugger PIN: 589-853-336
+2026-06-07 16:16:13,345 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:13] "OPTIONS /semi-segment/demo_dataset_test/1 HTTP/1.1" 200 -
+2026-06-07 16:16:13,348 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:13] "OPTIONS /semi-segment/demo_dataset_test/1 HTTP/1.1" 200 -
+2026-06-07 16:16:13,355 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:13] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-07 16:16:39,194 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:39] "POST /upload HTTP/1.1" 200 -
+2026-06-07 16:16:39,254 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:39] "GET /manuscript/my_manuscript_demo/pages HTTP/1.1" 200 -
+2026-06-07 16:16:39,603 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:39] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 16:16:40,367 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:40] "[35m[1mGET /semi-segment/my_manuscript_demo/1 HTTP/1.1[0m" 500 -
+2026-06-07 16:16:40,408 - INFO - 127.0.0.1 - - [07/Jun/2026 16:16:40] "GET /manuscript/my_manuscript_demo/active-learning HTTP/1.1" 200 -
+2026-06-07 16:20:12,411 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.110:5000
+2026-06-07 16:20:12,411 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-07 16:20:12,414 - INFO -  * Restarting with stat
+2026-06-07 16:20:23,916 - WARNING -  * Debugger is active!
+2026-06-07 16:20:23,922 - INFO -  * Debugger PIN: 589-853-336
+2026-06-07 16:20:31,740 - INFO - 127.0.0.1 - - [07/Jun/2026 16:20:31] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-07 16:20:32,753 - INFO - 127.0.0.1 - - [07/Jun/2026 16:20:32] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-07 16:20:56,097 - INFO - 127.0.0.1 - - [07/Jun/2026 16:20:56] "POST /upload HTTP/1.1" 200 -
+2026-06-07 16:20:56,116 - INFO - 127.0.0.1 - - [07/Jun/2026 16:20:56] "GET /manuscript/my_manuscript_dloada/pages HTTP/1.1" 200 -
+2026-06-07 16:20:56,445 - INFO - 127.0.0.1 - - [07/Jun/2026 16:20:56] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 16:20:57,136 - INFO - 127.0.0.1 - - [07/Jun/2026 16:20:57] "[35m[1mGET /semi-segment/my_manuscript_dloada/1 HTTP/1.1[0m" 500 -
+2026-06-07 16:20:57,226 - INFO - 127.0.0.1 - - [07/Jun/2026 16:20:57] "GET /manuscript/my_manuscript_dloada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:24:50,744 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.110:5000
+2026-06-07 16:24:50,745 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-07 16:24:50,748 - INFO -  * Restarting with stat
+2026-06-07 16:25:04,550 - WARNING -  * Debugger is active!
+2026-06-07 16:25:04,559 - INFO -  * Debugger PIN: 589-853-336
+2026-06-07 16:25:04,658 - INFO - 127.0.0.1 - - [07/Jun/2026 16:25:04] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-07 16:25:18,637 - INFO - 127.0.0.1 - - [07/Jun/2026 16:25:18] "POST /upload HTTP/1.1" 200 -
+2026-06-07 16:25:18,977 - INFO - 127.0.0.1 - - [07/Jun/2026 16:25:18] "GET /manuscript/my_manuscript_dsada/pages HTTP/1.1" 200 -
+2026-06-07 16:25:19,233 - INFO - 127.0.0.1 - - [07/Jun/2026 16:25:19] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-07 16:25:19,778 - INFO - 127.0.0.1 - - [07/Jun/2026 16:25:19] "[35m[1mGET /semi-segment/my_manuscript_dsada/1 HTTP/1.1[0m" 500 -
+2026-06-07 16:25:19,811 - INFO - 127.0.0.1 - - [07/Jun/2026 16:25:19] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:26:20,504 - INFO - 127.0.0.1 - - [07/Jun/2026 16:26:20] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:27:21,492 - INFO - 127.0.0.1 - - [07/Jun/2026 16:27:21] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:28:22,513 - INFO - 127.0.0.1 - - [07/Jun/2026 16:28:22] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:29:23,485 - INFO - 127.0.0.1 - - [07/Jun/2026 16:29:23] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:30:24,529 - INFO - 127.0.0.1 - - [07/Jun/2026 16:30:24] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:31:25,512 - INFO - 127.0.0.1 - - [07/Jun/2026 16:31:25] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
+2026-06-07 16:32:26,522 - INFO - 127.0.0.1 - - [07/Jun/2026 16:32:26] "GET /manuscript/my_manuscript_dsada/active-learning HTTP/1.1" 200 -
