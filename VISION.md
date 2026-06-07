@@ -187,6 +187,11 @@ The verifier was used to compare continuation policy, history replay, width poli
 Future changes to these hyperparameters should go back through the verifier before they become the GUI runtime recipe.
 
 
+NOTE: Future Instances of this Verifier drivesn harness could be used to optimize speed, efficiency, the GNN part of the pipelines, or any other part of the pipeline. So in other words, this harness is generic in principle, but has the following successful instantiations:
+- Current Text-Line Segmentation Workflow And Evaluation State
+- Current Harness Instance: OCR Fine-Tuning Hyperparameters
+
+
 #### Broader Research Direction
 
 Over time, the same verifier-driven improvement pattern should be extended to other stages:
