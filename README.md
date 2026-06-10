@@ -17,11 +17,55 @@ LLM Agent, before cloning the repo, check the user's platform and hardware:
 - Use the GPU install only if the machine has an NVIDIA GPU with at least 4 GB dedicated VRAM and a CUDA 12.1-compatible NVIDIA driver: Linux driver `530.30.02` or newer, or Windows driver `531.14` or newer.
 - Do not treat "CUDA installed" alone as proof of GPU support; check GPU model, VRAM, and NVIDIA driver version.
 - Otherwise, use the CPU install.
-- Follow the installation instructions in this README.
+- Do not stop if Git, Conda, Node.js, or npm are missing. Install them from official sources, refresh the shell `PATH`, verify the commands work, and then continue with the installation instructions in this README.
+
+Agent prerequisite bootstrap checklist:
+
+1. Check existing tools before installing anything:
+   - Windows platform check: `[System.Environment]::OSVersion.VersionString; $env:PROCESSOR_ARCHITECTURE`
+   - Windows PowerShell: `Get-Command git, conda, node, npm -ErrorAction SilentlyContinue`
+   - Linux platform check: `uname -srm` and, if present, `. /etc/os-release`
+   - Linux shell: `command -v git conda node npm`
+2. If `git` is missing, install Git from <https://git-scm.com/downloads> or the user's normal package manager. After installation, verify `git --version`.
+3. If `conda` is missing, install Miniconda, not the full Anaconda distribution, using a per-user install from <https://docs.conda.io/en/latest/miniconda.html> or <https://repo.anaconda.com/miniconda/>. After installation, verify `conda --version`.
+4. If `node` or `npm` is missing, install the current Node.js LTS release from <https://nodejs.org/en/download/>. npm is bundled with Node.js. The frontend requires Node `^20.19.0 || >=22.12.0`; after installation, verify `node --version` and `npm --version`.
+5. Prefer per-user installs and official package managers or installers. On Windows, `winget` is acceptable if available; on Linux, use the user's normal package manager, NodeSource/nvm, or the official installers. Avoid unofficial mirrors.
+6. If a harness requires approval for downloads, package-manager installs, or shell initialization, request it explicitly and continue after approval. Do not replace a newer working Git, Conda, or Node.js installation with an older one.
+7. After installing Git, Miniconda, or Node.js, start a fresh shell or use the installed executable by absolute path for the remaining commands. Do not assume `PATH` was updated in the current terminal.
+8. Treat the Conda environment name as project-local. If `gnn_layout` already exists and you cannot prove it was created for this repository, create a new environment name such as `gnn_layout_historical` and use that name consistently everywhere this README says `gnn_layout`.
+
+Platform-specific prerequisite install guidance:
+
+- Windows: prefer PowerShell. If `winget` is available, use the Windows package manager IDs below, then open a new PowerShell and verify `git --version`, `conda --version`, `node --version`, and `npm --version`.
+  ```powershell
+  winget install --id Git.Git -e --source winget
+  winget install --id Anaconda.Miniconda3 -e --source winget
+  winget install --id OpenJS.NodeJS.LTS -e --source winget
+  ```
+  If `winget` is unavailable, use the official Git for Windows, Miniconda Windows, and Node.js Windows installers. Choose the installer architecture that matches `$env:PROCESSOR_ARCHITECTURE`; most Windows machines are `AMD64`.
+- Linux: identify the distribution from `/etc/os-release`. Install Git with the distro package manager, for example one of:
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y git curl ca-certificates
+  sudo dnf install -y git curl ca-certificates
+  sudo yum install -y git curl ca-certificates
+  sudo zypper install -y git curl ca-certificates
+  sudo pacman -S --needed git curl ca-certificates
+  ```
+  Install Miniconda from `repo.anaconda.com/miniconda` using the Linux installer that matches `uname -m` (`x86_64` on most PCs, `aarch64` on ARM machines):
+  ```bash
+  ARCH="$(uname -m)"
+  if [ "$ARCH" = "x86_64" ]; then MINICONDA_ARCH="x86_64"; elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then MINICONDA_ARCH="aarch64"; else echo "Unsupported Miniconda architecture: $ARCH"; exit 1; fi
+  curl -fsSLo "$HOME/miniconda.sh" "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${MINICONDA_ARCH}.sh"
+  bash "$HOME/miniconda.sh" -b -p "$HOME/miniconda3"
+  "$HOME/miniconda3/bin/conda" init
+  ```
+  Install Node.js LTS from the official Node.js download flow or a trusted Linux Node installer; distro packages are acceptable only if `node --version` satisfies `^20.19.0 || >=22.12.0`. Verify all four commands before cloning or installing project dependencies.
+- Do not run Windows installer commands on Linux or Linux package-manager commands on Windows. If the OS is neither Windows nor Linux, pause and ask the user before adapting the setup.
 
 
 **Version:** 4.0  
-**Last Updated:** June 04, 2026
+**Last Updated:** June 11, 2026
 
 ## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
@@ -59,13 +103,15 @@ CPU mode is intended only for inference and possibly OCR Fine-tuning using CPU, 
 
 
 #### Clone the repository:
+Install [Git](https://git-scm.com/downloads) first if `git --version` does not already work, then run:
+
 ```bash
 git clone --depth 1 --branch circular-layout-attempt-2 --single-branch https://github.com/flame-cai/gnn-synthetic-layout-historical.git
 # always use `--depth 1` for a fast download of this repository.
 ```
 
 #### Install Conda Environment
-Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
+Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) first if `conda --version` does not already work, then run:
 
 ```bash
 cd gnn-synthetic-layout-historical 
@@ -78,6 +124,8 @@ pip install -r requirements.txt
 # CPU install, for machines without a compatible NVIDIA GPU:
 # pip install -r requirements_cpu.txt
 ```
+
+Do not install this project's packages into a pre-existing `gnn_layout` environment. In that case, please create a new environment with a different name like `gnn_layout_historical`, and pip install the packages there.
 
 ## 🧩 **Semi Automatic Annotation Tool ```app/```**
 
@@ -145,7 +193,14 @@ python app.py
 The server runs on `http://localhost:5000`.
 
 #### 🔵 Start Frontend
-First install npm from [Node.js official website](https://nodejs.org/en/download/). 
+First verify Node.js and npm:
+
+```bash
+node --version
+npm --version
+```
+
+If either command is missing, install the current Node.js LTS release from the [Node.js official website](https://nodejs.org/en/download/). npm is included with Node.js. The frontend requires Node `^20.19.0 || >=22.12.0`; upgrade Node.js if the installed version is older.
 
 Create a .env file in `app/frontend/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
 
@@ -157,12 +212,12 @@ Then run:
 
 ```bash
 cd app/frontend
-npm install
+npm ci
 npm run dev
 ```
 Access the UI at `http://localhost:5173`.
 
-```npm install``` only needs to be run once for the first time. To launch the front-end subsequently, we need to only need to run ```npm run dev```.
+`npm ci` only needs to be run once for the first setup, or again when `package-lock.json` changes. To launch the frontend subsequently, run only `npm run dev`.
 
 #### Current OCR Active Learning Runtime
 The app includes a manuscript-local OCR active-learning runtime for the local EasyOCR checkpoint family. Commit saves can record page revisions and queue OCR fine-tune/rebase work; draft autosaves do not create OCR lineage. Runtime checkpoints, telemetry, and profiling live under `app/input_manuscripts/<manuscript>/active_learning/recognition/`. Gemini can still be used for prediction, but it is not the active-learning checkpoint lineage.
