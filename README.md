@@ -9,6 +9,16 @@ In step 2, the text content of the segmented text-lines is OCR'ed (recognized) a
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
 
+# 😴 Lazy Installation Guide (using LLM Agent Harnesses)
+Dear User, please give the url of this README.md to your LLM Agent and ask it to install the application.
+
+LLM Agent, before cloning the repo, check the user's platform and hardware:
+- Determine whether the user is on Linux or Windows.
+- Use the GPU install only if the machine has an NVIDIA GPU with at least 4 GB dedicated VRAM and a CUDA 12.1-compatible NVIDIA driver: Linux driver `530.30.02` or newer, or Windows driver `531.14` or newer.
+- Do not treat "CUDA installed" alone as proof of GPU support; check GPU model, VRAM, and NVIDIA driver version.
+- Otherwise, use the CPU install.
+- Follow the installation instructions in this README.
+
 
 **Version:** 4.0  
 **Last Updated:** June 04, 2026
@@ -38,10 +48,11 @@ Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https
 
 - CPU: Modern multi-core processor  
 - RAM: ≥ 8 GB  
-- GPU: NVIDIA GPU with CUDA support (≥ 4 GB VRAM)
+- GPU: NVIDIA GPU with at least 4 GB dedicated VRAM
+- Driver: CUDA 12.1-compatible NVIDIA driver: Linux `530.30.02` or newer, or Windows `531.14` or newer
 
 #### Minimum System Requirements
-CPU mode is intended only for inference and possibly OCR Fine-tuning using CPU, which can be a slow.
+CPU mode is intended only for inference and possibly OCR Fine-tuning using CPU, which can be a slow on older CPUs.
 
 - CPU: Intel Core i3-3120M CPU
 - RAM: 6 GB
@@ -49,7 +60,8 @@ CPU mode is intended only for inference and possibly OCR Fine-tuning using CPU, 
 
 #### Clone the repository:
 ```bash
-git clone --depth 1 https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+git clone --depth 1 --branch circular-layout-attempt-2 --single-branch https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+# always use `--depth 1` for a fast download of this repository.
 ```
 
 #### Install Conda Environment
@@ -59,8 +71,12 @@ Install [Conda](https://docs.conda.io/en/latest/miniconda.html) first, then run:
 cd gnn-synthetic-layout-historical 
 conda create -n gnn_layout python=3.11 -y
 conda activate gnn_layout
+
+# GPU install, only for compatible NVIDIA CUDA 12.1 machines:
 pip install -r requirements.txt
-# pip install -r requirements_cpu.txt  # Use requirements_cpu.txt for installing on machines without a GPU
+
+# CPU install, for machines without a compatible NVIDIA GPU:
+# pip install -r requirements_cpu.txt
 ```
 
 ## 🧩 **Semi Automatic Annotation Tool ```app/```**
@@ -94,7 +110,10 @@ To use EasyOCR for recognizing devanagari text, you will need to download the mo
 ```bash
 cd app/recognition/pretrained_model
 wget "https://docs.google.com/uc?export=download&id=1Mm0Keee3DQ4JY8Fe62zgBfRohdEHrfTk" -O vadakautuhala.pth
+file vadakautuhala.pth  # should not report HTML
 ```
+If this downloads a small HTML file instead of the 205 MB checkpoint, open the same URL in a browser, confirm the Google Drive download warning, and save the file as `vadakautuhala.pth`.
+
 The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025), and is specialized to recognize text from a common writing style found in the sanskrit manuscripts at the [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/). In the study, we observed that fine-tuning the recognition model to specific target manuscripts is always benificial (in terms of Character error rate), hence the semi-automatic tool supports this fine-tuning feature.
 
 
