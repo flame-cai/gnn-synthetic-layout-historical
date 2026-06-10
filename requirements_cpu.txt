@@ -6,7 +6,8 @@
 torch==2.4.1+cpu
 torchvision==0.19.1+cpu
 torchaudio==2.4.1+cpu
-torch_geometric
+# Keep PyG pre-2.8: 2.8 ignores torch-spline-conv and expects pyg-lib spline ops.
+torch_geometric==2.6.1
 
 # PyG Specialized Kernels (Spline Conv)
 --find-links https://data.pyg.org/whl/torch-2.4.1+cpu.html
