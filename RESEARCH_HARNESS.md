@@ -140,6 +140,14 @@ checkpoint lineage are not migrated by either command.
 - Name the stage inputs and outputs.
 - Use the same verifier code for benchmark and proposed roles.
 - Keep benchmark and proposed strategy code independent.
+- Do not implement a proposed strategy as a wrapper around the current
+  benchmark or production strategy.
+- Do not call another registered strategy's `apply(...)` from the method under
+  comparison.
+- Do not import strategy-owned geometry constants, crop constants, or helper
+  functions from the competing method. Shared role-neutral infrastructure such
+  as dataclasses, PAGE XML helpers, registry plumbing, low-level geometry
+  primitives, and OCR crop execution is allowed.
 - Keep production strategy code independent from active research strategy code
   unless an explicitly documented adoption workflow has made the same strategy
   the production default.
@@ -152,6 +160,11 @@ checkpoint lineage are not migrated by either command.
 - Do not treat research promotion as GUI rollout.
 
 ## Current Harness Instances
+
+The OCR work has three layers that should be understood together: the offline
+OCR active-learning research harness, the surrogate OCR fine-tuning pre-commit
+gate, and the GUI-safe OCR active-learning runtime documented in
+`PRODUCTION.md`.
 
 ### 1. OCR Fine-Tuning Hyperparameter Harness
 
@@ -187,12 +200,16 @@ The main source files are:
 - `app/recognition/active_learning.py`
 - `app/recognition/train.py`
 - `app/recognition/pagexml_line_dataset.py`
+- `app/recognition/dataset.py`
+- `app/recognition/ocr_defaults.py`
 - `app/ocr_active_learning_runtime.py`
 - `app/manuscript_ocr_registry.py`
 - `app/job_orchestrator.py`
 - `app/tests/recognition_finetuning_config.py`
 - `app/tests/precommit_gate_config.py`
 - `app/tests/recognition_finetuning_experiment.py`
+- `app/tests/test_recognition_active_learning_unit.py`
+- `app/tests/test_recognition_finetuning_page_plus_history_unit.py`
 - `app/tests/test_recognition_finetuning_precommit_unit.py`
 - `app/tests/test_recognition_finetuning_precommit_e2e.py`
 - `app/tests/test_recognition_finetuning_e2e.py`
@@ -221,6 +238,14 @@ The OCR study code can vary:
 
 The active code path currently keeps only the selected recipe as the default
 runtime recipe.
+
+The current harness supports explicit OCR width policies
+`global_2000_pad` and `batch_max_pad`, bounded CER-weighted oversampling,
+OCR-only augmentation policies `none`, `background_only`, and
+`background_plus_rotation`, and learning-rate scheduler plumbing for `none`,
+`step`, and `cosine`. It also supports sibling checkpoint selection between
+`best_accuracy.pth` and `best_norm_ED.pth`; the CER-aligned selector remains
+available for verifier use.
 
 #### Retained Production Recipe
 
@@ -265,6 +290,15 @@ Retained metrics:
 - `curve_metric_value=0.22151451085911972`
 - `final_page_cer=0.13784355179704016`
 - `first_step_gain=0.0572938689217759`
+
+Earlier cumulative and page-only studies are preserved conclusions rather than
+live code paths. The retained conclusions are that broad and focused sweeps
+established `batch_max_pad + no oversampling + no augmentation` as the stable
+structural stack worth keeping; strict page-only continuation was viable but
+weaker and substantially more guard-sensitive on `eval_dataset`; hybrid replay
+beat the earlier baselines on the primary curve metric and final-page CER; and
+Adam remained guard-sensitive even after replaying historical lines, so the
+trusted recipe remains Adadelta with `lr=0.2` and `num_iter=60`.
 
 Generated run artifacts may include:
 
@@ -341,6 +375,28 @@ conda run -n gnn_layout python -m unittest discover -s app/tests -p "test_recogn
 On Windows, if `conda run` fails after the study completes because of console
 encoding, trust the saved artifact folder more than the wrapper output.
 
+Targeted OCR active-learning unit tests:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_unit -v
+```
+
+If `conda run` output is unreliable on Windows, use an activated environment or
+the environment Python directly:
+
+```powershell
+conda activate gnn_layout
+python -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
+```
+
+```powershell
+C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest discover -s app/tests -p "test_recognition_finetuning_e2e.py" -v
+C:\Users\intro\miniconda3\envs\gnn_layout\python.exe -m unittest app.tests.test_recognition_finetuning_precommit_e2e -v
+```
+
+Update the direct interpreter path if the local Conda installation differs.
+
 ### 2. Text-Line Segmentation To OCR Crops Harness
 
 #### Stage Boundary
@@ -394,6 +450,8 @@ The main source files are:
 - `scripts/run_precommit_eval.py`
 - `scripts/promote_text_line_strategy.py`
 - `scripts/adopt_text_line_strategy_for_app.py`
+- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-workflow.md`
+- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
 - `.githooks/pre-commit`
 
 #### Strategy Roles
@@ -413,6 +471,10 @@ Research benchmark and proposed roles must pass
 A proposed strategy must be configured before comparison gates can run. If
 `proposed_strategy_name` is `null`, the strategy ablation gates will refuse to
 run the proposed role.
+
+Do not change the gates to benchmark-only mode or no-proposed-strategy mode as
+part of production adoption work. That is a separate research-harness behavior
+change and needs explicit approval.
 
 #### Current Strategies
 
@@ -438,6 +500,14 @@ Currently registered but rejected for benchmark/proposed/production role pins:
 `local_polygons_stable_unwrap_v1` owns stable local-polygon unwrap behavior,
 baseline endpoint anchors, and ambiguous joined-heatmap component splitting. It
 is the current research benchmark and current production app strategy.
+
+Its stable unwrap crop path is intentionally more specific than "use local
+polygons." The strategy requests `crop_model="local_polygon_stable_unwrap"` in
+line metadata. The OCR crop layer then uses stable arclength/tangent unwrapping
+with smoothed centerline sampling, endpoint-exclusive sampling for closed loops,
+vectorized remap grids, and median-color masking outside the PAGE `Coords`
+polygon. If unwrap geometry guards fail, the crop layer falls back to the
+historical masked PAGE `Coords` crop instead of emitting a broken unwrap.
 
 #### Production Crop Preparation Boundary
 
@@ -552,6 +622,11 @@ Geometry guards before OCR:
 - `source_line_coverage >= 0.90`
 - `heatmap_box_assignment_rate >= 0.90`
 
+The `baseline_heatmap` path must not read PAGE `Coords` for fallback or
+equivalence. PAGE baselines do not preserve the manual node-add/delete history
+needed to reconstruct every corrected graph point exactly, so the ablation gate
+must regenerate geometry from `Baseline`, heatmap, and page image only.
+
 Recipe:
 
 - `page_plus_random_history`
@@ -635,7 +710,17 @@ Local evidence is written to:
 - `app/tests/logs/strategy_promotion_latest.json`
 
 A checked-in promotion record is also generated because `app/tests/logs/` is
-ignored and local artifacts may not exist in a fresh clone.
+ignored and local artifacts may not exist in a fresh clone:
+
+- `docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md`
+
+The launcher cleans up large passing role-run directories by default after each
+phase writes its latest aliases. This removes bulky benchmark/proposed OCR run
+trees, including per-step model folders, while retaining the latest artifacts
+and compact summary directories needed for promotion evidence. Passing OCR plots
+are copied into retained summary directories before cleanup. Failed phases keep
+their role-run directories for debugging. Set `CLEAN_UP=0` before running
+`scripts/run_precommit_eval.py` to keep full passing role artifacts.
 
 #### Research Promotion Workflow
 
@@ -656,6 +741,21 @@ conda run -n gnn_layout python scripts/promote_text_line_strategy.py --candidate
 
 Promotion updates only the research role config. It preserves production app
 strategy config.
+
+Use the promotion script in dry-run mode first by omitting `--apply`, then
+inspect the reported before/after role config and the source diff. Only rerun
+with `--apply` after the evidence and diff have been reviewed.
+
+The promotion script refuses to write when:
+
+- the promotion evidence file is missing
+- the evidence is stale relative to the referenced gate artifacts
+- any required gate failed
+- the evidence benchmark or proposed strategy does not match the CLI arguments
+- the candidate or previous benchmark strategy is not registered
+- the candidate or previous benchmark is not valid for a research role
+- the current checked-in benchmark/proposed roles no longer match the requested
+  promotion
 
 #### Production Adoption Workflow
 
@@ -678,6 +778,12 @@ conda run -n gnn_layout python scripts/adopt_text_line_strategy_for_app.py --str
 
 Production adoption affects future layout saves. It does not rewrite old PAGE
 XML, old line images, or active-learning checkpoint lineage.
+
+Production adoption must not modify research harness code or ablation gates. Do
+not change `app/tests/pipeline_ablation_experiment.py`,
+`app/tests/recognition_finetuning_experiment.py`,
+`app/tests/precommit_gate_config.py`, or `scripts/run_precommit_eval.py` when
+the task is only to adopt a strategy in the app.
 
 #### Hook Behavior
 
