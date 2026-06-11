@@ -93,6 +93,8 @@ the task is only to adopt a strategy in the app.
 Existing PAGE XML, OCR line images, and active-learning checkpoint lineage are
 not migrated automatically when the production strategy changes.
 
+Line-segmentation metadata is stored in a sibling JSON sidecar. If that metadata is missing, malformed, unsupported, non-unwrapped, or unwrap fails, OCR crop preparation falls back to the historical masked PAGE Coords crop.
+
 ## Production Layout Save Boundary
 
 Production layout saves start from the live corrected GUI graph, not from the
@@ -120,6 +122,11 @@ start from the same operational geometry. Production starts from the live
 corrected graph and saved PAGE `Coords`; research strategy ablation starts from
 PAGE `Baseline`, heatmap, and page image, then regenerates `Coords` through the
 strategy under test.
+
+### Layout Staleness and Reading order annotations
+The app tracks whether OCR predictions and committed ground-truth text still match the current layout through layout fingerprints. If the layout changes after OCR prediction or text review, the page workflow can report stale-layout states such as stale OCR prediction or ground truth tied to an older layout. This protects reread/review workflows, but it is separate from validating the line-segmentation metadata sidecar.
+
+Reading-direction annotations are stored in a separate sibling metadata file. On save, the backend resolves each annotation against the current final text-line components by node overlap. An annotation that no longer matches a current line strongly enough is recorded as stale and is not used for crop orientation. This stale-annotation handling is specific to reading-direction metadata.
 
 ## Local OCR Runtime
 
@@ -254,3 +261,9 @@ $env:CONDA_NO_PLUGINS='true'
 conda run -n gnn_layout python -m unittest app.tests.test_strategy_adoption_unit -v
 conda run -n gnn_layout python -m unittest app.tests.test_strategy_aware_ocr_crops_unit -v
 ```
+
+Line-segmentation metadata is stored in a sibling JSON sidecar. If that metadata is missing, malformed, unsupported, non-unwrapped, or unwrap fails, OCR crop preparation falls back to the historical masked PAGE Coords crop.
+
+The app tracks whether OCR predictions and committed ground-truth text still match the current layout through layout fingerprints. If the layout changes after OCR prediction or text review, the page workflow can report stale-layout states such as stale OCR prediction or ground truth tied to an older layout. This protects reread/review workflows, but it is separate from validating the line-segmentation metadata sidecar.
+
+
