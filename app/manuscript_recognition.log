@@ -10552,3 +10552,11 @@
 2026-06-07 17:40:30,578 - INFO - 127.0.0.1 - - [07/Jun/2026 17:40:30] "[36mGET /line-image/demo221/3/3?v=1780833873084163100 HTTP/1.1[0m" 304 -
 2026-06-07 17:41:15,514 - INFO - 127.0.0.1 - - [07/Jun/2026 17:41:15] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
 2026-06-07 17:42:16,528 - INFO - 127.0.0.1 - - [07/Jun/2026 17:42:16] "GET /manuscript/demo221/active-learning HTTP/1.1" 200 -
+2026-06-11 11:20:20,316 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.197:5000
+2026-06-11 11:20:20,316 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-11 11:20:20,324 - INFO -  * Restarting with stat
+2026-06-11 11:20:35,612 - WARNING -  * Debugger is active!
+2026-06-11 11:20:35,620 - INFO -  * Debugger PIN: 821-839-224
