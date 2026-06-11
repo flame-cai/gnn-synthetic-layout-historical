@@ -183,7 +183,7 @@ Access the UI at `http://localhost:5173`.
 #### Current OCR Active Learning Runtime
 The app includes a manuscript-local OCR active-learning runtime for the local EasyOCR checkpoint family. Commit saves can record page revisions and queue OCR fine-tune/rebase work; draft autosaves do not create OCR lineage. Runtime checkpoints, telemetry, and profiling live under `app/input_manuscripts/<manuscript>/active_learning/recognition/`. Gemini can still be used for prediction, but it is not the active-learning checkpoint lineage.
 
-Detailed recipe, checkpoint, telemetry, and gate behavior live in `EVAL.md`.
+Detailed recipe, checkpoint, telemetry, and gate behavior will live in `RESEARCH_HARNESS.md`.
 
 
 #### Text-Line Strategy Evaluation And Promotion
@@ -210,7 +210,7 @@ The checked-in `.githooks/pre-commit` currently exits immediately at the top. `s
 
 Future production saves generate PAGE `TextLine/Coords` through `production_strategy_name`; local OCR, line-image export, and active-learning training use strategy-aware crops when valid metadata exists and otherwise fall back to the historical masked PAGE `Coords` crop. In layout mode, hold `q` to add optional reading-direction annotations for ambiguous line orientation.
 
-For details, see [EVAL.md](./EVAL.md), [VISION.md](./VISION.md), the [strategy promotion workflow](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-workflow.md), and the checked-in [strategy promotion record](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md).
+For details, see [RESEARCH_HARNESS.md](./RESEARCH_HARNESS.md), [VISION.md](./VISION.md), the [strategy promotion workflow](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-workflow.md), and the checked-in [strategy promotion record](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md).
 
 ##  💻 **Graph Neural Network based Text-Line Segmentation Core ```src/```**
 Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. 

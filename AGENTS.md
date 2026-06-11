@@ -239,14 +239,6 @@ Historical OCR evidence should be preserved, not deleted casually:
 - `docs/exec-plans/completed/old-recognition-finetuning-session-report-2026-04-16.md`
 - `docs/exec-plans/completed/old-recognition-finetuning-failure-log.md`
 
-## Guidance For Future Agents
-
-- If you change OCR fine-tuning behavior, update `EVAL.md`, `VISION.md`, and the relevant ExecPlan in the same pass.
-- If you change the policy-study harness, keep the artifact format stable unless there is a strong reason to change it.
-- Do not treat `vadakautuhala.pth` as mutable. Fine-tuned checkpoints belong in run-local artifact folders.
-- Keep writes inside the repository. OneDrive and Windows path length are real constraints here.
-- If you run the slow OCR verifier on Windows, trust the saved artifact folder more than the raw `conda run` stdout if the wrapper crashes with a Unicode printing error after the study has completed.
-
 ## Citations
 
 This is work done at the Centre for Interdisciplinary Artificial Intelligence (CAI), FLAME University and is based on the following papers.

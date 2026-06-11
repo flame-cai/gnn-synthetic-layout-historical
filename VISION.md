@@ -173,9 +173,9 @@ The current strategy docs live under:
 
 - `docs/pipeline-improvement/text-line-segmentation/`
 
-The detailed evaluation architecture, thresholds, artifacts, and adaptation guidance live in:
+The detailed evaluation architecture, thresholds, artifacts, and adaptation guidance will live in:
 
-- `EVAL.md`
+- `RESEARCH_HARNESS.md`
 
 
 #### Current Harness Instance: OCR Fine-Tuning Hyperparameters

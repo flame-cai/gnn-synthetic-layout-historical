@@ -4,7 +4,7 @@ If the whole line has no assigned heatmap boxes, the strategy falls back to a mi
 
 
 
-# demo video
+# make demo video
 - upload page
 - document the image selection criteria, high resolution (CRAFT should be able to detect), reduce min-distance
 - fix nodes edges (4000, 8 hyperparams)
@@ -54,7 +54,7 @@ _______________
     - gnn format layout generator
     - it should generate data in the same format as 'eval_data'.
 
-### 
+### Misc
 - fix GNN loading model - state_load_dict
 - end to end synthetic data generation, finetuning and evaluation (to improve any part of the pipeline! )
 - GNN augment + synthetic data -- setup experiment with verifier
