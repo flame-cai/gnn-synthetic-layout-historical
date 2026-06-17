@@ -35,6 +35,8 @@ _RUNTIME_STATE = {
 }
 _RUNTIME_SIBLING_CHECKPOINT_STRATEGY_ENV = "OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY"
 _DEFAULT_RUNTIME_SIBLING_CHECKPOINT_STRATEGY = "best_norm_ed"
+_RUNTIME_COMPACT_ARTIFACTS_ENV = "OCR_RUNTIME_COMPACT_CHECKPOINT_ARTIFACTS"
+_RUNTIME_PRUNE_CHECKPOINTS_ENV = "OCR_RUNTIME_PRUNE_OBSOLETE_CHECKPOINTS"
 
 
 def configure_runtime(base_checkpoint_path: str | Path, orchestrator: JobOrchestrator | None = None) -> None:
@@ -91,6 +93,241 @@ def _runtime_recipe() -> OcrActiveLearningRecipe:
         DEFAULT_OCR_ACTIVE_LEARNING_RECIPE,
         sibling_checkpoint_strategy=normalize_sibling_checkpoint_strategy(configured_strategy),
     )
+
+
+def _env_flag_enabled(name: str, default: bool = True) -> bool:
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return bool(default)
+    return str(raw_value).strip().lower() not in {"0", "false", "no", "off"}
+
+
+def _is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def _safe_remove_tree(root: Path, target: Path, summary: dict, label: str) -> bool:
+    target = Path(target)
+    if not target.exists():
+        return False
+    root_resolved = Path(root).resolve()
+    target_resolved = target.resolve()
+    if target_resolved == root_resolved or not _is_relative_to(target_resolved, root_resolved):
+        summary.setdefault("skipped", []).append(
+            {"path": str(target_resolved), "label": label, "reason": "outside_allowed_root"}
+        )
+        return False
+    try:
+        shutil.rmtree(target_resolved)
+        summary.setdefault("removed_dirs", []).append({"path": str(target_resolved), "label": label})
+        return True
+    except Exception as exc:  # cleanup must not invalidate a trained checkpoint
+        summary.setdefault("errors", []).append({"path": str(target_resolved), "label": label, "error": str(exc)})
+        return False
+
+
+def _safe_remove_file(root: Path, target: Path, summary: dict, label: str) -> bool:
+    target = Path(target)
+    if not target.exists():
+        return False
+    root_resolved = Path(root).resolve()
+    target_resolved = target.resolve()
+    if not _is_relative_to(target_resolved, root_resolved):
+        summary.setdefault("skipped", []).append(
+            {"path": str(target_resolved), "label": label, "reason": "outside_allowed_root"}
+        )
+        return False
+    try:
+        target_resolved.unlink()
+        summary.setdefault("removed_files", []).append({"path": str(target_resolved), "label": label})
+        return True
+    except Exception as exc:  # cleanup must not invalidate a trained checkpoint
+        summary.setdefault("errors", []).append({"path": str(target_resolved), "label": label, "error": str(exc)})
+        return False
+
+
+def _update_finetune_metadata_after_compaction(
+    metadata_path: Path,
+    original_checkpoint_path: Path,
+    compacted_checkpoint_path: Path,
+    compaction_summary: dict,
+) -> None:
+    if not metadata_path.exists():
+        return
+    try:
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        payload["output_checkpoint_before_compaction"] = str(original_checkpoint_path.resolve())
+        payload["output_checkpoint"] = str(compacted_checkpoint_path.resolve())
+        payload["artifact_compaction"] = compaction_summary
+        metadata_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception as exc:
+        compaction_summary.setdefault("errors", []).append(
+            {"path": str(metadata_path.resolve()), "label": "fine_tune_metadata", "error": str(exc)}
+        )
+
+
+def _compact_candidate_artifacts(
+    registry: ManuscriptOcrRegistry,
+    candidate_id: str,
+    selected_checkpoint_path: str | Path,
+) -> tuple[str, dict]:
+    candidate_id = str(candidate_id)
+    selected_checkpoint_path = Path(selected_checkpoint_path)
+    candidate_root = registry.checkpoints_root / candidate_id
+    summary = {
+        "enabled": _env_flag_enabled(_RUNTIME_COMPACT_ARTIFACTS_ENV, default=True),
+        "candidate_id": candidate_id,
+        "original_checkpoint_path": str(selected_checkpoint_path.resolve()),
+        "compacted_checkpoint_path": None,
+        "removed_dirs": [],
+        "removed_files": [],
+        "skipped": [],
+        "errors": [],
+    }
+
+    if not summary["enabled"]:
+        return str(selected_checkpoint_path.resolve()), summary
+    if not selected_checkpoint_path.exists():
+        summary["errors"].append(
+            {
+                "path": str(selected_checkpoint_path.resolve()),
+                "label": "selected_checkpoint",
+                "error": "missing_selected_checkpoint",
+            }
+        )
+        return str(selected_checkpoint_path.resolve()), summary
+    if not _is_relative_to(selected_checkpoint_path, candidate_root):
+        summary["skipped"].append(
+            {
+                "path": str(selected_checkpoint_path.resolve()),
+                "label": "selected_checkpoint",
+                "reason": "outside_candidate_root",
+            }
+        )
+        return str(selected_checkpoint_path.resolve()), summary
+
+    compacted_checkpoint_path = candidate_root / "model.pth"
+    try:
+        candidate_root.mkdir(parents=True, exist_ok=True)
+        if selected_checkpoint_path.resolve() != compacted_checkpoint_path.resolve():
+            tmp_path = compacted_checkpoint_path.with_name(f"{compacted_checkpoint_path.name}.tmp")
+            if tmp_path.exists():
+                tmp_path.unlink()
+            shutil.copy2(selected_checkpoint_path, tmp_path)
+            tmp_path.replace(compacted_checkpoint_path)
+    except Exception as exc:
+        summary["errors"].append(
+            {
+                "path": str(compacted_checkpoint_path.resolve()),
+                "label": "compacted_checkpoint",
+                "error": str(exc),
+            }
+        )
+        return str(selected_checkpoint_path.resolve()), summary
+
+    summary["compacted_checkpoint_path"] = str(compacted_checkpoint_path.resolve())
+
+    training_run = candidate_root / "training_run"
+    if training_run.exists():
+        for checkpoint_file in training_run.glob("*.pth"):
+            _safe_remove_file(candidate_root, checkpoint_file, summary, "training_checkpoint")
+
+    _safe_remove_tree(candidate_root, candidate_root / "dataset", summary, "materialized_dataset")
+    _safe_remove_tree(candidate_root, candidate_root / "lmdb", summary, "lmdb_dataset")
+    _safe_remove_tree(
+        registry.prepared_pages_root,
+        registry.prepared_pages_root / f"train_{_safe_slug(candidate_id)}",
+        summary,
+        "prepared_training_page",
+    )
+    _safe_remove_tree(
+        registry.prepared_pages_root,
+        registry.prepared_pages_root / f"history_{_safe_slug(candidate_id)}",
+        summary,
+        "prepared_history_pages",
+    )
+    _update_finetune_metadata_after_compaction(
+        candidate_root / "fine_tune_metadata.json",
+        selected_checkpoint_path,
+        compacted_checkpoint_path,
+        summary,
+    )
+    return str(compacted_checkpoint_path.resolve()), summary
+
+
+def _protected_checkpoint_ids(registry: ManuscriptOcrRegistry) -> set[str]:
+    protected = {
+        "base",
+        str(registry.data.get("active_checkpoint_id") or ""),
+        str(registry.data.get("previous_active_checkpoint_id") or ""),
+        str(registry.data.get("in_flight_candidate_id") or ""),
+    }
+    for pending_job in registry.pending_ocr_work():
+        for key in ("candidate_id", "parent_checkpoint_id"):
+            value = pending_job.get(key)
+            if value:
+                protected.add(str(value))
+    return {checkpoint_id for checkpoint_id in protected if checkpoint_id and checkpoint_id != "None"}
+
+
+def _checkpoint_dir_for_record(registry: ManuscriptOcrRegistry, checkpoint_id: str, record: dict) -> Path | None:
+    checkpoint_path = Path(record.get("path") or "")
+    if not checkpoint_path:
+        return None
+    checkpoints_root = registry.checkpoints_root.resolve()
+    try:
+        relative_path = checkpoint_path.resolve().relative_to(checkpoints_root)
+    except ValueError:
+        return None
+    if not relative_path.parts:
+        return None
+    return checkpoints_root / relative_path.parts[0]
+
+
+def _prune_obsolete_checkpoints(registry: ManuscriptOcrRegistry) -> dict:
+    summary = {
+        "enabled": _env_flag_enabled(_RUNTIME_PRUNE_CHECKPOINTS_ENV, default=True),
+        "protected_checkpoint_ids": sorted(_protected_checkpoint_ids(registry)),
+        "pruned_checkpoint_ids": [],
+        "removed_dirs": [],
+        "skipped": [],
+        "errors": [],
+    }
+    if not summary["enabled"]:
+        return summary
+
+    protected = set(summary["protected_checkpoint_ids"])
+    for checkpoint_id, record in list((registry.data.get("checkpoints") or {}).items()):
+        checkpoint_id = str(checkpoint_id)
+        if checkpoint_id in protected:
+            continue
+        if str(record.get("kind") or "") == "base":
+            continue
+        checkpoint_dir = _checkpoint_dir_for_record(registry, checkpoint_id, record)
+        if checkpoint_dir is None:
+            summary["skipped"].append(
+                {
+                    "checkpoint_id": checkpoint_id,
+                    "path": record.get("path"),
+                    "reason": "checkpoint_not_under_runtime_root",
+                }
+            )
+            continue
+        removed = _safe_remove_tree(registry.checkpoints_root, checkpoint_dir, summary, "obsolete_checkpoint")
+        if removed:
+            record["status_before_prune"] = record.get("status")
+            record["status"] = "pruned"
+            record["pruned_at"] = utc_now_iso()
+            record["prune_reason"] = "not_active_previous_inflight_or_pending_parent"
+            summary["pruned_checkpoint_ids"].append(checkpoint_id)
+
+    registry.data["last_checkpoint_prune_summary"] = summary
+    registry.save()
+    return summary
 
 
 def _snapshot_page_revision(registry: ManuscriptOcrRegistry, page_id: str, revision_number: int) -> Path:
@@ -528,13 +765,17 @@ def _handle_orchestrator_event(event_name: str, job_status: dict) -> None:
         return
     registry = _load_registry_for_manuscript(manuscript_root)
     job_id = str(job_status["job_id"])
+    job_payload = dict(job_status.get("payload") or {})
     if event_name == "queued":
         registry.enqueue_pending_job(
             {
                 "job_id": job_id,
                 "job_type": job_status["job_type"],
-                "page_id": (job_status.get("payload") or {}).get("page_id"),
-                "revision_number": (job_status.get("payload") or {}).get("revision_number"),
+                "page_id": job_payload.get("page_id"),
+                "revision_number": job_payload.get("revision_number"),
+                "candidate_id": job_payload.get("candidate_id"),
+                "parent_checkpoint_id": job_payload.get("parent_checkpoint_id"),
+                "parent_checkpoint_path": job_payload.get("parent_checkpoint_path"),
                 "priority": job_status["priority"],
                 "state": job_status["state"],
                 "created_at": job_status["created_at"],
@@ -695,7 +936,7 @@ def _finalize_promoted_candidate(
     promotion_summary: dict,
     consumed_revision_refs: list[dict],
     clear_rebase: bool = False,
-) -> None:
+) -> dict:
     registry.promote_candidate(candidate_id, promotion_summary)
     for revision_ref in consumed_revision_refs:
         registry.mark_revision_consumed(
@@ -706,6 +947,7 @@ def _finalize_promoted_candidate(
     if clear_rebase:
         registry.clear_rebase()
     registry.set_status("idle", "Not updating right now", candidate_id=candidate_id)
+    return _prune_obsolete_checkpoints(registry)
 
 
 def handle_post_save(
@@ -935,15 +1177,22 @@ def _train_candidate_step(job_payload: dict) -> dict:
     )
     write_profile_summary(registry.profiling_root, "ocr_fine_tune", summary)
 
+    compacted_checkpoint_path, compaction_summary = _compact_candidate_artifacts(
+        registry,
+        candidate_id,
+        fine_tune_result.output_checkpoint,
+    )
+
     registry.mark_candidate(
         {
             "candidate_id": candidate_id,
-            "checkpoint_path": fine_tune_result.output_checkpoint,
+            "checkpoint_path": compacted_checkpoint_path,
             "parent_checkpoint_id": job_payload.get("parent_checkpoint_id"),
             "page_id": training_revision_ref["page_id"],
             "revision_number": training_revision_ref["revision_number"],
             "metadata_path": str(candidate_root / "fine_tune_metadata.json"),
             "run_dir": str(candidate_root),
+            "artifact_compaction": compaction_summary,
             "status": "candidate",
         }
     )
@@ -956,15 +1205,17 @@ def _train_candidate_step(job_payload: dict) -> dict:
     promotion_summary = {
         "passed": True,
         "reason": "direct_promote_after_training",
+        "artifact_compaction": compaction_summary,
     }
     registry.set_checkpoint_lineage(candidate_id, history_revision_refs + [training_revision_ref])
     return {
         "candidate_id": candidate_id,
-        "checkpoint_path": fine_tune_result.output_checkpoint,
+        "checkpoint_path": compacted_checkpoint_path,
         "metadata": {
-            "output_checkpoint": fine_tune_result.output_checkpoint,
+            "output_checkpoint": compacted_checkpoint_path,
             "metadata_path": str(candidate_root / "fine_tune_metadata.json"),
             "run_dir": str(candidate_root),
+            "artifact_compaction": compaction_summary,
         },
         "promotion_summary": promotion_summary,
         "training_revision_ref": training_revision_ref,
@@ -978,7 +1229,7 @@ def run_ocr_finetune_job(job_payload: dict) -> dict:
         base_checkpoint_path=job_payload.get("base_checkpoint_path"),
     )
     promotion_summary = step_result["promotion_summary"]
-    _finalize_promoted_candidate(
+    prune_summary = _finalize_promoted_candidate(
         registry=registry,
         candidate_id=step_result["candidate_id"],
         promotion_summary=promotion_summary,
@@ -989,6 +1240,7 @@ def run_ocr_finetune_job(job_payload: dict) -> dict:
         "checkpoint_path": step_result["checkpoint_path"],
         "promoted": True,
         "promotion_summary": promotion_summary,
+        "checkpoint_prune_summary": prune_summary,
     }
 
 
@@ -1029,14 +1281,14 @@ def rebuild_manuscript_lineage(job_payload: dict) -> dict:
         job_payload["manuscript_root"],
         base_checkpoint_path=job_payload.get("base_checkpoint_path"),
     )
-    _finalize_promoted_candidate(
+    prune_summary = _finalize_promoted_candidate(
         registry=registry,
         candidate_id=final_candidate_id,
         promotion_summary=final_promotion_summary,
         consumed_revision_refs=approved_revision_refs,
         clear_rebase=True,
     )
-    return {"rebuilt": True, "candidate_id": final_candidate_id}
+    return {"rebuilt": True, "candidate_id": final_candidate_id, "checkpoint_prune_summary": prune_summary}
 
 
 def dispatch_isolated_job(job_type: str, payload: dict) -> dict:

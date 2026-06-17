@@ -365,6 +365,37 @@ When active learning is enabled and a new supervised commit revision is saved:
   the registry marks `needs_rebase` and may queue an `ocr_rebase` job over the
   latest approved supervised revisions
 
+After each successful OCR fine-tune step, the runtime compacts checkpoint
+artifacts by copying the selected sibling checkpoint to:
+
+```text
+active_learning/recognition/checkpoints/<checkpoint_id>/model.pth
+```
+
+The registry points at that stable `model.pth`. The runtime keeps small metadata
+and logs, including `fine_tune_metadata.json` and `selector_metrics.json`, but
+removes regenerated heavyweight materialization such as sibling `.pth` files in
+`training_run/`, the step `dataset/`, the step `lmdb/`, and prepared-page
+training scratch directories. This does not change future fine-tuning inputs:
+rebase and history replay use the base checkpoint plus revision snapshots under
+`active_learning/recognition/revisions/`, not deleted LMDB or training scratch
+directories.
+
+After promotion, obsolete manuscript checkpoint directories are pruned when they
+are not one of:
+
+- the base checkpoint
+- the current active checkpoint
+- the previous active checkpoint used for fallback
+- the in-flight candidate
+- a parent or candidate checkpoint referenced by a pending OCR job
+
+Pruned checkpoint records remain in `registry.json` with `status="pruned"` for
+lineage/audit purposes, but their model directory is removed. Set
+`OCR_RUNTIME_COMPACT_CHECKPOINT_ARTIFACTS=0` to skip per-candidate compaction or
+`OCR_RUNTIME_PRUNE_OBSOLETE_CHECKPOINTS=0` to keep obsolete checkpoint
+directories during debugging.
+
 The active runtime recipe is based on
 `DEFAULT_OCR_ACTIVE_LEARNING_RECIPE` in
 `app/recognition/active_learning_recipe.py`:

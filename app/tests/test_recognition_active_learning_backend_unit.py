@@ -1,3 +1,4 @@
+import json
 import shutil
 import sys
 import unittest
@@ -21,6 +22,8 @@ from app import app as backend_app_module
 from job_orchestrator import JobType
 from manuscript_ocr_registry import load_registry
 from ocr_active_learning_runtime import (
+    _compact_candidate_artifacts,
+    _prune_obsolete_checkpoints,
     configure_runtime,
     handle_post_save,
     record_prediction,
@@ -1054,6 +1057,88 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertEqual(reloaded.active_checkpoint_id(), "ocr_233_0001_r0001")
         self.assertEqual(reloaded.find_revision("233_0001", 1)["consumed_into_checkpoint_id"], "ocr_233_0001_r0001")
         self.assertEqual(reloaded.data["checkpoints"]["ocr_233_0001_r0001"]["status"], "active")
+
+    def test_compact_candidate_artifacts_preserves_model_and_removes_training_materialization(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("compact_candidate")
+        registry = load_registry(manuscript_root, base_checkpoint)
+        candidate_id = "ocr_233_0001_r0001"
+        candidate_root = registry.checkpoints_root / candidate_id
+        training_run = candidate_root / "training_run"
+        training_run.mkdir(parents=True, exist_ok=True)
+        selected_checkpoint = training_run / "best_norm_ED.pth"
+        selected_checkpoint.write_bytes(b"selected checkpoint")
+        (training_run / "best_accuracy.pth").write_bytes(b"unused checkpoint")
+        (training_run / "iter_1.pth").write_bytes(b"iter checkpoint")
+        (training_run / "log_train.txt").write_text("tiny log", encoding="utf-8")
+        (candidate_root / "dataset").mkdir(parents=True, exist_ok=True)
+        (candidate_root / "dataset" / "gt.txt").write_text("line", encoding="utf-8")
+        (candidate_root / "lmdb").mkdir(parents=True, exist_ok=True)
+        (candidate_root / "lmdb" / "data.mdb").write_bytes(b"lmdb")
+        (candidate_root / "fine_tune_metadata.json").write_text(
+            json.dumps({"output_checkpoint": str(selected_checkpoint)}),
+            encoding="utf-8",
+        )
+        (registry.prepared_pages_root / f"train_{candidate_id}").mkdir(parents=True, exist_ok=True)
+        (registry.prepared_pages_root / f"history_{candidate_id}").mkdir(parents=True, exist_ok=True)
+
+        compacted_checkpoint, summary = _compact_candidate_artifacts(
+            registry,
+            candidate_id,
+            selected_checkpoint,
+        )
+
+        compacted_checkpoint = Path(compacted_checkpoint)
+        self.assertEqual(compacted_checkpoint, (candidate_root / "model.pth").resolve())
+        self.assertEqual(compacted_checkpoint.read_bytes(), b"selected checkpoint")
+        self.assertFalse(selected_checkpoint.exists())
+        self.assertFalse((training_run / "best_accuracy.pth").exists())
+        self.assertFalse((training_run / "iter_1.pth").exists())
+        self.assertTrue((training_run / "log_train.txt").exists())
+        self.assertFalse((candidate_root / "dataset").exists())
+        self.assertFalse((candidate_root / "lmdb").exists())
+        self.assertFalse((registry.prepared_pages_root / f"train_{candidate_id}").exists())
+        self.assertFalse((registry.prepared_pages_root / f"history_{candidate_id}").exists())
+        self.assertEqual(summary["errors"], [])
+
+        metadata = json.loads((candidate_root / "fine_tune_metadata.json").read_text(encoding="utf-8"))
+        self.assertEqual(Path(metadata["output_checkpoint"]), compacted_checkpoint)
+        self.assertEqual(Path(metadata["output_checkpoint_before_compaction"]), selected_checkpoint.resolve())
+        self.assertGreaterEqual(len(metadata["artifact_compaction"]["removed_files"]), 3)
+
+    def test_prune_obsolete_checkpoints_keeps_active_previous_and_pending_parent(self):
+        manuscript_root, base_checkpoint = self._make_manuscript_root("prune_checkpoints")
+        registry = load_registry(manuscript_root, base_checkpoint)
+
+        for checkpoint_id in ("old", "previous", "active", "pending_parent"):
+            checkpoint_dir = registry.checkpoints_root / checkpoint_id
+            checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            checkpoint_path = checkpoint_dir / "model.pth"
+            checkpoint_path.write_text(checkpoint_id, encoding="utf-8")
+            registry.ensure_checkpoint_record(checkpoint_id, checkpoint_path, status="active")
+
+        registry.data["active_checkpoint_id"] = "active"
+        registry.data["previous_active_checkpoint_id"] = "previous"
+        registry.enqueue_pending_job(
+            {
+                "job_id": "pending",
+                "job_type": JobType.OCR_FINE_TUNE.value,
+                "parent_checkpoint_id": "pending_parent",
+                "state": "queued",
+                "priority": 2,
+                "created_at": "2026-04-20T00:00:00+00:00",
+            }
+        )
+        registry.save()
+
+        summary = _prune_obsolete_checkpoints(registry)
+        reloaded = load_registry(manuscript_root, base_checkpoint)
+
+        self.assertIn("old", summary["pruned_checkpoint_ids"])
+        self.assertFalse((registry.checkpoints_root / "old").exists())
+        self.assertTrue((registry.checkpoints_root / "previous" / "model.pth").exists())
+        self.assertTrue((registry.checkpoints_root / "active" / "model.pth").exists())
+        self.assertTrue((registry.checkpoints_root / "pending_parent" / "model.pth").exists())
+        self.assertEqual(reloaded.data["checkpoints"]["old"]["status"], "pruned")
 
     def test_rebuild_manuscript_lineage_promotes_final_candidate_created_by_training_steps(self):
         manuscript_root, base_checkpoint = self._make_manuscript_root("rebuild_promotes_latest")
