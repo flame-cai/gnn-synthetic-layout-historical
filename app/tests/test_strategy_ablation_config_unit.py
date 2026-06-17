@@ -13,11 +13,13 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from tests.precommit_gate_config import (
+    StrategyRoleConfig,
     get_pipeline_precommit_dataset,
     get_recognition_precommit_dataset,
 )
-from tests.pipeline_ablation_experiment import _build_absolute_thresholds, _build_pipeline_comparison
+from tests.pipeline_ablation_experiment import _build_absolute_thresholds, _build_pipeline_comparison, _run_pipeline_role
 from tests.recognition_finetuning_config import get_precommit_hybrid_recognition_gate_config
+from tests.recognition_finetuning_experiment import _config_for_strategy_role
 from recognition.line_segmentation.strategy_config import (
     get_benchmark_strategy_name,
     get_proposed_strategy_name,
@@ -244,6 +246,23 @@ class StrategyAblationConfigUnitTest(unittest.TestCase):
                     "proposed_strategy_name": "local_polygons_v1",
                     "production_strategy_name": "local_tangent_band_v1",
                 }
+            )
+
+    def test_strategy_gate_helpers_refuse_unconfigured_proposed_role(self):
+        missing_proposed = StrategyRoleConfig(role="proposed", strategy_name=None)
+
+        with self.assertRaisesRegex(ValueError, "requires proposed_strategy_name to be configured"):
+            _run_pipeline_role(
+                client=None,
+                dataset_config=get_pipeline_precommit_dataset("eval_dataset"),
+                role_config=missing_proposed,
+                upload_root=Path("unused"),
+            )
+
+        with self.assertRaisesRegex(ValueError, "requires proposed_strategy_name to be configured"):
+            _config_for_strategy_role(
+                get_precommit_hybrid_recognition_gate_config("eval_dataset"),
+                missing_proposed,
             )
 
 

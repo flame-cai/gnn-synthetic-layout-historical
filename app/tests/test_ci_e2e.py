@@ -21,6 +21,8 @@ class EndToEndEvalDatasetTest(unittest.TestCase):
     def test_precommit_pipeline_datasets_end_to_end(self):
         for dataset_config in get_pipeline_precommit_datasets():
             with self.subTest(dataset=dataset_config.name):
+                if dataset_config.strategy_ablation.proposed.strategy_name is None:
+                    self.skipTest("No proposed strategy configured; pipeline strategy ablation gate is inactive.")
                 result = run_pipeline_strategy_ablation_gate(dataset_config.name)
 
                 self.assertEqual(result["study_mode"], "pipeline_strategy_ablation_gate")

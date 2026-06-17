@@ -18,7 +18,7 @@ if str(APP_ROOT) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from app import app as backend_app_module
+from tests.backend_app_import import backend_app_module
 from job_orchestrator import JobType
 from manuscript_ocr_registry import load_registry
 from ocr_active_learning_runtime import (

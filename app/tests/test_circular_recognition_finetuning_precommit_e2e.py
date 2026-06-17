@@ -18,6 +18,7 @@ from recognition.console import configure_recognition_console_streams
 
 configure_recognition_console_streams()
 
+from tests.precommit_gate_config import get_recognition_precommit_dataset
 from tests.recognition_finetuning_config import get_precommit_hybrid_recognition_gate_config
 from tests.recognition_finetuning_experiment import run_circular_recognition_strategy_ablation_gate
 
@@ -25,6 +26,9 @@ from tests.recognition_finetuning_experiment import run_circular_recognition_str
 class CircularRecognitionFineTuningPrecommitEndToEndTest(unittest.TestCase):
     def test_eval_dataset_v2_circular_recognition_ablation_gate(self):
         dataset_name = os.getenv("CIRCULAR_RECOGNITION_FINETUNE_DATASET", "eval_dataset_v2")
+        gate_config = get_recognition_precommit_dataset(dataset_name)
+        if gate_config.strategy_ablation.proposed.strategy_name is None:
+            self.skipTest("No proposed strategy configured; circular recognition strategy ablation gate is inactive.")
         config = get_precommit_hybrid_recognition_gate_config(dataset_name)
         result = run_circular_recognition_strategy_ablation_gate(dataset_name=dataset_name)
 

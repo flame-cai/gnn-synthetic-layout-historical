@@ -26,6 +26,8 @@ class RecognitionFineTuningPrecommitEndToEndTest(unittest.TestCase):
     def test_eval_dataset_recognition_precommit_gate(self):
         dataset_name = os.getenv("RECOGNITION_FINETUNE_DATASET", "eval_dataset")
         gate_config = get_recognition_precommit_dataset(dataset_name)
+        if gate_config.strategy_ablation.proposed.strategy_name is None:
+            self.skipTest("No proposed strategy configured; recognition strategy ablation gate is inactive.")
         result = run_recognition_strategy_ablation_gate(dataset_name=dataset_name)
 
         self.assertEqual(result["study_mode"], "recognition_strategy_ablation_gate")

@@ -21,13 +21,9 @@ if str(APP_ROOT) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-ORIGINAL_CWD = Path.cwd()
-os.chdir(TESTS_ROOT)
-import app as backend_app_module
-os.chdir(APP_ROOT)
-
 from recognition.active_learning import generate_prediction_pagexmls
 from recognition.pagexml_line_dataset import GEOMETRY_SOURCE_BASELINE_HEATMAP, prepare_page_line_dataset
+from tests.backend_app_import import backend_app_module
 from tests.evaluate import evaluate_dataset, write_report_files
 from tests.precommit_gate_config import get_pipeline_precommit_dataset
 

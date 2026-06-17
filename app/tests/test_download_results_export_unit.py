@@ -1,4 +1,3 @@
-import importlib
 import io
 import shutil
 import sys
@@ -19,7 +18,7 @@ if str(APP_ROOT) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-backend_app_module = importlib.import_module("app.app")
+from tests.backend_app_import import backend_app_module
 
 
 class DownloadResultsExportUnitTest(unittest.TestCase):

@@ -470,7 +470,10 @@ Research benchmark and proposed roles must pass
 
 A proposed strategy must be configured before comparison gates can run. If
 `proposed_strategy_name` is `null`, the strategy ablation gates will refuse to
-run the proposed role.
+run the proposed role. The e2e unittest entrypoints skip in this idle state so
+normal test discovery does not report a misleading failure when there is no
+candidate to evaluate; the underlying gate helpers still fail closed if called
+without a proposed strategy.
 
 Do not change the gates to benchmark-only mode or no-proposed-strategy mode as
 part of production adoption work. That is a separate research-harness behavior
@@ -556,6 +559,11 @@ Draft saves and layout saves may preserve state, but they do not become OCR
 training ground truth.
 
 #### External Verifier Gates
+
+These gates compare a proposed text-line strategy against the current research
+benchmark. When `proposed_strategy_name` is `null`, the unittest entrypoints
+below skip with an explicit inactive-gate message. Configure a proposed strategy
+before using these commands as promotion evidence.
 
 ##### Pretrained Full-Pipeline Gate
 
@@ -805,6 +813,10 @@ strategy gates on commit. If the guard is removed, the hook calls
 - `SKIP_CIRCULAR_RECOGNITION_FT_HOOK=1`
 
 If any phase is skipped, aggregate promotion evidence is not refreshed.
+
+If `proposed_strategy_name` is `null`, the e2e gate unittests skip instead of
+running benchmark-only. A skipped gate is not promotion evidence and must not be
+used to refresh aggregate promotion evidence.
 
 #### Validation Commands
 
