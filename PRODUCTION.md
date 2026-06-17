@@ -2,9 +2,10 @@
 
 This document describes the production behavior of the semi-automatic
 annotation and OCR app under `app/`. Research verifier details live in
-`RESEARCH_HARNESS.md`; this file is about the GUI runtime, saved manuscript
-state, production text-line strategy adoption, local OCR inference, and
-active-learning jobs.
+`RESEARCH_HARNESS.md`; this file is about GUI runtime behavior, saved
+manuscript state, production text-line strategy adoption, local OCR inference,
+Gemini OCR integration, exports, active-learning jobs, telemetry, and
+operational validation.
 
 ## Purpose And Scope
 
@@ -13,15 +14,16 @@ The app supports manuscript digitization with human correction in the loop:
 - layout correction by adding and deleting graph nodes
 - graph correction by adding and deleting edges
 - text-line and text-region grouping
+- optional reading-direction annotation for ambiguous lines
 - PAGE XML generation
 - OCR through Gemini or the local OCR checkpoint family
 - manual OCR text correction
-- PAGE XML and line-image export
+- PAGE XML, line-image, OCR-training-format, resized-image, and overlay export
 - manuscript-local OCR active learning for the local OCR model
 
 The production app is not the research harness. It may use a strategy or recipe
-that was selected by research gates, but changing production behavior must be an
-explicit production adoption step.
+that was selected by research gates, but changing production behavior must be
+an explicit production adoption step.
 
 ## Runtime Source Files
 
@@ -42,21 +44,68 @@ Important production runtime files:
 - `app/recognition/dataset.py`
 - `app/recognition/ocr_defaults.py`
 - `app/recognition/pagexml_line_dataset.py`
+- `app/recognition/recognize_manuscript_text_v2_pretrained.py`
 - `app/recognition/train.py`
 - `app/recognition/line_segmentation/ocr_crops.py`
-- `app/recognition/line_segmentation/strategy_config.py`
+- `app/recognition/line_segmentation/reading_direction.py`
+- `app/recognition/line_segmentation/registry.py`
 - `app/recognition/line_segmentation/runtime_config.py`
+- `app/recognition/line_segmentation/strategy_config.py`
 - `scripts/adopt_text_line_strategy_for_app.py`
 
 Important production/runtime tests:
 
+- `app/tests/test_download_results_export_unit.py`
 - `app/tests/test_job_orchestrator_unit.py`
+- `app/tests/test_line_segmentation_strategy_unit.py`
 - `app/tests/test_manuscript_ocr_registry_unit.py`
-- `app/tests/test_recognition_active_learning_unit.py`
+- `app/tests/test_profiling_unit.py`
+- `app/tests/test_read_mode_line_image_previews_unit.py`
 - `app/tests/test_recognition_active_learning_backend_unit.py`
+- `app/tests/test_recognition_active_learning_unit.py`
 - `app/tests/test_recognition_telemetry_unit.py`
+- `app/tests/test_strategy_ablation_config_unit.py`
 - `app/tests/test_strategy_adoption_unit.py`
 - `app/tests/test_strategy_aware_ocr_crops_unit.py`
+
+## Manuscript Runtime State
+
+The Flask backend stores manuscripts under:
+
+```text
+app/input_manuscripts/<manuscript>/
+```
+
+Important manuscript-local paths include:
+
+- `images/`: uploaded original images.
+- `images_resized/`: images resized for layout processing.
+- `heatmaps/`: CRAFT heatmaps.
+- `gnn-dataset/`: initial graph-format files from preprocessing.
+- `processing_settings.json`: upload-time processing settings, including
+  `target_longest_side`, `min_distance`, and optional line-segmentation
+  overrides such as `BINARIZE_THRESHOLD`.
+- `node_corrections/`: legacy cumulative node correction summaries used by the
+  download metrics export.
+- `layout_analysis_output/gnn-format/`: corrected graph, labels, and dimensions
+  written by layout saves.
+- `layout_analysis_output/_baseline_page_xml/`: baseline-only PAGE XML produced
+  from the corrected graph before the production text-line strategy writes final
+  `Coords`.
+- `layout_analysis_output/page-xml-format/`: final PAGE XML plus sibling
+  line-segmentation and reading-direction metadata sidecars.
+- `layout_analysis_output/image-format/`: app line images organized by page and
+  text region.
+- `layout_analysis_output/images_resized/`: resized images copied beside saved
+  PAGE XML for export and OCR.
+- `overlay_exports/`: generated page overlay JPEGs from the `/save-overlay`
+  route.
+- `active_learning/recognition/`: manuscript-local OCR registry, revisions,
+  checkpoints, prepared pages, telemetry, profiling, and job state.
+
+Uploading a manuscript name that already exists currently replaces that
+manuscript directory in `app/app.py`. Treat manuscript names as mutable working
+folders, not archival identifiers.
 
 ## Production Text-Line Strategy
 
@@ -64,9 +113,25 @@ The production app strategy is stored in
 `app/recognition/line_segmentation/strategy_config.py` as
 `production_strategy_name`.
 
-The current production app strategy is:
+The current checked-in role pins are:
 
+- research benchmark: `local_polygons_stable_unwrap_v1`
+- research proposed: unset
+- production app: `local_polygons_stable_unwrap_v1`
+
+Registered strategies currently include:
+
+- `legacy_axis_bound_v1`
+- `local_polygons_v1`
 - `local_polygons_stable_unwrap_v1`
+- `local_tangent_band_v1`
+- `local_polygons_hstraight_smooth_unwrap_v1`
+
+Only `legacy_axis_bound_v1`, `local_polygons_v1`, and
+`local_polygons_stable_unwrap_v1` are currently marked independent enough for
+research or production role pins. `local_tangent_band_v1` and
+`local_polygons_hstraight_smooth_unwrap_v1` remain registered for historical or
+experimental use but are rejected for production adoption.
 
 Production role validation requires:
 
@@ -93,47 +158,130 @@ the task is only to adopt a strategy in the app.
 Existing PAGE XML, OCR line images, and active-learning checkpoint lineage are
 not migrated automatically when the production strategy changes.
 
-Line-segmentation metadata is stored in a sibling JSON sidecar. If that metadata is missing, malformed, unsupported, non-unwrapped, or unwrap fails, OCR crop preparation falls back to the historical masked PAGE Coords crop.
-
 ## Production Layout Save Boundary
 
 Production layout saves start from the live corrected GUI graph, not from the
-research eval fixtures.
+research eval fixtures. The route is:
 
-The save path:
+- `POST /semi-segment/<manuscript>/<page>`
 
-1. Converts the corrected graph into baseline PAGE XML.
+The frontend sends `saveScope` and `saveIntent`:
+
+- `saveScope == "layout"` regenerates layout artifacts.
+- `saveScope == "text_only"` updates text in existing PAGE XML.
+- `saveIntent == "commit"` is an explicit user save.
+- `saveIntent == "draft"` is background Text Review autosave state.
+
+For layout saves, `generate_xml_and_images_for_page()` in `app/gnn_inference.py`
+does the production layout work:
+
+1. Converts the corrected GUI graph into graph-format files.
 2. Includes manual node and edge edits.
-3. Includes text-line labels and text-region labels.
-4. Resolves optional reading-direction annotations.
-5. Applies `production_strategy_name`.
-6. Writes final PAGE `TextLine/Coords`.
-7. Writes sibling `<page>_line_segmentation_metadata.json`.
-8. Writes app line images through the shared OCR crop layer.
+3. Recomputes connected-component text-line labels from saved graph edges.
+4. Includes text-region labels.
+5. Resolves optional reading-direction annotations.
+6. Writes baseline PAGE XML under `_baseline_page_xml/`.
+7. Loads `production_strategy_name`.
+8. Loads explicit production runtime config, plus manuscript processing
+   overrides from `processing_settings.json`.
+9. Applies `apply_text_line_segmentation_strategy(...)`.
+10. Writes final PAGE `TextLine/Coords`.
+11. Writes sibling `<page>_line_segmentation_metadata.json`.
+12. Writes app line images through the shared OCR crop layer.
+13. Copies the resized page image into `layout_analysis_output/images_resized/`.
 
-The production crop contract is saved PAGE `Coords` plus optional strategy
-metadata. App line-image export, local OCR inference, and active-learning
-revision training use that saved contract. Missing, malformed,
-legacy/delegated, unsupported, non-unwrapped, or unwrap-guard-failing metadata
-falls back to the historical masked PAGE `Coords` crop.
+For text-only saves, `update_page_text_content()` updates PAGE `TextEquiv`
+content in place and does not regenerate layout geometry or line images.
 
-This separation matters because production and research crop preparation do not
-start from the same operational geometry. Production starts from the live
-corrected graph and saved PAGE `Coords`; research strategy ablation starts from
-PAGE `Baseline`, heatmap, and page image, then regenerates `Coords` through the
-strategy under test.
+The save route also keeps the legacy `node_corrections/<page>.json` counters.
+Those counters are used by the ZIP export's `node_metrics.json`; they are not
+the active-learning source of truth.
 
-### Layout Staleness and Reading order annotations
-The app tracks whether OCR predictions and committed ground-truth text still match the current layout through layout fingerprints. If the layout changes after OCR prediction or text review, the page workflow can report stale-layout states such as stale OCR prediction or ground truth tied to an older layout. This protects reread/review workflows, but it is separate from validating the line-segmentation metadata sidecar.
+## Reading Direction And Layout Staleness
 
-Reading-direction annotations are stored in a separate sibling metadata file. On save, the backend resolves each annotation against the current final text-line components by node overlap. An annotation that no longer matches a current line strongly enough is recorded as stale and is not used for crop orientation. This stale-annotation handling is specific to reading-direction metadata.
+Layout mode supports optional reading-direction annotations for line orientation
+and unwrap ambiguity. In the frontend, holding `q` and hovering records a
+cross-line cut. The backend normalizes the cut into:
 
-## Local OCR Runtime
+- component node indices
+- cut start, end, and midpoint
+- a unit reading-direction tangent
+- source and timestamp metadata
+
+On save, `app/recognition/line_segmentation/reading_direction.py` resolves each
+annotation against the current final text-line components by node overlap. An
+annotation that cannot be normalized or no longer matches a current component is
+stored as stale and is not used for crop orientation.
+
+Reading-direction metadata is saved beside PAGE XML as:
+
+```text
+<page>_reading_direction_metadata.json
+```
+
+The layout fingerprint used by Text Review state includes canonicalized PAGE
+`Coords`, canonicalized `Baseline` points, and the reading-direction metadata
+payload. If the layout changes after OCR prediction or text review, the page
+workflow can report stale states such as `stale_layout` or
+`ground_truth_stale_layout`. This protects reread/review workflows, but it is
+separate from validating the line-segmentation metadata sidecar.
+
+## Production OCR Crop Boundary
+
+OCR crop preparation is centralized in:
+
+```text
+app/recognition/line_segmentation/ocr_crops.py
+```
+
+The production crop contract is:
+
+- saved PAGE `TextLine/Coords`
+- saved PAGE `Baseline`
+- optional sibling line-segmentation metadata
+- optional reading-direction metadata copied into line metadata
+
+The same crop boundary is used by:
+
+- app line-image export in `app/gnn_inference.py`
+- local OCR inference in `app/recognition/recognize_manuscript_text_v2_pretrained.py`
+- active-learning page preparation in `app/recognition/pagexml_line_dataset.py`
+- manuscript-aware OCR inference in `app/ocr_model_manager.py`
+
+Line-segmentation metadata is saved beside PAGE XML as:
+
+```text
+<page>_line_segmentation_metadata.json
+```
+
+If strategy metadata is valid and requests a supported unwrap crop model, the
+crop layer unwraps the line. If metadata is missing, malformed, unsupported,
+non-unwrapped for an unwrap strategy, or unwrap guards fail, OCR crop
+preparation falls back to the historical masked PAGE `Coords` crop.
+
+With the current production strategy, new layout saves write metadata requesting:
+
+```text
+crop_model = "local_polygon_stable_unwrap"
+```
+
+That crop path uses stable arclength/tangent unwrapping with vectorized remap
+grids and a masked fallback. Existing pages without usable metadata continue to
+use masked PAGE `Coords` crops.
+
+Active-learning revision snapshots copy PAGE XML, line-segmentation metadata,
+reading-direction metadata, and the resized page image. Revision training then
+prepares OCR crops from the snapshot PAGE XML plus snapshot metadata; it does
+not require heatmaps.
+
+## Local OCR And Gemini Runtime
 
 The local OCR runtime uses the EasyOCR-style Sanskrit checkpoint family. The
 base pretrained checkpoint is:
 
-- `app/recognition/pretrained_model/vadakautuhala.pth`
+```text
+app/recognition/pretrained_model/vadakautuhala.pth
+```
 
 Do not treat that base checkpoint as mutable. Fine-tuned checkpoints belong in
 manuscript-local runtime artifact folders.
@@ -141,13 +289,33 @@ manuscript-local runtime artifact folders.
 The app is manuscript-aware. Local OCR inference loads the current manuscript
 checkpoint from the manuscript OCR registry instead of assuming one global
 active model forever. If no manuscript-local active checkpoint exists, the app
-falls back to the base checkpoint.
+falls back to the base checkpoint. If the active checkpoint is missing, the
+registry tries the previous active checkpoint and then the base checkpoint,
+recording the fallback.
 
-The canonical OCR recipe lives in
-`app/recognition/active_learning_recipe.py` and is shared by runtime and
-pre-commit config code. The GUI runtime defaults sibling checkpoint selection to
-`best_norm_ed` through `OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY`; the
-CER-aligned selector remains available in the shared OCR code.
+The backend exposes reader capabilities at:
+
+- `GET /recognition/readers`
+
+The default reader is local OCR. Gemini is available only when `GEMINI_API_KEY`
+is configured in the server environment. Gemini request timeout is controlled
+by `GEMINI_OCR_TIMEOUT_SECONDS`; invalid values fall back to 45 seconds and
+valid values are clamped to 5 through 300 seconds. Gemini failures return
+retryable recovery metadata with local OCR listed as the fallback reader.
+
+OCR predictions are not supervised training data by themselves. Both local OCR
+and Gemini predictions are recorded in the manuscript OCR registry with:
+
+- predicted lines
+- recognition engine
+- checkpoint id and checkpoint path for local OCR
+- confidences when available
+- layout fingerprint
+- recorded timestamp
+
+Corrected Gemini predictions can still become supervised local OCR training data
+after the user commits them in Text Review. Gemini is a prediction source, not a
+checkpoint lineage.
 
 ## OCR Active-Learning Runtime
 
@@ -159,67 +327,181 @@ input_manuscripts/<manuscript>/active_learning/recognition/
 
 This state includes:
 
-- manuscript-local OCR registry JSON
+- `registry.json`
 - page revisions
-- revision snapshots of PAGE XML and images
+- revision snapshots of PAGE XML, sidecars, and images
 - active checkpoint lineage
 - candidate checkpoint lineage
 - promotion summaries
 - fallback state
 - `needs_rebase` tracking
+- pending jobs
 - prepared pages
 - training artifacts
 - telemetry and profiling summaries
 
 Only foreground Text Review commit saves with non-empty text become supervised
-OCR ground truth. OCR predictions, draft autosaves, and Page Layout saves may
-update PAGE XML or layout lineage, but they are not OCR supervision.
-
-The supervised OCR save boundary is:
+OCR ground truth. The exact supervised OCR boundary is:
 
 - `saveIntent == "commit"`
 - `saveScope == "text_only"`
 - at least one non-empty corrected text line
 
-Draft saves are recoverability state. They do not enqueue OCR fine-tuning.
+Draft autosaves, raw OCR predictions, and Page Layout saves may update PAGE XML,
+layout lineage, or recoverability state, but they are not OCR supervision. A
+layout save with text present is still not supervised OCR input unless it is a
+Text Review `text_only` commit.
 
-When active learning is enabled and a new supervised commit revision is saved,
-the app may enqueue an OCR fine-tune job. If a previously consumed revision is
-changed, the registry marks `needs_rebase` and may enqueue a rebase job over the
-approved supervised revisions.
+The frontend currently autosaves dirty Text Review drafts about every 20 seconds
+while Text Review is active. Draft saves create revision/recovery state but do
+not enqueue OCR training.
+
+When active learning is enabled and a new supervised commit revision is saved:
+
+- if the page has not already contributed to a promoted checkpoint, the runtime
+  queues an `ocr_fine_tune` job using the active checkpoint as the parent and
+  approved historical revisions as replay data
+- if the page has already contributed to a promoted checkpoint and is changed,
+  the registry marks `needs_rebase` and may queue an `ocr_rebase` job over the
+  latest approved supervised revisions
+
+The active runtime recipe is based on
+`DEFAULT_OCR_ACTIVE_LEARNING_RECIPE` in
+`app/recognition/active_learning_recipe.py`:
+
+- `training_policy=page_plus_random_history`
+- `history_sample_line_count=10`
+- `width_policy=batch_max_pad`
+- `oversampling_policy=none`
+- `augmentation_policy=none`
+- `lr_scheduler=none`
+- `optimizer=adadelta`
+- `lr=0.2`
+- `num_iter=60`
+- `curve_metric=early_weighted_page_cer`
+- `regression_guard_abs=0.005`
+
+The shared default recipe uses `sibling_checkpoint_strategy=page_cer_selector`.
+The GUI runtime overrides this to `best_norm_ed` unless
+`OCR_RUNTIME_SIBLING_CHECKPOINT_STRATEGY` is set.
+
+The GUI runtime does not rerun the full research verifier on every save.
+Runtime candidate checkpoints are directly promoted after successful training
+and recorded in the manuscript OCR registry. Future hyperparameter changes
+should go back through the research verifier before replacing this runtime
+recipe.
 
 ## Job Orchestration And Device Leases
 
-The app uses a generic job orchestrator for background work. It supports:
+The app uses a generic job orchestrator for background work. The active
+production integration is OCR fine-tune and OCR rebase.
+
+The orchestrator supports:
 
 - queued job records
-- priorities
-- isolated OCR fine-tune and rebase jobs
-- GPU device leases
+- numeric priorities
+- direct handlers and isolated child-process jobs
+- OCR fine-tune and rebase job types
+- exclusive resource leases such as `gpu`
 - cancellation
 - requeue-on-cancel behavior
 - queue wait and runtime status reporting
+- listener callbacks that mirror job state into the manuscript OCR registry
 
-This keeps heavy OCR training work outside the interactive request path and lets
-interactive OCR remain responsive while background jobs are queued or running.
+Interactive local OCR calls `prepare_for_interactive_ocr(...)`. If a lower
+priority GPU job is running, the orchestrator marks it for cancellation and
+requeue, sets manuscript status to `paused_for_ocr`, and waits briefly for the
+resource to clear before running interactive OCR.
+
+The device lease manager is intentionally simple: one owner per resource name.
+It does not implement multi-GPU scheduling or memory-aware placement.
 
 ## Telemetry And Profiling
 
 Production saves and jobs record structured telemetry and coarse profiling
-summaries. Optional sampled CUDA traces may be collected when enabled.
+summaries.
 
-Telemetry is used to explain what the app did and why, including:
+Telemetry includes:
 
-- page save events
-- layout edit metrics
-- text edit metrics
-- OCR job lifecycle events
-- queued/running/requeued/canceled status
+- page save events in `telemetry/page_events.jsonl`
+- job lifecycle events in `telemetry/job_events.jsonl`
+- per-revision page edit summaries in `telemetry/page_edit_summary.json`
+- layout edit metrics such as node additions, node deletions, edge additions,
+  edge deletions, reset-heuristic count, and total modification count
+- text edit metrics such as changed line count, total edit distance, normalized
+  edit distance, and per-line diffs
 - active-learning entry decisions
-- promotion or fallback summaries
+- promotion and fallback summaries
+
+Profiling includes:
+
+- job wall time
+- CUDA availability
+- device name
+- peak CUDA memory allocated and reserved when CUDA is available
+- optional sampled CUDA traces
+
+Set `ACTIVE_LEARNING_PROFILE_CUDA=1` to capture a sampled CUDA trace. The
+current helper samples once per job family by writing a marker under the
+manuscript profiling root.
 
 Generated telemetry and profiling artifacts are runtime evidence, not research
-source-of-truth config.
+source-of-truth config. A checked-in evaluator that turns these artifacts into
+manuscript-level effort curves is still a known gap.
+
+## Read Mode Previews And Exports
+
+Read Mode can serve processed line-image previews through:
+
+- `GET /line-image/<manuscript>/<page>/<line_numeric_id>`
+
+The preview payload intentionally includes only lines that are non-straight
+according to line-segmentation metadata or have a reading-direction annotation.
+This keeps the Text Review view focused on lines where crop orientation is most
+likely to matter.
+
+The results ZIP route is:
+
+- `GET /download-results/<manuscript>`
+
+The ZIP currently includes:
+
+- `page-xml-format/`
+- `image-format/`
+- `images_resized/` for annotated pages
+- `ocr-training-format/` with text-line images and `gt.txt` rows for lines that
+  have non-empty PAGE `Unicode` text and a matching saved line image
+- `node_metrics.json` derived from the legacy `node_corrections/` summaries
+
+The route returns `404` if no annotated PAGE XML exists for the manuscript.
+
+The overlay export route is:
+
+- `POST /save-overlay/<manuscript>/<page>`
+
+It draws the current graph over the original page image when available, falls
+back to the resized page image, and writes:
+
+```text
+overlay_exports/<page>_overlay.jpg
+```
+
+## Known Production Limitations
+
+- Restart, interruption, and rebuild hardening for the live OCR runtime is still
+  shallow. See `docs/exec-plans/tech-debt-tracker.md`.
+- The runtime records useful telemetry, but there is not yet a checked-in
+  evaluator that turns it into human-effort curves.
+- `app/app.py` still mixes route handlers, legacy node-correction logging,
+  PAGE-XML generation orchestration, OCR recognition startup, and
+  active-learning queueing.
+- `app/app.py` still appends `app/recognition` to `sys.path` for local OCR
+  imports.
+- The device lease manager provides exclusive single-resource locking, not full
+  multi-device scheduling.
+- The slow OCR study can still hit Windows `conda run` Unicode output issues;
+  trust generated artifacts or use a direct environment Python fallback as
+  described in `RESEARCH_HARNESS.md`.
 
 ## Runtime Validation Commands
 
@@ -247,23 +529,31 @@ conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_lea
 conda run -n gnn_layout python -m unittest app.tests.test_recognition_active_learning_backend_unit -v
 ```
 
-Telemetry:
+Telemetry and profiling:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
 conda run -n gnn_layout python -m unittest app.tests.test_recognition_telemetry_unit -v
+conda run -n gnn_layout python -m unittest app.tests.test_profiling_unit -v
 ```
 
-Production strategy adoption and crop behavior:
+Production strategy, crop behavior, and adoption:
 
 ```powershell
 $env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_line_segmentation_strategy_unit -v
+conda run -n gnn_layout python -m unittest app.tests.test_strategy_ablation_config_unit -v
 conda run -n gnn_layout python -m unittest app.tests.test_strategy_adoption_unit -v
 conda run -n gnn_layout python -m unittest app.tests.test_strategy_aware_ocr_crops_unit -v
 ```
 
-Line-segmentation metadata is stored in a sibling JSON sidecar. If that metadata is missing, malformed, unsupported, non-unwrapped, or unwrap fails, OCR crop preparation falls back to the historical masked PAGE Coords crop.
+Read Mode previews and export behavior:
 
-The app tracks whether OCR predictions and committed ground-truth text still match the current layout through layout fingerprints. If the layout changes after OCR prediction or text review, the page workflow can report stale-layout states such as stale OCR prediction or ground truth tied to an older layout. This protects reread/review workflows, but it is separate from validating the line-segmentation metadata sidecar.
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_read_mode_line_image_previews_unit -v
+conda run -n gnn_layout python -m unittest app.tests.test_download_results_export_unit -v
+```
 
-
+Research gates, slow OCR policy studies, and text-line strategy promotion are
+documented in `RESEARCH_HARNESS.md`.
