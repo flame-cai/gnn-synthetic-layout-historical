@@ -1,7 +1,7 @@
 # VISION.md
 
 # VISION
-This repository exists to reduce the total human effort required to digitize historical manuscripts. The goal is to build an historical manuscript digitization workflow, where previously corrected pages (annotated data) is used to train AI models which make better predictions on lsubsequent pages, reducing the burden of annotation continuously in a loop.
+This repository exists to reduce the total human effort required to digitize historical manuscripts. The goal is to build an historical manuscript digitization workflow, where previously corrected pages (annotated data) is used to train AI models which make better predictions on subsequent pages, reducing the burden of annotation continuously in a loop.
 
 The repository currently has two connected products:
 1. `src/`: the graph neural network text-line segmentation core (this is for doing GNN improvements and research)

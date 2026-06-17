@@ -1,6 +1,11 @@
-
+check if the docs are in sync with the app
 
 If the whole line has no assigned heatmap boxes, the strategy falls back to a minimum-width band over the full baseline. This minimum-width band is too small. To fix this, perhaps can use the local binazrize image..or do the gemini magic button
+
+- Gemini Magic Click button - keep it for experimental legacy purposes.
+	- Make a tutorial how to use YouTube video..
+		- how to install
+		- how to run
 
 
 
