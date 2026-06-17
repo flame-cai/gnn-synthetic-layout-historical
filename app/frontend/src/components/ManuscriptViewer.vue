@@ -634,7 +634,7 @@ const activeLearningPollDelayMs = {
 }
 
 // UI State
-const isPanelCollapsed = ref(false)
+const isPanelCollapsed = ref(true)
 const activeInput = ref(null) 
 
 const setMode = (mode) => {
@@ -657,7 +657,6 @@ const setMode = (mode) => {
         activateInput(sortedLineIds.value[0])
     }
   }
-  isPanelCollapsed.value = false
 }
 
 

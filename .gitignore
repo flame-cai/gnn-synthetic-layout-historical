@@ -30,6 +30,7 @@ downstream_eval/.env.*
 downstream_eval/.env
 
 EMAILS.md
+PAPER.md
 
 # Logs
 app/frontend/npm-debug.log*
