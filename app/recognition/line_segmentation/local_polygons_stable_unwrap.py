@@ -29,6 +29,7 @@ COMPONENT_PROJECTION_MODEL = "heatmap_component_contour_mask"
 COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
 AMBIGUOUS_COMPONENT_SPLIT_MODEL = "baseline_overlap_nearest_baseline_split"
 ENDPOINT_ANCHOR_MODEL = "baseline_endpoint_component_anchor"
+IMAGE_FALLBACK_MODEL = "local_image_adaptive_binarization_rect"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
     "BINARIZE_THRESHOLD": 0.45,
@@ -67,6 +68,17 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "endpoint_anchor_station_half_width_scale": 1.0,
     "endpoint_anchor_normal_half_width_scale": 1.0,
     "endpoint_anchor_max_normal_offset_ratio": 2.0,
+    "image_fallback_when_no_heatmap_components": False,
+    "image_fallback_search_half_width_px": 48.0,
+    "image_fallback_search_station_pad_px": 32.0,
+    "image_fallback_output_along_pad_px": 4.0,
+    "image_fallback_output_normal_pad_px": 4.0,
+    "image_fallback_baseline_overlap_half_width_px": 12.0,
+    "image_fallback_adaptive_block_size_px": 25,
+    "image_fallback_adaptive_c": 11.0,
+    "image_fallback_min_component_area_px": 4,
+    "image_fallback_min_foreground_pixels": 8,
+    "image_fallback_max_foreground_fraction": 0.45,
 }
 
 
@@ -105,16 +117,27 @@ def _normalise_config(config: dict | None) -> dict:
         "endpoint_anchor_station_half_width_scale",
         "endpoint_anchor_normal_half_width_scale",
         "endpoint_anchor_max_normal_offset_ratio",
+        "image_fallback_search_half_width_px",
+        "image_fallback_search_station_pad_px",
+        "image_fallback_output_along_pad_px",
+        "image_fallback_output_normal_pad_px",
+        "image_fallback_baseline_overlap_half_width_px",
+        "image_fallback_adaptive_c",
+        "image_fallback_max_foreground_fraction",
     ):
         merged[key] = float(merged[key])
     merged["min_mirror_pairs"] = int(merged["min_mirror_pairs"])
     merged["max_polygon_points"] = int(merged["max_polygon_points"])
     merged["ambiguous_component_split_min_pixels"] = int(merged["ambiguous_component_split_min_pixels"])
+    merged["image_fallback_adaptive_block_size_px"] = int(merged["image_fallback_adaptive_block_size_px"])
+    merged["image_fallback_min_component_area_px"] = int(merged["image_fallback_min_component_area_px"])
+    merged["image_fallback_min_foreground_pixels"] = int(merged["image_fallback_min_foreground_pixels"])
     merged["include_empty_text_lines"] = bool(
         merged.get("include_empty_text_lines", merged.get("INCLUDE_EMPTY_TEXT_LINES", False))
     )
     merged["bridge_all_component_groups"] = bool(merged["bridge_all_component_groups"])
     merged["ambiguous_component_split_enabled"] = bool(merged["ambiguous_component_split_enabled"])
+    merged["image_fallback_when_no_heatmap_components"] = bool(merged["image_fallback_when_no_heatmap_components"])
     if "endpoint_baseline_anchor_enabled" in raw_config:
         endpoint_anchor_enabled = raw_config["endpoint_baseline_anchor_enabled"]
     elif "endpoint_graph_node_anchor_enabled" in raw_config:
@@ -659,6 +682,183 @@ def _clean_component_rects_in_local_space(
     }
 
 
+def _image_fallback_base_summary(config: dict) -> dict:
+    return {
+        "image_fallback_model": IMAGE_FALLBACK_MODEL,
+        "image_fallback_enabled": bool(config["image_fallback_when_no_heatmap_components"]),
+        "image_fallback_attempted": False,
+        "image_fallback_used": False,
+        "image_fallback_trigger_reason": None,
+        "image_fallback_skip_reason": None,
+        "image_fallback_search_half_width_px": float(config["image_fallback_search_half_width_px"]),
+        "image_fallback_search_station_pad_px": float(config["image_fallback_search_station_pad_px"]),
+        "image_fallback_output_along_pad_px": float(config["image_fallback_output_along_pad_px"]),
+        "image_fallback_output_normal_pad_px": float(config["image_fallback_output_normal_pad_px"]),
+        "image_fallback_baseline_overlap_half_width_px": float(
+            config["image_fallback_baseline_overlap_half_width_px"]
+        ),
+        "image_fallback_raw_component_count": 0,
+        "image_fallback_selected_component_count": 0,
+        "image_fallback_rejected_small_component_count": 0,
+        "image_fallback_rejected_far_component_count": 0,
+        "image_fallback_foreground_pixel_count": 0,
+        "image_fallback_foreground_fraction": None,
+        "image_fallback_local_bbox": None,
+        "image_fallback_cleanup_removed_all": False,
+    }
+
+
+def _odd_adaptive_block_size(value: int) -> int:
+    block_size = max(3, int(value))
+    if block_size % 2 == 0:
+        block_size += 1
+    return block_size
+
+
+def _adaptive_local_foreground_mask(local_crop: np.ndarray, config: dict) -> np.ndarray:
+    block_size = _odd_adaptive_block_size(int(config["image_fallback_adaptive_block_size_px"]))
+    adaptive_c = float(config["image_fallback_adaptive_c"])
+    blurred = cv2.GaussianBlur(local_crop, (3, 3), 0)
+    return cv2.adaptiveThreshold(
+        blurred,
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY_INV,
+        block_size,
+        adaptive_c,
+    )
+
+
+def _image_fallback_rects_from_local_binarization(
+    processing_image: np.ndarray,
+    topology: BaselineTopology,
+    config: dict,
+    *,
+    trigger_reason: str,
+) -> tuple[list[dict], dict]:
+    summary = _image_fallback_base_summary(config)
+    summary["image_fallback_trigger_reason"] = trigger_reason
+    if not config["image_fallback_when_no_heatmap_components"]:
+        summary["image_fallback_skip_reason"] = "disabled"
+        return [], summary
+    if not topology.normalized_points:
+        summary["image_fallback_skip_reason"] = "missing_baseline"
+        return [], summary
+
+    summary["image_fallback_attempted"] = True
+    baseline_length = max(float(topology.baseline_length), 1.0)
+    search_half_width = max(
+        float(config["minimum_half_width_px"]),
+        float(config["image_fallback_search_half_width_px"]),
+    )
+    station_pad = max(
+        float(config["minimum_along_pad_px"]),
+        float(config["image_fallback_search_station_pad_px"]),
+    )
+    if topology.line_kind == "point" or baseline_length <= station_pad:
+        station_pad = max(station_pad, search_half_width)
+
+    search_rect = {
+        "s_min": 0.0 if topology.is_closed else -station_pad,
+        "s_max": baseline_length if topology.is_closed else baseline_length + station_pad,
+        "n_min": -search_half_width,
+        "n_max": search_half_width,
+    }
+    page_median_color = int(np.median(processing_image))
+    local_crop = _remap_local_crop(processing_image, topology, search_rect, page_median_color)
+    if local_crop.size == 0:
+        summary["image_fallback_skip_reason"] = "empty_search_crop"
+        return [], summary
+
+    binary_foreground = _adaptive_local_foreground_mask(local_crop, config)
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_foreground, connectivity=8)
+    summary["image_fallback_raw_component_count"] = max(0, int(num_labels) - 1)
+
+    filtered_mask = np.zeros(binary_foreground.shape, dtype=np.uint8)
+    min_area = max(1, int(config["image_fallback_min_component_area_px"]))
+    central_half_width = max(
+        float(config["minimum_half_width_px"]),
+        float(config["image_fallback_baseline_overlap_half_width_px"]),
+    )
+    selected_component_count = 0
+    rejected_small_count = 0
+    rejected_far_count = 0
+    for label_index in range(1, num_labels):
+        y_val = int(stats[label_index, cv2.CC_STAT_TOP])
+        height = int(stats[label_index, cv2.CC_STAT_HEIGHT])
+        area = int(stats[label_index, cv2.CC_STAT_AREA])
+        if area < min_area:
+            rejected_small_count += 1
+            continue
+        component_n_min = float(search_rect["n_min"]) + float(y_val)
+        component_n_max = float(search_rect["n_min"]) + float(y_val + height)
+        if component_n_max < -central_half_width or component_n_min > central_half_width:
+            rejected_far_count += 1
+            continue
+        filtered_mask[labels == label_index] = 255
+        selected_component_count += 1
+
+    foreground_pixel_count = int(np.count_nonzero(filtered_mask))
+    foreground_fraction = float(foreground_pixel_count / filtered_mask.size) if filtered_mask.size else None
+    summary.update(
+        {
+            "image_fallback_selected_component_count": selected_component_count,
+            "image_fallback_rejected_small_component_count": rejected_small_count,
+            "image_fallback_rejected_far_component_count": rejected_far_count,
+            "image_fallback_foreground_pixel_count": foreground_pixel_count,
+            "image_fallback_foreground_fraction": foreground_fraction,
+        }
+    )
+
+    if foreground_pixel_count < int(config["image_fallback_min_foreground_pixels"]):
+        summary["image_fallback_skip_reason"] = "insufficient_foreground"
+        return [], summary
+    if foreground_fraction is not None and foreground_fraction > float(config["image_fallback_max_foreground_fraction"]):
+        summary["image_fallback_skip_reason"] = "excessive_foreground_fraction"
+        return [], summary
+
+    y_coords, x_coords = np.where(filtered_mask > 0)
+    if y_coords.size == 0 or x_coords.size == 0:
+        summary["image_fallback_skip_reason"] = "empty_filtered_mask"
+        return [], summary
+
+    x_min = int(x_coords.min())
+    x_max = int(x_coords.max()) + 1
+    y_min = int(y_coords.min())
+    y_max = int(y_coords.max()) + 1
+    along_pad = max(0.0, float(config["image_fallback_output_along_pad_px"]))
+    normal_pad = max(0.0, float(config["image_fallback_output_normal_pad_px"]))
+    s_min = float(search_rect["s_min"]) + float(x_min) - along_pad
+    s_max = float(search_rect["s_min"]) + float(x_max) + along_pad
+    n_min = float(search_rect["n_min"]) + float(y_min) - normal_pad
+    n_max = float(search_rect["n_min"]) + float(y_max) + normal_pad
+    if topology.is_closed:
+        s_min = max(0.0, s_min)
+        s_max = min(baseline_length, s_max)
+    if s_max <= s_min or n_max <= n_min:
+        summary["image_fallback_skip_reason"] = "degenerate_bbox"
+        return [], summary
+
+    rect = {
+        "s_min": float(s_min),
+        "s_max": float(s_max),
+        "n_min": float(n_min),
+        "n_max": float(n_max),
+        "center_station": float((s_min + s_max) / 2.0),
+        "center_normal": float((n_min + n_max) / 2.0),
+        "station_half_extent": float((s_max - s_min) / 2.0),
+        "normal_half_extent": float((n_max - n_min) / 2.0),
+        "station_pad": 0.0,
+        "normal_pad": 0.0,
+        "local_outline_points": [],
+        "local_projection_point_count": 4,
+        "component_projection_model": IMAGE_FALLBACK_MODEL,
+        "image_fallback": True,
+    }
+    summary["image_fallback_local_bbox"] = [float(s_min), float(n_min), float(s_max), float(n_max)]
+    return [rect], summary
+
+
 def _contour_to_local_polygon(mask: np.ndarray, config: dict) -> np.ndarray | None:
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not contours:
@@ -1041,8 +1241,27 @@ def _build_local_polygon(
             rects,
             config,
         )
-    used_component_fallback = False
+    image_fallback_summary = _image_fallback_base_summary(config)
+    used_image_fallback = False
+    used_minimum_band_fallback = False
     fallback_used = False
+    if not rects:
+        trigger_reason = (
+            "no_assigned_heatmap_components"
+            if int(cleanup_summary["local_cleanup_input_component_count"]) == 0
+            else "heatmap_components_removed_by_cleanup"
+        )
+        image_fallback_rects, image_fallback_summary = _image_fallback_rects_from_local_binarization(
+            processing_image,
+            topology,
+            config,
+            trigger_reason=trigger_reason,
+        )
+        if image_fallback_rects:
+            rects = image_fallback_rects
+            used_image_fallback = True
+            fallback_used = True
+
     if not rects:
         half_width = float(config["minimum_half_width_px"])
         rects = [
@@ -1056,7 +1275,7 @@ def _build_local_polygon(
             }
         ]
         fallback_used = True
-        used_component_fallback = True
+        used_minimum_band_fallback = True
 
     half_width = _estimate_half_width(rects, config)
     final_normal_pad_px, final_station_pad_px = _final_mask_padding_px(config, topology)
@@ -1131,8 +1350,12 @@ def _build_local_polygon(
         return polygon, {
             **cleanup_summary,
             **endpoint_anchor_summary,
+            **image_fallback_summary,
             "fallback_used": fallback_used,
             "fallback_reason": "empty_local_mask",
+            "component_projection_model": IMAGE_FALLBACK_MODEL if used_image_fallback else COMPONENT_PROJECTION_MODEL,
+            "image_fallback_used": used_image_fallback,
+            "minimum_band_fallback_used": used_minimum_band_fallback,
             "local_canvas_width_px": width,
             "local_canvas_height_px": height,
             "local_polygon_point_count": 0,
@@ -1163,12 +1386,23 @@ def _build_local_polygon(
     if len(page_points) < 4:
         page_points = _fallback_band_polygon(topology, half_width, image_width, image_height)
         fallback_used = True
+        used_minimum_band_fallback = True
 
     return page_points, {
         **cleanup_summary,
         **endpoint_anchor_summary,
+        **image_fallback_summary,
         "fallback_used": fallback_used,
-        "fallback_reason": "no_assigned_components" if used_component_fallback else None,
+        "fallback_reason": (
+            "image_adaptive_binarization_no_assigned_components"
+            if used_image_fallback
+            else "no_assigned_components"
+            if used_minimum_band_fallback
+            else None
+        ),
+        "component_projection_model": IMAGE_FALLBACK_MODEL if used_image_fallback else COMPONENT_PROJECTION_MODEL,
+        "image_fallback_used": used_image_fallback,
+        "minimum_band_fallback_used": used_minimum_band_fallback,
         "local_canvas_width_px": width,
         "local_canvas_height_px": height,
         "local_polygon_point_count": int(len(local_polygon)),
@@ -1337,6 +1571,10 @@ class LocalPolygonsStableUnwrapStrategy:
         for item in line_metadata:
             item.update(line_details.get(int(item["line_numeric_id"]), {}))
         prepared_line_count = sum(1 for item in line_metadata if item["coords_points"])
+        image_fallback_line_count = sum(1 for item in line_metadata if item.get("image_fallback_used"))
+        minimum_band_fallback_line_count = sum(
+            1 for item in line_metadata if item.get("minimum_band_fallback_used")
+        )
         topology_counts = {}
         normalization_counts = {}
         for topology in topologies.values():
@@ -1356,6 +1594,10 @@ class LocalPolygonsStableUnwrapStrategy:
             "crop_model_counts": {LOCAL_POLYGON_CROP_MODEL: prepared_line_count},
             "component_projection_model": COMPONENT_PROJECTION_MODEL,
             "local_cleanup_model": LOCAL_CLEANUP_MODEL,
+            "image_fallback_model": IMAGE_FALLBACK_MODEL,
+            "image_fallback_enabled": bool(config["image_fallback_when_no_heatmap_components"]),
+            "image_fallback_line_count": int(image_fallback_line_count),
+            "minimum_band_fallback_line_count": int(minimum_band_fallback_line_count),
             "topology_counts": topology_counts,
             "normalization_action_counts": normalization_counts,
             "orientation_policy": {

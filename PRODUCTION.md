@@ -119,6 +119,14 @@ The current checked-in role pins are:
 - research proposed: unset
 - production app: `local_polygons_stable_unwrap_v1`
 
+The production runtime config for `local_polygons_stable_unwrap_v1` enables an
+image-derived fallback for lines with no assigned heatmap components. In that
+case, the strategy remaps a wider local strip around the corrected baseline,
+runs adaptive binarization on the page image, filters implausible foreground,
+and uses the foreground bounds plus padding for PAGE `Coords`. If no plausible
+foreground is found, it still falls back to the historical minimum-width
+baseline band.
+
 Registered strategies currently include:
 
 - `legacy_axis_bound_v1`

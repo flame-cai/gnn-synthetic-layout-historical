@@ -5,11 +5,13 @@ In this production application (not the research harness), when the annotated te
 
 Ideally this process uses Heatmaps, where the location of each character of the image is hot in the heatmap. But sometimes the heatmap fails to do this for some messy characters. So we expect the user to do add these nodes manually.
 
-However, sometimes if the whole line (consisting of one or more characters) has no assigned heatmap boxes, the strategy falls back to a minimum-width band over the full baseline. This minimum-width band is too small. 
+However, sometimes if the whole line (consisting of one or more characters) has no assigned heatmap boxes, the strategy falls back to a minimum-width band over the full baseline. This minimum-width band is too small. Please confirm that this is what is happening. 
 
 I want your help in fixing this precisely. To fix this, perhaps can do adaptive local binazrization of that region of the image, and then fit a bounding rectangle plus some padding around the binarized part which would ideally be the character(s) which the heatmap was not catching.
 
 Hence please study the code (in the production app with GUI), understand the code, and make precise changes to fix this.
+
+use conda env 'gnn_layout'
 
 
 - faster saving

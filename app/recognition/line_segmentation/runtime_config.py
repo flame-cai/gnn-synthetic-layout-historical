@@ -18,6 +18,7 @@ PRODUCTION_STRATEGY_RUNTIME_CONFIGS: dict[str, dict] = {
     "local_polygons_stable_unwrap_v1": {
         **dict(DEFAULT_STABLE_UNWRAP_CONFIG),
         "BINARIZE_THRESHOLD": 0.45,
+        "image_fallback_when_no_heatmap_components": True,
     },
 }
 

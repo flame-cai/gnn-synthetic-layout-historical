@@ -201,6 +201,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(float(config["BINARIZE_THRESHOLD"]), 0.45)
         self.assertTrue(config["include_empty_text_lines"])
         self.assertEqual(float(config["final_mask_normal_pad_px"]), 0.0)
+        self.assertTrue(config["image_fallback_when_no_heatmap_components"])
 
     def _make_single_line_page(self, name: str, baseline_points: str, ink_rects: list[tuple[int, int, int, int]]):
         tmp_root = TESTS_ROOT / "_tmp_line_segmentation_strategy_unit" / name
@@ -568,6 +569,46 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(line["endpoint_anchor_trailing_count"], 1)
         x_values = [point[0] for point in line["coords_points"]]
         self.assertGreaterEqual(max(x_values), 78)
+
+    def test_stable_unwrap_uses_image_fallback_when_heatmap_has_no_components(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_image_fallback_no_heatmap",
+            "24,48 72,48",
+            [],
+        )
+        image = np.full((96, 96), 240, dtype=np.uint8)
+        image[32:64, 32:66] = 20
+        heatmap = np.zeros((96, 96), dtype=np.uint8)
+        cv2.imwrite(str(image_path), image)
+        cv2.imwrite(str(heatmap_path), heatmap)
+        metadata_path = tmp_root / "out" / "metadata.json"
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config={
+                "image_fallback_when_no_heatmap_components": True,
+                "include_empty_text_lines": True,
+            },
+            metadata_path=metadata_path,
+        )
+
+        line = result.line_metadata[0]
+        y_values = [point[1] for point in line["coords_points"]]
+        self.assertEqual(result.geometry_summary["heatmap_box_count"], 0)
+        self.assertEqual(result.geometry_summary["image_fallback_line_count"], 1)
+        self.assertEqual(result.geometry_summary["minimum_band_fallback_line_count"], 0)
+        self.assertEqual(line["assigned_component_count"], 0)
+        self.assertTrue(line["image_fallback_used"])
+        self.assertFalse(line["minimum_band_fallback_used"])
+        self.assertEqual(line["component_projection_model"], "local_image_adaptive_binarization_rect")
+        self.assertEqual(line["image_fallback_model"], "local_image_adaptive_binarization_rect")
+        self.assertEqual(line["fallback_reason"], "image_adaptive_binarization_no_assigned_components")
+        self.assertGreater(max(y_values) - min(y_values), 28)
+        self.assertGreater(line["local_n_max"] - line["local_n_min"], 28.0)
 
     def test_local_polygons_vertical_line_keeps_open_final_mask_tight(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
