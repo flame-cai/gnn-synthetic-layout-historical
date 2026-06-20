@@ -490,7 +490,7 @@
               <div class="card-text">
                 <h4>Links</h4>
                 <p>Hold <span class="key-badge">a</span> and hover to connect points</p>
-                <p>Hold <span class="key-badge">d</span> and hover to remove a link</p>
+                <p>Hold <span class="key-badge">d</span> and hover to remove links or points</p>
               </div>
             </div>
 
@@ -867,26 +867,83 @@ const normalizeReadingDirectionAnnotation = (annotation) => {
   }
 }
 
-const findFrontendTextlineForComponent = (componentNodeIndices, fallbackLineId = null) => {
+const findFrontendTextlineMatchForComponent = (componentNodeIndices, fallbackLineId = null, options = {}) => {
+  const minOverlapRatio = Number.isFinite(options.minOverlapRatio) ? options.minOverlapRatio : 0.5
+  const includeTargetSizeInRatio = options.includeTargetSizeInRatio === true
   const componentSet = new Set(
     Array.isArray(componentNodeIndices)
       ? componentNodeIndices.map(Number).filter(Number.isInteger)
       : []
   )
   if (componentSet.size === 0 && fallbackLineId !== null && textlines.value[fallbackLineId]) {
-    return String(fallbackLineId)
+    return {
+      lineId: String(fallbackLineId),
+      nodeIndices: [...textlines.value[fallbackLineId]],
+      overlap: 0,
+      ratio: 1,
+    }
   }
   let best = { lineId: null, overlap: 0, ratio: 0 }
   Object.entries(textlines.value).forEach(([lineId, nodeIndices]) => {
     const overlap = nodeIndices.filter((nodeIndex) => componentSet.has(Number(nodeIndex))).length
-    const ratio = componentSet.size > 0 ? overlap / componentSet.size : 0
+    const denominator = includeTargetSizeInRatio
+      ? Math.max(componentSet.size, nodeIndices.length, 1)
+      : Math.max(componentSet.size, 1)
+    const ratio = overlap / denominator
     if (overlap > best.overlap || (overlap === best.overlap && ratio > best.ratio)) {
-      best = { lineId, overlap, ratio }
+      best = { lineId, nodeIndices, overlap, ratio }
     }
   })
-  if (best.lineId !== null && best.overlap > 0 && best.ratio >= 0.5) return String(best.lineId)
-  if (fallbackLineId !== null && textlines.value[fallbackLineId]) return String(fallbackLineId)
+  if (best.lineId !== null && best.overlap > 0 && best.ratio >= minOverlapRatio) {
+    return {
+      lineId: String(best.lineId),
+      nodeIndices: [...best.nodeIndices],
+      overlap: best.overlap,
+      ratio: best.ratio,
+    }
+  }
   return null
+}
+
+const findFrontendTextlineForComponent = (componentNodeIndices, fallbackLineId = null) =>
+  findFrontendTextlineMatchForComponent(componentNodeIndices, fallbackLineId)?.lineId ?? null
+
+const shouldPreferReadingDirectionAnnotation = (candidate, existing) => {
+  if (!existing) return true
+  const candidateTime = Date.parse(candidate.updated_at || '')
+  const existingTime = Date.parse(existing.updated_at || '')
+  if (Number.isFinite(candidateTime) && Number.isFinite(existingTime)) return candidateTime >= existingTime
+  if (Number.isFinite(candidateTime)) return true
+  if (Number.isFinite(existingTime)) return false
+  return true
+}
+
+const remapReadingDirectionAnnotationsToCurrentTextlines = ({ syncSnapshot = false } = {}) => {
+  const currentAnnotations = buildReadingDirectionAnnotationsPayload()
+  if (currentAnnotations.length === 0) {
+    if (syncSnapshot) syncSavedReadingDirectionAnnotationsSnapshot()
+    return
+  }
+
+  const remapped = {}
+  currentAnnotations.forEach((annotation) => {
+    const fallbackLineId = annotation.frontend_line_id || annotation.annotation_id || null
+    const match = findFrontendTextlineMatchForComponent(annotation.component_node_indices, fallbackLineId)
+    if (!match) return
+    const normalized = normalizeReadingDirectionAnnotation({
+      ...annotation,
+      annotation_id: match.lineId,
+      frontend_line_id: match.lineId,
+      component_node_indices: [...match.nodeIndices].sort((a, b) => a - b),
+    })
+    if (!normalized) return
+    const existing = remapped[match.lineId]
+    if (shouldPreferReadingDirectionAnnotation(normalized, existing)) {
+      remapped[match.lineId] = normalized
+    }
+  })
+  readingDirectionAnnotations.value = remapped
+  if (syncSnapshot) syncSavedReadingDirectionAnnotationsSnapshot()
 }
 
 const loadReadingDirectionAnnotationsFromPageData = (metadata) => {
@@ -894,14 +951,15 @@ const loadReadingDirectionAnnotationsFromPageData = (metadata) => {
   const lineAnnotations = Array.isArray(metadata?.lineAnnotations) ? metadata.lineAnnotations : []
   lineAnnotations.forEach((annotation) => {
     const fallbackLineId = annotation.frontend_line_id ?? annotation.line_id ?? annotation.resolved_line_numeric_id ?? null
-    const textlineId = findFrontendTextlineForComponent(annotation.component_node_indices, fallbackLineId)
-    if (textlineId === null) return
+    const match = findFrontendTextlineMatchForComponent(annotation.component_node_indices, fallbackLineId)
+    if (match === null) return
     const normalized = normalizeReadingDirectionAnnotation({
       ...annotation,
-      annotation_id: textlineId,
-      frontend_line_id: textlineId,
+      annotation_id: match.lineId,
+      frontend_line_id: match.lineId,
+      component_node_indices: [...match.nodeIndices].sort((a, b) => a - b),
     })
-    if (normalized) loaded[textlineId] = normalized
+    if (normalized) loaded[match.lineId] = normalized
   })
   readingDirectionAnnotations.value = loaded
   syncSavedReadingDirectionAnnotationsSnapshot()
@@ -2515,6 +2573,7 @@ const updateUniqueNodeEdgeCounts = () => {
 watch([() => workingGraph.edges, () => workingGraph.nodes], () => {
     updateUniqueNodeEdgeCounts()
     computeTextlines()
+    remapReadingDirectionAnnotationsToCurrentTextlines()
   },{ deep: true, immediate: true }
 )
 
@@ -3015,7 +3074,7 @@ const handleSvgMouseMove = (event) => {
   }
 
   if (isDKeyPressed.value) {
-      handleEdgeHoverDelete(mouseX, mouseY)
+      handleGraphHoverDelete(mouseX, mouseY)
       return
   }
 
@@ -3218,6 +3277,7 @@ const resetModifications = () => {
   } catch (err) {
     readingDirectionAnnotations.value = {}
   }
+  remapReadingDirectionAnnotationsToCurrentTextlines({ syncSnapshot: true })
   readingDirectionDraft.value = null
   modifications.value = []
 }
@@ -3241,6 +3301,22 @@ const handleEdgeHoverDelete = (mouseX, mouseY) => {
       })
     }
   }
+}
+const handleGraphHoverDelete = (mouseX, mouseY) => {
+  let hoveredNodeIndex = -1
+  let closestDistance = Number.POSITIVE_INFINITY
+  workingGraph.nodes.forEach((node, index) => {
+    const distance = Math.hypot(mouseX - scaleX(node.x), mouseY - scaleY(node.y))
+    if (distance < nodeHoverRadiusPx.value && distance < closestDistance) {
+      hoveredNodeIndex = index
+      closestDistance = distance
+    }
+  })
+  if (hoveredNodeIndex !== -1) {
+    deleteNode(hoveredNodeIndex)
+    return
+  }
+  handleEdgeHoverDelete(mouseX, mouseY)
 }
 const handleNodeHoverCollect = (mouseX, mouseY) => {
   workingGraph.nodes.forEach((node, index) => {

@@ -19,6 +19,7 @@ PRODUCTION_STRATEGY_RUNTIME_CONFIGS: dict[str, dict] = {
         **dict(DEFAULT_STABLE_UNWRAP_CONFIG),
         "BINARIZE_THRESHOLD": 0.45,
         "image_fallback_when_no_heatmap_components": True,
+        "anchor_window_clip_enabled": True,
     },
 }
 

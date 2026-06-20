@@ -30,6 +30,7 @@ COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
 AMBIGUOUS_COMPONENT_SPLIT_MODEL = "baseline_overlap_nearest_baseline_split"
 ENDPOINT_ANCHOR_MODEL = "baseline_endpoint_component_anchor"
 IMAGE_FALLBACK_MODEL = "local_image_adaptive_binarization_rect"
+ANCHOR_WINDOW_CLIP_MODEL = "baseline_anchor_window_rect_clip"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
     "BINARIZE_THRESHOLD": 0.45,
@@ -79,6 +80,18 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "image_fallback_min_component_area_px": 4,
     "image_fallback_min_foreground_pixels": 8,
     "image_fallback_max_foreground_fraction": 0.45,
+    "anchor_window_clip_enabled": False,
+    "anchor_window_clip_max_anchor_count": 8,
+    "anchor_window_clip_max_baseline_length_px": 140.0,
+    "anchor_window_station_half_width_px": 18.0,
+    "anchor_window_station_half_width_scale": 0.75,
+    "anchor_window_min_station_half_width_px": 8.0,
+    "anchor_window_normal_half_width_px": 26.0,
+    "anchor_window_normal_half_width_scale": 1.0,
+    "anchor_window_min_normal_half_width_px": 12.0,
+    "anchor_window_point_station_half_width_px": 14.0,
+    "anchor_window_point_normal_half_width_px": 18.0,
+    "anchor_window_min_rect_area_px": 4.0,
 }
 
 
@@ -124,6 +137,16 @@ def _normalise_config(config: dict | None) -> dict:
         "image_fallback_baseline_overlap_half_width_px",
         "image_fallback_adaptive_c",
         "image_fallback_max_foreground_fraction",
+        "anchor_window_clip_max_baseline_length_px",
+        "anchor_window_station_half_width_px",
+        "anchor_window_station_half_width_scale",
+        "anchor_window_min_station_half_width_px",
+        "anchor_window_normal_half_width_px",
+        "anchor_window_normal_half_width_scale",
+        "anchor_window_min_normal_half_width_px",
+        "anchor_window_point_station_half_width_px",
+        "anchor_window_point_normal_half_width_px",
+        "anchor_window_min_rect_area_px",
     ):
         merged[key] = float(merged[key])
     merged["min_mirror_pairs"] = int(merged["min_mirror_pairs"])
@@ -132,12 +155,14 @@ def _normalise_config(config: dict | None) -> dict:
     merged["image_fallback_adaptive_block_size_px"] = int(merged["image_fallback_adaptive_block_size_px"])
     merged["image_fallback_min_component_area_px"] = int(merged["image_fallback_min_component_area_px"])
     merged["image_fallback_min_foreground_pixels"] = int(merged["image_fallback_min_foreground_pixels"])
+    merged["anchor_window_clip_max_anchor_count"] = int(merged["anchor_window_clip_max_anchor_count"])
     merged["include_empty_text_lines"] = bool(
         merged.get("include_empty_text_lines", merged.get("INCLUDE_EMPTY_TEXT_LINES", False))
     )
     merged["bridge_all_component_groups"] = bool(merged["bridge_all_component_groups"])
     merged["ambiguous_component_split_enabled"] = bool(merged["ambiguous_component_split_enabled"])
     merged["image_fallback_when_no_heatmap_components"] = bool(merged["image_fallback_when_no_heatmap_components"])
+    merged["anchor_window_clip_enabled"] = bool(merged["anchor_window_clip_enabled"])
     if "endpoint_baseline_anchor_enabled" in raw_config:
         endpoint_anchor_enabled = raw_config["endpoint_baseline_anchor_enabled"]
     elif "endpoint_graph_node_anchor_enabled" in raw_config:
@@ -701,6 +726,9 @@ def _image_fallback_base_summary(config: dict) -> dict:
         "image_fallback_selected_component_count": 0,
         "image_fallback_rejected_small_component_count": 0,
         "image_fallback_rejected_far_component_count": 0,
+        "image_fallback_anchor_count": 0,
+        "image_fallback_anchor_assignment_count": 0,
+        "image_fallback_candidate_component_count": 0,
         "image_fallback_foreground_pixel_count": 0,
         "image_fallback_foreground_fraction": None,
         "image_fallback_local_bbox": None,
@@ -727,6 +755,291 @@ def _adaptive_local_foreground_mask(local_crop: np.ndarray, config: dict) -> np.
         block_size,
         adaptive_c,
     )
+
+
+def _line_anchor_local_points(topology: BaselineTopology) -> list[tuple[float, float]]:
+    anchors: list[tuple[float, float]] = []
+    source_points = list(topology.normalized_points)
+    if (
+        topology.is_closed
+        and len(source_points) > 1
+        and distance(source_points[0], source_points[-1]) <= max(1e-6, topology.closed_path_tolerance)
+    ):
+        source_points = source_points[:-1]
+    for point in source_points:
+        station, normal = _project_point_to_local((float(point[0]), float(point[1])), topology)
+        anchors.append((float(station), float(normal)))
+    if not anchors:
+        anchors.append((max(float(topology.baseline_length), 1.0) / 2.0, 0.0))
+    return anchors
+
+
+def _distance_from_anchor_to_local_rect(anchor: tuple[float, float], rect: dict) -> float:
+    station, normal = anchor
+    station_gap = max(float(rect["s_min"]) - station, 0.0, station - float(rect["s_max"]))
+    normal_gap = max(float(rect["n_min"]) - normal, 0.0, normal - float(rect["n_max"]))
+    return math.hypot(station_gap, normal_gap)
+
+
+def _anchor_window_clip_base_summary(config: dict) -> dict:
+    return {
+        "anchor_window_clip_model": ANCHOR_WINDOW_CLIP_MODEL,
+        "anchor_window_clip_enabled": bool(config["anchor_window_clip_enabled"]),
+        "anchor_window_clip_attempted": False,
+        "anchor_window_clip_used": False,
+        "anchor_window_clip_skip_reason": None,
+        "anchor_window_clip_input_rect_count": 0,
+        "anchor_window_clip_output_rect_count": 0,
+        "anchor_window_clip_anchor_count": 0,
+        "anchor_window_clip_max_anchor_count": int(config["anchor_window_clip_max_anchor_count"]),
+        "anchor_window_clip_max_baseline_length_px": float(config["anchor_window_clip_max_baseline_length_px"]),
+        "anchor_window_station_half_width_px": float(config["anchor_window_station_half_width_px"]),
+        "anchor_window_station_half_width_scale": float(config["anchor_window_station_half_width_scale"]),
+        "anchor_window_normal_half_width_px": float(config["anchor_window_normal_half_width_px"]),
+        "anchor_window_normal_half_width_scale": float(config["anchor_window_normal_half_width_scale"]),
+        "anchor_window_min_normal_half_width_px": float(config["anchor_window_min_normal_half_width_px"]),
+        "anchor_window_point_station_half_width_px": float(config["anchor_window_point_station_half_width_px"]),
+        "anchor_window_point_normal_half_width_px": float(config["anchor_window_point_normal_half_width_px"]),
+        "anchor_window_min_rect_area_px": float(config["anchor_window_min_rect_area_px"]),
+        "anchor_window_min_spacing_px": None,
+        "anchor_window_median_spacing_px": None,
+        "anchor_window_max_spacing_px": None,
+        "anchor_window_min_used_station_half_width_px": None,
+        "anchor_window_max_used_station_half_width_px": None,
+        "anchor_window_min_used_normal_half_width_px": None,
+        "anchor_window_max_used_normal_half_width_px": None,
+    }
+
+
+def _local_rect_from_bounds(
+    s_min: float,
+    s_max: float,
+    n_min: float,
+    n_max: float,
+    *,
+    base_rect: dict | None = None,
+    extra: dict | None = None,
+) -> dict:
+    rect = dict(base_rect or {})
+    rect.update(
+        {
+            "s_min": float(s_min),
+            "s_max": float(s_max),
+            "n_min": float(n_min),
+            "n_max": float(n_max),
+            "center_station": float((s_min + s_max) / 2.0),
+            "center_normal": float((n_min + n_max) / 2.0),
+            "station_half_extent": float((s_max - s_min) / 2.0),
+            "normal_half_extent": float((n_max - n_min) / 2.0),
+            "station_pad": 0.0,
+            "normal_pad": 0.0,
+            "local_outline_points": [],
+            "local_projection_point_count": 4,
+        }
+    )
+    if extra:
+        rect.update(extra)
+    return rect
+
+
+def _anchor_neighbor_station_spacing(anchor_index: int, anchors: list[tuple[float, float]]) -> float | None:
+    station = float(anchors[anchor_index][0])
+    neighbor_distances = [
+        abs(float(other_anchor[0]) - station)
+        for other_index, other_anchor in enumerate(anchors)
+        if other_index != anchor_index and abs(float(other_anchor[0]) - station) > 1e-6
+    ]
+    if not neighbor_distances:
+        return None
+    return float(min(neighbor_distances))
+
+
+def _scaled_anchor_half_width(
+    spacing: float | None,
+    *,
+    scale: float,
+    min_half_width: float,
+    max_half_width: float,
+) -> float:
+    min_half_width = max(0.0, float(min_half_width))
+    max_half_width = max(min_half_width, float(max_half_width))
+    if spacing is None:
+        return max_half_width
+    adaptive_half_width = min(max_half_width, max(0.0, float(spacing)) * max(0.0, float(scale)))
+    return max(min_half_width, adaptive_half_width)
+
+
+def _anchor_station_half_width(
+    anchor_index: int,
+    anchors: list[tuple[float, float]],
+    config: dict,
+    spacing: float | None = None,
+) -> float:
+    if spacing is None:
+        spacing = _anchor_neighbor_station_spacing(anchor_index, anchors)
+    return _scaled_anchor_half_width(
+        spacing,
+        scale=float(config["anchor_window_station_half_width_scale"]),
+        min_half_width=float(config["anchor_window_min_station_half_width_px"]),
+        max_half_width=float(config["anchor_window_station_half_width_px"]),
+    )
+
+
+def _anchor_normal_half_width(
+    anchor_index: int,
+    anchors: list[tuple[float, float]],
+    topology: BaselineTopology,
+    config: dict,
+    spacing: float | None = None,
+) -> float:
+    if topology.line_kind == "point":
+        return max(0.0, float(config["anchor_window_point_normal_half_width_px"]))
+    if spacing is None:
+        spacing = _anchor_neighbor_station_spacing(anchor_index, anchors)
+    return _scaled_anchor_half_width(
+        spacing,
+        scale=float(config["anchor_window_normal_half_width_scale"]),
+        min_half_width=float(config["anchor_window_min_normal_half_width_px"]),
+        max_half_width=float(config["anchor_window_normal_half_width_px"]),
+    )
+
+
+def _anchor_window_for_anchor(
+    anchor: tuple[float, float],
+    anchor_index: int,
+    anchors: list[tuple[float, float]],
+    topology: BaselineTopology,
+    config: dict,
+) -> dict:
+    station, normal = anchor
+    spacing = _anchor_neighbor_station_spacing(anchor_index, anchors)
+    if topology.line_kind == "point":
+        station_half_width = max(
+            float(config["anchor_window_min_station_half_width_px"]),
+            float(config["anchor_window_point_station_half_width_px"]),
+        )
+    else:
+        station_half_width = _anchor_station_half_width(anchor_index, anchors, config, spacing)
+    normal_half_width = _anchor_normal_half_width(anchor_index, anchors, topology, config, spacing)
+    s_min = float(station) - station_half_width
+    s_max = float(station) + station_half_width
+    if topology.is_closed:
+        s_min = max(0.0, s_min)
+        s_max = min(max(float(topology.baseline_length), 1.0), s_max)
+    return {
+        "s_min": float(s_min),
+        "s_max": float(s_max),
+        "n_min": float(normal) - normal_half_width,
+        "n_max": float(normal) + normal_half_width,
+        "neighbor_station_spacing": spacing,
+        "station_half_width": float(station_half_width),
+        "normal_half_width": float(normal_half_width),
+    }
+
+
+def _clip_rects_to_anchor_windows(
+    rects: list[dict],
+    topology: BaselineTopology,
+    config: dict,
+) -> tuple[list[dict], dict]:
+    summary = _anchor_window_clip_base_summary(config)
+    summary["anchor_window_clip_input_rect_count"] = len(rects)
+    if not config["anchor_window_clip_enabled"]:
+        summary["anchor_window_clip_skip_reason"] = "disabled"
+        return [], summary
+    if not rects:
+        summary["anchor_window_clip_skip_reason"] = "empty_rects"
+        return [], summary
+    if topology.is_closed:
+        summary["anchor_window_clip_skip_reason"] = "closed_topology"
+        return [], summary
+
+    anchors = _line_anchor_local_points(topology)
+    summary["anchor_window_clip_anchor_count"] = len(anchors)
+    max_anchor_count = max(1, int(config["anchor_window_clip_max_anchor_count"]))
+    if len(anchors) > max_anchor_count:
+        summary["anchor_window_clip_skip_reason"] = "too_many_anchors"
+        return [], summary
+
+    baseline_length = max(float(topology.baseline_length), 1.0)
+    max_baseline_length = max(0.0, float(config["anchor_window_clip_max_baseline_length_px"]))
+    if topology.line_kind != "point" and baseline_length > max_baseline_length:
+        summary["anchor_window_clip_skip_reason"] = "baseline_too_long"
+        return [], summary
+
+    summary["anchor_window_clip_attempted"] = True
+    min_area = max(0.0, float(config["anchor_window_min_rect_area_px"]))
+    clipped_rects: list[dict] = []
+    seen_keys: set[tuple[int, int, int, int, int]] = set()
+    station_half_widths = []
+    normal_half_widths = []
+    spacings = []
+    for anchor_index, anchor in enumerate(anchors):
+        nearest_rect_index, nearest_rect = min(
+            enumerate(rects),
+            key=lambda item: (
+                _distance_from_anchor_to_local_rect(anchor, item[1]),
+                -float(item[1]["s_max"] - item[1]["s_min"]) * float(item[1]["n_max"] - item[1]["n_min"]),
+            ),
+        )
+        window = _anchor_window_for_anchor(anchor, anchor_index, anchors, topology, config)
+        station_half_widths.append(float(window["station_half_width"]))
+        normal_half_widths.append(float(window["normal_half_width"]))
+        if window["neighbor_station_spacing"] is not None:
+            spacings.append(float(window["neighbor_station_spacing"]))
+        s_min = max(float(nearest_rect["s_min"]), float(window["s_min"]))
+        s_max = min(float(nearest_rect["s_max"]), float(window["s_max"]))
+        n_min = max(float(nearest_rect["n_min"]), float(window["n_min"]))
+        n_max = min(float(nearest_rect["n_max"]), float(window["n_max"]))
+        if s_max <= s_min or n_max <= n_min:
+            continue
+        if (s_max - s_min) * (n_max - n_min) < min_area:
+            continue
+        key = (
+            int(nearest_rect_index),
+            int(round(s_min * 10.0)),
+            int(round(s_max * 10.0)),
+            int(round(n_min * 10.0)),
+            int(round(n_max * 10.0)),
+        )
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        clipped_rects.append(
+            _local_rect_from_bounds(
+                s_min,
+                s_max,
+                n_min,
+                n_max,
+                base_rect=nearest_rect,
+                extra={
+                    "anchor_window_clipped": True,
+                    "anchor_window_source_rect_index": int(nearest_rect_index),
+                    "anchor_window_anchor_index": int(anchor_index),
+                    "anchor_window_clip_model": ANCHOR_WINDOW_CLIP_MODEL,
+                },
+            )
+        )
+
+    summary["anchor_window_clip_output_rect_count"] = len(clipped_rects)
+    if spacings:
+        spacing_values = np.asarray(spacings, dtype=float)
+        summary["anchor_window_min_spacing_px"] = float(np.min(spacing_values))
+        summary["anchor_window_median_spacing_px"] = float(np.median(spacing_values))
+        summary["anchor_window_max_spacing_px"] = float(np.max(spacing_values))
+    if station_half_widths:
+        station_values = np.asarray(station_half_widths, dtype=float)
+        summary["anchor_window_min_used_station_half_width_px"] = float(np.min(station_values))
+        summary["anchor_window_max_used_station_half_width_px"] = float(np.max(station_values))
+    if normal_half_widths:
+        normal_values = np.asarray(normal_half_widths, dtype=float)
+        summary["anchor_window_min_used_normal_half_width_px"] = float(np.min(normal_values))
+        summary["anchor_window_max_used_normal_half_width_px"] = float(np.max(normal_values))
+    if not clipped_rects:
+        summary["anchor_window_clip_skip_reason"] = "empty_clipped_rects"
+        return [], summary
+    summary["anchor_window_clip_used"] = True
+    return clipped_rects, summary
 
 
 def _image_fallback_rects_from_local_binarization(
@@ -783,8 +1096,11 @@ def _image_fallback_rects_from_local_binarization(
     selected_component_count = 0
     rejected_small_count = 0
     rejected_far_count = 0
+    candidate_components = []
     for label_index in range(1, num_labels):
+        x_val = int(stats[label_index, cv2.CC_STAT_LEFT])
         y_val = int(stats[label_index, cv2.CC_STAT_TOP])
+        width = int(stats[label_index, cv2.CC_STAT_WIDTH])
         height = int(stats[label_index, cv2.CC_STAT_HEIGHT])
         area = int(stats[label_index, cv2.CC_STAT_AREA])
         if area < min_area:
@@ -795,8 +1111,34 @@ def _image_fallback_rects_from_local_binarization(
         if component_n_max < -central_half_width or component_n_min > central_half_width:
             rejected_far_count += 1
             continue
+        candidate_components.append(
+            {
+                "label_index": int(label_index),
+                "area": int(area),
+                "s_min": float(search_rect["s_min"]) + float(x_val),
+                "s_max": float(search_rect["s_min"]) + float(x_val + width),
+                "n_min": component_n_min,
+                "n_max": component_n_max,
+            }
+        )
+
+    anchors = _line_anchor_local_points(topology)
+    selected_label_indices: set[int] = set()
+    anchor_assignment_count = 0
+    if candidate_components:
+        for anchor in anchors:
+            nearest_component = min(
+                candidate_components,
+                key=lambda component: (
+                    _distance_from_anchor_to_local_rect(anchor, component),
+                    -int(component["area"]),
+                ),
+            )
+            selected_label_indices.add(int(nearest_component["label_index"]))
+            anchor_assignment_count += 1
+    for label_index in selected_label_indices:
         filtered_mask[labels == label_index] = 255
-        selected_component_count += 1
+    selected_component_count = len(selected_label_indices)
 
     foreground_pixel_count = int(np.count_nonzero(filtered_mask))
     foreground_fraction = float(foreground_pixel_count / filtered_mask.size) if filtered_mask.size else None
@@ -805,11 +1147,17 @@ def _image_fallback_rects_from_local_binarization(
             "image_fallback_selected_component_count": selected_component_count,
             "image_fallback_rejected_small_component_count": rejected_small_count,
             "image_fallback_rejected_far_component_count": rejected_far_count,
+            "image_fallback_anchor_count": len(anchors),
+            "image_fallback_anchor_assignment_count": anchor_assignment_count,
+            "image_fallback_candidate_component_count": len(candidate_components),
             "image_fallback_foreground_pixel_count": foreground_pixel_count,
             "image_fallback_foreground_fraction": foreground_fraction,
         }
     )
 
+    if not candidate_components:
+        summary["image_fallback_skip_reason"] = "no_candidate_components"
+        return [], summary
     if foreground_pixel_count < int(config["image_fallback_min_foreground_pixels"]):
         summary["image_fallback_skip_reason"] = "insufficient_foreground"
         return [], summary
@@ -817,46 +1165,57 @@ def _image_fallback_rects_from_local_binarization(
         summary["image_fallback_skip_reason"] = "excessive_foreground_fraction"
         return [], summary
 
-    y_coords, x_coords = np.where(filtered_mask > 0)
-    if y_coords.size == 0 or x_coords.size == 0:
-        summary["image_fallback_skip_reason"] = "empty_filtered_mask"
-        return [], summary
-
-    x_min = int(x_coords.min())
-    x_max = int(x_coords.max()) + 1
-    y_min = int(y_coords.min())
-    y_max = int(y_coords.max()) + 1
     along_pad = max(0.0, float(config["image_fallback_output_along_pad_px"]))
     normal_pad = max(0.0, float(config["image_fallback_output_normal_pad_px"]))
-    s_min = float(search_rect["s_min"]) + float(x_min) - along_pad
-    s_max = float(search_rect["s_min"]) + float(x_max) + along_pad
-    n_min = float(search_rect["n_min"]) + float(y_min) - normal_pad
-    n_max = float(search_rect["n_min"]) + float(y_max) + normal_pad
-    if topology.is_closed:
-        s_min = max(0.0, s_min)
-        s_max = min(baseline_length, s_max)
-    if s_max <= s_min or n_max <= n_min:
+
+    selected_rects: list[dict] = []
+    union_s_min = math.inf
+    union_s_max = -math.inf
+    union_n_min = math.inf
+    union_n_max = -math.inf
+    for label_index in sorted(selected_label_indices):
+        x_val = int(stats[label_index, cv2.CC_STAT_LEFT])
+        y_val = int(stats[label_index, cv2.CC_STAT_TOP])
+        width = int(stats[label_index, cv2.CC_STAT_WIDTH])
+        height = int(stats[label_index, cv2.CC_STAT_HEIGHT])
+        s_min = float(search_rect["s_min"]) + float(x_val) - along_pad
+        s_max = float(search_rect["s_min"]) + float(x_val + width) + along_pad
+        n_min = float(search_rect["n_min"]) + float(y_val) - normal_pad
+        n_max = float(search_rect["n_min"]) + float(y_val + height) + normal_pad
+        if topology.is_closed:
+            s_min = max(0.0, s_min)
+            s_max = min(baseline_length, s_max)
+        if s_max <= s_min or n_max <= n_min:
+            continue
+        union_s_min = min(union_s_min, s_min)
+        union_s_max = max(union_s_max, s_max)
+        union_n_min = min(union_n_min, n_min)
+        union_n_max = max(union_n_max, n_max)
+        selected_rects.append(
+            _local_rect_from_bounds(
+                s_min,
+                s_max,
+                n_min,
+                n_max,
+                extra={
+                    "component_projection_model": IMAGE_FALLBACK_MODEL,
+                    "image_fallback": True,
+                    "image_fallback_label_index": int(label_index),
+                },
+            )
+        )
+
+    if not selected_rects:
         summary["image_fallback_skip_reason"] = "degenerate_bbox"
         return [], summary
 
-    rect = {
-        "s_min": float(s_min),
-        "s_max": float(s_max),
-        "n_min": float(n_min),
-        "n_max": float(n_max),
-        "center_station": float((s_min + s_max) / 2.0),
-        "center_normal": float((n_min + n_max) / 2.0),
-        "station_half_extent": float((s_max - s_min) / 2.0),
-        "normal_half_extent": float((n_max - n_min) / 2.0),
-        "station_pad": 0.0,
-        "normal_pad": 0.0,
-        "local_outline_points": [],
-        "local_projection_point_count": 4,
-        "component_projection_model": IMAGE_FALLBACK_MODEL,
-        "image_fallback": True,
-    }
-    summary["image_fallback_local_bbox"] = [float(s_min), float(n_min), float(s_max), float(n_max)]
-    return [rect], summary
+    summary["image_fallback_local_bbox"] = [
+        float(union_s_min),
+        float(union_n_min),
+        float(union_s_max),
+        float(union_n_max),
+    ]
+    return selected_rects, summary
 
 
 def _contour_to_local_polygon(mask: np.ndarray, config: dict) -> np.ndarray | None:
@@ -1242,6 +1601,7 @@ def _build_local_polygon(
             config,
         )
     image_fallback_summary = _image_fallback_base_summary(config)
+    anchor_window_clip_summary = _anchor_window_clip_base_summary(config)
     used_image_fallback = False
     used_minimum_band_fallback = False
     fallback_used = False
@@ -1261,6 +1621,11 @@ def _build_local_polygon(
             rects = image_fallback_rects
             used_image_fallback = True
             fallback_used = True
+
+    if rects:
+        clipped_rects, anchor_window_clip_summary = _clip_rects_to_anchor_windows(rects, topology, config)
+        if clipped_rects:
+            rects = clipped_rects
 
     if not rects:
         half_width = float(config["minimum_half_width_px"])
@@ -1351,6 +1716,7 @@ def _build_local_polygon(
             **cleanup_summary,
             **endpoint_anchor_summary,
             **image_fallback_summary,
+            **anchor_window_clip_summary,
             "fallback_used": fallback_used,
             "fallback_reason": "empty_local_mask",
             "component_projection_model": IMAGE_FALLBACK_MODEL if used_image_fallback else COMPONENT_PROJECTION_MODEL,
@@ -1392,6 +1758,7 @@ def _build_local_polygon(
         **cleanup_summary,
         **endpoint_anchor_summary,
         **image_fallback_summary,
+        **anchor_window_clip_summary,
         "fallback_used": fallback_used,
         "fallback_reason": (
             "image_adaptive_binarization_no_assigned_components"
@@ -1575,6 +1942,7 @@ class LocalPolygonsStableUnwrapStrategy:
         minimum_band_fallback_line_count = sum(
             1 for item in line_metadata if item.get("minimum_band_fallback_used")
         )
+        anchor_window_clip_line_count = sum(1 for item in line_metadata if item.get("anchor_window_clip_used"))
         topology_counts = {}
         normalization_counts = {}
         for topology in topologies.values():
@@ -1597,6 +1965,9 @@ class LocalPolygonsStableUnwrapStrategy:
             "image_fallback_model": IMAGE_FALLBACK_MODEL,
             "image_fallback_enabled": bool(config["image_fallback_when_no_heatmap_components"]),
             "image_fallback_line_count": int(image_fallback_line_count),
+            "anchor_window_clip_model": ANCHOR_WINDOW_CLIP_MODEL,
+            "anchor_window_clip_enabled": bool(config["anchor_window_clip_enabled"]),
+            "anchor_window_clip_line_count": int(anchor_window_clip_line_count),
             "minimum_band_fallback_line_count": int(minimum_band_fallback_line_count),
             "topology_counts": topology_counts,
             "normalization_action_counts": normalization_counts,

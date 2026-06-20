@@ -1,25 +1,18 @@
-FIX THIS:
-
-
-In this production application (not the research harness), when the annotated text-lines (after the user makes corrections by adding and deleting edges/nodes, assign text-line orinetations, and text-region labels), we use the annotations, along with the heatmaps, to create the PAGE-XML Coords.
-
-Ideally this process uses Heatmaps, where the location of each character of the image is hot in the heatmap. But sometimes the heatmap fails to do this for some messy characters. So we expect the user to do add these nodes manually.
-
-However, sometimes if the whole line (consisting of one or more characters) has no assigned heatmap boxes, the strategy falls back to a minimum-width band over the full baseline. This minimum-width band is too small. Please confirm that this is what is happening. 
-
-I want your help in fixing this precisely. To fix this, perhaps can do adaptive local binazrization of that region of the image, and then fit a bounding rectangle plus some padding around the binarized part which would ideally be the character(s) which the heatmap was not catching.
-
-Hence please study the code (in the production app with GUI), understand the code, and make precise changes to fix this.
-
-use conda env 'gnn_layout'
+orientation saving not working..
+manually added character crop bad...
+single character orientation annotation..
 
 
 - faster saving
-- d and hover deletes nodes too
-- Orientation
-    - no skipping
-    - faster, no lag
-    - single characters not being able to orient..
+- bottom right characters fix..
+
+
+
+- investigate the problem with C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\circular_layout_1_DP\layout_analysis_output\image-format\DP-12309-005\textbox_label_22\line_200.jpg
+
+
+perhaps use axis aligned rectangles?
+
 
 
 
