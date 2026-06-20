@@ -119,13 +119,45 @@ The current checked-in role pins are:
 - research proposed: unset
 - production app: `local_polygons_stable_unwrap_v1`
 
-The production runtime config for `local_polygons_stable_unwrap_v1` enables an
-image-derived fallback for lines with no assigned heatmap components. In that
-case, the strategy remaps a wider local strip around the corrected baseline,
-runs adaptive binarization on the page image, filters implausible foreground,
-and uses the foreground bounds plus padding for PAGE `Coords`. If no plausible
-foreground is found, it still falls back to the historical minimum-width
-baseline band.
+The production app and the current research benchmark currently name the same
+registered strategy implementation: `local_polygons_stable_unwrap_v1`
+(`LocalPolygonsStableUnwrapStrategy` in
+`app/recognition/line_segmentation/local_polygons_stable_unwrap.py`). There is
+not a separate production-only strategy class.
+
+They do not necessarily run with identical runtime knobs. The research harness
+gets role configs from `app/tests/precommit_gate_config.py`; the checked-in
+benchmark config for `local_polygons_stable_unwrap_v1` is currently only
+`BINARIZE_THRESHOLD=0.45`. The GUI runtime gets config from
+`get_strategy_runtime_config()` in
+`app/recognition/line_segmentation/runtime_config.py`. For production, that
+config currently sets the same threshold and also enables:
+
+- `image_fallback_when_no_heatmap_components=True`
+- `anchor_window_clip_enabled=True`
+
+So the current production app intentionally deviates from the benchmark in
+human-corrected edge cases, while sharing the same strategy code:
+
+- If a corrected text line has no assigned heatmap components, production can
+  remap a wider local strip around the corrected baseline, run adaptive
+  binarization on the page image, assign nearby foreground islands to the line's
+  anchors, and use those island bounds plus padding for PAGE `Coords`. If no
+  plausible foreground is found, it still falls back to the historical
+  minimum-width baseline band.
+- For short or sparse non-closed corrected lines, production can clip the
+  remaining heatmap/fallback rectangles to spacing-aware anchor windows around
+  the human-corrected node or baseline anchors. Multi-anchor windows scale from
+  local anchor spacing; one-node point lines use fixed point caps because there
+  is no spacing estimate.
+
+Anchor-window clipping is a final narrowing pass after the existing local
+polygon cleanup, including adjacent-line up/down cleanup. It only intersects
+the remaining rectangles with the anchor neighborhood; it does not replace the
+earlier cleanup. Research harness benchmark runs do not get these
+production-only behaviors unless the harness config explicitly enables the same
+keys, and such a run should be recorded as a production-runtime comparison
+rather than the checked-in benchmark baseline.
 
 Registered strategies currently include:
 

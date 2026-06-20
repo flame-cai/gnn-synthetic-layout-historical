@@ -1,26 +1,7 @@
-orientation saving not working..
-manually added character crop bad...
-single character orientation annotation..
-
 
 - faster saving
-- bottom right characters fix..
-
-
-
-- investigate the problem with C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\circular_layout_1_DP\layout_analysis_output\image-format\DP-12309-005\textbox_label_22\line_200.jpg
-
-
-perhaps use axis aligned rectangles?
-
-
-
-
-
-
-
-check if the docs are in sync with the app
-
+- convert single character to double character..and then orient them? safe guarrails are too strong for two points draws around a single character..
+- update docs
 
 
 
