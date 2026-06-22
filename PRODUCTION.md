@@ -259,6 +259,11 @@ Reading-direction metadata is saved beside PAGE XML as:
 <page>_reading_direction_metadata.json
 ```
 
+For a single-node text line, the resolved reading direction supplies the local
+station axis and the cross-cut supplies the local normal axis used for PAGE
+`Coords` construction and OCR crop unwrapping. Without a valid annotation, point
+baselines keep the historical horizontal default.
+
 The layout fingerprint used by Text Review state includes canonicalized PAGE
 `Coords`, canonicalized `Baseline` points, and the reading-direction metadata
 payload. If the layout changes after OCR prediction or text review, the page

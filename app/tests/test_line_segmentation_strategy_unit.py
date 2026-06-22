@@ -611,6 +611,59 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertGreater(max(y_values) - min(y_values), 28)
         self.assertGreater(line["local_n_max"] - line["local_n_min"], 28.0)
 
+    def test_stable_unwrap_single_node_reading_direction_sets_local_frame(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_single_node_reading_direction",
+            "48,48",
+            [(42, 28, 12, 40)],
+        )
+        metadata_path = tmp_root / "out" / "metadata.json"
+        strategy_config = {
+            "include_empty_text_lines": True,
+            "reading_direction_annotations_by_line_id": {
+                7: {
+                    "reading_direction": [0, -1],
+                    "cut_midpoint": [48, 48],
+                    "source": "user_cross_cut",
+                },
+            },
+        }
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config=strategy_config,
+            metadata_path=metadata_path,
+        )
+
+        line = result.line_metadata[0]
+        station_span = line["local_s_max"] - line["local_s_min"]
+        normal_span = line["local_n_max"] - line["local_n_min"]
+        self.assertEqual(line["line_kind"], "point")
+        self.assertEqual(line["topology"]["orientation_action"], "annotated_point_direction")
+        self.assertEqual(line["reading_direction_annotation"]["reading_direction"], [0, -1])
+        self.assertGreater(station_span, 30.0)
+        self.assertGreater(station_span, normal_span)
+
+        prepared = prepare_page_line_dataset(
+            xml_path,
+            image_path,
+            tmp_root / "prepared",
+            heatmap_path=heatmap_path,
+            geometry_source="baseline_heatmap",
+            line_segmentation_strategy_name="local_polygons_stable_unwrap_v1",
+            segmentation_args=strategy_config,
+        )
+        crop_metadata = prepared.records[0].crop_metadata
+        self.assertTrue(crop_metadata["used_unwrap"])
+        self.assertTrue(crop_metadata["stable_unwrap"]["used_stable_path"])
+        self.assertEqual(crop_metadata["topology"]["line_kind"], "point")
+        self.assertEqual(crop_metadata["orientation"]["reason"], "annotated_point_direction")
+        self.assertGreater(crop_metadata["output_width_px"], crop_metadata["output_height_px"])
+
     def test_stable_unwrap_image_fallback_single_node_selects_nearest_island(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "stable_image_fallback_single_node_island",

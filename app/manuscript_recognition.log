@@ -12138,3 +12138,68 @@
 2026-06-22 13:21:13,376 - INFO -  * Debugger PIN: 192-125-268
 2026-06-22 13:21:17,764 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\gnn_inference.py', reloading
 2026-06-22 13:21:19,392 - INFO -  * Restarting with stat
+2026-06-22 13:43:22,783 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.198:5000
+2026-06-22 13:43:22,783 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-22 13:43:22,786 - INFO -  * Restarting with stat
+2026-06-22 13:43:30,788 - WARNING -  * Debugger is active!
+2026-06-22 13:43:30,792 - INFO -  * Debugger PIN: 192-125-268
+2026-06-22 13:45:43,022 - INFO - 127.0.0.1 - - [22/Jun/2026 13:45:43] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-22 13:45:47,657 - INFO - 127.0.0.1 - - [22/Jun/2026 13:45:47] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-22 13:45:47,999 - INFO - 127.0.0.1 - - [22/Jun/2026 13:45:47] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-22 13:45:48,248 - INFO - 127.0.0.1 - - [22/Jun/2026 13:45:48] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-22 13:45:50,614 - INFO - 127.0.0.1 - - [22/Jun/2026 13:45:50] "GET /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-22 13:45:51,272 - INFO - 127.0.0.1 - - [22/Jun/2026 13:45:51] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:46:51,631 - INFO - 127.0.0.1 - - [22/Jun/2026 13:46:51] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:47:52,341 - INFO - 127.0.0.1 - - [22/Jun/2026 13:47:52] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:48:52,382 - INFO - 127.0.0.1 - - [22/Jun/2026 13:48:52] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:49:52,731 - INFO - 127.0.0.1 - - [22/Jun/2026 13:49:52] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:50:52,773 - INFO - 127.0.0.1 - - [22/Jun/2026 13:50:52] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:51:53,126 - INFO - 127.0.0.1 - - [22/Jun/2026 13:51:53] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:52:22,231 - INFO - 127.0.0.1 - - [22/Jun/2026 13:52:22] "OPTIONS /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-22 13:52:23,916 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circular_layout_1_DP page_id=DP-12309-005
+2026-06-22 13:52:54,232 - INFO - 127.0.0.1 - - [22/Jun/2026 13:52:54] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:53:55,335 - INFO - 127.0.0.1 - - [22/Jun/2026 13:53:55] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:54:12,598 - INFO - 127.0.0.1 - - [22/Jun/2026 13:54:12] "POST /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-22 13:54:13,102 - INFO - 127.0.0.1 - - [22/Jun/2026 13:54:13] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:55:14,330 - INFO - 127.0.0.1 - - [22/Jun/2026 13:55:14] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:56:15,338 - INFO - 127.0.0.1 - - [22/Jun/2026 13:56:15] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:57:15,373 - INFO - 127.0.0.1 - - [22/Jun/2026 13:57:15] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:58:15,711 - INFO - 127.0.0.1 - - [22/Jun/2026 13:58:15] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 13:59:15,744 - INFO - 127.0.0.1 - - [22/Jun/2026 13:59:15] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:00:16,341 - INFO - 127.0.0.1 - - [22/Jun/2026 14:00:16] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:01:16,369 - INFO - 127.0.0.1 - - [22/Jun/2026 14:01:16] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:01:56,253 - INFO - 127.0.0.1 - - [22/Jun/2026 14:01:56] "OPTIONS /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-22 14:01:57,873 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circular_layout_1_DP page_id=DP-12309-005
+2026-06-22 14:02:17,436 - INFO - 127.0.0.1 - - [22/Jun/2026 14:02:17] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:03:18,465 - INFO - 127.0.0.1 - - [22/Jun/2026 14:03:18] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:04:19,351 - INFO - 127.0.0.1 - - [22/Jun/2026 14:04:19] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:04:36,273 - INFO - 127.0.0.1 - - [22/Jun/2026 14:04:36] "POST /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-22 14:04:36,821 - INFO - 127.0.0.1 - - [22/Jun/2026 14:04:36] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:05:08,923 - INFO - 127.0.0.1 - - [22/Jun/2026 14:05:08] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-22 14:05:09,248 - INFO - 127.0.0.1 - - [22/Jun/2026 14:05:09] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-22 14:05:09,506 - INFO - 127.0.0.1 - - [22/Jun/2026 14:05:09] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-22 14:05:15,835 - INFO - 127.0.0.1 - - [22/Jun/2026 14:05:15] "GET /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-22 14:05:16,538 - INFO - 127.0.0.1 - - [22/Jun/2026 14:05:16] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-22 14:05:46,860 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\geometry.py', reloading
+2026-06-22 14:05:50,031 - INFO -  * Restarting with stat
+2026-06-22 14:05:57,941 - WARNING -  * Debugger is active!
+2026-06-22 14:05:57,947 - INFO -  * Debugger PIN: 192-125-268
+2026-06-22 14:06:33,629 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-22 14:06:36,540 - INFO -  * Restarting with stat
+2026-06-22 14:06:43,794 - WARNING -  * Debugger is active!
+2026-06-22 14:06:43,796 - INFO -  * Debugger PIN: 192-125-268
+2026-06-22 14:07:26,726 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\unwrap.py', reloading
+2026-06-22 14:07:29,623 - INFO -  * Restarting with stat
+2026-06-22 14:07:37,700 - WARNING -  * Debugger is active!
+2026-06-22 14:07:37,703 - INFO -  * Debugger PIN: 192-125-268
+2026-06-22 14:08:41,465 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_line_segmentation_strategy_unit.py', reloading
+2026-06-22 14:08:44,452 - INFO -  * Restarting with stat
+2026-06-22 14:08:51,586 - WARNING -  * Debugger is active!
+2026-06-22 14:08:51,590 - INFO -  * Debugger PIN: 192-125-268
+2026-06-22 14:09:51,442 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_line_segmentation_strategy_unit.py', reloading
+2026-06-22 14:09:53,239 - INFO -  * Restarting with stat
+2026-06-22 14:10:01,477 - WARNING -  * Debugger is active!
+2026-06-22 14:10:01,481 - INFO -  * Debugger PIN: 192-125-268

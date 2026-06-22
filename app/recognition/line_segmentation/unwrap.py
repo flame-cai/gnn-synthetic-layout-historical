@@ -119,17 +119,26 @@ def _unit(vector_x: float, vector_y: float) -> tuple[float, float]:
     return vector_x / length, vector_y / length
 
 
+def _point_baseline_tangent(topology) -> tuple[float, float]:
+    direction = topology.reading_direction
+    if direction is None or len(direction) < 2:
+        return 1.0, 0.0
+    return _unit(float(direction[0]), float(direction[1]))
+
+
 def _point_at_station(
     points: list[list[float]],
     station: float,
     *,
     is_closed: bool,
     baseline_length: float,
+    fallback_tangent: tuple[float, float] | None = None,
 ) -> tuple[tuple[float, float], tuple[float, float]]:
     if not points:
         return (0.0, 0.0), (1.0, 0.0)
     if len(points) == 1 or baseline_length <= 1e-6:
-        return (points[0][0] + station, points[0][1]), (1.0, 0.0)
+        tangent = fallback_tangent or (1.0, 0.0)
+        return (points[0][0] + tangent[0] * station, points[0][1] + tangent[1] * station), tangent
     if is_closed:
         station = station % baseline_length
 
@@ -243,21 +252,24 @@ def _sample_centers_at_stations(
     *,
     is_closed: bool,
     baseline_length: float,
+    fallback_tangent: tuple[float, float] | None = None,
 ) -> np.ndarray:
     if not points:
         return np.zeros((len(stations), 2), dtype=np.float64)
     point_array = np.asarray(points, dtype=np.float64)
     if len(point_array) == 1 or baseline_length <= 1e-6:
+        tangent = np.asarray(fallback_tangent or (1.0, 0.0), dtype=np.float64)
         centers = np.repeat(point_array[:1], len(stations), axis=0)
-        centers[:, 0] += stations
+        centers += stations[:, None] * tangent[None, :]
         return centers
 
     deltas = np.diff(point_array, axis=0)
     segment_lengths = np.linalg.norm(deltas, axis=1)
     valid = segment_lengths > 1e-6
     if not np.any(valid):
+        tangent = np.asarray(fallback_tangent or (1.0, 0.0), dtype=np.float64)
         centers = np.repeat(point_array[:1], len(stations), axis=0)
-        centers[:, 0] += stations
+        centers += stations[:, None] * tangent[None, :]
         return centers
 
     segment_starts = point_array[:-1][valid]
@@ -299,6 +311,7 @@ def _sample_stable_path(
     topology_is_closed: bool,
     baseline_length: float,
     config: dict,
+    fallback_tangent: tuple[float, float] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict]:
     station_span = station_max - station_min
     if topology_is_closed:
@@ -311,6 +324,7 @@ def _sample_stable_path(
         stations,
         is_closed=topology_is_closed,
         baseline_length=baseline_length,
+        fallback_tangent=fallback_tangent,
     )
 
     window_key = "stable_unwrap_closed_smoothing_window_px" if topology_is_closed else "stable_unwrap_smoothing_window_px"
@@ -640,16 +654,6 @@ def unwrap_stable_line_crop_for_ocr(
             fallback_reason="baseline_too_short",
             stable_metadata={"topology": topology.to_metadata()},
         )
-    if can_unwrap_point_baseline:
-        return _stable_unwrap_fallback(
-            processing_image,
-            polygon_points,
-            baseline_points,
-            text=text,
-            unwrap_config=config,
-            fallback_reason="point_baseline",
-            stable_metadata={"topology": topology.to_metadata()},
-        )
 
     half_width = _half_width_from_local_bounds(config)
     if half_width is None:
@@ -664,6 +668,7 @@ def unwrap_stable_line_crop_for_ocr(
         topology_is_closed=topology.is_closed,
         baseline_length=baseline_length,
         config=config,
+        fallback_tangent=_point_baseline_tangent(topology),
     )
     max_allowed_deviation = max(
         1.0,
@@ -817,6 +822,7 @@ def unwrap_line_crop_for_ocr(
                 station,
                 is_closed=topology.is_closed,
                 baseline_length=baseline_length,
+                fallback_tangent=_point_baseline_tangent(topology),
             )
             centers.append(center)
             tangents.append(tangent)

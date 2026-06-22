@@ -214,6 +214,46 @@ class StrategyAwareOcrCropsUnitTest(unittest.TestCase):
         self.assertTrue(result.metadata["stable_unwrap"]["vectorized_map"])
         self.assertTrue(result.metadata["stable_unwrap"]["vectorized_station_sampling"])
 
+    def test_stable_point_baseline_uses_reading_direction_as_crop_axis(self):
+        image = np.full((96, 96), 240, dtype=np.uint8)
+        image[28:68, 42:54] = 20
+        record = SimpleNamespace(
+            page_id="unit_page",
+            region_custom="textbox_label_0",
+            line_id="region_0_line_0",
+            line_custom="structure_line_id_7",
+            line_numeric_id=7,
+            text="test",
+            polygon_points=[[42, 28], [54, 28], [54, 68], [42, 68]],
+            baseline_points=[[48, 48]],
+        )
+
+        result = crop_line_record_for_ocr(
+            image,
+            record,
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_line_metadata={
+                "line_numeric_id": 7,
+                "crop_model": "local_polygon_stable_unwrap",
+                "local_s_min": -20.0,
+                "local_s_max": 20.0,
+                "local_n_min": -6.0,
+                "local_n_max": 6.0,
+                "reading_direction_annotation": {
+                    "reading_direction": [0, -1],
+                    "cut_midpoint": [48, 48],
+                },
+            },
+        )
+
+        self.assertTrue(result.metadata["used_unwrap"])
+        self.assertEqual(result.metadata["unwrap_strategy"], "stable_arclength_tangent")
+        self.assertTrue(result.metadata["stable_unwrap"]["used_stable_path"])
+        self.assertEqual(result.metadata["topology"]["line_kind"], "point")
+        self.assertEqual(result.metadata["orientation"]["reason"], "annotated_point_direction")
+        self.assertGreater(result.metadata["output_width_px"], result.metadata["output_height_px"])
+        self.assertGreater(result.image.shape[1], result.image.shape[0])
+
     def test_local_polygon_reading_direction_annotation_reaches_unwrap(self):
         image, record = self._image_and_record()
 

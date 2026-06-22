@@ -542,7 +542,10 @@ to a final text-line component by node overlap and writes a sidecar JSON file
 with active and stale annotations.
 
 The crop layer uses resolved reading direction and cut midpoint metadata to
-choose a stable unwrap direction for ambiguous lines.
+choose a stable unwrap direction for ambiguous lines. For single-node point
+baselines, the resolved reading direction also defines the local station axis
+used by strategy metadata and OCR crop unwrapping; missing annotations retain
+the horizontal point-baseline default.
 
 #### Active-Learning Ground-Truth Boundary
 

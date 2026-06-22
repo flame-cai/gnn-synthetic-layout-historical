@@ -447,6 +447,9 @@ def normalize_baseline_topology(
             reading_cut_point=normalized_reading_cut_point,
         )
         normalization_actions.append(orientation_action)
+    elif normalized_reading_direction is not None and len(normalized_points) == 1:
+        orientation_action = "annotated_point_direction"
+        normalization_actions.append(orientation_action)
     elif reading_order == "left_to_right" and len(normalized_points) >= 2:
         normalized_points, orientation_action = _orient_open_path_to_script_default(normalized_points)
         if orientation_action != "preserved":

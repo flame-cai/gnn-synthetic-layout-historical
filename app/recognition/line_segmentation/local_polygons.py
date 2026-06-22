@@ -187,6 +187,13 @@ def _unit(vector_x: float, vector_y: float) -> tuple[float, float]:
     return vector_x / length, vector_y / length
 
 
+def _point_baseline_tangent(topology: BaselineTopology) -> tuple[float, float]:
+    direction = topology.reading_direction
+    if direction is None or len(direction) < 2:
+        return 1.0, 0.0
+    return _unit(float(direction[0]), float(direction[1]))
+
+
 def _point_at_station(points: list[list[float]], station: float, is_closed: bool) -> tuple[tuple[float, float], tuple[float, float]]:
     total_length = polyline_length(points)
     if not points:
@@ -231,7 +238,11 @@ def _project_point_to_local(
 ) -> tuple[float, float]:
     if len(topology.normalized_points) == 1 or topology.baseline_length <= 1e-6:
         origin = topology.normalized_points[0] if topology.normalized_points else [0.0, 0.0]
-        return float(point[0]) - float(origin[0]), float(point[1]) - float(origin[1])
+        tangent = _point_baseline_tangent(topology)
+        normal = (-float(tangent[1]), float(tangent[0]))
+        offset_x = float(point[0]) - float(origin[0])
+        offset_y = float(point[1]) - float(origin[1])
+        return offset_x * tangent[0] + offset_y * tangent[1], offset_x * normal[0] + offset_y * normal[1]
 
     nearest = nearest_point_on_polyline(point, topology.normalized_points)
     station = float(nearest.arc_length)
@@ -713,7 +724,15 @@ def _local_to_page_point(
     image_width: int,
     image_height: int,
 ) -> list[int]:
-    center, tangent = _point_at_station(topology.normalized_points, station, topology.is_closed)
+    if len(topology.normalized_points) == 1 or topology.baseline_length <= 1e-6:
+        origin = topology.normalized_points[0] if topology.normalized_points else [0.0, 0.0]
+        tangent = _point_baseline_tangent(topology)
+        center = (
+            float(origin[0]) + tangent[0] * float(station),
+            float(origin[1]) + tangent[1] * float(station),
+        )
+    else:
+        center, tangent = _point_at_station(topology.normalized_points, station, topology.is_closed)
     normal = (-tangent[1], tangent[0])
     return _clip_point(
         (center[0] + normal[0] * normal_offset, center[1] + normal[1] * normal_offset),
