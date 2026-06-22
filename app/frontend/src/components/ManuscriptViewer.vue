@@ -946,6 +946,32 @@ const remapReadingDirectionAnnotationsToCurrentTextlines = ({ syncSnapshot = fal
   if (syncSnapshot) syncSavedReadingDirectionAnnotationsSnapshot()
 }
 
+const shiftReadingDirectionAnnotationsAfterNodeDelete = (deletedNodeIndex) => {
+  const shifted = {}
+  Object.entries(readingDirectionAnnotations.value).forEach(([lineId, annotation]) => {
+    const normalized = normalizeReadingDirectionAnnotation(annotation)
+    if (!normalized) return
+
+    const componentNodeIndices = [
+      ...new Set(
+        normalized.component_node_indices
+          .filter((nodeIndex) => nodeIndex !== deletedNodeIndex)
+          .map((nodeIndex) => (nodeIndex > deletedNodeIndex ? nodeIndex - 1 : nodeIndex))
+          .filter((nodeIndex) => nodeIndex >= 0)
+      ),
+    ].sort((a, b) => a - b)
+
+    if (componentNodeIndices.length === 0) return
+
+    const shiftedAnnotation = normalizeReadingDirectionAnnotation({
+      ...normalized,
+      component_node_indices: componentNodeIndices,
+    })
+    if (shiftedAnnotation) shifted[String(shiftedAnnotation.annotation_id || lineId)] = shiftedAnnotation
+  })
+  readingDirectionAnnotations.value = shifted
+}
+
 const loadReadingDirectionAnnotationsFromPageData = (metadata) => {
   const loaded = {}
   const lineAnnotations = Array.isArray(metadata?.lineAnnotations) ? metadata.lineAnnotations : []
@@ -2294,6 +2320,9 @@ const deleteNode = (nodeIndex) => {
     });
     for (const key in textlineLabels) delete textlineLabels[key];
     Object.assign(textlineLabels, newLabels);
+    shiftReadingDirectionAnnotationsAfterNodeDelete(nodeIndex);
+    computeTextlines();
+    remapReadingDirectionAnnotationsToCurrentTextlines();
     resetSelection();
     modifications.value.push({ type: 'node_delete' });
 }
