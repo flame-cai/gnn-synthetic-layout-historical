@@ -425,6 +425,43 @@
          </button>
 
          <div
+           v-show="layoutModeActive"
+           class="mode-tools-shell layout-region-tools"
+           :aria-hidden="!layoutModeActive"
+         >
+           <div class="mode-tools-section">
+             <div class="mode-tools-label">Regions</div>
+             <div class="mode-tools-controls region-tool-controls">
+               <label class="region-picker" :title="regionPickerTitle">
+                 <span class="region-picker-label">Edit</span>
+                 <select
+                   v-model="selectedTextboxLabel"
+                   class="workflow-select region-select"
+                   :disabled="isProcessingSave || isEKeyPressed"
+                 >
+                   <option :value="null">New region</option>
+                   <option
+                     v-for="region in regionSelectOptions"
+                     :key="region.id"
+                     :value="region.id"
+                   >
+                     Region {{ region.id }} - {{ region.lineCount }} line{{ region.lineCount === 1 ? '' : 's' }}
+                   </option>
+                 </select>
+               </label>
+               <button
+                 class="region-delete-btn"
+                 @click="deleteSelectedTextboxRegion"
+                 :disabled="!canDeleteSelectedTextboxRegion || isProcessingSave || isEKeyPressed"
+                 :title="deleteSelectedTextboxRegionTitle"
+               >
+                 Delete
+               </button>
+             </div>
+           </div>
+         </div>
+
+         <div
            v-show="recognitionModeActive"
            class="mode-tools-shell"
            :aria-hidden="!recognitionModeActive"
@@ -684,6 +721,7 @@ const textlines = ref({})
 const nodeToTextlineMap = ref({}) 
 const hoveredTextlineId = ref(null)
 const textboxLabels = ref(0) 
+const selectedTextboxLabel = ref(null)
 const labelColors = ['#448aff', '#ffeb3b', '#4CAF50', '#f44336', '#9c27b0', '#ff9800'] 
 const savedTextboxLabelsSnapshot = ref('[]')
 const readingDirectionAnnotations = ref({})
@@ -822,15 +860,87 @@ const scaleX = (x) => x * scaleFactor
 const scaleY = (y) => y * scaleFactor
 const graphIsLoaded = computed(() => workingGraph.nodes && workingGraph.nodes.length > 0)
 
+const normalizeTextboxLabel = (value) => {
+  const label = Number(value)
+  if (!Number.isFinite(label)) return null
+  const normalized = Math.trunc(label)
+  return normalized >= 0 ? normalized : null
+}
+
 const buildTextboxLabelsPayload = (numNodes = 0) => {
   const safeNodeCount = Math.max(0, Number(numNodes) || 0)
   const labels = new Array(safeNodeCount).fill(0)
   Object.keys(textlineLabels).forEach((nodeIndex) => {
     const parsedIndex = Number(nodeIndex)
     if (!Number.isInteger(parsedIndex) || parsedIndex < 0 || parsedIndex >= safeNodeCount) return
-    labels[parsedIndex] = Number(textlineLabels[nodeIndex] ?? 0)
+    labels[parsedIndex] = normalizeTextboxLabel(textlineLabels[nodeIndex]) ?? 0
   })
   return labels
+}
+
+const activeTextboxLabelForAnnotation = computed(() => (
+  selectedTextboxLabel.value === null ? textboxLabels.value : selectedTextboxLabel.value
+))
+
+const regionSelectOptions = computed(() => {
+  const regions = new Map()
+  Object.entries(textlineLabels).forEach(([nodeIndexRaw, labelRaw]) => {
+    const label = normalizeTextboxLabel(labelRaw)
+    const nodeIndex = Number(nodeIndexRaw)
+    if (label === null || !Number.isInteger(nodeIndex)) return
+    if (!regions.has(label)) {
+      regions.set(label, { id: label, nodeCount: 0, lineIds: new Set() })
+    }
+    const region = regions.get(label)
+    region.nodeCount += 1
+    const textlineId = nodeToTextlineMap.value[nodeIndex]
+    region.lineIds.add(textlineId === undefined || textlineId === null ? `node-${nodeIndex}` : String(textlineId))
+  })
+  return Array.from(regions.values())
+    .map((region) => ({
+      id: region.id,
+      nodeCount: region.nodeCount,
+      lineCount: region.lineIds.size,
+    }))
+    .sort((a, b) => a.id - b.id)
+})
+
+const selectedTextboxRegionExists = computed(() => (
+  selectedTextboxLabel.value !== null &&
+  regionSelectOptions.value.some((region) => region.id === selectedTextboxLabel.value)
+))
+
+const regionPickerTitle = computed(() => (
+  selectedTextboxLabel.value === null
+    ? `Hold e to annotate with new region ${textboxLabels.value}.`
+    : `Hold e to add text lines to region ${selectedTextboxLabel.value}.`
+))
+
+const canDeleteSelectedTextboxRegion = computed(() => (
+  selectedTextboxLabel.value !== null &&
+  selectedTextboxLabel.value !== 0 &&
+  selectedTextboxRegionExists.value
+))
+
+const deleteSelectedTextboxRegionTitle = computed(() => {
+  if (selectedTextboxLabel.value === null) return 'Select an existing region first.'
+  if (selectedTextboxLabel.value === 0) return 'Region 0 is the fallback region and cannot be deleted.'
+  return `Move region ${selectedTextboxLabel.value} lines back to the fallback region.`
+})
+
+watch(regionSelectOptions, (options) => {
+  if (selectedTextboxLabel.value === null) return
+  if (!options.some((region) => region.id === selectedTextboxLabel.value)) {
+    selectedTextboxLabel.value = null
+  }
+})
+
+const normalizeTextboxLabelList = (labels = []) => (
+  Array.isArray(labels) ? labels : []
+).map(normalizeTextboxLabel)
+
+const resetTextboxRegionSelection = () => {
+  selectedTextboxLabel.value = null
 }
 
 const normalizeReadingDirectionAnnotation = (annotation) => {
@@ -2403,6 +2513,8 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
   syncSavedReadingDirectionAnnotationsSnapshot()
   
   Object.keys(textlineLabels).forEach(k => delete textlineLabels[k])
+  textboxLabels.value = 0
+  resetTextboxRegionSelection()
   replaceLocalRecognitionData({}, {})
   pagePolygons.value = {}
   lineImagePreviews.value = {}
@@ -2438,9 +2550,13 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
     if (data.textline_labels) {
       data.textline_labels.forEach((label, index) => { if (label !== -1) textlineLabels[index] = label })
     }
-    if (data.textbox_labels?.length > 0) {
-       data.textbox_labels.forEach((label, index) => { textlineLabels[index] = label })
-       textboxLabels.value = Math.max(...data.textbox_labels) + 1; 
+    const normalizedTextboxLabels = normalizeTextboxLabelList(data.textbox_labels)
+    const usedTextboxLabels = normalizedTextboxLabels.filter((label) => label !== null)
+    if (usedTextboxLabels.length > 0) {
+       normalizedTextboxLabels.forEach((label, index) => {
+         if (label !== null) textlineLabels[index] = label
+       })
+       textboxLabels.value = Math.max(...usedTextboxLabels) + 1
     }
     
     if (data.polygons) pagePolygons.value = data.polygons;
@@ -3126,9 +3242,22 @@ const handleSvgMouseLeave = () => {
 const labelTextline = () => {
   if (hoveredTextlineId.value === null) return
   const nodesToLabel = textlines.value[hoveredTextlineId.value]
+  const label = activeTextboxLabelForAnnotation.value
   if (nodesToLabel) {
-    nodesToLabel.forEach((nodeIndex) => { textlineLabels[nodeIndex] = textboxLabels.value })
+    nodesToLabel.forEach((nodeIndex) => { textlineLabels[nodeIndex] = label })
   }
+}
+
+const deleteSelectedTextboxRegion = () => {
+  if (!canDeleteSelectedTextboxRegion.value) return
+  const labelToDelete = selectedTextboxLabel.value
+  Object.keys(textlineLabels).forEach((nodeIndex) => {
+    if (normalizeTextboxLabel(textlineLabels[nodeIndex]) === labelToDelete) {
+      delete textlineLabels[nodeIndex]
+    }
+  })
+  hoveredTextlineId.value = null
+  resetTextboxRegionSelection()
 }
 
 const handleGlobalKeyDown = (e) => {
@@ -3237,8 +3366,10 @@ const handleGlobalKeyUp = (e) => {
         return
       }
       if (key === 'e') {
+        const shouldAdvanceNewRegion = isEKeyPressed.value && selectedTextboxLabel.value === null
         isEKeyPressed.value = false
-        textboxLabels.value++ 
+        hoveredTextlineId.value = null
+        if (shouldAdvanceNewRegion) textboxLabels.value++
       }
       if (key === 'd') isDKeyPressed.value = false
       if (key === 'a') {
@@ -4524,6 +4655,41 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   align-items: center;
   gap: 10px;
   min-width: 0;
+}
+.layout-region-tools {
+  flex: 0 1 460px;
+}
+.region-tool-controls {
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.region-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.region-picker-label {
+  font-size: 0.68rem;
+  color: #9fd4ff;
+  white-space: nowrap;
+}
+.region-select {
+  min-width: 172px;
+  max-width: 220px;
+}
+.region-delete-btn {
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 117, 117, 0.38);
+  background: rgba(156, 42, 42, 0.22);
+  color: #ffd7d7;
+  border-radius: 6px;
+  font-size: 0.72rem;
+}
+.region-delete-btn:hover:not(:disabled) {
+  background: rgba(179, 54, 54, 0.34);
+  border-color: rgba(255, 145, 145, 0.52);
 }
 .bottom-tools-toggle {
   background: rgba(255,255,255,0.02);

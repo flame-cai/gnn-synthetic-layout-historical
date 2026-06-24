@@ -628,6 +628,25 @@ def compute_page_layout_fingerprint(xml_path):
         return None
 
 
+def _normalize_textbox_labels_payload(textbox_labels, node_count):
+    try:
+        safe_node_count = max(0, int(node_count or 0))
+    except (TypeError, ValueError):
+        safe_node_count = 0
+
+    normalized = [0] * safe_node_count
+    if not isinstance(textbox_labels, list):
+        return normalized
+
+    for index, raw_label in enumerate(textbox_labels[:safe_node_count]):
+        try:
+            label = int(raw_label)
+        except (TypeError, ValueError):
+            label = 0
+        normalized[index] = label if label >= 0 else 0
+    return normalized
+
+
 def _build_page_workflow(
     manuscript_path,
     page,
@@ -1381,9 +1400,9 @@ def save_correction(manuscript, page):
     # --- END OF NODE CORRECTION LOGGING ---
     
     textline_labels = data.get('textlineLabels')
-    graph_data = data.get('graph')
-    textbox_labels = data.get('textboxLabels')
-    nodes_data = graph_data.get('nodes')
+    graph_data = data.get('graph') or {}
+    nodes_data = graph_data.get('nodes') or []
+    textbox_labels = _normalize_textbox_labels_payload(data.get('textboxLabels'), len(nodes_data))
     text_content = data.get('textContent') 
     reading_direction_annotations = data.get('readingDirectionAnnotations') or []
     
@@ -1393,7 +1412,7 @@ def save_correction(manuscript, page):
     save_scope = str(data.get('saveScope') or 'layout')
     active_learning_enabled = bool(data.get('activeLearningEnabled', False))
 
-    if not textline_labels or not graph_data:
+    if textline_labels is None or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
 
     try:
@@ -1406,7 +1425,7 @@ def save_correction(manuscript, page):
                 str(manuscript_path),
                 page,
                 textline_labels,
-                graph_data['edges'],
+                graph_data.get('edges', []),
                 line_segmentation_args,
                 textbox_labels=textbox_labels,
                 nodes=nodes_data,

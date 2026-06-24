@@ -165,12 +165,15 @@ def generate_xml_and_images_for_page(
 
     final_textbox_labels = np.zeros(num_nodes, dtype=int)
     if textbox_labels is not None:
-        if len(textbox_labels) == num_nodes:
-            final_textbox_labels = np.array(textbox_labels, dtype=int)
-            np.savetxt(gnn_format_dir / f"{page_id}_labels_textbox.txt", final_textbox_labels, fmt='%d')
-        else:
-             print(f"Warning: Textbox label count {len(textbox_labels)} != Node count {num_nodes}. Resetting.")
-             
+        try:
+            candidate_textbox_labels = np.asarray(textbox_labels, dtype=int).reshape(-1)
+            if candidate_textbox_labels.size == num_nodes:
+                final_textbox_labels = np.maximum(candidate_textbox_labels, 0)
+            else:
+                print(f"Warning: Textbox label count {candidate_textbox_labels.size} != Node count {num_nodes}. Resetting.")
+        except (TypeError, ValueError):
+            print("Warning: Invalid textbox labels payload. Resetting.")
+        np.savetxt(gnn_format_dir / f"{page_id}_labels_textbox.txt", final_textbox_labels, fmt='%d')
     xml_output_dir = output_dir / "page-xml-format"
     xml_output_dir.mkdir(exist_ok=True)
     baseline_xml_output_dir = output_dir / "_baseline_page_xml"
@@ -629,14 +632,14 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
         
         if saved_labels_path.exists():
             try:
-                labels = np.loadtxt(saved_labels_path, dtype=int)
+                labels = np.loadtxt(saved_labels_path, dtype=int, ndmin=1)
                 if labels.size == len(points_normalized):
                      response["textline_labels"] = labels.tolist()
             except Exception: pass 
         
         if saved_textbox_path.exists():
             try:
-                tb_labels = np.loadtxt(saved_textbox_path, dtype=int)
+                tb_labels = np.loadtxt(saved_textbox_path, dtype=int, ndmin=1)
                 if tb_labels.size == len(points_normalized):
                     response["textbox_labels"] = tb_labels.tolist()
             except Exception: pass
