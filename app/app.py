@@ -1567,7 +1567,7 @@ def _find_resized_page_image(manuscript_root, layout_output_root, page_id):
         layout_output_root / "images_resized",
         manuscript_root / "images_resized",
     ]
-    extensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".JPG", ".JPEG", ".PNG", ".TIF", ".TIFF"]
+    extensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".JPG", ".JPEG", ".PNG", ".TIF", ".TIFF",".jp2"]
     for image_dir in search_dirs:
         for ext in extensions:
             candidate = image_dir / f"{page_id}{ext}"
@@ -1744,7 +1744,7 @@ def save_overlay(manuscript, page):
         # 1. Load Original Image
         original_dir = manuscript_path / "images"
         orig_img_path = None
-        for ext in ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.JPG', '.JPEG', '.PNG', '.AVIF', '.avif']:
+        for ext in ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.JPG', '.JPEG', '.PNG', '.AVIF', '.avif', '.jp2']:
             candidate = original_dir / f"{page}{ext}"
             if candidate.exists():
                 orig_img_path = candidate

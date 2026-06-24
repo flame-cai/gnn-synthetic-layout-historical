@@ -102,7 +102,7 @@ def _write_placeholder_text_pagexml(source_xml_path: Path, target_xml_path: Path
 
 
 def _find_page_image(page: str, candidate_dirs) -> Path | None:
-    extensions = (".jpg", ".jpeg", ".png", ".tif", ".tiff", ".JPG", ".JPEG", ".PNG", ".TIF", ".TIFF")
+    extensions = (".jpg", ".jpeg", ".png", ".tif", ".tiff", ".JPG", ".JPEG", ".PNG", ".TIF", ".TIFF",'.jp2')
     for directory in candidate_dirs:
         for extension in extensions:
             candidate = Path(directory) / f"{page}{extension}"

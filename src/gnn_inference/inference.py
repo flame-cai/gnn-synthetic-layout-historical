@@ -31,7 +31,7 @@ def process_new_manuscript(manuscript_path="./input_manuscripts/sample_manuscrip
         return
 
     # Valid image extensions to look for
-    valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', '.webp', '.AVIF', '.avif'}
+    valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', '.webp', '.AVIF', '.avif','.jp2'}
 
     # Get list of files in the directory
     files = [f for f in os.listdir(source_images_path) if os.path.isfile(os.path.join(source_images_path, f))]

@@ -1,7 +1,6 @@
 
-- faster saving
-- convert single character to double character..and then orient them? safe guarrails are too strong for two points draws around a single character..
-- update docs
+
+- intra page finetuning overhaul..superfast?
 
 
 
