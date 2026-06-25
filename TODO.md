@@ -1,5 +1,32 @@
+This application 'app' is an OCR tool which uses various AI's, with a human in the loop. See VISION.md.
+
+The human annotations can be as follows:
+
+In Layout Mode:
+Node add/delelte
+Edge add/delete
+Text-Line Orientation annotations (defaults to one orientation for each text-line)
+Text-Region Annotation (defaults to one text-region for each text-line)
+
+In Read Mode:
+Unicode text correction (CER)
 
 
+Please study the application from this perspective and help me log all the human interventions better in only place? Right now in the below manuscript I only see node_corrections being tracked, not the rest.
+
+Make precise changes to improve the logging in this aspect, to log all human interventions in one place.
+Track the human interventions per page, per manuscript (so that with active learning of OCR model, we should see the human annotation effort in Read Mode reduce with each subsequent page. Other layout human annotations aren't used for active learning yet, but will be in the future)
+
+We don't want these change to slow down the application. The application functionality should be unchanged.
+
+
+
+
+
+
+
+- what to do before I start annotating? what to measure?
+- export in this format too: https://gemini.google.com/share/6d96e9a50411
 - intra page finetuning overhaul..superfast?
 
 
@@ -54,7 +81,8 @@ _______________
     - colab notebook (for font rendering)
     - curved and synthetic lines
     - gnn format layout generator
-    - it should generate data in the same format as 'eval_data'.
+    - it should generate data in the same format as 'eval_data', and the gemini JSON format for image generation..
+    - https://github.com/GbotHQ/Blender-3D-document-rendering-pipeline
 
 ### Misc
 - fix GNN loading model - state_load_dict
