@@ -295,7 +295,14 @@ def compute_layout_edit_metrics(
     previous_reading_direction_annotations=None,
     include_annotation_deltas: bool = False,
 ) -> dict:
+    graph_payload = graph_payload or {}
+    final_nodes = len(graph_payload.get("nodes") or [])
+    final_edges = len(graph_payload.get("edges") or [])
     metrics = {
+        "original_nodes": final_nodes,
+        "final_nodes": final_nodes,
+        "original_edges": final_edges,
+        "final_edges": final_edges,
         "nodes_added": 0,
         "nodes_deleted": 0,
         "edges_added": 0,
@@ -324,6 +331,15 @@ def compute_layout_edit_metrics(
             metrics["reset_heuristic_count"] += 1
         elif mod_type == "reading_direction":
             metrics["reading_direction_modification_count"] += 1
+
+    metrics["original_nodes"] = max(
+        0,
+        metrics["final_nodes"] - metrics["nodes_added"] + metrics["nodes_deleted"],
+    )
+    metrics["original_edges"] = max(
+        0,
+        metrics["final_edges"] - metrics["edges_added"] + metrics["edges_deleted"],
+    )
 
     if include_annotation_deltas:
         region_metrics = compute_text_region_edit_metrics(

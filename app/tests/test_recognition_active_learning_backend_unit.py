@@ -239,7 +239,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         )
 
         page_summary = json.loads(
-            (manuscript_root / "active_learning" / "recognition" / "telemetry" / "page_edit_summary.json").read_text(encoding="utf-8")
+            (manuscript_root / "active_learning" / "telemetry" / "page_edit_summary.json").read_text(encoding="utf-8")
         )
         text_metrics = page_summary["233_0001#r1"]["text_metrics"]
         self.assertEqual(text_metrics["prediction_source_engine"], "local")
@@ -249,7 +249,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertNotEqual(text_metrics["per_line_diffs"][0]["predicted_text"], "gemini raw")
 
         human_summary = json.loads(
-            (manuscript_root / "active_learning" / "recognition" / "telemetry" / "human_interventions.json").read_text(encoding="utf-8")
+            (manuscript_root / "active_learning" / "telemetry" / "human_interventions.json").read_text(encoding="utf-8")
         )
         self.assertEqual(human_summary["read_mode_effort_curve"][0]["prediction_source_engine"], "local")
 

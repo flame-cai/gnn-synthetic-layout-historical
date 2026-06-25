@@ -236,7 +236,7 @@ content in place and does not regenerate layout geometry or line images.
 The save route also keeps the legacy `node_corrections/<page>.json` counters.
 Those counters are used by the ZIP export's `node_metrics.json`; they are not
 the active-learning or human-effort source of truth. Use
-`active_learning/recognition/telemetry/human_interventions.json` for unified
+`active_learning/telemetry/human_interventions.json` for unified
 intervention logging.
 
 ## Reading Direction And Layout Staleness
@@ -385,7 +385,7 @@ This state includes:
 - pending jobs
 - prepared pages
 - training artifacts
-- telemetry and profiling summaries
+- active-learning telemetry under `active_learning/telemetry/` and profiling summaries
 
 Only foreground Text Review commit saves with non-empty text become supervised
 OCR ground truth. The exact supervised OCR boundary is:

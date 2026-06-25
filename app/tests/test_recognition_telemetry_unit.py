@@ -51,6 +51,10 @@ class RecognitionTelemetryUnitTest(unittest.TestCase):
         self.assertEqual(metrics["edges_deleted"], 1)
         self.assertEqual(metrics["reset_heuristic_count"], 1)
         self.assertEqual(metrics["modification_count"], 5)
+        self.assertEqual(metrics["original_nodes"], 0)
+        self.assertEqual(metrics["final_nodes"], 0)
+        self.assertEqual(metrics["original_edges"], 0)
+        self.assertEqual(metrics["final_edges"], 0)
 
     def test_compute_text_region_edit_metrics_compares_against_prior_labels(self):
         graph_payload = {
@@ -104,6 +108,10 @@ class RecognitionTelemetryUnitTest(unittest.TestCase):
             include_annotation_deltas=True,
         )
 
+        self.assertEqual(metrics["original_nodes"], 3)
+        self.assertEqual(metrics["final_nodes"], 4)
+        self.assertEqual(metrics["original_edges"], 2)
+        self.assertEqual(metrics["final_edges"], 2)
         self.assertEqual(metrics["nodes_added"], 1)
         self.assertEqual(metrics["reading_direction_modification_count"], 1)
         self.assertEqual(metrics["text_region_annotations_changed"], 1)

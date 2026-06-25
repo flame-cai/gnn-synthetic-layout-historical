@@ -73,7 +73,7 @@ class ManuscriptOcrRegistry:
         self.registry_path = self.runtime_root / "registry.json"
         self.checkpoints_root = self.runtime_root / "checkpoints"
         self.revisions_root = self.runtime_root / "revisions"
-        self.telemetry_root = self.runtime_root / "telemetry"
+        self.telemetry_root = self.manuscript_root / "active_learning" / "telemetry"
         self.profiling_root = self.runtime_root / "profiling"
         self.prepared_pages_root = self.runtime_root / "prepared_pages"
         self.data = data

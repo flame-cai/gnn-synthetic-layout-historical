@@ -12843,3 +12843,797 @@
 2026-06-25 11:05:25,592 - INFO - 127.0.0.1 - - [25/Jun/2026 11:05:25] "[36mGET /line-image/logging_imporvement_test2/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782365633869872200 HTTP/1.1[0m" 304 -
 2026-06-25 11:06:00,663 - INFO - 127.0.0.1 - - [25/Jun/2026 11:06:00] "GET /manuscript/logging_imporvement_test2/active-learning HTTP/1.1" 200 -
 2026-06-25 11:07:00,985 - INFO - 127.0.0.1 - - [25/Jun/2026 11:07:00] "GET /manuscript/logging_imporvement_test2/active-learning HTTP/1.1" 200 -
+2026-06-25 11:20:20,414 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.198:5000
+2026-06-25 11:20:20,414 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-25 11:20:20,416 - INFO -  * Restarting with stat
+2026-06-25 11:20:27,409 - WARNING -  * Debugger is active!
+2026-06-25 11:20:27,412 - INFO -  * Debugger PIN: 192-125-268
+2026-06-25 11:21:36,531 - INFO - 127.0.0.1 - - [25/Jun/2026 11:21:36] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-25 11:22:29,846 - INFO - 127.0.0.1 - - [25/Jun/2026 11:22:29] "POST /upload HTTP/1.1" 200 -
+2026-06-25 11:22:30,193 - INFO - 127.0.0.1 - - [25/Jun/2026 11:22:30] "GET /manuscript/my_manuscripts/pages HTTP/1.1" 200 -
+2026-06-25 11:22:30,447 - INFO - 127.0.0.1 - - [25/Jun/2026 11:22:30] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 11:22:31,170 - INFO - 127.0.0.1 - - [25/Jun/2026 11:22:31] "GET /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 11:22:31,306 - INFO - 127.0.0.1 - - [25/Jun/2026 11:22:31] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:23:31,650 - INFO - 127.0.0.1 - - [25/Jun/2026 11:23:31] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:23:53,826 - INFO - 127.0.0.1 - - [25/Jun/2026 11:23:53] "OPTIONS /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 11:23:54,170 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscripts page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0015
+2026-06-25 11:24:00,778 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:00] "POST /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 11:24:01,128 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:01] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:24:01,189 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:01] "GET /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 11:24:01,548 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:01] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:24:01,824 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-25 11:24:02,720 - INFO - Model loaded successfully.
+2026-06-25 11:24:10,476 - INFO - Updated input_manuscripts\my_manuscripts\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0015.xml: 44 lines recognized.
+2026-06-25 11:24:10,600 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:10] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:24:10,635 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:10] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:24:11,856 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:11] "GET /line-image/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015/4?v=1782366839160986700 HTTP/1.1" 200 -
+2026-06-25 11:24:33,662 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:33] "OPTIONS /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 11:24:34,169 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:34] "POST /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 11:24:34,516 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:34] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:24:34,604 - INFO - 127.0.0.1 - - [25/Jun/2026 11:24:34] "GET /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:25:33,451 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:33] "OPTIONS /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:25:33,745 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscripts page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028
+2026-06-25 11:25:34,559 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:34] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:25:42,047 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:42] "POST /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:25:42,398 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:42] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:25:42,579 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:42] "GET /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:25:42,637 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:42] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:25:46,558 - INFO - Updated input_manuscripts\my_manuscripts\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028.xml: 22 lines recognized.
+2026-06-25 11:25:46,759 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:46] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:25:46,806 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:46] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:25:58,650 - INFO - 127.0.0.1 - - [25/Jun/2026 11:25:58] "GET /line-image/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782366941403796600 HTTP/1.1" 200 -
+2026-06-25 11:26:07,274 - INFO - 127.0.0.1 - - [25/Jun/2026 11:26:07] "GET /line-image/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/13?v=1782366941498138400 HTTP/1.1" 200 -
+2026-06-25 11:26:11,635 - INFO - 127.0.0.1 - - [25/Jun/2026 11:26:11] "GET /line-image/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/11?v=1782366941450797900 HTTP/1.1" 200 -
+2026-06-25 11:26:38,401 - INFO - 127.0.0.1 - - [25/Jun/2026 11:26:38] "[36mGET /line-image/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782366941403796600 HTTP/1.1[0m" 304 -
+2026-06-25 11:26:47,746 - INFO - 127.0.0.1 - - [25/Jun/2026 11:26:47] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:27:48,757 - INFO - 127.0.0.1 - - [25/Jun/2026 11:27:48] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:28:26,619 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:26] "OPTIONS /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:28:27,027 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscripts page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028
+2026-06-25 11:28:38,039 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:38] "POST /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:28:38,310 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:38] "GET /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:28:38,392 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:38] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:28:38,658 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:38] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:28:43,121 - INFO - Updated input_manuscripts\my_manuscripts\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028.xml: 22 lines recognized.
+2026-06-25 11:28:43,367 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:43] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:28:43,410 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:43] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:28:46,078 - INFO - 127.0.0.1 - - [25/Jun/2026 11:28:46] "GET /line-image/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782367117397752800 HTTP/1.1" 200 -
+2026-06-25 11:29:44,748 - INFO - 127.0.0.1 - - [25/Jun/2026 11:29:44] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:30:44,779 - INFO - 127.0.0.1 - - [25/Jun/2026 11:30:44] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:30:45,439 - INFO - 127.0.0.1 - - [25/Jun/2026 11:30:45] "OPTIONS /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:30:45,794 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscripts page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028
+2026-06-25 11:30:56,158 - INFO - 127.0.0.1 - - [25/Jun/2026 11:30:56] "POST /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:30:56,419 - INFO - 127.0.0.1 - - [25/Jun/2026 11:30:56] "GET /semi-segment/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:30:56,507 - INFO - 127.0.0.1 - - [25/Jun/2026 11:30:56] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:30:56,763 - INFO - 127.0.0.1 - - [25/Jun/2026 11:30:56] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:31:01,236 - INFO - Updated input_manuscripts\my_manuscripts\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028.xml: 23 lines recognized.
+2026-06-25 11:31:01,459 - INFO - 127.0.0.1 - - [25/Jun/2026 11:31:01] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:31:01,497 - INFO - 127.0.0.1 - - [25/Jun/2026 11:31:01] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:31:02,669 - INFO - 127.0.0.1 - - [25/Jun/2026 11:31:02] "GET /line-image/my_manuscripts/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782367255515869500 HTTP/1.1" 200 -
+2026-06-25 11:32:02,756 - INFO - 127.0.0.1 - - [25/Jun/2026 11:32:02] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:33:03,748 - INFO - 127.0.0.1 - - [25/Jun/2026 11:33:03] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:34:04,747 - INFO - 127.0.0.1 - - [25/Jun/2026 11:34:04] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:35:05,753 - INFO - 127.0.0.1 - - [25/Jun/2026 11:35:05] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:36:06,777 - INFO - 127.0.0.1 - - [25/Jun/2026 11:36:06] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:37:07,750 - INFO - 127.0.0.1 - - [25/Jun/2026 11:37:07] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:38:08,752 - INFO - 127.0.0.1 - - [25/Jun/2026 11:38:08] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:39:09,746 - INFO - 127.0.0.1 - - [25/Jun/2026 11:39:09] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:40:10,773 - INFO - 127.0.0.1 - - [25/Jun/2026 11:40:10] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:41:11,742 - INFO - 127.0.0.1 - - [25/Jun/2026 11:41:11] "GET /manuscript/my_manuscripts/active-learning HTTP/1.1" 200 -
+2026-06-25 11:42:59,479 - INFO - 127.0.0.1 - - [25/Jun/2026 11:42:59] "POST /upload HTTP/1.1" 200 -
+2026-06-25 11:42:59,498 - INFO - 127.0.0.1 - - [25/Jun/2026 11:42:59] "GET /manuscript/my_manuscriptsdsads/pages HTTP/1.1" 200 -
+2026-06-25 11:42:59,815 - INFO - 127.0.0.1 - - [25/Jun/2026 11:42:59] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 11:43:00,218 - INFO - 127.0.0.1 - - [25/Jun/2026 11:43:00] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064 HTTP/1.1" 200 -
+2026-06-25 11:43:00,249 - INFO - 127.0.0.1 - - [25/Jun/2026 11:43:00] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:44:00,594 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:00] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:44:20,380 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:20] "OPTIONS /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064 HTTP/1.1" 200 -
+2026-06-25 11:44:20,713 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscriptsdsads page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0064
+2026-06-25 11:44:23,362 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:23] "POST /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064 HTTP/1.1" 200 -
+2026-06-25 11:44:23,623 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:23] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064 HTTP/1.1" 200 -
+2026-06-25 11:44:23,702 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:23] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:44:23,957 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:23] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:44:26,086 - INFO - Updated input_manuscripts\my_manuscriptsdsads\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0064.xml: 10 lines recognized.
+2026-06-25 11:44:26,191 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:26] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:44:26,240 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:26] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:44:32,836 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:32] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/8?v=1782368062986231900 HTTP/1.1" 200 -
+2026-06-25 11:44:36,521 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:36] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/7?v=1782368062942642800 HTTP/1.1" 200 -
+2026-06-25 11:44:40,008 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:40] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/6?v=1782368062899461300 HTTP/1.1" 200 -
+2026-06-25 11:44:49,130 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:49] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/8?v=1782368062986231900 HTTP/1.1[0m" 304 -
+2026-06-25 11:44:58,286 - INFO - 127.0.0.1 - - [25/Jun/2026 11:44:58] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/9?v=1782368063023762300 HTTP/1.1" 200 -
+2026-06-25 11:45:02,424 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:02] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/2?v=1782368062733151800 HTTP/1.1" 200 -
+2026-06-25 11:45:04,448 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:04] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/4?v=1782368062810238600 HTTP/1.1" 200 -
+2026-06-25 11:45:06,450 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:06] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/1?v=1782368062695824100 HTTP/1.1" 200 -
+2026-06-25 11:45:07,650 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:07] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/0?v=1782368062653068200 HTTP/1.1" 200 -
+2026-06-25 11:45:16,876 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:16] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:45:17,254 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-25 11:45:26,272 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:26] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:45:33,188 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-25 11:45:33,369 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:33] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:45:33,709 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:33] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:45:39,729 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:39] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/6?v=1782368062899461300 HTTP/1.1[0m" 304 -
+2026-06-25 11:45:53,802 - INFO - 127.0.0.1 - - [25/Jun/2026 11:45:53] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/8?v=1782368062986231900 HTTP/1.1[0m" 304 -
+2026-06-25 11:46:00,744 - INFO - 127.0.0.1 - - [25/Jun/2026 11:46:00] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064/7?v=1782368062942642800 HTTP/1.1[0m" 304 -
+2026-06-25 11:46:23,258 - INFO - 127.0.0.1 - - [25/Jun/2026 11:46:23] "OPTIONS /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064 HTTP/1.1" 200 -
+2026-06-25 11:46:23,864 - INFO - 127.0.0.1 - - [25/Jun/2026 11:46:23] "POST /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0064 HTTP/1.1" 200 -
+2026-06-25 11:46:24,222 - INFO - 127.0.0.1 - - [25/Jun/2026 11:46:24] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:46:24,302 - INFO - 127.0.0.1 - - [25/Jun/2026 11:46:24] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 11:47:24,570 - INFO - 127.0.0.1 - - [25/Jun/2026 11:47:24] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:48:24,601 - INFO - 127.0.0.1 - - [25/Jun/2026 11:48:24] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:49:03,228 - INFO - 127.0.0.1 - - [25/Jun/2026 11:49:03] "OPTIONS /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 11:49:03,529 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscriptsdsads page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0066
+2026-06-25 11:49:13,110 - INFO - 127.0.0.1 - - [25/Jun/2026 11:49:13] "POST /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 11:49:13,459 - INFO - 127.0.0.1 - - [25/Jun/2026 11:49:13] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:49:13,593 - INFO - 127.0.0.1 - - [25/Jun/2026 11:49:13] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 11:49:13,949 - INFO - 127.0.0.1 - - [25/Jun/2026 11:49:13] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:49:20,199 - INFO - Updated input_manuscripts\my_manuscriptsdsads\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0066.xml: 37 lines recognized.
+2026-06-25 11:49:20,406 - INFO - 127.0.0.1 - - [25/Jun/2026 11:49:20] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:49:20,445 - INFO - 127.0.0.1 - - [25/Jun/2026 11:49:20] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:50:21,753 - INFO - 127.0.0.1 - - [25/Jun/2026 11:50:21] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:51:21,784 - INFO - 127.0.0.1 - - [25/Jun/2026 11:51:21] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:51:26,760 - INFO - 127.0.0.1 - - [25/Jun/2026 11:51:26] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/8?v=1782368352132410300 HTTP/1.1" 200 -
+2026-06-25 11:52:22,758 - INFO - 127.0.0.1 - - [25/Jun/2026 11:52:22] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:52:53,579 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-25 11:52:55,537 - INFO -  * Restarting with stat
+2026-06-25 11:53:07,411 - WARNING -  * Debugger is active!
+2026-06-25 11:53:07,416 - INFO -  * Debugger PIN: 192-125-268
+2026-06-25 11:53:23,757 - INFO - 127.0.0.1 - - [25/Jun/2026 11:53:23] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:54:24,747 - INFO - 127.0.0.1 - - [25/Jun/2026 11:54:24] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:57:09,715 - INFO - 127.0.0.1 - - [25/Jun/2026 11:57:09] "POST /upload HTTP/1.1" 200 -
+2026-06-25 11:57:09,737 - INFO - 127.0.0.1 - - [25/Jun/2026 11:57:09] "GET /manuscript/my_manuscriptsdsads/pages HTTP/1.1" 200 -
+2026-06-25 11:57:10,060 - INFO - 127.0.0.1 - - [25/Jun/2026 11:57:10] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 11:57:10,834 - INFO - 127.0.0.1 - - [25/Jun/2026 11:57:10] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:57:10,904 - INFO - 127.0.0.1 - - [25/Jun/2026 11:57:10] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:58:11,240 - INFO - 127.0.0.1 - - [25/Jun/2026 11:58:11] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:58:49,704 - INFO - 127.0.0.1 - - [25/Jun/2026 11:58:49] "OPTIONS /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:58:50,106 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscriptsdsads page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028
+2026-06-25 11:59:00,709 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:00] "POST /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:59:01,044 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:01] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 11:59:01,112 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:01] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:59:01,395 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:01] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:59:01,716 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-25 11:59:02,555 - INFO - Model loaded successfully.
+2026-06-25 11:59:07,084 - INFO - Updated input_manuscripts\my_manuscriptsdsads\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028.xml: 25 lines recognized.
+2026-06-25 11:59:07,277 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:07] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 11:59:07,316 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:07] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 11:59:14,604 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:14] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/13?v=1782368940129478600 HTTP/1.1" 200 -
+2026-06-25 11:59:17,598 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:17] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782368940028255000 HTTP/1.1" 200 -
+2026-06-25 11:59:24,892 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:24] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/24?v=1782368939730963200 HTTP/1.1" 200 -
+2026-06-25 11:59:26,519 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:26] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/11?v=1782368940078871500 HTTP/1.1" 200 -
+2026-06-25 11:59:41,267 - INFO - 127.0.0.1 - - [25/Jun/2026 11:59:41] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/10?v=1782368939691170100 HTTP/1.1" 200 -
+2026-06-25 12:00:02,580 - INFO - 127.0.0.1 - - [25/Jun/2026 12:00:02] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:00:02,937 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-25 12:00:07,381 - INFO - 127.0.0.1 - - [25/Jun/2026 12:00:07] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:00:48,251 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-06-25 12:00:48,253 - INFO - 127.0.0.1 - - [25/Jun/2026 12:00:48] "[35m[1mPOST /recognize-text HTTP/1.1[0m" 502 -
+2026-06-25 12:01:07,755 - INFO - 127.0.0.1 - - [25/Jun/2026 12:01:07] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:01:18,162 - INFO - 127.0.0.1 - - [25/Jun/2026 12:01:18] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:01:18,514 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-25 12:02:03,774 - INFO - 127.0.0.1 - - [25/Jun/2026 12:02:03] "[35m[1mPOST /recognize-text HTTP/1.1[0m" 502 -
+2026-06-25 12:02:08,437 - INFO - 127.0.0.1 - - [25/Jun/2026 12:02:08] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:03:09,749 - INFO - 127.0.0.1 - - [25/Jun/2026 12:03:09] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:04:10,760 - INFO - 127.0.0.1 - - [25/Jun/2026 12:04:10] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:04:31,500 - INFO - 127.0.0.1 - - [25/Jun/2026 12:04:31] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:04:31,865 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-25 12:05:11,447 - INFO - 127.0.0.1 - - [25/Jun/2026 12:05:11] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:05:17,109 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-06-25 12:05:17,111 - INFO - 127.0.0.1 - - [25/Jun/2026 12:05:17] "[35m[1mPOST /recognize-text HTTP/1.1[0m" 502 -
+2026-06-25 12:06:12,742 - INFO - 127.0.0.1 - - [25/Jun/2026 12:06:12] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:07:13,743 - INFO - 127.0.0.1 - - [25/Jun/2026 12:07:13] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:08:14,743 - INFO - 127.0.0.1 - - [25/Jun/2026 12:08:14] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:15,741 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:15] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:41,943 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:41] "OPTIONS /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:09:42,642 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:42] "POST /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:09:43,054 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:43] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:43,129 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:43] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:09:44,403 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:44] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:45,430 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:45] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:46,778 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:46] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:47,809 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:47] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:49,146 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:49] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:50,172 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:50] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:51,515 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:51] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:52,541 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:52] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:53,953 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:53] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:54,994 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:54] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:56,331 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:56] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:57,358 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:57] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:58,704 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:58] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:09:59,738 - INFO - 127.0.0.1 - - [25/Jun/2026 12:09:59] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:01,070 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:01] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:02,099 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:02] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:03,449 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:03] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:04,488 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:04] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:05,840 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:05] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:06,874 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:06] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:08,221 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:08] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:09,249 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:09] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:10,602 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:10] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:11,641 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:11] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:12,998 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:12] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:14,022 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:14] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:15,369 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:15] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:16,398 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:16] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:17,760 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:17] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:18,788 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:18] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:20,141 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:20] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:21,171 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:21] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:22,510 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:22] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:23,534 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:23] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:24,871 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:24] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:25,904 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:25] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:27,245 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:27] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:28,271 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:28] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:29,614 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:29] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:10:57,223 - INFO - 127.0.0.1 - - [25/Jun/2026 12:10:57] "OPTIONS /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:10:57,565 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscriptsdsads page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0066
+2026-06-25 12:11:04,279 - INFO - 127.0.0.1 - - [25/Jun/2026 12:11:04] "POST /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:11:04,538 - INFO - 127.0.0.1 - - [25/Jun/2026 12:11:04] "GET /semi-segment/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:11:04,630 - INFO - 127.0.0.1 - - [25/Jun/2026 12:11:04] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:11:04,875 - INFO - 127.0.0.1 - - [25/Jun/2026 12:11:04] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:11:05,224 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-25 12:11:25,355 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-25 12:11:25,513 - INFO - 127.0.0.1 - - [25/Jun/2026 12:11:25] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:11:25,553 - INFO - 127.0.0.1 - - [25/Jun/2026 12:11:25] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:11:33,252 - INFO - 127.0.0.1 - - [25/Jun/2026 12:11:33] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/8?v=1782369663501676200 HTTP/1.1" 200 -
+2026-06-25 12:12:00,841 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:00] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/23?v=1782369663680292600 HTTP/1.1" 200 -
+2026-06-25 12:12:04,898 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:04] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/21?v=1782369663608610100 HTTP/1.1" 200 -
+2026-06-25 12:12:08,419 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:08] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/19?v=1782369663537689700 HTTP/1.1" 200 -
+2026-06-25 12:12:11,655 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:11] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/17?v=1782369663378019100 HTTP/1.1" 200 -
+2026-06-25 12:12:16,678 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:16] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/14?v=1782369663259028200 HTTP/1.1" 200 -
+2026-06-25 12:12:19,150 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:19] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/13?v=1782369663218808400 HTTP/1.1" 200 -
+2026-06-25 12:12:21,011 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:21] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/32?v=1782369663146405200 HTTP/1.1" 200 -
+2026-06-25 12:12:24,031 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:24] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/11?v=1782369663074412900 HTTP/1.1" 200 -
+2026-06-25 12:12:25,308 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:25] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/12?v=1782369663110859800 HTTP/1.1" 200 -
+2026-06-25 12:12:25,897 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:25] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:12:27,603 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:27] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/9?v=1782369663002257500 HTTP/1.1" 200 -
+2026-06-25 12:12:29,071 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:29] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/10?v=1782369663038559500 HTTP/1.1" 200 -
+2026-06-25 12:12:32,874 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:32] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/31?v=1782369663414253800 HTTP/1.1" 200 -
+2026-06-25 12:12:38,801 - INFO - 127.0.0.1 - - [25/Jun/2026 12:12:38] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/20?v=1782369663572379800 HTTP/1.1" 200 -
+2026-06-25 12:13:15,016 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:15] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/27?v=1782369663828151800 HTTP/1.1" 200 -
+2026-06-25 12:13:22,051 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:22] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:13:22,396 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscriptsdsads\active_learning\recognition\checkpoints\ocr_Tantra_Raj_With_Yantra_and_Mantra_Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari_-_Stotr_0028_r0002\model.pth...
+2026-06-25 12:13:23,161 - INFO - Model loaded successfully.
+2026-06-25 12:13:25,930 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:25] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:13:28,945 - INFO - Updated input_manuscripts\my_manuscriptsdsads\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0066.xml: 33 lines recognized.
+2026-06-25 12:13:29,141 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:29] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:13:29,478 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:29] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:13:37,613 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:37] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/8?v=1782369663501676200 HTTP/1.1[0m" 304 -
+2026-06-25 12:13:40,054 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:40] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/25?v=1782369663753501800 HTTP/1.1" 200 -
+2026-06-25 12:13:43,696 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:43] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/22?v=1782369663644331300 HTTP/1.1" 200 -
+2026-06-25 12:13:47,357 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:47] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/20?v=1782369663572379800 HTTP/1.1[0m" 304 -
+2026-06-25 12:13:50,968 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:50] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/11?v=1782369663074412900 HTTP/1.1[0m" 304 -
+2026-06-25 12:13:53,046 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:53] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/16?v=1782369663341142500 HTTP/1.1" 200 -
+2026-06-25 12:13:56,697 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:56] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/18?v=1782369663449964700 HTTP/1.1" 200 -
+2026-06-25 12:13:58,469 - INFO - 127.0.0.1 - - [25/Jun/2026 12:13:58] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/23?v=1782369663680292600 HTTP/1.1[0m" 304 -
+2026-06-25 12:14:30,750 - INFO - 127.0.0.1 - - [25/Jun/2026 12:14:30] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:15:31,754 - INFO - 127.0.0.1 - - [25/Jun/2026 12:15:31] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:16:32,758 - INFO - 127.0.0.1 - - [25/Jun/2026 12:16:32] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:17:33,765 - INFO - 127.0.0.1 - - [25/Jun/2026 12:17:33] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:18:34,755 - INFO - 127.0.0.1 - - [25/Jun/2026 12:18:34] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:19:35,770 - INFO - 127.0.0.1 - - [25/Jun/2026 12:19:35] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:20:35,805 - INFO - 127.0.0.1 - - [25/Jun/2026 12:20:35] "GET /manuscript/my_manuscriptsdsads/active-learning HTTP/1.1" 200 -
+2026-06-25 12:20:39,166 - INFO - 127.0.0.1 - - [25/Jun/2026 12:20:39] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/1?v=1782369662723495700 HTTP/1.1" 200 -
+2026-06-25 12:20:43,707 - INFO - 127.0.0.1 - - [25/Jun/2026 12:20:43] "[36mGET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/11?v=1782369663074412900 HTTP/1.1[0m" 304 -
+2026-06-25 12:20:46,220 - INFO - 127.0.0.1 - - [25/Jun/2026 12:20:46] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/13?v=1782369663218808400 HTTP/1.1" 200 -
+2026-06-25 12:20:47,559 - INFO - 127.0.0.1 - - [25/Jun/2026 12:20:47] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/14?v=1782369663259028200 HTTP/1.1" 200 -
+2026-06-25 12:20:49,282 - INFO - 127.0.0.1 - - [25/Jun/2026 12:20:49] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/17?v=1782369663378019100 HTTP/1.1" 200 -
+2026-06-25 12:20:51,553 - INFO - 127.0.0.1 - - [25/Jun/2026 12:20:51] "GET /line-image/my_manuscriptsdsads/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/21?v=1782369663608610100 HTTP/1.1" 200 -
+2026-06-25 12:24:17,967 - INFO - 127.0.0.1 - - [25/Jun/2026 12:24:17] "POST /upload HTTP/1.1" 200 -
+2026-06-25 12:24:17,985 - INFO - 127.0.0.1 - - [25/Jun/2026 12:24:17] "GET /manuscript/my_manuscriptsssssssssss/pages HTTP/1.1" 200 -
+2026-06-25 12:24:18,308 - INFO - 127.0.0.1 - - [25/Jun/2026 12:24:18] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 12:24:18,910 - INFO - 127.0.0.1 - - [25/Jun/2026 12:24:18] "GET /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:24:18,977 - INFO - 127.0.0.1 - - [25/Jun/2026 12:24:18] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:25:19,740 - INFO - 127.0.0.1 - - [25/Jun/2026 12:25:19] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:26:20,746 - INFO - 127.0.0.1 - - [25/Jun/2026 12:26:20] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:27:21,739 - INFO - 127.0.0.1 - - [25/Jun/2026 12:27:21] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:28:22,758 - INFO - 127.0.0.1 - - [25/Jun/2026 12:28:22] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:29:23,749 - INFO - 127.0.0.1 - - [25/Jun/2026 12:29:23] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:30:24,748 - INFO - 127.0.0.1 - - [25/Jun/2026 12:30:24] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:31:24,776 - INFO - 127.0.0.1 - - [25/Jun/2026 12:31:24] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:31:46,982 - INFO - 127.0.0.1 - - [25/Jun/2026 12:31:46] "OPTIONS /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:31:47,284 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscriptsssssssssss page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028
+2026-06-25 12:31:56,966 - INFO - 127.0.0.1 - - [25/Jun/2026 12:31:56] "POST /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:31:57,308 - INFO - 127.0.0.1 - - [25/Jun/2026 12:31:57] "GET /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:31:57,321 - INFO - 127.0.0.1 - - [25/Jun/2026 12:31:57] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:31:57,659 - INFO - 127.0.0.1 - - [25/Jun/2026 12:31:57] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:32:02,513 - INFO - Updated input_manuscripts\my_manuscriptsssssssssss\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028.xml: 26 lines recognized.
+2026-06-25 12:32:02,711 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:02] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:32:02,750 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:02] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:32:05,904 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:05] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/0?v=1782370915526523600 HTTP/1.1" 200 -
+2026-06-25 12:32:10,149 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:10] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/5?v=1782370915750726300 HTTP/1.1" 200 -
+2026-06-25 12:32:11,382 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:11] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/4?v=1782370915701459800 HTTP/1.1" 200 -
+2026-06-25 12:32:20,127 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:20] "[36mGET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/0?v=1782370915526523600 HTTP/1.1[0m" 304 -
+2026-06-25 12:32:22,670 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:22] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/13?v=1782370916404486200 HTTP/1.1" 200 -
+2026-06-25 12:32:24,799 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:24] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782370916301472200 HTTP/1.1" 200 -
+2026-06-25 12:32:30,063 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:30] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/11?v=1782370916350888800 HTTP/1.1" 200 -
+2026-06-25 12:32:33,035 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:33] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/24?v=1782370916052984800 HTTP/1.1" 200 -
+2026-06-25 12:32:35,870 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:35] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/20?v=1782370916562844500 HTTP/1.1" 200 -
+2026-06-25 12:32:38,082 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:38] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/19?v=1782370916483937400 HTTP/1.1" 200 -
+2026-06-25 12:32:41,911 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:41] "[36mGET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/20?v=1782370916562844500 HTTP/1.1[0m" 304 -
+2026-06-25 12:32:51,564 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:51] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/23?v=1782370916525680300 HTTP/1.1" 200 -
+2026-06-25 12:32:54,125 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:54] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/15?v=1782370916089308000 HTTP/1.1" 200 -
+2026-06-25 12:32:56,094 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:56] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/14?v=1782370916011266200 HTTP/1.1" 200 -
+2026-06-25 12:32:58,451 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:58] "[36mGET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/19?v=1782370916483937400 HTTP/1.1[0m" 304 -
+2026-06-25 12:32:59,328 - INFO - 127.0.0.1 - - [25/Jun/2026 12:32:59] "[36mGET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/24?v=1782370916052984800 HTTP/1.1[0m" 304 -
+2026-06-25 12:33:01,384 - INFO - 127.0.0.1 - - [25/Jun/2026 12:33:01] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/25?v=1782370916169031300 HTTP/1.1" 200 -
+2026-06-25 12:33:03,087 - INFO - 127.0.0.1 - - [25/Jun/2026 12:33:03] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:33:34,263 - INFO - 127.0.0.1 - - [25/Jun/2026 12:33:34] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/18?v=1782370916247594200 HTTP/1.1" 200 -
+2026-06-25 12:33:37,584 - INFO - 127.0.0.1 - - [25/Jun/2026 12:33:37] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/17?v=1782370916210514200 HTTP/1.1" 200 -
+2026-06-25 12:33:39,062 - INFO - 127.0.0.1 - - [25/Jun/2026 12:33:39] "[36mGET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/14?v=1782370916011266200 HTTP/1.1[0m" 304 -
+2026-06-25 12:34:03,118 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:03] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:22,353 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:22] "OPTIONS /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:34:22,933 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:22] "POST /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 12:34:23,284 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:23] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:23,381 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:23] "GET /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:34:24,619 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:24] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:25,653 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:25] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:26,994 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:26] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:28,026 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:28] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:29,360 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:29] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:30,384 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:30] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:31,710 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:31] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:32,733 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:32] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:34,077 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:34] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:35,103 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:35] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:36,440 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:36] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:37,467 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:37] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:38,806 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:38] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:39,829 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:39] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:41,170 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:41] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:42,191 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:42] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:43,530 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:43] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:44,558 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:44] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:45,900 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:45] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:46,924 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:46] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:48,257 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:48] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:49,282 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:49] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:50,626 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:50] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:51,654 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:51] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:52,987 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:52] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:54,013 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:54] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:55,357 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:55] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:56,380 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:56] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:57,718 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:57] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:34:58,754 - INFO - 127.0.0.1 - - [25/Jun/2026 12:34:58] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:00,116 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:00] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:01,142 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:01] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:02,502 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:02] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:03,547 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:03] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:04,902 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:04] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:05,928 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:05] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:07,276 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:07] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:08,312 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:08] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:09,649 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:09] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:10,673 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:10] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:12,006 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:12] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:13,044 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:13] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:14,382 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:14] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:36,478 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:36] "OPTIONS /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:35:36,820 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscriptsssssssssss page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0066
+2026-06-25 12:35:43,569 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:43] "POST /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:35:43,875 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:43] "GET /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:35:43,910 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:43] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:35:44,204 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:44] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:35:44,535 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\my_manuscriptsssssssssss\active_learning\recognition\checkpoints\ocr_Tantra_Raj_With_Yantra_and_Mantra_Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari_-_Stotr_0028_r0002\model.pth...
+2026-06-25 12:35:45,293 - INFO - Model loaded successfully.
+2026-06-25 12:35:50,857 - INFO - Updated input_manuscripts\my_manuscriptsssssssssss\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0066.xml: 34 lines recognized.
+2026-06-25 12:35:51,033 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:51] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:35:51,067 - INFO - 127.0.0.1 - - [25/Jun/2026 12:35:51] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:11,198 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:11] "GET /line-image/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066/8?v=1782371142758653800 HTTP/1.1" 200 -
+2026-06-25 12:36:21,252 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:21] "OPTIONS /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:36:21,796 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:21] "POST /semi-segment/my_manuscriptsssssssssss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0066 HTTP/1.1" 200 -
+2026-06-25 12:36:21,832 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:21] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:23,159 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:23] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:24,186 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:24] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:25,523 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:25] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:26,549 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:26] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:27,886 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:27] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:28,911 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:28] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:30,239 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:30] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:31,441 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:31] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:33,752 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:33] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:35,437 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:35] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:37,739 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:37] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:39,433 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:39] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:41,753 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:41] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:43,441 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:43] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:45,747 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:45] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:47,429 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:47] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:49,759 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:49] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:51,444 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:51] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:53,742 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:53] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:55,442 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:55] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:57,745 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:57] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:36:59,437 - INFO - 127.0.0.1 - - [25/Jun/2026 12:36:59] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:37:01,750 - INFO - 127.0.0.1 - - [25/Jun/2026 12:37:01] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:37:03,428 - INFO - 127.0.0.1 - - [25/Jun/2026 12:37:03] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:37:05,753 - INFO - 127.0.0.1 - - [25/Jun/2026 12:37:05] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:37:07,435 - INFO - 127.0.0.1 - - [25/Jun/2026 12:37:07] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:37:09,733 - INFO - 127.0.0.1 - - [25/Jun/2026 12:37:09] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:38:10,744 - INFO - 127.0.0.1 - - [25/Jun/2026 12:38:10] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:39:11,735 - INFO - 127.0.0.1 - - [25/Jun/2026 12:39:11] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:40:12,752 - INFO - 127.0.0.1 - - [25/Jun/2026 12:40:12] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:41:13,745 - INFO - 127.0.0.1 - - [25/Jun/2026 12:41:13] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:41:23,945 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_telemetry_unit.py', reloading
+2026-06-25 12:41:25,646 - INFO -  * Restarting with stat
+2026-06-25 12:41:32,858 - WARNING -  * Debugger is active!
+2026-06-25 12:41:32,858 - INFO -  * Debugger PIN: 192-125-268
+2026-06-25 12:42:14,754 - INFO - 127.0.0.1 - - [25/Jun/2026 12:42:14] "GET /manuscript/my_manuscriptsssssssssss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:42:48,886 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\manuscript_ocr_registry.py', reloading
+2026-06-25 12:42:51,722 - INFO -  * Restarting with stat
+2026-06-25 12:42:59,067 - WARNING -  * Debugger is active!
+2026-06-25 12:42:59,071 - INFO -  * Debugger PIN: 192-125-268
+2026-06-25 12:44:16,324 - INFO - 127.0.0.1 - - [25/Jun/2026 12:44:16] "POST /upload HTTP/1.1" 200 -
+2026-06-25 12:44:16,351 - INFO - 127.0.0.1 - - [25/Jun/2026 12:44:16] "GET /manuscript/yooooooooooo/pages HTTP/1.1" 200 -
+2026-06-25 12:44:16,667 - INFO - 127.0.0.1 - - [25/Jun/2026 12:44:16] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 12:44:17,359 - INFO - 127.0.0.1 - - [25/Jun/2026 12:44:17] "GET /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091 HTTP/1.1" 200 -
+2026-06-25 12:44:17,390 - INFO - 127.0.0.1 - - [25/Jun/2026 12:44:17] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:45:17,730 - INFO - 127.0.0.1 - - [25/Jun/2026 12:45:17] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:46:17,750 - INFO - 127.0.0.1 - - [25/Jun/2026 12:46:17] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:47:18,085 - INFO - 127.0.0.1 - - [25/Jun/2026 12:47:18] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:48:10,896 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:10] "OPTIONS /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091 HTTP/1.1" 200 -
+2026-06-25 12:48:11,240 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yooooooooooo page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0091
+2026-06-25 12:48:16,896 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:16] "POST /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091 HTTP/1.1" 200 -
+2026-06-25 12:48:17,249 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:17] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:48:17,549 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:17] "GET /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091 HTTP/1.1" 200 -
+2026-06-25 12:48:17,887 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:17] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:48:18,163 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-25 12:48:19,024 - INFO - Model loaded successfully.
+2026-06-25 12:48:29,804 - INFO - Updated input_manuscripts\yooooooooooo\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0091.xml: 72 lines recognized.
+2026-06-25 12:48:29,987 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:29] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:48:30,023 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:30] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:48:31,133 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:31] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/0?v=1782371894742923200 HTTP/1.1" 200 -
+2026-06-25 12:48:33,009 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:33] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/3?v=1782371894820191500 HTTP/1.1" 200 -
+2026-06-25 12:48:35,129 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:35] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/5?v=1782371894925210700 HTTP/1.1" 200 -
+2026-06-25 12:48:36,459 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:36] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/2?v=1782371894793974100 HTTP/1.1" 200 -
+2026-06-25 12:48:39,329 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:39] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/10?v=1782371895035562200 HTTP/1.1" 200 -
+2026-06-25 12:48:50,373 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:50] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/38?v=1782371895804978300 HTTP/1.1" 200 -
+2026-06-25 12:48:57,393 - INFO - 127.0.0.1 - - [25/Jun/2026 12:48:57] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/16?v=1782371895297955800 HTTP/1.1" 200 -
+2026-06-25 12:49:00,657 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:00] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/18?v=1782371895323117900 HTTP/1.1" 200 -
+2026-06-25 12:49:03,321 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:03] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/13?v=1782371895161976400 HTTP/1.1" 200 -
+2026-06-25 12:49:05,036 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:05] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/11?v=1782371895111535700 HTTP/1.1" 200 -
+2026-06-25 12:49:10,276 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:10] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/19?v=1782371895269200000 HTTP/1.1" 200 -
+2026-06-25 12:49:19,452 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:19] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/21?v=1782371895349125200 HTTP/1.1" 200 -
+2026-06-25 12:49:24,511 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:24] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/23?v=1782371895398877400 HTTP/1.1" 200 -
+2026-06-25 12:49:25,774 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:25] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/41?v=1782371895906167900 HTTP/1.1" 200 -
+2026-06-25 12:49:30,366 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:30] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:49:38,206 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:38] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/40?v=1782371895882093900 HTTP/1.1" 200 -
+2026-06-25 12:49:39,656 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:39] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/21?v=1782371895349125200 HTTP/1.1[0m" 304 -
+2026-06-25 12:49:53,081 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:53] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/19?v=1782371895269200000 HTTP/1.1[0m" 304 -
+2026-06-25 12:49:55,890 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:55] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/18?v=1782371895323117900 HTTP/1.1[0m" 304 -
+2026-06-25 12:49:58,127 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:58] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/16?v=1782371895297955800 HTTP/1.1[0m" 304 -
+2026-06-25 12:49:59,359 - INFO - 127.0.0.1 - - [25/Jun/2026 12:49:59] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/44?v=1782371895955035700 HTTP/1.1" 200 -
+2026-06-25 12:50:00,831 - INFO - 127.0.0.1 - - [25/Jun/2026 12:50:00] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/41?v=1782371895906167900 HTTP/1.1[0m" 304 -
+2026-06-25 12:50:02,750 - INFO - 127.0.0.1 - - [25/Jun/2026 12:50:02] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/43?v=1782371895987979000 HTTP/1.1" 200 -
+2026-06-25 12:50:04,927 - INFO - 127.0.0.1 - - [25/Jun/2026 12:50:04] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/15?v=1782371895186217500 HTTP/1.1" 200 -
+2026-06-25 12:50:05,639 - INFO - 127.0.0.1 - - [25/Jun/2026 12:50:05] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/14?v=1782371895136555300 HTTP/1.1" 200 -
+2026-06-25 12:50:09,597 - INFO - 127.0.0.1 - - [25/Jun/2026 12:50:09] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/49?v=1782371896136517100 HTTP/1.1" 200 -
+2026-06-25 12:50:11,193 - INFO - 127.0.0.1 - - [25/Jun/2026 12:50:11] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/31?v=1782371895703604400 HTTP/1.1" 200 -
+2026-06-25 12:50:30,430 - INFO - 127.0.0.1 - - [25/Jun/2026 12:50:30] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:17,344 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:17] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/41?v=1782371895906167900 HTTP/1.1[0m" 304 -
+2026-06-25 12:51:19,045 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:19] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/19?v=1782371895269200000 HTTP/1.1[0m" 304 -
+2026-06-25 12:51:21,962 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:21] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/16?v=1782371895297955800 HTTP/1.1[0m" 304 -
+2026-06-25 12:51:22,745 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:22] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/17?v=1782371895210505200 HTTP/1.1" 200 -
+2026-06-25 12:51:24,457 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:24] "[36mGET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/14?v=1782371895136555300 HTTP/1.1[0m" 304 -
+2026-06-25 12:51:26,038 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:26] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/67?v=1782371895060578000 HTTP/1.1" 200 -
+2026-06-25 12:51:29,147 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:29] "GET /line-image/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091/50?v=1782371896162454800 HTTP/1.1" 200 -
+2026-06-25 12:51:30,785 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:30] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:33,438 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:33] "OPTIONS /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091 HTTP/1.1" 200 -
+2026-06-25 12:51:33,964 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:33] "POST /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0091 HTTP/1.1" 200 -
+2026-06-25 12:51:34,313 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:34] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:34,575 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:34] "GET /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:51:35,340 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:35] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:36,685 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:36] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:37,712 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:37] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:39,064 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:39] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:40,104 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:40] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:41,443 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:41] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:42,481 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:42] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:43,816 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:43] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:44,841 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:44] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:46,190 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:46] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:47,222 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:47] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:48,568 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:48] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:49,592 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:49] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:50,941 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:50] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:51,982 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:51] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:53,324 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:53] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:54,349 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:54] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:55,687 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:55] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:56,719 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:56] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:58,063 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:58] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:51:59,099 - INFO - 127.0.0.1 - - [25/Jun/2026 12:51:59] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:00,444 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:00] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:01,474 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:01] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:02,814 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:02] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:03,846 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:03] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:05,181 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:05] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:06,206 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:06] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:07,550 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:07] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:08,586 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:08] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:09,927 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:09] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:10,964 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:10] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:12,300 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:12] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:13,324 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:13] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:14,669 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:14] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:15,103 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:15] "OPTIONS /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:52:15,448 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yooooooooooo page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0100
+2026-06-25 12:52:15,931 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:15] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:17,289 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:17] "GET /manuscript/yooooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 12:52:25,167 - INFO - 127.0.0.1 - - [25/Jun/2026 12:52:25] "POST /semi-segment/yooooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:53:17,677 - INFO - 127.0.0.1 - - [25/Jun/2026 12:53:17] "POST /upload HTTP/1.1" 200 -
+2026-06-25 12:53:17,701 - INFO - 127.0.0.1 - - [25/Jun/2026 12:53:17] "[33mGET /manuscript/yooooooooooos/pages HTTP/1.1[0m" 404 -
+2026-06-25 12:53:18,014 - INFO - 127.0.0.1 - - [25/Jun/2026 12:53:18] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 12:53:18,277 - INFO - 127.0.0.1 - - [25/Jun/2026 12:53:18] "[35m[1mGET /semi-segment/yooooooooooos/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1[0m" 500 -
+2026-06-25 12:53:18,330 - INFO - 127.0.0.1 - - [25/Jun/2026 12:53:18] "[33mGET /manuscript/yooooooooooos/active-learning HTTP/1.1[0m" 404 -
+2026-06-25 12:54:20,203 - INFO - 127.0.0.1 - - [25/Jun/2026 12:54:20] "POST /upload HTTP/1.1" 200 -
+2026-06-25 12:54:20,531 - INFO - 127.0.0.1 - - [25/Jun/2026 12:54:20] "GET /manuscript/yoooooooooooss/pages HTTP/1.1" 200 -
+2026-06-25 12:54:20,786 - INFO - 127.0.0.1 - - [25/Jun/2026 12:54:20] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 12:54:21,137 - INFO - 127.0.0.1 - - [25/Jun/2026 12:54:21] "GET /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0070 HTTP/1.1" 200 -
+2026-06-25 12:54:21,180 - INFO - 127.0.0.1 - - [25/Jun/2026 12:54:21] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:55:21,523 - INFO - 127.0.0.1 - - [25/Jun/2026 12:55:21] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:55:40,881 - INFO - 127.0.0.1 - - [25/Jun/2026 12:55:40] "OPTIONS /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0070 HTTP/1.1" 200 -
+2026-06-25 12:55:41,237 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yoooooooooooss page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0070
+2026-06-25 12:55:47,612 - INFO - 127.0.0.1 - - [25/Jun/2026 12:55:47] "POST /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0070 HTTP/1.1" 200 -
+2026-06-25 12:55:47,942 - INFO - 127.0.0.1 - - [25/Jun/2026 12:55:47] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:55:48,026 - INFO - 127.0.0.1 - - [25/Jun/2026 12:55:48] "GET /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:56:48,261 - INFO - 127.0.0.1 - - [25/Jun/2026 12:56:48] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:57:03,378 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:03] "OPTIONS /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:57:03,717 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yoooooooooooss page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0100
+2026-06-25 12:57:08,549 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:08] "POST /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:57:08,730 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:08] "GET /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:57:08,882 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:08] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:57:09,073 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:09] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:57:12,438 - INFO - Updated input_manuscripts\yoooooooooooss\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0100.xml: 17 lines recognized.
+2026-06-25 12:57:12,642 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:12] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 12:57:12,682 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:12] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:57:14,660 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:14] "GET /line-image/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100/3?v=1782372427717471900 HTTP/1.1" 200 -
+2026-06-25 12:57:56,195 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:56] "OPTIONS /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:57:56,749 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:56] "POST /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 12:57:56,784 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:56] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:57:58,747 - INFO - 127.0.0.1 - - [25/Jun/2026 12:57:58] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:00,438 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:00] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:02,743 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:02] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:04,432 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:04] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:06,735 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:06] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:08,434 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:08] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:10,749 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:10] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:12,455 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:12] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:14,745 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:14] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:16,447 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:16] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:18,763 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:18] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:20,435 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:20] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:22,758 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:22] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:24,444 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:24] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:26,757 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:26] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:28,443 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:28] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:30,761 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:30] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:32,443 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:32] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:34,757 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:34] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:36,443 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:36] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:58:38,759 - INFO - 127.0.0.1 - - [25/Jun/2026 12:58:38] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 12:59:39,763 - INFO - 127.0.0.1 - - [25/Jun/2026 12:59:39] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:00:40,751 - INFO - 127.0.0.1 - - [25/Jun/2026 13:00:40] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:01:41,761 - INFO - 127.0.0.1 - - [25/Jun/2026 13:01:41] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:02:42,747 - INFO - 127.0.0.1 - - [25/Jun/2026 13:02:42] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:03:36,780 - INFO - 127.0.0.1 - - [25/Jun/2026 13:03:36] "[36mGET /line-image/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100/3?v=1782372427717471900 HTTP/1.1[0m" 304 -
+2026-06-25 13:03:44,484 - INFO - 127.0.0.1 - - [25/Jun/2026 13:03:44] "GET /line-image/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100/1?v=1782372427547496300 HTTP/1.1" 200 -
+2026-06-25 13:03:44,513 - INFO - 127.0.0.1 - - [25/Jun/2026 13:03:44] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:04:44,542 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:44] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:04:47,325 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:47] "OPTIONS /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 13:04:47,637 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yoooooooooooss page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0100
+2026-06-25 13:04:52,494 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:52] "POST /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 13:04:52,718 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:52] "GET /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0100 HTTP/1.1" 200 -
+2026-06-25 13:04:52,848 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:52] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:04:53,054 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:53] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:04:53,379 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\yoooooooooooss\active_learning\recognition\checkpoints\ocr_Tantra_Raj_With_Yantra_and_Mantra_Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari_-_Stotr_0100_r0002\model.pth...
+2026-06-25 13:04:54,016 - INFO - Model loaded successfully.
+2026-06-25 13:04:56,908 - INFO - Updated input_manuscripts\yoooooooooooss\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0100.xml: 17 lines recognized.
+2026-06-25 13:04:57,107 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:57] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:04:57,145 - INFO - 127.0.0.1 - - [25/Jun/2026 13:04:57] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:05:57,760 - INFO - 127.0.0.1 - - [25/Jun/2026 13:05:57] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:06:04,607 - INFO - 127.0.0.1 - - [25/Jun/2026 13:06:04] "GET /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0070 HTTP/1.1" 200 -
+2026-06-25 13:06:58,749 - INFO - 127.0.0.1 - - [25/Jun/2026 13:06:58] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:07:59,756 - INFO - 127.0.0.1 - - [25/Jun/2026 13:07:59] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:08:08,956 - INFO - 127.0.0.1 - - [25/Jun/2026 13:08:08] "OPTIONS /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0070 HTTP/1.1" 200 -
+2026-06-25 13:08:09,393 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yoooooooooooss page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0070
+2026-06-25 13:08:15,789 - INFO - 127.0.0.1 - - [25/Jun/2026 13:08:15] "POST /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0070 HTTP/1.1" 200 -
+2026-06-25 13:08:16,222 - INFO - 127.0.0.1 - - [25/Jun/2026 13:08:16] "GET /semi-segment/yoooooooooooss/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0070 HTTP/1.1" 200 -
+2026-06-25 13:08:16,222 - INFO - 127.0.0.1 - - [25/Jun/2026 13:08:16] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:08:16,560 - INFO - 127.0.0.1 - - [25/Jun/2026 13:08:16] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:08:24,389 - INFO - Updated input_manuscripts\yoooooooooooss\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0070.xml: 45 lines recognized.
+2026-06-25 13:08:24,660 - INFO - 127.0.0.1 - - [25/Jun/2026 13:08:24] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:08:24,704 - INFO - 127.0.0.1 - - [25/Jun/2026 13:08:24] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:09:25,747 - INFO - 127.0.0.1 - - [25/Jun/2026 13:09:25] "GET /manuscript/yoooooooooooss/active-learning HTTP/1.1" 200 -
+2026-06-25 13:10:28,298 - INFO - 127.0.0.1 - - [25/Jun/2026 13:10:28] "POST /upload HTTP/1.1" 200 -
+2026-06-25 13:10:28,624 - INFO - 127.0.0.1 - - [25/Jun/2026 13:10:28] "GET /manuscript/npppppppp/pages HTTP/1.1" 200 -
+2026-06-25 13:10:28,894 - INFO - 127.0.0.1 - - [25/Jun/2026 13:10:28] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 13:10:29,033 - INFO - 127.0.0.1 - - [25/Jun/2026 13:10:29] "GET /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:10:29,224 - INFO - 127.0.0.1 - - [25/Jun/2026 13:10:29] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:04,293 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:04] "OPTIONS /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:11:04,635 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=npppppppp page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0032
+2026-06-25 13:11:06,635 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:06] "POST /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:11:06,930 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:06] "GET /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:11:06,966 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:06] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:07,252 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:07] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:11:12,261 - INFO - Updated input_manuscripts\npppppppp\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0032.xml: 29 lines recognized.
+2026-06-25 13:11:12,343 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:12] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:11:12,367 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:12] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:13,143 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:13] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032/10?v=1782373266040543600 HTTP/1.1" 200 -
+2026-06-25 13:11:20,116 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:20] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032/21?v=1782373266311496000 HTTP/1.1" 200 -
+2026-06-25 13:11:27,255 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:27] "OPTIONS /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:11:27,649 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:27] "POST /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:11:27,665 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:27] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:32,972 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:32] "OPTIONS /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:11:33,392 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:33] "POST /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0032 HTTP/1.1" 200 -
+2026-06-25 13:11:33,614 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:33] "GET /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049 HTTP/1.1" 200 -
+2026-06-25 13:11:33,743 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:33] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:35,084 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:35] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:36,110 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:36] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:37,449 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:37] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:38,473 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:38] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:39,806 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:39] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:40,833 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:40] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:42,169 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:42] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:43,202 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:43] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:44,549 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:44] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:45,582 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:45] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:46,919 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:46] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:48,429 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:48] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:50,764 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:50] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:52,445 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:52] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:54,753 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:54] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:56,435 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:56] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:11:58,750 - INFO - 127.0.0.1 - - [25/Jun/2026 13:11:58] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:12:00,446 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:00] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:12:02,739 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:02] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:12:36,616 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:36] "OPTIONS /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049 HTTP/1.1" 200 -
+2026-06-25 13:12:36,960 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=npppppppp page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0049
+2026-06-25 13:12:40,020 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:40] "POST /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049 HTTP/1.1" 200 -
+2026-06-25 13:12:40,354 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:40] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:12:40,374 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:40] "GET /semi-segment/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049 HTTP/1.1" 200 -
+2026-06-25 13:12:40,704 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:40] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:12:40,997 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\npppppppp\active_learning\recognition\checkpoints\ocr_Tantra_Raj_With_Yantra_and_Mantra_Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari_-_Stotr_0032_r0003\model.pth...
+2026-06-25 13:12:41,793 - INFO - Model loaded successfully.
+2026-06-25 13:12:45,505 - INFO - Updated input_manuscripts\npppppppp\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0049.xml: 21 lines recognized.
+2026-06-25 13:12:45,641 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:45] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:12:45,680 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:45] "GET /manuscript/npppppppp/active-learning HTTP/1.1" 200 -
+2026-06-25 13:12:53,643 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:53] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/0?v=1782373358900604500 HTTP/1.1" 200 -
+2026-06-25 13:12:55,780 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:55] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/1?v=1782373358941599400 HTTP/1.1" 200 -
+2026-06-25 13:12:56,897 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:56] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/2?v=1782373358979599300 HTTP/1.1" 200 -
+2026-06-25 13:12:57,611 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:57] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/3?v=1782373359017687900 HTTP/1.1" 200 -
+2026-06-25 13:12:59,274 - INFO - 127.0.0.1 - - [25/Jun/2026 13:12:59] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/4?v=1782373359333145700 HTTP/1.1" 200 -
+2026-06-25 13:13:07,614 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:07] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/8?v=1782373359157873400 HTTP/1.1" 200 -
+2026-06-25 13:13:12,242 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:12] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/6?v=1782373359091908100 HTTP/1.1" 200 -
+2026-06-25 13:13:13,112 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:13] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/7?v=1782373359125755200 HTTP/1.1" 200 -
+2026-06-25 13:13:13,704 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:13] "[36mGET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/8?v=1782373359157873400 HTTP/1.1[0m" 304 -
+2026-06-25 13:13:13,963 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:13] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/10?v=1782373359223129800 HTTP/1.1" 200 -
+2026-06-25 13:13:14,465 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:14] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/20?v=1782373359189464100 HTTP/1.1" 200 -
+2026-06-25 13:13:15,181 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:15] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/9?v=1782373359257350400 HTTP/1.1" 200 -
+2026-06-25 13:13:15,442 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:15] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/11?v=1782373359290306700 HTTP/1.1" 200 -
+2026-06-25 13:13:16,528 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:16] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/13?v=1782373359400691400 HTTP/1.1" 200 -
+2026-06-25 13:13:17,411 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:17] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/15?v=1782373359466245800 HTTP/1.1" 200 -
+2026-06-25 13:13:17,856 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:17] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/14?v=1782373359431411700 HTTP/1.1" 200 -
+2026-06-25 13:13:18,554 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:18] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/16?v=1782373359502393700 HTTP/1.1" 200 -
+2026-06-25 13:13:18,811 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:18] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/17?v=1782373359537845300 HTTP/1.1" 200 -
+2026-06-25 13:13:19,268 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:19] "GET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/19?v=1782373359607799300 HTTP/1.1" 200 -
+2026-06-25 13:13:19,968 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:19] "[36mGET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/0?v=1782373358900604500 HTTP/1.1[0m" 304 -
+2026-06-25 13:13:21,790 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:21] "[36mGET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/4?v=1782373359333145700 HTTP/1.1[0m" 304 -
+2026-06-25 13:13:26,676 - INFO - 127.0.0.1 - - [25/Jun/2026 13:13:26] "[36mGET /line-image/npppppppp/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0049/19?v=1782373359607799300 HTTP/1.1[0m" 304 -
+2026-06-25 13:14:28,727 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:28] "POST /upload HTTP/1.1" 200 -
+2026-06-25 13:14:28,744 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:28] "GET /manuscript/yoooooooooo/pages HTTP/1.1" 200 -
+2026-06-25 13:14:29,060 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:29] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 13:14:29,557 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:29] "GET /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:14:29,615 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:29] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:14:50,304 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:50] "OPTIONS /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:14:50,599 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yoooooooooo page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0015
+2026-06-25 13:14:56,924 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:56] "POST /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:14:57,281 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:57] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:14:57,302 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:57] "GET /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:14:57,633 - INFO - 127.0.0.1 - - [25/Jun/2026 13:14:57] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:15:05,629 - INFO - Updated input_manuscripts\yoooooooooo\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0015.xml: 45 lines recognized.
+2026-06-25 13:15:05,781 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:05] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:15:05,820 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:05] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:15:17,633 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:17] "OPTIONS /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:15:18,129 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:18] "POST /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:15:18,161 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:18] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:15:27,147 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:27] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015/4?v=1782373494890301600 HTTP/1.1" 200 -
+2026-06-25 13:15:37,405 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:37] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015/21?v=1782373495558558000 HTTP/1.1" 200 -
+2026-06-25 13:15:37,648 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:37] "OPTIONS /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:15:38,132 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:38] "POST /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:15:38,161 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:38] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:15:52,298 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:52] "[36mGET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015/21?v=1782373495558558000 HTTP/1.1[0m" 304 -
+2026-06-25 13:15:57,632 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:57] "OPTIONS /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:15:58,152 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:58] "POST /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:15:58,180 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:58] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:15:59,288 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:59] "POST /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:15:59,628 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:59] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:15:59,766 - INFO - 127.0.0.1 - - [25/Jun/2026 13:15:59] "GET /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 13:16:00,975 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:00] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:02,002 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:02] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:03,347 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:03] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:04,375 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:04] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:05,710 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:05] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:06,734 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:06] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:08,068 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:08] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:09,092 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:09] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:10,428 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:10] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:11,454 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:11] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:12,814 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:12] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:13,837 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:13] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:15,187 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:15] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:16,218 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:16] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:17,557 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:17] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:18,580 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:18] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:19,913 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:19] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:20,942 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:20] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:22,292 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:22] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:23,319 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:23] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:24,668 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:24] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:25,709 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:25] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:27,057 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:27] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:28,091 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:28] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:29,432 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:29] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:30,475 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:30] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:31,815 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:31] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:32,839 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:32] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:34,191 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:34] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:35,227 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:35] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:36,581 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:36] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:37,603 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:37] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:38,948 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:38] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:39,974 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:39] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:41,318 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:41] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:42,345 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:42] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:43,697 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:43] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:44,742 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:44] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:46,080 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:46] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:47,117 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:47] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:48,464 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:48] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:49,494 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:49] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:50,836 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:50] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:51,860 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:51] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:53,771 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:53] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:16:55,436 - INFO - 127.0.0.1 - - [25/Jun/2026 13:16:55] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:17:08,375 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:08] "OPTIONS /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 13:17:08,680 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yoooooooooo page_id=Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028
+2026-06-25 13:17:16,587 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:16] "POST /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 13:17:16,856 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:16] "GET /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 13:17:16,929 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:16] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:17:17,203 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:17] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:17:17,541 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\yoooooooooo\active_learning\recognition\checkpoints\ocr_Tantra_Raj_With_Yantra_and_Mantra_Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari_-_Stotr_0015_r0005\model.pth...
+2026-06-25 13:17:18,288 - INFO - Model loaded successfully.
+2026-06-25 13:17:22,417 - INFO - Updated input_manuscripts\yoooooooooo\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028.xml: 21 lines recognized.
+2026-06-25 13:17:22,680 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:22] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:17:22,713 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:22] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:17:37,159 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:37] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/11?v=1782373635961318900 HTTP/1.1" 200 -
+2026-06-25 13:17:39,053 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:39] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782373635908220200 HTTP/1.1" 200 -
+2026-06-25 13:17:41,040 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:41] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/13?v=1782373636013947400 HTTP/1.1" 200 -
+2026-06-25 13:17:41,659 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:41] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/14?v=1782373635706695200 HTTP/1.1" 200 -
+2026-06-25 13:17:42,759 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:42] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/15?v=1782373635751064100 HTTP/1.1" 200 -
+2026-06-25 13:17:43,019 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:43] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/16?v=1782373635806835200 HTTP/1.1" 200 -
+2026-06-25 13:17:43,953 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:43] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/17?v=1782373635850862300 HTTP/1.1" 200 -
+2026-06-25 13:17:44,202 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:44] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/18?v=1782373636054858100 HTTP/1.1" 200 -
+2026-06-25 13:17:44,722 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:44] "GET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/19?v=1782373636096331600 HTTP/1.1" 200 -
+2026-06-25 13:17:54,960 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:54] "[36mGET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/11?v=1782373635961318900 HTTP/1.1[0m" 304 -
+2026-06-25 13:17:57,971 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:57] "[36mGET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782373635908220200 HTTP/1.1[0m" 304 -
+2026-06-25 13:17:59,973 - INFO - 127.0.0.1 - - [25/Jun/2026 13:17:59] "[36mGET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/13?v=1782373636013947400 HTTP/1.1[0m" 304 -
+2026-06-25 13:18:53,484 - INFO - 127.0.0.1 - - [25/Jun/2026 13:18:53] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-25 13:19:21,916 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:21] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-25 13:19:30,413 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:30] "GET /manuscript/yoooooooooo/pages HTTP/1.1" 200 -
+2026-06-25 13:19:30,672 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:30] "GET /manuscript/yoooooooooo/pages HTTP/1.1" 200 -
+2026-06-25 13:19:30,752 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:30] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-25 13:19:31,248 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:31] "GET /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 13:19:31,367 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:31] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:19:39,202 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:39] "[36mGET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/11?v=1782373635961318900 HTTP/1.1[0m" 304 -
+2026-06-25 13:19:40,470 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:40] "[36mGET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/12?v=1782373635908220200 HTTP/1.1[0m" 304 -
+2026-06-25 13:19:41,625 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:41] "[36mGET /line-image/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028/13?v=1782373636013947400 HTTP/1.1[0m" 304 -
+2026-06-25 13:19:46,244 - INFO - 127.0.0.1 - - [25/Jun/2026 13:19:46] "GET /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0015 HTTP/1.1" 200 -
+2026-06-25 13:20:41,330 - INFO - 127.0.0.1 - - [25/Jun/2026 13:20:41] "GET /semi-segment/yoooooooooo/Tantra%20Raj%20With%20Yantra%20and%20Mantra%20Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari%20-%20Stotr_0028 HTTP/1.1" 200 -
+2026-06-25 13:20:41,424 - INFO - 127.0.0.1 - - [25/Jun/2026 13:20:41] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -
+2026-06-25 13:21:15,756 - INFO - 127.0.0.1 - - [25/Jun/2026 13:21:15] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:21:19,834 - INFO - Updated input_manuscripts\yoooooooooo\layout_analysis_output\page-xml-format\Tantra Raj With Yantra and Mantra Uddhara_5890_1430_Ka_Almira_26_Shlf_3_Devanagari - Stotr_0028.xml: 21 lines recognized.
+2026-06-25 13:21:20,040 - INFO - 127.0.0.1 - - [25/Jun/2026 13:21:20] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-25 13:21:20,085 - INFO - 127.0.0.1 - - [25/Jun/2026 13:21:20] "GET /manuscript/yoooooooooo/active-learning HTTP/1.1" 200 -

@@ -1,5 +1,14 @@
 
-- what to do before I start annotating? what to measure?
+
+- remove backward compatibility bloat...
+- long file name bug fix - shorten to 1,2,3
+
+- check if telemetry change and heatmap assignment caused any unexpected effects.
+- add padding for single characters...
+- in yoooooooooosss line, if heatmap is not there for 40 percent of the line, but the baseline is extending, extendent the polygon!!!why is this not working?
+
+- emergency layout change: override Coords in ReadMode and reread? what all should change? 
+- check if telemetry is working..
 - export in this format too: https://gemini.google.com/share/6d96e9a50411
 - intra page finetuning overhaul..superfast?
 

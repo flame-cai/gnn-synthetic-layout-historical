@@ -1507,6 +1507,35 @@ def _split_box_by_nearest_baseline(
     return split_boxes
 
 
+def _mean_baseline_node_spacing(topology: BaselineTopology) -> float | None:
+    points = topology.normalized_points
+    if len(points) < 2:
+        return None
+    segment_lengths = []
+    for start, end in zip(points, points[1:]):
+        segment_length = distance(start, end)
+        if segment_length > 1e-6:
+            segment_lengths.append(segment_length)
+    closing_distance = distance(points[-1], points[0]) if topology.is_closed else 0.0
+    if closing_distance > max(1e-6, topology.closed_path_tolerance):
+        segment_lengths.append(closing_distance)
+    if not segment_lengths:
+        return None
+    return float(np.mean(np.asarray(segment_lengths, dtype=float)))
+
+
+def _component_assignment_distance_threshold(box: dict, topology: BaselineTopology, config: dict) -> float:
+    size_scaled_threshold = float(box["max_side"]) * float(config["component_distance_scale"])
+    threshold = max(float(config["component_max_distance_px"]), size_scaled_threshold)
+    mean_spacing = _mean_baseline_node_spacing(topology)
+    if mean_spacing is None:
+        return threshold
+    spacing_scaled_threshold = max(
+        float(config["component_max_distance_px"]),
+        mean_spacing * float(config["component_distance_scale"]),
+    )
+    return min(threshold, spacing_scaled_threshold)
+
 def _baseline_endpoint_anchor_rects(
     topology: BaselineTopology,
     rects: list[dict],
@@ -1828,9 +1857,10 @@ def _assign_components_to_lines(
                     source_best_distance = float("inf")
                     for line_numeric_id, split_box in split_boxes:
                         nearest = nearest_point_on_polyline(split_box["center"], topologies[line_numeric_id].normalized_points)
-                        threshold = max(
-                            float(config["component_max_distance_px"]),
-                            split_box["max_side"] * float(config["component_distance_scale"]),
+                        threshold = _component_assignment_distance_threshold(
+                            split_box,
+                            topologies[line_numeric_id],
+                            config,
                         )
                         if nearest.distance > threshold:
                             rejected_counts["too_far_from_baseline"] += 1
@@ -1857,7 +1887,7 @@ def _assign_components_to_lines(
         if best_line_id is None:
             rejected_counts["no_baseline"] += 1
             continue
-        threshold = max(float(config["component_max_distance_px"]), box["max_side"] * float(config["component_distance_scale"]))
+        threshold = _component_assignment_distance_threshold(box, topologies[best_line_id], config)
         if best_distance > threshold:
             rejected_counts["too_far_from_baseline"] += 1
             continue
