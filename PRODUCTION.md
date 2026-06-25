@@ -235,7 +235,9 @@ content in place and does not regenerate layout geometry or line images.
 
 The save route also keeps the legacy `node_corrections/<page>.json` counters.
 Those counters are used by the ZIP export's `node_metrics.json`; they are not
-the active-learning source of truth.
+the active-learning or human-effort source of truth. Use
+`active_learning/recognition/telemetry/human_interventions.json` for unified
+intervention logging.
 
 ## Reading Direction And Layout Staleness
 
@@ -502,10 +504,14 @@ Telemetry includes:
 - page save events in `telemetry/page_events.jsonl`
 - job lifecycle events in `telemetry/job_events.jsonl`
 - per-revision page edit summaries in `telemetry/page_edit_summary.json`
+- unified per-page and per-manuscript human-effort summaries in
+  `telemetry/human_interventions.json`
 - layout edit metrics such as node additions, node deletions, edge additions,
-  edge deletions, reset-heuristic count, and total modification count
-- text edit metrics such as changed line count, total edit distance, normalized
-  edit distance, and per-line diffs
+  edge deletions, reset-heuristic count, text-region annotation deltas,
+  reading-direction annotation deltas, and total layout intervention count
+- text edit metrics measured against the built-in reader prediction, including
+  changed line count, total edit distance, page CER, mean line CER, and
+  per-line diffs
 - active-learning entry decisions
 - promotion and fallback summaries
 

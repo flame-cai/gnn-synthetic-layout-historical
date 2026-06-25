@@ -178,7 +178,18 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         record_prediction(
             manuscript_root=manuscript_root,
             page_id="233_0001",
-            predicted_lines={"1": "rama raw"},
+            predicted_lines={"1": "builtin raw"},
+            recognition_engine="local",
+            checkpoint_id="base",
+            checkpoint_path=base_checkpoint,
+            confidences={},
+            layout_fingerprint="layout-a",
+            base_checkpoint_path=base_checkpoint,
+        )
+        record_prediction(
+            manuscript_root=manuscript_root,
+            page_id="233_0001",
+            predicted_lines={"1": "gemini raw"},
             recognition_engine="gemini",
             checkpoint_id=None,
             checkpoint_path=None,
@@ -214,6 +225,33 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertEqual(revision_payload["recognition_engine"], "gemini")
         self.assertEqual(revision_payload["prediction_engine"], "gemini")
         self.assertIsNone(revision_payload["prediction_checkpoint_id"])
+        self.assertEqual(
+            registry_payload["last_prediction_by_page"]["233_0001"]["recognition_engine"],
+            "gemini",
+        )
+        self.assertEqual(
+            registry_payload["prediction_history_by_page"]["233_0001"][0]["recognition_engine"],
+            "local",
+        )
+        self.assertEqual(
+            registry_payload["last_prediction_by_page_and_engine"]["233_0001"]["local"]["predicted_lines"],
+            {"1": "builtin raw"},
+        )
+
+        page_summary = json.loads(
+            (manuscript_root / "active_learning" / "recognition" / "telemetry" / "page_edit_summary.json").read_text(encoding="utf-8")
+        )
+        text_metrics = page_summary["233_0001#r1"]["text_metrics"]
+        self.assertEqual(text_metrics["prediction_source_engine"], "local")
+        self.assertEqual(text_metrics["prediction_source_checkpoint_id"], "base")
+        self.assertEqual(text_metrics["measurement_status"], "measured")
+        self.assertEqual(text_metrics["per_line_diffs"][0]["predicted_text"], "builtin raw")
+        self.assertNotEqual(text_metrics["per_line_diffs"][0]["predicted_text"], "gemini raw")
+
+        human_summary = json.loads(
+            (manuscript_root / "active_learning" / "recognition" / "telemetry" / "human_interventions.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(human_summary["read_mode_effort_curve"][0]["prediction_source_engine"], "local")
 
     def test_reader_capabilities_report_server_configured_gemini(self):
         client = backend_app_module.app.test_client()

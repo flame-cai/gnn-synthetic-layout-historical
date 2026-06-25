@@ -647,6 +647,24 @@ def _normalize_textbox_labels_payload(textbox_labels, node_count):
     return normalized
 
 
+def _load_saved_textbox_labels(manuscript_path, page, node_count):
+    labels_path = Path(manuscript_path) / "layout_analysis_output" / "gnn-format" / f"{page}_labels_textbox.txt"
+    if not labels_path.exists():
+        return None
+    try:
+        labels = np.loadtxt(labels_path, dtype=int, ndmin=1).reshape(-1)
+    except Exception as exc:
+        print(f"[{page}] Warning: could not read prior textbox labels for telemetry: {exc}")
+        return None
+    try:
+        safe_node_count = max(0, int(node_count or 0))
+    except (TypeError, ValueError):
+        safe_node_count = 0
+    if labels.size != safe_node_count:
+        return None
+    return [int(value) for value in labels.tolist()]
+
+
 def _build_page_workflow(
     manuscript_path,
     page,
@@ -1417,6 +1435,13 @@ def save_correction(manuscript, page):
 
     try:
         xml_path = manuscript_path / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+        previous_textbox_labels = None
+        previous_reading_direction_annotations = None
+        if save_scope == 'layout':
+            previous_textbox_labels = _load_saved_textbox_labels(manuscript_path, page, len(nodes_data))
+            if xml_path.exists():
+                previous_reading_direction_annotations = get_existing_reading_direction_annotations(str(xml_path))
+
         if save_scope == 'text_only' and xml_path.exists():
             result = update_page_text_content(xml_path, text_content=text_content)
         else:
@@ -1445,6 +1470,9 @@ def save_correction(manuscript, page):
             graph_payload=graph_data,
             textbox_labels=textbox_labels,
             modifications=modifications,
+            previous_textbox_labels=previous_textbox_labels,
+            reading_direction_annotations=reading_direction_annotations,
+            previous_reading_direction_annotations=previous_reading_direction_annotations,
             save_scope=save_scope,
             orchestrator=JOB_ORCHESTRATOR,
         )

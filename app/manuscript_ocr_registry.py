@@ -432,12 +432,41 @@ class ManuscriptOcrRegistry:
         self.save()
 
     def remember_prediction(self, page_id: str, payload: dict) -> None:
-        self.data.setdefault("last_prediction_by_page", {})[str(page_id)] = copy.deepcopy(payload)
+        page_id = str(page_id)
+        payload_copy = copy.deepcopy(payload)
+        engine = str(payload_copy.get("recognition_engine") or "").strip().lower()
+        self.data.setdefault("last_prediction_by_page", {})[page_id] = payload_copy
+        if engine:
+            self.data.setdefault("last_prediction_by_page_and_engine", {}).setdefault(page_id, {})[engine] = payload_copy
+        history = self.data.setdefault("prediction_history_by_page", {}).setdefault(page_id, [])
+        history.append(payload_copy)
+        if len(history) > 20:
+            del history[:-20]
         self.save()
 
     def get_last_prediction(self, page_id: str) -> dict | None:
         payload = self.data.setdefault("last_prediction_by_page", {}).get(str(page_id))
         return copy.deepcopy(payload) if payload else None
+
+    def get_last_prediction_for_engine(self, page_id: str, recognition_engine: str) -> dict | None:
+        page_id = str(page_id)
+        target_engine = str(recognition_engine or "").strip().lower()
+        by_engine = self.data.setdefault("last_prediction_by_page_and_engine", {}).get(page_id) or {}
+        if target_engine in by_engine:
+            return copy.deepcopy(by_engine[target_engine])
+        history_by_page = self.data.setdefault("prediction_history_by_page", {})
+        history = list(history_by_page.get(page_id) or [])
+        last_prediction = self.data.setdefault("last_prediction_by_page", {}).get(page_id)
+        if last_prediction and all(
+            prediction.get("recorded_at") != last_prediction.get("recorded_at")
+            for prediction in history
+        ):
+            history.append(last_prediction)
+        for prediction in reversed(history):
+            engine = str((prediction or {}).get("recognition_engine") or "").strip().lower()
+            if engine == target_engine:
+                return copy.deepcopy(prediction)
+        return None
 
     def revision_snapshot_root(self, page_id: str, revision_number: int) -> Path:
         return self.revisions_root / str(page_id) / f"rev_{int(revision_number):04d}"
@@ -474,6 +503,8 @@ def _initial_registry_payload(manuscript_root: Path, base_checkpoint_path: str |
         "page_revisions": {},
         "pending_jobs": [],
         "last_prediction_by_page": {},
+        "last_prediction_by_page_and_engine": {},
+        "prediction_history_by_page": {},
         "last_successful_promotion_summary": None,
         "last_checkpoint_fallback": None,
         "most_recent_promoted_page": None,

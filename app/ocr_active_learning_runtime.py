@@ -26,7 +26,14 @@ from recognition.active_learning_recipe import (
     OcrActiveLearningRecipe,
     normalize_sibling_checkpoint_strategy,
 )
-from telemetry import append_jsonl, compute_layout_edit_metrics, compute_text_edit_metrics, update_summary_json, utc_now_iso
+from telemetry import (
+    append_jsonl,
+    compute_layout_edit_metrics,
+    compute_text_edit_metrics,
+    update_human_interventions_summary,
+    update_summary_json,
+    utc_now_iso,
+)
 
 
 _RUNTIME_STATE = {
@@ -503,6 +510,34 @@ def _prediction_source_label(prediction: dict | None) -> str | None:
     return engine
 
 
+def _read_effort_prediction(registry: ManuscriptOcrRegistry, page_id: str) -> dict:
+    return registry.get_last_prediction_for_engine(page_id, "local") or {}
+
+
+def _compute_read_effort_metrics(registry: ManuscriptOcrRegistry, page_id: str, text_payload: dict | None) -> dict:
+    prediction = _read_effort_prediction(registry, page_id)
+    metrics = compute_text_edit_metrics(prediction.get("predicted_lines", {}), text_payload or {})
+    prediction_available = bool(prediction)
+    metrics["prediction_available"] = prediction_available
+    metrics["prediction_source_engine"] = prediction.get("recognition_engine")
+    metrics["prediction_source_checkpoint_id"] = prediction.get("checkpoint_id")
+    metrics["prediction_source_checkpoint_path"] = prediction.get("checkpoint_path")
+    metrics["prediction_recorded_at"] = prediction.get("recorded_at")
+    metrics["measurement_target"] = "built_in_reader"
+    metrics["measurement_status"] = "measured" if prediction_available else "missing_builtin_prediction"
+    if not prediction_available:
+        metrics["page_cer"] = None
+        metrics["mean_line_cer"] = None
+        metrics["normalized_edit_distance"] = None
+        for line_diff in metrics.get("per_line_diffs", []):
+            line_diff["line_cer"] = None
+    return metrics
+
+
+def _numeric_or_none(value):
+    return float(value) if isinstance(value, (int, float)) else None
+
+
 def summarize_page_active_learning(
     manuscript_root: str | Path,
     page_id: str,
@@ -530,7 +565,7 @@ def summarize_page_active_learning(
     if layout_match_known:
         prediction_matches_current_layout = str(prediction_layout_fingerprint) == str(current_layout_fingerprint)
 
-    correction_metrics = compute_text_edit_metrics(last_prediction.get("predicted_lines", {}), current_text_payload)
+    correction_metrics = _compute_read_effort_metrics(registry, page_id, current_text_payload)
     prediction_source_label = _prediction_source_label(last_prediction)
 
     # A newer active checkpoint alone does not invalidate saved page text.
@@ -698,7 +733,12 @@ def summarize_page_active_learning(
         "correction_summary": {
             "changed_line_count": int(correction_metrics.get("changed_line_count", 0)),
             "total_edit_distance": int(correction_metrics.get("total_edit_distance", 0)),
-            "normalized_edit_distance": float(correction_metrics.get("normalized_edit_distance", 0.0)),
+            "normalized_edit_distance": _numeric_or_none(correction_metrics.get("normalized_edit_distance")),
+            "page_cer": _numeric_or_none(correction_metrics.get("page_cer")),
+            "mean_line_cer": _numeric_or_none(correction_metrics.get("mean_line_cer")),
+            "prediction_source_engine": correction_metrics.get("prediction_source_engine"),
+            "prediction_source_checkpoint_id": correction_metrics.get("prediction_source_checkpoint_id"),
+            "measurement_status": correction_metrics.get("measurement_status"),
         },
     }
 
@@ -896,6 +936,7 @@ def _record_page_save_event(
     page: str,
     revision_number: int,
     save_intent: str,
+    save_scope: str,
     active_learning_enabled: bool,
     entered_active_learning: bool,
     revision_is_duplicate: bool,
@@ -912,6 +953,7 @@ def _record_page_save_event(
         "page_id": page,
         "revision_number": revision_number,
         "save_intent": save_intent,
+        "save_scope": save_scope,
         "active_learning_enabled": bool(active_learning_enabled),
         "entered_active_learning": bool(entered_active_learning),
         "revision_is_duplicate": bool(revision_is_duplicate),
@@ -926,6 +968,10 @@ def _record_page_save_event(
     update_summary_json(
         registry.telemetry_root / "page_edit_summary.json",
         f"{page}#r{revision_number}",
+        page_event,
+    )
+    update_human_interventions_summary(
+        registry.telemetry_root / "human_interventions.json",
         page_event,
     )
 
@@ -962,6 +1008,9 @@ def handle_post_save(
     graph_payload: dict | None = None,
     textbox_labels=None,
     modifications: list[dict] | None = None,
+    previous_textbox_labels=None,
+    reading_direction_annotations=None,
+    previous_reading_direction_annotations=None,
     save_scope: str = "text_only",
     orchestrator: JobOrchestrator | None = None,
 ) -> dict:
@@ -1059,14 +1108,23 @@ def handle_post_save(
             queued_job_ids.append(orchestrator_instance.enqueue(fine_tune_job))
             entered_active_learning = True
 
-    text_edit_metrics = compute_text_edit_metrics(last_prediction.get("predicted_lines", {}), text_payload)
-    layout_metrics = compute_layout_edit_metrics(modifications)
+    text_edit_metrics = _compute_read_effort_metrics(registry, page, text_payload)
+    layout_metrics = compute_layout_edit_metrics(
+        modifications,
+        graph_payload=graph_payload,
+        textbox_labels=textbox_labels,
+        previous_textbox_labels=previous_textbox_labels,
+        reading_direction_annotations=reading_direction_annotations,
+        previous_reading_direction_annotations=previous_reading_direction_annotations,
+        include_annotation_deltas=(save_scope == "layout"),
+    )
     _record_page_save_event(
         registry=registry,
         manuscript=manuscript,
         page=page,
         revision_number=revision.revision_number,
         save_intent=save_intent,
+        save_scope=save_scope,
         active_learning_enabled=bool(active_learning_enabled),
         entered_active_learning=bool(entered_active_learning),
         revision_is_duplicate=bool(revision.is_duplicate),
