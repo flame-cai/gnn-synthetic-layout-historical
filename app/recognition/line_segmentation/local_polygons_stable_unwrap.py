@@ -43,8 +43,8 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "min_mirror_pairs": 3,
     "straightness_chord_ratio": 0.985,
     "horizontal_angle_degrees": 12.0,
-    "component_max_distance_px": 90.0,
-    "component_distance_scale": 4.0,
+    "component_max_distance_px": 20.0,
+    "component_distance_scale": 1.0,
     "minimum_half_width_px": 12.0,
     "maximum_half_width_px": 180.0,
     "normal_pad_px": 6.0,
@@ -1525,8 +1525,8 @@ def _mean_baseline_node_spacing(topology: BaselineTopology) -> float | None:
 
 
 def _component_assignment_distance_threshold(box: dict, topology: BaselineTopology, config: dict) -> float:
-    size_scaled_threshold = float(box["max_side"]) * float(config["component_distance_scale"])
-    threshold = max(float(config["component_max_distance_px"]), size_scaled_threshold)
+    # size_scaled_threshold = float(box["max_side"]) * float(config["component_distance_scale"])
+    threshold = float(config["component_max_distance_px"])
     mean_spacing = _mean_baseline_node_spacing(topology)
     if mean_spacing is None:
         return threshold
