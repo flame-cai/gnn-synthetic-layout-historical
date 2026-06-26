@@ -1,7 +1,20 @@
+Remove backward compatibility bloat...understand all bells and whistles. 
+    - extentend baseline correction (missing heatmap)
+    - catching outlies (extra left heatmap) --> does this affect any other bells and whistles?
+    - short line axis alignment
+    - adjacent line removal heuristic
+    - 0.45 binarization threshold
+
+Setup Coords Segmentation Eval Research Harness:
+    - Normal lines
+    - conjusted lines in the map
+    - single characters, page numbers
+    - missing heatmap
+    - extra heatmap
 
 
-- remove backward compatibility bloat...
 - long file name bug fix - shorten to 1,2,3
+- enable exporting as Markdown
 
 - check if telemetry change and heatmap assignment caused any unexpected effects.
 - add padding for single characters...
