@@ -31,6 +31,7 @@ COMPONENT_PROJECTION_FALLBACK_MODEL = "heatmap_component_rectangle_bounds"
 AMBIGUOUS_COMPONENT_SPLIT_MODEL = "baseline_overlap_nearest_baseline_split"
 ENDPOINT_ANCHOR_MODEL = "baseline_endpoint_component_anchor"
 IMAGE_FALLBACK_MODEL = "local_image_adaptive_binarization_rect"
+POINT_IMAGE_FALLBACK_MODEL = "point_seed_connected_component_expand"
 ANCHOR_WINDOW_CLIP_MODEL = "baseline_anchor_window_rect_clip"
 
 DEFAULT_LOCAL_POLYGON_CONFIG = {
@@ -81,6 +82,13 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "image_fallback_min_component_area_px": 4,
     "image_fallback_min_foreground_pixels": 8,
     "image_fallback_max_foreground_fraction": 0.45,
+    "point_image_fallback_seed_station_half_width_px": 6.0,
+    "point_image_fallback_seed_normal_half_width_px": 8.0,
+    "point_image_fallback_expand_step_px": 24.0,
+    "point_image_fallback_max_half_width_px": 128.0,
+    "point_image_fallback_max_component_span_px": 96.0,
+    "point_image_fallback_max_component_area_fraction": 0.35,
+    "point_image_fallback_border_margin_px": 1.0,
     "anchor_window_clip_enabled": False,
     "anchor_window_clip_max_anchor_count": 8,
     "anchor_window_clip_max_baseline_length_px": 140.0,
@@ -140,6 +148,13 @@ def _normalise_config(config: dict | None) -> dict:
         "image_fallback_baseline_overlap_half_width_px",
         "image_fallback_adaptive_c",
         "image_fallback_max_foreground_fraction",
+        "point_image_fallback_seed_station_half_width_px",
+        "point_image_fallback_seed_normal_half_width_px",
+        "point_image_fallback_expand_step_px",
+        "point_image_fallback_max_half_width_px",
+        "point_image_fallback_max_component_span_px",
+        "point_image_fallback_max_component_area_fraction",
+        "point_image_fallback_border_margin_px",
         "anchor_window_clip_max_baseline_length_px",
         "anchor_window_station_half_width_px",
         "anchor_window_station_half_width_scale",
@@ -840,7 +855,15 @@ def _remap_local_crop(
     map_y = np.zeros((height, width), dtype=np.float32)
     for column_index in range(width):
         station = float(rect["s_min"]) + float(column_index)
-        center, tangent = _point_at_station(topology.normalized_points, station, topology.is_closed)
+        if len(topology.normalized_points) == 1 or topology.baseline_length <= 1e-6:
+            origin = topology.normalized_points[0] if topology.normalized_points else [0.0, 0.0]
+            tangent = _point_baseline_tangent(topology)
+            center = (
+                float(origin[0]) + tangent[0] * station,
+                float(origin[1]) + tangent[1] * station,
+            )
+        else:
+            center, tangent = _point_at_station(topology.normalized_points, station, topology.is_closed)
         normal = (-float(tangent[1]), float(tangent[0]))
         map_x[:, column_index] = float(center[0]) + normal[0] * normal_offsets
         map_y[:, column_index] = float(center[1]) + normal[1] * normal_offsets
@@ -1282,8 +1305,262 @@ def _clip_rects_to_anchor_windows(
     summary["anchor_window_clip_used"] = True
     return clipped_rects, summary
 
+def _point_image_fallback_search_rect(anchor: tuple[float, float], half_width: float) -> dict:
+    station, normal = anchor
+    return {
+        "s_min": float(station) - float(half_width),
+        "s_max": float(station) + float(half_width),
+        "n_min": float(normal) - float(half_width),
+        "n_max": float(normal) + float(half_width),
+    }
+
+
+def _label_indices_touching_seed(
+    labels: np.ndarray,
+    search_rect: dict,
+    anchor: tuple[float, float],
+    config: dict,
+) -> list[int]:
+    station, normal = anchor
+    seed_station_half_width = max(0.0, float(config["point_image_fallback_seed_station_half_width_px"]))
+    seed_normal_half_width = max(0.0, float(config["point_image_fallback_seed_normal_half_width_px"]))
+    x0 = max(0, int(math.floor(float(station) - seed_station_half_width - float(search_rect["s_min"]))))
+    x1 = min(labels.shape[1], int(math.ceil(float(station) + seed_station_half_width - float(search_rect["s_min"]))) + 1)
+    y0 = max(0, int(math.floor(float(normal) - seed_normal_half_width - float(search_rect["n_min"]))))
+    y1 = min(labels.shape[0], int(math.ceil(float(normal) + seed_normal_half_width - float(search_rect["n_min"]))) + 1)
+    if x1 <= x0 or y1 <= y0:
+        return []
+    seed_labels = labels[y0:y1, x0:x1]
+    values = sorted({int(value) for value in np.unique(seed_labels) if int(value) > 0})
+    return values
+
+
+def _component_touches_crop_border(
+    x_val: int,
+    y_val: int,
+    width: int,
+    height: int,
+    crop_width: int,
+    crop_height: int,
+    border_margin_px: float,
+) -> bool:
+    margin = max(0, int(math.ceil(float(border_margin_px))))
+    return (
+        x_val <= margin
+        or y_val <= margin
+        or x_val + width >= crop_width - margin
+        or y_val + height >= crop_height - margin
+    )
+
+
+def _point_image_fallback_rects_from_seeded_component(
+    processing_image: np.ndarray,
+    topology: BaselineTopology,
+    config: dict,
+    *,
+    trigger_reason: str,
+    debug_line_dir: Path | None = None,
+) -> tuple[list[dict], dict]:
+    summary = _image_fallback_base_summary(config)
+    summary.update(
+        {
+            "image_fallback_model": POINT_IMAGE_FALLBACK_MODEL,
+            "point_image_fallback_model": POINT_IMAGE_FALLBACK_MODEL,
+            "image_fallback_trigger_reason": trigger_reason,
+            "point_image_fallback_seed_hit": False,
+            "point_image_fallback_expansion_count": 0,
+            "point_image_fallback_component_touched_border": False,
+            "point_image_fallback_safety_clipped": False,
+            "point_image_fallback_reject_reason": None,
+            "point_image_fallback_seed_station_half_width_px": float(
+                config["point_image_fallback_seed_station_half_width_px"]
+            ),
+            "point_image_fallback_seed_normal_half_width_px": float(
+                config["point_image_fallback_seed_normal_half_width_px"]
+            ),
+            "point_image_fallback_max_half_width_px": float(config["point_image_fallback_max_half_width_px"]),
+            "point_image_fallback_max_component_span_px": float(config["point_image_fallback_max_component_span_px"]),
+            "point_image_fallback_max_component_area_fraction": float(
+                config["point_image_fallback_max_component_area_fraction"]
+            ),
+        }
+    )
+    if not config["image_fallback_when_no_heatmap_components"]:
+        summary["image_fallback_skip_reason"] = "disabled"
+        return [], summary
+    if not topology.normalized_points:
+        summary["image_fallback_skip_reason"] = "missing_baseline"
+        return [], summary
+
+    anchors = _line_anchor_local_points(topology)
+    anchor = anchors[0] if anchors else (0.0, 0.0)
+    summary["image_fallback_attempted"] = True
+    summary["image_fallback_anchor_count"] = len(anchors)
+
+    initial_half_width = max(
+        float(config["minimum_half_width_px"]),
+        float(config["image_fallback_search_half_width_px"]),
+    )
+    max_half_width = max(initial_half_width, float(config["point_image_fallback_max_half_width_px"]))
+    expand_step = max(1.0, float(config["point_image_fallback_expand_step_px"]))
+    min_area = max(1, int(config["image_fallback_min_component_area_px"]))
+    max_span = max(1.0, float(config["point_image_fallback_max_component_span_px"]))
+    max_area_fraction = max(0.0, float(config["point_image_fallback_max_component_area_fraction"]))
+    border_margin = max(0.0, float(config["point_image_fallback_border_margin_px"]))
+    along_pad = max(0.0, float(config["image_fallback_output_along_pad_px"]))
+    normal_pad = max(0.0, float(config["image_fallback_output_normal_pad_px"]))
+    page_median_color = int(np.median(processing_image))
+
+    half_width = initial_half_width
+    expansion_count = 0
+    last_artifacts = None
+    while True:
+        search_rect = _point_image_fallback_search_rect(anchor, half_width)
+        local_crop = _remap_local_crop(processing_image, topology, search_rect, page_median_color)
+        if local_crop.size == 0:
+            summary["image_fallback_skip_reason"] = "empty_search_crop"
+            return [], summary
+
+        binary_foreground = _adaptive_local_foreground_mask(local_crop, config)
+        num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_foreground, connectivity=8)
+        summary["image_fallback_raw_component_count"] = max(0, int(num_labels) - 1)
+        seed_label_indices = [
+            label_index
+            for label_index in _label_indices_touching_seed(labels, search_rect, anchor, config)
+            if int(stats[label_index, cv2.CC_STAT_AREA]) >= min_area
+        ]
+        summary["image_fallback_candidate_component_count"] = len(seed_label_indices)
+        filtered_mask = np.zeros(binary_foreground.shape, dtype=np.uint8)
+        last_artifacts = (local_crop, binary_foreground, filtered_mask, search_rect)
+        if not seed_label_indices:
+            summary["image_fallback_skip_reason"] = "point_seed_no_component"
+            summary["point_image_fallback_reject_reason"] = "point_seed_no_component"
+            break
+
+        summary["point_image_fallback_seed_hit"] = True
+        selected_label_index = max(
+            seed_label_indices,
+            key=lambda label_index: int(stats[label_index, cv2.CC_STAT_AREA]),
+        )
+        filtered_mask[labels == selected_label_index] = 255
+        x_val = int(stats[selected_label_index, cv2.CC_STAT_LEFT])
+        y_val = int(stats[selected_label_index, cv2.CC_STAT_TOP])
+        width = int(stats[selected_label_index, cv2.CC_STAT_WIDTH])
+        height = int(stats[selected_label_index, cv2.CC_STAT_HEIGHT])
+        area = int(stats[selected_label_index, cv2.CC_STAT_AREA])
+        foreground_fraction = float(area / filtered_mask.size) if filtered_mask.size else None
+        touches_border = _component_touches_crop_border(
+            x_val,
+            y_val,
+            width,
+            height,
+            filtered_mask.shape[1],
+            filtered_mask.shape[0],
+            border_margin,
+        )
+        summary.update(
+            {
+                "image_fallback_selected_component_count": 1,
+                "image_fallback_anchor_assignment_count": 1,
+                "image_fallback_foreground_pixel_count": area,
+                "image_fallback_foreground_fraction": foreground_fraction,
+                "point_image_fallback_component_touched_border": touches_border,
+                "point_image_fallback_expansion_count": expansion_count,
+            }
+        )
+
+        if max(width, height) > max_span:
+            summary["image_fallback_skip_reason"] = "point_seed_component_too_large"
+            summary["point_image_fallback_reject_reason"] = "component_span_too_large"
+            summary["point_image_fallback_safety_clipped"] = True
+            break
+        if foreground_fraction is not None and foreground_fraction > max_area_fraction:
+            summary["image_fallback_skip_reason"] = "point_seed_component_area_fraction_too_large"
+            summary["point_image_fallback_reject_reason"] = "component_area_fraction_too_large"
+            summary["point_image_fallback_safety_clipped"] = True
+            break
+        if touches_border:
+            if half_width >= max_half_width:
+                summary["image_fallback_skip_reason"] = "point_seed_component_touches_border_at_max_crop"
+                summary["point_image_fallback_reject_reason"] = "component_touches_border_at_max_crop"
+                summary["point_image_fallback_safety_clipped"] = True
+                break
+            half_width = min(max_half_width, half_width + expand_step)
+            expansion_count += 1
+            continue
+
+        s_min = float(search_rect["s_min"]) + float(x_val) - along_pad
+        s_max = float(search_rect["s_min"]) + float(x_val + width) + along_pad
+        n_min = float(search_rect["n_min"]) + float(y_val) - normal_pad
+        n_max = float(search_rect["n_min"]) + float(y_val + height) + normal_pad
+        if s_max <= s_min or n_max <= n_min:
+            summary["image_fallback_skip_reason"] = "degenerate_bbox"
+            summary["point_image_fallback_reject_reason"] = "degenerate_bbox"
+            break
+
+        rect = _local_rect_from_bounds(
+            s_min,
+            s_max,
+            n_min,
+            n_max,
+            extra={
+                "component_projection_model": POINT_IMAGE_FALLBACK_MODEL,
+                "image_fallback": True,
+                "point_image_fallback": True,
+                "image_fallback_label_index": int(selected_label_index),
+            },
+        )
+        summary["image_fallback_local_bbox"] = [float(s_min), float(n_min), float(s_max), float(n_max)]
+        _debug_write_image_fallback_artifacts(debug_line_dir, local_crop, binary_foreground, filtered_mask, [rect], summary)
+        return [rect], summary
+
+    if last_artifacts is not None:
+        local_crop, binary_foreground, filtered_mask, _ = last_artifacts
+        _debug_write_image_fallback_artifacts(debug_line_dir, local_crop, binary_foreground, filtered_mask, [], summary)
+    return [], summary
+
 
 def _image_fallback_rects_from_local_binarization(
+    processing_image: np.ndarray,
+    topology: BaselineTopology,
+    config: dict,
+    *,
+    trigger_reason: str,
+    debug_line_dir: Path | None = None,
+) -> tuple[list[dict], dict]:
+    if topology.line_kind == "point":
+        point_rects, point_summary = _point_image_fallback_rects_from_seeded_component(
+            processing_image,
+            topology,
+            config,
+            trigger_reason=trigger_reason,
+            debug_line_dir=debug_line_dir,
+        )
+        if point_rects or point_summary.get("image_fallback_skip_reason") in {"disabled", "missing_baseline"}:
+            return point_rects, point_summary
+        generic_rects, generic_summary = _generic_image_fallback_rects_from_local_binarization(
+            processing_image,
+            topology,
+            config,
+            trigger_reason=trigger_reason,
+            debug_line_dir=debug_line_dir,
+        )
+        generic_summary["point_image_fallback_model"] = POINT_IMAGE_FALLBACK_MODEL
+        generic_summary["point_image_fallback_reject_reason"] = point_summary.get("point_image_fallback_reject_reason")
+        generic_summary["point_image_fallback_safety_clipped"] = bool(
+            point_summary.get("point_image_fallback_safety_clipped")
+        )
+        generic_summary["point_image_fallback_fell_back_to_generic"] = True
+        return generic_rects, generic_summary
+    return _generic_image_fallback_rects_from_local_binarization(
+        processing_image,
+        topology,
+        config,
+        trigger_reason=trigger_reason,
+        debug_line_dir=debug_line_dir,
+    )
+
+def _generic_image_fallback_rects_from_local_binarization(
     processing_image: np.ndarray,
     topology: BaselineTopology,
     config: dict,
@@ -1854,6 +2131,38 @@ def _baseline_endpoint_anchor_rects(
     return anchors, summary
 
 
+def _rect_fits_window(rect: dict, window: dict, tolerance_px: float = 1.0) -> bool:
+    return (
+        float(rect["s_min"]) >= float(window["s_min"]) - tolerance_px
+        and float(rect["s_max"]) <= float(window["s_max"]) + tolerance_px
+        and float(rect["n_min"]) >= float(window["n_min"]) - tolerance_px
+        and float(rect["n_max"]) <= float(window["n_max"]) + tolerance_px
+    )
+
+
+def _should_apply_anchor_window_clip(
+    topology: BaselineTopology,
+    rects: list[dict],
+    used_image_fallback: bool,
+    config: dict,
+) -> tuple[bool, str | None]:
+    if topology.line_kind != "point":
+        return True, None
+    if used_image_fallback:
+        if any(bool(rect.get("point_image_fallback")) for rect in rects):
+            return False, "point_image_fallback_component_preserved"
+        return True, None
+    if len(rects) != 1:
+        return False, "point_heatmap_components_preserved"
+    anchors = _line_anchor_local_points(topology)
+    if len(anchors) != 1:
+        return False, "point_heatmap_components_preserved"
+    window = _anchor_window_for_anchor(anchors[0], 0, anchors, topology, config)
+    if _rect_fits_window(rects[0], window):
+        return True, None
+    return False, "point_heatmap_components_preserved"
+
+
 def _build_local_polygon(
     topology: BaselineTopology,
     rects: list[dict],
@@ -1911,9 +2220,15 @@ def _build_local_polygon(
             fallback_used = True
 
     if rects:
-        clipped_rects, anchor_window_clip_summary = _clip_rects_to_anchor_windows(rects, topology, config)
-        if clipped_rects:
-            rects = clipped_rects
+        should_clip, clip_skip_reason = _should_apply_anchor_window_clip(topology, rects, used_image_fallback, config)
+        if should_clip:
+            clipped_rects, anchor_window_clip_summary = _clip_rects_to_anchor_windows(rects, topology, config)
+            if clipped_rects:
+                rects = clipped_rects
+        else:
+            anchor_window_clip_summary["anchor_window_clip_input_rect_count"] = len(rects)
+            anchor_window_clip_summary["anchor_window_clip_anchor_count"] = len(_line_anchor_local_points(topology))
+            anchor_window_clip_summary["anchor_window_clip_skip_reason"] = clip_skip_reason
     _debug_write_local_rects(debug_line_dir, "04_after_anchor_window_clip_rects", rects, anchor_window_clip_summary)
 
     if not rects:

@@ -702,6 +702,36 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(crop_metadata["orientation"]["reason"], "annotated_point_direction")
         self.assertGreater(crop_metadata["output_width_px"], crop_metadata["output_height_px"])
 
+    def test_stable_unwrap_point_heatmap_component_skips_anchor_clip(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_point_heatmap_preserves_component",
+            "48,48",
+            [(24, 32, 48, 32)],
+        )
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config={
+                "anchor_window_clip_enabled": True,
+                "include_empty_text_lines": True,
+            },
+            metadata_path=tmp_root / "out" / "metadata.json",
+        )
+
+        line = result.line_metadata[0]
+        x_values = [point[0] for point in line["coords_points"]]
+        self.assertEqual(line["line_kind"], "point")
+        self.assertEqual(line["assigned_component_count"], 1)
+        self.assertFalse(line["image_fallback_used"])
+        self.assertFalse(line["anchor_window_clip_used"])
+        self.assertEqual(line["anchor_window_clip_skip_reason"], "point_heatmap_components_preserved")
+        self.assertGreater(max(x_values) - min(x_values), 40)
+        self.assertGreater(line["local_s_max"] - line["local_s_min"], 40.0)
+
     def test_stable_unwrap_image_fallback_single_node_selects_nearest_island(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "stable_image_fallback_single_node_island",
@@ -734,14 +764,17 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertTrue(line["image_fallback_used"])
         self.assertEqual(line["line_kind"], "point")
         self.assertEqual(line["image_fallback_anchor_count"], 1)
-        self.assertEqual(line["image_fallback_candidate_component_count"], 2)
+        self.assertEqual(line["image_fallback_model"], "point_seed_connected_component_expand")
+        self.assertTrue(line["point_image_fallback_seed_hit"])
+        self.assertEqual(line["image_fallback_candidate_component_count"], 1)
         self.assertEqual(line["image_fallback_selected_component_count"], 1)
-        self.assertTrue(line["anchor_window_clip_used"])
+        self.assertFalse(line["anchor_window_clip_used"])
+        self.assertEqual(line["anchor_window_clip_skip_reason"], "point_image_fallback_component_preserved")
         self.assertLess(max(x_values), 45)
         self.assertGreaterEqual(min(x_values), 12)
         self.assertLess(max(x_values) - min(x_values), 30)
 
-    def test_stable_unwrap_anchor_window_clips_connected_image_fallback_noise(self):
+    def test_stable_unwrap_point_image_fallback_preserves_seed_component(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "stable_image_fallback_anchor_clip_touching_noise",
             "30,48",
@@ -774,10 +807,91 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         line = result.line_metadata[0]
         x_values = [point[0] for point in line["coords_points"]]
         self.assertTrue(line["image_fallback_used"])
-        self.assertTrue(line["anchor_window_clip_used"])
-        self.assertGreaterEqual(min(x_values), 17)
-        self.assertLessEqual(line["local_s_max"] - line["local_s_min"], 28.0)
+        self.assertEqual(line["image_fallback_model"], "point_seed_connected_component_expand")
+        self.assertTrue(line["point_image_fallback_seed_hit"])
+        self.assertFalse(line["anchor_window_clip_used"])
+        self.assertEqual(line["anchor_window_clip_skip_reason"], "point_image_fallback_component_preserved")
+        self.assertGreaterEqual(min(x_values), 3)
+        self.assertGreater(line["local_s_max"] - line["local_s_min"], 36.0)
         self.assertLessEqual(line["local_n_max"] - line["local_n_min"], 34.0)
+
+    def test_stable_unwrap_point_image_fallback_safety_falls_back_to_anchor_clip(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_point_image_fallback_border_safety",
+            "30,48",
+            [],
+        )
+        image = np.full((96, 96), 240, dtype=np.uint8)
+        image[40:56, 0:80] = 20
+        heatmap = np.zeros((96, 96), dtype=np.uint8)
+        cv2.imwrite(str(image_path), image)
+        cv2.imwrite(str(heatmap_path), heatmap)
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config={
+                "image_fallback_when_no_heatmap_components": True,
+                "anchor_window_clip_enabled": True,
+                "point_image_fallback_max_half_width_px": 48.0,
+                "point_image_fallback_max_component_span_px": 160.0,
+                "point_image_fallback_max_component_area_fraction": 0.95,
+                "include_empty_text_lines": True,
+            },
+            metadata_path=tmp_root / "out" / "metadata.json",
+        )
+
+        line = result.line_metadata[0]
+        self.assertTrue(line["image_fallback_used"])
+        self.assertEqual(line["image_fallback_model"], "local_image_adaptive_binarization_rect")
+        self.assertEqual(line["point_image_fallback_reject_reason"], "component_touches_border_at_max_crop")
+        self.assertTrue(line["point_image_fallback_safety_clipped"])
+        self.assertTrue(line["point_image_fallback_fell_back_to_generic"])
+        self.assertTrue(line["anchor_window_clip_used"])
+        self.assertLessEqual(line["local_s_max"] - line["local_s_min"], 32.0)
+
+    def test_stable_unwrap_point_image_fallback_respects_reading_direction(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_point_image_fallback_reading_direction",
+            "48,48",
+            [],
+        )
+        image = np.full((96, 96), 240, dtype=np.uint8)
+        image[28:62, 42:54] = 20
+        heatmap = np.zeros((96, 96), dtype=np.uint8)
+        cv2.imwrite(str(image_path), image)
+        cv2.imwrite(str(heatmap_path), heatmap)
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config={
+                "image_fallback_when_no_heatmap_components": True,
+                "anchor_window_clip_enabled": True,
+                "include_empty_text_lines": True,
+                "reading_direction_annotations_by_line_id": {
+                    7: {
+                        "reading_direction": [0, -1],
+                        "cut_midpoint": [48, 48],
+                        "source": "user_cross_cut",
+                    },
+                },
+            },
+            metadata_path=tmp_root / "out" / "metadata.json",
+        )
+
+        line = result.line_metadata[0]
+        station_span = line["local_s_max"] - line["local_s_min"]
+        normal_span = line["local_n_max"] - line["local_n_min"]
+        self.assertEqual(line["image_fallback_model"], "point_seed_connected_component_expand")
+        self.assertFalse(line["anchor_window_clip_used"])
+        self.assertGreater(station_span, normal_span)
 
     def test_stable_unwrap_anchor_window_clips_heatmap_component_touching_noise(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(

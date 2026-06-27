@@ -1,10 +1,9 @@
 
-
-
-
 dynamic KV cache for OCR.
 - put the big maps as the held out evaluation benchmark?
 
+
+- speed up the layout analysis without affecting function
 - Remove backward compatibility bloat and redundancies
 - understand short line axis alignment
 - add padding for single characters..
