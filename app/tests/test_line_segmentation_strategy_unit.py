@@ -611,6 +611,44 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertGreater(max(y_values) - min(y_values), 28)
         self.assertGreater(line["local_n_max"] - line["local_n_min"], 28.0)
 
+    def test_stable_unwrap_point_baseline_writes_debug_visualizations(self):
+        tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
+            "stable_point_debug_visualizations",
+            "48,48",
+            [(30, 40, 36, 16)],
+        )
+        debug_dir = tmp_root / "debug" / "layout_coords" / "unit_page"
+
+        result = apply_text_line_segmentation_strategy(
+            page_image_path=image_path,
+            heatmap_path=heatmap_path,
+            source_pagexml_path=xml_path,
+            output_pagexml_path=tmp_root / "out" / "unit_page.xml",
+            strategy_name="local_polygons_stable_unwrap_v1",
+            strategy_config={
+                "include_empty_text_lines": True,
+                "debug_point_baseline_coords_enabled": True,
+                "debug_point_baseline_coords_dir": str(debug_dir),
+            },
+            metadata_path=tmp_root / "out" / "metadata.json",
+        )
+
+        line = result.line_metadata[0]
+        line_debug_dir = debug_dir / "line_0007_point"
+        self.assertEqual(line["line_kind"], "point")
+        self.assertEqual(Path(line["debug_artifact_dir"]), line_debug_dir.resolve())
+        self.assertTrue((debug_dir / "00_page_heatmap_assignment_overview.jpg").exists())
+        self.assertTrue((debug_dir / "00_page_heatmap_assignment_overview.json").exists())
+        self.assertTrue((line_debug_dir / "00_line_inputs.json").exists())
+        self.assertTrue((line_debug_dir / "01_assigned_local_rects.png").exists())
+        self.assertTrue((line_debug_dir / "02_after_local_cleanup_rects.png").exists())
+        self.assertTrue((line_debug_dir / "04_after_anchor_window_clip_rects.png").exists())
+        self.assertTrue((line_debug_dir / "05_final_local_mask.png").exists())
+        self.assertTrue((line_debug_dir / "06_final_page_coords.jpg").exists())
+        summary = json.loads((line_debug_dir / "06_final_page_coords.json").read_text(encoding="utf-8"))
+        self.assertEqual(summary["fallback_used"], line["fallback_used"])
+        self.assertEqual(summary["coords_points"], line["coords_points"])
+
     def test_stable_unwrap_single_node_reading_direction_sets_local_frame(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "stable_single_node_reading_direction",

@@ -20,6 +20,7 @@ PRODUCTION_STRATEGY_RUNTIME_CONFIGS: dict[str, dict] = {
         "BINARIZE_THRESHOLD": 0.45,
         "image_fallback_when_no_heatmap_components": True,
         "anchor_window_clip_enabled": True,
+        "debug_point_baseline_coords_enabled": True,
     },
 }
 

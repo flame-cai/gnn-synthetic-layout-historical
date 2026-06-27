@@ -5,6 +5,7 @@ import math
 import xml.etree.ElementTree as ET
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any
 
 import cv2
 import numpy as np
@@ -92,6 +93,8 @@ DEFAULT_LOCAL_POLYGON_CONFIG = {
     "anchor_window_point_station_half_width_px": 14.0,
     "anchor_window_point_normal_half_width_px": 18.0,
     "anchor_window_min_rect_area_px": 4.0,
+    "debug_point_baseline_coords_enabled": False,
+    "debug_point_baseline_coords_dir": None,
 }
 
 
@@ -163,6 +166,7 @@ def _normalise_config(config: dict | None) -> dict:
     merged["ambiguous_component_split_enabled"] = bool(merged["ambiguous_component_split_enabled"])
     merged["image_fallback_when_no_heatmap_components"] = bool(merged["image_fallback_when_no_heatmap_components"])
     merged["anchor_window_clip_enabled"] = bool(merged["anchor_window_clip_enabled"])
+    merged["debug_point_baseline_coords_enabled"] = bool(merged["debug_point_baseline_coords_enabled"])
     if "endpoint_baseline_anchor_enabled" in raw_config:
         endpoint_anchor_enabled = raw_config["endpoint_baseline_anchor_enabled"]
     elif "endpoint_graph_node_anchor_enabled" in raw_config:
@@ -189,6 +193,232 @@ def _load_processing_image(image_path: Path) -> np.ndarray:
     if image is None:
         raise ValueError(f"Could not read page image: {image_path}")
     return image
+
+
+
+def _json_safe(value: Any):
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items() if key not in {"contour_mask"}}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, np.ndarray):
+        return {"shape": list(value.shape), "dtype": str(value.dtype)}
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, Path):
+        return str(value)
+    return value
+
+
+def _debug_root(config: dict) -> Path | None:
+    if not config.get("debug_point_baseline_coords_enabled"):
+        return None
+    raw_path = config.get("debug_point_baseline_coords_dir")
+    if not raw_path:
+        return None
+    return Path(raw_path)
+
+
+def _debug_line_dir(config: dict, line_numeric_id: int, topology: BaselineTopology) -> Path | None:
+    root = _debug_root(config)
+    if root is None or topology.line_kind != "point":
+        return None
+    line_dir = root / f"line_{int(line_numeric_id):04d}_point"
+    line_dir.mkdir(parents=True, exist_ok=True)
+    return line_dir
+
+
+def _debug_write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_json_safe(payload), indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def _debug_color_image(image: np.ndarray) -> np.ndarray:
+    if image.ndim == 2:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    return image.copy()
+
+
+def _debug_component_outline(component: dict) -> np.ndarray | None:
+    contour_points = component.get("contour_points") or []
+    if len(contour_points) >= 3:
+        return np.asarray(contour_points, dtype=np.int32).reshape((-1, 1, 2))
+    try:
+        x_val = int(round(float(component["x"])))
+        y_val = int(round(float(component["y"])))
+        width = int(round(float(component["width"])))
+        height = int(round(float(component["height"])))
+    except Exception:
+        return None
+    return np.asarray(
+        [[[x_val, y_val]], [[x_val + width, y_val]], [[x_val + width, y_val + height]], [[x_val, y_val + height]]],
+        dtype=np.int32,
+    )
+
+
+def _debug_draw_components(canvas: np.ndarray, components: list[dict], color: tuple[int, int, int], thickness: int = 1) -> None:
+    for component in components:
+        outline = _debug_component_outline(component)
+        if outline is not None:
+            cv2.polylines(canvas, [outline], True, color, thickness, lineType=cv2.LINE_AA)
+        center = component.get("center")
+        if center is not None and len(center) >= 2:
+            cv2.circle(canvas, (int(round(float(center[0]))), int(round(float(center[1])))), 2, color, -1)
+
+
+def _debug_draw_baseline(canvas: np.ndarray, topology: BaselineTopology, color: tuple[int, int, int]) -> None:
+    points = [[int(round(point[0])), int(round(point[1]))] for point in topology.normalized_points]
+    if len(points) >= 2:
+        cv2.polylines(canvas, [np.asarray(points, dtype=np.int32).reshape((-1, 1, 2))], False, color, 2, lineType=cv2.LINE_AA)
+    for point in points:
+        cv2.circle(canvas, (point[0], point[1]), 4, color, -1, lineType=cv2.LINE_AA)
+
+
+def _debug_write_page_assignment_overview(
+    processing_image: np.ndarray,
+    boxes: list[dict],
+    topologies: dict[int, BaselineTopology],
+    assignments: dict[int, list[dict]],
+    config: dict,
+) -> None:
+    root = _debug_root(config)
+    if root is None:
+        return
+    point_line_ids = [line_id for line_id, topology in topologies.items() if topology.line_kind == "point"]
+    if not point_line_ids:
+        return
+    root.mkdir(parents=True, exist_ok=True)
+    canvas = _debug_color_image(processing_image)
+    _debug_draw_components(canvas, boxes, (160, 160, 160), thickness=1)
+    for line_numeric_id in point_line_ids:
+        topology = topologies[line_numeric_id]
+        _debug_draw_components(canvas, assignments.get(line_numeric_id, []), (0, 220, 0), thickness=2)
+        _debug_draw_baseline(canvas, topology, (0, 0, 255))
+        if topology.normalized_points:
+            point = topology.normalized_points[0]
+            cv2.putText(
+                canvas,
+                f"line {line_numeric_id}",
+                (int(round(point[0])) + 6, int(round(point[1])) - 6),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.4,
+                (0, 0, 255),
+                1,
+                cv2.LINE_AA,
+            )
+    cv2.imwrite(str(root / "00_page_heatmap_assignment_overview.jpg"), canvas)
+    _debug_write_json(
+        root / "00_page_heatmap_assignment_overview.json",
+        {
+            "heatmap_box_count": len(boxes),
+            "point_line_ids": [int(value) for value in point_line_ids],
+            "assigned_component_counts_by_point_line": {
+                str(line_id): len(assignments.get(line_id, [])) for line_id in point_line_ids
+            },
+            "legend": {
+                "gray": "all thresholded heatmap components",
+                "green": "components assigned to point baselines",
+                "red": "point baseline node",
+            },
+        },
+    )
+
+
+def _debug_local_rect_canvas(rects: list[dict], *, title: str | None = None) -> np.ndarray:
+    if rects:
+        min_s = min(float(rect["s_min"]) for rect in rects)
+        max_s = max(float(rect["s_max"]) for rect in rects)
+        min_n = min(float(rect["n_min"]) for rect in rects)
+        max_n = max(float(rect["n_max"]) for rect in rects)
+    else:
+        min_s, max_s, min_n, max_n = -16.0, 16.0, -16.0, 16.0
+    pad = 12.0
+    min_s -= pad
+    max_s += pad
+    min_n -= pad
+    max_n += pad
+    scale = min(8.0, max(1.0, 280.0 / max(max_s - min_s, max_n - min_n, 1.0)))
+    width = max(160, int(math.ceil((max_s - min_s) * scale)))
+    height = max(120, int(math.ceil((max_n - min_n) * scale)))
+    canvas = np.full((height, width, 3), 245, dtype=np.uint8)
+
+    def to_px(s_val: float, n_val: float) -> tuple[int, int]:
+        x_val = int(round((float(s_val) - min_s) * scale))
+        y_val = int(round((float(n_val) - min_n) * scale))
+        return max(0, min(width - 1, x_val)), max(0, min(height - 1, y_val))
+
+    if min_s <= 0.0 <= max_s:
+        x_axis, _ = to_px(0.0, 0.0)
+        cv2.line(canvas, (x_axis, 0), (x_axis, height - 1), (210, 210, 210), 1)
+    if min_n <= 0.0 <= max_n:
+        _, y_axis = to_px(0.0, 0.0)
+        cv2.line(canvas, (0, y_axis), (width - 1, y_axis), (210, 210, 210), 1)
+    for rect in rects:
+        x0, y0 = to_px(float(rect["s_min"]), float(rect["n_min"]))
+        x1, y1 = to_px(float(rect["s_max"]), float(rect["n_max"]))
+        cv2.rectangle(canvas, (min(x0, x1), min(y0, y1)), (max(x0, x1), max(y0, y1)), (0, 170, 0), 2)
+        cx, cy = to_px(float(rect.get("center_station", 0.0)), float(rect.get("center_normal", 0.0)))
+        cv2.circle(canvas, (cx, cy), 3, (0, 0, 220), -1)
+    ox, oy = to_px(0.0, 0.0)
+    cv2.circle(canvas, (ox, oy), 4, (220, 0, 0), -1)
+    if title:
+        cv2.putText(canvas, title, (6, 16), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (20, 20, 20), 1, cv2.LINE_AA)
+    return canvas
+
+
+def _debug_write_local_rects(line_dir: Path | None, stage_name: str, rects: list[dict], extra: dict | None = None) -> None:
+    if line_dir is None:
+        return
+    cv2.imwrite(str(line_dir / f"{stage_name}.png"), _debug_local_rect_canvas(rects, title=stage_name))
+    _debug_write_json(line_dir / f"{stage_name}.json", {"rects": rects, **dict(extra or {})})
+
+
+def _debug_write_image_fallback_artifacts(
+    debug_line_dir: Path | None,
+    local_crop: np.ndarray,
+    binary_foreground: np.ndarray,
+    filtered_mask: np.ndarray,
+    selected_rects: list[dict],
+    summary: dict,
+) -> None:
+    if debug_line_dir is None:
+        return
+    cv2.imwrite(str(debug_line_dir / "03_image_fallback_search_crop.png"), local_crop)
+    cv2.imwrite(str(debug_line_dir / "03_image_fallback_binary_foreground.png"), binary_foreground)
+    cv2.imwrite(str(debug_line_dir / "03_image_fallback_selected_mask.png"), filtered_mask)
+    _debug_write_local_rects(debug_line_dir, "03_image_fallback_selected_rects", selected_rects, summary)
+
+
+def _debug_write_final_local_mask(
+    line_dir: Path | None,
+    mask: np.ndarray,
+    local_polygon: np.ndarray | None,
+    bounds: dict,
+) -> None:
+    if line_dir is None:
+        return
+    canvas = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    if local_polygon is not None and len(local_polygon) >= 3:
+        cv2.polylines(canvas, [local_polygon.astype(np.int32).reshape((-1, 1, 2))], True, (0, 0, 255), 1)
+    cv2.imwrite(str(line_dir / "05_final_local_mask.png"), canvas)
+    _debug_write_json(line_dir / "05_final_local_mask.json", bounds)
+
+
+def _debug_write_final_page_coords(
+    line_dir: Path | None,
+    processing_image: np.ndarray,
+    topology: BaselineTopology,
+    page_points: list[list[int]],
+    summary: dict,
+) -> None:
+    if line_dir is None:
+        return
+    canvas = _debug_color_image(processing_image)
+    if len(page_points) >= 3:
+        cv2.polylines(canvas, [np.asarray(page_points, dtype=np.int32).reshape((-1, 1, 2))], True, (0, 0, 255), 2)
+    _debug_draw_baseline(canvas, topology, (255, 0, 0))
+    cv2.imwrite(str(line_dir / "06_final_page_coords.jpg"), canvas)
+    _debug_write_json(line_dir / "06_final_page_coords.json", {"coords_points": page_points, **summary})
 
 
 def _heatmap_boxes(image_path: Path, heatmap_path: Path, threshold: float) -> tuple[list[dict], dict]:
@@ -1059,6 +1289,7 @@ def _image_fallback_rects_from_local_binarization(
     config: dict,
     *,
     trigger_reason: str,
+    debug_line_dir: Path | None = None,
 ) -> tuple[list[dict], dict]:
     summary = _image_fallback_base_summary(config)
     summary["image_fallback_trigger_reason"] = trigger_reason
@@ -1168,12 +1399,15 @@ def _image_fallback_rects_from_local_binarization(
 
     if not candidate_components:
         summary["image_fallback_skip_reason"] = "no_candidate_components"
+        _debug_write_image_fallback_artifacts(debug_line_dir, local_crop, binary_foreground, filtered_mask, [], summary)
         return [], summary
     if foreground_pixel_count < int(config["image_fallback_min_foreground_pixels"]):
         summary["image_fallback_skip_reason"] = "insufficient_foreground"
+        _debug_write_image_fallback_artifacts(debug_line_dir, local_crop, binary_foreground, filtered_mask, [], summary)
         return [], summary
     if foreground_fraction is not None and foreground_fraction > float(config["image_fallback_max_foreground_fraction"]):
         summary["image_fallback_skip_reason"] = "excessive_foreground_fraction"
+        _debug_write_image_fallback_artifacts(debug_line_dir, local_crop, binary_foreground, filtered_mask, [], summary)
         return [], summary
 
     along_pad = max(0.0, float(config["image_fallback_output_along_pad_px"]))
@@ -1218,6 +1452,7 @@ def _image_fallback_rects_from_local_binarization(
 
     if not selected_rects:
         summary["image_fallback_skip_reason"] = "degenerate_bbox"
+        _debug_write_image_fallback_artifacts(debug_line_dir, local_crop, binary_foreground, filtered_mask, [], summary)
         return [], summary
 
     summary["image_fallback_local_bbox"] = [
@@ -1226,6 +1461,7 @@ def _image_fallback_rects_from_local_binarization(
         float(union_s_max),
         float(union_n_max),
     ]
+    _debug_write_image_fallback_artifacts(debug_line_dir, local_crop, binary_foreground, filtered_mask, selected_rects, summary)
     return selected_rects, summary
 
 
@@ -1625,9 +1861,11 @@ def _build_local_polygon(
     processing_image: np.ndarray,
     image_width: int,
     image_height: int,
+    debug_line_dir: Path | None = None,
 ) -> tuple[list[list[int]], dict]:
     baseline_length = max(float(topology.baseline_length), 1.0)
     rects = _normalised_rects_for_topology(rects, topology)
+    _debug_write_local_rects(debug_line_dir, "01_assigned_local_rects", rects, {"baseline_length_px": baseline_length})
     anchor_rects, endpoint_anchor_summary = _baseline_endpoint_anchor_rects(topology, rects, config)
     if anchor_rects:
         rects = [*rects, *anchor_rects]
@@ -1648,6 +1886,7 @@ def _build_local_polygon(
             rects,
             config,
         )
+    _debug_write_local_rects(debug_line_dir, "02_after_local_cleanup_rects", rects, cleanup_summary)
     image_fallback_summary = _image_fallback_base_summary(config)
     anchor_window_clip_summary = _anchor_window_clip_base_summary(config)
     used_image_fallback = False
@@ -1664,6 +1903,7 @@ def _build_local_polygon(
             topology,
             config,
             trigger_reason=trigger_reason,
+            debug_line_dir=debug_line_dir,
         )
         if image_fallback_rects:
             rects = image_fallback_rects
@@ -1674,6 +1914,7 @@ def _build_local_polygon(
         clipped_rects, anchor_window_clip_summary = _clip_rects_to_anchor_windows(rects, topology, config)
         if clipped_rects:
             rects = clipped_rects
+    _debug_write_local_rects(debug_line_dir, "04_after_anchor_window_clip_rects", rects, anchor_window_clip_summary)
 
     if not rects:
         half_width = float(config["minimum_half_width_px"])
@@ -1689,6 +1930,7 @@ def _build_local_polygon(
         ]
         fallback_used = True
         used_minimum_band_fallback = True
+    _debug_write_local_rects(debug_line_dir, "04b_minimum_band_or_final_rects", rects, {"minimum_band_fallback_used": used_minimum_band_fallback})
 
     half_width = _estimate_half_width(rects, config)
     final_normal_pad_px, final_station_pad_px = _final_mask_padding_px(config, topology)
@@ -1757,9 +1999,23 @@ def _build_local_polygon(
     )
 
     local_polygon = _contour_to_local_polygon(mask, config)
+    _debug_write_final_local_mask(
+        debug_line_dir,
+        mask,
+        local_polygon,
+        {
+            "local_s_min": float(local_s_min),
+            "local_s_max": float(local_s_max),
+            "local_n_min": float(local_n_min),
+            "local_n_max": float(local_n_max),
+            "origin_s": float(origin_s),
+            "origin_n": float(origin_n),
+        },
+    )
     if local_polygon is None or len(local_polygon) < 3:
         polygon = _fallback_band_polygon(topology, half_width, image_width, image_height)
         fallback_used = True
+        _debug_write_final_page_coords(debug_line_dir, processing_image, topology, polygon, {"fallback_used": True, "fallback_reason": "empty_local_mask"})
         return polygon, {
             **cleanup_summary,
             **endpoint_anchor_summary,
@@ -1802,6 +2058,21 @@ def _build_local_polygon(
         fallback_used = True
         used_minimum_band_fallback = True
 
+    _debug_write_final_page_coords(
+        debug_line_dir,
+        processing_image,
+        topology,
+        page_points,
+        {
+            "fallback_used": fallback_used,
+            "image_fallback_used": used_image_fallback,
+            "minimum_band_fallback_used": used_minimum_band_fallback,
+            "local_s_min": float(local_s_min),
+            "local_s_max": float(local_s_max),
+            "local_n_min": float(local_n_min),
+            "local_n_max": float(local_n_max),
+        },
+    )
     return page_points, {
         **cleanup_summary,
         **endpoint_anchor_summary,
@@ -1952,11 +2223,24 @@ class LocalPolygonsStableUnwrapStrategy:
             config["BINARIZE_THRESHOLD"],
         )
         assignments, assignment_summary = _assign_components_to_lines(boxes, topologies, config)
+        _debug_write_page_assignment_overview(processing_image, boxes, topologies, assignments, config)
 
         polygons_by_line_numeric_id = {}
         line_details: dict[int, dict] = {}
         for line_numeric_id, topology in topologies.items():
             components = assignments.get(line_numeric_id, [])
+            debug_line_dir = _debug_line_dir(config, line_numeric_id, topology)
+            if debug_line_dir is not None:
+                _debug_write_json(
+                    debug_line_dir / "00_line_inputs.json",
+                    {
+                        "line_numeric_id": int(line_numeric_id),
+                        "line_kind": topology.line_kind,
+                        "topology": topology.to_metadata(),
+                        "assigned_component_count": len(components),
+                        "assigned_components": components,
+                    },
+                )
             polygon, polygon_summary = _build_local_polygon(
                 topology,
                 components,
@@ -1964,12 +2248,14 @@ class LocalPolygonsStableUnwrapStrategy:
                 processing_image,
                 image_width,
                 image_height,
+                debug_line_dir=debug_line_dir,
             )
             polygons_by_line_numeric_id[line_numeric_id] = polygon
             line_details[line_numeric_id] = {
                 "line_kind": topology.line_kind,
                 "topology": topology.to_metadata(),
                 "reading_direction_annotation": _reading_annotation_for_line(config, line_numeric_id),
+                "debug_artifact_dir": str(debug_line_dir.resolve()) if debug_line_dir is not None else None,
                 "crop_model": LOCAL_POLYGON_CROP_MODEL,
                 "crop_ablation_model": CROP_ABLATION_MODEL,
                 "component_projection_model": COMPONENT_PROJECTION_MODEL,

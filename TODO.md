@@ -1,29 +1,33 @@
-Remove backward compatibility bloat...understand all bells and whistles. 
-    - extentend baseline correction (missing heatmap)
-    - catching outlies (extra left heatmap) --> does this affect any other bells and whistles?
-    - short line axis alignment
-    - adjacent line removal heuristic
-    - 0.45 binarization threshold
 
-Setup Coords Segmentation Eval Research Harness:
+
+
+
+dynamic KV cache for OCR.
+- put the big maps as the held out evaluation benchmark?
+
+- Remove backward compatibility bloat and redundancies
+- understand short line axis alignment
+- add padding for single characters..
+- long file name bug fix - shorten to 1,2,3
+- Read mode should allow painting and editing the text-line polygons. This will only change the Coords of that specific line, it will then be unwrapped, and text-will be recognized only for that line! this is a precise vertical - meant to handle outliers. what all should change? 
+- allow user to draw polygon over graphics
+- check if telemetry is working correctly (CER edits required should drop with each fine-tune)
+- intra page finetuning overhaul..superfast?
+
+# Export Save Format:
+    - DocOmniBench Format
+    - PAGE-XML Support from 13 to 19, supporting Graphic and Table annotation. 
+    - Diffusion Model Prompt format:  https://gemini.google.com/share/6d96e9a50411
+
+# Setup Coords Segmentation Eval Research Harness:
     - Normal lines
     - conjusted lines in the map
     - single characters, page numbers
     - missing heatmap
     - extra heatmap
 
-
-- long file name bug fix - shorten to 1,2,3
-- enable exporting as Markdown
-
-- check if telemetry change and heatmap assignment caused any unexpected effects.
-- add padding for single characters...
-- in yoooooooooosss line, if heatmap is not there for 40 percent of the line, but the baseline is extending, extendent the polygon!!!why is this not working?
-
-- emergency layout change: override Coords in ReadMode and reread? what all should change? 
-- check if telemetry is working..
-- export in this format too: https://gemini.google.com/share/6d96e9a50411
-- intra page finetuning overhaul..superfast?
+# ANNOTATION RULES:
+- A text block should contain only text that naturally belongs together and can be read in one clear and unambiguous order.
 
 
 

@@ -222,6 +222,10 @@ def generate_xml_and_images_for_page(
         overrides=args_dict or {},
         include_empty_text_lines=True,
     )
+    if strategy_config.get("debug_point_baseline_coords_enabled"):
+        strategy_config["debug_point_baseline_coords_dir"] = str(
+            base_path / "logging" / "layout_coords" / page_id
+        )
     strategy_config["reading_direction_annotations_by_line_id"] = reading_direction_annotations_by_line_id
     LOGGER.info(
         "Applying production text-line segmentation strategy strategy=%s manuscript=%s page_id=%s",

@@ -14286,3 +14286,433 @@
 2026-06-26 12:41:30,406 - INFO - 127.0.0.1 - - [26/Jun/2026 12:41:30] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
 2026-06-26 12:42:31,393 - INFO - 127.0.0.1 - - [26/Jun/2026 12:42:31] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
 2026-06-26 12:42:47,684 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-26 12:42:49,301 - INFO -  * Restarting with stat
+2026-06-26 12:42:59,397 - WARNING -  * Debugger is active!
+2026-06-26 12:42:59,399 - INFO -  * Debugger PIN: 192-125-268
+2026-06-26 12:43:06,092 - INFO - 127.0.0.1 - - [26/Jun/2026 12:43:06] "GET /line-image/circular_layout_1_DP/DP-12309-005/399?v=1782457480070101100 HTTP/1.1" 200 -
+2026-06-26 12:43:06,818 - INFO - 127.0.0.1 - - [26/Jun/2026 12:43:06] "GET /line-image/circular_layout_1_DP/DP-12309-005/427?v=1782457481951500400 HTTP/1.1" 200 -
+2026-06-26 12:43:08,842 - INFO - 127.0.0.1 - - [26/Jun/2026 12:43:08] "GET /line-image/circular_layout_1_DP/DP-12309-005/414?v=1782457481089471600 HTTP/1.1" 200 -
+2026-06-26 12:43:10,182 - INFO - 127.0.0.1 - - [26/Jun/2026 12:43:10] "GET /line-image/circular_layout_1_DP/DP-12309-005/579?v=1782457480204742900 HTTP/1.1" 200 -
+2026-06-27 12:38:55,736 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.44.0.158:5000
+2026-06-27 12:38:55,736 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-27 12:38:55,739 - INFO -  * Restarting with stat
+2026-06-27 12:39:06,326 - WARNING -  * Debugger is active!
+2026-06-27 12:39:06,330 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 12:39:06,402 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:06] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-27 12:39:39,576 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:39] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-06-27 12:39:39,916 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:39] "GET /manuscript/ashirmanimala/pages HTTP/1.1" 200 -
+2026-06-27 12:39:40,177 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:40] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-27 12:39:40,360 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:40] "GET /semi-segment/ashirmanimala/44_0009 HTTP/1.1" 200 -
+2026-06-27 12:39:40,522 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:40] "GET /manuscript/ashirmanimala/active-learning HTTP/1.1" 200 -
+2026-06-27 12:39:46,134 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:46] "GET /semi-segment/ashirmanimala/44_0010 HTTP/1.1" 200 -
+2026-06-27 12:39:50,890 - INFO - 127.0.0.1 - - [27/Jun/2026 12:39:50] "OPTIONS /semi-segment/ashirmanimala/44_0010 HTTP/1.1" 200 -
+2026-06-27 12:39:51,193 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=ashirmanimala page_id=44_0010
+2026-06-27 12:40:02,726 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:02] "POST /semi-segment/ashirmanimala/44_0010 HTTP/1.1" 200 -
+2026-06-27 12:40:02,902 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:02] "GET /semi-segment/ashirmanimala/44_0010 HTTP/1.1" 200 -
+2026-06-27 12:40:03,070 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:03] "GET /manuscript/ashirmanimala/active-learning HTTP/1.1" 200 -
+2026-06-27 12:40:03,252 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:03] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:40:03,585 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\input_manuscripts\ashirmanimala\active_learning\recognition\checkpoints\ocr_44_0009_r0001\training_run\best_accuracy.pth...
+2026-06-27 12:40:04,434 - INFO - Model loaded successfully.
+2026-06-27 12:40:07,112 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0010.xml: 13 lines recognized.
+2026-06-27 12:40:07,304 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:07] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:40:07,343 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:07] "GET /manuscript/ashirmanimala/active-learning HTTP/1.1" 200 -
+2026-06-27 12:40:10,442 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:10] "GET /line-image/ashirmanimala/44_0010/0?v=1782544202043903000 HTTP/1.1" 200 -
+2026-06-27 12:40:19,394 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:19] "GET /line-image/ashirmanimala/44_0010/1?v=1782544202058532900 HTTP/1.1" 200 -
+2026-06-27 12:40:23,811 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:23] "GET /line-image/ashirmanimala/44_0010/4?v=1782544202132022200 HTTP/1.1" 200 -
+2026-06-27 12:40:38,266 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:38] "GET /semi-segment/ashirmanimala/44_0011 HTTP/1.1" 200 -
+2026-06-27 12:40:44,667 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:44] "GET /semi-segment/ashirmanimala/44_0012 HTTP/1.1" 200 -
+2026-06-27 12:40:50,144 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:50] "OPTIONS /semi-segment/ashirmanimala/44_0012 HTTP/1.1" 200 -
+2026-06-27 12:40:50,422 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=ashirmanimala page_id=44_0012
+2026-06-27 12:40:57,385 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:57] "POST /semi-segment/ashirmanimala/44_0012 HTTP/1.1" 200 -
+2026-06-27 12:40:57,533 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:57] "GET /semi-segment/ashirmanimala/44_0012 HTTP/1.1" 200 -
+2026-06-27 12:40:57,732 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:57] "GET /manuscript/ashirmanimala/active-learning HTTP/1.1" 200 -
+2026-06-27 12:40:57,865 - INFO - 127.0.0.1 - - [27/Jun/2026 12:40:57] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:41:00,203 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0012.xml: 13 lines recognized.
+2026-06-27 12:41:00,439 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:00] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:41:00,473 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:00] "GET /manuscript/ashirmanimala/active-learning HTTP/1.1" 200 -
+2026-06-27 12:41:03,216 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:03] "GET /line-image/ashirmanimala/44_0012/5?v=1782544256870082500 HTTP/1.1" 200 -
+2026-06-27 12:41:06,609 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:06] "GET /line-image/ashirmanimala/44_0012/6?v=1782544256906639700 HTTP/1.1" 200 -
+2026-06-27 12:41:22,114 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:22] "GET /semi-segment/ashirmanimala/44_0013 HTTP/1.1" 200 -
+2026-06-27 12:41:25,452 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:25] "GET /semi-segment/ashirmanimala/44_0014 HTTP/1.1" 200 -
+2026-06-27 12:41:33,498 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:33] "OPTIONS /semi-segment/ashirmanimala/44_0014 HTTP/1.1" 200 -
+2026-06-27 12:41:33,788 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=ashirmanimala page_id=44_0014
+2026-06-27 12:41:41,888 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:41] "POST /semi-segment/ashirmanimala/44_0014 HTTP/1.1" 200 -
+2026-06-27 12:41:42,038 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:42] "GET /semi-segment/ashirmanimala/44_0014 HTTP/1.1" 200 -
+2026-06-27 12:41:42,230 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:42] "GET /manuscript/ashirmanimala/active-learning HTTP/1.1" 200 -
+2026-06-27 12:41:42,369 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:42] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:41:45,093 - INFO - Updated input_manuscripts\ashirmanimala\layout_analysis_output\page-xml-format\44_0014.xml: 14 lines recognized.
+2026-06-27 12:41:45,293 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:45] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:41:45,327 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:45] "GET /manuscript/ashirmanimala/active-learning HTTP/1.1" 200 -
+2026-06-27 12:41:46,083 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:46] "GET /line-image/ashirmanimala/44_0014/1?v=1782544301226734900 HTTP/1.1" 200 -
+2026-06-27 12:41:57,162 - INFO - 127.0.0.1 - - [27/Jun/2026 12:41:57] "GET /semi-segment/ashirmanimala/44_0015 HTTP/1.1" 200 -
+2026-06-27 12:42:07,507 - INFO - 127.0.0.1 - - [27/Jun/2026 12:42:07] "GET /manuscript/tarkasangrahah2/pages HTTP/1.1" 200 -
+2026-06-27 12:42:07,838 - INFO - 127.0.0.1 - - [27/Jun/2026 12:42:07] "GET /manuscript/tarkasangrahah2/pages HTTP/1.1" 200 -
+2026-06-27 12:42:08,091 - INFO - 127.0.0.1 - - [27/Jun/2026 12:42:08] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-27 12:42:08,292 - INFO - 127.0.0.1 - - [27/Jun/2026 12:42:08] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_001 HTTP/1.1" 200 -
+2026-06-27 12:42:08,416 - INFO - 127.0.0.1 - - [27/Jun/2026 12:42:08] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:42:11,832 - INFO - 127.0.0.1 - - [27/Jun/2026 12:42:11] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_002 HTTP/1.1" 200 -
+2026-06-27 12:42:15,329 - INFO - 127.0.0.1 - - [27/Jun/2026 12:42:15] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_003 HTTP/1.1" 200 -
+2026-06-27 12:43:05,986 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:05] "OPTIONS /semi-segment/tarkasangrahah2/tarkasangrahah2_page_003 HTTP/1.1" 200 -
+2026-06-27 12:43:06,360 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=tarkasangrahah2 page_id=tarkasangrahah2_page_003
+2026-06-27 12:43:08,458 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:08] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:43:27,401 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:27] "POST /semi-segment/tarkasangrahah2/tarkasangrahah2_page_003 HTTP/1.1" 200 -
+2026-06-27 12:43:27,740 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:27] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:43:27,950 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:27] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_003 HTTP/1.1" 200 -
+2026-06-27 12:43:27,995 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:27] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:43:28,320 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-27 12:43:29,102 - INFO - Model loaded successfully.
+2026-06-27 12:43:34,087 - INFO - Updated input_manuscripts\tarkasangrahah2\layout_analysis_output\page-xml-format\tarkasangrahah2_page_003.xml: 35 lines recognized.
+2026-06-27 12:43:34,279 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:34] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:43:34,318 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:34] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:43:43,171 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:43] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_003/0?v=1782544406401539200 HTTP/1.1" 200 -
+2026-06-27 12:43:57,501 - INFO - 127.0.0.1 - - [27/Jun/2026 12:43:57] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:44:15,053 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:15] "OPTIONS /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:44:15,417 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=tarkasangrahah2 page_id=tarkasangrahah2_page_004
+2026-06-27 12:44:34,350 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:34] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:44:34,968 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:34] "POST /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:44:35,321 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:35] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:44:35,539 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:35] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:44:35,584 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:35] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:44:42,290 - INFO - Updated input_manuscripts\tarkasangrahah2\layout_analysis_output\page-xml-format\tarkasangrahah2_page_004.xml: 47 lines recognized.
+2026-06-27 12:44:42,524 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:42] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:44:42,563 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:42] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:44:53,130 - INFO - 127.0.0.1 - - [27/Jun/2026 12:44:53] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/43?v=1782544474524851700 HTTP/1.1" 200 -
+2026-06-27 12:45:43,260 - INFO - 127.0.0.1 - - [27/Jun/2026 12:45:43] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:46:44,260 - INFO - 127.0.0.1 - - [27/Jun/2026 12:46:44] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:47:42,474 - INFO - 127.0.0.1 - - [27/Jun/2026 12:47:42] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/0?v=1782544473790339300 HTTP/1.1" 200 -
+2026-06-27 12:47:44,296 - INFO - 127.0.0.1 - - [27/Jun/2026 12:47:44] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:48:45,256 - INFO - 127.0.0.1 - - [27/Jun/2026 12:48:45] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:49:11,866 - INFO - 127.0.0.1 - - [27/Jun/2026 12:49:11] "OPTIONS /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:49:12,307 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=tarkasangrahah2 page_id=tarkasangrahah2_page_004
+2026-06-27 12:49:31,987 - INFO - 127.0.0.1 - - [27/Jun/2026 12:49:31] "POST /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:49:32,210 - INFO - 127.0.0.1 - - [27/Jun/2026 12:49:32] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:49:32,341 - INFO - 127.0.0.1 - - [27/Jun/2026 12:49:32] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:49:32,570 - INFO - 127.0.0.1 - - [27/Jun/2026 12:49:32] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:49:39,197 - INFO - Updated input_manuscripts\tarkasangrahah2\layout_analysis_output\page-xml-format\tarkasangrahah2_page_004.xml: 47 lines recognized.
+2026-06-27 12:49:39,396 - INFO - 127.0.0.1 - - [27/Jun/2026 12:49:39] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:49:39,432 - INFO - 127.0.0.1 - - [27/Jun/2026 12:49:39] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:50:08,873 - INFO - 127.0.0.1 - - [27/Jun/2026 12:50:08] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/42?v=1782544771536159800 HTTP/1.1" 200 -
+2026-06-27 12:50:39,776 - INFO - 127.0.0.1 - - [27/Jun/2026 12:50:39] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:51:39,935 - INFO - 127.0.0.1 - - [27/Jun/2026 12:51:39] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:52:41,241 - INFO - 127.0.0.1 - - [27/Jun/2026 12:52:41] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:53:42,236 - INFO - 127.0.0.1 - - [27/Jun/2026 12:53:42] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:54:43,259 - INFO - 127.0.0.1 - - [27/Jun/2026 12:54:43] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:55:44,254 - INFO - 127.0.0.1 - - [27/Jun/2026 12:55:44] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:56:45,260 - INFO - 127.0.0.1 - - [27/Jun/2026 12:56:45] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:57:46,251 - INFO - 127.0.0.1 - - [27/Jun/2026 12:57:46] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:57:53,901 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-27 12:57:55,788 - INFO -  * Restarting with stat
+2026-06-27 12:58:04,608 - WARNING -  * Debugger is active!
+2026-06-27 12:58:04,611 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 12:58:04,703 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:04] "[36mGET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/42?v=1782544771536159800 HTTP/1.1[0m" 304 -
+2026-06-27 12:58:14,725 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:14] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-27 12:58:21,274 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:21] "GET /manuscript/tarkasangrahah2/pages HTTP/1.1" 200 -
+2026-06-27 12:58:21,606 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:21] "GET /manuscript/tarkasangrahah2/pages HTTP/1.1" 200 -
+2026-06-27 12:58:21,863 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:21] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-27 12:58:22,295 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:22] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:58:22,366 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:22] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:58:39,826 - INFO - 127.0.0.1 - - [27/Jun/2026 12:58:39] "OPTIONS /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:58:40,222 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=tarkasangrahah2 page_id=tarkasangrahah2_page_004
+2026-06-27 12:59:00,448 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:00] "POST /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:59:00,699 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:00] "GET /semi-segment/tarkasangrahah2/tarkasangrahah2_page_004 HTTP/1.1" 200 -
+2026-06-27 12:59:00,810 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:00] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:59:01,063 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:01] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:59:01,400 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-27 12:59:03,680 - INFO - Model loaded successfully.
+2026-06-27 12:59:10,507 - INFO - Updated input_manuscripts\tarkasangrahah2\layout_analysis_output\page-xml-format\tarkasangrahah2_page_004.xml: 47 lines recognized.
+2026-06-27 12:59:10,712 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:10] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 12:59:10,746 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:10] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 12:59:12,849 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:12] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/46?v=1782545339270565200 HTTP/1.1" 200 -
+2026-06-27 12:59:18,835 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:18] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/42?v=1782545339994702500 HTTP/1.1" 200 -
+2026-06-27 12:59:26,697 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:26] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/35?v=1782545339870896600 HTTP/1.1" 200 -
+2026-06-27 12:59:26,962 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:26] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/36?v=1782545339891353300 HTTP/1.1" 200 -
+2026-06-27 12:59:30,935 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:30] "GET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/40?v=1782545339970807500 HTTP/1.1" 200 -
+2026-06-27 12:59:33,135 - INFO - 127.0.0.1 - - [27/Jun/2026 12:59:33] "[36mGET /line-image/tarkasangrahah2/tarkasangrahah2_page_004/42?v=1782545339994702500 HTTP/1.1[0m" 304 -
+2026-06-27 12:59:47,164 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-27 12:59:48,791 - INFO -  * Restarting with stat
+2026-06-27 12:59:56,057 - WARNING -  * Debugger is active!
+2026-06-27 12:59:56,057 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 13:00:11,261 - INFO - 127.0.0.1 - - [27/Jun/2026 13:00:11] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:01:12,246 - INFO - 127.0.0.1 - - [27/Jun/2026 13:01:12] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:02:13,257 - INFO - 127.0.0.1 - - [27/Jun/2026 13:02:13] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:03:14,251 - INFO - 127.0.0.1 - - [27/Jun/2026 13:03:14] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:04:15,271 - INFO - 127.0.0.1 - - [27/Jun/2026 13:04:15] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:05:16,304 - INFO - 127.0.0.1 - - [27/Jun/2026 13:05:16] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:06:17,249 - INFO - 127.0.0.1 - - [27/Jun/2026 13:06:17] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:07:18,273 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:18] "GET /manuscript/tarkasangrahah2/active-learning HTTP/1.1" 200 -
+2026-06-27 13:07:28,790 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:28] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-27 13:07:29,115 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:29] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-27 13:07:29,381 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:29] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-27 13:07:34,226 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:34] "GET /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-27 13:07:34,958 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:34] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 13:07:35,389 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-27 13:07:38,660 - INFO -  * Restarting with stat
+2026-06-27 13:07:46,967 - WARNING -  * Debugger is active!
+2026-06-27 13:07:46,970 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 13:07:47,034 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:47] "GET /line-image/circular_layout_1_DP/DP-12309-005/0?v=1782457456561434400 HTTP/1.1" 200 -
+2026-06-27 13:07:58,988 - INFO - 127.0.0.1 - - [27/Jun/2026 13:07:58] "GET /line-image/circular_layout_1_DP/DP-12309-005/474?v=1782457481805553700 HTTP/1.1" 200 -
+2026-06-27 13:08:01,397 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:01] "GET /line-image/circular_layout_1_DP/DP-12309-005/429?v=1782457482048940800 HTTP/1.1" 200 -
+2026-06-27 13:08:03,749 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:03] "GET /line-image/circular_layout_1_DP/DP-12309-005/473?v=1782457482141117400 HTTP/1.1" 200 -
+2026-06-27 13:08:07,358 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:07] "GET /line-image/circular_layout_1_DP/DP-12309-005/541?v=1782457480435375400 HTTP/1.1" 200 -
+2026-06-27 13:08:09,214 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:09] "GET /line-image/circular_layout_1_DP/DP-12309-005/540?v=1782457480661501300 HTTP/1.1" 200 -
+2026-06-27 13:08:12,013 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:12] "GET /line-image/circular_layout_1_DP/DP-12309-005/539?v=1782457480848932100 HTTP/1.1" 200 -
+2026-06-27 13:08:13,713 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:13] "GET /line-image/circular_layout_1_DP/DP-12309-005/393?v=1782457479612730600 HTTP/1.1" 200 -
+2026-06-27 13:08:16,323 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:16] "GET /line-image/circular_layout_1_DP/DP-12309-005/400?v=1782457479750213000 HTTP/1.1" 200 -
+2026-06-27 13:08:18,464 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:18] "GET /line-image/circular_layout_1_DP/DP-12309-005/406?v=1782457480114031500 HTTP/1.1" 200 -
+2026-06-27 13:08:21,752 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:21] "GET /line-image/circular_layout_1_DP/DP-12309-005/391?v=1782457479477623400 HTTP/1.1" 200 -
+2026-06-27 13:08:23,945 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:23] "GET /line-image/circular_layout_1_DP/DP-12309-005/397?v=1782457479658936600 HTTP/1.1" 200 -
+2026-06-27 13:08:28,657 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:28] "GET /line-image/circular_layout_1_DP/DP-12309-005/402?v=1782457479886869600 HTTP/1.1" 200 -
+2026-06-27 13:08:35,313 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:35] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 13:08:36,672 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:36] "[36mGET /line-image/circular_layout_1_DP/DP-12309-005/393?v=1782457479612730600 HTTP/1.1[0m" 304 -
+2026-06-27 13:08:38,907 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:38] "[36mGET /line-image/circular_layout_1_DP/DP-12309-005/400?v=1782457479750213000 HTTP/1.1[0m" 304 -
+2026-06-27 13:08:40,197 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-27 13:08:43,524 - INFO -  * Restarting with stat
+2026-06-27 13:08:53,392 - WARNING -  * Debugger is active!
+2026-06-27 13:08:53,397 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 13:08:53,487 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:53] "[36mGET /line-image/circular_layout_1_DP/DP-12309-005/406?v=1782457480114031500 HTTP/1.1[0m" 304 -
+2026-06-27 13:08:53,489 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:53] "[36mGET /line-image/circular_layout_1_DP/DP-12309-005/541?v=1782457480435375400 HTTP/1.1[0m" 304 -
+2026-06-27 13:08:53,493 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:53] "[36mGET /line-image/circular_layout_1_DP/DP-12309-005/540?v=1782457480661501300 HTTP/1.1[0m" 304 -
+2026-06-27 13:08:53,495 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:53] "[36mGET /line-image/circular_layout_1_DP/DP-12309-005/539?v=1782457480848932100 HTTP/1.1[0m" 304 -
+2026-06-27 13:08:55,531 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:55] "GET /line-image/circular_layout_1_DP/DP-12309-005/35?v=1782457458392560700 HTTP/1.1" 200 -
+2026-06-27 13:08:57,319 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:57] "GET /line-image/circular_layout_1_DP/DP-12309-005/40?v=1782457458728428700 HTTP/1.1" 200 -
+2026-06-27 13:08:59,201 - INFO - 127.0.0.1 - - [27/Jun/2026 13:08:59] "GET /line-image/circular_layout_1_DP/DP-12309-005/32?v=1782457458251517300 HTTP/1.1" 200 -
+2026-06-27 13:09:02,826 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:02] "GET /line-image/circular_layout_1_DP/DP-12309-005/538?v=1782457457640660600 HTTP/1.1" 200 -
+2026-06-27 13:09:04,639 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:04] "GET /line-image/circular_layout_1_DP/DP-12309-005/26?v=1782457457929867300 HTTP/1.1" 200 -
+2026-06-27 13:09:08,075 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:08] "GET /line-image/circular_layout_1_DP/DP-12309-005/39?v=1782457458631126800 HTTP/1.1" 200 -
+2026-06-27 13:09:09,752 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:09] "GET /line-image/circular_layout_1_DP/DP-12309-005/34?v=1782457458347723500 HTTP/1.1" 200 -
+2026-06-27 13:09:10,822 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:10] "GET /line-image/circular_layout_1_DP/DP-12309-005/29?v=1782457458115095200 HTTP/1.1" 200 -
+2026-06-27 13:09:11,731 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-27 13:09:14,879 - INFO -  * Restarting with stat
+2026-06-27 13:09:23,500 - WARNING -  * Debugger is active!
+2026-06-27 13:09:23,503 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 13:09:23,592 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:23] "GET /line-image/circular_layout_1_DP/DP-12309-005/55?v=1782457459802779200 HTTP/1.1" 200 -
+2026-06-27 13:09:23,594 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:23] "GET /line-image/circular_layout_1_DP/DP-12309-005/50?v=1782457459605691400 HTTP/1.1" 200 -
+2026-06-27 13:09:23,597 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:23] "GET /line-image/circular_layout_1_DP/DP-12309-005/48?v=1782457459316137900 HTTP/1.1" 200 -
+2026-06-27 13:09:24,624 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:24] "GET /line-image/circular_layout_1_DP/DP-12309-005/425?v=1782457481756969200 HTTP/1.1" 200 -
+2026-06-27 13:09:28,808 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:28] "GET /line-image/circular_layout_1_DP/DP-12309-005/428?v=1782457482000320900 HTTP/1.1" 200 -
+2026-06-27 13:09:31,100 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:31] "GET /line-image/circular_layout_1_DP/DP-12309-005/530?v=1782457482191151300 HTTP/1.1" 200 -
+2026-06-27 13:09:35,343 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:35] "GET /line-image/circular_layout_1_DP/DP-12309-005/445?v=1782457483183836200 HTTP/1.1" 200 -
+2026-06-27 13:09:35,674 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:35] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 13:09:37,808 - INFO - 127.0.0.1 - - [27/Jun/2026 13:09:37] "GET /line-image/circular_layout_1_DP/DP-12309-005/441?v=1782457483002062100 HTTP/1.1" 200 -
+2026-06-27 13:09:57,254 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-27 13:09:58,551 - INFO -  * Restarting with stat
+2026-06-27 13:10:05,684 - WARNING -  * Debugger is active!
+2026-06-27 13:10:05,686 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 13:10:36,249 - INFO - 127.0.0.1 - - [27/Jun/2026 13:10:36] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 13:10:56,687 - INFO -  * Detected change in 'C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-27 13:10:58,193 - INFO -  * Restarting with stat
+2026-06-27 13:26:41,900 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.44.0.158:5000
+2026-06-27 13:26:41,900 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-27 13:26:41,902 - INFO -  * Restarting with stat
+2026-06-27 13:26:50,088 - WARNING -  * Debugger is active!
+2026-06-27 13:26:50,091 - INFO -  * Debugger PIN: 192-125-268
+2026-06-27 13:26:50,149 - INFO - 127.0.0.1 - - [27/Jun/2026 13:26:50] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-27 13:28:12,662 - INFO - 127.0.0.1 - - [27/Jun/2026 13:28:12] "POST /upload HTTP/1.1" 200 -
+2026-06-27 13:28:13,001 - INFO - 127.0.0.1 - - [27/Jun/2026 13:28:13] "GET /manuscript/single_point_testing/pages HTTP/1.1" 200 -
+2026-06-27 13:28:13,260 - INFO - 127.0.0.1 - - [27/Jun/2026 13:28:13] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-27 13:28:13,835 - INFO - 127.0.0.1 - - [27/Jun/2026 13:28:13] "GET /semi-segment/single_point_testing/15 HTTP/1.1" 200 -
+2026-06-27 13:28:13,924 - INFO - 127.0.0.1 - - [27/Jun/2026 13:28:13] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:29:14,295 - INFO - 127.0.0.1 - - [27/Jun/2026 13:29:14] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:29:52,482 - INFO - 127.0.0.1 - - [27/Jun/2026 13:29:52] "OPTIONS /semi-segment/single_point_testing/15 HTTP/1.1" 200 -
+2026-06-27 13:29:52,831 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=15
+2026-06-27 13:30:02,569 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:02] "POST /semi-segment/single_point_testing/15 HTTP/1.1" 200 -
+2026-06-27 13:30:02,909 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:02] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:30:02,979 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:02] "GET /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:30:06,148 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:06] "GET /semi-segment/single_point_testing/15 HTTP/1.1" 200 -
+2026-06-27 13:30:14,343 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:14] "OPTIONS /semi-segment/single_point_testing/15 HTTP/1.1" 200 -
+2026-06-27 13:30:14,785 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=15
+2026-06-27 13:30:24,205 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:24] "POST /semi-segment/single_point_testing/15 HTTP/1.1" 200 -
+2026-06-27 13:30:24,533 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:24] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:30:24,621 - INFO - 127.0.0.1 - - [27/Jun/2026 13:30:24] "GET /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:31:24,865 - INFO - 127.0.0.1 - - [27/Jun/2026 13:31:24] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:31:40,556 - INFO - 127.0.0.1 - - [27/Jun/2026 13:31:40] "OPTIONS /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:31:40,905 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=28
+2026-06-27 13:31:51,756 - INFO - 127.0.0.1 - - [27/Jun/2026 13:31:51] "POST /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:31:51,896 - INFO - 127.0.0.1 - - [27/Jun/2026 13:31:51] "GET /semi-segment/single_point_testing/50 HTTP/1.1" 200 -
+2026-06-27 13:31:52,105 - INFO - 127.0.0.1 - - [27/Jun/2026 13:31:52] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:32:52,439 - INFO - 127.0.0.1 - - [27/Jun/2026 13:32:52] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:33:12,203 - INFO - 127.0.0.1 - - [27/Jun/2026 13:33:12] "OPTIONS /semi-segment/single_point_testing/50 HTTP/1.1" 200 -
+2026-06-27 13:33:12,541 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=50
+2026-06-27 13:33:18,050 - INFO - 127.0.0.1 - - [27/Jun/2026 13:33:18] "POST /semi-segment/single_point_testing/50 HTTP/1.1" 200 -
+2026-06-27 13:33:18,381 - INFO - 127.0.0.1 - - [27/Jun/2026 13:33:18] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:33:18,420 - INFO - 127.0.0.1 - - [27/Jun/2026 13:33:18] "GET /semi-segment/single_point_testing/70 HTTP/1.1" 200 -
+2026-06-27 13:34:18,714 - INFO - 127.0.0.1 - - [27/Jun/2026 13:34:18] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:35:18,740 - INFO - 127.0.0.1 - - [27/Jun/2026 13:35:18] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:35:40,829 - INFO - 127.0.0.1 - - [27/Jun/2026 13:35:40] "OPTIONS /semi-segment/single_point_testing/70 HTTP/1.1" 200 -
+2026-06-27 13:35:41,130 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=70
+2026-06-27 13:35:48,726 - INFO - 127.0.0.1 - - [27/Jun/2026 13:35:48] "POST /semi-segment/single_point_testing/70 HTTP/1.1" 200 -
+2026-06-27 13:35:49,094 - INFO - 127.0.0.1 - - [27/Jun/2026 13:35:49] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:35:49,757 - INFO - 127.0.0.1 - - [27/Jun/2026 13:35:49] "GET /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:36:49,433 - INFO - 127.0.0.1 - - [27/Jun/2026 13:36:49] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:37:05,356 - INFO - 127.0.0.1 - - [27/Jun/2026 13:37:05] "OPTIONS /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:37:05,745 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=test
+2026-06-27 13:37:49,828 - INFO - 127.0.0.1 - - [27/Jun/2026 13:37:49] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:37:50,456 - INFO - 127.0.0.1 - - [27/Jun/2026 13:37:50] "POST /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:37:50,812 - INFO - 127.0.0.1 - - [27/Jun/2026 13:37:50] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:37:51,122 - INFO - 127.0.0.1 - - [27/Jun/2026 13:37:51] "GET /semi-segment/single_point_testing/test2 HTTP/1.1" 200 -
+2026-06-27 13:38:13,492 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:13] "OPTIONS /semi-segment/single_point_testing/test2 HTTP/1.1" 200 -
+2026-06-27 13:38:13,844 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=test2
+2026-06-27 13:38:20,896 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:20] "POST /semi-segment/single_point_testing/test2 HTTP/1.1" 200 -
+2026-06-27 13:38:21,221 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:21] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:38:21,395 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:21] "GET /semi-segment/single_point_testing/test2 HTTP/1.1" 200 -
+2026-06-27 13:38:21,476 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:21] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:38:21,745 - INFO - Loading model from C:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-27 13:38:22,439 - INFO - Model loaded successfully.
+2026-06-27 13:38:25,083 - INFO - Updated input_manuscripts\single_point_testing\layout_analysis_output\page-xml-format\test2.xml: 17 lines recognized.
+2026-06-27 13:38:25,278 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:25] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:38:25,312 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:25] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:38:27,062 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:27] "GET /line-image/single_point_testing/test2/6?v=1782547700245492900 HTTP/1.1" 200 -
+2026-06-27 13:38:30,094 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:30] "GET /line-image/single_point_testing/test2/8?v=1782547700290541800 HTTP/1.1" 200 -
+2026-06-27 13:38:38,015 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:38] "GET /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:38:40,631 - INFO - 127.0.0.1 - - [27/Jun/2026 13:38:40] "OPTIONS /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:38:41,162 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=test
+2026-06-27 13:39:24,722 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:24] "POST /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:39:25,068 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:25] "GET /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:39:25,090 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:25] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:39:25,460 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:25] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:39:34,333 - INFO - Updated input_manuscripts\single_point_testing\layout_analysis_output\page-xml-format\test.xml: 59 lines recognized.
+2026-06-27 13:39:34,656 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:34] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:39:34,708 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:34] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:39:36,192 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:36] "GET /line-image/single_point_testing/test/12?v=1782547763097430700 HTTP/1.1" 200 -
+2026-06-27 13:39:48,111 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:48] "GET /line-image/single_point_testing/test/41?v=1782547763856322000 HTTP/1.1" 200 -
+2026-06-27 13:39:50,008 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:50] "GET /line-image/single_point_testing/test/42?v=1782547763938935500 HTTP/1.1" 200 -
+2026-06-27 13:39:50,987 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:50] "GET /line-image/single_point_testing/test/46?v=1782547764056301400 HTTP/1.1" 200 -
+2026-06-27 13:39:51,828 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:51] "GET /line-image/single_point_testing/test/48?v=1782547764074117600 HTTP/1.1" 200 -
+2026-06-27 13:39:52,317 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:52] "GET /line-image/single_point_testing/test/51?v=1782547764126805200 HTTP/1.1" 200 -
+2026-06-27 13:39:53,195 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:53] "GET /line-image/single_point_testing/test/54?v=1782547764231896600 HTTP/1.1" 200 -
+2026-06-27 13:39:56,460 - INFO - 127.0.0.1 - - [27/Jun/2026 13:39:56] "[36mGET /line-image/single_point_testing/test/51?v=1782547764126805200 HTTP/1.1[0m" 304 -
+2026-06-27 13:40:07,528 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:07] "GET /line-image/single_point_testing/test/3?v=1782547762901722200 HTTP/1.1" 200 -
+2026-06-27 13:40:15,553 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:15] "GET /semi-segment/single_point_testing/70 HTTP/1.1" 200 -
+2026-06-27 13:40:18,586 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:18] "OPTIONS /semi-segment/single_point_testing/70 HTTP/1.1" 200 -
+2026-06-27 13:40:19,009 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=70
+2026-06-27 13:40:26,763 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:26] "POST /semi-segment/single_point_testing/70 HTTP/1.1" 200 -
+2026-06-27 13:40:27,037 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:27] "GET /semi-segment/single_point_testing/70 HTTP/1.1" 200 -
+2026-06-27 13:40:27,114 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:27] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:40:27,369 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:27] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:40:34,624 - INFO - Updated input_manuscripts\single_point_testing\layout_analysis_output\page-xml-format\70.xml: 43 lines recognized.
+2026-06-27 13:40:34,816 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:34] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:40:34,859 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:34] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:40:36,596 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:36] "GET /line-image/single_point_testing/70/15?v=1782547825262290700 HTTP/1.1" 200 -
+2026-06-27 13:40:39,094 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:39] "GET /line-image/single_point_testing/70/41?v=1782547825856798100 HTTP/1.1" 200 -
+2026-06-27 13:40:42,062 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:42] "GET /line-image/single_point_testing/70/29?v=1782547825973098200 HTTP/1.1" 200 -
+2026-06-27 13:40:44,049 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:44] "GET /line-image/single_point_testing/70/42?v=1782547826169364600 HTTP/1.1" 200 -
+2026-06-27 13:40:46,467 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:46] "[36mGET /line-image/single_point_testing/70/41?v=1782547825856798100 HTTP/1.1[0m" 304 -
+2026-06-27 13:40:49,509 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:49] "GET /line-image/single_point_testing/70/21?v=1782547825458576700 HTTP/1.1" 200 -
+2026-06-27 13:40:52,293 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:52] "GET /line-image/single_point_testing/70/40?v=1782547825747482600 HTTP/1.1" 200 -
+2026-06-27 13:40:54,232 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:54] "[36mGET /line-image/single_point_testing/70/15?v=1782547825262290700 HTTP/1.1[0m" 304 -
+2026-06-27 13:40:56,075 - INFO - 127.0.0.1 - - [27/Jun/2026 13:40:56] "GET /line-image/single_point_testing/70/25?v=1782547825623436400 HTTP/1.1" 200 -
+2026-06-27 13:41:02,326 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:02] "GET /semi-segment/single_point_testing/50 HTTP/1.1" 200 -
+2026-06-27 13:41:05,411 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:05] "OPTIONS /semi-segment/single_point_testing/50 HTTP/1.1" 200 -
+2026-06-27 13:41:05,829 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=50
+2026-06-27 13:41:10,792 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:10] "POST /semi-segment/single_point_testing/50 HTTP/1.1" 200 -
+2026-06-27 13:41:10,995 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:10] "GET /semi-segment/single_point_testing/50 HTTP/1.1" 200 -
+2026-06-27 13:41:11,126 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:11] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:41:11,342 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:11] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:41:18,598 - INFO - Updated input_manuscripts\single_point_testing\layout_analysis_output\page-xml-format\50.xml: 45 lines recognized.
+2026-06-27 13:41:18,689 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:18] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:41:18,725 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:18] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:41:20,591 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:20] "GET /line-image/single_point_testing/50/19?v=1782547869677233400 HTTP/1.1" 200 -
+2026-06-27 13:41:22,368 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:22] "GET /line-image/single_point_testing/50/17?v=1782547869612371200 HTTP/1.1" 200 -
+2026-06-27 13:41:24,365 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:24] "GET /line-image/single_point_testing/50/8?v=1782547869318826900 HTTP/1.1" 200 -
+2026-06-27 13:41:26,493 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:26] "GET /line-image/single_point_testing/50/7?v=1782547869249093500 HTTP/1.1" 200 -
+2026-06-27 13:41:29,123 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:29] "GET /line-image/single_point_testing/50/10?v=1782547869383397900 HTTP/1.1" 200 -
+2026-06-27 13:41:31,840 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:31] "GET /line-image/single_point_testing/50/28?v=1782547869965652200 HTTP/1.1" 200 -
+2026-06-27 13:41:34,422 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:34] "GET /line-image/single_point_testing/50/25?v=1782547869870475300 HTTP/1.1" 200 -
+2026-06-27 13:41:35,245 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:35] "GET /line-image/single_point_testing/50/27?v=1782547869934599400 HTTP/1.1" 200 -
+2026-06-27 13:41:36,820 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:36] "GET /line-image/single_point_testing/50/35?v=1782547870284633000 HTTP/1.1" 200 -
+2026-06-27 13:41:44,445 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:44] "GET /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:41:46,865 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:46] "OPTIONS /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:41:47,298 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=28
+2026-06-27 13:41:58,107 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:58] "POST /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:41:58,352 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:58] "GET /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:41:58,453 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:58] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:41:58,697 - INFO - 127.0.0.1 - - [27/Jun/2026 13:41:58] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:42:03,489 - INFO - Updated input_manuscripts\single_point_testing\layout_analysis_output\page-xml-format\28.xml: 25 lines recognized.
+2026-06-27 13:42:03,750 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:03] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-27 13:42:03,796 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:03] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:42:13,158 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:13] "GET /line-image/single_point_testing/28/11?v=1782547917390979600 HTTP/1.1" 200 -
+2026-06-27 13:42:15,784 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:15] "GET /line-image/single_point_testing/28/12?v=1782547917331129700 HTTP/1.1" 200 -
+2026-06-27 13:42:16,715 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:16] "GET /line-image/single_point_testing/28/13?v=1782547917453596200 HTTP/1.1" 200 -
+2026-06-27 13:42:18,560 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:18] "GET /line-image/single_point_testing/28/14?v=1782547917001103500 HTTP/1.1" 200 -
+2026-06-27 13:42:19,104 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:19] "GET /line-image/single_point_testing/28/23?v=1782547917057670900 HTTP/1.1" 200 -
+2026-06-27 13:42:19,893 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:19] "GET /line-image/single_point_testing/28/15?v=1782547917110908500 HTTP/1.1" 200 -
+2026-06-27 13:42:20,143 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:20] "GET /line-image/single_point_testing/28/24?v=1782547917217005700 HTTP/1.1" 200 -
+2026-06-27 13:42:20,556 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:20] "GET /line-image/single_point_testing/28/22?v=1782547917158878500 HTTP/1.1" 200 -
+2026-06-27 13:42:21,186 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:21] "GET /line-image/single_point_testing/28/21?v=1782547917499337500 HTTP/1.1" 200 -
+2026-06-27 13:42:21,420 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:21] "GET /line-image/single_point_testing/28/20?v=1782547917590418200 HTTP/1.1" 200 -
+2026-06-27 13:42:21,649 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:21] "GET /line-image/single_point_testing/28/17?v=1782547917544152100 HTTP/1.1" 200 -
+2026-06-27 13:42:22,086 - INFO - 127.0.0.1 - - [27/Jun/2026 13:42:22] "GET /line-image/single_point_testing/28/18?v=1782547917634260400 HTTP/1.1" 200 -
+2026-06-27 13:48:07,201 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:07] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-27 13:48:17,178 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:17] "GET /manuscript/single_point_testing/pages HTTP/1.1" 200 -
+2026-06-27 13:48:17,510 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:17] "GET /manuscript/single_point_testing/pages HTTP/1.1" 200 -
+2026-06-27 13:48:17,765 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:17] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-27 13:48:18,034 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:18] "GET /semi-segment/single_point_testing/28 HTTP/1.1" 200 -
+2026-06-27 13:48:18,132 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:18] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:48:40,881 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:40] "GET /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:48:50,813 - INFO - 127.0.0.1 - - [27/Jun/2026 13:48:50] "OPTIONS /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:48:51,293 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=test
+2026-06-27 13:49:18,192 - INFO - 127.0.0.1 - - [27/Jun/2026 13:49:18] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:49:34,851 - INFO - 127.0.0.1 - - [27/Jun/2026 13:49:34] "POST /semi-segment/single_point_testing/test HTTP/1.1" 200 -
+2026-06-27 13:49:35,225 - INFO - 127.0.0.1 - - [27/Jun/2026 13:49:35] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:49:35,333 - INFO - 127.0.0.1 - - [27/Jun/2026 13:49:35] "GET /semi-segment/single_point_testing/test2 HTTP/1.1" 200 -
+2026-06-27 13:49:41,255 - INFO - 127.0.0.1 - - [27/Jun/2026 13:49:41] "OPTIONS /semi-segment/single_point_testing/test2 HTTP/1.1" 200 -
+2026-06-27 13:49:41,649 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=single_point_testing page_id=test2
+2026-06-27 13:49:48,123 - INFO - 127.0.0.1 - - [27/Jun/2026 13:49:48] "POST /semi-segment/single_point_testing/test2 HTTP/1.1" 200 -
+2026-06-27 13:49:48,162 - INFO - 127.0.0.1 - - [27/Jun/2026 13:49:48] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:50:49,251 - INFO - 127.0.0.1 - - [27/Jun/2026 13:50:49] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:51:50,245 - INFO - 127.0.0.1 - - [27/Jun/2026 13:51:50] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:52:51,241 - INFO - 127.0.0.1 - - [27/Jun/2026 13:52:51] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:53:52,237 - INFO - 127.0.0.1 - - [27/Jun/2026 13:53:52] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:54:53,254 - INFO - 127.0.0.1 - - [27/Jun/2026 13:54:53] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:55:54,251 - INFO - 127.0.0.1 - - [27/Jun/2026 13:55:54] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:56:55,241 - INFO - 127.0.0.1 - - [27/Jun/2026 13:56:55] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:57:56,258 - INFO - 127.0.0.1 - - [27/Jun/2026 13:57:56] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:58:57,247 - INFO - 127.0.0.1 - - [27/Jun/2026 13:58:57] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 13:59:58,258 - INFO - 127.0.0.1 - - [27/Jun/2026 13:59:58] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 14:00:59,246 - INFO - 127.0.0.1 - - [27/Jun/2026 14:00:59] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 14:02:00,267 - INFO - 127.0.0.1 - - [27/Jun/2026 14:02:00] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 14:03:01,238 - INFO - 127.0.0.1 - - [27/Jun/2026 14:03:01] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 14:04:02,259 - INFO - 127.0.0.1 - - [27/Jun/2026 14:04:02] "GET /manuscript/single_point_testing/active-learning HTTP/1.1" 200 -
+2026-06-27 14:05:03,509 - INFO - 127.0.0.1 - - [27/Jun/2026 14:05:03] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-27 14:05:03,765 - INFO - 127.0.0.1 - - [27/Jun/2026 14:05:03] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-27 14:05:03,840 - INFO - 127.0.0.1 - - [27/Jun/2026 14:05:03] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-27 14:05:05,562 - INFO - 127.0.0.1 - - [27/Jun/2026 14:05:05] "GET /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-27 14:05:06,194 - INFO - 127.0.0.1 - - [27/Jun/2026 14:05:06] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:06:06,567 - INFO - 127.0.0.1 - - [27/Jun/2026 14:06:06] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:07:06,609 - INFO - 127.0.0.1 - - [27/Jun/2026 14:07:06] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:08:06,965 - INFO - 127.0.0.1 - - [27/Jun/2026 14:08:06] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:08:33,998 - INFO - 127.0.0.1 - - [27/Jun/2026 14:08:33] "OPTIONS /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-27 14:08:35,461 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circular_layout_1_DP page_id=DP-12309-005
+2026-06-27 14:09:08,383 - INFO - 127.0.0.1 - - [27/Jun/2026 14:09:08] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:10:09,256 - INFO - 127.0.0.1 - - [27/Jun/2026 14:10:09] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:10:16,438 - INFO - 127.0.0.1 - - [27/Jun/2026 14:10:16] "POST /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-27 14:10:16,869 - INFO - 127.0.0.1 - - [27/Jun/2026 14:10:16] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:11:16,940 - INFO - 127.0.0.1 - - [27/Jun/2026 14:11:16] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:12:18,253 - INFO - 127.0.0.1 - - [27/Jun/2026 14:12:18] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:13:19,244 - INFO - 127.0.0.1 - - [27/Jun/2026 14:13:19] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:14:20,248 - INFO - 127.0.0.1 - - [27/Jun/2026 14:14:20] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:15:21,268 - INFO - 127.0.0.1 - - [27/Jun/2026 14:15:21] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:16:22,276 - INFO - 127.0.0.1 - - [27/Jun/2026 14:16:22] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:17:23,266 - INFO - 127.0.0.1 - - [27/Jun/2026 14:17:23] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:18:24,247 - INFO - 127.0.0.1 - - [27/Jun/2026 14:18:24] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:19:25,257 - INFO - 127.0.0.1 - - [27/Jun/2026 14:19:25] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:20:26,271 - INFO - 127.0.0.1 - - [27/Jun/2026 14:20:26] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:21:27,242 - INFO - 127.0.0.1 - - [27/Jun/2026 14:21:27] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:22:28,254 - INFO - 127.0.0.1 - - [27/Jun/2026 14:22:28] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:23:29,261 - INFO - 127.0.0.1 - - [27/Jun/2026 14:23:29] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:24:30,256 - INFO - 127.0.0.1 - - [27/Jun/2026 14:24:30] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:25:31,253 - INFO - 127.0.0.1 - - [27/Jun/2026 14:25:31] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:26:32,256 - INFO - 127.0.0.1 - - [27/Jun/2026 14:26:32] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:27:33,246 - INFO - 127.0.0.1 - - [27/Jun/2026 14:27:33] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:28:34,293 - INFO - 127.0.0.1 - - [27/Jun/2026 14:28:34] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:29:35,258 - INFO - 127.0.0.1 - - [27/Jun/2026 14:29:35] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:30:36,259 - INFO - 127.0.0.1 - - [27/Jun/2026 14:30:36] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:31:37,247 - INFO - 127.0.0.1 - - [27/Jun/2026 14:31:37] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:32:38,261 - INFO - 127.0.0.1 - - [27/Jun/2026 14:32:38] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-27 14:33:39,249 - INFO - 127.0.0.1 - - [27/Jun/2026 14:33:39] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
