@@ -15923,3 +15923,100 @@
 2026-06-28 12:33:49,635 - INFO - 127.0.0.1 - - [28/Jun/2026 12:33:49] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
 2026-06-28 12:34:50,632 - INFO - 127.0.0.1 - - [28/Jun/2026 12:34:50] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
 2026-06-28 12:35:51,625 - INFO - 127.0.0.1 - - [28/Jun/2026 12:35:51] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:36:52,644 - INFO - 127.0.0.1 - - [28/Jun/2026 12:36:52] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:37:53,628 - INFO - 127.0.0.1 - - [28/Jun/2026 12:37:53] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:38:54,629 - INFO - 127.0.0.1 - - [28/Jun/2026 12:38:54] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:39:34,452 - INFO - 127.0.0.1 - - [28/Jun/2026 12:39:34] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-28 12:40:53,833 - INFO - 127.0.0.1 - - [28/Jun/2026 12:40:53] "POST /upload HTTP/1.1" 200 -
+2026-06-28 12:40:53,851 - INFO - 127.0.0.1 - - [28/Jun/2026 12:40:53] "GET /manuscript/timing_test_sample/pages HTTP/1.1" 200 -
+2026-06-28 12:40:54,172 - INFO - 127.0.0.1 - - [28/Jun/2026 12:40:54] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-28 12:40:54,915 - INFO - 127.0.0.1 - - [28/Jun/2026 12:40:54] "GET /semi-segment/timing_test_sample/15 HTTP/1.1" 200 -
+2026-06-28 12:40:54,953 - INFO - 127.0.0.1 - - [28/Jun/2026 12:40:54] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:41:55,296 - INFO - 127.0.0.1 - - [28/Jun/2026 12:41:55] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:42:55,324 - INFO - 127.0.0.1 - - [28/Jun/2026 12:42:55] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:43:11,661 - INFO - 127.0.0.1 - - [28/Jun/2026 12:43:11] "OPTIONS /semi-segment/timing_test_sample/15 HTTP/1.1" 200 -
+2026-06-28 12:43:11,956 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=15
+2026-06-28 12:43:16,161 - INFO - 127.0.0.1 - - [28/Jun/2026 12:43:16] "POST /semi-segment/timing_test_sample/15 HTTP/1.1" 200 -
+2026-06-28 12:43:16,503 - INFO - 127.0.0.1 - - [28/Jun/2026 12:43:16] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:43:16,623 - INFO - 127.0.0.1 - - [28/Jun/2026 12:43:16] "GET /semi-segment/timing_test_sample/28 HTTP/1.1" 200 -
+2026-06-28 12:44:16,845 - INFO - 127.0.0.1 - - [28/Jun/2026 12:44:16] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:44:24,139 - INFO - 127.0.0.1 - - [28/Jun/2026 12:44:24] "OPTIONS /semi-segment/timing_test_sample/28 HTTP/1.1" 200 -
+2026-06-28 12:44:24,488 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=28
+2026-06-28 12:44:31,933 - INFO - 127.0.0.1 - - [28/Jun/2026 12:44:31] "POST /semi-segment/timing_test_sample/28 HTTP/1.1" 200 -
+2026-06-28 12:44:32,074 - INFO - 127.0.0.1 - - [28/Jun/2026 12:44:32] "GET /semi-segment/timing_test_sample/50 HTTP/1.1" 200 -
+2026-06-28 12:44:32,273 - INFO - 127.0.0.1 - - [28/Jun/2026 12:44:32] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:45:32,607 - INFO - 127.0.0.1 - - [28/Jun/2026 12:45:32] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:45:40,398 - INFO - 127.0.0.1 - - [28/Jun/2026 12:45:40] "OPTIONS /semi-segment/timing_test_sample/50 HTTP/1.1" 200 -
+2026-06-28 12:45:40,744 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=50
+2026-06-28 12:45:41,747 - INFO - 127.0.0.1 - - [28/Jun/2026 12:45:41] "POST /semi-segment/timing_test_sample/50 HTTP/1.1" 200 -
+2026-06-28 12:45:42,074 - INFO - 127.0.0.1 - - [28/Jun/2026 12:45:42] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:45:42,114 - INFO - 127.0.0.1 - - [28/Jun/2026 12:45:42] "GET /semi-segment/timing_test_sample/70 HTTP/1.1" 200 -
+2026-06-28 12:46:42,408 - INFO - 127.0.0.1 - - [28/Jun/2026 12:46:42] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:47:35,379 - INFO - 127.0.0.1 - - [28/Jun/2026 12:47:35] "OPTIONS /semi-segment/timing_test_sample/70 HTTP/1.1" 200 -
+2026-06-28 12:47:35,730 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=70
+2026-06-28 12:47:40,007 - INFO - 127.0.0.1 - - [28/Jun/2026 12:47:40] "POST /semi-segment/timing_test_sample/70 HTTP/1.1" 200 -
+2026-06-28 12:47:40,351 - INFO - 127.0.0.1 - - [28/Jun/2026 12:47:40] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:47:40,843 - INFO - 127.0.0.1 - - [28/Jun/2026 12:47:40] "GET /semi-segment/timing_test_sample/test HTTP/1.1" 200 -
+2026-06-28 12:48:40,691 - INFO - 127.0.0.1 - - [28/Jun/2026 12:48:40] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:48:54,773 - INFO - 127.0.0.1 - - [28/Jun/2026 12:48:54] "OPTIONS /semi-segment/timing_test_sample/test HTTP/1.1" 200 -
+2026-06-28 12:48:55,168 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=test
+2026-06-28 12:49:33,357 - INFO - 127.0.0.1 - - [28/Jun/2026 12:49:33] "POST /semi-segment/timing_test_sample/test HTTP/1.1" 200 -
+2026-06-28 12:49:33,718 - INFO - 127.0.0.1 - - [28/Jun/2026 12:49:33] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:49:33,733 - INFO - 127.0.0.1 - - [28/Jun/2026 12:49:33] "GET /semi-segment/timing_test_sample/test2 HTTP/1.1" 200 -
+2026-06-28 12:50:04,133 - INFO - 127.0.0.1 - - [28/Jun/2026 12:50:04] "OPTIONS /semi-segment/timing_test_sample/test2 HTTP/1.1" 200 -
+2026-06-28 12:50:04,431 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=test2
+2026-06-28 12:50:10,153 - INFO - 127.0.0.1 - - [28/Jun/2026 12:50:10] "POST /semi-segment/timing_test_sample/test2 HTTP/1.1" 200 -
+2026-06-28 12:50:21,221 - INFO - 127.0.0.1 - - [28/Jun/2026 12:50:21] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:51:21,633 - INFO - 127.0.0.1 - - [28/Jun/2026 12:51:21] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:52:00,005 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:00] "GET /semi-segment/timing_test_sample/test HTTP/1.1" 200 -
+2026-06-28 12:52:02,464 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:02] "OPTIONS /semi-segment/timing_test_sample/test HTTP/1.1" 200 -
+2026-06-28 12:52:02,949 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=test
+2026-06-28 12:52:22,325 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:22] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:52:34,467 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:34] "POST /semi-segment/timing_test_sample/test HTTP/1.1" 200 -
+2026-06-28 12:52:34,836 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:34] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:52:35,013 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:35] "GET /semi-segment/timing_test_sample/test HTTP/1.1" 200 -
+2026-06-28 12:52:35,134 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:35] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-28 12:52:35,451 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-28 12:52:36,051 - INFO - Model loaded successfully.
+2026-06-28 12:52:43,566 - INFO - Updated input_manuscripts\timing_test_sample\layout_analysis_output\page-xml-format\test.xml: 56 lines recognized.
+2026-06-28 12:52:43,820 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:43] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-28 12:52:43,876 - INFO - 127.0.0.1 - - [28/Jun/2026 12:52:43] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:53:44,636 - INFO - 127.0.0.1 - - [28/Jun/2026 12:53:44] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:54:45,643 - INFO - 127.0.0.1 - - [28/Jun/2026 12:54:45] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:54:50,658 - INFO - 127.0.0.1 - - [28/Jun/2026 12:54:50] "GET /line-image/timing_test_sample/test/13?v=1782631353884806500 HTTP/1.1" 200 -
+2026-06-28 12:54:54,958 - INFO - 127.0.0.1 - - [28/Jun/2026 12:54:54] "GET /line-image/timing_test_sample/test/4?v=1782631353849944300 HTTP/1.1" 200 -
+2026-06-28 12:55:06,064 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:06] "GET /line-image/timing_test_sample/test/42?v=1782631354034046800 HTTP/1.1" 200 -
+2026-06-28 12:55:06,380 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:06] "GET /line-image/timing_test_sample/test/43?v=1782631354049076100 HTTP/1.1" 200 -
+2026-06-28 12:55:46,642 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:46] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:55:52,448 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:52] "GET /semi-segment/timing_test_sample/70 HTTP/1.1" 200 -
+2026-06-28 12:55:54,887 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:54] "OPTIONS /semi-segment/timing_test_sample/70 HTTP/1.1" 200 -
+2026-06-28 12:55:55,248 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=timing_test_sample page_id=70
+2026-06-28 12:55:59,443 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:59] "POST /semi-segment/timing_test_sample/70 HTTP/1.1" 200 -
+2026-06-28 12:55:59,649 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:59] "GET /semi-segment/timing_test_sample/70 HTTP/1.1" 200 -
+2026-06-28 12:55:59,813 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:59] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:55:59,989 - INFO - 127.0.0.1 - - [28/Jun/2026 12:55:59] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-28 12:56:07,114 - INFO - Updated input_manuscripts\timing_test_sample\layout_analysis_output\page-xml-format\70.xml: 42 lines recognized.
+2026-06-28 12:56:07,327 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:07] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-28 12:56:07,362 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:07] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:56:31,384 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:31] "GET /line-image/timing_test_sample/70/10?v=1782631558988643800 HTTP/1.1" 200 -
+2026-06-28 12:56:31,639 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:31] "GET /line-image/timing_test_sample/70/12?v=1782631558992671200 HTTP/1.1" 200 -
+2026-06-28 12:56:32,158 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:32] "GET /line-image/timing_test_sample/70/11?v=1782631558990674000 HTTP/1.1" 200 -
+2026-06-28 12:56:32,973 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:32] "GET /line-image/timing_test_sample/70/13?v=1782631558994676000 HTTP/1.1" 200 -
+2026-06-28 12:56:33,626 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:33] "GET /line-image/timing_test_sample/70/14?v=1782631559040437700 HTTP/1.1" 200 -
+2026-06-28 12:56:36,110 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:36] "GET /line-image/timing_test_sample/70/15?v=1782631558996178900 HTTP/1.1" 200 -
+2026-06-28 12:56:36,722 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:36] "GET /line-image/timing_test_sample/70/17?v=1782631559010206900 HTTP/1.1" 200 -
+2026-06-28 12:56:39,734 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:39] "GET /line-image/timing_test_sample/70/40?v=1782631558999183800 HTTP/1.1" 200 -
+2026-06-28 12:56:40,202 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:40] "GET /line-image/timing_test_sample/70/20?v=1782631559005690800 HTTP/1.1" 200 -
+2026-06-28 12:56:45,372 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:45] "GET /line-image/timing_test_sample/70/21?v=1782631559006700200 HTTP/1.1" 200 -
+2026-06-28 12:56:46,066 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:46] "GET /line-image/timing_test_sample/70/39?v=1782631559016716700 HTTP/1.1" 200 -
+2026-06-28 12:56:47,585 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:47] "GET /line-image/timing_test_sample/70/25?v=1782631559049197400 HTTP/1.1" 200 -
+2026-06-28 12:56:47,842 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:47] "GET /line-image/timing_test_sample/70/41?v=1782631559023743700 HTTP/1.1" 200 -
+2026-06-28 12:56:48,766 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:48] "GET /line-image/timing_test_sample/70/26?v=1782631559021744400 HTTP/1.1" 200 -
+2026-06-28 12:56:49,638 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:49] "GET /line-image/timing_test_sample/70/27?v=1782631559044684300 HTTP/1.1" 200 -
+2026-06-28 12:56:49,894 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:49] "GET /line-image/timing_test_sample/70/28?v=1782631559051196900 HTTP/1.1" 200 -
+2026-06-28 12:56:52,378 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:52] "GET /line-image/timing_test_sample/70/29?v=1782631559053196400 HTTP/1.1" 200 -
+2026-06-28 12:56:53,814 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:53] "GET /line-image/timing_test_sample/70/32?v=1782631559058712500 HTTP/1.1" 200 -
+2026-06-28 12:56:54,653 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:54] "GET /line-image/timing_test_sample/70/34?v=1782631559063712800 HTTP/1.1" 200 -
+2026-06-28 12:56:57,154 - INFO - 127.0.0.1 - - [28/Jun/2026 12:56:57] "GET /line-image/timing_test_sample/70/36?v=1782631559068840400 HTTP/1.1" 200 -
+2026-06-28 12:57:07,703 - INFO - 127.0.0.1 - - [28/Jun/2026 12:57:07] "GET /manuscript/timing_test_sample/active-learning HTTP/1.1" 200 -
+2026-06-28 12:57:08,856 - INFO - 127.0.0.1 - - [28/Jun/2026 12:57:08] "[36mGET /line-image/timing_test_sample/70/25?v=1782631559049197400 HTTP/1.1[0m" 304 -
