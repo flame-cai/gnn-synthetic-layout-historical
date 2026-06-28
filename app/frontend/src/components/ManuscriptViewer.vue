@@ -2396,18 +2396,12 @@ const focusNextLine = (reverse = false) => {
 
 // --- EXISTING GRAPH LOGIC ---
 
-const getAverageNodeSize = () => {
-    if (!workingGraph.nodes || workingGraph.nodes.length === 0) return pageMedianNeighborDistanceRaw.value;
-    const sum = workingGraph.nodes.reduce((acc, n) => acc + (n.s || pageMedianNeighborDistanceRaw.value), 0);
-    return sum / workingGraph.nodes.length;
-}
-
 const addNode = (clientX, clientY) => {
     if (!svgOverlayRef.value) return;
     const rect = svgOverlayRef.value.getBoundingClientRect();
     const x = (clientX - rect.left) / scaleFactor;
     const y = (clientY - rect.top) / scaleFactor;
-    workingGraph.nodes.push({ x: x, y: y, s: getAverageNodeSize() });
+    workingGraph.nodes.push({ x: x, y: y, s: 0 });
     modifications.value.push({ type: 'node_add' });
 }
 
@@ -3790,7 +3784,7 @@ const saveAndGoNext = async () => {
 
 const runHeuristic = () => {
   if(!points.value.length) return;
-  const rawPoints = points.value.map(p => [p.coordinates[0], p.coordinates[1], 10]); 
+  const rawPoints = points.value.map(p => [p.coordinates[0], p.coordinates[1], 0]); 
   const heuristicGraph = generateLayoutGraph(rawPoints);
   workingGraph.edges = heuristicGraph.edges.map(e => ({ source: e.source, target: e.target, label: e.label, modified: true }));
   modifications.value.push({ type: 'reset_heuristic' }); 

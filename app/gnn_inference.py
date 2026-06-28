@@ -115,11 +115,11 @@ def generate_xml_and_images_for_page(
     if nodes is not None:
         scale_factor = 0.5 
         for n in nodes:
-            img_x, img_y, img_s = float(n['x']), float(n['y']), float(n['s'])
-            hm_x, hm_y, hm_s = img_x * scale_factor, img_y * scale_factor, img_s * scale_factor
+            img_x, img_y = float(n['x']), float(n['y'])
+            hm_x, hm_y, hm_s = img_x * scale_factor, img_y * scale_factor, 0.0
             points_unnormalized.append([hm_x, hm_y, hm_s])
-            norm_x, norm_y, norm_s = hm_x / max_dim_heatmap, hm_y / max_dim_heatmap, hm_s / max_dim_heatmap
-            points_normalized.append([norm_x, norm_y, norm_s])
+            norm_x, norm_y = hm_x / max_dim_heatmap, hm_y / max_dim_heatmap
+            points_normalized.append([norm_x, norm_y, 0.0])
             
         points_unnormalized = np.array(points_unnormalized)
         points_normalized = np.array(points_normalized)
@@ -595,7 +595,7 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
         {
             "x": float(p[0]) * max_dimension, 
             "y": float(p[1]) * max_dimension, 
-            "s": float(p[2])
+            "s": 0.0
         } 
         for p in points_normalized
     ]
@@ -886,7 +886,7 @@ def create_page_xml(
             path_indices = trace_component_with_backtracking(component, adj)
             if len(path_indices) >= 1:
                 ordered_points = [points_unnormalized[idx] for idx in path_indices]
-                baseline_vis = [[int(p[0]*2), int((p[1]+(p[2]/2))*2)] for p in ordered_points]
+                baseline_vis = [[int(p[0] * 2), int(p[1] * 2)] for p in ordered_points]
                 reading_annotation = (reading_direction_annotations_by_line_id or {}).get(int(line_label))
                 topology = normalize_baseline_topology(
                     baseline_vis,
