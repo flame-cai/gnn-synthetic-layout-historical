@@ -247,7 +247,7 @@ Each phase should preserve the invariant that missing metadata behaves like the 
 
 Work from the repository root:
 
-    cd c:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical
+    cd C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical
 
 Add the shared crop module:
 

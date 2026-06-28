@@ -15757,3 +15757,12 @@
 2026-06-27 16:34:51,313 - INFO - 127.0.0.1 - - [27/Jun/2026 16:34:51] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
 2026-06-27 16:35:52,318 - INFO - 127.0.0.1 - - [27/Jun/2026 16:35:52] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
 2026-06-27 16:36:53,309 - INFO - 127.0.0.1 - - [27/Jun/2026 16:36:53] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 11:04:43,668 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.172.80:5000
+2026-06-28 11:04:43,669 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-28 11:04:43,671 - INFO -  * Restarting with stat
+2026-06-28 11:04:52,002 - WARNING -  * Debugger is active!
+2026-06-28 11:04:52,005 - INFO -  * Debugger PIN: 192-125-268
+2026-06-28 11:04:55,459 - INFO - 127.0.0.1 - - [28/Jun/2026 11:04:55] "GET /existing-manuscripts HTTP/1.1" 200 -

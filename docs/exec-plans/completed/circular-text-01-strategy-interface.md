@@ -151,7 +151,7 @@ Do not write artifacts outside the repository. Intermediate XML, manifests, and 
 
 Work from the repository root:
 
-    cd c:\Users\intro\OneDrive\Documents\MEGA\CAI-FLAME\gnn-synthetic-layout-historical
+    cd C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical
 
 Create `app/recognition/line_segmentation/` and add the files described above. Keep the code importable both from the app root and from the unittest harness, because existing tests add `app/` and the repository root to `sys.path`.
 

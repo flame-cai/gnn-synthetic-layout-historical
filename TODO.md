@@ -7,6 +7,16 @@ dynamic KV cache for OCR.
 
 
 
+
+
+
+
+
+
+
+
+
+
 can we speed up step 3? and also control for this misleading s/2 offest (because we don't offset heatmap component center?):
 3) For each heatmap component, find the nearest baseline by distance from the component center to the baseline polyline. For point baselines, this is just Euclidean distance to the single point. See [local_polygons_stable_unwrap.py (line 2466)](C:/Users/intro/OneDrive/Documents/MEGA/CAI-FLAME/gnn-synthetic-layout-historical/app/recognition/line_segmentation/local_polygons_stable_unwrap.py:2466).
 this offset also might cause confusion for text-lines with different orientation. I think for this assignment, we should not be using offsetting baselines. I still can't believe that we are assigning heatmap components based on offseted baselines. 
