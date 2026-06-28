@@ -1888,30 +1888,116 @@ def _squared_distances_to_topology(
     return best
 
 
-def _candidate_lines_from_baseline_overlap(
-    box: dict,
+def _expanded_bounds_for_points(points: list[list[float]], expansion_px: float) -> tuple[float, float, float, float] | None:
+    if not points:
+        return None
+    points_array = np.asarray(points, dtype=float)
+    if points_array.size == 0:
+        return None
+    expansion = max(0.0, float(expansion_px))
+    return (
+        float(np.min(points_array[:, 0]) - expansion),
+        float(np.min(points_array[:, 1]) - expansion),
+        float(np.max(points_array[:, 0]) + expansion),
+        float(np.max(points_array[:, 1]) + expansion),
+    )
+
+
+def _component_box_bounds(box: dict) -> tuple[float, float, float, float]:
+    x_val = float(box["x"])
+    y_val = float(box["y"])
+    return x_val, y_val, x_val + float(box["width"]), y_val + float(box["height"])
+
+
+def _bounds_contain_point(bounds: tuple[float, float, float, float], point: tuple[float, float]) -> bool:
+    min_x, min_y, max_x, max_y = bounds
+    return min_x <= float(point[0]) <= max_x and min_y <= float(point[1]) <= max_y
+
+
+def _bounds_intersect(a_bounds: tuple[float, float, float, float], b_bounds: tuple[float, float, float, float]) -> bool:
+    a_min_x, a_min_y, a_max_x, a_max_y = a_bounds
+    b_min_x, b_min_y, b_max_x, b_max_y = b_bounds
+    return a_min_x <= b_max_x and a_max_x >= b_min_x and a_min_y <= b_max_y and a_max_y >= b_min_y
+
+
+def _baseline_candidate_index(
     topologies: dict[int, BaselineTopology],
     config: dict,
+) -> dict[int, dict]:
+    assignment_distance_px = float(config["component_max_distance_px"])
+    claim_distance_px = float(config["ambiguous_component_baseline_claim_distance_px"])
+    candidates = {}
+    for line_numeric_id, topology in topologies.items():
+        if not topology.normalized_points:
+            continue
+        assignment_bounds = _expanded_bounds_for_points(topology.normalized_points, assignment_distance_px)
+        ambiguous_claim_bounds = _expanded_bounds_for_points(topology.normalized_points, claim_distance_px)
+        if assignment_bounds is None or ambiguous_claim_bounds is None:
+            continue
+        candidates[int(line_numeric_id)] = {
+            "assignment_bounds": assignment_bounds,
+            "ambiguous_claim_bounds": ambiguous_claim_bounds,
+            "topology": topology,
+        }
+    return candidates
+
+
+def _assignment_candidate_line_ids(
+    box: dict,
+    baseline_candidates: dict[int, dict],
 ) -> list[int]:
+    center = box["center"]
+    return [
+        line_numeric_id
+        for line_numeric_id, candidate in baseline_candidates.items()
+        if _bounds_contain_point(candidate["assignment_bounds"], center)
+    ]
+
+
+def _ambiguous_overlap_candidate_line_ids(
+    box: dict,
+    baseline_candidates: dict[int, dict],
+) -> list[int]:
+    box_bounds = _component_box_bounds(box)
+    return [
+        line_numeric_id
+        for line_numeric_id, candidate in baseline_candidates.items()
+        if _bounds_intersect(candidate["ambiguous_claim_bounds"], box_bounds)
+    ]
+
+
+def _split_box_by_nearest_baseline(
+    box: dict,
+    baseline_candidates: dict[int, dict],
+    config: dict,
+) -> tuple[list[int], list[tuple[int, dict]]]:
     mask = box.get("contour_mask")
-    if mask is None or mask.size == 0 or len(topologies) < 2:
-        return []
+    if mask is None or mask.size == 0 or len(baseline_candidates) < 2:
+        return [], []
 
     y_coords, x_coords = np.where(mask > 0)
     min_pixels = max(1, int(config["ambiguous_component_split_min_pixels"]))
     if len(x_coords) < min_pixels:
-        return []
+        return [], []
 
     x0 = int(round(float(box["x"])))
     y0 = int(round(float(box["y"])))
     absolute_x = x_coords.astype(float) + float(x0)
     absolute_y = y_coords.astype(float) + float(y0)
-    valid_line_ids = [int(line_id) for line_id, topology in topologies.items() if topology.normalized_points]
+
+    valid_line_ids = _ambiguous_overlap_candidate_line_ids(box, baseline_candidates)
     if len(valid_line_ids) < 2:
-        return []
+        return [], []
 
     distance_stack = np.vstack(
-        [_squared_distances_to_topology(absolute_x, absolute_y, topologies[line_id]) for line_id in valid_line_ids]
+        [
+            _squared_distances_to_topology(
+                absolute_x,
+                absolute_y,
+                baseline_candidates[line_id]["topology"],
+            )
+            for line_id in valid_line_ids
+        ]
     )
     nearest_indices = np.argmin(distance_stack, axis=0)
     nearest_distances = np.min(distance_stack, axis=0)
@@ -1923,7 +2009,39 @@ def _candidate_lines_from_baseline_overlap(
         selected = (nearest_indices == candidate_index) & (nearest_distances <= max_claim_distance_squared)
         if int(np.count_nonzero(selected)) >= min_pixels:
             candidate_line_ids.append(int(line_numeric_id))
-    return candidate_line_ids
+    if len(candidate_line_ids) < 2:
+        return candidate_line_ids, []
+
+    candidate_indices = [valid_line_ids.index(line_numeric_id) for line_numeric_id in candidate_line_ids]
+    candidate_distance_stack = distance_stack[candidate_indices, :]
+    winners = np.argmin(candidate_distance_stack, axis=0)
+    split_boxes: list[tuple[int, dict]] = []
+    for candidate_index, line_numeric_id in enumerate(candidate_line_ids):
+        selected = winners == candidate_index
+        selected_count = int(np.count_nonzero(selected))
+        if selected_count < min_pixels:
+            continue
+
+        submask = np.zeros(mask.shape, dtype=np.uint8)
+        submask[y_coords[selected], x_coords[selected]] = 255
+        contours, _ = cv2.findContours(submask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for contour in contours:
+            local_x, local_y, width, height = cv2.boundingRect(contour)
+            contour_roi = submask[local_y : local_y + height, local_x : local_x + width]
+            pixel_count = int(np.count_nonzero(contour_roi))
+            if pixel_count < min_pixels:
+                continue
+            split_box = _box_from_split_contour(
+                box,
+                submask,
+                contour,
+                line_numeric_id,
+                candidate_line_ids,
+                pixel_count,
+            )
+            if split_box is not None:
+                split_boxes.append((line_numeric_id, split_box))
+    return candidate_line_ids, split_boxes
 
 
 def _box_from_split_contour(
@@ -1971,91 +2089,8 @@ def _box_from_split_contour(
     }
 
 
-def _split_box_by_nearest_baseline(
-    box: dict,
-    candidate_line_ids: list[int],
-    topologies: dict[int, BaselineTopology],
-    config: dict,
-) -> list[tuple[int, dict]]:
-    mask = box.get("contour_mask")
-    if mask is None or mask.size == 0:
-        return []
-
-    y_coords, x_coords = np.where(mask > 0)
-    min_pixels = max(1, int(config["ambiguous_component_split_min_pixels"]))
-    if len(x_coords) < min_pixels:
-        return []
-
-    x0 = int(round(float(box["x"])))
-    y0 = int(round(float(box["y"])))
-    absolute_x = x_coords.astype(float) + float(x0)
-    absolute_y = y_coords.astype(float) + float(y0)
-
-    valid_line_ids = [int(line_id) for line_id in candidate_line_ids if int(line_id) in topologies]
-    if len(valid_line_ids) < 2:
-        return []
-
-    distance_stack = np.vstack(
-        [_squared_distances_to_topology(absolute_x, absolute_y, topologies[line_id]) for line_id in valid_line_ids]
-    )
-    winners = np.argmin(distance_stack, axis=0)
-    split_boxes: list[tuple[int, dict]] = []
-    for candidate_index, line_numeric_id in enumerate(valid_line_ids):
-        selected = winners == candidate_index
-        selected_count = int(np.count_nonzero(selected))
-        if selected_count < min_pixels:
-            continue
-
-        submask = np.zeros(mask.shape, dtype=np.uint8)
-        submask[y_coords[selected], x_coords[selected]] = 255
-        contours, _ = cv2.findContours(submask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for contour in contours:
-            local_x, local_y, width, height = cv2.boundingRect(contour)
-            contour_roi = submask[local_y : local_y + height, local_x : local_x + width]
-            pixel_count = int(np.count_nonzero(contour_roi))
-            if pixel_count < min_pixels:
-                continue
-            split_box = _box_from_split_contour(
-                box,
-                submask,
-                contour,
-                line_numeric_id,
-                valid_line_ids,
-                pixel_count,
-            )
-            if split_box is not None:
-                split_boxes.append((line_numeric_id, split_box))
-    return split_boxes
-
-
-def _mean_baseline_node_spacing(topology: BaselineTopology) -> float | None:
-    points = topology.normalized_points
-    if len(points) < 2:
-        return None
-    segment_lengths = []
-    for start, end in zip(points, points[1:]):
-        segment_length = distance(start, end)
-        if segment_length > 1e-6:
-            segment_lengths.append(segment_length)
-    closing_distance = distance(points[-1], points[0]) if topology.is_closed else 0.0
-    if closing_distance > max(1e-6, topology.closed_path_tolerance):
-        segment_lengths.append(closing_distance)
-    if not segment_lengths:
-        return None
-    return float(np.mean(np.asarray(segment_lengths, dtype=float)))
-
-
 def _component_assignment_distance_threshold(box: dict, topology: BaselineTopology, config: dict) -> float:
-    # size_scaled_threshold = float(box["max_side"]) * float(config["component_distance_scale"])
-    threshold = float(config["component_max_distance_px"])
-    mean_spacing = _mean_baseline_node_spacing(topology)
-    if mean_spacing is None:
-        return threshold
-    spacing_scaled_threshold = max(
-        float(config["component_max_distance_px"]),
-        mean_spacing * float(config["component_distance_scale"]),
-    )
-    return min(threshold, spacing_scaled_threshold)
+    return float(config["component_max_distance_px"])
 
 def _baseline_endpoint_anchor_rects(
     topology: BaselineTopology,
@@ -2440,12 +2475,16 @@ def _assign_components_to_lines(
     ambiguous_component_count = 0
     split_component_count = 0
     ambiguous_component_unsplit_count = 0
+    baseline_candidates = _baseline_candidate_index(topologies, config)
     for box in boxes:
         if config["ambiguous_component_split_enabled"]:
-            candidate_line_ids = _candidate_lines_from_baseline_overlap(box, topologies, config)
+            ambiguous_candidate_line_ids = _ambiguous_overlap_candidate_line_ids(box, baseline_candidates)
+            if len(ambiguous_candidate_line_ids) > 1:
+                candidate_line_ids, split_boxes = _split_box_by_nearest_baseline(box, baseline_candidates, config)
+            else:
+                candidate_line_ids, split_boxes = [], []
             if len(candidate_line_ids) > 1:
                 ambiguous_component_count += 1
-                split_boxes = _split_box_by_nearest_baseline(box, candidate_line_ids, topologies, config)
                 if split_boxes:
                     split_component_count += len(split_boxes)
                     source_best_distance = float("inf")
@@ -2473,7 +2512,15 @@ def _assign_components_to_lines(
 
         best_line_id = None
         best_distance = float("inf")
-        for line_numeric_id, topology in topologies.items():
+        assignment_candidate_line_ids = _assignment_candidate_line_ids(box, baseline_candidates)
+        if not assignment_candidate_line_ids:
+            if baseline_candidates:
+                rejected_counts["too_far_from_baseline"] += 1
+            else:
+                rejected_counts["no_baseline"] += 1
+            continue
+        for line_numeric_id in assignment_candidate_line_ids:
+            topology = topologies[line_numeric_id]
             nearest = nearest_point_on_polyline(box["center"], topology.normalized_points)
             if nearest.distance < best_distance:
                 best_distance = float(nearest.distance)
