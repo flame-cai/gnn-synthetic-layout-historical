@@ -36,6 +36,14 @@ class UnwrappedLineCrop:
     metadata: dict
 
 
+def _page_median_color(processing_image: np.ndarray, config: dict) -> int:
+    if config.get("page_median_color") is not None:
+        return int(config["page_median_color"])
+    page_median_color = int(np.median(processing_image))
+    config["page_median_color"] = page_median_color
+    return page_median_color
+
+
 def _normalise_config(config: dict | None) -> dict:
     merged = dict(DEFAULT_UNWRAP_CONFIG)
     merged.update(dict(config or {}))
@@ -63,6 +71,8 @@ def _normalise_config(config: dict | None) -> dict:
         merged["reading_direction"] = list(merged["reading_direction"])
     if "reading_cut_point" in merged and merged["reading_cut_point"] is not None:
         merged["reading_cut_point"] = list(merged["reading_cut_point"])
+    if merged.get("page_median_color") is not None:
+        merged["page_median_color"] = int(merged["page_median_color"])
     return merged
 
 
@@ -492,7 +502,7 @@ def unwrap_horizontal_straight_fit_line_crop_for_ocr(
     unwrap_config: dict | None = None,
 ) -> UnwrappedLineCrop:
     config = _normalise_config(unwrap_config)
-    page_median_color = int(np.median(processing_image))
+    page_median_color = _page_median_color(processing_image, config)
     topology = normalize_baseline_topology(
         baseline_points,
         mirror_match_tolerance=config["mirror_match_tolerance_px"],
@@ -626,7 +636,7 @@ def unwrap_stable_line_crop_for_ocr(
     unwrap_config: dict | None = None,
 ) -> UnwrappedLineCrop:
     config = _normalise_config(unwrap_config)
-    page_median_color = int(np.median(processing_image))
+    page_median_color = _page_median_color(processing_image, config)
     topology = normalize_baseline_topology(
         baseline_points,
         mirror_match_tolerance=config["mirror_match_tolerance_px"],
@@ -777,7 +787,7 @@ def unwrap_line_crop_for_ocr(
     unwrap_config: dict | None = None,
 ) -> UnwrappedLineCrop:
     config = _normalise_config(unwrap_config)
-    page_median_color = int(np.median(processing_image))
+    page_median_color = _page_median_color(processing_image, config)
     topology = normalize_baseline_topology(
         baseline_points,
         mirror_match_tolerance=config["mirror_match_tolerance_px"],

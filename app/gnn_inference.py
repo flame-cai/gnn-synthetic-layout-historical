@@ -36,6 +36,7 @@ from recognition.pagexml_line_dataset import (
     load_pagexml_lines,
     sort_lines_for_page_level_cer,
 )
+from profiling import create_layout_save_timing_recorder
 
 SRC_ROOT = Path(__file__).resolve().parents[1] / "src"
 if str(SRC_ROOT) not in sys.path:
@@ -95,171 +96,203 @@ def generate_xml_and_images_for_page(
     Handles coordinate scaling: Frontend (Image Space) -> Storage (Heatmap Space).
     """
     base_path = Path(manuscript_path)
+    timing = create_layout_save_timing_recorder(
+        base_path,
+        page_id=page_id,
+        config=args_dict or {},
+        metadata={"pipeline_stage": "layout_save_to_page_xml"},
+    )
     raw_input_dir = base_path / "gnn-dataset"
     output_dir = base_path / "layout_analysis_output"
     gnn_format_dir = output_dir / "gnn-format"
-    gnn_format_dir.mkdir(parents=True, exist_ok=True)
+    with timing.chunk("initialize_output_paths"):
+        gnn_format_dir.mkdir(parents=True, exist_ok=True)
     
     # ... [Loading Heatmap Dimensions and Scaling Logic remains exactly the same] ...
     # ... (lines 66-136 in original code) ...
-    raw_dims_path = raw_input_dir / f"{page_id}_dims.txt"
-    if not raw_dims_path.exists():
-        raw_dims_path = gnn_format_dir / f"{page_id}_dims.txt"
-    dims = np.loadtxt(raw_dims_path) 
-    heatmap_w, heatmap_h = dims[0], dims[1]
-    max_dim_heatmap = max(heatmap_w, heatmap_h)
+    with timing.chunk("load_heatmap_dimensions"):
+        raw_dims_path = raw_input_dir / f"{page_id}_dims.txt"
+        if not raw_dims_path.exists():
+            raw_dims_path = gnn_format_dir / f"{page_id}_dims.txt"
+        dims = np.loadtxt(raw_dims_path) 
+        heatmap_w, heatmap_h = dims[0], dims[1]
+        max_dim_heatmap = max(heatmap_w, heatmap_h)
 
     points_unnormalized = []
     points_normalized = []
 
-    if nodes is not None:
-        scale_factor = 0.5 
-        for n in nodes:
-            img_x, img_y = float(n['x']), float(n['y'])
-            hm_x, hm_y, hm_s = img_x * scale_factor, img_y * scale_factor, 0.0
-            points_unnormalized.append([hm_x, hm_y, hm_s])
-            norm_x, norm_y = hm_x / max_dim_heatmap, hm_y / max_dim_heatmap
-            points_normalized.append([norm_x, norm_y, 0.0])
-            
-        points_unnormalized = np.array(points_unnormalized)
-        points_normalized = np.array(points_normalized)
-        np.savetxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt", points_unnormalized, fmt='%f')
-        np.savetxt(gnn_format_dir / f"{page_id}_inputs_normalized.txt", points_normalized, fmt='%f')
-        if raw_dims_path.exists():
-            shutil.copy(raw_dims_path, gnn_format_dir / f"{page_id}_dims.txt")
-    else:
-        if not (gnn_format_dir / f"{page_id}_inputs_unnormalized.txt").exists():
-            for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
-                src = raw_input_dir / f"{page_id}{suffix}"
-                dst = gnn_format_dir / f"{page_id}{suffix}"
-                if src.exists(): shutil.copy(src, dst)
-        points_unnormalized = np.loadtxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt")
-        if points_unnormalized.size == 0:
-            points_unnormalized = np.empty((0, 3))
-        elif points_unnormalized.ndim == 1: 
-            points_unnormalized = points_unnormalized.reshape(1, -1)
+    with timing.chunk("materialize_graph_points", {"frontend_nodes_provided": nodes is not None}):
+        if nodes is not None:
+            scale_factor = 0.5 
+            for n in nodes:
+                img_x, img_y = float(n['x']), float(n['y'])
+                hm_x, hm_y, hm_s = img_x * scale_factor, img_y * scale_factor, 0.0
+                points_unnormalized.append([hm_x, hm_y, hm_s])
+                norm_x, norm_y = hm_x / max_dim_heatmap, hm_y / max_dim_heatmap
+                points_normalized.append([norm_x, norm_y, 0.0])
+                
+            points_unnormalized = np.array(points_unnormalized)
+            points_normalized = np.array(points_normalized)
+            np.savetxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt", points_unnormalized, fmt='%f')
+            np.savetxt(gnn_format_dir / f"{page_id}_inputs_normalized.txt", points_normalized, fmt='%f')
+            if raw_dims_path.exists():
+                shutil.copy(raw_dims_path, gnn_format_dir / f"{page_id}_dims.txt")
+        else:
+            if not (gnn_format_dir / f"{page_id}_inputs_unnormalized.txt").exists():
+                for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
+                    src = raw_input_dir / f"{page_id}{suffix}"
+                    dst = gnn_format_dir / f"{page_id}{suffix}"
+                    if src.exists(): shutil.copy(src, dst)
+            points_unnormalized = np.loadtxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt")
+            if points_unnormalized.size == 0:
+                points_unnormalized = np.empty((0, 3))
+            elif points_unnormalized.ndim == 1: 
+                points_unnormalized = points_unnormalized.reshape(1, -1)
 
     unique_edges = set()
     num_nodes = len(points_unnormalized)
-    for e in graph_edges:
-        if 'source' in e and 'target' in e:
-            u, v = sorted((int(e['source']), int(e['target'])))
-            if u < num_nodes and v < num_nodes:
-                unique_edges.add((u, v))
-            
-    edges_save_path = gnn_format_dir / f"{page_id}_edges.txt"
-    if unique_edges:
-        np.savetxt(edges_save_path, list(unique_edges), fmt='%d')
-    else:
-        open(edges_save_path, 'w').close()
+    with timing.chunk("save_edges_and_textline_labels", {"node_count": num_nodes, "input_edge_count": len(graph_edges or [])}):
+        for e in graph_edges:
+            if 'source' in e and 'target' in e:
+                u, v = sorted((int(e['source']), int(e['target'])))
+                if u < num_nodes and v < num_nodes:
+                    unique_edges.add((u, v))
+                
+        edges_save_path = gnn_format_dir / f"{page_id}_edges.txt"
+        if unique_edges:
+            np.savetxt(edges_save_path, list(unique_edges), fmt='%d')
+        else:
+            open(edges_save_path, 'w').close()
 
-    if unique_edges:
-        row, col = zip(*unique_edges)
-        data = np.ones(len(row) + len(col))
-        adj = csr_matrix((data, (list(row)+list(col), list(col)+list(row))), shape=(num_nodes, num_nodes))
-    else:
-        adj = csr_matrix((num_nodes, num_nodes))
+        if unique_edges:
+            row, col = zip(*unique_edges)
+            data = np.ones(len(row) + len(col))
+            adj = csr_matrix((data, (list(row)+list(col), list(col)+list(row))), shape=(num_nodes, num_nodes))
+        else:
+            adj = csr_matrix((num_nodes, num_nodes))
 
-    n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
-    np.savetxt(gnn_format_dir / f"{page_id}_labels_textline.txt", final_structural_labels, fmt='%d')
+        n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
+        np.savetxt(gnn_format_dir / f"{page_id}_labels_textline.txt", final_structural_labels, fmt='%d')
 
     final_textbox_labels = np.zeros(num_nodes, dtype=int)
-    if textbox_labels is not None:
-        try:
-            candidate_textbox_labels = np.asarray(textbox_labels, dtype=int).reshape(-1)
-            if candidate_textbox_labels.size == num_nodes:
-                final_textbox_labels = np.maximum(candidate_textbox_labels, 0)
-            else:
-                print(f"Warning: Textbox label count {candidate_textbox_labels.size} != Node count {num_nodes}. Resetting.")
-        except (TypeError, ValueError):
-            print("Warning: Invalid textbox labels payload. Resetting.")
-        np.savetxt(gnn_format_dir / f"{page_id}_labels_textbox.txt", final_textbox_labels, fmt='%d')
-    xml_output_dir = output_dir / "page-xml-format"
-    xml_output_dir.mkdir(exist_ok=True)
-    baseline_xml_output_dir = output_dir / "_baseline_page_xml"
-    baseline_xml_output_dir.mkdir(exist_ok=True)
+    with timing.chunk("save_textbox_labels", {"textbox_labels_provided": textbox_labels is not None}):
+        if textbox_labels is not None:
+            try:
+                candidate_textbox_labels = np.asarray(textbox_labels, dtype=int).reshape(-1)
+                if candidate_textbox_labels.size == num_nodes:
+                    final_textbox_labels = np.maximum(candidate_textbox_labels, 0)
+                else:
+                    print(f"Warning: Textbox label count {candidate_textbox_labels.size} != Node count {num_nodes}. Resetting.")
+            except (TypeError, ValueError):
+                print("Warning: Invalid textbox labels payload. Resetting.")
+            np.savetxt(gnn_format_dir / f"{page_id}_labels_textbox.txt", final_textbox_labels, fmt='%d')
+    with timing.chunk("prepare_pagexml_directories"):
+        xml_output_dir = output_dir / "page-xml-format"
+        xml_output_dir.mkdir(exist_ok=True)
+        baseline_xml_output_dir = output_dir / "_baseline_page_xml"
+        baseline_xml_output_dir.mkdir(exist_ok=True)
 
-    reading_direction_metadata_path = default_reading_direction_metadata_path(xml_output_dir / f"{page_id}.xml")
-    reading_direction_metadata = build_reading_direction_metadata_payload(
-        page_id=page_id,
-        annotations=reading_direction_annotations or [],
-        final_structural_labels=final_structural_labels,
-        num_nodes=num_nodes,
-    )
-    write_reading_direction_metadata(reading_direction_metadata_path, reading_direction_metadata)
-    reading_direction_annotations_by_line_id = {
-        int(item["resolved_line_numeric_id"]): dict(item)
-        for item in reading_direction_metadata.get("line_annotations", [])
-    }
+    with timing.chunk("resolve_reading_direction_annotations", {"annotation_count": len(reading_direction_annotations or [])}):
+        reading_direction_metadata_path = default_reading_direction_metadata_path(xml_output_dir / f"{page_id}.xml")
+        reading_direction_metadata = build_reading_direction_metadata_payload(
+            page_id=page_id,
+            annotations=reading_direction_annotations or [],
+            final_structural_labels=final_structural_labels,
+            num_nodes=num_nodes,
+        )
+        write_reading_direction_metadata(reading_direction_metadata_path, reading_direction_metadata)
+        reading_direction_annotations_by_line_id = {
+            int(item["resolved_line_numeric_id"]): dict(item)
+            for item in reading_direction_metadata.get("line_annotations", [])
+        }
     
     # --- NEW: Prepare Images Directory ---
-    images_output_dir = output_dir / "image-format" / page_id
-    if images_output_dir.exists():
-        shutil.rmtree(images_output_dir)
-    images_output_dir.mkdir(parents=True, exist_ok=True)
+    with timing.chunk("prepare_image_output_dir"):
+        images_output_dir = output_dir / "image-format" / page_id
+        if images_output_dir.exists():
+            shutil.rmtree(images_output_dir)
+        images_output_dir.mkdir(parents=True, exist_ok=True)
 
     # 6. Generate baseline PAGE-XML, then let the shared strategy write final Coords.
     baseline_xml_path = baseline_xml_output_dir / f"{page_id}.xml"
     final_xml_path = xml_output_dir / f"{page_id}.xml"
-    create_page_xml(
-        page_id,
-        unique_edges,
-        points_unnormalized,
-        {'width': heatmap_w, 'height': heatmap_h}, 
-        baseline_xml_path,
-        final_structural_labels, 
-        {},
-        textbox_labels=final_textbox_labels,
-        image_path=base_path / "images_resized" / f"{page_id}.jpg",
-        images_output_dir=None,
-        save_vis=False,
-        text_content=text_content,
-        reading_direction_annotations_by_line_id=reading_direction_annotations_by_line_id,
-    )
-    strategy_name = get_default_text_line_segmentation_strategy()
-    strategy_config = get_strategy_runtime_config(
-        strategy_name,
-        overrides=args_dict or {},
-        include_empty_text_lines=True,
-    )
-    if strategy_config.get("debug_point_baseline_coords_enabled"):
-        strategy_config["debug_point_baseline_coords_dir"] = str(
-            base_path / "logging" / "layout_coords" / page_id
+    with timing.chunk("write_baseline_page_xml", {"node_count": num_nodes, "unique_edge_count": len(unique_edges)}):
+        create_page_xml(
+            page_id,
+            unique_edges,
+            points_unnormalized,
+            {'width': heatmap_w, 'height': heatmap_h}, 
+            baseline_xml_path,
+            final_structural_labels, 
+            {},
+            textbox_labels=final_textbox_labels,
+            image_path=base_path / "images_resized" / f"{page_id}.jpg",
+            images_output_dir=None,
+            save_vis=False,
+            text_content=text_content,
+            reading_direction_annotations_by_line_id=reading_direction_annotations_by_line_id,
         )
-    strategy_config["reading_direction_annotations_by_line_id"] = reading_direction_annotations_by_line_id
+    with timing.chunk("load_production_strategy_config"):
+        strategy_name = get_default_text_line_segmentation_strategy()
+        strategy_config = get_strategy_runtime_config(
+            strategy_name,
+            overrides=args_dict or {},
+            include_empty_text_lines=True,
+        )
+        if strategy_config.get("debug_point_baseline_coords_enabled"):
+            strategy_config["debug_point_baseline_coords_dir"] = str(
+                base_path / "logging" / "layout_coords" / page_id
+            )
+        strategy_config["reading_direction_annotations_by_line_id"] = reading_direction_annotations_by_line_id
     LOGGER.info(
         "Applying production text-line segmentation strategy strategy=%s manuscript=%s page_id=%s",
         strategy_name,
         base_path.name,
         page_id,
     )
-    strategy_result = apply_text_line_segmentation_strategy(
-        page_image_path=base_path / "images_resized" / f"{page_id}.jpg",
-        heatmap_path=base_path / "heatmaps" / f"{page_id}.jpg",
-        source_pagexml_path=baseline_xml_path,
-        output_pagexml_path=final_xml_path,
-        strategy_name=strategy_name,
-        strategy_config=strategy_config,
-        metadata_path=output_dir / "page-xml-format" / f"{page_id}_line_segmentation_metadata.json",
-    )
-    _write_app_line_images_from_pagexml(
-        final_xml_path,
-        base_path / "images_resized" / f"{page_id}.jpg",
-        images_output_dir,
-        strategy_name=strategy_result.strategy_name,
-        strategy_metadata_path=strategy_result.metadata_path,
-        strategy_config=strategy_config,
-    )
+    with timing.chunk("apply_text_line_segmentation_strategy", {"strategy_name": strategy_name}):
+        strategy_result = apply_text_line_segmentation_strategy(
+            page_image_path=base_path / "images_resized" / f"{page_id}.jpg",
+            heatmap_path=base_path / "heatmaps" / f"{page_id}.jpg",
+            source_pagexml_path=baseline_xml_path,
+            output_pagexml_path=final_xml_path,
+            strategy_name=strategy_name,
+            strategy_config=strategy_config,
+            metadata_path=output_dir / "page-xml-format" / f"{page_id}_line_segmentation_metadata.json",
+        )
+    with timing.chunk("write_app_line_images", {"prepared_line_count": strategy_result.prepared_line_count}):
+        written_line_images = _write_app_line_images_from_pagexml(
+            final_xml_path,
+            base_path / "images_resized" / f"{page_id}.jpg",
+            images_output_dir,
+            strategy_name=strategy_result.strategy_name,
+            strategy_metadata_path=strategy_result.metadata_path,
+            strategy_config=strategy_config,
+        )
 
-    resized_images_dst_dir = output_dir / "images_resized"
-    resized_images_dst_dir.mkdir(exist_ok=True)
-    src_img = base_path / "images_resized" / f"{page_id}.jpg"
-    if src_img.exists():
-        shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
+    with timing.chunk("copy_resized_page_image"):
+        resized_images_dst_dir = output_dir / "images_resized"
+        resized_images_dst_dir.mkdir(exist_ok=True)
+        src_img = base_path / "images_resized" / f"{page_id}.jpg"
+        if src_img.exists():
+            shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
 
     line_count = strategy_result.prepared_line_count
     import gc
-    gc.collect()
+    with timing.chunk("garbage_collect"):
+        gc.collect()
+
+    timing.finish(
+        "success",
+        {
+            "node_count": num_nodes,
+            "unique_edge_count": len(unique_edges),
+            "component_count": int(n_components),
+            "strategy_name": strategy_result.strategy_name,
+            "line_count": int(line_count),
+            "written_line_image_count": int(written_line_images),
+        },
+    )
 
     return {"status": "success", "lines": line_count}
 
@@ -277,6 +310,8 @@ def _write_app_line_images_from_pagexml(
     images_output_dir.mkdir(parents=True, exist_ok=True)
     _, records = load_pagexml_lines(xml_path, include_empty_text_lines=True)
     processing_image = _load_processing_image(image_path)
+    crop_config = dict(strategy_config or {})
+    crop_config.setdefault("page_median_color", int(np.median(processing_image)))
     metadata_by_numeric_id = load_line_segmentation_metadata_by_numeric_id(strategy_metadata_path)
     effective_strategy_name = strategy_name or load_line_segmentation_strategy_name(strategy_metadata_path)
     written = 0
@@ -286,7 +321,7 @@ def _write_app_line_images_from_pagexml(
             record,
             strategy_name=effective_strategy_name,
             strategy_line_metadata=metadata_by_numeric_id.get(int(record.line_numeric_id)),
-            crop_config=strategy_config or {},
+            crop_config=crop_config,
         )
         raw_crop = crop_result.image
         jpg_bytes, _ = _encode_like_app_jpg(raw_crop)

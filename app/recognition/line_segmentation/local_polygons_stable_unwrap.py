@@ -254,6 +254,14 @@ def _debug_color_image(image: np.ndarray) -> np.ndarray:
     return image.copy()
 
 
+def _page_median_color(processing_image: np.ndarray, config: dict) -> int:
+    if config.get("page_median_color") is not None:
+        return int(config["page_median_color"])
+    page_median_color = int(np.median(processing_image))
+    config["page_median_color"] = page_median_color
+    return page_median_color
+
+
 def _debug_component_outline(component: dict) -> np.ndarray | None:
     contour_points = component.get("contour_points") or []
     if len(contour_points) >= 3:
@@ -929,7 +937,7 @@ def _clean_component_rects_in_local_space(
     rects: list[dict],
     config: dict,
 ) -> tuple[list[dict], dict]:
-    page_median_color = int(np.median(processing_image))
+    page_median_color = _page_median_color(processing_image, config)
     cleaned_rects: list[dict] = []
     removed_boundary_component_count = 0
     empty_component_count = 0
@@ -1409,7 +1417,7 @@ def _point_image_fallback_rects_from_seeded_component(
     border_margin = max(0.0, float(config["point_image_fallback_border_margin_px"]))
     along_pad = max(0.0, float(config["image_fallback_output_along_pad_px"]))
     normal_pad = max(0.0, float(config["image_fallback_output_normal_pad_px"]))
-    page_median_color = int(np.median(processing_image))
+    page_median_color = _page_median_color(processing_image, config)
 
     half_width = initial_half_width
     expansion_count = 0
@@ -1596,7 +1604,7 @@ def _generic_image_fallback_rects_from_local_binarization(
         "n_min": -search_half_width,
         "n_max": search_half_width,
     }
-    page_median_color = int(np.median(processing_image))
+    page_median_color = _page_median_color(processing_image, config)
     local_crop = _remap_local_crop(processing_image, topology, search_rect, page_median_color)
     if local_crop.size == 0:
         summary["image_fallback_skip_reason"] = "empty_search_crop"
@@ -2531,6 +2539,7 @@ class LocalPolygonsStableUnwrapStrategy:
         topologies = _topologies_for_records(records, config)
         source_line_count = len(records)
         processing_image = _load_processing_image(Path(request.page_image_path))
+        config["page_median_color"] = _page_median_color(processing_image, config)
         image_height, image_width = processing_image.shape[:2]
         boxes, box_summary = _heatmap_boxes(
             Path(request.page_image_path),

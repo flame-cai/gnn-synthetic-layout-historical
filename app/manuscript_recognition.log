@@ -15766,3 +15766,160 @@
 2026-06-28 11:04:52,002 - WARNING -  * Debugger is active!
 2026-06-28 11:04:52,005 - INFO -  * Debugger PIN: 192-125-268
 2026-06-28 11:04:55,459 - INFO - 127.0.0.1 - - [28/Jun/2026 11:04:55] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-28 12:12:19,674 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.172.80:5000
+2026-06-28 12:12:19,675 - INFO - [33mPress CTRL+C to quit[0m
+2026-06-28 12:12:19,677 - INFO -  * Restarting with stat
+2026-06-28 12:12:26,380 - WARNING -  * Debugger is active!
+2026-06-28 12:12:26,382 - INFO -  * Debugger PIN: 192-125-268
+2026-06-28 12:13:47,644 - INFO - 127.0.0.1 - - [28/Jun/2026 12:13:47] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-28 12:13:48,231 - INFO - 127.0.0.1 - - [28/Jun/2026 12:13:48] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-28 12:13:52,022 - INFO - 127.0.0.1 - - [28/Jun/2026 12:13:52] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-28 12:13:52,282 - INFO - 127.0.0.1 - - [28/Jun/2026 12:13:52] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-28 12:13:52,360 - INFO - 127.0.0.1 - - [28/Jun/2026 12:13:52] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-28 12:13:54,038 - INFO - 127.0.0.1 - - [28/Jun/2026 12:13:54] "[35m[1mGET /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1[0m" 500 -
+2026-06-28 12:13:54,054 - INFO - 127.0.0.1 - - [28/Jun/2026 12:13:54] "[35m[1mGET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1[0m" 500 -
+2026-06-28 12:14:54,633 - INFO - 127.0.0.1 - - [28/Jun/2026 12:14:54] "[35m[1mGET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1[0m" 500 -
+2026-06-28 12:15:29,927 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\strategy_config.py', reloading
+2026-06-28 12:15:33,297 - INFO -  * Restarting with stat
+2026-06-28 12:15:42,938 - WARNING -  * Debugger is active!
+2026-06-28 12:15:42,944 - INFO -  * Debugger PIN: 192-125-268
+2026-06-28 12:15:43,415 - INFO - 127.0.0.1 - - [28/Jun/2026 12:15:43] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-28 12:15:44,600 - INFO - 127.0.0.1 - - [28/Jun/2026 12:15:44] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-06-28 12:15:48,545 - INFO - 127.0.0.1 - - [28/Jun/2026 12:15:48] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-28 12:15:48,799 - INFO - 127.0.0.1 - - [28/Jun/2026 12:15:48] "GET /manuscript/circular_layout_1_DP/pages HTTP/1.1" 200 -
+2026-06-28 12:15:48,878 - INFO - 127.0.0.1 - - [28/Jun/2026 12:15:48] "GET /recognition/readers HTTP/1.1" 200 -
+2026-06-28 12:15:50,695 - INFO - 127.0.0.1 - - [28/Jun/2026 12:15:50] "GET /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-28 12:15:51,408 - INFO - 127.0.0.1 - - [28/Jun/2026 12:15:51] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:16:51,761 - INFO - 127.0.0.1 - - [28/Jun/2026 12:16:51] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:17:12,005 - INFO - 127.0.0.1 - - [28/Jun/2026 12:17:12] "OPTIONS /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-28 12:17:13,710 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circular_layout_1_DP page_id=DP-12309-005
+2026-06-28 12:17:52,852 - INFO - 127.0.0.1 - - [28/Jun/2026 12:17:52] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:18:53,644 - INFO - 127.0.0.1 - - [28/Jun/2026 12:18:53] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:19:03,687 - INFO - 127.0.0.1 - - [28/Jun/2026 12:19:03] "POST /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-28 12:19:04,293 - INFO - 127.0.0.1 - - [28/Jun/2026 12:19:04] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:19:08,375 - INFO - 127.0.0.1 - - [28/Jun/2026 12:19:08] "GET /semi-segment/circular_layout_1_DP/DP-12309-005 HTTP/1.1" 200 -
+2026-06-28 12:19:10,143 - INFO - 127.0.0.1 - - [28/Jun/2026 12:19:10] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-06-28 12:19:10,473 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-06-28 12:19:12,846 - INFO - Model loaded successfully.
+2026-06-28 12:20:04,326 - INFO - 127.0.0.1 - - [28/Jun/2026 12:20:04] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:20:34,778 - INFO - Updated input_manuscripts\circular_layout_1_DP\layout_analysis_output\page-xml-format\DP-12309-005.xml: 586 lines recognized.
+2026-06-28 12:20:35,237 - INFO - 127.0.0.1 - - [28/Jun/2026 12:20:35] "POST /recognize-text HTTP/1.1" 200 -
+2026-06-28 12:20:35,651 - INFO - 127.0.0.1 - - [28/Jun/2026 12:20:35] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:21:29,813 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:29] "GET /line-image/circular_layout_1_DP/DP-12309-005/5?v=1782629324247935900 HTTP/1.1" 200 -
+2026-06-28 12:21:31,759 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:31] "GET /line-image/circular_layout_1_DP/DP-12309-005/0?v=1782629324083598100 HTTP/1.1" 200 -
+2026-06-28 12:21:32,627 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:32] "GET /line-image/circular_layout_1_DP/DP-12309-005/1?v=1782629324117008500 HTTP/1.1" 200 -
+2026-06-28 12:21:32,866 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:32] "GET /line-image/circular_layout_1_DP/DP-12309-005/2?v=1782629324148543800 HTTP/1.1" 200 -
+2026-06-28 12:21:32,985 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:32] "GET /line-image/circular_layout_1_DP/DP-12309-005/3?v=1782629324181137200 HTTP/1.1" 200 -
+2026-06-28 12:21:33,265 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:33] "GET /line-image/circular_layout_1_DP/DP-12309-005/4?v=1782629324213829200 HTTP/1.1" 200 -
+2026-06-28 12:21:33,568 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:33] "[36mGET /line-image/circular_layout_1_DP/DP-12309-005/5?v=1782629324247935900 HTTP/1.1[0m" 304 -
+2026-06-28 12:21:33,884 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:33] "GET /line-image/circular_layout_1_DP/DP-12309-005/6?v=1782629324278628600 HTTP/1.1" 200 -
+2026-06-28 12:21:34,670 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:34] "GET /line-image/circular_layout_1_DP/DP-12309-005/8?v=1782629324311599700 HTTP/1.1" 200 -
+2026-06-28 12:21:35,234 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:35] "GET /line-image/circular_layout_1_DP/DP-12309-005/10?v=1782629324406712400 HTTP/1.1" 200 -
+2026-06-28 12:21:35,678 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:35] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:21:35,812 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:35] "GET /line-image/circular_layout_1_DP/DP-12309-005/7?v=1782629324344182000 HTTP/1.1" 200 -
+2026-06-28 12:21:36,035 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:36] "GET /line-image/circular_layout_1_DP/DP-12309-005/575?v=1782629324467802900 HTTP/1.1" 200 -
+2026-06-28 12:21:36,254 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:36] "GET /line-image/circular_layout_1_DP/DP-12309-005/11?v=1782629324437508700 HTTP/1.1" 200 -
+2026-06-28 12:21:36,442 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:36] "GET /line-image/circular_layout_1_DP/DP-12309-005/550?v=1782629324374720500 HTTP/1.1" 200 -
+2026-06-28 12:21:36,619 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:36] "GET /line-image/circular_layout_1_DP/DP-12309-005/12?v=1782629324530603200 HTTP/1.1" 200 -
+2026-06-28 12:21:36,809 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:36] "GET /line-image/circular_layout_1_DP/DP-12309-005/15?v=1782629324659950900 HTTP/1.1" 200 -
+2026-06-28 12:21:37,151 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:37] "GET /line-image/circular_layout_1_DP/DP-12309-005/14?v=1782629324594094600 HTTP/1.1" 200 -
+2026-06-28 12:21:37,667 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:37] "GET /line-image/circular_layout_1_DP/DP-12309-005/18?v=1782629324752908200 HTTP/1.1" 200 -
+2026-06-28 12:21:37,900 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:37] "GET /line-image/circular_layout_1_DP/DP-12309-005/19?v=1782629324721875100 HTTP/1.1" 200 -
+2026-06-28 12:21:38,132 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:38] "GET /line-image/circular_layout_1_DP/DP-12309-005/16?v=1782629324628905500 HTTP/1.1" 200 -
+2026-06-28 12:21:38,332 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:38] "GET /line-image/circular_layout_1_DP/DP-12309-005/17?v=1782629324691078700 HTTP/1.1" 200 -
+2026-06-28 12:21:38,548 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:38] "GET /line-image/circular_layout_1_DP/DP-12309-005/488?v=1782629324879846900 HTTP/1.1" 200 -
+2026-06-28 12:21:38,753 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:38] "GET /line-image/circular_layout_1_DP/DP-12309-005/549?v=1782629324817800300 HTTP/1.1" 200 -
+2026-06-28 12:21:38,921 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:38] "GET /line-image/circular_layout_1_DP/DP-12309-005/21?v=1782629324942138400 HTTP/1.1" 200 -
+2026-06-28 12:21:39,172 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:39] "GET /line-image/circular_layout_1_DP/DP-12309-005/22?v=1782629324911021300 HTTP/1.1" 200 -
+2026-06-28 12:21:39,397 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:39] "GET /line-image/circular_layout_1_DP/DP-12309-005/538?v=1782629324783058500 HTTP/1.1" 200 -
+2026-06-28 12:21:39,634 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:39] "GET /line-image/circular_layout_1_DP/DP-12309-005/20?v=1782629324848340600 HTTP/1.1" 200 -
+2026-06-28 12:21:39,933 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:39] "GET /line-image/circular_layout_1_DP/DP-12309-005/23?v=1782629325066331900 HTTP/1.1" 200 -
+2026-06-28 12:21:40,483 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:40] "GET /line-image/circular_layout_1_DP/DP-12309-005/26?v=1782629324972203900 HTTP/1.1" 200 -
+2026-06-28 12:21:40,752 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:40] "GET /line-image/circular_layout_1_DP/DP-12309-005/24?v=1782629325003328000 HTTP/1.1" 200 -
+2026-06-28 12:21:40,931 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:40] "GET /line-image/circular_layout_1_DP/DP-12309-005/31?v=1782629325319857100 HTTP/1.1" 200 -
+2026-06-28 12:21:41,167 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:41] "GET /line-image/circular_layout_1_DP/DP-12309-005/27?v=1782629325128944500 HTTP/1.1" 200 -
+2026-06-28 12:21:41,780 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:41] "GET /line-image/circular_layout_1_DP/DP-12309-005/30?v=1782629325159534500 HTTP/1.1" 200 -
+2026-06-28 12:21:42,018 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:42] "GET /line-image/circular_layout_1_DP/DP-12309-005/32?v=1782629325191660400 HTTP/1.1" 200 -
+2026-06-28 12:21:42,264 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:42] "GET /line-image/circular_layout_1_DP/DP-12309-005/28?v=1782629325221879700 HTTP/1.1" 200 -
+2026-06-28 12:21:42,552 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:42] "GET /line-image/circular_layout_1_DP/DP-12309-005/29?v=1782629325097479500 HTTP/1.1" 200 -
+2026-06-28 12:21:42,800 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:42] "GET /line-image/circular_layout_1_DP/DP-12309-005/38?v=1782629325537456400 HTTP/1.1" 200 -
+2026-06-28 12:21:43,054 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:43] "GET /line-image/circular_layout_1_DP/DP-12309-005/489?v=1782629325351397100 HTTP/1.1" 200 -
+2026-06-28 12:21:43,352 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:43] "GET /line-image/circular_layout_1_DP/DP-12309-005/37?v=1782629325414410500 HTTP/1.1" 200 -
+2026-06-28 12:21:43,600 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:43] "GET /line-image/circular_layout_1_DP/DP-12309-005/42?v=1782629325598821000 HTTP/1.1" 200 -
+2026-06-28 12:21:43,834 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:43] "GET /line-image/circular_layout_1_DP/DP-12309-005/41?v=1782629325843049600 HTTP/1.1" 200 -
+2026-06-28 12:21:44,080 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:44] "GET /line-image/circular_layout_1_DP/DP-12309-005/35?v=1782629325289303900 HTTP/1.1" 200 -
+2026-06-28 12:21:44,313 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:44] "GET /line-image/circular_layout_1_DP/DP-12309-005/40?v=1782629325507221300 HTTP/1.1" 200 -
+2026-06-28 12:21:45,230 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:45] "GET /line-image/circular_layout_1_DP/DP-12309-005/36?v=1782629325476956500 HTTP/1.1" 200 -
+2026-06-28 12:21:45,788 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:45] "GET /line-image/circular_layout_1_DP/DP-12309-005/580?v=1782629325720920100 HTTP/1.1" 200 -
+2026-06-28 12:21:46,021 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:46] "GET /line-image/circular_layout_1_DP/DP-12309-005/563?v=1782629325658884700 HTTP/1.1" 200 -
+2026-06-28 12:21:46,245 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:46] "GET /line-image/circular_layout_1_DP/DP-12309-005/482?v=1782629325812302900 HTTP/1.1" 200 -
+2026-06-28 12:21:46,462 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:46] "GET /line-image/circular_layout_1_DP/DP-12309-005/483?v=1782629325689440700 HTTP/1.1" 200 -
+2026-06-28 12:21:46,675 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:46] "GET /line-image/circular_layout_1_DP/DP-12309-005/484?v=1782629325566990000 HTTP/1.1" 200 -
+2026-06-28 12:21:47,121 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:47] "GET /line-image/circular_layout_1_DP/DP-12309-005/45?v=1782629325781978200 HTTP/1.1" 200 -
+2026-06-28 12:21:47,762 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:47] "GET /line-image/circular_layout_1_DP/DP-12309-005/43?v=1782629325628348600 HTTP/1.1" 200 -
+2026-06-28 12:21:48,018 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:48] "GET /line-image/circular_layout_1_DP/DP-12309-005/39?v=1782629325445364600 HTTP/1.1" 200 -
+2026-06-28 12:21:48,314 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:48] "GET /line-image/circular_layout_1_DP/DP-12309-005/46?v=1782629325903712300 HTTP/1.1" 200 -
+2026-06-28 12:21:48,776 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:48] "GET /line-image/circular_layout_1_DP/DP-12309-005/51?v=1782629326158073300 HTTP/1.1" 200 -
+2026-06-28 12:21:49,304 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:49] "GET /line-image/circular_layout_1_DP/DP-12309-005/495?v=1782629326094066500 HTTP/1.1" 200 -
+2026-06-28 12:21:49,559 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:49] "GET /line-image/circular_layout_1_DP/DP-12309-005/496?v=1782629326000308000 HTTP/1.1" 200 -
+2026-06-28 12:21:49,683 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:49] "GET /line-image/circular_layout_1_DP/DP-12309-005/49?v=1782629325934728600 HTTP/1.1" 200 -
+2026-06-28 12:21:49,896 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:49] "GET /line-image/circular_layout_1_DP/DP-12309-005/48?v=1782629325872577200 HTTP/1.1" 200 -
+2026-06-28 12:21:50,112 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:50] "GET /line-image/circular_layout_1_DP/DP-12309-005/50?v=1782629326063986100 HTTP/1.1" 200 -
+2026-06-28 12:21:50,363 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:50] "GET /line-image/circular_layout_1_DP/DP-12309-005/47?v=1782629326032459200 HTTP/1.1" 200 -
+2026-06-28 12:21:50,624 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:50] "GET /line-image/circular_layout_1_DP/DP-12309-005/59?v=1782629326378224300 HTTP/1.1" 200 -
+2026-06-28 12:21:50,912 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:50] "GET /line-image/circular_layout_1_DP/DP-12309-005/52?v=1782629326221287600 HTTP/1.1" 200 -
+2026-06-28 12:21:51,483 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:51] "GET /line-image/circular_layout_1_DP/DP-12309-005/557?v=1782629325965746100 HTTP/1.1" 200 -
+2026-06-28 12:21:51,729 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:51] "GET /line-image/circular_layout_1_DP/DP-12309-005/558?v=1782629326126847500 HTTP/1.1" 200 -
+2026-06-28 12:21:51,945 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:51] "GET /line-image/circular_layout_1_DP/DP-12309-005/55?v=1782629326188557000 HTTP/1.1" 200 -
+2026-06-28 12:21:52,177 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:52] "GET /line-image/circular_layout_1_DP/DP-12309-005/56?v=1782629326346927600 HTTP/1.1" 200 -
+2026-06-28 12:21:52,419 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:52] "GET /line-image/circular_layout_1_DP/DP-12309-005/57?v=1782629326315307800 HTTP/1.1" 200 -
+2026-06-28 12:21:52,795 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:52] "GET /line-image/circular_layout_1_DP/DP-12309-005/53?v=1782629326285633900 HTTP/1.1" 200 -
+2026-06-28 12:21:53,600 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:53] "GET /line-image/circular_layout_1_DP/DP-12309-005/548?v=1782629326654341900 HTTP/1.1" 200 -
+2026-06-28 12:21:55,097 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:55] "GET /line-image/circular_layout_1_DP/DP-12309-005/485?v=1782629326593875500 HTTP/1.1" 200 -
+2026-06-28 12:21:56,270 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:56] "GET /line-image/circular_layout_1_DP/DP-12309-005/486?v=1782629326438352900 HTTP/1.1" 200 -
+2026-06-28 12:21:57,233 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:57] "GET /line-image/circular_layout_1_DP/DP-12309-005/58?v=1782629326531458300 HTTP/1.1" 200 -
+2026-06-28 12:21:58,346 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:58] "GET /line-image/circular_layout_1_DP/DP-12309-005/62?v=1782629326470165400 HTTP/1.1" 200 -
+2026-06-28 12:21:58,599 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:58] "GET /line-image/circular_layout_1_DP/DP-12309-005/61?v=1782629326407758100 HTTP/1.1" 200 -
+2026-06-28 12:21:58,952 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:58] "GET /line-image/circular_layout_1_DP/DP-12309-005/60?v=1782629326501650200 HTTP/1.1" 200 -
+2026-06-28 12:21:59,698 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:59] "GET /line-image/circular_layout_1_DP/DP-12309-005/64?v=1782629326899663000 HTTP/1.1" 200 -
+2026-06-28 12:21:59,962 - INFO - 127.0.0.1 - - [28/Jun/2026 12:21:59] "GET /line-image/circular_layout_1_DP/DP-12309-005/63?v=1782629326685800200 HTTP/1.1" 200 -
+2026-06-28 12:22:00,313 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:00] "GET /line-image/circular_layout_1_DP/DP-12309-005/68?v=1782629326992076700 HTTP/1.1" 200 -
+2026-06-28 12:22:01,036 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:01] "GET /line-image/circular_layout_1_DP/DP-12309-005/65?v=1782629326807559800 HTTP/1.1" 200 -
+2026-06-28 12:22:01,296 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:01] "GET /line-image/circular_layout_1_DP/DP-12309-005/561?v=1782629326716693000 HTTP/1.1" 200 -
+2026-06-28 12:22:01,526 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:01] "GET /line-image/circular_layout_1_DP/DP-12309-005/562?v=1782629326624803900 HTTP/1.1" 200 -
+2026-06-28 12:22:01,730 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:01] "GET /line-image/circular_layout_1_DP/DP-12309-005/585?v=1782629326561984600 HTTP/1.1" 200 -
+2026-06-28 12:22:02,238 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:02] "GET /line-image/circular_layout_1_DP/DP-12309-005/492?v=1782629326838593200 HTTP/1.1" 200 -
+2026-06-28 12:22:02,497 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:02] "GET /line-image/circular_layout_1_DP/DP-12309-005/69?v=1782629327053949400 HTTP/1.1" 200 -
+2026-06-28 12:22:02,671 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:02] "GET /line-image/circular_layout_1_DP/DP-12309-005/66?v=1782629326931362800 HTTP/1.1" 200 -
+2026-06-28 12:22:02,938 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:02] "GET /line-image/circular_layout_1_DP/DP-12309-005/556?v=1782629326869574000 HTTP/1.1" 200 -
+2026-06-28 12:22:03,706 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:03] "GET /line-image/circular_layout_1_DP/DP-12309-005/67?v=1782629326777019000 HTTP/1.1" 200 -
+2026-06-28 12:22:09,144 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:09] "GET /line-image/circular_layout_1_DP/DP-12309-005/83?v=1782629327511346100 HTTP/1.1" 200 -
+2026-06-28 12:22:36,681 - INFO - 127.0.0.1 - - [28/Jun/2026 12:22:36] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:23:37,645 - INFO - 127.0.0.1 - - [28/Jun/2026 12:23:37] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:24:38,637 - INFO - 127.0.0.1 - - [28/Jun/2026 12:24:38] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:25:39,650 - INFO - 127.0.0.1 - - [28/Jun/2026 12:25:39] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:26:40,626 - INFO - 127.0.0.1 - - [28/Jun/2026 12:26:40] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:27:41,634 - INFO - 127.0.0.1 - - [28/Jun/2026 12:27:41] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:28:42,649 - INFO - 127.0.0.1 - - [28/Jun/2026 12:28:42] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:29:43,640 - INFO - 127.0.0.1 - - [28/Jun/2026 12:29:43] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:30:44,646 - INFO - 127.0.0.1 - - [28/Jun/2026 12:30:44] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:31:45,649 - INFO - 127.0.0.1 - - [28/Jun/2026 12:31:45] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:32:38,829 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\unwrap.py', reloading
+2026-06-28 12:32:40,643 - INFO -  * Restarting with stat
+2026-06-28 12:32:48,292 - WARNING -  * Debugger is active!
+2026-06-28 12:32:48,294 - INFO -  * Debugger PIN: 192-125-268
+2026-06-28 12:32:48,340 - INFO - 127.0.0.1 - - [28/Jun/2026 12:32:48] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:32:53,462 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\local_polygons_stable_unwrap.py', reloading
+2026-06-28 12:32:55,346 - INFO -  * Restarting with stat
+2026-06-28 12:33:03,126 - WARNING -  * Debugger is active!
+2026-06-28 12:33:03,129 - INFO -  * Debugger PIN: 192-125-268
+2026-06-28 12:33:05,212 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\gnn_inference.py', reloading
+2026-06-28 12:33:06,479 - INFO -  * Restarting with stat
+2026-06-28 12:33:13,871 - WARNING -  * Debugger is active!
+2026-06-28 12:33:13,874 - INFO -  * Debugger PIN: 192-125-268
+2026-06-28 12:33:49,635 - INFO - 127.0.0.1 - - [28/Jun/2026 12:33:49] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:34:50,632 - INFO - 127.0.0.1 - - [28/Jun/2026 12:34:50] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -
+2026-06-28 12:35:51,625 - INFO - 127.0.0.1 - - [28/Jun/2026 12:35:51] "GET /manuscript/circular_layout_1_DP/active-learning HTTP/1.1" 200 -

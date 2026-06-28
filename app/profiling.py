@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from contextlib import contextmanager, nullcontext
 import json
 import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, TypeVar
+from typing import Callable, Iterator, Mapping, TypeVar
 
 import torch
 
@@ -25,6 +26,133 @@ def write_profile_summary(output_dir: str | Path, job_name: str, summary: dict) 
     target = output_dir / f"{timestamp}_{safe_job_name}.json"
     target.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
+
+
+def _coerce_bool(value) -> bool | None:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "yes", "on", "enabled"}:
+        return True
+    if normalized in {"0", "false", "no", "off", "disabled", ""}:
+        return False
+    return None
+
+
+def layout_save_timing_enabled(config: Mapping[str, object] | None = None) -> bool:
+    config = dict(config or {})
+    for key in ("layout_save_timing_enabled", "LAYOUT_SAVE_TIMING_ENABLED"):
+        configured = _coerce_bool(config.get(key))
+        if configured is not None:
+            return configured
+    return _coerce_bool(os.getenv("LAYOUT_SAVE_TIMING_ENABLED")) is True
+
+
+def _layout_save_timing_output_path(
+    manuscript_root: str | Path,
+    config: Mapping[str, object] | None = None,
+) -> Path:
+    config = dict(config or {})
+    explicit_path = config.get("layout_save_timing_log_path") or os.getenv("LAYOUT_SAVE_TIMING_LOG_PATH")
+    if explicit_path:
+        return Path(str(explicit_path))
+    explicit_dir = config.get("layout_save_timing_log_dir") or os.getenv("LAYOUT_SAVE_TIMING_LOG_DIR")
+    if explicit_dir:
+        return Path(str(explicit_dir)) / "layout_save_timings.jsonl"
+    return Path(manuscript_root) / "layout_analysis_output" / "profiling" / "layout_save_timings.jsonl"
+
+
+class LayoutSaveTimingRecorder:
+    def __init__(
+        self,
+        *,
+        enabled: bool,
+        output_path: str | Path,
+        metadata: Mapping[str, object] | None = None,
+    ) -> None:
+        self.enabled = bool(enabled)
+        self.output_path = Path(output_path)
+        self.metadata = dict(metadata or {})
+        self.started_at = _utc_now_iso()
+        self._start = time.perf_counter()
+        self._chunks: list[dict] = []
+        self._written = False
+
+    @contextmanager
+    def chunk(self, name: str, metadata: Mapping[str, object] | None = None) -> Iterator[None]:
+        if not self.enabled:
+            yield
+            return
+        chunk_start = time.perf_counter()
+        chunk = {
+            "name": str(name),
+            "started_at": _utc_now_iso(),
+            "metadata": dict(metadata or {}),
+        }
+        try:
+            yield
+        except Exception as exc:
+            chunk["status"] = "failed"
+            chunk["error"] = str(exc)
+            raise
+        else:
+            chunk["status"] = "success"
+        finally:
+            chunk["finished_at"] = _utc_now_iso()
+            chunk["duration_seconds"] = time.perf_counter() - chunk_start
+            self._chunks.append(chunk)
+
+    def finish(self, status: str = "success", metadata: Mapping[str, object] | None = None) -> Path | None:
+        if not self.enabled or self._written:
+            return None
+        self._written = True
+        payload = {
+            "schema_version": 1,
+            "event_type": "layout_save_timing",
+            "status": str(status),
+            "started_at": self.started_at,
+            "finished_at": _utc_now_iso(),
+            "duration_seconds": time.perf_counter() - self._start,
+            "metadata": {**self.metadata, **dict(metadata or {})},
+            "chunks": self._chunks,
+        }
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.output_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
+        return self.output_path
+
+
+class _DisabledLayoutSaveTimingRecorder:
+    enabled = False
+    output_path = None
+
+    def chunk(self, name: str, metadata: Mapping[str, object] | None = None):
+        return nullcontext()
+
+    def finish(self, status: str = "success", metadata: Mapping[str, object] | None = None) -> None:
+        return None
+
+
+def create_layout_save_timing_recorder(
+    manuscript_root: str | Path,
+    *,
+    page_id: str,
+    config: Mapping[str, object] | None = None,
+    metadata: Mapping[str, object] | None = None,
+) -> LayoutSaveTimingRecorder | _DisabledLayoutSaveTimingRecorder:
+    if not layout_save_timing_enabled(config):
+        return _DisabledLayoutSaveTimingRecorder()
+    return LayoutSaveTimingRecorder(
+        enabled=True,
+        output_path=_layout_save_timing_output_path(manuscript_root, config),
+        metadata={
+            "manuscript": Path(manuscript_root).name,
+            "page_id": str(page_id),
+            **dict(metadata or {}),
+        },
+    )
 
 
 def summarize_gpu_job(job_name: str, metadata: dict, fn: Callable[[], T]) -> tuple[T, dict]:

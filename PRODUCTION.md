@@ -527,6 +527,21 @@ Set `ACTIVE_LEARNING_PROFILE_CUDA=1` to capture a sampled CUDA trace. The
 current helper samples once per job family by writing a marker under the
 manuscript profiling root.
 
+Layout-save timing for the synchronous Layout Mode save to PAGE XML boundary is
+off by default. Set `LAYOUT_SAVE_TIMING_ENABLED=1` before starting the Flask
+backend to append chunked timing records to:
+
+```text
+app/input_manuscripts/<manuscript>/layout_analysis_output/profiling/layout_save_timings.jsonl
+```
+
+Each record covers `generate_xml_and_images_for_page()` in `app/gnn_inference.py`,
+including graph materialization, connected-component label writing, reading
+direction metadata, baseline PAGE XML, production `Coords` strategy application,
+app line-image export, resized-image copy, and cleanup. Optional
+`LAYOUT_SAVE_TIMING_LOG_DIR` and `LAYOUT_SAVE_TIMING_LOG_PATH` override the
+default destination for local profiling runs.
+
 Generated telemetry and profiling artifacts are runtime evidence, not research
 source-of-truth config. A checked-in evaluator that turns these artifacts into
 manuscript-level effort curves is still a known gap.

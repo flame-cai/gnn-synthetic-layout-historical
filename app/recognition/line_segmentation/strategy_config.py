@@ -13,26 +13,26 @@ STRATEGY_ROLE_CONFIG_JSON = r"""{
     {
       "promoted_strategy_name": "local_tangent_band_v1",
       "previous_benchmark_strategy_name": "legacy_axis_bound_v1",
-      "evidence_metrics_path": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
+      "evidence_metrics_path": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
       "evidence_generated_at_utc": "2026-05-16T07:14:45Z",
       "gate_artifact_paths": {
         "pipeline_eval_dataset": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260515_145658_pipeline_ablation_eval_dataset_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260515_145658_pipeline_ablation_eval_dataset_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260515_145658_pipeline_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260515_145658_pipeline_ablation_eval_dataset_summary\\summary.md"
         },
         "ocr_eval_dataset": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135604_ocr_ablation_eval_dataset_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135604_ocr_ablation_eval_dataset_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135604_ocr_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135604_ocr_ablation_eval_dataset_summary\\summary.md"
         },
         "circular_ocr_eval_dataset_v2": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135937_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135937_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135937_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260512_135937_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
         }
       },
       "gate_metric_summary": {
@@ -64,26 +64,26 @@ STRATEGY_ROLE_CONFIG_JSON = r"""{
     {
       "promoted_strategy_name": "local_polygons_v1",
       "previous_benchmark_strategy_name": "local_tangent_band_v1",
-      "evidence_metrics_path": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
+      "evidence_metrics_path": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
       "evidence_generated_at_utc": "2026-05-22T07:18:29Z",
       "gate_artifact_paths": {
         "pipeline_eval_dataset": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_123345_pipeline_ablation_eval_dataset_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_123345_pipeline_ablation_eval_dataset_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_123345_pipeline_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_123345_pipeline_ablation_eval_dataset_summary\\summary.md"
         },
         "ocr_eval_dataset": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124343_ocr_ablation_eval_dataset_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124343_ocr_ablation_eval_dataset_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124343_ocr_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124343_ocr_ablation_eval_dataset_summary\\summary.md"
         },
         "circular_ocr_eval_dataset_v2": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124828_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124828_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124828_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260522_124828_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
         }
       },
       "gate_metric_summary": {
@@ -115,26 +115,26 @@ STRATEGY_ROLE_CONFIG_JSON = r"""{
     {
       "promoted_strategy_name": "local_polygons_stable_unwrap_v1",
       "previous_benchmark_strategy_name": "local_polygons_v1",
-      "evidence_metrics_path": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
+      "evidence_metrics_path": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\strategy_promotion_latest.json",
       "evidence_generated_at_utc": "2026-05-29T11:14:24Z",
       "gate_artifact_paths": {
         "pipeline_eval_dataset": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_162925_pipeline_ablation_eval_dataset_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_162925_pipeline_ablation_eval_dataset_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\pipeline_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_162925_pipeline_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_162925_pipeline_ablation_eval_dataset_summary\\summary.md"
         },
         "ocr_eval_dataset": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_163930_ocr_ablation_eval_dataset_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_163930_ocr_ablation_eval_dataset_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\recognition_finetune_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_163930_ocr_ablation_eval_dataset_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_163930_ocr_ablation_eval_dataset_summary\\summary.md"
         },
         "circular_ocr_eval_dataset_v2": {
-          "latest_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
-          "latest_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
-          "run_metrics_json": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_164421_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
-          "run_summary_md": "C:\\Users\\intro\\OneDrive\\Documents\\MEGA\\CAI-FLAME\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_164421_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
+          "latest_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.json",
+          "latest_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\circular_ocr_ablation_latest.md",
+          "run_metrics_json": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_164421_circular_ocr_ablation_eval_dataset_v2_summary\\metrics.json",
+          "run_summary_md": "C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\logs\\20260529_164421_circular_ocr_ablation_eval_dataset_v2_summary\\summary.md"
         }
       },
       "gate_metric_summary": {
