@@ -17871,3 +17871,63 @@
 2026-07-03 12:35:57,335 - INFO - 127.0.0.1 - - [03/Jul/2026 12:35:57] "GET /manuscript/yaj/active-learning HTTP/1.1" 200 -
 2026-07-03 12:36:58,344 - INFO - 127.0.0.1 - - [03/Jul/2026 12:36:58] "GET /manuscript/yaj/active-learning HTTP/1.1" 200 -
 2026-07-03 12:37:59,337 - INFO - 127.0.0.1 - - [03/Jul/2026 12:37:59] "GET /manuscript/yaj/active-learning HTTP/1.1" 200 -
+2026-07-03 13:23:19,916 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.197:5000
+2026-07-03 13:23:19,917 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-03 13:23:19,923 - INFO -  * Restarting with stat
+2026-07-03 13:23:37,395 - WARNING -  * Debugger is active!
+2026-07-03 13:23:37,398 - INFO -  * Debugger PIN: 192-125-268
+2026-07-03 13:23:37,492 - INFO - 127.0.0.1 - - [03/Jul/2026 13:23:37] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-03 13:23:37,501 - INFO - 127.0.0.1 - - [03/Jul/2026 13:23:37] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-03 13:23:46,557 - INFO - 127.0.0.1 - - [03/Jul/2026 13:23:46] "POST /upload HTTP/1.1" 200 -
+2026-07-03 13:23:46,639 - INFO - 127.0.0.1 - - [03/Jul/2026 13:23:46] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-07-03 13:23:47,021 - INFO - 127.0.0.1 - - [03/Jul/2026 13:23:47] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-03 13:23:48,358 - INFO - 127.0.0.1 - - [03/Jul/2026 13:23:48] "GET /semi-segment/my_manuscript/233_0002 HTTP/1.1" 200 -
+2026-07-03 13:23:48,499 - INFO - 127.0.0.1 - - [03/Jul/2026 13:23:48] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:24:47,490 - INFO - 127.0.0.1 - - [03/Jul/2026 13:24:47] "GET /semi-segment/my_manuscript/233_0003 HTTP/1.1" 200 -
+2026-07-03 13:24:48,532 - INFO - 127.0.0.1 - - [03/Jul/2026 13:24:48] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:25:49,329 - INFO - 127.0.0.1 - - [03/Jul/2026 13:25:49] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:26:50,328 - INFO - 127.0.0.1 - - [03/Jul/2026 13:26:50] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:27:51,319 - INFO - 127.0.0.1 - - [03/Jul/2026 13:27:51] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:28:52,318 - INFO - 127.0.0.1 - - [03/Jul/2026 13:28:52] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:29:53,334 - INFO - 127.0.0.1 - - [03/Jul/2026 13:29:53] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:30:54,329 - INFO - 127.0.0.1 - - [03/Jul/2026 13:30:54] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:31:48,932 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:48] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-07-03 13:31:49,260 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:49] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-03 13:31:49,825 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:49] "GET /semi-segment/my_manuscript/233_0003 HTTP/1.1" 200 -
+2026-07-03 13:31:49,866 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:49] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:31:55,194 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:55] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-07-03 13:31:55,445 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:55] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-03 13:31:55,780 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:55] "GET /semi-segment/my_manuscript/233_0003 HTTP/1.1" 200 -
+2026-07-03 13:31:55,843 - INFO - 127.0.0.1 - - [03/Jul/2026 13:31:55] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:32:02,544 - INFO - 127.0.0.1 - - [03/Jul/2026 13:32:02] "GET /manuscript/my_manuscript/pages HTTP/1.1" 200 -
+2026-07-03 13:32:02,786 - INFO - 127.0.0.1 - - [03/Jul/2026 13:32:02] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-03 13:32:03,135 - INFO - 127.0.0.1 - - [03/Jul/2026 13:32:03] "GET /semi-segment/my_manuscript/233_0003 HTTP/1.1" 200 -
+2026-07-03 13:32:03,182 - INFO - 127.0.0.1 - - [03/Jul/2026 13:32:03] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:32:18,694 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-03 13:32:19,979 - INFO -  * Restarting with stat
+2026-07-03 13:32:28,482 - WARNING -  * Debugger is active!
+2026-07-03 13:32:28,489 - INFO -  * Debugger PIN: 192-125-268
+2026-07-03 13:32:56,903 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\telemetry.py', reloading
+2026-07-03 13:32:57,843 - INFO -  * Restarting with stat
+2026-07-03 13:33:04,144 - WARNING -  * Debugger is active!
+2026-07-03 13:33:04,144 - INFO -  * Debugger PIN: 192-125-268
+2026-07-03 13:33:04,182 - INFO - 127.0.0.1 - - [03/Jul/2026 13:33:04] "GET /manuscript/my_manuscript/active-learning HTTP/1.1" 200 -
+2026-07-03 13:33:22,448 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-07-03 13:33:23,389 - INFO -  * Restarting with stat
+2026-07-03 13:33:29,890 - WARNING -  * Debugger is active!
+2026-07-03 13:33:29,890 - INFO -  * Debugger PIN: 192-125-268
+2026-07-03 13:33:33,984 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_telemetry_unit.py', reloading
+2026-07-03 13:33:35,007 - INFO -  * Restarting with stat
+2026-07-03 13:33:41,305 - WARNING -  * Debugger is active!
+2026-07-03 13:33:41,308 - INFO -  * Debugger PIN: 192-125-268
+2026-07-03 13:34:36,134 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\telemetry.py', reloading
+2026-07-03 13:34:37,061 - INFO -  * Restarting with stat
+2026-07-03 13:34:43,600 - WARNING -  * Debugger is active!
+2026-07-03 13:34:43,600 - INFO -  * Debugger PIN: 192-125-268
+2026-07-03 13:35:23,219 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\telemetry.py', reloading
+2026-07-03 13:35:24,198 - INFO -  * Restarting with stat
+2026-07-03 13:35:30,138 - WARNING -  * Debugger is active!
+2026-07-03 13:35:30,138 - INFO -  * Debugger PIN: 192-125-268

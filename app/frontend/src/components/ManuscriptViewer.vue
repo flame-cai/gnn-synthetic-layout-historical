@@ -994,18 +994,8 @@ const buildTextboxLabelsPayload = (numNodes = 0) => {
   return labels
 }
 
-const nextNewTextboxLabelValue = () => {
-  const usedLabels = Object.values(textlineLabels)
-    .map(normalizeTextboxLabel)
-    .filter((label) => label !== null)
-  const nextAfterUsedLabels = usedLabels.length > 0 ? Math.max(...usedLabels) + 1 : 0
-  const currentTextlineCount = Object.keys(textlines.value || {}).length
-  const currentCounter = Math.max(0, Number(textboxLabels.value) || 0)
-  return Math.max(currentCounter, nextAfterUsedLabels, currentTextlineCount)
-}
-
 const activeTextboxLabelForAnnotation = computed(() => (
-  selectedTextboxLabel.value === null ? nextNewTextboxLabelValue() : selectedTextboxLabel.value
+  selectedTextboxLabel.value === null ? textboxLabels.value : selectedTextboxLabel.value
 ))
 
 const regionSelectOptions = computed(() => {
@@ -1038,18 +1028,20 @@ const selectedTextboxRegionExists = computed(() => (
 
 const regionPickerTitle = computed(() => (
   selectedTextboxLabel.value === null
-    ? `Hold e to annotate with new region ${nextNewTextboxLabelValue()}.`
+    ? `Hold e to annotate with new region ${textboxLabels.value}.`
     : `Hold e to add text lines to region ${selectedTextboxLabel.value}.`
 ))
 
 const canDeleteSelectedTextboxRegion = computed(() => (
   selectedTextboxLabel.value !== null &&
+  selectedTextboxLabel.value !== 0 &&
   selectedTextboxRegionExists.value
 ))
 
 const deleteSelectedTextboxRegionTitle = computed(() => {
   if (selectedTextboxLabel.value === null) return 'Select an existing region first.'
-  return `Clear region ${selectedTextboxLabel.value} from its lines.`
+  if (selectedTextboxLabel.value === 0) return 'Region 0 is the fallback region and cannot be deleted.'
+  return `Move region ${selectedTextboxLabel.value} lines back to the fallback region.`
 })
 
 watch(regionSelectOptions, (options) => {
@@ -2694,9 +2686,6 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
 
     updatePageDynamicSizing(graph.value?.nodes || [], graph.value?.edges || [])
     resetWorkingGraph()
-    if (usedTextboxLabels.length === 0) {
-      textboxLabels.value = Object.keys(textlines.value || {}).length
-    }
     loadReadingDirectionAnnotationsFromPageData(data.readingDirectionAnnotations)
     syncSavedTextboxLabelsSnapshot(graph.value?.nodes?.length || 0)
     sortLinesTopToBottom()
@@ -3498,9 +3487,7 @@ const handleGlobalKeyUp = (e) => {
         const shouldAdvanceNewRegion = isEKeyPressed.value && selectedTextboxLabel.value === null
         isEKeyPressed.value = false
         hoveredTextlineId.value = null
-        if (shouldAdvanceNewRegion) {
-          textboxLabels.value = Math.max(textboxLabels.value + 1, nextNewTextboxLabelValue())
-        }
+        if (shouldAdvanceNewRegion) textboxLabels.value++
         finishLayoutEffortKeyHold('e')
       }
       if (key === 'd') {

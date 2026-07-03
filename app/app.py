@@ -702,17 +702,14 @@ def _resolve_textbox_labels_for_layout(graph_payload, textbox_labels, node_count
     components = _components_from_graph_payload(graph_payload, len(normalized))
     used_labels = {label for label in normalized if label >= 0}
     resolved = list(normalized)
-    next_default_label = max(len(components), max(used_labels, default=-1) + 1)
+    next_default_label = 0
 
     for line_index, component in enumerate(components):
         label = _majority_nonnegative_label(normalized, component)
         if label is None:
-            if line_index not in used_labels:
-                label = line_index
-            else:
-                while next_default_label in used_labels:
-                    next_default_label += 1
-                label = next_default_label
+            while next_default_label in used_labels:
+                next_default_label += 1
+            label = next_default_label
         used_labels.add(int(label))
         for node_index in component:
             resolved[node_index] = int(label)

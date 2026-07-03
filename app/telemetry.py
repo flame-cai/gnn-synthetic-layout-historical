@@ -155,6 +155,27 @@ def _majority_label_for_component(labels: list[int], component: list[int], defau
     return sorted(counts.items(), key=lambda item: (-item[1], item[0]))[0][0]
 
 
+def _region_membership_signatures(
+    labels_by_line: dict[str, int],
+    *,
+    ignore_singleton_labels: bool = False,
+) -> dict[str, tuple]:
+    grouped = defaultdict(list)
+    for line_id, label in labels_by_line.items():
+        grouped[int(label)].append(str(line_id))
+
+    signatures = {}
+    for label, members in grouped.items():
+        ordered_members = tuple(sorted(members, key=lambda value: int(value)))
+        if ignore_singleton_labels and len(ordered_members) == 1:
+            signatures[ordered_members[0]] = ("line", ordered_members[0])
+            continue
+        signature = ("region", int(label), ordered_members)
+        for line_id in ordered_members:
+            signatures[line_id] = signature
+    return signatures
+
+
 def compute_text_region_edit_metrics(
     graph_payload: dict | None,
     textbox_labels=None,
@@ -191,16 +212,26 @@ def compute_text_region_edit_metrics(
             # The app's intended default is one text region per text line.
             previous_by_line[str(line_index)] = line_index
 
+    ignore_singleton_labels = previous_labels is None
+    current_signatures = _region_membership_signatures(
+        current_by_line,
+        ignore_singleton_labels=ignore_singleton_labels,
+    )
+    previous_signatures = _region_membership_signatures(
+        previous_by_line,
+        ignore_singleton_labels=ignore_singleton_labels,
+    )
+
     changed_text_lines = []
     for line_id in sorted(current_by_line, key=lambda value: int(value)):
-        previous_region = previous_by_line.get(line_id)
-        current_region = current_by_line.get(line_id)
-        if previous_region != current_region:
+        previous_region_signature = previous_signatures.get(line_id)
+        current_region_signature = current_signatures.get(line_id)
+        if previous_region_signature != current_region_signature:
             changed_text_lines.append(
                 {
                     "line_id": line_id,
-                    "previous_region": previous_region,
-                    "saved_region": current_region,
+                    "previous_region": previous_by_line.get(line_id),
+                    "saved_region": current_by_line.get(line_id),
                 }
             )
 

@@ -111,17 +111,14 @@ def _resolve_textbox_labels_for_components(
     labels = _coerce_textbox_label_array(textbox_labels, num_nodes)
     used_labels = {int(label) for label in labels if int(label) >= 0}
     resolved = np.array(labels, dtype=int, copy=True)
-    next_default_label = max(len(components), max(used_labels, default=-1) + 1)
+    next_default_label = 0
 
     for line_index, component in enumerate(components):
         label = _majority_nonnegative_label(labels, component)
         if label is None:
-            if line_index not in used_labels:
-                label = line_index
-            else:
-                while next_default_label in used_labels:
-                    next_default_label += 1
-                label = next_default_label
+            while next_default_label in used_labels:
+                next_default_label += 1
+            label = next_default_label
         used_labels.add(int(label))
         for node_index in component:
             if 0 <= node_index < len(resolved):

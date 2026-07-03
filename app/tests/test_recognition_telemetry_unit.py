@@ -90,6 +90,23 @@ class RecognitionTelemetryUnitTest(unittest.TestCase):
         self.assertEqual(metrics["previous_region_count"], 2)
         self.assertEqual(metrics["text_region_annotations_changed"], 0)
 
+    def test_compute_text_region_edit_metrics_ignores_auto_singleton_region_ids(self):
+        graph_payload = {
+            "nodes": [{}, {}, {}, {}],
+            "edges": [],
+        }
+
+        metrics = compute_text_region_edit_metrics(
+            graph_payload,
+            textbox_labels=[0, 0, 1, 2],
+            previous_textbox_labels=None,
+        )
+
+        self.assertEqual(metrics["text_line_count"], 4)
+        self.assertEqual(metrics["current_region_count"], 3)
+        self.assertEqual(metrics["text_region_annotations_changed"], 2)
+        self.assertEqual([row["line_id"] for row in metrics["changed_text_lines"]], ["0", "1"])
+
     def test_compute_reading_direction_edit_metrics_counts_added_changed_deleted(self):
         previous = {
             "lineAnnotations": [
