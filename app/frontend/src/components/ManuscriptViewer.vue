@@ -657,6 +657,8 @@ const isPanelCollapsed = ref(true)
 const activeInput = ref(null) 
 
 const setMode = (mode) => {
+  if (isOKeyPressed.value) flushPendingReadingDirectionHover()
+  finishActiveLayoutEffortKeyHolds()
   layoutModeActive.value = false
   recognitionModeActive.value = false
   
@@ -732,6 +734,120 @@ let readingDirectionHoverStartPoint = null
 let pendingReadingDirectionHoverPoint = null
 let readingDirectionHoverRafId = null
 const readingDirectionHoverAnnotatedLineIds = new Set()
+const layoutEffortKeys = ['a', 'd', 'e', 'q']
+const layoutEffortLoggingEnabled = (() => {
+  const raw = import.meta.env.VITE_LAYOUT_EFFORT_LOGGING_ENABLED
+  return !['0', 'false', 'no', 'off', 'disabled'].includes(String(raw ?? 'true').trim().toLowerCase())
+})()
+const activeLayoutEffortKeyHolds = new Map()
+const emptyLayoutEffortSession = () => ({
+  firstEditClientTimeMs: null,
+  lastEditClientTimeMs: null,
+  firstEditAt: null,
+  lastEditAt: null,
+  editCount: 0,
+  leftClickAddNodeEdits: 0,
+  keyHoldEditCount: 0,
+  keyHoldEditCounts: { a: 0, d: 0, e: 0, q: 0 },
+  keyHoldDurationMs: { a: 0, d: 0, e: 0, q: 0 },
+})
+const layoutEffortSession = reactive(emptyLayoutEffortSession())
+
+const layoutEffortNowMs = () => (
+  typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now()
+)
+
+const touchLayoutEffortWindow = (startMs, endMs, startIso = null, endIso = null) => {
+  if (layoutEffortSession.firstEditClientTimeMs === null || startMs < layoutEffortSession.firstEditClientTimeMs) {
+    layoutEffortSession.firstEditClientTimeMs = startMs
+    layoutEffortSession.firstEditAt = startIso || new Date().toISOString()
+  }
+  if (layoutEffortSession.lastEditClientTimeMs === null || endMs > layoutEffortSession.lastEditClientTimeMs) {
+    layoutEffortSession.lastEditClientTimeMs = endMs
+    layoutEffortSession.lastEditAt = endIso || new Date().toISOString()
+  }
+}
+
+const resetLayoutEffortSession = () => {
+  activeLayoutEffortKeyHolds.clear()
+  Object.assign(layoutEffortSession, emptyLayoutEffortSession())
+}
+
+const recordInstantLayoutEffortEdit = (kind) => {
+  if (!layoutEffortLoggingEnabled || !layoutModeActive.value || recognitionModeActive.value) return
+  const nowMs = layoutEffortNowMs()
+  const nowIso = new Date().toISOString()
+  touchLayoutEffortWindow(nowMs, nowMs, nowIso, nowIso)
+  layoutEffortSession.editCount += 1
+  if (kind === 'left_click_add_node') layoutEffortSession.leftClickAddNodeEdits += 1
+}
+
+const startLayoutEffortKeyHold = (key) => {
+  if (!layoutEffortLoggingEnabled || !layoutModeActive.value || recognitionModeActive.value) return
+  if (!layoutEffortKeys.includes(key) || activeLayoutEffortKeyHolds.has(key)) return
+  activeLayoutEffortKeyHolds.set(key, {
+    startedAtMs: layoutEffortNowMs(),
+    startedAtIso: new Date().toISOString(),
+    changed: false,
+  })
+}
+
+const markLayoutEffortKeyHoldChanged = (key) => {
+  if (!layoutEffortLoggingEnabled) return
+  const hold = activeLayoutEffortKeyHolds.get(key)
+  if (hold) hold.changed = true
+}
+
+const finishLayoutEffortKeyHold = (key) => {
+  if (!layoutEffortLoggingEnabled || !activeLayoutEffortKeyHolds.has(key)) return
+  const hold = activeLayoutEffortKeyHolds.get(key)
+  activeLayoutEffortKeyHolds.delete(key)
+  if (!hold.changed) return
+  const endMs = layoutEffortNowMs()
+  const endIso = new Date().toISOString()
+  touchLayoutEffortWindow(hold.startedAtMs, endMs, hold.startedAtIso, endIso)
+  layoutEffortSession.editCount += 1
+  layoutEffortSession.keyHoldEditCount += 1
+  layoutEffortSession.keyHoldEditCounts[key] = (layoutEffortSession.keyHoldEditCounts[key] || 0) + 1
+  layoutEffortSession.keyHoldDurationMs[key] = (
+    layoutEffortSession.keyHoldDurationMs[key] || 0
+  ) + Math.max(0, endMs - hold.startedAtMs)
+}
+
+const finishActiveLayoutEffortKeyHolds = () => {
+  layoutEffortKeys.forEach((key) => finishLayoutEffortKeyHold(key))
+}
+
+const buildLayoutEffortPayloadForSave = () => {
+  if (!layoutEffortLoggingEnabled) return null
+  finishActiveLayoutEffortKeyHolds()
+  const editCount = layoutEffortSession.editCount
+  const rawFirstToLastMs = editCount > 0 && layoutEffortSession.firstEditClientTimeMs !== null && layoutEffortSession.lastEditClientTimeMs !== null
+    ? Math.max(0, layoutEffortSession.lastEditClientTimeMs - layoutEffortSession.firstEditClientTimeMs)
+    : 0
+  const activeEditTimeMs = editCount === 1 ? 2000 : rawFirstToLastMs
+  const keyHoldDurationMs = { ...layoutEffortSession.keyHoldDurationMs }
+  keyHoldDurationMs.total = layoutEffortKeys.reduce((total, key) => total + (keyHoldDurationMs[key] || 0), 0)
+  return {
+    schema_version: 1,
+    source: 'frontend_layout_mode',
+    logging_enabled: true,
+    captured_at: new Date().toISOString(),
+    manuscript: localManuscriptName.value,
+    page_id: localCurrentPage.value,
+    edit_count: editCount,
+    active_edit_time_ms: activeEditTimeMs,
+    raw_first_to_last_ms: rawFirstToLastMs,
+    first_edit_at: layoutEffortSession.firstEditAt,
+    last_edit_at: layoutEffortSession.lastEditAt,
+    left_click_add_node_edits: layoutEffortSession.leftClickAddNodeEdits,
+    key_hold_edit_count: layoutEffortSession.keyHoldEditCount,
+    key_hold_edit_counts: { ...layoutEffortSession.keyHoldEditCounts },
+    key_hold_duration_ms: keyHoldDurationMs,
+  }
+}
 
 function cancelPendingReadingDirectionHover() {
   if (readingDirectionHoverRafId !== null) {
@@ -869,17 +985,27 @@ const normalizeTextboxLabel = (value) => {
 
 const buildTextboxLabelsPayload = (numNodes = 0) => {
   const safeNodeCount = Math.max(0, Number(numNodes) || 0)
-  const labels = new Array(safeNodeCount).fill(0)
+  const labels = new Array(safeNodeCount).fill(-1)
   Object.keys(textlineLabels).forEach((nodeIndex) => {
     const parsedIndex = Number(nodeIndex)
     if (!Number.isInteger(parsedIndex) || parsedIndex < 0 || parsedIndex >= safeNodeCount) return
-    labels[parsedIndex] = normalizeTextboxLabel(textlineLabels[nodeIndex]) ?? 0
+    labels[parsedIndex] = normalizeTextboxLabel(textlineLabels[nodeIndex]) ?? -1
   })
   return labels
 }
 
+const nextNewTextboxLabelValue = () => {
+  const usedLabels = Object.values(textlineLabels)
+    .map(normalizeTextboxLabel)
+    .filter((label) => label !== null)
+  const nextAfterUsedLabels = usedLabels.length > 0 ? Math.max(...usedLabels) + 1 : 0
+  const currentTextlineCount = Object.keys(textlines.value || {}).length
+  const currentCounter = Math.max(0, Number(textboxLabels.value) || 0)
+  return Math.max(currentCounter, nextAfterUsedLabels, currentTextlineCount)
+}
+
 const activeTextboxLabelForAnnotation = computed(() => (
-  selectedTextboxLabel.value === null ? textboxLabels.value : selectedTextboxLabel.value
+  selectedTextboxLabel.value === null ? nextNewTextboxLabelValue() : selectedTextboxLabel.value
 ))
 
 const regionSelectOptions = computed(() => {
@@ -912,20 +1038,18 @@ const selectedTextboxRegionExists = computed(() => (
 
 const regionPickerTitle = computed(() => (
   selectedTextboxLabel.value === null
-    ? `Hold e to annotate with new region ${textboxLabels.value}.`
+    ? `Hold e to annotate with new region ${nextNewTextboxLabelValue()}.`
     : `Hold e to add text lines to region ${selectedTextboxLabel.value}.`
 ))
 
 const canDeleteSelectedTextboxRegion = computed(() => (
   selectedTextboxLabel.value !== null &&
-  selectedTextboxLabel.value !== 0 &&
   selectedTextboxRegionExists.value
 ))
 
 const deleteSelectedTextboxRegionTitle = computed(() => {
   if (selectedTextboxLabel.value === null) return 'Select an existing region first.'
-  if (selectedTextboxLabel.value === 0) return 'Region 0 is the fallback region and cannot be deleted.'
-  return `Move region ${selectedTextboxLabel.value} lines back to the fallback region.`
+  return `Clear region ${selectedTextboxLabel.value} from its lines.`
 })
 
 watch(regionSelectOptions, (options) => {
@@ -2403,6 +2527,7 @@ const addNode = (clientX, clientY) => {
     const y = (clientY - rect.top) / scaleFactor;
     workingGraph.nodes.push({ x: x, y: y, s: 0 });
     modifications.value.push({ type: 'node_add' });
+    recordInstantLayoutEffortEdit('left_click_add_node')
 }
 
 const deleteNode = (nodeIndex) => {
@@ -2501,6 +2626,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
   error.value = null
   recognitionRecoveryPrompt.value = null
   modifications.value = []
+  resetLayoutEffortSession()
   readingDirectionAnnotations.value = {}
   readingDirectionDraft.value = null
   readingDirectionOverlayLogKeys.clear()
@@ -2541,9 +2667,6 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
       }).catch(e => console.error(e))
     }
     
-    if (data.textline_labels) {
-      data.textline_labels.forEach((label, index) => { if (label !== -1) textlineLabels[index] = label })
-    }
     const normalizedTextboxLabels = normalizeTextboxLabelList(data.textbox_labels)
     const usedTextboxLabels = normalizedTextboxLabels.filter((label) => label !== null)
     if (usedTextboxLabels.length > 0) {
@@ -2571,6 +2694,9 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
 
     updatePageDynamicSizing(graph.value?.nodes || [], graph.value?.edges || [])
     resetWorkingGraph()
+    if (usedTextboxLabels.length === 0) {
+      textboxLabels.value = Object.keys(textlines.value || {}).length
+    }
     loadReadingDirectionAnnotationsFromPageData(data.readingDirectionAnnotations)
     syncSavedTextboxLabelsSnapshot(graph.value?.nodes?.length || 0)
     sortLinesTopToBottom()
@@ -3070,6 +3196,7 @@ const handleReadingDirectionHover = (point) => {
   const committedLineIds = commitReadingDirectionStroke(start, point, {
     excludedLineIds: readingDirectionHoverAnnotatedLineIds,
   })
+  if (committedLineIds.length > 0) markLayoutEffortKeyHoldChanged('q')
   committedLineIds.forEach((lineId) => readingDirectionHoverAnnotatedLineIds.add(String(lineId)))
   readingDirectionHoverStartPoint = point
 }
@@ -3238,7 +3365,12 @@ const labelTextline = () => {
   const nodesToLabel = textlines.value[hoveredTextlineId.value]
   const label = activeTextboxLabelForAnnotation.value
   if (nodesToLabel) {
-    nodesToLabel.forEach((nodeIndex) => { textlineLabels[nodeIndex] = label })
+    let changed = false
+    nodesToLabel.forEach((nodeIndex) => {
+      if (normalizeTextboxLabel(textlineLabels[nodeIndex]) !== label) changed = true
+      textlineLabels[nodeIndex] = label
+    })
+    if (changed) markLayoutEffortKeyHoldChanged('e')
   }
 }
 
@@ -3314,6 +3446,7 @@ const handleGlobalKeyDown = (e) => {
   if (key === 't' && !e.repeat && !isInput) { e.preventDefault(); requestSwitchToRecognition(); return }
   if (key === 'escape' && !e.repeat && !isInput && layoutModeActive.value && isOKeyPressed.value) {
     e.preventDefault()
+    finishLayoutEffortKeyHold('q')
     isOKeyPressed.value = false
     resetReadingDirectionHoverState()
     return
@@ -3330,6 +3463,7 @@ const handleGlobalKeyDown = (e) => {
       if (key === 'q') {
         e.preventDefault()
         if (!isOKeyPressed.value) {
+          startLayoutEffortKeyHold('q')
           isOKeyPressed.value = true
           resetReadingDirectionHoverState()
           hoveredNodesForMST.clear()
@@ -3342,9 +3476,9 @@ const handleGlobalKeyDown = (e) => {
         return
       }
       if (e.repeat) return
-      if (key === 'e') { e.preventDefault(); isEKeyPressed.value = true; return }
-      if (key === 'd') { e.preventDefault(); isDKeyPressed.value = true; resetSelection(); return }
-      if (key === 'a') { e.preventDefault(); isAKeyPressed.value = true; hoveredNodesForMST.clear(); resetSelection(); return }
+      if (key === 'e') { e.preventDefault(); startLayoutEffortKeyHold('e'); isEKeyPressed.value = true; return }
+      if (key === 'd') { e.preventDefault(); startLayoutEffortKeyHold('d'); isDKeyPressed.value = true; resetSelection(); return }
+      if (key === 'a') { e.preventDefault(); startLayoutEffortKeyHold('a'); isAKeyPressed.value = true; hoveredNodesForMST.clear(); resetSelection(); return }
   }
 }
 
@@ -3355,6 +3489,7 @@ const handleGlobalKeyUp = (e) => {
   if (layoutModeActive.value) {
       if (key === 'q') {
         flushPendingReadingDirectionHover()
+        finishLayoutEffortKeyHold('q')
         isOKeyPressed.value = false
         resetReadingDirectionHoverState()
         return
@@ -3363,20 +3498,28 @@ const handleGlobalKeyUp = (e) => {
         const shouldAdvanceNewRegion = isEKeyPressed.value && selectedTextboxLabel.value === null
         isEKeyPressed.value = false
         hoveredTextlineId.value = null
-        if (shouldAdvanceNewRegion) textboxLabels.value++
+        if (shouldAdvanceNewRegion) {
+          textboxLabels.value = Math.max(textboxLabels.value + 1, nextNewTextboxLabelValue())
+        }
+        finishLayoutEffortKeyHold('e')
       }
-      if (key === 'd') isDKeyPressed.value = false
+      if (key === 'd') {
+        isDKeyPressed.value = false
+        finishLayoutEffortKeyHold('d')
+      }
       if (key === 'a') {
         isAKeyPressed.value = false
         if (hoveredNodesForMST.size >= 2) addMSTEdges()
         hoveredNodesForMST.clear()
+        finishLayoutEffortKeyHold('a')
       }
   }
 }
 
 const handleWindowBlur = () => {
+  if (isOKeyPressed.value) flushPendingReadingDirectionHover()
+  finishActiveLayoutEffortKeyHolds()
   if (!isOKeyPressed.value) return
-  flushPendingReadingDirectionHover()
   isOKeyPressed.value = false
   resetReadingDirectionHoverState()
 }
@@ -3421,6 +3564,7 @@ const undoModification = (index) => {
 
 const resetModifications = () => {
   resetWorkingGraph()
+  resetLayoutEffortSession()
   try {
     const restored = {}
     JSON.parse(savedReadingDirectionAnnotationsSnapshot.value || '[]').forEach((annotation) => {
@@ -3453,6 +3597,7 @@ const handleEdgeHoverDelete = (mouseX, mouseY) => {
         target: removed.target,
         label: removed.label,
       })
+      markLayoutEffortKeyHoldChanged('d')
     }
   }
 }
@@ -3468,6 +3613,7 @@ const handleGraphHoverDelete = (mouseX, mouseY) => {
   })
   if (hoveredNodeIndex !== -1) {
     deleteNode(hoveredNodeIndex)
+    markLayoutEffortKeyHoldChanged('d')
     return
   }
   handleEdgeHoverDelete(mouseX, mouseY)
@@ -3509,13 +3655,16 @@ const calculateMST = (indices, nodes) => {
 
 const addMSTEdges = () => {
   const newEdges = calculateMST(Array.from(hoveredNodesForMST), workingGraph.nodes)
+  let addedEdgeCount = 0
   newEdges.forEach((edge) => {
     if (!edgeExists(edge.source, edge.target)) {
       const newEdge = { source: edge.source, target: edge.target, label: 0, modified: true }
       workingGraph.edges.push(newEdge)
       modifications.value.push({ type: 'add', ...newEdge })
+      addedEdgeCount += 1
     }
   })
+  if (addedEdgeCount > 0) markLayoutEffortKeyHoldChanged('a')
 }
 
 const saveModifications = async (background = false, options = {}) => {
@@ -3524,6 +3673,7 @@ const saveModifications = async (background = false, options = {}) => {
   const numNodes = workingGraph.nodes.length
   const labelsToSend = buildTextboxLabelsPayload(numNodes)
   const readingDirectionAnnotationsToSend = buildReadingDirectionAnnotationsPayload()
+  const layoutEffortForSave = saveScope === 'layout' ? buildLayoutEffortPayloadForSave() : null
   const dummyTextlineLabels = new Array(numNodes).fill(-1);
   const textContentForSave = saveScope === 'text_only'
     ? { ...localTextContent }
@@ -3542,6 +3692,8 @@ const saveModifications = async (background = false, options = {}) => {
     activeLearningEnabled: activeLearningEnabled.value,
     saveIntent: background ? 'draft' : 'commit',
     saveScope,
+    layoutEffort: layoutEffortForSave,
+    layoutEffortLoggingEnabled,
   }
   console.info('[page-save] submitting', {
     manuscript: localManuscriptName.value,
@@ -3573,6 +3725,7 @@ const saveModifications = async (background = false, options = {}) => {
 
     if (saveScope === 'layout') {
       modifications.value = []
+      resetLayoutEffortSession()
       syncSavedTextboxLabelsSnapshot(numNodes)
       syncSavedReadingDirectionAnnotationsSnapshot()
     }

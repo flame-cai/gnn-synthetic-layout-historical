@@ -28,6 +28,7 @@ from recognition.line_segmentation import (
 )
 from recognition.line_segmentation.runtime_config import get_strategy_runtime_config
 from recognition.pagexml_line_dataset import prepare_page_line_dataset
+from gnn_inference import create_page_xml
 
 
 class LineSegmentationStrategyUnitTest(unittest.TestCase):
@@ -74,6 +75,41 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
             encoding="utf-8",
         )
         return tmp_root, page_id, xml_path, image_path, heatmap_path
+
+    def test_create_page_xml_assigns_unique_regions_to_unlabeled_lines(self):
+        tmp_root = TESTS_ROOT / "_tmp_line_segmentation_strategy_unit" / "unlabeled_regions"
+        if tmp_root.exists():
+            shutil.rmtree(tmp_root)
+        tmp_root.mkdir(parents=True, exist_ok=True)
+
+        output_xml_path = tmp_root / "unit_page.xml"
+        points_unnormalized = np.array(
+            [
+                [5.0, 5.0, 0.0],
+                [15.0, 5.0, 0.0],
+                [5.0, 20.0, 0.0],
+                [15.0, 20.0, 0.0],
+            ]
+        )
+
+        create_page_xml(
+            "unit_page",
+            {(0, 1), (2, 3)},
+            points_unnormalized,
+            {"width": 30, "height": 50},
+            output_xml_path,
+            np.array([0, 0, 1, 1]),
+            {},
+            textbox_labels=np.array([-1, -1, -1, -1]),
+            save_vis=False,
+        )
+
+        ns = {"p": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"}
+        root = ET.parse(output_xml_path).getroot()
+        regions = root.findall(".//p:TextRegion", ns)
+        self.assertEqual(len(regions), 2)
+        self.assertEqual([region.get("custom") for region in regions], ["textbox_label_0", "textbox_label_1"])
+        self.assertEqual([len(region.findall("./p:TextLine", ns)) for region in regions], [1, 1])
 
     def test_registry_returns_legacy_strategy(self):
         strategy = get_text_line_segmentation_strategy("legacy_axis_bound_v1")

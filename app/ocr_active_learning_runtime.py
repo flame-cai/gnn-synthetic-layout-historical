@@ -1173,6 +1173,8 @@ def handle_post_save(
         "active_learning": active_learning_status,
         "queued_job_ids": queued_job_ids,
         "entered_active_learning": entered_active_learning,
+        "layout_metrics": layout_metrics,
+        "text_metrics": text_edit_metrics,
     }
 
 

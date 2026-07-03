@@ -100,9 +100,10 @@ def _coerce_int_list(values) -> list[int] | None:
     coerced = []
     for value in values:
         try:
-            coerced.append(max(int(value), 0))
+            label = int(value)
         except (TypeError, ValueError):
-            coerced.append(0)
+            label = -1
+        coerced.append(label if label >= 0 else -1)
     return coerced
 
 
@@ -143,7 +144,11 @@ def _components_from_graph(graph_payload: dict | None) -> list[list[int]]:
 
 
 def _majority_label_for_component(labels: list[int], component: list[int], default_label: int) -> int:
-    values = [labels[node_index] for node_index in component if 0 <= node_index < len(labels)]
+    values = [
+        labels[node_index]
+        for node_index in component
+        if 0 <= node_index < len(labels) and labels[node_index] >= 0
+    ]
     if not values:
         return int(default_label)
     counts = Counter(values)

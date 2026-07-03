@@ -3,6 +3,57 @@ dynamic KV cache for OCR.
 - put the big maps as the held out evaluation benchmark?
 ######################################
 
+Paper update:
+- Fine-tune only on 5 pages, test set on the rest.
+- so test set:
+    - ground truth layout + ground truth text
+- inference on test-set:
+    - ground truth layout + predicted text (after each page of finetuning, without and without manual layout edits)
+
+
+
+Measure number of layout edits and time-taken per manuscript, per page.
+- one key press is one key stroke
+
+
+
+### TO DISABLE LOGGING:
+Disable controls:
+Backend: LAYOUT_EFFORT_LOGGING_ENABLED=false
+Frontend: VITE_LAYOUT_EFFORT_LOGGING_ENABLED=false
+
+
+
+
+#######
+
+# UX TODO
+- tag lines to exclude from training
+- tab function should respect text-box annotations
+- add a warning (once you save layout, make text corrections in read mode, then edit layout - then your existing corrections will get erased! automatically save a backup of the xml)
+
+# TODO Typing fixes
+First understand the grouping..consonents, dependent, independent..
+No trickle down effects on other typing patterns. try to keep all other behaviour unchanged, but also try to find and maintain abstractions and invaraints.
+
+1) ऋ
+
+2) kRu - bug fix -- should be able to type र्नृ.. check with other rules..rnRu. If in doubt ask me. Do not change working of other rules. other examples: हृ, न्मृ
+
+
+3) how to quickly change ni to no, or ni to nou..or do we need to type the n again too? same for other consonents..
+लं to लें (backspace+e+M)
+चै to चे (backspace+e) or if possible just (backspace)
+
+
+4) let us say I am editing the string: "म्कय"
+when cursor is between क and य, and I hit backspace, the म automatically joins to the य. We don't want this. I just want to replace क, by hitting backspace, the pressing n to (न) to form म्न. So I just want to change म्क to a म्न easily by preventing म automatically joining to the य. 
+This is just one example. There could be other such cases where I want to edit the string when the cursor is in the middle..
+It is working as I want it for the string: 
+त्यम, where I have the cursor between  य and म, and I want to change त्य to त्व.
+Can you please find the discrepancy and reason for why it works for some examples and not for others, then can you find a robust fix with the right invariants and abstraction?
+Example of what works well:
+श्चैमके to श्वमके (starting from cursor between श्चै and म, backspace+backspace+v+a) -> hence we dont need to retype sh to get श्‌..that's good.
 
 
 
@@ -18,15 +69,9 @@ dynamic KV cache for OCR.
 
 ##########################
 
-- tab function should respect text-box annotations
+
 - Remove backward compatibility bloat and redundancies
-- understand short line axis alignment
-- add padding for single characters..
-- long file name bug fix - shorten to 1,2,3
-- Read mode should allow painting and editing the text-line polygons. This will only change the Coords of that specific line, it will then be unwrapped, and text-will be recognized only for that line! this is a precise vertical - meant to handle outliers. what all should change? 
-- allow user to draw polygon over graphics
-- check if telemetry is working correctly (CER edits required should drop with each fine-tune)
-- intra page finetuning overhaul..superfast?
+
 
 # Export Save Format:
     - DocOmniBench Format
@@ -44,6 +89,10 @@ dynamic KV cache for OCR.
 - A text block should contain only text that naturally belongs together and can be read in one clear and unambiguous order.
 
 
+# FUTURE TODO
+- allow user to paint and make segmentation corrections in read more
+- some layout changes should not trigger recognition model again.
+- intra page recogntion finetuning overhaul..superfast?
 
 
 
@@ -58,26 +107,11 @@ dynamic KV cache for OCR.
 - export as PAGE-XML.
 
 
-# production
-
-- orientation GUI doesn't work the first time?
-
-
 # document the image selection criteria
 - high resolution (CRAFT should be able to detect), reduce min-distance
 
 
-_______________
-
-- do rigourous testing of the Application GUI
-- make the pre-commit gates faster..
-- faster strategy..
-- GUI line orientation decision - new data collection type
-- update docs and sync up the code base..
-    - rewrite the strategy docs according to this architecture
-    - write a template on how I should write out ideas for new proposed strategy
-- Keep old strategies as backup.
-- annotate all 481 pages at layout level and prepare a nice dataset
+_____________________
 
 
 
@@ -87,6 +121,7 @@ _______________
 # Better GNN training
 - Multi Task Learning, region, orinentation
 - BIG TRAINING STEPS
+- Write why MPNN training faster is a big advantage.
 - BIG MODEL - MPNN
 - BIG DATA
 - CREATE A BENCHMARK DATASET - all 481 pages

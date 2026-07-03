@@ -85,6 +85,7 @@ from ocr_active_learning_runtime import (
     summarize_manuscript_active_learning,
 )
 from ocr_model_manager import ManuscriptAwareOcrModelManager
+from layout_effort_logging import record_layout_effort_save, utc_now_iso as layout_effort_utc_now_iso
 
 app = Flask(__name__)
 CORS(app)
@@ -634,7 +635,7 @@ def _normalize_textbox_labels_payload(textbox_labels, node_count):
     except (TypeError, ValueError):
         safe_node_count = 0
 
-    normalized = [0] * safe_node_count
+    normalized = [-1] * safe_node_count
     if not isinstance(textbox_labels, list):
         return normalized
 
@@ -642,9 +643,81 @@ def _normalize_textbox_labels_payload(textbox_labels, node_count):
         try:
             label = int(raw_label)
         except (TypeError, ValueError):
-            label = 0
-        normalized[index] = label if label >= 0 else 0
+            label = -1
+        normalized[index] = label if label >= 0 else -1
     return normalized
+
+
+def _components_from_graph_payload(graph_payload, node_count):
+    try:
+        safe_node_count = max(0, int(node_count or 0))
+    except (TypeError, ValueError):
+        safe_node_count = 0
+    if safe_node_count <= 0:
+        return []
+
+    parent = list(range(safe_node_count))
+
+    def find(index):
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    def union(left, right):
+        left_root = find(left)
+        right_root = find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    for edge in (graph_payload or {}).get("edges") or []:
+        try:
+            source = int(edge.get("source"))
+            target = int(edge.get("target"))
+        except (AttributeError, TypeError, ValueError):
+            continue
+        if 0 <= source < safe_node_count and 0 <= target < safe_node_count:
+            union(source, target)
+
+    grouped = collections.defaultdict(list)
+    for node_index in range(safe_node_count):
+        grouped[find(node_index)].append(node_index)
+    return sorted(grouped.values(), key=lambda component: component[0])
+
+
+def _majority_nonnegative_label(labels, component):
+    values = [
+        int(labels[node_index])
+        for node_index in component
+        if 0 <= node_index < len(labels) and int(labels[node_index]) >= 0
+    ]
+    if not values:
+        return None
+    counts = collections.Counter(values)
+    return sorted(counts.items(), key=lambda item: (-item[1], item[0]))[0][0]
+
+
+def _resolve_textbox_labels_for_layout(graph_payload, textbox_labels, node_count):
+    normalized = _normalize_textbox_labels_payload(textbox_labels, node_count)
+    components = _components_from_graph_payload(graph_payload, len(normalized))
+    used_labels = {label for label in normalized if label >= 0}
+    resolved = list(normalized)
+    next_default_label = max(len(components), max(used_labels, default=-1) + 1)
+
+    for line_index, component in enumerate(components):
+        label = _majority_nonnegative_label(normalized, component)
+        if label is None:
+            if line_index not in used_labels:
+                label = line_index
+            else:
+                while next_default_label in used_labels:
+                    next_default_label += 1
+                label = next_default_label
+        used_labels.add(int(label))
+        for node_index in component:
+            resolved[node_index] = int(label)
+
+    return resolved
 
 
 def _load_saved_textbox_labels(manuscript_path, page, node_count):
@@ -1420,7 +1493,11 @@ def save_correction(manuscript, page):
     textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph') or {}
     nodes_data = graph_data.get('nodes') or []
-    textbox_labels = _normalize_textbox_labels_payload(data.get('textboxLabels'), len(nodes_data))
+    textbox_labels = _resolve_textbox_labels_for_layout(
+        graph_data,
+        data.get('textboxLabels'),
+        len(nodes_data),
+    )
     text_content = data.get('textContent') 
     reading_direction_annotations = data.get('readingDirectionAnnotations') or []
     
@@ -1429,6 +1506,12 @@ def save_correction(manuscript, page):
     save_intent = data.get('saveIntent', 'commit')
     save_scope = str(data.get('saveScope') or 'layout')
     active_learning_enabled = bool(data.get('activeLearningEnabled', False))
+    layout_effort_payload = data.get('layoutEffort') or None
+    layout_effort_logging_request_enabled = (
+        data.get('layoutEffortLoggingEnabled')
+        if 'layoutEffortLoggingEnabled' in data
+        else None
+    )
 
     if textline_labels is None or not graph_data:
         return jsonify({"error": "Missing labels or graph data"}), 400
@@ -1442,10 +1525,15 @@ def save_correction(manuscript, page):
             if xml_path.exists():
                 previous_reading_direction_annotations = get_existing_reading_direction_annotations(str(xml_path))
 
+        layout_processing_metrics = None
+        layout_artifacts_regenerated = False
         if save_scope == 'text_only' and xml_path.exists():
             result = update_page_text_content(xml_path, text_content=text_content)
         else:
             line_segmentation_args = _load_manuscript_line_segmentation_args(manuscript_path)
+            layout_artifacts_regenerated = True
+            layout_processing_started_at = layout_effort_utc_now_iso()
+            layout_processing_start = time.perf_counter()
             result = generate_xml_and_images_for_page(
                 str(manuscript_path),
                 page,
@@ -1457,6 +1545,14 @@ def save_correction(manuscript, page):
                 text_content=text_content,
                 reading_direction_annotations=reading_direction_annotations,
             )
+            layout_processing_metrics = {
+                "started_at": layout_processing_started_at,
+                "finished_at": layout_effort_utc_now_iso(),
+                "duration_seconds": time.perf_counter() - layout_processing_start,
+                "status": result.get("status", "success") if isinstance(result, dict) else "success",
+                "line_count": (result or {}).get("lines", 0) if isinstance(result, dict) else 0,
+                "layout_artifacts_regenerated": True,
+            }
 
         active_learning_result = handle_post_save(
             manuscript=manuscript,
@@ -1486,6 +1582,31 @@ def save_correction(manuscript, page):
             graph_payload=graph_data,
             textbox_labels=textbox_labels,
         )
+        if layout_artifacts_regenerated:
+            try:
+                layout_effort_log_config = None
+                if str(layout_effort_logging_request_enabled).strip().lower() in {
+                    "0",
+                    "false",
+                    "no",
+                    "off",
+                    "disabled",
+                }:
+                    layout_effort_log_config = {"layout_effort_logging_enabled": False}
+                record_layout_effort_save(
+                    manuscript_root=manuscript_path,
+                    page_id=page,
+                    save_scope=save_scope,
+                    save_intent=save_intent,
+                    layout_metrics=active_learning_result.get("layout_metrics"),
+                    layout_effort=layout_effort_payload,
+                    processing_metrics=layout_processing_metrics,
+                    active_learning_revision=active_learning_result.get("revision"),
+                    config=layout_effort_log_config,
+                )
+            except Exception as logging_error:
+                print(f"[{page}] Error saving layout effort log: {logging_error}")
+                traceback.print_exc()
 
         if run_recognition: 
             # --- MODIFIED: Robust background task with engine switch & logging ---

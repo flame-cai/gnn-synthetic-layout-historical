@@ -815,7 +815,69 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
 
         response_json = response.get_json()
         self.assertEqual(response.status_code, 200, response_json)
-        expected_labels = [4, 0, 0, 2]
+        expected_labels = [4, 1, 5, 2]
+        self.assertEqual(mock_generate.call_args.kwargs["textbox_labels"], expected_labels)
+        self.assertEqual(mock_handle_post_save.call_args.kwargs["textbox_labels"], expected_labels)
+        self.assertEqual(mock_build_workflow.call_args.kwargs["textbox_labels"], expected_labels)
+
+    def test_layout_save_assigns_unique_regions_to_unlabeled_text_lines(self):
+        manuscript_root, _ = self._make_manuscript_root("unique_unlabeled_textbox_labels")
+        page_id = "233_0001"
+        client = backend_app_module.app.test_client()
+        mock_active_learning_result = {
+            "active_learning": {"label": "Not updating right now"},
+            "revision": None,
+            "queued_job_ids": [],
+        }
+
+        with (
+            mock.patch.object(backend_app_module, "UPLOAD_FOLDER", str(manuscript_root.parent)),
+            mock.patch.object(
+                backend_app_module,
+                "generate_xml_and_images_for_page",
+                return_value={"status": "success", "lines": 2},
+            ) as mock_generate,
+            mock.patch.object(
+                backend_app_module,
+                "handle_post_save",
+                return_value=mock_active_learning_result,
+            ) as mock_handle_post_save,
+            mock.patch.object(
+                backend_app_module,
+                "_build_page_workflow",
+                return_value={"state": "ready", "can_edit_text": False, "needs_recognition": True},
+            ) as mock_build_workflow,
+        ):
+            response = client.post(
+                f"/semi-segment/{manuscript_root.name}/{page_id}",
+                json={
+                    "graph": {
+                        "nodes": [
+                            {"x": 1, "y": 2, "s": 3},
+                            {"x": 2, "y": 2, "s": 3},
+                            {"x": 1, "y": 8, "s": 3},
+                            {"x": 2, "y": 8, "s": 3},
+                        ],
+                        "edges": [
+                            {"source": 0, "target": 1},
+                            {"source": 2, "target": 3},
+                        ],
+                    },
+                    "modifications": [],
+                    "textlineLabels": [-1, -1, -1, -1],
+                    "textboxLabels": [-1, -1, -1, -1],
+                    "textContent": {},
+                    "runRecognition": False,
+                    "recognitionEngine": "local",
+                    "saveIntent": "commit",
+                    "saveScope": "layout",
+                    "activeLearningEnabled": False,
+                },
+            )
+
+        response_json = response.get_json()
+        self.assertEqual(response.status_code, 200, response_json)
+        expected_labels = [0, 0, 1, 1]
         self.assertEqual(mock_generate.call_args.kwargs["textbox_labels"], expected_labels)
         self.assertEqual(mock_handle_post_save.call_args.kwargs["textbox_labels"], expected_labels)
         self.assertEqual(mock_build_workflow.call_args.kwargs["textbox_labels"], expected_labels)

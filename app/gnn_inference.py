@@ -13,7 +13,7 @@ import cv2
 from datetime import datetime
 
 import os
-from collections import defaultdict
+from collections import Counter, defaultdict
 import xml.etree.ElementTree as ET
 
 from recognition.line_segmentation import apply_text_line_segmentation_strategy
@@ -65,6 +65,83 @@ DEFAULT_TEXT_LINE_SEGMENTATION_STRATEGY = get_default_text_line_segmentation_str
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def _coerce_textbox_label_array(textbox_labels, num_nodes: int) -> np.ndarray:
+    try:
+        safe_node_count = max(0, int(num_nodes or 0))
+    except (TypeError, ValueError):
+        safe_node_count = 0
+
+    labels = np.full(safe_node_count, -1, dtype=int)
+    if textbox_labels is None:
+        return labels
+
+    try:
+        flattened = np.asarray(textbox_labels, dtype=object).reshape(-1)
+    except (TypeError, ValueError):
+        return labels
+
+    for index, raw_label in enumerate(flattened[:safe_node_count]):
+        try:
+            label = int(raw_label)
+        except (TypeError, ValueError):
+            label = -1
+        labels[index] = label if label >= 0 else -1
+    return labels
+
+
+def _majority_nonnegative_label(labels: np.ndarray, component: list[int]) -> int | None:
+    values = [
+        int(labels[node_index])
+        for node_index in component
+        if 0 <= node_index < len(labels) and int(labels[node_index]) >= 0
+    ]
+    if not values:
+        return None
+    counts = Counter(values)
+    return sorted(counts.items(), key=lambda item: (-item[1], item[0]))[0][0]
+
+
+def _resolve_textbox_labels_for_components(
+    textbox_labels,
+    components: list[list[int]],
+    num_nodes: int,
+) -> np.ndarray:
+    labels = _coerce_textbox_label_array(textbox_labels, num_nodes)
+    used_labels = {int(label) for label in labels if int(label) >= 0}
+    resolved = np.array(labels, dtype=int, copy=True)
+    next_default_label = max(len(components), max(used_labels, default=-1) + 1)
+
+    for line_index, component in enumerate(components):
+        label = _majority_nonnegative_label(labels, component)
+        if label is None:
+            if line_index not in used_labels:
+                label = line_index
+            else:
+                while next_default_label in used_labels:
+                    next_default_label += 1
+                label = next_default_label
+        used_labels.add(int(label))
+        for node_index in component:
+            if 0 <= node_index < len(resolved):
+                resolved[node_index] = int(label)
+    return resolved
+
+
+def _components_from_structural_labels(structural_labels: np.ndarray, num_nodes: int) -> list[list[int]]:
+    if num_nodes <= 0:
+        return []
+    grouped = defaultdict(list)
+    flattened = np.asarray(structural_labels, dtype=int).reshape(-1)
+    for node_index in range(num_nodes):
+        if node_index < len(flattened):
+            label = int(flattened[node_index])
+        else:
+            label = node_index
+        grouped[label].append(node_index)
+    return sorted(grouped.values(), key=lambda component: component[0])
+
 
 def load_model_once(model_checkpoint_path, config_path):
     global LOADED_MODEL, LOADED_CONFIG, DEVICE
@@ -174,18 +251,14 @@ def generate_xml_and_images_for_page(
         n_components, final_structural_labels = connected_components(csgraph=adj, directed=False, return_labels=True)
         np.savetxt(gnn_format_dir / f"{page_id}_labels_textline.txt", final_structural_labels, fmt='%d')
 
-    final_textbox_labels = np.zeros(num_nodes, dtype=int)
+    structural_components = _components_from_structural_labels(final_structural_labels, num_nodes)
+    final_textbox_labels = _resolve_textbox_labels_for_components(
+        textbox_labels,
+        structural_components,
+        num_nodes,
+    )
     with timing.chunk("save_textbox_labels", {"textbox_labels_provided": textbox_labels is not None}):
-        if textbox_labels is not None:
-            try:
-                candidate_textbox_labels = np.asarray(textbox_labels, dtype=int).reshape(-1)
-                if candidate_textbox_labels.size == num_nodes:
-                    final_textbox_labels = np.maximum(candidate_textbox_labels, 0)
-                else:
-                    print(f"Warning: Textbox label count {candidate_textbox_labels.size} != Node count {num_nodes}. Resetting.")
-            except (TypeError, ValueError):
-                print("Warning: Invalid textbox labels payload. Resetting.")
-            np.savetxt(gnn_format_dir / f"{page_id}_labels_textbox.txt", final_textbox_labels, fmt='%d')
+        np.savetxt(gnn_format_dir / f"{page_id}_labels_textbox.txt", final_textbox_labels, fmt='%d')
     with timing.chunk("prepare_pagexml_directories"):
         xml_output_dir = output_dir / "page-xml-format"
         xml_output_dir.mkdir(exist_ok=True)
@@ -767,23 +840,30 @@ def create_page_xml(
 
     # Find Connected Components (Text Lines)
     components = find_connected_components(model_positive_edges, num_nodes)
-    
+    resolved_textbox_labels = _resolve_textbox_labels_for_components(
+        textbox_labels,
+        components,
+        num_nodes,
+    )
+
     # -- Data Structure Preparation --
     regions = defaultdict(list)
-    
+
     for i, component in enumerate(components):
         if not component: continue
-        
+
         comp_tb_labels = []
-        if textbox_labels is not None:
-             for node_idx in component:
-                 comp_tb_labels.append(textbox_labels[node_idx])
-        
+        for node_idx in component:
+            if 0 <= node_idx < len(resolved_textbox_labels):
+                comp_tb_labels.append(int(resolved_textbox_labels[node_idx]))
+
         if comp_tb_labels:
-            tb_id = np.bincount(comp_tb_labels).argmax()
+            tb_id = _majority_nonnegative_label(resolved_textbox_labels, component)
+            if tb_id is None:
+                tb_id = i
         else:
-            tb_id = 0 
-            
+            tb_id = i
+
         regions[tb_id].append(component)
 
     # -- PAGE XML Setup --
