@@ -42,6 +42,41 @@ const cases = [
     keys: ['f', 'f'],
     expected: '॥',
   },
+  {
+    name: 'middle backspace protects a halant before the right-side consonant',
+    initialValue: '\u092E\u094D\u0915\u094D\u200C\u092F',
+    initialCursor: 5,
+    keys: ['Backspace'],
+    expected: '\u092E\u094D\u200C\u092F',
+  },
+  {
+    name: 'middle replacement can change open म्क्‌य to म्नय without joining म to य',
+    initialValue: '\u092E\u094D\u0915\u094D\u200C\u092F',
+    initialCursor: 5,
+    keys: ['Backspace', 'n', 'a'],
+    expected: '\u092E\u094D\u0928\u092F',
+  },
+  {
+    name: 'middle replacement can change closed म्कय to म्नय without joining म to य',
+    initialValue: '\u092E\u094D\u0915\u092F',
+    initialCursor: 3,
+    keys: ['Backspace', 'n', 'a'],
+    expected: '\u092E\u094D\u0928\u092F',
+  },
+  {
+    name: 'existing middle edit त्यम to त्वम remains unchanged',
+    initialValue: '\u0924\u094D\u092F\u092E',
+    initialCursor: 3,
+    keys: ['Backspace', 'v', 'a'],
+    expected: '\u0924\u094D\u0935\u092E',
+  },
+  {
+    name: 'existing middle edit श्चैमके to श्वमके remains unchanged',
+    initialValue: '\u0936\u094D\u091A\u0948\u092E\u0915\u0947',
+    initialCursor: 4,
+    keys: ['Backspace', 'Backspace', 'v', 'a'],
+    expected: '\u0936\u094D\u0935\u092E\u0915\u0947',
+  },
 ]
 
 let failures = 0
@@ -51,7 +86,7 @@ for (const testCase of cases) {
   console.log = () => {}
   let actual
   try {
-    actual = simulateDevanagariKeySequence(testCase.keys)
+    actual = simulateDevanagariKeySequence(testCase.keys, testCase)
     await Promise.resolve()
   } finally {
     console.log = originalLog

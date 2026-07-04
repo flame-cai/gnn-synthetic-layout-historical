@@ -36,6 +36,26 @@ import {
         }
         return false;
     };
+
+    const commitBackspaceEdit = (newValue, newCursorPosition, options = {}) => {
+        const shouldProtectTrailingHalant =
+            newValue[newCursorPosition - 1] === HALANT &&
+            (options.protectTrailingHalant || isBareDevanagariConsonant(newValue[newCursorPosition]));
+
+        if (shouldProtectTrailingHalant) {
+            newValue =
+                newValue.slice(0, newCursorPosition) +
+                ZWNJ +
+                newValue.slice(newCursorPosition);
+            newCursorPosition += 1;
+            console.log('Backspace: inserted ZWNJ to keep the edit boundary from forming a new conjunct');
+        }
+
+        devanagariRef.value = newValue;
+        input.value = newValue;
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+        logCharactersBeforeCursor(input);
+    };
   
     // --- Basic Filtering ---
     if (event.metaKey || event.ctrlKey || event.altKey) {
@@ -112,17 +132,15 @@ import {
             event.preventDefault();
             console.log('Backspace: removing Base/Modifier + Halant + ZWNJ'); // Nukta case C+Nukta+H+ZWNJ needs different handling? No, 3 chars works.
             const newValue = currentValue.slice(0, cursorPosition - 3) + currentValue.slice(cursorPosition);
-            devanagariRef.value = newValue; input.value = newValue;
-            input.setSelectionRange(cursorPosition - 3, cursorPosition - 3);
-            logCharactersBeforeCursor(input); return;
+            commitBackspaceEdit(newValue, cursorPosition - 3);
+            return;
         }
          else if (charM2 === HALANT && cursorPosition >= 2) {
              event.preventDefault();
-             const newValue = currentValue.slice(0, cursorPosition - 1) + ZWNJ + currentValue.slice(cursorPosition);
              console.log('Backspace: Removed last char, Inserted ZWNJ after halant (original logic)');
-             devanagariRef.value = newValue; input.value = newValue;
-             input.setSelectionRange(cursorPosition, cursorPosition);
-             logCharactersBeforeCursor(input); return;
+             const newValue = currentValue.slice(0, cursorPosition - 1) + currentValue.slice(cursorPosition);
+             commitBackspaceEdit(newValue, cursorPosition - 1, { protectTrailingHalant: true });
+             return;
          }
         else {
             console.log('Backspace: Default behavior');

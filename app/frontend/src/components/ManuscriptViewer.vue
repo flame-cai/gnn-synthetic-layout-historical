@@ -65,7 +65,7 @@
               <select
                 v-model="recognitionEngine"
                 class="workflow-select"
-                :disabled="isProcessingSave || recognitionInFlight"
+                :disabled="isProcessingSave || recognitionInFlight || textRecoveryInFlight"
                 :title="recognitionEngineSelectTitle"
                 style="padding: 2px 6px; font-size: 0.75rem;"
               >
@@ -108,6 +108,21 @@
               {{ primaryTopBarActionLabel }}
             </button>
           </span>
+          <span
+            v-if="recognitionModeActive && effectivePageWorkflow.can_edit_text && pageWorkflow.text_recovery.available"
+            class="control-shell action-slot"
+            :class="{ 'is-disabled': recoverTextDisabled }"
+            :title="recoverTextButtonTitle"
+          >
+            <button
+              class="action-btn recovery-action"
+              @click="recoverTextFromBackup"
+              :disabled="recoverTextDisabled"
+              style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
+            >
+              {{ textRecoveryInFlight ? 'Recovering...' : 'Recover Text' }}
+            </button>
+          </span>
           <span class="control-shell action-slot" :class="{ 'is-disabled': commitActionDisabled, 'is-ghost': recognitionModeRequiresLayoutReturn }" :title="recognitionModeRequiresLayoutReturn ? '' : commitButtonTitle">
             <button
               class="action-btn"
@@ -144,8 +159,8 @@
     <div class="visualization-container" ref="container">
       
       <!-- 1. Unified Overlay for Saving OR Mode Switching (Foreground) -->
-      <div v-if="isProcessingSave || recognitionInFlight" class="processing-save-notice">
-        {{ recognitionInFlight ? recognitionBusyLabel : 'Saving your changes. Please wait.' }}
+      <div v-if="isProcessingSave || recognitionInFlight || textRecoveryInFlight" class="processing-save-notice">
+        {{ recognitionInFlight ? recognitionBusyLabel : textRecoveryInFlight ? 'Recovering text from the previous layout. Please wait.' : 'Saving your changes. Please wait.' }}
       </div>
 
       <div v-if="error && !recognitionRecoveryPrompt" class="error-message">
@@ -167,14 +182,14 @@
             <button
               class="action-btn secondary-action"
               @click="retryRecognitionAfterFailure('gemini')"
-              :disabled="recognitionInFlight || isProcessingSave || !isRecognitionEngineAvailable('gemini')"
+              :disabled="recognitionInFlight || isProcessingSave || textRecoveryInFlight || !isRecognitionEngineAvailable('gemini')"
             >
               Try Gemini Again
             </button>
             <button
               class="action-btn"
               @click="retryRecognitionAfterFailure('local')"
-              :disabled="recognitionInFlight || isProcessingSave"
+              :disabled="recognitionInFlight || isProcessingSave || textRecoveryInFlight"
             >
               Use Built-in Reader
             </button>
@@ -301,19 +316,20 @@
                 v-for="(points, lineId) in pagePolygons"
                 :key="`poly-bg-${lineId}`"
                 :points="pointsToSvgString(points)"
-                fill="transparent"
-                stroke="rgba(255, 255, 255, 0.2)"
-                stroke-width="1"
+                :fill="isTextRecoveryUnrecovered(lineId) ? 'rgba(255, 82, 82, 0.24)' : 'transparent'"
+                :stroke="isTextRecoveryUnrecovered(lineId) ? '#ff5252' : 'rgba(255, 255, 255, 0.2)'"
+                :stroke-width="isTextRecoveryUnrecovered(lineId) ? 2 : 1"
                 class="polygon-inactive"
+                :class="{ 'polygon-unrecovered': isTextRecoveryUnrecovered(lineId) }"
                 @click="activateInput(lineId)"
               />
 
               <polygon
                 v-if="focusedLineId && pagePolygons[focusedLineId]"
                 :points="pointsToSvgString(pagePolygons[focusedLineId])"
-                fill="rgba(0, 255, 255, 0.1)"
-                stroke="#00e5ff"
-                stroke-width="0"
+                :fill="isTextRecoveryUnrecovered(focusedLineId) ? 'rgba(255, 82, 82, 0.28)' : 'rgba(0, 255, 255, 0.1)'"
+                :stroke="isTextRecoveryUnrecovered(focusedLineId) ? '#ff5252' : '#00e5ff'"
+                :stroke-width="isTextRecoveryUnrecovered(focusedLineId) ? 2 : 0"
                 class="polygon-active"
               />
             </svg>
@@ -357,6 +373,7 @@
                     ref="activeInput"
                     v-model="localTextContent[focusedLineId]" 
                     class="line-input active"
+                    :class="{ 'is-unrecovered': isTextRecoveryUnrecovered(focusedLineId) }"
                     @keydown="handleRecognitionInput"
                     @blur="handleInputBlur"
                     @keydown.tab.prevent="focusNextLine(false)"
@@ -413,14 +430,14 @@
            class="mode-tab" 
            :class="{ active: layoutModeActive }"
            @click="setMode('layout')"
-           :disabled="isProcessingSave || !graphIsLoaded">
+           :disabled="isProcessingSave || textRecoveryInFlight || !graphIsLoaded">
            Page Layout (W)
          </button>
          <button 
            class="mode-tab" 
            :class="{ active: recognitionModeActive }"
            @click="requestSwitchToRecognition()" 
-           :disabled="isProcessingSave">
+           :disabled="isProcessingSave || textRecoveryInFlight">
            Text Review (T)
          </button>
 
@@ -437,7 +454,7 @@
                  <select
                    v-model="selectedTextboxLabel"
                    class="workflow-select region-select"
-                   :disabled="isProcessingSave || isEKeyPressed"
+                   :disabled="isProcessingSave || textRecoveryInFlight || isEKeyPressed"
                  >
                    <option :value="null">New region</option>
                    <option
@@ -452,7 +469,7 @@
                <button
                  class="region-delete-btn"
                  @click="deleteSelectedTextboxRegion"
-                 :disabled="!canDeleteSelectedTextboxRegion || isProcessingSave || isEKeyPressed"
+                 :disabled="!canDeleteSelectedTextboxRegion || isProcessingSave || textRecoveryInFlight || isEKeyPressed"
                  :title="deleteSelectedTextboxRegionTitle"
                >
                  Delete
@@ -576,6 +593,10 @@
            <div class="instructions-container">
              <h3>Text Review</h3>
              <p>{{ effectivePageWorkflow.hint }}</p>
+             <p v-if="textRecoveryResult" class="text-recovery-summary">
+               Recovered {{ textRecoveryResult.matched_line_count || 0 }} line{{ (textRecoveryResult.matched_line_count || 0) === 1 ? '' : 's' }}.
+               {{ (textRecoveryResult.unrecovered_line_ids || []).length }} line{{ (textRecoveryResult.unrecovered_line_ids || []).length === 1 ? '' : 's' }} need manual review.
+             </p>
              <ul>
                <!-- <li><strong>Read Text:</strong> Press <code>R</code> to read the page or read it again.</li> -->
                <!-- <li><strong>Save:</strong> Press <code>S</code> to save, or <code>Shift+S</code>/<code>Ctrl+Enter</code> to save and open the next page.</li> -->
@@ -881,6 +902,9 @@ const suppressTextDirtyTracking = ref(false)
 const pendingPageEntryPreference = ref(null)
 const readerSwitchNotice = ref('')
 const recognitionRecoveryPrompt = ref(null)
+const textRecoveryInFlight = ref(false)
+const textRecoveryResult = ref(null)
+const textRecoveryUnrecoveredLineIds = ref(new Set())
 const readerCapabilities = reactive({
   local: {
     available: true,
@@ -926,6 +950,14 @@ const pageWorkflow = reactive({
     layout_fingerprint: null,
     matches_current_layout: null,
     layout_match_known: false,
+  },
+  text_recovery: {
+    available: false,
+    reason: 'no_backup',
+    backup_id: null,
+    backed_up_at: null,
+    backup_text_line_count: 0,
+    current_text_line_count: 0,
   },
 })
 
@@ -1592,6 +1624,18 @@ const effectivePageWorkflow = computed(() => {
       can_edit_text: false,
     }
   }
+  if (textRecoveryInFlight.value) {
+    return {
+      ...pageWorkflow,
+      prediction,
+      correction_summary: correctionSummary,
+      state: 'recovering_text',
+      label: 'Recovering text',
+      hint: 'Recovering matching corrected text from the previous layout backup.',
+      needs_recognition: false,
+      can_edit_text: false,
+    }
+  }
   if (hasUnsavedLayoutChanges.value) {
     return {
       ...pageWorkflow,
@@ -1621,7 +1665,8 @@ const showRecognitionGuardCard = computed(() =>
   !recognitionRecoveryPrompt.value &&
   !effectivePageWorkflow.value.can_edit_text &&
   !isProcessingSave.value &&
-  !recognitionInFlight.value
+  !recognitionInFlight.value &&
+  !textRecoveryInFlight.value
 )
 
 const workflowStateClass = computed(() => `state-${effectivePageWorkflow.value.state}`)
@@ -1669,6 +1714,14 @@ const topBarActionState = computed(() => {
       title: 'Reading text on this page',
       hint: recognitionBusyLabel.value,
       recommendedAction: 'recognize',
+    }
+  }
+  if (textRecoveryInFlight.value) {
+    return {
+      eyebrow: 'Working',
+      title: 'Recovering text',
+      hint: 'Matching the previous corrected text to the current page lines.',
+      recommendedAction: null,
     }
   }
   if (isProcessingSave.value) {
@@ -1764,17 +1817,27 @@ const topBarActionState = computed(() => {
 const getBusyDisabledReason = (label) => {
   if (loading.value) return `${label} is not available while the page is loading.`
   if (recognitionInFlight.value) return `${label} is not available while the page is being read.`
+  if (textRecoveryInFlight.value) return `${label} is not available while text is being recovered.`
   if (isProcessingSave.value) return `${label} is not available while changes are being saved.`
   return ''
 }
 
-const previousPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || isFirstPage.value)
-const nextPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || isLastPage.value)
-const recognizeActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || !canRecognizePage.value || recognitionModeRequiresLayoutReturn.value)
-const commitActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value)
-const commitAndNextDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value)
-const exportImageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeActive.value)
-const downloadResultsDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value)
+const previousPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || isFirstPage.value)
+const nextPageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || isLastPage.value)
+const recognizeActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || !canRecognizePage.value || recognitionModeRequiresLayoutReturn.value)
+const recoverTextDisabled = computed(() =>
+  loading.value ||
+  isProcessingSave.value ||
+  recognitionInFlight.value ||
+  textRecoveryInFlight.value ||
+  !recognitionModeActive.value ||
+  !effectivePageWorkflow.value.can_edit_text ||
+  !pageWorkflow.text_recovery.available
+)
+const commitActionDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || recognitionModeRequiresLayoutReturn.value)
+const commitAndNextDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || recognitionModeRequiresLayoutReturn.value)
+const exportImageDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || recognitionModeActive.value)
+const downloadResultsDisabled = computed(() => loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value)
 
 const previousPageButtonTitle = computed(() => {
   const busyReason = getBusyDisabledReason('Previous page')
@@ -1807,6 +1870,14 @@ const recognizeButtonTitle = computed(() => {
   }
   if (effectivePageWorkflow.value.needs_recognition) return 'Read the page text now (R).'
   return 'Replace the current text on this page with a fresh reading using the current method and layout (R). Existing corrections will be overwritten.'
+})
+
+const recoverTextButtonTitle = computed(() => {
+  const busyReason = getBusyDisabledReason('Recover Text')
+  if (busyReason) return busyReason
+  if (textRecoveryInFlight.value) return 'Recovering text from the latest saved layout backup.'
+  if (!pageWorkflow.text_recovery.available) return 'Recover Text is available after a layout backup and a fresh page reading exist.'
+  return 'Recover matching corrected text from the previous layout backup. Unmatched lines will be highlighted.'
 })
 
 const commitButtonTitle = computed(() => {
@@ -1859,7 +1930,7 @@ const primaryTopBarActionDisabled = computed(() =>
   primaryTopBarActionHidden.value
     ? true
     : recognitionModeRequiresLayoutReturn.value
-    ? loading.value || isProcessingSave.value || recognitionInFlight.value
+    ? loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value
     : recognizeActionDisabled.value
 )
 const rereadWillOverwriteExistingText = computed(() =>
@@ -1870,6 +1941,7 @@ const rereadWillOverwriteExistingText = computed(() =>
 )
 const recognitionEngineSelectTitle = computed(() => {
   if (recognitionInFlight.value) return 'The text-reading method cannot be changed while the page is being read.'
+  if (textRecoveryInFlight.value) return 'The text-reading method cannot be changed while text is being recovered.'
   if (isProcessingSave.value) return 'The text-reading method cannot be changed while changes are being saved.'
   return 'Choose the method used the next time this page is read. Changing this does not alter the current text.'
 })
@@ -1894,6 +1966,21 @@ const replaceLocalRecognitionData = (textPayload = {}, confidencePayload = {}) =
   nextTick(() => {
     suppressTextDirtyTracking.value = false
   })
+}
+
+const clearTextRecoveryHighlights = () => {
+  textRecoveryResult.value = null
+  textRecoveryUnrecoveredLineIds.value = new Set()
+}
+
+const isTextRecoveryUnrecovered = (lineId) =>
+  textRecoveryUnrecoveredLineIds.value.has(String(lineId))
+
+const applyTextRecoveryResult = (payload = {}) => {
+  textRecoveryResult.value = payload || null
+  textRecoveryUnrecoveredLineIds.value = new Set(
+    (payload?.unrecovered_line_ids || []).map((lineId) => String(lineId))
+  )
 }
 
 const applyReaderCapabilities = (payload = {}) => {
@@ -2093,10 +2180,18 @@ const applyPageWorkflow = (payload = {}) => {
     matches_current_layout: payload?.prediction?.matches_current_layout ?? null,
     layout_match_known: Boolean(payload?.prediction?.layout_match_known),
   }
+  pageWorkflow.text_recovery = {
+    available: Boolean(payload?.text_recovery?.available),
+    reason: payload?.text_recovery?.reason || 'no_backup',
+    backup_id: payload?.text_recovery?.backup_id || null,
+    backed_up_at: payload?.text_recovery?.backed_up_at || null,
+    backup_text_line_count: Number(payload?.text_recovery?.backup_text_line_count || 0),
+    current_text_line_count: Number(payload?.text_recovery?.current_text_line_count || 0),
+  }
 }
 
 const goToLayoutMode = () => {
-  if (isProcessingSave.value || recognitionInFlight.value) return
+  if (isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value) return
   setMode('layout')
 }
 
@@ -2671,6 +2766,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
     if (data.polygons) pagePolygons.value = data.polygons;
     lineImagePreviews.value = data.lineImagePreviews || {}
     replaceLocalRecognitionData(data.textContent || {}, data.textConfidences || {})
+    clearTextRecoveryHighlights()
     if (data.activeLearning) {
       applyActiveLearningState(data.activeLearning)
     }
@@ -2709,7 +2805,7 @@ const getConfidenceColor = (score) => {
 }
 
 const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false } = {}) => {
-  if (!localManuscriptName.value || !localCurrentPage.value || recognitionInFlight.value || isProcessingSave.value) {
+  if (!localManuscriptName.value || !localCurrentPage.value || recognitionInFlight.value || isProcessingSave.value || textRecoveryInFlight.value) {
     return false
   }
   if (!canRecognizePage.value) {
@@ -2748,6 +2844,7 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
 
     const data = await response.json()
     replaceLocalRecognitionData(data.text || {}, data.confidences || {})
+    clearTextRecoveryHighlights()
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
     rescheduleActiveLearningPolling(activeLearningPollDelayMs.immediate)
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
@@ -2769,6 +2866,41 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
     return false
   } finally {
     recognitionInFlight.value = false
+  }
+}
+
+const recoverTextFromBackup = async () => {
+  if (recoverTextDisabled.value || !localManuscriptName.value || !localCurrentPage.value) return
+  textRecoveryInFlight.value = true
+  error.value = null
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/recover-text/${localManuscriptName.value}/${localCurrentPage.value}`,
+      { method: 'POST' }
+    )
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(data.error || 'Could not recover text')
+
+    replaceLocalRecognitionData(data.text || {}, data.confidences || {})
+    applyTextRecoveryResult(data.textRecovery || {})
+    if ((data.textRecovery?.matched_line_count || 0) > 0) {
+      recognitionDraftDirty.value = true
+    }
+    if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
+    sortLinesTopToBottom()
+    if (!focusedLineId.value && sortedLineIds.value.length > 0) {
+      activateInput(sortedLineIds.value[0])
+    }
+  } catch (err) {
+    error.value = err.message
+    console.warn('[text-recovery] failed', {
+      manuscript: localManuscriptName.value,
+      page: localCurrentPage.value,
+      error: err.message,
+    })
+  } finally {
+    textRecoveryInFlight.value = false
   }
 }
 
@@ -3378,7 +3510,7 @@ const deleteSelectedTextboxRegion = () => {
 const handleGlobalKeyDown = (e) => {
   const tagName = e.target.tagName.toLowerCase();
   const isInput = tagName === 'input' || tagName === 'textarea';
-  if (recognitionInFlight.value) return
+  if (recognitionInFlight.value || textRecoveryInFlight.value) return
 
   const key = e.key.toLowerCase()
   const isZoomShortcut = (e.ctrlKey || e.metaKey) &&
@@ -3770,7 +3902,7 @@ const saveCurrentPageForCurrentMode = async ({ background = false, forceLayoutSa
 const requestSwitchToRecognition = async (forceRecognition = false) => {
     const shouldForceRecognition = forceRecognition === true
     const requiresSavedLayoutForRecognition = pageWorkflowRequiresLayoutMode(effectivePageWorkflow.value)
-    if (recognitionInFlight.value) return;
+    if (recognitionInFlight.value || textRecoveryInFlight.value) return;
     if (recognitionModeActive.value && !shouldForceRecognition && !hasUnsavedLayoutChanges.value) return;
 
     isProcessingSave.value = true;
@@ -3836,7 +3968,7 @@ const navigationSavePrompt = () => {
 }
 
 const navigateToPageWithPolicy = async (targetPage, { exitAction = 'prompt' } = {}) => {
-  if (!targetPage || targetPage === localCurrentPage.value || isProcessingSave.value || recognitionInFlight.value) return
+  if (!targetPage || targetPage === localCurrentPage.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value) return
 
   if (exitAction === 'save') {
     isProcessingSave.value = true
@@ -3898,7 +4030,7 @@ const handlePageSelect = (event) => {
 
 // NEW: Save current page logic (no nav)
 const saveCurrentPage = async () => {
-  if (loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value) return
+  if (loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || recognitionModeRequiresLayoutReturn.value) return
   isProcessingSave.value = true
   try {
     await saveCurrentPageForCurrentMode()
@@ -3908,7 +4040,7 @@ const saveCurrentPage = async () => {
 }
 
 const saveAndGoNext = async () => {
-  if (loading.value || isProcessingSave.value || recognitionInFlight.value || recognitionModeRequiresLayoutReturn.value) return
+  if (loading.value || isProcessingSave.value || recognitionInFlight.value || textRecoveryInFlight.value || recognitionModeRequiresLayoutReturn.value) return
   const idx = localPageList.value.indexOf(localCurrentPage.value)
   if (idx < localPageList.value.length - 1) {
     await navigateToPageWithPolicy(localPageList.value[idx + 1], { exitAction: 'save' })
@@ -3936,7 +4068,7 @@ watch(recognitionModeActive, (active) => {
     if (active) {
         if(autoSaveInterval.value) clearInterval(autoSaveInterval.value);
         autoSaveInterval.value = setInterval(async () => {
-            if (recognitionInFlight.value || isProcessingSave.value || !recognitionDraftDirty.value) return;
+            if (recognitionInFlight.value || isProcessingSave.value || textRecoveryInFlight.value || !recognitionDraftDirty.value) return;
             try {
                 await saveCurrentPageForCurrentMode({ background: true });
                 console.log("Auto-save completed");
@@ -4285,7 +4417,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .workflow-pill.state-missing_page_xml,
-.workflow-pill.state-refreshing_ocr {
+.workflow-pill.state-refreshing_ocr,
+.workflow-pill.state-recovering_text {
   background: rgba(48, 116, 170, 0.18);
   border-color: rgba(108, 181, 240, 0.4);
   color: #c8e8ff;
@@ -4536,6 +4669,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   color: #dde7ff;
 }
 
+.top-bar-right .action-btn.recovery-action {
+  background: rgba(184, 88, 88, 0.14);
+  border-color: rgba(255, 130, 130, 0.34);
+  color: #ffe4e4;
+}
+
 .secondary-action {
   background: transparent;
   color: #d0d0d0;
@@ -4595,6 +4734,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     transition: font-size 0.2s;
 }
 
+.line-input.is-unrecovered {
+    border-color: #ff5252;
+    box-shadow: 0 0 0 2px rgba(255, 82, 82, 0.22), 0 4px 12px rgba(0,0,0,0.5);
+}
+
 .input-floater.has-line-preview .line-input {
     box-sizing: border-box;
 }
@@ -4630,6 +4774,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .polygon-inactive:hover {
     stroke: rgba(255,255,255,0.6);
     stroke-width: 0;
+}
+.polygon-inactive.polygon-unrecovered {
+    stroke-width: 2;
+}
+.polygon-inactive.polygon-unrecovered:hover {
+    stroke: #ff867f;
+    stroke-width: 2;
 }
 .polygon-active {
     pointer-events: none; 
@@ -4874,6 +5025,13 @@ code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #8cb8a7;
+}
+
+.text-recovery-summary {
+  margin: 8px 0 0;
+  color: #ffd6d6;
+  font-size: 0.86rem;
+  line-height: 1.35;
 }
 
 /* Sidebar Log */

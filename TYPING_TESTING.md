@@ -49,6 +49,22 @@ Add an object to the `cases` array in `typing-utils.test.js`:
 Use the same key values that `KeyboardEvent.key` would provide. For uppercase
 letters, pass the uppercase key, for example `R` or `T`.
 
+For a middle-cursor edit, provide the initial text and cursor index:
+
+```js
+{
+  name: 'middle replacement keeps the right-side consonant separate',
+  initialValue: '\u092E\u094D\u0915\u094D\u200C\u092F',
+  initialCursor: 5,
+  keys: ['Backspace', 'n', 'a'],
+  expected: '\u092E\u094D\u0928\u092F',
+}
+```
+
+`initialCursor` is a JavaScript string index, not a visual glyph index. For
+Devanagari tests, prefer Unicode escapes when invisible characters such as
+halant (`\u094D`) and ZWNJ (`\u200C`) matter.
+
 ## What The Simulator Checks
 
 The simulator verifies the final text value after a sequence of key presses.

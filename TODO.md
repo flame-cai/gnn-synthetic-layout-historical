@@ -41,10 +41,17 @@ No trickle down effects on other typing patterns. try to keep all other behaviou
 2) Ru is not working. We should be able to type र्नृ (r+n+R+u).. check with other rules..rnRu. If in doubt ask me. Do not change working of other rules. other examples: हृ (h+R+u), न्मृ (n+m+R+u) न्मृ
 
 
-3) how to quickly change ni to no, or ni to nou..or do we need to type the n again too? same for other consonents..
-लं to लें (backspace+e+M)
-चै to चे (backspace+e) or if possible just (backspace)
+3)
 
+Many times the user needs to only modify the a dependent vowel attached to a consonant. Right now, to do this, the user has to backspace to remove the wrong dependent vowel, and also backspace to remove the consonant. Then the user types the consonant again, with the right dependent vowel.
+
+We want to change this typing UX such that the user can do this with only one backspace.
+They should be able to quickly change ni to no, or ni to nou
+लं to लें (backspace+e+M)
+चै to चे (backspace+e)
+so on..
+
+can you please investigate if this issue is fixable by finding the right invariants and abstraction? how many corner cases? we don't want this change to change other typing behaviour in unexpected ways.
 
 4) let us say I am editing the string: "म्कय"
 when cursor is between क and य, and I hit backspace, the म automatically joins to the य. We don't want this. I just want to replace क, by hitting backspace, the pressing n to (न) to form म्न. So I just want to change म्क to a म्न easily by preventing म automatically joining to the य. 

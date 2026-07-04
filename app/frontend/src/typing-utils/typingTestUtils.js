@@ -58,6 +58,12 @@ const applyBrowserDefault = (event, input) => {
 
 export const simulateDevanagariKeySequence = (keySequence, options = {}) => {
   const input = new SimulatedInput(options.initialValue || '')
+  if (Number.isInteger(options.initialCursor)) {
+    input.setSelectionRange(options.initialCursor, options.initialCursor)
+  }
+  if (Number.isInteger(options.initialSelectionStart) && Number.isInteger(options.initialSelectionEnd)) {
+    input.setSelectionRange(options.initialSelectionStart, options.initialSelectionEnd)
+  }
   const devanagariRef = {
     get value() {
       return input.value

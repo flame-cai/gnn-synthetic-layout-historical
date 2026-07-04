@@ -86,6 +86,11 @@ from ocr_active_learning_runtime import (
 )
 from ocr_model_manager import ManuscriptAwareOcrModelManager
 from layout_effort_logging import record_layout_effort_save, utc_now_iso as layout_effort_utc_now_iso
+from text_recovery import (
+    backup_page_xml_for_text_recovery,
+    build_latest_text_recovery_plan,
+    build_text_recovery_state,
+)
 
 app = Flask(__name__)
 CORS(app)
@@ -759,6 +764,11 @@ def _build_page_workflow(
     )
     if active_learning:
         workflow["active_checkpoint_id"] = active_learning.get("active_checkpoint_id")
+    workflow["text_recovery"] = build_text_recovery_state(
+        manuscript_path,
+        page,
+        current_xml_path=xml_path,
+    )
     return workflow
 
 
@@ -1527,6 +1537,17 @@ def save_correction(manuscript, page):
         if save_scope == 'text_only' and xml_path.exists():
             result = update_page_text_content(xml_path, text_content=text_content)
         else:
+            if save_scope == 'layout' and xml_path.exists():
+                try:
+                    backup_page_xml_for_text_recovery(
+                        manuscript_path,
+                        page,
+                        xml_path=xml_path,
+                        layout_fingerprint=compute_page_layout_fingerprint(str(xml_path)),
+                    )
+                except Exception as backup_error:
+                    print(f"[{page}] Error backing up PAGE XML for text recovery: {backup_error}")
+                    traceback.print_exc()
             line_segmentation_args = _load_manuscript_line_segmentation_args(manuscript_path)
             layout_artifacts_regenerated = True
             layout_processing_started_at = layout_effort_utc_now_iso()
@@ -1708,6 +1729,58 @@ def recognize_text():
         )
 
     return jsonify(result)
+
+
+@app.route('/recover-text/<manuscript>/<page>', methods=['POST'])
+def recover_text_from_layout_backup(manuscript, page):
+    manuscript_root = _safe_manuscript_root(manuscript)
+    if manuscript_root is None or not manuscript_root.exists():
+        return jsonify({"error": "Manuscript not found"}), 404
+
+    xml_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    if not xml_path.exists():
+        return jsonify({"error": "Current PAGE XML not found"}), 404
+
+    try:
+        plan = build_latest_text_recovery_plan(manuscript_root, page, xml_path)
+        if not plan.get("available"):
+            return jsonify({"error": "No text recovery backup is available", "textRecovery": plan}), 404
+
+        existing_data = get_existing_text_content(str(xml_path))
+        recovered_text = dict(existing_data.get("text", {}))
+        recovered_confidences = dict(existing_data.get("confidences", {}))
+
+        for match in plan.get("matches", []):
+            line_id = str(match.get("current_line_id"))
+            recovered_text[line_id] = str(match.get("recovered_text") or "")
+            recovered_confidences.pop(line_id, None)
+
+        update_page_text_content(
+            xml_path,
+            text_content=recovered_text,
+            confidences=recovered_confidences,
+        )
+        updated_data = get_existing_text_content(str(xml_path))
+        active_learning = _get_manuscript_active_learning_state(manuscript)
+        workflow = _build_page_workflow(
+            manuscript_root,
+            page,
+            text_payload=updated_data["text"],
+            active_learning=active_learning,
+        )
+        return jsonify(
+            {
+                "status": "success",
+                "text": updated_data["text"],
+                "confidences": updated_data["confidences"],
+                "textRecovery": plan,
+                "activeLearning": active_learning,
+                "pageWorkflow": workflow,
+            }
+        )
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
     
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):
