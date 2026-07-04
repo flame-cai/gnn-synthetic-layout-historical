@@ -11,6 +11,8 @@ import {
   } from './InputClusterCode.js'
   
   let lastEffectiveKey = null;
+  const dependentVowelSigns = new Set(Object.values(dependentVowelMap));
+  const vowelModifierSigns = new Set([ANUSVARA, VISARGA, CANDRABINDU]);
 
   export function resetInputState() {
     lastEffectiveKey = null;
@@ -35,6 +37,35 @@ import {
             return true;
         }
         return false;
+    };
+
+    const consonantClusterBefore = (position) => {
+        const previous = currentValue[position - 1];
+        const previous2 = currentValue[position - 2];
+
+        if (isBareDevanagariConsonant(previous)) {
+            return { start: position - 1, text: previous };
+        }
+
+        if (previous === NUKTA && isBareDevanagariConsonant(previous2)) {
+            return { start: position - 2, text: previous2 + previous };
+        }
+
+        return null;
+    };
+
+    const reopenConsonantClusterBeforeMark = () => {
+        const cluster = consonantClusterBefore(cursorPosition - 1);
+        if (!cluster) return false;
+
+        event.preventDefault();
+        const replacement = cluster.text + HALANT + ZWNJ;
+        const newValue =
+            currentValue.slice(0, cluster.start) +
+            replacement +
+            currentValue.slice(cursorPosition);
+        commitBackspaceEdit(newValue, cluster.start + replacement.length);
+        return true;
     };
 
     const commitBackspaceEdit = (newValue, newCursorPosition, options = {}) => {
@@ -128,6 +159,14 @@ import {
     // --- Backspace Handling (Keep existing logic) ---
     if (effectiveKey === 'Backspace') {
         lastEffectiveKey = null; // Reset sequence tracking
+        if (dependentVowelSigns.has(charM1)) {
+            console.log('Backspace: reopening consonant after removing dependent vowel');
+            if (reopenConsonantClusterBeforeMark()) return;
+        }
+        if (vowelModifierSigns.has(charM1) && consonantClusterBefore(cursorPosition - 1)) {
+            console.log('Backspace: reopening bare consonant after removing vowel modifier');
+            if (reopenConsonantClusterBeforeMark()) return;
+        }
         if (charM1 === ZWNJ && charM2 === HALANT && cursorPosition >=3 ) {
             event.preventDefault();
             console.log('Backspace: removing Base/Modifier + Halant + ZWNJ'); // Nukta case C+Nukta+H+ZWNJ needs different handling? No, 3 chars works.

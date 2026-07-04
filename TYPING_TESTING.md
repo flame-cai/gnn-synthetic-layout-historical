@@ -72,6 +72,17 @@ It intentionally exercises the production handler instead of duplicating the
 mapping logic. This catches bugs where a map entry exists but the keydown flow
 does not reach it.
 
+Useful typing invariants to preserve:
+
+- A consonant that is waiting for a vowel is represented as
+  `consonant + halant + ZWNJ`.
+- Backspace over a dependent vowel should reopen the preceding consonant into
+  that same waiting state, so the next vowel key replaces the vowel without
+  retyping the consonant.
+- Backspace over `ं`, `ः`, or `ँ` reopens the consonant only when the modifier
+  is directly after a bare consonant. If the modifier follows a matra, only the
+  modifier is removed.
+
 When a test fails, the runner prints both the expected and actual Unicode code
 points. This is useful for invisible characters such as halant (`U+094D`),
 ZWNJ (`U+200C`), and ZWJ (`U+200D`).
