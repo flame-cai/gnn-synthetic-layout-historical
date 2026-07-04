@@ -8,9 +8,13 @@ import {
     applyNukta, // Import new helper
     logCharactersBeforeCursor,
     HALANT, ZWNJ, ZWJ, NUKTA, ANUSVARA, VISARGA, CANDRABINDU, DANDA, DOUBLE_DANDA, OM // Import constants
-  } from './InputClusterCode'
+  } from './InputClusterCode.js'
   
   let lastEffectiveKey = null;
+
+  export function resetInputState() {
+    lastEffectiveKey = null;
+  }
   
   export function handleInput(event, devanagariRef) {
     const key = event.key;
@@ -125,6 +129,25 @@ import {
             queueMicrotask(() => { devanagariRef.value = input.value; logCharactersBeforeCursor(input); });
             return;
         }
+    }
+
+    // --- Deferred Vocalic R Matra (R + u) ---
+    // Preserve R as a literal fallback key unless it is completed as R+u
+    // immediately after an open consonant sequence: C + Halant + ZWNJ + R.
+    if (
+        effectiveKey === 'u' &&
+        lastEffectiveKey === 'R' &&
+        cursorPosition >= 4 &&
+        charM1 === 'R' &&
+        charM2 === ZWNJ &&
+        charM3 === HALANT &&
+        dependentVowelMap['Ru']
+    ) {
+        event.preventDefault();
+        replacePreviousChars(input, devanagariRef, 4, charM4 + dependentVowelMap['Ru'], cursorPosition);
+        console.log(`Applied vocalic R matra via R+u: ${charM4}${dependentVowelMap['Ru']}`);
+        lastEffectiveKey = effectiveKey;
+        return;
     }
   
     // --- Simple Insertions (Space, Digits, ZWJ, ZWNJ, Period, Avagraha etc.) ---

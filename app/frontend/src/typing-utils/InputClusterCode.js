@@ -83,6 +83,7 @@ export const dependentVowelMap = {
     'a':'ा', 'e':'े', 'i':'ि', 'o':'ो', 'u':'ु',
     'aa': 'ा', 'ee': 'ी', 'ii': 'ी', 'uu': 'ू', 'oo': 'ू',
     'ai':'ै', 'au':'ौ', 'ou':'ौ',
+    'Ru':'ृ',
     'Rri':'ृ', 'RrI':'ॄ', 'Lli':'ॢ', 'LlI':'ॣ',
     'ze':'ॆ', 'zo':'ॊ', 'aE':'ॅ', 'aO':'ॉ',
     'zau':'\u094F', // Kashmiri/Bihari Au Matra
@@ -187,7 +188,7 @@ export const simpleInsertMap = {
 // ** Define the base object first **
 export const sequencePrefixes = {
     // Vowel prefixes
-    'R': ['r', 'R', 'i', 'I'], // For Rr, RR, Rri, RRI
+    'R': ['r', 'R', 'i', 'I', 'u'], // For Rr, RR, Rri, RRI, Ru
     'L': ['l', 'L', 'i', 'I'], // For Ll, LL, Lli, LLI
     'z': ['e', 'o', 'a', 'E', 'A', 'O', 'U'], // For ze, zo, za, zE, zA etc.
     'a': ['a', 'e', 'i', 'u', 'E', 'O'], // For aa, ae, ai, au, aE, aO

@@ -38,7 +38,7 @@ No trickle down effects on other typing patterns. try to keep all other behaviou
 
 1) ऋ
 
-2) kRu - bug fix -- should be able to type र्नृ.. check with other rules..rnRu. If in doubt ask me. Do not change working of other rules. other examples: हृ, न्मृ
+2) Ru is not working. We should be able to type र्नृ (r+n+R+u).. check with other rules..rnRu. If in doubt ask me. Do not change working of other rules. other examples: हृ (h+R+u), न्मृ (n+m+R+u) न्मृ
 
 
 3) how to quickly change ni to no, or ni to nou..or do we need to type the n again too? same for other consonents..
