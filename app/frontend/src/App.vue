@@ -82,7 +82,7 @@ const pageList = ref([])
 
 // Upload Form State
 const formName = ref('my_manuscript')
-const formLongestSide = ref(2500)
+const formLongestSide = ref(3500)
 const formMinDistance = ref(20)
 const formBinarizationThreshold = ref('')
 const selectedFiles = ref([])

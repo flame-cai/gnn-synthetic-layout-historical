@@ -882,7 +882,7 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
 def upload_manuscript():
     manuscript_name = request.form.get('manuscriptName', 'default_manuscript')
     try:
-        longest_side = int(request.form.get('longestSide', 2500))
+        longest_side = int(request.form.get('longestSide', 3500))
         min_distance = int(request.form.get('minDistance', 20))
         binarize_threshold = _coerce_optional_binarize_threshold(
             request.form.get('binarizationThreshold')

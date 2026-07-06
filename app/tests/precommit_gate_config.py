@@ -97,7 +97,7 @@ class PipelinePrecommitDatasetConfig:
     images_dir: Path
     pagexml_dir: Path
     layout_type: str = "simple"
-    longest_side: int = 2500
+    longest_side: int = 3500
     min_distance: int = 20
     expected_page_count: int = 15
     max_page_cer: float = 0.40
