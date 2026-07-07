@@ -25,6 +25,10 @@ Measure number of layout edits and time-taken per manuscript, per page.
 रस्तुल्याश्मभिःपूरयेत्‌ ८९ प्राक्‌साध्योज्जयिनीस्थलाद्यमदिशित्वाष्ट्रानिलाभ्यंतरा
 त्सौम्येऽतोग्न्युदयादुदक्‌ध्रुवमुखादिग्मूढकेस्यान्मृतिः ९० गेहंमाधवपोषफाल्गुनन
 
+
+Recorrect
+व्युहिश्र्वेत्‌=१
+
 implementation slices
 36 - 43 - Page 10
 80 - 85 - Page 17
