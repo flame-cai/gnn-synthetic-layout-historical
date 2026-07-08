@@ -265,7 +265,7 @@ Activate the conda environment if not already done:
 cd src
 conda activate gnn_layout
 ```
-
+\\ use python -c
 #### 🔵 Generate Synthetic Data
 Configure the parameters in `src/configs/synthetic.yaml` as needed, then run:
 ```bash

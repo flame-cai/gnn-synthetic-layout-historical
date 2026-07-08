@@ -15,6 +15,7 @@ from .runners import (
     run_local_gt_layout_experiment,
     run_methods_experiment,
 )
+from .reporting import write_experiment_report
 from .validation import validate_manuscript_pagexml, write_validation_report
 
 
@@ -100,6 +101,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write reproducibility.json with git, dependency, and checkpoint hash metadata.",
     )
     snapshot.add_argument("--output-root", required=True)
+
+    report = subparsers.add_parser(
+        "write-report",
+        help="Generate summary tables, figures, Gemini usage tables, and a Markdown report for an existing run.",
+    )
+    report.add_argument("--output-root", required=True)
+    report.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
+    report.add_argument("--gemini-output-usd-per-1m-tokens", type=float)
     return parser
 
 
@@ -182,6 +191,13 @@ def main(argv: list[str] | None = None) -> None:
             ),
         )
         print({"reproducibility_json": str(path)})
+    elif args.command == "write-report":
+        artifacts = write_experiment_report(
+            args.output_root,
+            input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
+            output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
+        )
+        print({"report": str(artifacts.markdown_path)})
     else:  # pragma: no cover
         parser.error(f"Unhandled command: {args.command}")
 

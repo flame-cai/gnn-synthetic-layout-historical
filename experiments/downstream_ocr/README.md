@@ -119,6 +119,37 @@ Gemini-backed methods are available as `vlm_e2e` and `gemini_gt_layout`, but
 they make API calls and require `GEMINI_API_KEY` in `app/.env` or the process
 environment.
 
+Each evaluation command writes an automatic report under:
+
+```text
+<output-root>/report/
+```
+
+The report folder includes:
+
+- `experiment_report.md`
+- `summary_metrics.csv` and `summary_metrics.json`
+- `per_page_metrics.csv`
+- `gemini_usage.csv` and `gemini_usage.json`
+- figures under `figures/`
+
+Gemini methods record SDK usage metadata when available, including prompt,
+candidate, and total token counts. Annotation-tool methods use local
+computation and are reported with zero Gemini API cost. USD estimates are left
+blank unless you provide Gemini rates through environment variables:
+
+```powershell
+$env:GEMINI_INPUT_USD_PER_1M_TOKENS="..."
+$env:GEMINI_OUTPUT_USD_PER_1M_TOKENS="..."
+```
+
+You can regenerate only the report for an existing run:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli write-report `
+  --output-root app\tests\logs\downstream_ocr_yajn
+```
+
 The existing prediction tree must be organized as:
 
 ```text

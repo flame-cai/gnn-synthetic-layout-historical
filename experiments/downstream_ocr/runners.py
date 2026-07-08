@@ -6,6 +6,7 @@ import math
 import os
 import shutil
 import sys
+import threading
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import asdict, dataclass
@@ -18,6 +19,7 @@ from .adapter import AdapterError, VLM_END_TO_END_PROMPT, vlm_json_to_pagexml
 from .diagnostics import write_page_diagnostics
 from .metrics import aggregate_page_records, evaluate_page
 from .pagexml import empty_page_like, local_name, load_pagexml, qualified, tag_namespace, write_pagexml
+from .reporting import summarize_usage_metadata, usage_metadata_to_dict
 from .reproducibility import write_reproducibility_manifest
 from .splits import Fold, ManuscriptPaths, default_manuscript_paths, discover_page_ids, make_three_folds
 
@@ -40,6 +42,12 @@ def _write_experiment_reproducibility(output_root: Path) -> Path:
             PRETRAINED_GNN_CONFIG,
         ),
     )
+
+
+def _write_report_artifacts(output_root: Path) -> None:
+    from .reporting import write_experiment_report
+
+    write_experiment_report(output_root)
 
 
 @dataclass(frozen=True)
@@ -440,8 +448,10 @@ def run_vlm_end_to_end_gemini(
                 usage_dir / f"{page_id}.json",
                 {
                     "page_id": page_id,
+                    "status": statuses[page_id],
+                    "model": "gemini-3.5-flash",
                     "elapsed_seconds": time.perf_counter() - started,
-                    "usage_metadata": usage.to_json_dict() if hasattr(usage, "to_json_dict") else str(usage),
+                    "usage_metadata": usage_metadata_to_dict(usage),
                 },
             )
         except Exception as exc:
@@ -457,6 +467,32 @@ def run_vlm_end_to_end_gemini(
                 },
             )
     return prediction_dir, statuses
+
+
+def _recording_gemini_client_factory(real_client_cls, usage_records: list[dict], lock: threading.Lock):
+    class RecordingModels:
+        def __init__(self, models):
+            self._models = models
+
+        def generate_content(self, *args, **kwargs):
+            response = self._models.generate_content(*args, **kwargs)
+            usage = usage_metadata_to_dict(getattr(response, "usage_metadata", None))
+            with lock:
+                usage_records.append({"usage_metadata": usage})
+            return response
+
+        def __getattr__(self, name):
+            return getattr(self._models, name)
+
+    class RecordingClient:
+        def __init__(self, *args, **kwargs):
+            self._client = real_client_cls(*args, **kwargs)
+            self.models = RecordingModels(self._client.models)
+
+        def __getattr__(self, name):
+            return getattr(self._client, name)
+
+    return RecordingClient
 
 
 def _copy_gt_layout_manuscript_for_gemini(paths: ManuscriptPaths, fold: Fold, target_root: Path) -> Path:
@@ -488,12 +524,20 @@ def run_layout_grounded_gemini_with_app_copy(
     upload_root = run_dir / "upload_root"
     manuscript_root = _copy_gt_layout_manuscript_for_gemini(paths, fold, upload_root / paths.manuscript_id)
     previous_upload_folder = backend_app_module.UPLOAD_FOLDER
+    real_gemini_client_cls = backend_app_module.genai.Client
     backend_app_module.UPLOAD_FOLDER = str(upload_root)
     statuses: dict[str, str] = {}
     usage_dir = run_dir / "gemini_usage"
     try:
         for page_id in fold.test_page_ids:
             started = time.perf_counter()
+            usage_records: list[dict] = []
+            usage_lock = threading.Lock()
+            backend_app_module.genai.Client = _recording_gemini_client_factory(
+                real_gemini_client_cls,
+                usage_records,
+                usage_lock,
+            )
             try:
                 result = backend_app_module._run_gemini_recognition_internal(paths.manuscript_id, page_id)
                 if result.get("error"):
@@ -519,6 +563,9 @@ def run_layout_grounded_gemini_with_app_copy(
                         "page_id": page_id,
                         "elapsed_seconds": time.perf_counter() - started,
                         "status": statuses[page_id],
+                        "model": "gemini-3.5-flash",
+                        "usage_records": usage_records,
+                        "usage_metadata": summarize_usage_metadata(usage_records),
                     },
                 )
             except Exception as exc:
@@ -542,9 +589,15 @@ def run_layout_grounded_gemini_with_app_copy(
                         "elapsed_seconds": time.perf_counter() - started,
                         "status": statuses[page_id],
                         "error": str(exc),
+                        "model": "gemini-3.5-flash",
+                        "usage_records": usage_records,
+                        "usage_metadata": summarize_usage_metadata(usage_records),
                     },
                 )
+            finally:
+                backend_app_module.genai.Client = real_gemini_client_cls
     finally:
+        backend_app_module.genai.Client = real_gemini_client_cls
         backend_app_module.UPLOAD_FOLDER = previous_upload_folder
     return manuscript_root / "layout_analysis_output" / "page-xml-format", statuses
 
@@ -662,6 +715,7 @@ def evaluate_existing_prediction_tree(
     }
     _write_json(output_root / method_id / "metrics.json", payload)
     _write_csv(output_root / method_id / "per_page.csv", all_records)
+    _write_report_artifacts(output_root)
     return payload
 
 
@@ -735,6 +789,7 @@ def adapt_vlm_json_and_evaluate(
     }
     _write_json(output_root / "metrics" / method.method_id / "metrics.json", payload)
     _write_csv(output_root / "metrics" / method.method_id / "per_page.csv", all_records)
+    _write_report_artifacts(output_root)
     return payload
 
 
@@ -787,6 +842,7 @@ def run_local_gt_layout_experiment(
         _write_json(output_root / "metrics" / method.method_id / "metrics.json", payload)
         _write_csv(output_root / "metrics" / method.method_id / "per_page.csv", all_records)
         results[method.method_id] = payload
+    _write_report_artifacts(output_root)
     return results
 
 
@@ -890,6 +946,7 @@ def run_methods_experiment(
         _write_json(output_root / "metrics" / method.method_id / "metrics.json", payload)
         _write_csv(output_root / "metrics" / method.method_id / "per_page.csv", all_records)
         results[method.method_id] = payload
+    _write_report_artifacts(output_root)
     return results
 
 

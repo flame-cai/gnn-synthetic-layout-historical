@@ -22904,3 +22904,103 @@
 2026-07-08 11:50:27,743 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:27] "POST /semi-segment/dense/24 HTTP/1.1" 200 -
 2026-07-08 11:50:28,105 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:28] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
 2026-07-08 11:51:05,004 - INFO - 127.0.0.1 - - [08/Jul/2026 11:51:05] "GET /semi-segment/dense/23 HTTP/1.1" 200 -
+2026-07-08 13:29:55,701 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.109:5000
+2026-07-08 13:29:55,701 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-08 13:29:55,701 - INFO -  * Restarting with stat
+2026-07-08 13:30:09,397 - WARNING -  * Debugger is active!
+2026-07-08 13:30:09,400 - INFO -  * Debugger PIN: 434-625-588
+2026-07-08 13:30:14,136 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:14] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-08 13:30:18,024 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:18] "GET /manuscript/yajn/pages HTTP/1.1" 200 -
+2026-07-08 13:30:18,397 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:18] "GET /manuscript/yajn/pages HTTP/1.1" 200 -
+2026-07-08 13:30:18,653 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:18] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-08 13:30:19,321 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:19] "GET /semi-segment/yajn/233_0016 HTTP/1.1" 200 -
+2026-07-08 13:30:19,530 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:19] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:30:42,386 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:42] "GET /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:30:46,780 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:46] "GET /line-image/yajn/233_0005/1?v=1783066381420721400 HTTP/1.1" 200 -
+2026-07-08 13:30:47,801 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:47] "GET /line-image/yajn/233_0005/2?v=1783066381421755600 HTTP/1.1" 200 -
+2026-07-08 13:30:51,570 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:51] "GET /line-image/yajn/233_0005/5?v=1783066381433919000 HTTP/1.1" 200 -
+2026-07-08 13:30:55,578 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:55] "GET /line-image/yajn/233_0005/11?v=1783066381461881000 HTTP/1.1" 200 -
+2026-07-08 13:30:58,631 - INFO - 127.0.0.1 - - [08/Jul/2026 13:30:58] "GET /line-image/yajn/233_0005/15?v=1783066381479071600 HTTP/1.1" 200 -
+2026-07-08 13:31:04,980 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:04] "[36mGET /line-image/yajn/233_0005/1?v=1783066381420721400 HTTP/1.1[0m" 304 -
+2026-07-08 13:31:06,169 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:06] "[36mGET /line-image/yajn/233_0005/2?v=1783066381421755600 HTTP/1.1[0m" 304 -
+2026-07-08 13:31:19,645 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:19] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:31:33,491 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:33] "[36mGET /line-image/yajn/233_0005/1?v=1783066381420721400 HTTP/1.1[0m" 304 -
+2026-07-08 13:31:35,729 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:35] "[36mGET /line-image/yajn/233_0005/2?v=1783066381421755600 HTTP/1.1[0m" 304 -
+2026-07-08 13:31:39,262 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:39] "[36mGET /line-image/yajn/233_0005/5?v=1783066381433919000 HTTP/1.1[0m" 304 -
+2026-07-08 13:31:45,149 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:45] "[36mGET /line-image/yajn/233_0005/11?v=1783066381461881000 HTTP/1.1[0m" 304 -
+2026-07-08 13:31:46,519 - INFO - 127.0.0.1 - - [08/Jul/2026 13:31:46] "[36mGET /line-image/yajn/233_0005/15?v=1783066381479071600 HTTP/1.1[0m" 304 -
+2026-07-08 13:32:20,077 - INFO - 127.0.0.1 - - [08/Jul/2026 13:32:20] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:32:51,961 - INFO - 127.0.0.1 - - [08/Jul/2026 13:32:51] "[36mGET /line-image/yajn/233_0005/1?v=1783066381420721400 HTTP/1.1[0m" 304 -
+2026-07-08 13:32:52,612 - INFO - 127.0.0.1 - - [08/Jul/2026 13:32:52] "[36mGET /line-image/yajn/233_0005/2?v=1783066381421755600 HTTP/1.1[0m" 304 -
+2026-07-08 13:32:56,622 - INFO - 127.0.0.1 - - [08/Jul/2026 13:32:56] "[36mGET /line-image/yajn/233_0005/5?v=1783066381433919000 HTTP/1.1[0m" 304 -
+2026-07-08 13:32:59,843 - INFO - 127.0.0.1 - - [08/Jul/2026 13:32:59] "[36mGET /line-image/yajn/233_0005/11?v=1783066381461881000 HTTP/1.1[0m" 304 -
+2026-07-08 13:33:01,968 - INFO - 127.0.0.1 - - [08/Jul/2026 13:33:01] "[36mGET /line-image/yajn/233_0005/15?v=1783066381479071600 HTTP/1.1[0m" 304 -
+2026-07-08 13:33:21,364 - INFO - 127.0.0.1 - - [08/Jul/2026 13:33:21] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:34:22,357 - INFO - 127.0.0.1 - - [08/Jul/2026 13:34:22] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:35:23,349 - INFO - 127.0.0.1 - - [08/Jul/2026 13:35:23] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:36:24,317 - INFO - 127.0.0.1 - - [08/Jul/2026 13:36:24] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:37:25,366 - INFO - 127.0.0.1 - - [08/Jul/2026 13:37:25] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:40:18,843 - INFO - 127.0.0.1 - - [08/Jul/2026 13:40:18] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:41:19,360 - INFO - 127.0.0.1 - - [08/Jul/2026 13:41:19] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:42:20,362 - INFO - 127.0.0.1 - - [08/Jul/2026 13:42:20] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:43:21,314 - INFO - 127.0.0.1 - - [08/Jul/2026 13:43:21] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:44:22,370 - INFO - 127.0.0.1 - - [08/Jul/2026 13:44:22] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:45:22,487 - INFO - 127.0.0.1 - - [08/Jul/2026 13:45:22] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:46:22,906 - INFO - 127.0.0.1 - - [08/Jul/2026 13:46:22] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:47:12,599 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:12] "OPTIONS /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:47:13,161 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=yajn page_id=233_0005
+2026-07-08 13:47:18,925 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:18] "POST /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:47:19,345 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:19] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:47:19,598 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:19] "GET /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:47:19,635 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:19] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-08 13:47:20,051 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\yajn\active_learning\recognition\checkpoints\ocr_233_0016_r0024\model.pth...
+2026-07-08 13:47:21,295 - INFO - Model loaded successfully.
+2026-07-08 13:47:24,815 - INFO - Updated input_manuscripts\yajn\layout_analysis_output\page-xml-format\233_0005.xml: 14 lines recognized.
+2026-07-08 13:47:25,168 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:25] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-08 13:47:25,282 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:25] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:47:29,286 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:29] "POST /recover-text/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:47:35,903 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:35] "GET /line-image/yajn/233_0005/10?v=1783498637902023800 HTTP/1.1" 200 -
+2026-07-08 13:47:39,646 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:39] "OPTIONS /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:47:41,130 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:41] "POST /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:47:41,234 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:41] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:47:41,883 - INFO - 127.0.0.1 - - [08/Jul/2026 13:47:41] "GET /line-image/yajn/233_0005/4?v=1783498637851525400 HTTP/1.1" 200 -
+2026-07-08 13:48:41,653 - INFO - 127.0.0.1 - - [08/Jul/2026 13:48:41] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:48:54,225 - INFO - 127.0.0.1 - - [08/Jul/2026 13:48:54] "GET /line-image/yajn/233_0005/1?v=1783498637826949000 HTTP/1.1" 200 -
+2026-07-08 13:49:01,679 - INFO - 127.0.0.1 - - [08/Jul/2026 13:49:01] "OPTIONS /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:49:03,073 - INFO - 127.0.0.1 - - [08/Jul/2026 13:49:03] "POST /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 13:49:03,201 - INFO - 127.0.0.1 - - [08/Jul/2026 13:49:03] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:50:04,315 - INFO - 127.0.0.1 - - [08/Jul/2026 13:50:04] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:51:05,355 - INFO - 127.0.0.1 - - [08/Jul/2026 13:51:05] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:52:06,356 - INFO - 127.0.0.1 - - [08/Jul/2026 13:52:06] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:53:07,355 - INFO - 127.0.0.1 - - [08/Jul/2026 13:53:07] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 13:54:58,748 - INFO - 127.0.0.1 - - [08/Jul/2026 13:54:58] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:28:46,553 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.109:5000
+2026-07-08 15:28:46,553 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-08 15:28:46,555 - INFO -  * Restarting with stat
+2026-07-08 15:28:54,692 - WARNING -  * Debugger is active!
+2026-07-08 15:28:54,697 - INFO -  * Debugger PIN: 434-625-588
+2026-07-08 15:28:55,356 - INFO - 127.0.0.1 - - [08/Jul/2026 15:28:55] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-08 15:28:56,403 - INFO - 127.0.0.1 - - [08/Jul/2026 15:28:56] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-08 15:29:02,351 - INFO - 127.0.0.1 - - [08/Jul/2026 15:29:02] "GET /manuscript/yajn/pages HTTP/1.1" 200 -
+2026-07-08 15:29:02,617 - INFO - 127.0.0.1 - - [08/Jul/2026 15:29:02] "GET /manuscript/yajn/pages HTTP/1.1" 200 -
+2026-07-08 15:29:02,700 - INFO - 127.0.0.1 - - [08/Jul/2026 15:29:02] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-08 15:29:03,164 - INFO - 127.0.0.1 - - [08/Jul/2026 15:29:03] "GET /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 15:29:03,229 - INFO - 127.0.0.1 - - [08/Jul/2026 15:29:03] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:30:03,592 - INFO - 127.0.0.1 - - [08/Jul/2026 15:30:03] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:31:03,634 - INFO - 127.0.0.1 - - [08/Jul/2026 15:31:03] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:32:03,988 - INFO - 127.0.0.1 - - [08/Jul/2026 15:32:03] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:32:06,913 - INFO - 127.0.0.1 - - [08/Jul/2026 15:32:06] "OPTIONS /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 15:32:07,750 - INFO - 127.0.0.1 - - [08/Jul/2026 15:32:07] "POST /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 15:32:07,793 - INFO - 127.0.0.1 - - [08/Jul/2026 15:32:07] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:32:21,768 - INFO - 127.0.0.1 - - [08/Jul/2026 15:32:21] "GET /line-image/yajn/233_0005/1?v=1783498637826949000 HTTP/1.1" 200 -
+2026-07-08 15:33:08,145 - INFO - 127.0.0.1 - - [08/Jul/2026 15:33:08] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:34:08,189 - INFO - 127.0.0.1 - - [08/Jul/2026 15:34:08] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -
+2026-07-08 15:34:57,319 - INFO - 127.0.0.1 - - [08/Jul/2026 15:34:57] "OPTIONS /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 15:34:58,068 - INFO - 127.0.0.1 - - [08/Jul/2026 15:34:58] "POST /semi-segment/yajn/233_0005 HTTP/1.1" 200 -
+2026-07-08 15:34:58,116 - INFO - 127.0.0.1 - - [08/Jul/2026 15:34:58] "GET /manuscript/yajn/active-learning HTTP/1.1" 200 -

@@ -1,2 +1,33 @@
 2026-07-07 15:24:12,308 - INFO - AFC is enabled with max remote calls: 10.
 2026-07-07 15:24:24,682 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-08 14:55:39,679 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 14:55:51,259 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-08 14:59:09,840 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 14:59:18,677 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-08 14:59:19,272 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 14:59:32,663 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-08 14:59:32,723 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 14:59:45,018 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-08 14:59:45,087 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 15:00:27,711 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-08 15:00:27,816 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 15:01:12,140 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-08 15:01:13,533 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 15:01:30,148 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-08 15:01:30,203 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 15:02:15,464 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 15:03:00,405 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-08 15:03:00,487 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 15:03:43,882 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-08 15:03:43,969 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-08 15:03:56,785 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-08 15:03:58,816 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0005
+2026-07-08 15:04:01,545 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0006
+2026-07-08 15:04:03,742 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0007
+2026-07-08 15:04:06,336 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0008
+2026-07-08 15:04:08,947 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0009
+2026-07-08 15:04:20,564 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0002
+2026-07-08 15:04:23,374 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0003
+2026-07-08 15:04:25,726 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0004
+2026-07-08 15:04:27,786 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0008
+2026-07-08 15:04:30,409 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0009
