@@ -22899,3 +22899,8 @@
 2026-07-08 11:50:22,440 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=dense page_id=24
 2026-07-08 11:50:23,122 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:23] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
 2026-07-08 11:50:24,531 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:24] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-08 11:50:25,950 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:25] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-08 11:50:27,539 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:27] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-08 11:50:27,743 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:27] "POST /semi-segment/dense/24 HTTP/1.1" 200 -
+2026-07-08 11:50:28,105 - INFO - 127.0.0.1 - - [08/Jul/2026 11:50:28] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-08 11:51:05,004 - INFO - 127.0.0.1 - - [08/Jul/2026 11:51:05] "GET /semi-segment/dense/23 HTTP/1.1" 200 -

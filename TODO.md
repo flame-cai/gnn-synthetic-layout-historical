@@ -3,21 +3,10 @@ dynamic KV cache for OCR.
 - put the big maps as the held out evaluation benchmark?
 ######################################
 
-Paper update:
-- Fine-tune only on 5 pages, test set on the rest.
-- so test set:
-    - ground truth layout + ground truth text
-- inference on test-set:
-    - ground truth layout + predicted text (after each page of finetuning, without and without manual layout edits)
 
+# Digitization
 
-
-Measure number of layout edits and time-taken per manuscript, per page.
-- one key press is one key stroke
-
-
-
-Recorrect
+## Recheck these
 व्युहिश्र्वेत्‌=१
 छद्रवति=४
 
@@ -34,54 +23,15 @@ implementation slices
 143 - 147 - page 33 (incomplete)
 
 
-
-### TO DISABLE LOGGING KEYSTROKES:
-Disable controls:
-Backend: LAYOUT_EFFORT_LOGGING_ENABLED=false
-Frontend: VITE_LAYOUT_EFFORT_LOGGING_ENABLED=false
-
-
-
-
-#######
-
 # UX TODO
 - tag lines to exclude from training
 - tab function should respect text-box annotations
-- add a warning (once you save layout, make text corrections in read mode, then edit layout - then your existing corrections will get erased! automatically save a backup of the xml)
 
 #### TODO Typing fixes
 First understand the grouping..consonents, dependent, independent..
 No trickle down effects on other typing patterns. try to keep all other behaviour unchanged, but also try to find and maintain abstractions and invaraints.
 
 1) ऋ, द्भ, 
-
-##########################
-
-
-- Remove backward compatibility bloat and redundancies
-
-
-# Export Save Format:
-    - DocOmniBench Format
-    - PAGE-XML Support from 13 to 19, supporting Graphic and Table annotation. 
-    - Diffusion Model Prompt format:  https://gemini.google.com/share/6d96e9a50411
-
-# Setup Coords Segmentation Eval Research Harness:
-    - Normal lines
-    - conjusted lines in the map
-    - single characters, page numbers
-    - missing heatmap
-    - extra heatmap
-
-# ANNOTATION RULES:
-- A text block should contain only text that naturally belongs together and can be read in one clear and unambiguous order.
-
-
-# FUTURE TODO
-- allow user to paint and make segmentation corrections in read more
-- some layout changes should not trigger recognition model again.
-- intra page recogntion finetuning overhaul..superfast?
 
 
 
@@ -96,8 +46,7 @@ No trickle down effects on other typing patterns. try to keep all other behaviou
 - export as PAGE-XML.
 
 
-# document the image selection criteria
-- high resolution (CRAFT should be able to detect), reduce min-distance
+
 
 
 _____________________
@@ -134,6 +83,13 @@ _____________________
 - why do we fine tune two times (once immediately, and once after I )
 - devanagari.pth
 - what do we need to change to enable other scripts like bengali, grantha...
+- Remove backward compatibility bloat and redundancies
+- allow user to paint and make segmentation corrections in read mode
+- intra page recogntion finetuning overhaul..superfast?
+- TO DISABLE LOGGING KEYSTROKES:
+    Disable controls:
+    Backend: LAYOUT_EFFORT_LOGGING_ENABLED=false
+    Frontend: VITE_LAYOUT_EFFORT_LOGGING_ENABLED=false
 
 # Gemma finetuning:
 Gemma Finetuning with and without visual grounding.
