@@ -1,0 +1,2 @@
+2026-07-07 15:24:12,308 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-07 15:24:24,682 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"

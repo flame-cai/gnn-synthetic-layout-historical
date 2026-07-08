@@ -14,20 +14,12 @@ Paper update:
 
 Measure number of layout edits and time-taken per manuscript, per page.
 - one key press is one key stroke
-क्रियघटा ११ कौर्प्यां८डजौ१२याम्यतोमध्येन्येनवसंत्यथेंद्रककुभोवर्गाःस्युरोज
-स्विनः ८६ अष्टावप्रमुखःस्वपंचमपराद्विन्घःस्ववर्गोन्ययुक्‌तष्टःकाकिणिकाग
-जै८र्मिथइमायस्याधिकाःसौर्थदः श्वेतारत्ककपीतकृघ्मवसुधास्वादुःकटुस्तिक्तकाः
-काषायाघृतशोणितान्नमदिरागंधाशुभा विप्रतः ८७सौम्यादिष्लवभूतलेविरचये
-द्विप्रादिकोऽग्र्योखिलेनान्येषांनियमोत्रथत्रनिखिला:कुयुर्गृहंहृत्स्थिरं सद्मप्रघ्मकृ
-तोमुखात्प्रथमतोवर्गादिवर्णोद्रमश्वेत्तद्दिग्गतमादिशेत्तुहयपैःशल्पंसुधीर्मध्यतः ८८
-स्वभ्रंहस्तमितंखनेदिहजलंपूर्णंनिशास्येन्यसेत्प्रातरर्दृष्टजलस्थल्ंसर्दजलमध्यंत्वंस
-त्स्फाटितं ज्ञात्वैवंनिखनेद्रृहाधिकभुवंनत्वाजलांतस्तरोयावद्वापुरुषस्ततःकपिशि
-रस्तुल्याश्मभिःपूरयेत्‌ ८९ प्राक्‌साध्योज्जयिनीस्थलाद्यमदिशित्वाष्ट्रानिलाभ्यंतरा
-त्सौम्येऽतोग्न्युदयादुदक्‌ध्रुवमुखादिग्मूढकेस्यान्मृतिः ९० गेहंमाधवपोषफाल्गुनन
+
 
 
 Recorrect
 व्युहिश्र्वेत्‌=१
+छद्रवति=४
 
 implementation slices
 36 - 43 - Page 10
@@ -58,47 +50,11 @@ Frontend: VITE_LAYOUT_EFFORT_LOGGING_ENABLED=false
 - tab function should respect text-box annotations
 - add a warning (once you save layout, make text corrections in read mode, then edit layout - then your existing corrections will get erased! automatically save a backup of the xml)
 
-# TODO Typing fixes
+#### TODO Typing fixes
 First understand the grouping..consonents, dependent, independent..
 No trickle down effects on other typing patterns. try to keep all other behaviour unchanged, but also try to find and maintain abstractions and invaraints.
 
-1) ऋ
-
-2) Ru is not working. We should be able to type र्नृ (r+n+R+u).. check with other rules..rnRu. If in doubt ask me. Do not change working of other rules. other examples: हृ (h+R+u), न्मृ (n+m+R+u) न्मृ
-
-
-3)
-
-Many times the user needs to only modify the a dependent vowel attached to a consonant. Right now, to do this, the user has to backspace to remove the wrong dependent vowel, and also backspace to remove the consonant. Then the user types the consonant again, with the right dependent vowel.
-
-We want to change this typing UX such that the user can do this with only one backspace.
-They should be able to quickly change ni to no, or ni to nou
-लं to लें (backspace+e+M)
-चै to चे (backspace+e)
-so on..
-
-can you please investigate if this issue is fixable by finding the right invariants and abstraction? how many corner cases? we don't want this change to change other typing behaviour in unexpected ways.
-
-4) let us say I am editing the string: "म्कय"
-when cursor is between क and य, and I hit backspace, the म automatically joins to the य. We don't want this. I just want to replace क, by hitting backspace, the pressing n to (न) to form म्न. So I just want to change म्क to a म्न easily by preventing म automatically joining to the य. 
-This is just one example. There could be other such cases where I want to edit the string when the cursor is in the middle..
-It is working as I want it for the string: 
-त्यम, where I have the cursor between  य and म, and I want to change त्य to त्व.
-Can you please find the discrepancy and reason for why it works for some examples and not for others, then can you find a robust fix with the right invariants and abstraction?
-Example of what works well:
-श्चैमके to श्वमके (starting from cursor between श्चै and म, backspace+backspace+v+a) -> hence we dont need to retype sh to get श्‌..that's good.
-
-
-
-
-
-
-
-
-
-
-
-
+1) ऋ, द्भ, 
 
 ##########################
 
