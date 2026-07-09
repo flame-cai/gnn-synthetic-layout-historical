@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import tempfile
 import unittest
@@ -17,6 +18,22 @@ class DownstreamOcrReportingTests(unittest.TestCase):
     def test_report_summarizes_metrics_and_gemini_usage(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
+            manuscript_root = root / "manuscript"
+            _write_json(
+                manuscript_root / "layout_analysis_output" / "layout_effort.json",
+                {
+                    "pages": {
+                        "p1": {
+                            "page_id": "p1",
+                            "revision_count": 2,
+                            "totals": {
+                                "edit_count": 26,
+                                "active_edit_time_seconds": 89.5632,
+                            },
+                        }
+                    }
+                },
+            )
             _write_json(
                 root / "metrics" / "vlm_e2e" / "metrics.json",
                 {
@@ -53,6 +70,44 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                 },
             )
             _write_json(
+                root / "metrics" / "annotation_tool_e2e" / "metrics.json",
+                {
+                    "method": {
+                        "method_id": "annotation_tool_e2e",
+                        "display_name": "Annotation tool e2e",
+                        "uses_gt_layout": False,
+                        "uses_finetuning": False,
+                        "finetune_page_count": 0,
+                        "uses_gemini": False,
+                    },
+                    "manuscript_root": str(manuscript_root),
+                    "aggregate": {
+                        "page_count": 1,
+                        "valid_output_rate": 1.0,
+                        "object_g_f1_50": 0.7,
+                        "object_g_f1_75": 0.6,
+                        "pixel_f1": 0.8,
+                        "mean_page_cer": 0.4,
+                        "median_page_cer": 0.4,
+                        "micro_page_cer": 0.4,
+                        "mean_textedit": 0.5,
+                        "median_textedit": 0.5,
+                        "micro_textedit": 0.5,
+                    },
+                    "page_records": [
+                        {
+                            "manuscript_id": "m",
+                            "fold_id": "fold_1",
+                            "page_id": "p1",
+                            "method_id": "annotation_tool_e2e",
+                            "status": "success",
+                            "page_cer": 0.4,
+                            "textedit": 0.5,
+                        }
+                    ],
+                },
+            )
+            _write_json(
                 root / "metrics" / "annotation_tool_gt_layout" / "metrics.json",
                 {
                     "method": {
@@ -63,6 +118,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "finetune_page_count": 0,
                         "uses_gemini": False,
                     },
+                    "manuscript_root": str(manuscript_root),
                     "aggregate": {
                         "page_count": 1,
                         "valid_output_rate": 1.0,
@@ -75,6 +131,48 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "mean_textedit": 0.15,
                         "median_textedit": 0.15,
                         "micro_textedit": 0.15,
+                    },
+                    "page_records": [
+                        {
+                            "manuscript_id": "m",
+                            "fold_id": "fold_1",
+                            "page_id": "p1",
+                            "method_id": "annotation_tool_gt_layout",
+                            "status": "success",
+                            "page_cer": 0.1,
+                            "textedit": 0.15,
+                        }
+                    ],
+                },
+            )
+            _write_json(
+                root / "metrics" / "annotation_tool_gt_layout_ft_1" / "metrics.json",
+                {
+                    "method": {
+                        "method_id": "annotation_tool_gt_layout_ft_1",
+                        "display_name": "Annotation tool GT Layout + 1 page FT",
+                        "uses_gt_layout": True,
+                        "uses_finetuning": True,
+                        "finetune_page_count": 1,
+                        "uses_gemini": False,
+                    },
+                    "ocr_active_learning_recipe": {
+                        "source": "app.ocr_active_learning_runtime._runtime_recipe",
+                        "sibling_checkpoint_strategy": "best_norm_ed",
+                        "recipe": {"sibling_checkpoint_strategy": "best_norm_ed"},
+                    },
+                    "aggregate": {
+                        "page_count": 1,
+                        "valid_output_rate": 1.0,
+                        "object_g_f1_50": 1.0,
+                        "object_g_f1_75": 1.0,
+                        "pixel_f1": 1.0,
+                        "mean_page_cer": 0.08,
+                        "median_page_cer": 0.08,
+                        "micro_page_cer": 0.08,
+                        "mean_textedit": 0.12,
+                        "median_textedit": 0.12,
+                        "micro_textedit": 0.12,
                     },
                     "page_records": [],
                 },
@@ -107,6 +205,27 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertEqual(by_method["vlm_e2e"]["gemini_total_token_count"], 200)
             self.assertAlmostEqual(by_method["vlm_e2e"]["gemini_estimated_cost_usd"], 0.000258)
             self.assertEqual(by_method["annotation_tool_gt_layout"]["gemini_estimated_cost_usd"], 0.0)
+            self.assertEqual(by_method["vlm_e2e"]["layout_condition"], "predicted_layout")
+            self.assertEqual(by_method["annotation_tool_gt_layout"]["layout_condition"], "human_corrected_gt_layout")
+            self.assertIn(
+                "not layout-detector performance",
+                by_method["annotation_tool_gt_layout"]["layout_metric_interpretation"],
+            )
+            self.assertEqual(
+                by_method["annotation_tool_gt_layout_ft_1"]["ocr_recipe_source"],
+                "app.ocr_active_learning_runtime._runtime_recipe",
+            )
+            self.assertEqual(
+                by_method["annotation_tool_gt_layout_ft_1"]["sibling_checkpoint_strategy"],
+                "best_norm_ed",
+            )
+            with artifacts.layout_effort_impact_csv_path.open(encoding="utf-8", newline="") as handle:
+                impact_rows = list(csv.DictReader(handle))
+            self.assertEqual(len(impact_rows), 1)
+            self.assertEqual(impact_rows[0]["method_id"], "annotation_tool_gt_layout")
+            self.assertEqual(impact_rows[0]["layout_effort_edit_count"], "26")
+            self.assertAlmostEqual(float(impact_rows[0]["layout_effort_active_edit_time_seconds"]), 89.5632)
+            self.assertAlmostEqual(float(impact_rows[0]["page_cer_reduction"]), 0.3)
 
     def test_failed_gemini_request_without_metadata_is_not_reported_as_free(self):
         with tempfile.TemporaryDirectory() as tmp_dir:

@@ -22,13 +22,16 @@ METHOD_ORDER = (
 
 METHOD_LABELS = {
     "vlm_e2e": "Gemini e2e",
-    "gemini_gt_layout": "Gemini GT Layout",
+    "gemini_gt_layout": "Gemini human-corrected GT layout",
     "annotation_tool_e2e": "Annotation tool e2e",
-    "annotation_tool_gt_layout": "Annotation tool GT Layout",
-    "annotation_tool_gt_layout_ft_1": "Annotation tool GT Layout + 1 page FT",
-    "annotation_tool_gt_layout_ft_2": "Annotation tool GT Layout + 2 page FT",
-    "annotation_tool_gt_layout_ft_3": "Annotation tool GT Layout + 3 page FT",
+    "annotation_tool_gt_layout": "Annotation tool human-corrected GT layout",
+    "annotation_tool_gt_layout_ft_1": "Annotation tool human-corrected GT layout + 1 page FT",
+    "annotation_tool_gt_layout_ft_2": "Annotation tool human-corrected GT layout + 2 page FT",
+    "annotation_tool_gt_layout_ft_3": "Annotation tool human-corrected GT layout + 3 page FT",
 }
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+APP_INPUT_MANUSCRIPTS = REPO_ROOT / "app" / "input_manuscripts"
 
 
 @dataclass(frozen=True)
@@ -38,6 +41,8 @@ class ReportArtifacts:
     summary_csv_path: Path
     summary_json_path: Path
     per_page_csv_path: Path
+    layout_effort_impact_csv_path: Path
+    layout_effort_impact_json_path: Path
     gemini_usage_csv_path: Path
     gemini_usage_json_path: Path
     figure_paths: tuple[Path, ...]
@@ -136,17 +141,101 @@ def _payload_method_id(payload: dict, fallback: str) -> str:
     return fallback
 
 
+def _safe_optional_int(value: Any) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _candidate_layout_effort_paths(payload: dict) -> list[Path]:
+    paths: list[Path] = []
+    for key in ("manuscript_root", "input_manuscript_root"):
+        raw_root = payload.get(key)
+        if raw_root:
+            paths.append(Path(raw_root) / "layout_analysis_output" / "layout_effort.json")
+    manuscript_id = payload.get("manuscript_id")
+    if manuscript_id:
+        paths.append(APP_INPUT_MANUSCRIPTS / str(manuscript_id) / "layout_analysis_output" / "layout_effort.json")
+    return paths
+
+
+def _layout_effort_from_path(effort_path: Path) -> dict[str, dict]:
+    if not effort_path.exists():
+        return {}
+    try:
+        payload = json.loads(effort_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    pages = payload.get("pages") if isinstance(payload, dict) else None
+    if not isinstance(pages, dict):
+        return {}
+
+    effort_by_page: dict[str, dict] = {}
+    for page_key, page_payload in pages.items():
+        if not isinstance(page_payload, dict):
+            continue
+        page_id = str(page_payload.get("page_id") or page_key)
+        totals = page_payload.get("totals")
+        if not isinstance(totals, dict):
+            totals = page_payload
+        revisions = page_payload.get("layout_revisions")
+        revision_count = _safe_optional_int(page_payload.get("revision_count"))
+        if revision_count is None and isinstance(revisions, list):
+            revision_count = len(revisions)
+        effort_by_page[page_id] = {
+            "layout_effort_available": True,
+            "layout_effort_edit_count": _safe_optional_int(totals.get("edit_count")),
+            "layout_effort_active_edit_time_seconds": _safe_float(totals.get("active_edit_time_seconds")),
+            "layout_effort_revision_count": revision_count,
+            "layout_effort_source_path": str(effort_path),
+        }
+    return effort_by_page
+
+
+def _layout_effort_from_payload(payload: dict) -> dict[str, dict]:
+    for effort_path in _candidate_layout_effort_paths(payload):
+        effort_by_page = _layout_effort_from_path(effort_path)
+        if effort_by_page:
+            return effort_by_page
+    return {}
+
+
+def _layout_effort_truthy(value: Any) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes"}
+    return bool(value)
+
+
+def _default_layout_effort_fields() -> dict:
+    return {
+        "layout_effort_available": False,
+        "layout_effort_edit_count": None,
+        "layout_effort_active_edit_time_seconds": None,
+        "layout_effort_revision_count": None,
+        "layout_effort_source_path": "",
+    }
+
+
+def _apply_layout_effort_fallback(row: dict, effort_by_page: dict[str, dict]) -> None:
+    has_effort_columns = any(key.startswith("layout_effort_") for key in row)
+    if not has_effort_columns:
+        row.update(_default_layout_effort_fields())
+    if not _layout_effort_truthy(row.get("layout_effort_available")):
+        row.update(effort_by_page.get(str(row.get("page_id", ""))) or {})
+
+
 def _human_effort_label(method_id: str, method: dict) -> str:
     if method_id == "vlm_e2e":
         return "none"
     if method_id == "gemini_gt_layout":
-        return "layout"
+        return "human layout correction"
     if method_id == "annotation_tool_e2e":
         return "none"
     if method.get("uses_finetuning"):
-        return f"layout + {int(method.get('finetune_page_count') or 0)} read-mode page(s)"
+        return f"human layout correction + {int(method.get('finetune_page_count') or 0)} read-mode page(s)"
     if method.get("uses_gt_layout"):
-        return "layout"
+        return "human layout correction"
     return "none"
 
 
@@ -156,17 +245,32 @@ def _engine_label(method_id: str, method: dict) -> str:
     return "Annotation tool"
 
 
+def _layout_condition_label(method: dict) -> str:
+    return "human_corrected_gt_layout" if method.get("uses_gt_layout") else "predicted_layout"
+
+
+def _layout_metric_interpretation(method: dict) -> str:
+    if method.get("uses_gt_layout"):
+        return "Human-corrected GT-layout condition; layout metrics are not layout-detector performance."
+    return "Predicted-layout condition; layout metrics reflect the method's geometry output."
+
+
 def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
     method = dict(payload.get("method") or {})
     method_id = _payload_method_id(payload, metrics_path.parent.name)
     aggregate = dict(payload.get("aggregate") or {})
+    ocr_recipe = dict(payload.get("ocr_active_learning_recipe") or {})
     return {
         "method_id": method_id,
         "display_name": METHOD_LABELS.get(method_id) or method.get("display_name") or method_id,
         "engine": _engine_label(method_id, method),
         "human_effort": _human_effort_label(method_id, method),
         "human_layout": bool(method.get("uses_gt_layout")),
+        "layout_condition": _layout_condition_label(method),
+        "layout_metric_interpretation": _layout_metric_interpretation(method),
         "finetune_pages": int(method.get("finetune_page_count") or 0),
+        "ocr_recipe_source": ocr_recipe.get("source", ""),
+        "sibling_checkpoint_strategy": ocr_recipe.get("sibling_checkpoint_strategy", ""),
         "page_count": int(aggregate.get("page_count") or 0),
         "valid_output_rate": _safe_float(aggregate.get("valid_output_rate")),
         "object_g_f1_50": _safe_float(aggregate.get("object_g_f1_50")),
@@ -389,11 +493,13 @@ def _load_summary_rows(output_root: Path) -> tuple[list[dict], list[dict]]:
     for metrics_path in _metric_payload_paths(output_root):
         payload = _read_json(metrics_path)
         method_id = _payload_method_id(payload, metrics_path.parent.name)
+        layout_effort_by_page = _layout_effort_from_payload(payload)
         summary_rows.append(_summary_row_from_payload(payload, metrics_path))
         for record in payload.get("page_records") or []:
             row = dict(record)
             row.setdefault("method_id", method_id)
             row["display_name"] = METHOD_LABELS.get(method_id, method_id)
+            _apply_layout_effort_fallback(row, layout_effort_by_page)
             per_page_rows.append(row)
 
     summary_rows.sort(key=lambda row: _method_sort_key(row["method_id"]))
@@ -441,6 +547,134 @@ def _augment_rows_with_usage(summary_rows: list[dict], usage_summaries: dict[str
                     "gemini_pricing_note": "Annotation-tool methods use local computation; no Gemini API cost.",
                 }
             )
+
+
+LAYOUT_EFFORT_IMPACT_FIELDS = [
+    "method_id",
+    "display_name",
+    "fold_id",
+    "page_id",
+    "baseline_method_id",
+    "baseline_page_cer",
+    "target_page_cer",
+    "page_cer_reduction",
+    "baseline_textedit",
+    "target_textedit",
+    "textedit_reduction",
+    "layout_effort_edit_count",
+    "layout_effort_active_edit_time_seconds",
+    "layout_effort_revision_count",
+    "layout_effort_source_path",
+]
+
+
+def _is_human_corrected_local_layout_method(method_id: str) -> bool:
+    return method_id == "annotation_tool_gt_layout" or method_id.startswith("annotation_tool_gt_layout_ft_")
+
+
+def _has_layout_effort(row: dict) -> bool:
+    return _layout_effort_truthy(row.get("layout_effort_available"))
+
+
+def _layout_effort_impact_rows(per_page_rows: list[dict]) -> list[dict]:
+    baseline_by_page: dict[tuple[str, str], dict] = {}
+    for row in per_page_rows:
+        if row.get("method_id") == "annotation_tool_e2e":
+            baseline_by_page[(str(row.get("fold_id", "")), str(row.get("page_id", "")))] = row
+
+    impact_rows = []
+    for row in per_page_rows:
+        method_id = str(row.get("method_id") or "")
+        if not _is_human_corrected_local_layout_method(method_id):
+            continue
+        fold_id = str(row.get("fold_id", ""))
+        page_id = str(row.get("page_id", ""))
+        baseline = baseline_by_page.get((fold_id, page_id))
+        if baseline is None:
+            continue
+        baseline_cer = _safe_float(baseline.get("page_cer"))
+        target_cer = _safe_float(row.get("page_cer"))
+        if baseline_cer is None or target_cer is None:
+            continue
+        edit_count = _safe_float(row.get("layout_effort_edit_count"))
+        active_seconds = _safe_float(row.get("layout_effort_active_edit_time_seconds"))
+        if not _has_layout_effort(row) and edit_count is None and active_seconds is None:
+            continue
+        baseline_textedit = _safe_float(baseline.get("textedit"))
+        target_textedit = _safe_float(row.get("textedit"))
+        textedit_reduction = (
+            baseline_textedit - target_textedit
+            if baseline_textedit is not None and target_textedit is not None
+            else None
+        )
+        impact_rows.append(
+            {
+                "method_id": method_id,
+                "display_name": METHOD_LABELS.get(method_id, method_id),
+                "fold_id": fold_id,
+                "page_id": page_id,
+                "baseline_method_id": "annotation_tool_e2e",
+                "baseline_page_cer": baseline_cer,
+                "target_page_cer": target_cer,
+                "page_cer_reduction": baseline_cer - target_cer,
+                "baseline_textedit": baseline_textedit,
+                "target_textedit": target_textedit,
+                "textedit_reduction": textedit_reduction,
+                "layout_effort_edit_count": int(edit_count) if edit_count is not None else None,
+                "layout_effort_active_edit_time_seconds": active_seconds,
+                "layout_effort_revision_count": _safe_float(row.get("layout_effort_revision_count")),
+                "layout_effort_source_path": row.get("layout_effort_source_path", ""),
+            }
+        )
+    impact_rows.sort(key=lambda item: (_method_sort_key(item["method_id"]), item["fold_id"], item["page_id"]))
+    return impact_rows
+
+
+def _mean(values: list[float]) -> float | None:
+    return sum(values) / len(values) if values else None
+
+
+def _median(values: list[float]) -> float | None:
+    if not values:
+        return None
+    sorted_values = sorted(values)
+    midpoint = len(sorted_values) // 2
+    if len(sorted_values) % 2:
+        return sorted_values[midpoint]
+    return (sorted_values[midpoint - 1] + sorted_values[midpoint]) / 2.0
+
+
+def _numeric_impact_values(rows: list[dict], key: str) -> list[float]:
+    values = []
+    for row in rows:
+        value = _safe_float(row.get(key))
+        if value is not None:
+            values.append(value)
+    return values
+
+
+def _layout_effort_summary_table_rows(impact_rows: list[dict]) -> list[dict]:
+    rows_by_method: dict[str, list[dict]] = {}
+    for row in impact_rows:
+        rows_by_method.setdefault(row["method_id"], []).append(row)
+    table_rows = []
+    for method_id in sorted(rows_by_method, key=_method_sort_key):
+        rows = rows_by_method[method_id]
+        table_rows.append(
+            {
+                "Method": METHOD_LABELS.get(method_id, method_id),
+                "Pages": len(rows),
+                "Mean Edits": _format_float(_mean(_numeric_impact_values(rows, "layout_effort_edit_count")), 1),
+                "Mean Active Time (s)": _format_float(
+                    _mean(_numeric_impact_values(rows, "layout_effort_active_edit_time_seconds")),
+                    1,
+                ),
+                "Mean CER Reduction": _format_float(_mean(_numeric_impact_values(rows, "page_cer_reduction"))),
+                "Median CER Reduction": _format_float(_median(_numeric_impact_values(rows, "page_cer_reduction"))),
+                "Mean TextEdit Reduction": _format_float(_mean(_numeric_impact_values(rows, "textedit_reduction"))),
+            }
+        )
+    return table_rows
 
 
 def _plotting():
@@ -569,7 +803,58 @@ def _save_gemini_token_figure(rows: list[dict], output_path: Path) -> Path | Non
     return output_path
 
 
-def _write_figures(report_dir: Path, rows: list[dict]) -> list[Path]:
+def _save_layout_effort_impact_figure(rows: list[dict], output_path: Path) -> Path | None:
+    plt = _plotting()
+    if plt is None or not rows:
+        return None
+    method_ids = sorted({row["method_id"] for row in rows}, key=_method_sort_key)
+    colors = ("#4C78A8", "#F58518", "#54A24B", "#E45756", "#72B7B2", "#B279A2")
+    figure_has_points = False
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.8), sharey=True)
+    panels = (
+        ("layout_effort_active_edit_time_seconds", "Human layout correction time (seconds)"),
+        ("layout_effort_edit_count", "Human layout correction edits"),
+    )
+    for ax, (x_key, xlabel) in zip(axes, panels):
+        for index, method_id in enumerate(method_ids):
+            method_rows = [row for row in rows if row["method_id"] == method_id]
+            points = [
+                (_safe_float(row.get(x_key)), _safe_float(row.get("page_cer_reduction")))
+                for row in method_rows
+            ]
+            points = [(x_value, y_value) for x_value, y_value in points if x_value is not None and y_value is not None]
+            if not points:
+                continue
+            figure_has_points = True
+            x_values = [point[0] for point in points]
+            y_values = [point[1] for point in points]
+            ax.scatter(
+                x_values,
+                y_values,
+                label=METHOD_LABELS.get(method_id, method_id),
+                color=colors[index % len(colors)],
+                alpha=0.8,
+                edgecolor="white",
+                linewidth=0.7,
+                s=58,
+            )
+        ax.axhline(0, color="#333333", linewidth=0.8, alpha=0.6)
+        ax.set_xlabel(xlabel)
+        ax.grid(alpha=0.25)
+    if not figure_has_points:
+        plt.close(fig)
+        return None
+    axes[0].set_ylabel("Page CER reduction vs annotation_tool_e2e")
+    axes[1].legend(loc="best", fontsize=8)
+    fig.suptitle("Human Layout Effort vs OCR Gain")
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+    return output_path
+
+
+def _write_figures(report_dir: Path, rows: list[dict], layout_effort_rows: list[dict]) -> list[Path]:
     figure_dir = report_dir / "figures"
     figure_paths = [
         _save_bar_figure(
@@ -589,6 +874,7 @@ def _write_figures(report_dir: Path, rows: list[dict]) -> list[Path]:
         _save_layout_figure(rows, figure_dir / "layout_metrics_by_method.png"),
         _save_finetuning_curve(rows, figure_dir / "annotation_tool_finetuning_curve.png"),
         _save_gemini_token_figure(rows, figure_dir / "gemini_token_usage.png"),
+        _save_layout_effort_impact_figure(layout_effort_rows, figure_dir / "layout_effort_vs_ocr_gain.png"),
     ]
     return [path for path in figure_paths if path is not None]
 
@@ -600,6 +886,7 @@ def _summary_table_rows(rows: list[dict]) -> list[dict]:
             {
                 "Method": row["display_name"],
                 "Human Effort": row["human_effort"],
+                "Layout Condition": row["layout_condition"],
                 "Pages": row["page_count"],
                 "Valid Output": _format_float(row.get("valid_output_rate")),
                 "G-F1@0.50": _format_float(row.get("object_g_f1_50")),
@@ -617,6 +904,7 @@ def _write_markdown_report(
     output_root: Path,
     report_dir: Path,
     rows: list[dict],
+    layout_effort_rows: list[dict],
     usage_rows: list[dict],
     figure_paths: list[Path],
 ) -> Path:
@@ -626,6 +914,7 @@ def _write_markdown_report(
     table_columns = [
         ("Method", "Method"),
         ("Human Effort", "Human Effort"),
+        ("Layout Condition", "Layout Condition"),
         ("Pages", "Pages"),
         ("Valid Output", "Valid Output"),
         ("G-F1@0.50", "G-F1@0.50"),
@@ -652,6 +941,7 @@ def _write_markdown_report(
         }
         for row in gemini_rows
     ]
+    layout_effort_table_rows = _layout_effort_summary_table_rows(layout_effort_rows)
 
     figure_lines = []
     for path in figure_paths:
@@ -673,7 +963,29 @@ def _write_markdown_report(
         "- Compare `annotation_tool_e2e` against `annotation_tool_gt_layout` to estimate the practical value of human layout correction for the local OCR pipeline.",
         "- Compare the `annotation_tool_gt_layout` fine-tuning series at 0/1/2/3 pages to estimate the value of Read Mode corrections as manuscript-local OCR supervision.",
         "- Compare `vlm_e2e` against `gemini_gt_layout` as a practical Gemini system comparison. This comparison changes both layout grounding and prompt/interface format, so it is not a perfectly isolated layout-only ablation.",
-        "- GT-layout methods use human layout by construction; their layout scores should be read as oracle/human-layout conditions, not as layout detector wins.",
+        "- Rows with `layout_condition=human_corrected_gt_layout` use layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
+        "- Fine-tuning methods record the GUI runtime OCR active-learning recipe and sibling checkpoint selector in `summary_metrics.csv`.",
+        "",
+        "## Human Layout Effort And OCR Gain",
+        "",
+        "These rows compare each local human-corrected GT-layout condition against `annotation_tool_e2e` on the same fold and page. Positive reductions mean the human-corrected layout condition lowered the error.",
+        "",
+        _markdown_table(
+            layout_effort_table_rows,
+            [
+                ("Method", "Method"),
+                ("Pages", "Pages"),
+                ("Mean Edits", "Mean Edits"),
+                ("Mean Active Time (s)", "Mean Active Time (s)"),
+                ("Mean CER Reduction", "Mean CER Reduction"),
+                ("Median CER Reduction", "Median CER Reduction"),
+                ("Mean TextEdit Reduction", "Mean TextEdit Reduction"),
+            ],
+        )
+        if layout_effort_table_rows
+        else "No layout-effort impact rows found. This requires `annotation_tool_e2e`, local human-corrected GT-layout page records, and a manuscript `layout_analysis_output/layout_effort.json` file.",
+        "",
+        f"Per-page layout effort impact rows: `{(report_dir / 'layout_effort_impact.csv').relative_to(report_dir).as_posix()}`",
         "",
         "## Gemini Usage And Cost",
         "",
@@ -730,8 +1042,11 @@ def write_experiment_report(
     summary_csv_path = report_dir / "summary_metrics.csv"
     summary_json_path = report_dir / "summary_metrics.json"
     per_page_csv_path = report_dir / "per_page_metrics.csv"
+    layout_effort_impact_csv_path = report_dir / "layout_effort_impact.csv"
+    layout_effort_impact_json_path = report_dir / "layout_effort_impact.json"
     gemini_usage_csv_path = report_dir / "gemini_usage.csv"
     gemini_usage_json_path = report_dir / "gemini_usage.json"
+    layout_effort_impact_rows = _layout_effort_impact_rows(per_page_rows)
 
     summary_fields = [
         "method_id",
@@ -739,7 +1054,11 @@ def write_experiment_report(
         "engine",
         "human_effort",
         "human_layout",
+        "layout_condition",
+        "layout_metric_interpretation",
         "finetune_pages",
+        "ocr_recipe_source",
+        "sibling_checkpoint_strategy",
         "page_count",
         "valid_output_rate",
         "object_g_f1_50",
@@ -768,11 +1087,31 @@ def write_experiment_report(
     _write_csv(summary_csv_path, summary_rows, fieldnames=summary_fields)
     _write_json(summary_json_path, summary_rows)
     _write_csv(per_page_csv_path, per_page_rows)
+    _write_csv(
+        layout_effort_impact_csv_path,
+        layout_effort_impact_rows,
+        fieldnames=LAYOUT_EFFORT_IMPACT_FIELDS,
+    )
+    _write_json(
+        layout_effort_impact_json_path,
+        {
+            "comparison_baseline": "annotation_tool_e2e",
+            "positive_reduction_means": "lower error after the human-corrected GT-layout condition",
+            "rows": layout_effort_impact_rows,
+        },
+    )
     _write_csv(gemini_usage_csv_path, usage_rows)
     _write_json(gemini_usage_json_path, {"rows": usage_rows, "summaries": usage_summaries})
 
-    figure_paths = _write_figures(report_dir, summary_rows)
-    markdown_path = _write_markdown_report(root, report_dir, summary_rows, usage_rows, figure_paths)
+    figure_paths = _write_figures(report_dir, summary_rows, layout_effort_impact_rows)
+    markdown_path = _write_markdown_report(
+        root,
+        report_dir,
+        summary_rows,
+        layout_effort_impact_rows,
+        usage_rows,
+        figure_paths,
+    )
     manifest_path = report_dir / "report_manifest.json"
     manifest = {
         "report_dir": str(report_dir.resolve()),
@@ -780,11 +1119,14 @@ def write_experiment_report(
         "summary_csv_path": str(summary_csv_path.resolve()),
         "summary_json_path": str(summary_json_path.resolve()),
         "per_page_csv_path": str(per_page_csv_path.resolve()),
+        "layout_effort_impact_csv_path": str(layout_effort_impact_csv_path.resolve()),
+        "layout_effort_impact_json_path": str(layout_effort_impact_json_path.resolve()),
         "gemini_usage_csv_path": str(gemini_usage_csv_path.resolve()),
         "gemini_usage_json_path": str(gemini_usage_json_path.resolve()),
         "figure_paths": [str(path.resolve()) for path in figure_paths],
         "method_count": len(summary_rows),
         "per_page_record_count": len(per_page_rows),
+        "layout_effort_impact_record_count": len(layout_effort_impact_rows),
         "gemini_usage_record_count": len(usage_rows),
     }
     _write_json(manifest_path, manifest)
@@ -795,6 +1137,8 @@ def write_experiment_report(
         summary_csv_path=summary_csv_path,
         summary_json_path=summary_json_path,
         per_page_csv_path=per_page_csv_path,
+        layout_effort_impact_csv_path=layout_effort_impact_csv_path,
+        layout_effort_impact_json_path=layout_effort_impact_json_path,
         gemini_usage_csv_path=gemini_usage_csv_path,
         gemini_usage_json_path=gemini_usage_json_path,
         figure_paths=tuple(figure_paths),

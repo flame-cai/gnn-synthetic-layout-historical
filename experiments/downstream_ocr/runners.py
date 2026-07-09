@@ -50,6 +50,24 @@ def _write_report_artifacts(output_root: Path) -> None:
     write_experiment_report(output_root)
 
 
+def _load_gui_runtime_ocr_recipe():
+    _ensure_app_import_path()
+    from ocr_active_learning_runtime import _runtime_recipe
+
+    return _runtime_recipe()
+
+
+def _ocr_recipe_metadata_for_method(method: "MethodSpec") -> dict | None:
+    if not method.uses_finetuning:
+        return None
+    recipe = _load_gui_runtime_ocr_recipe()
+    return {
+        "source": "app.ocr_active_learning_runtime._runtime_recipe",
+        "recipe": recipe.to_dict(),
+        "sibling_checkpoint_strategy": recipe.sibling_checkpoint_strategy,
+    }
+
+
 @dataclass(frozen=True)
 class MethodSpec:
     method_id: str
@@ -244,6 +262,69 @@ def _load_manuscript_line_segmentation_args(manuscript_root: Path) -> dict:
     return dict(raw_args) if isinstance(raw_args, dict) else {}
 
 
+def _coerce_float_or_none(value) -> float | None:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
+def _coerce_int_or_none(value) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _load_layout_effort_by_page(manuscript_root: Path) -> dict[str, dict]:
+    effort_path = manuscript_root / "layout_analysis_output" / "layout_effort.json"
+    if not effort_path.exists():
+        return {}
+    try:
+        payload = json.loads(effort_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    pages = payload.get("pages") if isinstance(payload, dict) else None
+    if not isinstance(pages, dict):
+        return {}
+
+    effort_by_page: dict[str, dict] = {}
+    for page_key, page_payload in pages.items():
+        if not isinstance(page_payload, dict):
+            continue
+        page_id = str(page_payload.get("page_id") or page_key)
+        totals = page_payload.get("totals")
+        if not isinstance(totals, dict):
+            totals = page_payload
+        revision_count = _coerce_int_or_none(page_payload.get("revision_count"))
+        revisions = page_payload.get("layout_revisions")
+        if revision_count is None and isinstance(revisions, list):
+            revision_count = len(revisions)
+        effort_by_page[page_id] = {
+            "layout_effort_available": True,
+            "layout_effort_edit_count": _coerce_int_or_none(totals.get("edit_count")),
+            "layout_effort_active_edit_time_seconds": _coerce_float_or_none(
+                totals.get("active_edit_time_seconds")
+            ),
+            "layout_effort_revision_count": revision_count,
+            "layout_effort_source_path": str(effort_path),
+        }
+    return effort_by_page
+
+
+def _layout_effort_fields(effort_by_page: dict[str, dict], page_id: str) -> dict:
+    fields = {
+        "layout_effort_available": False,
+        "layout_effort_edit_count": None,
+        "layout_effort_active_edit_time_seconds": None,
+        "layout_effort_revision_count": None,
+        "layout_effort_source_path": "",
+    }
+    fields.update(effort_by_page.get(page_id) or {})
+    return fields
+
+
 def run_annotation_tool_auto_layout(
     *,
     paths: ManuscriptPaths,
@@ -309,7 +390,6 @@ def run_local_ocr_with_gt_layout(
         fine_tune_checkpoint_on_pages,
         generate_prediction_pagexmls,
     )
-    from recognition.active_learning_recipe import DEFAULT_OCR_ACTIVE_LEARNING_RECIPE
 
     all_needed_pages = (
         tuple(dict.fromkeys((*fold.train_page_ids, *fold.test_page_ids)))
@@ -318,9 +398,19 @@ def run_local_ocr_with_gt_layout(
     )
     prepared_pages = _prepare_gt_layout_pages(paths, all_needed_pages, run_dir / "prepared_pages")
     checkpoint = BASE_OCR_CHECKPOINT
+    inference_width_policy = "batch_max_pad"
     if method.uses_finetuning:
         selected_train = fold.train_page_ids[: method.finetune_page_count]
-        recipe = DEFAULT_OCR_ACTIVE_LEARNING_RECIPE
+        recipe = _load_gui_runtime_ocr_recipe()
+        inference_width_policy = recipe.width_policy
+        _write_json(
+            run_dir / "ocr_active_learning_recipe.json",
+            {
+                "source": "app.ocr_active_learning_runtime._runtime_recipe",
+                "recipe": recipe.to_dict(),
+                "sibling_checkpoint_strategy": recipe.sibling_checkpoint_strategy,
+            },
+        )
         current_checkpoint = checkpoint
         history_pages = []
         for step_index, page_id in enumerate(selected_train, start=1):
@@ -357,7 +447,7 @@ def run_local_ocr_with_gt_layout(
         checkpoint,
         test_pages,
         run_dir / "prediction_page_xml",
-        width_policy="batch_max_pad",
+        width_policy=inference_width_policy,
     )
     return Path(prediction.prediction_folder)
 
@@ -648,6 +738,7 @@ def evaluate_prediction_folder(
     diagnostics_dir: Path | None = None,
 ) -> list[dict]:
     records = []
+    layout_effort_by_page = _load_layout_effort_by_page(paths.root)
     for page_id in fold.test_page_ids:
         gt_page = load_pagexml(paths.pagexml_dir / f"{page_id}.xml", repair_geometry=True)
         pred_path = prediction_dir / f"{page_id}.xml"
@@ -666,6 +757,7 @@ def evaluate_prediction_folder(
             pred_page=pred_page,
             status=status,
         )
+        record.update(_layout_effort_fields(layout_effort_by_page, page_id))
         if diagnostics_dir is not None:
             record.update(
                 write_page_diagnostics(
@@ -834,6 +926,7 @@ def run_local_gt_layout_experiment(
             all_records.extend(fold_records)
         payload = {
             "method": asdict(method),
+            "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
             "aggregate": aggregate_page_records(all_records),
@@ -938,6 +1031,7 @@ def run_methods_experiment(
             )
         payload = {
             "method": asdict(method),
+            "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
             "aggregate": aggregate_page_records(all_records),
