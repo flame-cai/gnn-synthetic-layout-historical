@@ -1,0 +1,3 @@
+AI Agents, please keep the following in mind when updating the custom devanagari typing utils:
+- always simulate and verify if the changes made give us the intended effect, _without_ unexpectedly causing other cases to fail.
+- before making the change, study the data structure carefully, and if possible, try to find right invariants and abstractions to map the keystrokes to the displayed devanagari text.

@@ -10,8 +10,10 @@ dynamic KV cache for OCR.
 व्युहिश्र्वेत्‌=१
 छद्रवति=४
 
+
+
 implementation slices
-36 - 43 - Page 10
+36 - 43 - Page 10 <-- RE-LABEL text boxes.
 80 - 85 - Page 17
 101 - 105 - Page 22
 105 - 110 - Page 23
@@ -31,7 +33,7 @@ implementation slices
 First understand the grouping..consonents, dependent, independent..
 No trickle down effects on other typing patterns. try to keep all other behaviour unchanged, but also try to find and maintain abstractions and invaraints.
 
-1) ऋ, द्भ, 
+1) ऋ, द्भ, dyu
 
 
 
