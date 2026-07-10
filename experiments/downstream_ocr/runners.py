@@ -11,17 +11,32 @@ import time
 import xml.etree.ElementTree as ET
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 from dotenv import load_dotenv
 
 from .adapter import AdapterError, VLM_END_TO_END_PROMPT, vlm_json_to_pagexml
 from .diagnostics import write_page_diagnostics
 from .metrics import aggregate_page_records, evaluate_page
-from .pagexml import empty_page_like, local_name, load_pagexml, qualified, tag_namespace, write_pagexml
+from .pagexml import (
+    empty_page_like,
+    extract_structure_line_id,
+    local_name,
+    load_pagexml,
+    qualified,
+    tag_namespace,
+    write_pagexml,
+)
 from .reporting import summarize_usage_metadata, usage_metadata_to_dict
 from .reproducibility import write_reproducibility_manifest
-from .splits import Fold, ManuscriptPaths, default_manuscript_paths, discover_page_ids, make_three_folds
+from .splits import (
+    DEFAULT_SPLIT_SEED,
+    Fold,
+    ManuscriptPaths,
+    default_manuscript_paths,
+    discover_page_ids,
+    load_or_create_folds_json,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -452,6 +467,124 @@ def run_local_ocr_with_gt_layout(
     return Path(prediction.prediction_folder)
 
 
+def run_local_gt_layout_finetuning_ladder(
+    *,
+    paths: ManuscriptPaths,
+    fold: Fold,
+    methods: Iterable[MethodSpec],
+    output_root: Path,
+    fine_tune_fn: Callable | None = None,
+    predict_fn: Callable | None = None,
+) -> dict[str, Path]:
+    selected_methods = tuple(
+        sorted(
+            (method for method in methods if method.uses_finetuning),
+            key=lambda method: method.finetune_page_count,
+        )
+    )
+    if not selected_methods:
+        return {}
+
+    _ensure_app_import_path()
+    if fine_tune_fn is None or predict_fn is None:
+        from recognition.active_learning import (
+            fine_tune_checkpoint_on_pages,
+            generate_prediction_pagexmls,
+        )
+
+        fine_tune_fn = fine_tune_checkpoint_on_pages
+        predict_fn = generate_prediction_pagexmls
+
+    max_finetune_pages = max(method.finetune_page_count for method in selected_methods)
+    selected_train = tuple(fold.train_page_ids[:max_finetune_pages])
+    if len(selected_train) < max_finetune_pages:
+        raise ValueError(
+            f"{fold.fold_id}: requested {max_finetune_pages} fine-tuning pages, "
+            f"but only {len(fold.train_page_ids)} train pages are available."
+        )
+
+    ladder_dir = output_root / "runs" / "annotation_tool_gt_layout_ft_ladder" / fold.fold_id
+    all_needed_pages = tuple(dict.fromkeys((*selected_train, *fold.test_page_ids)))
+    prepared_pages = _prepare_gt_layout_pages(paths, all_needed_pages, ladder_dir / "prepared_pages")
+    recipe = _load_gui_runtime_ocr_recipe()
+    recipe_payload = {
+        "source": "app.ocr_active_learning_runtime._runtime_recipe",
+        "recipe": recipe.to_dict(),
+        "sibling_checkpoint_strategy": recipe.sibling_checkpoint_strategy,
+        "ladder_train_page_ids": selected_train,
+    }
+    _write_json(ladder_dir / "ocr_active_learning_recipe.json", recipe_payload)
+
+    checkpoint_by_count: dict[int, Path] = {}
+    current_checkpoint = BASE_OCR_CHECKPOINT
+    history_pages = []
+    for step_index, page_id in enumerate(selected_train, start=1):
+        result = fine_tune_fn(
+            [prepared_pages[page_id]],
+            current_checkpoint,
+            ladder_dir / "finetune" / f"step_{step_index:02d}_{page_id}",
+            step_index=step_index,
+            validation_ratio=0.0,
+            split_seed=42,
+            oversampling_policy=recipe.oversampling_policy,
+            augmentation_policy=recipe.augmentation_policy,
+            history_source_pages=history_pages,
+            history_sample_line_count=recipe.history_sample_line_count,
+            sibling_checkpoint_strategy=recipe.sibling_checkpoint_strategy,
+            width_policy=recipe.width_policy,
+            lr_scheduler=recipe.lr_scheduler,
+            optimizer_name=recipe.optimizer,
+            background_plus_rotation_variant_count=recipe.background_plus_rotation_variant_count,
+            shuffle_train_each_epoch=recipe.shuffle_train_each_epoch,
+            lr=recipe.lr,
+            num_iter=recipe.num_iter,
+            adam=recipe.optimizer == "adam",
+            batch_size=1,
+            workers=0,
+            valInterval=5,
+        )
+        current_checkpoint = Path(result.output_checkpoint)
+        checkpoint_by_count[step_index] = current_checkpoint
+        history_pages.append(prepared_pages[page_id])
+
+    test_pages = {page_id: prepared_pages[page_id] for page_id in fold.test_page_ids}
+    prediction_dirs: dict[str, Path] = {}
+    for method in selected_methods:
+        checkpoint = checkpoint_by_count[method.finetune_page_count]
+        method_run_dir = output_root / "runs" / method.method_id / fold.fold_id
+        _write_json(
+            method_run_dir / "ocr_active_learning_recipe.json",
+            {
+                **recipe_payload,
+                "ladder_run_dir": str(ladder_dir.resolve()),
+                "finetune_page_count": method.finetune_page_count,
+                "checkpoint_path": str(checkpoint.resolve()),
+            },
+        )
+        prediction = predict_fn(
+            checkpoint,
+            test_pages,
+            method_run_dir / "prediction_page_xml",
+            width_policy=recipe.width_policy,
+        )
+        prediction_dirs[method.method_id] = Path(prediction.prediction_folder)
+
+    _write_json(
+        ladder_dir / "ladder_summary.json",
+        {
+            "fold_id": fold.fold_id,
+            "train_page_ids": list(fold.train_page_ids),
+            "test_page_ids": list(fold.test_page_ids),
+            "ladder_train_page_ids": list(selected_train),
+            "checkpoint_by_finetune_page_count": {
+                str(count): str(path.resolve()) for count, path in checkpoint_by_count.items()
+            },
+            "prediction_dirs": {method_id: str(path.resolve()) for method_id, path in prediction_dirs.items()},
+        },
+    )
+    return prediction_dirs
+
+
 def _gemini_timeout_seconds() -> float:
     raw_value = os.getenv("GEMINI_OCR_TIMEOUT_SECONDS")
     if raw_value is None or str(raw_value).strip() == "":
@@ -600,6 +733,44 @@ def _copy_gt_layout_manuscript_for_gemini(paths: ManuscriptPaths, fold: Fold, ta
     return target_root
 
 
+def _write_layout_grounded_gemini_prediction_pagexml(
+    *,
+    layout_xml_path: Path,
+    predictions_by_structure_line_id: dict,
+    output_path: Path,
+) -> None:
+    tree = ET.parse(layout_xml_path)
+    root = tree.getroot()
+    root_namespace = tag_namespace(root.tag)
+    if root_namespace:
+        ET.register_namespace("", root_namespace)
+
+    for textline in root.iter():
+        if local_name(textline.tag) != "TextLine":
+            continue
+
+        for child in list(textline):
+            if local_name(child.tag) == "TextEquiv":
+                textline.remove(child)
+
+        line_key = extract_structure_line_id(textline.get("custom"))
+        if line_key is None:
+            line_key = textline.get("id")
+        predicted_text = str(predictions_by_structure_line_id.get(str(line_key), "") or "").strip()
+        if not predicted_text:
+            continue
+
+        namespace = tag_namespace(textline.tag) or root_namespace
+        text_equiv = ET.SubElement(textline, qualified("TextEquiv", namespace))
+        unicode_elem = ET.SubElement(text_equiv, qualified("Unicode", namespace))
+        unicode_elem.text = predicted_text
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if hasattr(ET, "indent"):
+        ET.indent(tree, space="\t", level=0)
+    tree.write(output_path, encoding="UTF-8", xml_declaration=True)
+
+
 def run_layout_grounded_gemini_with_app_copy(
     *,
     paths: ManuscriptPaths,
@@ -618,6 +789,7 @@ def run_layout_grounded_gemini_with_app_copy(
     backend_app_module.UPLOAD_FOLDER = str(upload_root)
     statuses: dict[str, str] = {}
     usage_dir = run_dir / "gemini_usage"
+    prediction_dir = run_dir / "prediction_page_xml"
     try:
         for page_id in fold.test_page_ids:
             started = time.perf_counter()
@@ -634,19 +806,17 @@ def run_layout_grounded_gemini_with_app_copy(
                     status = "api_timeout" if result.get("errorCode") == "gemini_timeout" else "api_error"
                     statuses[page_id] = status
                     _write_empty_prediction_for_status(
-                        ManuscriptPaths(
-                            manuscript_id=paths.manuscript_id,
-                            root=manuscript_root,
-                            images_dir=manuscript_root / "images_resized",
-                            pagexml_dir=manuscript_root / "layout_analysis_output" / "page-xml-format",
-                            line_images_dir=manuscript_root / "layout_analysis_output" / "image-format",
-                            heatmaps_dir=None,
-                        ),
+                        paths,
                         page_id,
-                        manuscript_root / "layout_analysis_output" / "page-xml-format",
+                        prediction_dir,
                     )
                 else:
                     statuses[page_id] = "success"
+                    _write_layout_grounded_gemini_prediction_pagexml(
+                        layout_xml_path=paths.pagexml_dir / f"{page_id}.xml",
+                        predictions_by_structure_line_id=result.get("text", {}),
+                        output_path=prediction_dir / f"{page_id}.xml",
+                    )
                 _write_json(
                     usage_dir / f"{page_id}.json",
                     {
@@ -661,16 +831,9 @@ def run_layout_grounded_gemini_with_app_copy(
             except Exception as exc:
                 statuses[page_id] = _failure_status_from_exception(exc)
                 _write_empty_prediction_for_status(
-                    ManuscriptPaths(
-                        manuscript_id=paths.manuscript_id,
-                        root=manuscript_root,
-                        images_dir=manuscript_root / "images_resized",
-                        pagexml_dir=manuscript_root / "layout_analysis_output" / "page-xml-format",
-                        line_images_dir=manuscript_root / "layout_analysis_output" / "image-format",
-                        heatmaps_dir=None,
-                    ),
+                    paths,
                     page_id,
-                    manuscript_root / "layout_analysis_output" / "page-xml-format",
+                    prediction_dir,
                 )
                 _write_json(
                     usage_dir / f"{page_id}.json",
@@ -689,7 +852,7 @@ def run_layout_grounded_gemini_with_app_copy(
     finally:
         backend_app_module.genai.Client = real_gemini_client_cls
         backend_app_module.UPLOAD_FOLDER = previous_upload_folder
-    return manuscript_root / "layout_analysis_output" / "page-xml-format", statuses
+    return prediction_dir, statuses
 
 
 def adapt_failed_prediction(gt_page_path: Path, output_path: Path) -> None:
@@ -777,14 +940,14 @@ def evaluate_existing_prediction_tree(
     method_id: str,
     output_root: str | Path,
     write_diagnostics: bool = False,
+    split_seed: int = DEFAULT_SPLIT_SEED,
 ) -> dict:
     paths = default_manuscript_paths(manuscript_root)
     method = method_by_id(method_id)
-    page_ids = discover_page_ids(paths)
-    folds = make_three_folds(page_ids)
     all_records = []
     predictions_root = Path(predictions_root)
     output_root = Path(output_root)
+    folds = _load_or_create_run_folds(paths, output_root, split_seed=split_seed)
     _write_experiment_reproducibility(output_root)
     for fold in folds:
         prediction_dir = predictions_root / fold.fold_id / method_id
@@ -833,13 +996,17 @@ def adapt_vlm_json_and_evaluate(
     write_diagnostics: bool = False,
     fold_ids: Iterable[str] | None = None,
     max_test_pages: int | None = None,
+    split_seed: int = DEFAULT_SPLIT_SEED,
 ) -> dict:
     paths = default_manuscript_paths(manuscript_root)
     method = method_by_id(method_id)
-    page_ids = discover_page_ids(paths)
-    folds = select_folds(make_three_folds(page_ids), fold_ids=fold_ids, max_test_pages=max_test_pages)
     json_root = Path(json_root)
     output_root = Path(output_root)
+    folds = select_folds(
+        _load_or_create_run_folds(paths, output_root, split_seed=split_seed),
+        fold_ids=fold_ids,
+        max_test_pages=max_test_pages,
+    )
     _write_experiment_reproducibility(output_root)
     all_records = []
     status_root = output_root / "statuses"
@@ -898,32 +1065,27 @@ def run_local_gt_layout_experiment(
     write_diagnostics: bool = False,
     fold_ids: Iterable[str] | None = None,
     max_test_pages: int | None = None,
+    split_seed: int = DEFAULT_SPLIT_SEED,
 ) -> dict:
     paths = default_manuscript_paths(manuscript_root)
-    page_ids = discover_page_ids(paths)
-    folds = select_folds(make_three_folds(page_ids), fold_ids=fold_ids, max_test_pages=max_test_pages)
     output_root = Path(output_root)
+    folds = select_folds(
+        _load_or_create_run_folds(paths, output_root, split_seed=split_seed),
+        fold_ids=fold_ids,
+        max_test_pages=max_test_pages,
+    )
     _write_experiment_reproducibility(output_root)
     results = {}
-    for method_id in method_ids:
-        method = method_by_id(method_id)
-        all_records = []
-        for fold in folds:
-            run_dir = output_root / "runs" / method.method_id / fold.fold_id
-            prediction_dir = run_local_ocr_with_gt_layout(
-                paths=paths,
-                fold=fold,
-                method=method,
-                run_dir=run_dir,
-            )
-            fold_records = evaluate_prediction_folder(
-                paths=paths,
-                fold=fold,
-                method=method,
-                prediction_dir=prediction_dir,
-                diagnostics_dir=(output_root / "diagnostics") if write_diagnostics else None,
-            )
-            all_records.extend(fold_records)
+    methods = tuple(method_by_id(method_id) for method_id in method_ids)
+    records_by_method = _run_methods_with_finetuning_ladder(
+        paths=paths,
+        folds=folds,
+        methods=methods,
+        output_root=output_root,
+        write_diagnostics=write_diagnostics,
+    )
+    for method in methods:
+        all_records = records_by_method[method.method_id]
         payload = {
             "method": asdict(method),
             "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
@@ -1001,34 +1163,27 @@ def run_methods_experiment(
     write_diagnostics: bool = False,
     fold_ids: Iterable[str] | None = None,
     max_test_pages: int | None = None,
+    split_seed: int = DEFAULT_SPLIT_SEED,
 ) -> dict:
     paths = default_manuscript_paths(manuscript_root)
-    page_ids = discover_page_ids(paths)
-    folds = select_folds(make_three_folds(page_ids), fold_ids=fold_ids, max_test_pages=max_test_pages)
     output_root = Path(output_root)
+    folds = select_folds(
+        _load_or_create_run_folds(paths, output_root, split_seed=split_seed),
+        fold_ids=fold_ids,
+        max_test_pages=max_test_pages,
+    )
     _write_experiment_reproducibility(output_root)
     results = {}
-    for method_id in method_ids:
-        method = method_by_id(method_id)
-        all_records = []
-        for fold in folds:
-            run_dir = output_root / "runs" / method.method_id / fold.fold_id
-            prediction_dir, statuses = run_method(
-                paths=paths,
-                fold=fold,
-                method=method,
-                run_dir=run_dir,
-            )
-            all_records.extend(
-                evaluate_prediction_folder(
-                    paths=paths,
-                    fold=fold,
-                    method=method,
-                    prediction_dir=prediction_dir,
-                    statuses=statuses,
-                    diagnostics_dir=(output_root / "diagnostics") if write_diagnostics else None,
-                )
-            )
+    methods = tuple(method_by_id(method_id) for method_id in method_ids)
+    records_by_method = _run_methods_with_finetuning_ladder(
+        paths=paths,
+        folds=folds,
+        methods=methods,
+        output_root=output_root,
+        write_diagnostics=write_diagnostics,
+    )
+    for method in methods:
+        all_records = records_by_method[method.method_id]
         payload = {
             "method": asdict(method),
             "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
@@ -1042,6 +1197,75 @@ def run_methods_experiment(
         results[method.method_id] = payload
     _write_report_artifacts(output_root)
     return results
+
+
+def _run_methods_with_finetuning_ladder(
+    *,
+    paths: ManuscriptPaths,
+    folds: Iterable[Fold],
+    methods: Iterable[MethodSpec],
+    output_root: Path,
+    write_diagnostics: bool = False,
+) -> dict[str, list[dict]]:
+    method_list = tuple(methods)
+    records_by_method: dict[str, list[dict]] = {method.method_id: [] for method in method_list}
+    finetune_methods = tuple(method for method in method_list if method.uses_finetuning)
+    ordinary_methods = tuple(method for method in method_list if not method.uses_finetuning)
+    diagnostics_dir = output_root / "diagnostics" if write_diagnostics else None
+
+    for fold in folds:
+        if finetune_methods:
+            prediction_dirs = run_local_gt_layout_finetuning_ladder(
+                paths=paths,
+                fold=fold,
+                methods=finetune_methods,
+                output_root=output_root,
+            )
+            for method in finetune_methods:
+                records_by_method[method.method_id].extend(
+                    evaluate_prediction_folder(
+                        paths=paths,
+                        fold=fold,
+                        method=method,
+                        prediction_dir=prediction_dirs[method.method_id],
+                        diagnostics_dir=diagnostics_dir,
+                    )
+                )
+
+        for method in ordinary_methods:
+            run_dir = output_root / "runs" / method.method_id / fold.fold_id
+            prediction_dir, statuses = run_method(
+                paths=paths,
+                fold=fold,
+                method=method,
+                run_dir=run_dir,
+            )
+            records_by_method[method.method_id].extend(
+                evaluate_prediction_folder(
+                    paths=paths,
+                    fold=fold,
+                    method=method,
+                    prediction_dir=prediction_dir,
+                    statuses=statuses,
+                    diagnostics_dir=diagnostics_dir,
+                )
+            )
+    return records_by_method
+
+
+def _load_or_create_run_folds(
+    paths: ManuscriptPaths,
+    output_root: Path,
+    *,
+    split_seed: int = DEFAULT_SPLIT_SEED,
+) -> tuple[Fold, ...]:
+    page_ids = discover_page_ids(paths)
+    return load_or_create_folds_json(
+        output_root / "folds.json",
+        manuscript_id=paths.manuscript_id,
+        page_ids=page_ids,
+        split_seed=split_seed,
+    )
 
 
 def select_folds(

@@ -15,6 +15,7 @@ from .runners import (
     run_local_gt_layout_experiment,
     run_methods_experiment,
 )
+from .splits import DEFAULT_SPLIT_SEED
 from .reporting import write_experiment_report
 from .validation import validate_manuscript_pagexml, write_validation_report
 
@@ -36,6 +37,7 @@ def build_parser() -> argparse.ArgumentParser:
     local.add_argument("--write-diagnostics", action="store_true")
     local.add_argument("--fold-id", action="append", dest="fold_ids")
     local.add_argument("--max-test-pages", type=int)
+    local.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
 
     prepare = subparsers.add_parser(
         "prepare-gt-layout",
@@ -54,6 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
     existing.add_argument("--method-id", required=True)
     existing.add_argument("--output-root", required=True)
     existing.add_argument("--write-diagnostics", action="store_true")
+    existing.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
 
     adapt_json = subparsers.add_parser(
         "adapt-vlm-json",
@@ -66,6 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
     adapt_json.add_argument("--write-diagnostics", action="store_true")
     adapt_json.add_argument("--fold-id", action="append", dest="fold_ids")
     adapt_json.add_argument("--max-test-pages", type=int)
+    adapt_json.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
 
     methods = subparsers.add_parser(
         "run-methods",
@@ -83,6 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
     methods.add_argument("--write-diagnostics", action="store_true")
     methods.add_argument("--fold-id", action="append", dest="fold_ids")
     methods.add_argument("--max-test-pages", type=int)
+    methods.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
 
     validate = subparsers.add_parser(
         "validate-dataset",
@@ -129,6 +134,7 @@ def main(argv: list[str] | None = None) -> None:
             write_diagnostics=args.write_diagnostics,
             fold_ids=args.fold_ids,
             max_test_pages=args.max_test_pages,
+            split_seed=args.split_seed,
         )
     elif args.command == "prepare-gt-layout":
         prepare_gt_layout_pages_only(
@@ -143,6 +149,7 @@ def main(argv: list[str] | None = None) -> None:
             method_id=args.method_id,
             output_root=args.output_root,
             write_diagnostics=args.write_diagnostics,
+            split_seed=args.split_seed,
         )
     elif args.command == "adapt-vlm-json":
         adapt_vlm_json_and_evaluate(
@@ -153,6 +160,7 @@ def main(argv: list[str] | None = None) -> None:
             write_diagnostics=args.write_diagnostics,
             fold_ids=args.fold_ids,
             max_test_pages=args.max_test_pages,
+            split_seed=args.split_seed,
         )
     elif args.command == "run-methods":
         run_methods_experiment(
@@ -162,6 +170,7 @@ def main(argv: list[str] | None = None) -> None:
             write_diagnostics=args.write_diagnostics,
             fold_ids=args.fold_ids,
             max_test_pages=args.max_test_pages,
+            split_seed=args.split_seed,
         )
     elif args.command == "validate-dataset":
         report = validate_manuscript_pagexml(args.manuscript_root, repair_geometry=args.repair_geometry)

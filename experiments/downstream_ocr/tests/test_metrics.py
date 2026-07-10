@@ -4,6 +4,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 import numpy as np
 from shapely.geometry import box
@@ -19,7 +21,13 @@ from experiments.downstream_ocr.metrics import (
     polygons_to_mask,
 )
 from experiments.downstream_ocr.pagexml import PageXmlPage, TextLine, load_pagexml, write_pagexml
-from experiments.downstream_ocr.splits import make_three_folds
+from experiments.downstream_ocr.runners import (
+    MethodSpec,
+    _write_layout_grounded_gemini_prediction_pagexml,
+    run_local_gt_layout_finetuning_ladder,
+)
+from experiments.downstream_ocr.splits import load_or_create_folds_json, make_three_folds
+from experiments.downstream_ocr.splits import Fold, ManuscriptPaths
 from experiments.downstream_ocr.text import normalize_text
 
 
@@ -228,6 +236,39 @@ class DownstreamOcrMetricTests(unittest.TestCase):
             parsed = load_pagexml(target)
             self.assertEqual(parsed.lines, ())
 
+    def test_layout_grounded_gemini_writer_removes_unpredicted_gt_text(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            layout_xml = Path(tmp_dir) / "layout.xml"
+            prediction_xml = Path(tmp_dir) / "prediction.xml"
+            layout_xml.write_text(
+                """<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Page imageFilename="p.jpg" imageWidth="100" imageHeight="100">
+    <TextRegion id="r">
+      <TextLine id="line_a" custom="structure_line_id_10">
+        <Coords points="0,0 10,0 10,10 0,10"/>
+        <TextEquiv><Unicode>gt-a</Unicode></TextEquiv>
+      </TextLine>
+      <TextLine id="line_b" custom="structure_line_id_11">
+        <Coords points="20,0 30,0 30,10 20,10"/>
+        <TextEquiv><Unicode>gt-b</Unicode></TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+                encoding="utf-8",
+            )
+            _write_layout_grounded_gemini_prediction_pagexml(
+                layout_xml_path=layout_xml,
+                predictions_by_structure_line_id={"10": "pred-a"},
+                output_path=prediction_xml,
+            )
+            parsed = load_pagexml(prediction_xml)
+            texts = {line.line_id: line.text for line in parsed.lines}
+            self.assertEqual(texts["line_a"], "pred-a")
+            self.assertEqual(texts["line_b"], "")
+
     def test_correct_aggregation_over_three_folds(self):
         folds = make_three_folds(tuple(f"p{i}" for i in range(12)))
         self.assertEqual(len(folds), 3)
@@ -257,6 +298,148 @@ class DownstreamOcrMetricTests(unittest.TestCase):
         self.assertEqual(aggregate["page_count"], 3)
         self.assertAlmostEqual(aggregate["object_recall_50"], 0.5)
         self.assertAlmostEqual(aggregate["micro_page_cer"], 0.2)
+
+    def test_seeded_random_folds_are_deterministic_and_cover_pages(self):
+        page_ids = tuple(f"p{i}" for i in range(12))
+        folds_a = make_three_folds(page_ids, seed=7)
+        folds_b = make_three_folds(page_ids, seed=7)
+        folds_c = make_three_folds(page_ids, seed=8)
+        self.assertEqual(folds_a, folds_b)
+        self.assertNotEqual(folds_a, folds_c)
+
+        page_set = set(page_ids)
+        for fold in folds_a:
+            train = set(fold.train_page_ids)
+            test = set(fold.test_page_ids)
+            self.assertEqual(len(fold.train_page_ids), 3)
+            self.assertFalse(train & test)
+            self.assertEqual(train | test, page_set)
+
+    def test_folds_json_is_reused_after_creation(self):
+        page_ids = tuple(f"p{i}" for i in range(8))
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            folds_path = Path(tmp_dir) / "folds.json"
+            folds_a = load_or_create_folds_json(
+                folds_path,
+                manuscript_id="m",
+                page_ids=page_ids,
+                split_seed=7,
+            )
+            folds_b = load_or_create_folds_json(
+                folds_path,
+                manuscript_id="m",
+                page_ids=page_ids,
+                split_seed=999,
+            )
+            self.assertEqual(folds_a, folds_b)
+            payload = json.loads(folds_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["split_seed"], 7)
+            self.assertEqual(len(payload["folds"]), 3)
+
+    def test_finetuning_ladder_trains_once_and_reuses_step_checkpoints(self):
+        class FakeRecipe:
+            oversampling_policy = "none"
+            augmentation_policy = "none"
+            history_sample_line_count = 10
+            sibling_checkpoint_strategy = "page_cer_selector"
+            width_policy = "batch_max_pad"
+            lr_scheduler = "none"
+            optimizer = "adadelta"
+            background_plus_rotation_variant_count = 10
+            shuffle_train_each_epoch = True
+            lr = 0.2
+            num_iter = 60
+
+            def to_dict(self):
+                return {
+                    "width_policy": self.width_policy,
+                    "sibling_checkpoint_strategy": self.sibling_checkpoint_strategy,
+                }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            paths = ManuscriptPaths(
+                manuscript_id="m",
+                root=root / "manuscript",
+                images_dir=root / "images",
+                pagexml_dir=root / "pagexml",
+                line_images_dir=root / "lines",
+                heatmaps_dir=root / "heatmaps",
+            )
+            fold = Fold(
+                fold_id="fold_1",
+                train_page_ids=("train_a", "train_b", "train_c"),
+                test_page_ids=("test_a", "test_b"),
+            )
+            prepared_pages = {
+                page_id: SimpleNamespace(page_id=page_id)
+                for page_id in (*fold.train_page_ids, *fold.test_page_ids)
+            }
+            train_calls = []
+            predict_calls = []
+
+            def fake_fine_tune(prepared, base_checkpoint, output_root, **kwargs):
+                step_index = int(kwargs["step_index"])
+                train_calls.append(
+                    {
+                        "page_id": prepared[0].page_id,
+                        "base_checkpoint": str(base_checkpoint),
+                        "step_index": step_index,
+                        "history_count": len(kwargs["history_source_pages"]),
+                    }
+                )
+                return SimpleNamespace(output_checkpoint=str(root / f"checkpoint_{step_index}.pth"))
+
+            def fake_predict(checkpoint, test_pages, output_root, **kwargs):
+                output = Path(output_root)
+                output.mkdir(parents=True, exist_ok=True)
+                predict_calls.append(
+                    {
+                        "checkpoint": Path(checkpoint).name,
+                        "page_ids": tuple(test_pages),
+                        "output_root": output,
+                        "width_policy": kwargs["width_policy"],
+                    }
+                )
+                return SimpleNamespace(prediction_folder=str(output))
+
+            with patch(
+                "experiments.downstream_ocr.runners._prepare_gt_layout_pages",
+                return_value=prepared_pages,
+            ), patch(
+                "experiments.downstream_ocr.runners._load_gui_runtime_ocr_recipe",
+                return_value=FakeRecipe(),
+            ):
+                prediction_dirs = run_local_gt_layout_finetuning_ladder(
+                    paths=paths,
+                    fold=fold,
+                    methods=(
+                        MethodSpec(
+                            "annotation_tool_gt_layout_ft_1",
+                            "ft1",
+                            uses_gt_layout=True,
+                            uses_finetuning=True,
+                            finetune_page_count=1,
+                        ),
+                        MethodSpec(
+                            "annotation_tool_gt_layout_ft_3",
+                            "ft3",
+                            uses_gt_layout=True,
+                            uses_finetuning=True,
+                            finetune_page_count=3,
+                        ),
+                    ),
+                    output_root=root / "out",
+                    fine_tune_fn=fake_fine_tune,
+                    predict_fn=fake_predict,
+                )
+
+            self.assertEqual([call["page_id"] for call in train_calls], ["train_a", "train_b", "train_c"])
+            self.assertEqual([call["history_count"] for call in train_calls], [0, 1, 2])
+            self.assertEqual(Path(train_calls[1]["base_checkpoint"]).name, "checkpoint_1.pth")
+            self.assertEqual(Path(train_calls[2]["base_checkpoint"]).name, "checkpoint_2.pth")
+            self.assertEqual([call["checkpoint"] for call in predict_calls], ["checkpoint_1.pth", "checkpoint_3.pth"])
+            self.assertEqual(set(prediction_dirs), {"annotation_tool_gt_layout_ft_1", "annotation_tool_gt_layout_ft_3"})
 
 
 if __name__ == "__main__":
