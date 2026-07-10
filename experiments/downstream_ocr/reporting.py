@@ -12,8 +12,8 @@ from typing import Any, Iterable
 
 METHOD_ORDER = (
     "vlm_e2e",
-    "gemini_gt_layout",
     "annotation_tool_e2e",
+    "gemini_gt_layout",
     "annotation_tool_gt_layout",
     "annotation_tool_gt_layout_ft_1",
     "annotation_tool_gt_layout_ft_2",
@@ -22,8 +22,8 @@ METHOD_ORDER = (
 
 METHOD_LABELS = {
     "vlm_e2e": "Gemini e2e",
-    "gemini_gt_layout": "Gemini human-corrected GT layout",
     "annotation_tool_e2e": "Annotation tool e2e",
+    "gemini_gt_layout": "Gemini human-corrected GT layout",
     "annotation_tool_gt_layout": "Annotation tool human-corrected GT layout",
     "annotation_tool_gt_layout_ft_1": "Annotation tool human-corrected GT layout + 1 page FT",
     "annotation_tool_gt_layout_ft_2": "Annotation tool human-corrected GT layout + 2 page FT",
@@ -406,6 +406,12 @@ def collect_gemini_usage(
             request_count = len(usage_records)
         if request_count <= 0 and status not in {"unknown", "not_attempted"}:
             request_count = 1
+        attempt_count = _safe_int(payload.get("attempt_count"))
+        if attempt_count <= 0:
+            attempt_count = request_count
+        retry_count = _safe_int(payload.get("retry_count"))
+        if "retry_count" not in payload:
+            retry_count = max(0, attempt_count - 1)
         usage_metadata_available = _has_usage_counts(usage_summary)
         estimated_cost = (
             _estimate_gemini_cost_usd(
@@ -424,6 +430,9 @@ def collect_gemini_usage(
                 "page_id": page_id,
                 "status": status,
                 "elapsed_seconds": _safe_float(payload.get("elapsed_seconds")),
+                "attempt_count": attempt_count,
+                "retry_count": retry_count,
+                "max_retries": _safe_int(payload.get("max_retries")),
                 "request_count": request_count,
                 "usage_metadata_available": usage_metadata_available,
                 "prompt_token_count": usage_summary["prompt_token_count"],
@@ -445,6 +454,8 @@ def collect_gemini_usage(
                 "gemini_usage_status": "api_usage_recorded",
                 "gemini_page_count": 0,
                 "gemini_success_count": 0,
+                "gemini_attempt_count": 0,
+                "gemini_retry_count": 0,
                 "gemini_request_count": 0,
                 "gemini_missing_usage_count": 0,
                 "gemini_elapsed_seconds": 0.0,
@@ -464,6 +475,8 @@ def collect_gemini_usage(
         summary["gemini_page_count"] += 1
         if row.get("status") == "success":
             summary["gemini_success_count"] += 1
+        summary["gemini_attempt_count"] += _safe_int(row.get("attempt_count"))
+        summary["gemini_retry_count"] += _safe_int(row.get("retry_count"))
         summary["gemini_request_count"] += _safe_int(row.get("request_count"))
         if row.get("request_count") and not row.get("usage_metadata_available"):
             summary["gemini_missing_usage_count"] += 1
@@ -519,6 +532,8 @@ def _augment_rows_with_usage(summary_rows: list[dict], usage_summaries: dict[str
                     "gemini_usage_status": "no_usage_metadata_found",
                     "gemini_page_count": 0,
                     "gemini_success_count": 0,
+                    "gemini_attempt_count": 0,
+                    "gemini_retry_count": 0,
                     "gemini_request_count": 0,
                     "gemini_missing_usage_count": 0,
                     "gemini_elapsed_seconds": 0.0,
@@ -536,6 +551,8 @@ def _augment_rows_with_usage(summary_rows: list[dict], usage_summaries: dict[str
                     "gemini_usage_status": "not_applicable_no_api_cost",
                     "gemini_page_count": 0,
                     "gemini_success_count": 0,
+                    "gemini_attempt_count": 0,
+                    "gemini_retry_count": 0,
                     "gemini_request_count": 0,
                     "gemini_missing_usage_count": 0,
                     "gemini_elapsed_seconds": 0.0,
@@ -930,6 +947,8 @@ def _write_markdown_report(
         {
             "Method": row["display_name"],
             "Pages": row.get("gemini_page_count", 0),
+            "Attempts": row.get("gemini_attempt_count", 0),
+            "Retries": row.get("gemini_retry_count", 0),
             "Requests": row.get("gemini_request_count", 0),
             "Missing Usage": row.get("gemini_missing_usage_count", 0),
             "Prompt Tokens": row.get("gemini_prompt_token_count", 0),
@@ -996,6 +1015,8 @@ def _write_markdown_report(
             [
                 ("Method", "Method"),
                 ("Pages", "Pages"),
+                ("Attempts", "Attempts"),
+                ("Retries", "Retries"),
                 ("Requests", "Requests"),
                 ("Missing Usage", "Missing Usage"),
                 ("Prompt Tokens", "Prompt Tokens"),
@@ -1073,6 +1094,8 @@ def write_experiment_report(
         "gemini_usage_status",
         "gemini_page_count",
         "gemini_success_count",
+        "gemini_attempt_count",
+        "gemini_retry_count",
         "gemini_request_count",
         "gemini_missing_usage_count",
         "gemini_elapsed_seconds",

@@ -31,3 +31,22 @@
 2026-07-08 15:04:25,726 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0004
 2026-07-08 15:04:27,786 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0008
 2026-07-08 15:04:30,409 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=manuscript page_id=233_0009
+2026-07-10 13:12:35,969 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:12:35,975 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:12:35,980 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:12:48,574 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-10 13:12:48,621 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:12:48,898 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-10 13:12:48,960 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:12:50,315 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-10 13:12:53,039 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-10 13:13:32,539 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-10 13:13:33,591 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:13:33,944 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-10 13:13:34,981 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:13:53,091 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-07-10 13:14:19,820 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-10 13:14:21,867 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:15:06,009 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 504 Gateway Timeout"
+2026-07-10 13:15:10,059 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-10 13:15:24,990 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 200 OK"

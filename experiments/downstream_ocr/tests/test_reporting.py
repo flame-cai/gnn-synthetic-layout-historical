@@ -203,6 +203,8 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             summary = json.loads(artifacts.summary_json_path.read_text(encoding="utf-8"))
             by_method = {row["method_id"]: row for row in summary}
             self.assertEqual(by_method["vlm_e2e"]["gemini_total_token_count"], 200)
+            self.assertEqual(by_method["vlm_e2e"]["gemini_attempt_count"], 1)
+            self.assertEqual(by_method["vlm_e2e"]["gemini_retry_count"], 0)
             self.assertAlmostEqual(by_method["vlm_e2e"]["gemini_estimated_cost_usd"], 0.000258)
             self.assertEqual(by_method["annotation_tool_gt_layout"]["gemini_estimated_cost_usd"], 0.0)
             self.assertEqual(by_method["vlm_e2e"]["layout_condition"], "predicted_layout")
@@ -263,6 +265,10 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                     "page_id": "p1",
                     "status": "api_timeout",
                     "elapsed_seconds": 45.0,
+                    "attempt_count": 4,
+                    "retry_count": 3,
+                    "max_retries": 3,
+                    "request_count": 4,
                     "usage_records": [],
                     "usage_metadata": {
                         "prompt_token_count": 0,
@@ -279,12 +285,16 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             )
 
             usage = json.loads(artifacts.gemini_usage_json_path.read_text(encoding="utf-8"))
-            self.assertEqual(usage["rows"][0]["request_count"], 1)
+            self.assertEqual(usage["rows"][0]["attempt_count"], 4)
+            self.assertEqual(usage["rows"][0]["retry_count"], 3)
+            self.assertEqual(usage["rows"][0]["request_count"], 4)
             self.assertFalse(usage["rows"][0]["usage_metadata_available"])
             self.assertIsNone(usage["rows"][0]["estimated_cost_usd"])
 
             summary = json.loads(artifacts.summary_json_path.read_text(encoding="utf-8"))
-            self.assertEqual(summary[0]["gemini_request_count"], 1)
+            self.assertEqual(summary[0]["gemini_attempt_count"], 4)
+            self.assertEqual(summary[0]["gemini_retry_count"], 3)
+            self.assertEqual(summary[0]["gemini_request_count"], 4)
             self.assertEqual(summary[0]["gemini_missing_usage_count"], 1)
             self.assertIn("actual API cost may be higher", summary[0]["gemini_pricing_note"])
 

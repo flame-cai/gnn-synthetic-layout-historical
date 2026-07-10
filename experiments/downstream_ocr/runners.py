@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import concurrent.futures
 import json
 import math
 import os
@@ -45,6 +46,10 @@ BASE_OCR_CHECKPOINT = APP_ROOT / "recognition" / "pretrained_model" / "vadakautu
 PRETRAINED_GNN_MODEL = APP_ROOT / "pretrained_gnn" / "v2.pt"
 PRETRAINED_GNN_CONFIG = APP_ROOT / "pretrained_gnn" / "gnn_preprocessing_v2.yaml"
 DEFAULT_GEMINI_TIMEOUT_SECONDS = 45.0
+DEFAULT_GEMINI_PAGE_WORKERS = 4
+DEFAULT_GEMINI_REQUEST_SPACING_SECONDS = 0.25
+DEFAULT_GEMINI_MAX_RETRIES = 3
+DEFAULT_GEMINI_RETRY_BASE_DELAY_SECONDS = 1.0
 
 
 def _write_experiment_reproducibility(output_root: Path) -> Path:
@@ -598,6 +603,80 @@ def _gemini_timeout_seconds() -> float:
     return max(5.0, min(value, 300.0))
 
 
+def _env_int(name: str, default: int, *, minimum: int, maximum: int) -> int:
+    raw_value = os.getenv(name)
+    if raw_value is None or str(raw_value).strip() == "":
+        return default
+    try:
+        value = int(raw_value)
+    except ValueError:
+        return default
+    return max(minimum, min(value, maximum))
+
+
+def _env_float(name: str, default: float, *, minimum: float, maximum: float) -> float:
+    raw_value = os.getenv(name)
+    if raw_value is None or str(raw_value).strip() == "":
+        return default
+    try:
+        value = float(raw_value)
+    except ValueError:
+        return default
+    if not math.isfinite(value):
+        return default
+    return max(minimum, min(value, maximum))
+
+
+def _gemini_page_workers() -> int:
+    return _env_int("GEMINI_OCR_PAGE_WORKERS", DEFAULT_GEMINI_PAGE_WORKERS, minimum=1, maximum=16)
+
+
+def _gemini_max_retries() -> int:
+    return _env_int("GEMINI_OCR_MAX_RETRIES", DEFAULT_GEMINI_MAX_RETRIES, minimum=0, maximum=10)
+
+
+def _gemini_request_spacing_seconds() -> float:
+    return _env_float(
+        "GEMINI_OCR_REQUEST_SPACING_SECONDS",
+        DEFAULT_GEMINI_REQUEST_SPACING_SECONDS,
+        minimum=0.0,
+        maximum=60.0,
+    )
+
+
+def _gemini_retry_base_delay_seconds() -> float:
+    return _env_float(
+        "GEMINI_OCR_RETRY_BASE_DELAY_SECONDS",
+        DEFAULT_GEMINI_RETRY_BASE_DELAY_SECONDS,
+        minimum=0.0,
+        maximum=60.0,
+    )
+
+
+class _RequestRateLimiter:
+    def __init__(self, min_interval_seconds: float):
+        self._min_interval_seconds = max(0.0, float(min_interval_seconds))
+        self._lock = threading.Lock()
+        self._next_start_time = 0.0
+
+    def wait(self) -> None:
+        if self._min_interval_seconds <= 0:
+            return
+        with self._lock:
+            now = time.perf_counter()
+            wait_seconds = max(0.0, self._next_start_time - now)
+            self._next_start_time = max(now, self._next_start_time) + self._min_interval_seconds
+        if wait_seconds > 0:
+            time.sleep(wait_seconds)
+
+
+def _retry_delay_seconds(attempt_number: int) -> float:
+    base_delay = _gemini_retry_base_delay_seconds()
+    if base_delay <= 0:
+        return 0.0
+    return min(base_delay * (2 ** max(0, attempt_number - 1)), 60.0)
+
+
 def _failure_status_from_exception(exc: Exception) -> str:
     name = exc.__class__.__name__.lower()
     message = str(exc).lower()
@@ -607,6 +686,60 @@ def _failure_status_from_exception(exc: Exception) -> str:
         value = str(exc)
         return value if value in {"empty_response", "json_parse_error", "json_schema_error", "adapter_error", "other_output_error"} else "adapter_error"
     return "api_error"
+
+
+def _failure_status_from_app_gemini_result(result: dict) -> str:
+    error_code = str((result or {}).get("errorCode") or "")
+    if error_code == "gemini_timeout":
+        return "api_timeout"
+    if error_code == "gemini_empty_response":
+        return "empty_response"
+    if error_code == "gemini_invalid_response":
+        return "other_output_error"
+    return "api_error"
+
+
+def _usage_records_from_attempts(attempts: Iterable[dict]) -> list[dict]:
+    records = []
+    for attempt in attempts:
+        for record in attempt.get("usage_records") or []:
+            if isinstance(record, dict):
+                records.append(record)
+        metadata = usage_metadata_to_dict(attempt.get("usage_metadata"))
+        if metadata:
+            records.append({"usage_metadata": metadata})
+    return records
+
+
+def _gemini_usage_payload(
+    *,
+    page_id: str,
+    status: str,
+    model: str,
+    elapsed_seconds: float,
+    attempts: list[dict],
+    error: str | None = None,
+    max_retries: int | None = None,
+) -> dict:
+    usage_records = _usage_records_from_attempts(attempts)
+    attempt_count = len(attempts)
+    effective_max_retries = _gemini_max_retries() if max_retries is None else int(max_retries)
+    payload = {
+        "page_id": page_id,
+        "elapsed_seconds": elapsed_seconds,
+        "status": status,
+        "model": model,
+        "attempt_count": attempt_count,
+        "retry_count": max(0, attempt_count - 1),
+        "max_retries": effective_max_retries,
+        "request_count": max(attempt_count, len(usage_records)),
+        "attempts": attempts,
+        "usage_records": usage_records,
+        "usage_metadata": summarize_usage_metadata(usage_records),
+    }
+    if error:
+        payload["error"] = error
+    return payload
 
 
 def _write_empty_prediction_for_status(paths: ManuscriptPaths, page_id: str, prediction_dir: Path) -> None:
@@ -620,38 +753,115 @@ def run_vlm_end_to_end_gemini(
     method: MethodSpec,
     run_dir: Path,
 ) -> tuple[Path, dict[str, str]]:
-    from google import genai
-    from google.genai import types
-
     api_key = load_gemini_api_key()
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY is not configured in app/.env or the environment.")
 
-    timeout_ms = int(_gemini_timeout_seconds() * 1000)
-    client = genai.Client(
-        api_key=api_key,
-        http_options=types.HttpOptions(
-            timeout=timeout_ms,
-            retryOptions=types.HttpRetryOptions(attempts=1),
-        ),
-    )
     raw_dir = run_dir / "raw_gemini_json"
     prediction_dir = run_dir / "prediction_page_xml"
     usage_dir = run_dir / "gemini_usage"
     raw_dir.mkdir(parents=True, exist_ok=True)
     prediction_dir.mkdir(parents=True, exist_ok=True)
     statuses: dict[str, str] = {}
+    page_ids = tuple(fold.test_page_ids)
+    if not page_ids:
+        return prediction_dir, statuses
 
-    for page_id in fold.test_page_ids:
-        image_path = _find_page_image(page_id, [paths.images_dir])
-        template_page = load_pagexml(paths.pagexml_dir / f"{page_id}.xml", repair_geometry=True)
-        started = time.perf_counter()
+    max_retries = _gemini_max_retries()
+    rate_limiter = _RequestRateLimiter(_gemini_request_spacing_seconds())
+    max_workers = min(_gemini_page_workers(), len(page_ids))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(
+                _run_vlm_end_to_end_gemini_page,
+                paths=paths,
+                page_id=page_id,
+                api_key=api_key,
+                raw_dir=raw_dir,
+                prediction_dir=prediction_dir,
+                usage_dir=usage_dir,
+                rate_limiter=rate_limiter,
+            ): page_id
+            for page_id in page_ids
+        }
+        for future in concurrent.futures.as_completed(futures):
+            page_id = futures[future]
+            try:
+                result = future.result()
+                statuses[result["page_id"]] = result["status"]
+            except Exception as exc:
+                status = _failure_status_from_exception(exc)
+                statuses[page_id] = status
+                _write_empty_prediction_for_status(paths, page_id, prediction_dir)
+                _write_json(
+                    raw_dir / f"{page_id}.json",
+                    {
+                        "status": "failure",
+                        "failure_status": status,
+                        "error": str(exc),
+                    },
+                )
+                _write_json(
+                    usage_dir / f"{page_id}.json",
+                    _gemini_usage_payload(
+                        page_id=page_id,
+                        status=status,
+                        model="gemini-3.5-flash",
+                        elapsed_seconds=0.0,
+                        attempts=[
+                            {
+                                "attempt": 1,
+                                "status": status,
+                                "elapsed_seconds": 0.0,
+                                "error": str(exc),
+                            }
+                        ],
+                        error=str(exc),
+                        max_retries=max_retries,
+                    ),
+                )
+    return prediction_dir, statuses
+
+
+def _run_vlm_end_to_end_gemini_page(
+    *,
+    paths: ManuscriptPaths,
+    page_id: str,
+    api_key: str,
+    raw_dir: Path,
+    prediction_dir: Path,
+    usage_dir: Path,
+    rate_limiter: _RequestRateLimiter,
+) -> dict:
+    from google import genai
+    from google.genai import types
+    from PIL import Image
+
+    model_name = "gemini-3.5-flash"
+    timeout_ms = int(_gemini_timeout_seconds() * 1000)
+    max_retries = _gemini_max_retries()
+    image_path = _find_page_image(page_id, [paths.images_dir])
+    template_page = load_pagexml(paths.pagexml_dir / f"{page_id}.xml", repair_geometry=True)
+    started = time.perf_counter()
+    attempts: list[dict] = []
+    final_status = "api_error"
+    final_error = None
+
+    for attempt_number in range(1, max_retries + 2):
+        attempt_started = time.perf_counter()
+        attempt_usage_metadata = {}
         try:
-            from PIL import Image
-
+            client = genai.Client(
+                api_key=api_key,
+                http_options=types.HttpOptions(
+                    timeout=timeout_ms,
+                    retryOptions=types.HttpRetryOptions(attempts=1),
+                ),
+            )
+            rate_limiter.wait()
             with Image.open(image_path) as image:
                 response = client.models.generate_content(
-                    model="gemini-3.5-flash",
+                    model=model_name,
                     contents=[image, VLM_END_TO_END_PROMPT],
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
@@ -660,36 +870,66 @@ def run_vlm_end_to_end_gemini(
                 )
             raw_text = response.text or ""
             (raw_dir / f"{page_id}.json").write_text(raw_text, encoding="utf-8")
+            attempt_usage_metadata = usage_metadata_to_dict(getattr(response, "usage_metadata", None))
             vlm_json_to_pagexml(
                 raw_text,
                 template_page=template_page,
                 output_path=prediction_dir / f"{page_id}.xml",
             )
-            statuses[page_id] = "success"
-            usage = getattr(response, "usage_metadata", None)
-            _write_json(
-                usage_dir / f"{page_id}.json",
+            final_status = "success"
+            attempts.append(
                 {
-                    "page_id": page_id,
-                    "status": statuses[page_id],
-                    "model": "gemini-3.5-flash",
-                    "elapsed_seconds": time.perf_counter() - started,
-                    "usage_metadata": usage_metadata_to_dict(usage),
-                },
+                    "attempt": attempt_number,
+                    "status": final_status,
+                    "elapsed_seconds": time.perf_counter() - attempt_started,
+                    "usage_metadata": attempt_usage_metadata,
+                }
             )
+            final_error = None
+            break
         except Exception as exc:
-            statuses[page_id] = _failure_status_from_exception(exc)
-            _write_empty_prediction_for_status(paths, page_id, prediction_dir)
-            _write_json(
-                usage_dir / f"{page_id}.json",
+            final_status = _failure_status_from_exception(exc)
+            final_error = str(exc)
+            attempts.append(
                 {
-                    "page_id": page_id,
-                    "elapsed_seconds": time.perf_counter() - started,
-                    "status": statuses[page_id],
-                    "error": str(exc),
+                    "attempt": attempt_number,
+                    "status": final_status,
+                    "elapsed_seconds": time.perf_counter() - attempt_started,
+                    "error": final_error,
+                    "usage_metadata": attempt_usage_metadata,
+                }
+            )
+            if attempt_number <= max_retries:
+                delay = _retry_delay_seconds(attempt_number)
+                if delay > 0:
+                    time.sleep(delay)
+
+    if final_status != "success":
+        _write_empty_prediction_for_status(paths, page_id, prediction_dir)
+        raw_path = raw_dir / f"{page_id}.json"
+        if not raw_path.exists():
+            _write_json(
+                raw_path,
+                {
+                    "status": "failure",
+                    "failure_status": final_status,
+                    "error": final_error,
                 },
             )
-    return prediction_dir, statuses
+
+    _write_json(
+        usage_dir / f"{page_id}.json",
+        _gemini_usage_payload(
+            page_id=page_id,
+            status=final_status,
+            model=model_name,
+            elapsed_seconds=time.perf_counter() - started,
+            attempts=attempts,
+            error=final_error,
+            max_retries=max_retries,
+        ),
+    )
+    return {"page_id": page_id, "status": final_status}
 
 
 def _recording_gemini_client_factory(real_client_cls, usage_records: list[dict], lock: threading.Lock):
@@ -771,28 +1011,36 @@ def _write_layout_grounded_gemini_prediction_pagexml(
     tree.write(output_path, encoding="UTF-8", xml_declaration=True)
 
 
-def run_layout_grounded_gemini_with_app_copy(
-    *,
-    paths: ManuscriptPaths,
-    fold: Fold,
-    method: MethodSpec,
-    run_dir: Path,
-) -> tuple[Path, dict[str, str]]:
+def _run_layout_grounded_gemini_page_worker(payload: dict) -> dict:
+    page_id = str(payload["page_id"])
+    manuscript_id = str(payload["manuscript_id"])
+    upload_root = Path(payload["upload_root"])
+    source_pagexml_dir = Path(payload["source_pagexml_dir"])
+    copied_pagexml_dir = Path(payload["copied_pagexml_dir"])
+    prediction_dir = Path(payload["prediction_dir"])
+    usage_dir = Path(payload["usage_dir"])
+    raw_dir = Path(payload["raw_dir"])
+    max_retries = int(payload["max_retries"])
+    model_name = "gemini-3.5-flash"
+    started = time.perf_counter()
+    attempts: list[dict] = []
+    final_status = "api_error"
+    final_error = None
+    final_result: dict | None = None
+
     load_gemini_api_key()
     _ensure_app_import_path()
     import app as backend_app_module
 
-    upload_root = run_dir / "upload_root"
-    manuscript_root = _copy_gt_layout_manuscript_for_gemini(paths, fold, upload_root / paths.manuscript_id)
     previous_upload_folder = backend_app_module.UPLOAD_FOLDER
     real_gemini_client_cls = backend_app_module.genai.Client
-    backend_app_module.UPLOAD_FOLDER = str(upload_root)
-    statuses: dict[str, str] = {}
-    usage_dir = run_dir / "gemini_usage"
-    prediction_dir = run_dir / "prediction_page_xml"
+    layout_xml_path = source_pagexml_dir / f"{page_id}.xml"
+    copied_xml_path = copied_pagexml_dir / f"{page_id}.xml"
+
     try:
-        for page_id in fold.test_page_ids:
-            started = time.perf_counter()
+        backend_app_module.UPLOAD_FOLDER = str(upload_root)
+        for attempt_number in range(1, max_retries + 2):
+            attempt_started = time.perf_counter()
             usage_records: list[dict] = []
             usage_lock = threading.Lock()
             backend_app_module.genai.Client = _recording_gemini_client_factory(
@@ -801,57 +1049,163 @@ def run_layout_grounded_gemini_with_app_copy(
                 usage_lock,
             )
             try:
-                result = backend_app_module._run_gemini_recognition_internal(paths.manuscript_id, page_id)
+                shutil.copy2(layout_xml_path, copied_xml_path)
+                result = backend_app_module._run_gemini_recognition_internal(manuscript_id, page_id)
+                final_result = dict(result or {})
                 if result.get("error"):
-                    status = "api_timeout" if result.get("errorCode") == "gemini_timeout" else "api_error"
-                    statuses[page_id] = status
-                    _write_empty_prediction_for_status(
-                        paths,
-                        page_id,
-                        prediction_dir,
+                    final_status = _failure_status_from_app_gemini_result(result)
+                    final_error = str(result.get("error") or final_status)
+                    attempts.append(
+                        {
+                            "attempt": attempt_number,
+                            "status": final_status,
+                            "elapsed_seconds": time.perf_counter() - attempt_started,
+                            "error": final_error,
+                            "usage_records": usage_records,
+                        }
                     )
                 else:
-                    statuses[page_id] = "success"
+                    final_status = "success"
+                    final_error = None
                     _write_layout_grounded_gemini_prediction_pagexml(
-                        layout_xml_path=paths.pagexml_dir / f"{page_id}.xml",
+                        layout_xml_path=layout_xml_path,
                         predictions_by_structure_line_id=result.get("text", {}),
                         output_path=prediction_dir / f"{page_id}.xml",
                     )
-                _write_json(
-                    usage_dir / f"{page_id}.json",
-                    {
-                        "page_id": page_id,
-                        "elapsed_seconds": time.perf_counter() - started,
-                        "status": statuses[page_id],
-                        "model": "gemini-3.5-flash",
-                        "usage_records": usage_records,
-                        "usage_metadata": summarize_usage_metadata(usage_records),
-                    },
-                )
+                    attempts.append(
+                        {
+                            "attempt": attempt_number,
+                            "status": final_status,
+                            "elapsed_seconds": time.perf_counter() - attempt_started,
+                            "usage_records": usage_records,
+                        }
+                    )
+                    break
             except Exception as exc:
-                statuses[page_id] = _failure_status_from_exception(exc)
-                _write_empty_prediction_for_status(
-                    paths,
-                    page_id,
-                    prediction_dir,
-                )
-                _write_json(
-                    usage_dir / f"{page_id}.json",
+                final_status = _failure_status_from_exception(exc)
+                final_error = str(exc)
+                attempts.append(
                     {
-                        "page_id": page_id,
-                        "elapsed_seconds": time.perf_counter() - started,
-                        "status": statuses[page_id],
-                        "error": str(exc),
-                        "model": "gemini-3.5-flash",
+                        "attempt": attempt_number,
+                        "status": final_status,
+                        "elapsed_seconds": time.perf_counter() - attempt_started,
+                        "error": final_error,
                         "usage_records": usage_records,
-                        "usage_metadata": summarize_usage_metadata(usage_records),
-                    },
+                    }
                 )
             finally:
                 backend_app_module.genai.Client = real_gemini_client_cls
+
+            if attempt_number <= max_retries:
+                delay = _retry_delay_seconds(attempt_number)
+                if delay > 0:
+                    time.sleep(delay)
     finally:
         backend_app_module.genai.Client = real_gemini_client_cls
         backend_app_module.UPLOAD_FOLDER = previous_upload_folder
+
+    if final_status != "success":
+        adapt_failed_prediction(layout_xml_path, prediction_dir / f"{page_id}.xml")
+
+    if final_result is None:
+        final_result = {"error": final_error, "status": final_status}
+    _write_json(raw_dir / f"{page_id}.json", final_result)
+    _write_json(
+        usage_dir / f"{page_id}.json",
+        _gemini_usage_payload(
+            page_id=page_id,
+            status=final_status,
+            model=model_name,
+            elapsed_seconds=time.perf_counter() - started,
+            attempts=attempts,
+            error=final_error,
+            max_retries=max_retries,
+        ),
+    )
+    return {"page_id": page_id, "status": final_status}
+
+
+def run_layout_grounded_gemini_with_app_copy(
+    *,
+    paths: ManuscriptPaths,
+    fold: Fold,
+    method: MethodSpec,
+    run_dir: Path,
+) -> tuple[Path, dict[str, str]]:
+    load_gemini_api_key()
+    upload_root = run_dir / "upload_root"
+    manuscript_root = _copy_gt_layout_manuscript_for_gemini(paths, fold, upload_root / paths.manuscript_id)
+    statuses: dict[str, str] = {}
+    usage_dir = run_dir / "gemini_usage"
+    raw_dir = run_dir / "raw_gemini_json"
+    prediction_dir = run_dir / "prediction_page_xml"
+    usage_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    prediction_dir.mkdir(parents=True, exist_ok=True)
+    page_ids = tuple(fold.test_page_ids)
+    if not page_ids:
+        return prediction_dir, statuses
+
+    max_retries = _gemini_max_retries()
+    rate_limiter = _RequestRateLimiter(_gemini_request_spacing_seconds())
+    max_workers = min(_gemini_page_workers(), len(page_ids))
+    copied_pagexml_dir = manuscript_root / "layout_analysis_output" / "page-xml-format"
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = {}
+        for page_id in page_ids:
+            rate_limiter.wait()
+            futures[
+                executor.submit(
+                    _run_layout_grounded_gemini_page_worker,
+                    {
+                        "page_id": page_id,
+                        "manuscript_id": paths.manuscript_id,
+                        "upload_root": str(upload_root),
+                        "source_pagexml_dir": str(paths.pagexml_dir),
+                        "copied_pagexml_dir": str(copied_pagexml_dir),
+                        "prediction_dir": str(prediction_dir),
+                        "usage_dir": str(usage_dir),
+                        "raw_dir": str(raw_dir),
+                        "max_retries": max_retries,
+                    },
+                )
+            ] = page_id
+        for future in concurrent.futures.as_completed(futures):
+            page_id = futures[future]
+            try:
+                result = future.result()
+                statuses[result["page_id"]] = result["status"]
+            except Exception as exc:
+                status = _failure_status_from_exception(exc)
+                statuses[page_id] = status
+                _write_empty_prediction_for_status(paths, page_id, prediction_dir)
+                _write_json(
+                    raw_dir / f"{page_id}.json",
+                    {
+                        "status": "failure",
+                        "failure_status": status,
+                        "error": str(exc),
+                    },
+                )
+                _write_json(
+                    usage_dir / f"{page_id}.json",
+                    _gemini_usage_payload(
+                        page_id=page_id,
+                        status=status,
+                        model="gemini-3.5-flash",
+                        elapsed_seconds=0.0,
+                        attempts=[
+                            {
+                                "attempt": 1,
+                                "status": status,
+                                "elapsed_seconds": 0.0,
+                                "error": str(exc),
+                            }
+                        ],
+                        error=str(exc),
+                        max_retries=max_retries,
+                    ),
+                )
     return prediction_dir, statuses
 
 
