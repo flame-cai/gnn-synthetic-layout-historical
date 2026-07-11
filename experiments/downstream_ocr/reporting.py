@@ -12,8 +12,8 @@ from typing import Any, Iterable
 
 METHOD_ORDER = (
     "vlm_e2e",
-    "annotation_tool_e2e",
     "gemini_gt_layout",
+    "annotation_tool_e2e",
     "annotation_tool_gt_layout",
     "annotation_tool_gt_layout_ft_1",
     "annotation_tool_gt_layout_ft_2",
@@ -22,13 +22,53 @@ METHOD_ORDER = (
 
 METHOD_LABELS = {
     "vlm_e2e": "Gemini e2e",
-    "annotation_tool_e2e": "Annotation tool e2e",
     "gemini_gt_layout": "Gemini human-corrected GT layout",
+    "annotation_tool_e2e": "Annotation tool e2e",
     "annotation_tool_gt_layout": "Annotation tool human-corrected GT layout",
     "annotation_tool_gt_layout_ft_1": "Annotation tool human-corrected GT layout + 1 page FT",
     "annotation_tool_gt_layout_ft_2": "Annotation tool human-corrected GT layout + 2 page FT",
     "annotation_tool_gt_layout_ft_3": "Annotation tool human-corrected GT layout + 3 page FT",
 }
+
+FIGURE_METHOD_LABELS = {
+    "vlm_e2e": "Gemini",
+    "gemini_gt_layout": "Gemini",
+    "annotation_tool_e2e": "Annotation\nTool",
+    "annotation_tool_gt_layout": "Annotation\nTool",
+    "annotation_tool_gt_layout_ft_1": "Annotation\nTool",
+    "annotation_tool_gt_layout_ft_2": "Annotation\nTool",
+    "annotation_tool_gt_layout_ft_3": "Annotation\nTool",
+}
+
+EFFORT_LEVELS = {
+    "vlm_e2e": 0,
+    "annotation_tool_e2e": 0,
+    "gemini_gt_layout": 1,
+    "annotation_tool_gt_layout": 1,
+    "annotation_tool_gt_layout_ft_1": 2,
+    "annotation_tool_gt_layout_ft_2": 3,
+    "annotation_tool_gt_layout_ft_3": 4,
+}
+
+EFFORT_LEVEL_COLORS = {
+    0: "#F7FBFF",
+    1: "#C6DBEF",
+    2: "#6BAED6",
+    3: "#2171B5",
+    4: "#08306B",
+}
+
+EFFORT_GROUP_LABELS = {
+    0: "Off the Shelf",
+    1: "Manual layout correction",
+    2: "Manual layout correction\n+ 1 page Fine-Tuning",
+    3: "Manual layout correction\n+ 2 pages Fine-Tuning",
+    4: "Manual layout correction\n+ 3 pages Fine-Tuning",
+}
+
+EFFORT_COMPARTMENT_ALPHA = 0.82
+EFFORT_MIN_COMPARTMENT_WIDTH = 2.25
+EFFORT_COMPARTMENT_GAP = 0.0
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 APP_INPUT_MANUSCRIPTS = REPO_ROOT / "app" / "input_manuscripts"
@@ -713,23 +753,132 @@ def _method_labels(rows: list[dict]) -> list[str]:
     return [str(row.get("display_name") or row.get("method_id")) for row in rows]
 
 
-def _save_bar_figure(rows: list[dict], key: str, output_path: Path, *, title: str, ylabel: str) -> Path | None:
+def _figure_method_labels(rows: list[dict]) -> list[str]:
+    return [
+        FIGURE_METHOD_LABELS.get(str(row.get("method_id") or ""))
+        or str(row.get("display_name") or row.get("method_id"))
+        for row in rows
+    ]
+
+
+def _effort_level(method_id: str) -> int:
+    return EFFORT_LEVELS.get(method_id, max(EFFORT_LEVELS.values()) + 1)
+
+
+def _effort_sort_key(row: dict) -> tuple[int, tuple[int, str]]:
+    method_id = str(row.get("method_id") or "")
+    return (_effort_level(method_id), _method_sort_key(method_id))
+
+
+def _effort_plot_geometry(rows: list[dict]) -> tuple[list[float], list[tuple[int, float, float, float]], tuple[float, float]]:
+    x_positions: list[float] = []
+    group_spans: list[tuple[int, float, float, float]] = []
+    start = 0
+    cursor = 0.0
+    while start < len(rows):
+        level = _effort_level(str(rows[start].get("method_id") or ""))
+        end = start
+        while end + 1 < len(rows) and _effort_level(str(rows[end + 1].get("method_id") or "")) == level:
+            end += 1
+        group_count = end - start + 1
+        width = max(float(group_count), EFFORT_MIN_COMPARTMENT_WIDTH)
+        left = cursor
+        right = cursor + width
+        if group_count == 1:
+            x_positions.append((left + right) / 2.0)
+        else:
+            first_x = left + (width - (group_count - 1)) / 2.0
+            x_positions.extend(first_x + offset for offset in range(group_count))
+        group_spans.append((level, left, right, (left + right) / 2.0))
+        cursor = right + EFFORT_COMPARTMENT_GAP
+        start = end + 1
+
+    if not group_spans:
+        return x_positions, group_spans, (-0.5, 0.5)
+    return x_positions, group_spans, (group_spans[0][1], group_spans[-1][2])
+
+
+def _add_effort_group_guides(ax, group_spans: list[tuple[int, float, float, float]]) -> None:
+    for group_index, (level, left, right, center) in enumerate(group_spans):
+        ax.axvspan(left, right, color=EFFORT_LEVEL_COLORS[level], alpha=EFFORT_COMPARTMENT_ALPHA, zorder=0)
+        if group_index > 0:
+            ax.axvline(left, color="#333333", linewidth=0.9, alpha=0.55)
+        label = EFFORT_GROUP_LABELS.get(level)
+        if label:
+            ax.text(
+                center,
+                1.035,
+                label,
+                transform=ax.get_xaxis_transform(),
+                ha="center",
+                va="bottom",
+                fontsize=8.2,
+                color="#333333",
+                linespacing=1.05,
+                clip_on=False,
+            )
+
+
+def _save_bar_figure(
+    rows: list[dict],
+    key: str,
+    output_path: Path,
+    *,
+    title: str,
+    ylabel: str,
+    group_by_effort: bool = False,
+) -> Path | None:
     plt = _plotting()
     if plt is None or not rows:
         return None
-    labels = _method_labels(rows)
+    if group_by_effort:
+        rows = sorted(rows, key=_effort_sort_key)
+        labels = _figure_method_labels(rows)
+        colors = ["#111111"] * len(rows)
+        x_positions, group_spans, x_limits = _effort_plot_geometry(rows)
+        bar_width = 0.72
+    else:
+        labels = _method_labels(rows)
+        colors = ["#4C78A8"] * len(rows)
+        x_positions = [float(index) for index in range(len(rows))]
+        group_spans = []
+        x_limits = (-0.5, len(rows) - 0.5)
+        bar_width = 0.8
     values = _numeric_values(rows, key)
-    fig_width = max(8.0, len(rows) * 1.25)
-    fig, ax = plt.subplots(figsize=(fig_width, 4.8))
-    bars = ax.bar(range(len(rows)), values, color="#4C78A8")
-    ax.set_title(title)
+    plot_width = x_limits[1] - x_limits[0]
+    fig_width = max(12.0, plot_width * 1.05) if group_by_effort else max(8.0, len(rows) * 1.35)
+    fig, ax = plt.subplots(figsize=(fig_width, 5.0 if group_by_effort else 4.8))
+    bars = ax.bar(x_positions, values, width=bar_width, color=colors, edgecolor="#111111", linewidth=0.5)
+    if not group_by_effort:
+        ax.set_title(title)
     ax.set_ylabel(ylabel)
-    ax.set_xticks(range(len(rows)))
-    ax.set_xticklabels(labels, rotation=30, ha="right")
+    ax.set_xticks(x_positions)
+    ax.set_xticklabels(
+        labels,
+        rotation=0 if group_by_effort else 30,
+        ha="center" if group_by_effort else "right",
+    )
+    if group_by_effort:
+        ax.tick_params(axis="x", labelsize=9)
+        ax.set_xlim(x_limits)
     ax.grid(axis="y", alpha=0.25)
-    for bar, value in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f"{value:.3f}", ha="center", va="bottom", fontsize=8)
-    fig.tight_layout()
+    max_value = max(values) if values else 0.0
+    ax.set_ylim(0, max(max_value * 1.18, 0.05))
+    if not group_by_effort:
+        for bar, value in zip(bars, values):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height(),
+                f"{value:.3f}",
+                ha="center",
+                va="bottom",
+                fontsize=8,
+            )
+    if group_by_effort:
+        _add_effort_group_guides(ax, group_spans)
+        fig.tight_layout(rect=(0, 0, 1, 0.86))
+    else:
+        fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=180)
     plt.close(fig)
@@ -880,6 +1029,7 @@ def _write_figures(report_dir: Path, rows: list[dict], layout_effort_rows: list[
             figure_dir / "micro_page_cer_by_method.png",
             title="Micro Page CER By Method",
             ylabel="Micro Page CER",
+            group_by_effort=True,
         ),
         _save_bar_figure(
             rows,
@@ -887,6 +1037,7 @@ def _write_figures(report_dir: Path, rows: list[dict], layout_effort_rows: list[
             figure_dir / "micro_textedit_by_method.png",
             title="Micro Line-group TextEdit By Method",
             ylabel="Micro TextEdit",
+            group_by_effort=True,
         ),
         _save_layout_figure(rows, figure_dir / "layout_metrics_by_method.png"),
         _save_finetuning_curve(rows, figure_dir / "annotation_tool_finetuning_curve.png"),
