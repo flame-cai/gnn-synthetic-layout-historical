@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from experiments.downstream_ocr.reporting import write_experiment_report
+from experiments.downstream_ocr.reporting import _bootstrap_micro_metric, write_experiment_report
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -14,7 +14,87 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def _page_record(
+    *,
+    method_id: str,
+    page_id: str,
+    page_cer_distance: int,
+    page_cer_gt_chars: int,
+    textedit_distance_sum: int,
+    textedit_max_length_sum: int,
+    fold_id: str = "fold_1",
+) -> dict:
+    page_cer = page_cer_distance / page_cer_gt_chars
+    textedit = textedit_distance_sum / textedit_max_length_sum
+    return {
+        "manuscript_id": "m",
+        "fold_id": fold_id,
+        "page_id": page_id,
+        "method_id": method_id,
+        "status": "success",
+        "num_gt_lines": 1,
+        "num_pred_lines": 1,
+        "tp_50": 1,
+        "fp_50": 0,
+        "fn_50": 0,
+        "tp_75": 1,
+        "fp_75": 0,
+        "fn_75": 0,
+        "pixel_tp": 10,
+        "pixel_fp": 0,
+        "pixel_fn": 0,
+        "page_cer_distance": page_cer_distance,
+        "page_cer_gt_chars": page_cer_gt_chars,
+        "page_cer": page_cer,
+        "textedit_distance_sum": textedit_distance_sum,
+        "textedit_max_length_sum": textedit_max_length_sum,
+        "textedit": textedit,
+    }
+
+
 class DownstreamOcrReportingTests(unittest.TestCase):
+    def test_page_cluster_bootstrap_keeps_repeated_fold_occurrences_together(self):
+        rows = [
+            _page_record(
+                method_id="m",
+                page_id="p1",
+                fold_id="fold_1",
+                page_cer_distance=1,
+                page_cer_gt_chars=10,
+                textedit_distance_sum=1,
+                textedit_max_length_sum=10,
+            ),
+            _page_record(
+                method_id="m",
+                page_id="p1",
+                fold_id="fold_2",
+                page_cer_distance=3,
+                page_cer_gt_chars=10,
+                textedit_distance_sum=3,
+                textedit_max_length_sum=10,
+            ),
+            _page_record(
+                method_id="m",
+                page_id="p2",
+                fold_id="fold_1",
+                page_cer_distance=8,
+                page_cer_gt_chars=10,
+                textedit_distance_sum=8,
+                textedit_max_length_sum=10,
+            ),
+        ]
+        result = _bootstrap_micro_metric(
+            rows,
+            numerator_key="page_cer_distance",
+            denominator_key="page_cer_gt_chars",
+            seed_label="unit-test",
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result["unique_page_count"], 2)
+        self.assertAlmostEqual(result["estimate"], 0.4)
+        self.assertAlmostEqual(result["ci_lower"], 0.2)
+        self.assertAlmostEqual(result["ci_upper"], 0.8)
+
     def test_report_summarizes_metrics_and_gemini_usage(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
@@ -59,13 +139,14 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "micro_textedit": 0.3,
                     },
                     "page_records": [
-                        {
-                            "manuscript_id": "m",
-                            "fold_id": "fold_1",
-                            "page_id": "p1",
-                            "method_id": "vlm_e2e",
-                            "status": "success",
-                        }
+                        _page_record(
+                            method_id="vlm_e2e",
+                            page_id="p1",
+                            page_cer_distance=2,
+                            page_cer_gt_chars=10,
+                            textedit_distance_sum=3,
+                            textedit_max_length_sum=10,
+                        )
                     ],
                 },
             )
@@ -95,15 +176,51 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "micro_textedit": 0.5,
                     },
                     "page_records": [
-                        {
-                            "manuscript_id": "m",
-                            "fold_id": "fold_1",
-                            "page_id": "p1",
-                            "method_id": "annotation_tool_e2e",
-                            "status": "success",
-                            "page_cer": 0.4,
-                            "textedit": 0.5,
-                        }
+                        _page_record(
+                            method_id="annotation_tool_e2e",
+                            page_id="p1",
+                            page_cer_distance=4,
+                            page_cer_gt_chars=10,
+                            textedit_distance_sum=5,
+                            textedit_max_length_sum=10,
+                        )
+                    ],
+                },
+            )
+            _write_json(
+                root / "metrics" / "gemini_gt_layout" / "metrics.json",
+                {
+                    "method": {
+                        "method_id": "gemini_gt_layout",
+                        "display_name": "Gemini GT Layout",
+                        "uses_gt_layout": True,
+                        "uses_finetuning": False,
+                        "finetune_page_count": 0,
+                        "uses_gemini": True,
+                    },
+                    "manuscript_root": str(manuscript_root),
+                    "aggregate": {
+                        "page_count": 1,
+                        "valid_output_rate": 1.0,
+                        "object_g_f1_50": 1.0,
+                        "object_g_f1_75": 1.0,
+                        "pixel_f1": 1.0,
+                        "mean_page_cer": 0.1,
+                        "median_page_cer": 0.1,
+                        "micro_page_cer": 0.1,
+                        "mean_textedit": 0.2,
+                        "median_textedit": 0.2,
+                        "micro_textedit": 0.2,
+                    },
+                    "page_records": [
+                        _page_record(
+                            method_id="gemini_gt_layout",
+                            page_id="p1",
+                            page_cer_distance=1,
+                            page_cer_gt_chars=10,
+                            textedit_distance_sum=2,
+                            textedit_max_length_sum=10,
+                        )
                     ],
                 },
             )
@@ -133,15 +250,14 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "micro_textedit": 0.15,
                     },
                     "page_records": [
-                        {
-                            "manuscript_id": "m",
-                            "fold_id": "fold_1",
-                            "page_id": "p1",
-                            "method_id": "annotation_tool_gt_layout",
-                            "status": "success",
-                            "page_cer": 0.1,
-                            "textedit": 0.15,
-                        }
+                        _page_record(
+                            method_id="annotation_tool_gt_layout",
+                            page_id="p1",
+                            page_cer_distance=1,
+                            page_cer_gt_chars=10,
+                            textedit_distance_sum=3,
+                            textedit_max_length_sum=20,
+                        )
                     ],
                 },
             )
@@ -190,6 +306,10 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                     },
                 },
             )
+            _write_json(root / "report" / "layout_effort_impact.json", {"stale": True})
+            stale_figure = root / "report" / "figures" / "layout_effort_vs_ocr_gain.png"
+            stale_figure.parent.mkdir(parents=True, exist_ok=True)
+            stale_figure.write_bytes(b"stale")
 
             artifacts = write_experiment_report(
                 root,
@@ -206,6 +326,9 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertEqual(by_method["vlm_e2e"]["gemini_attempt_count"], 1)
             self.assertEqual(by_method["vlm_e2e"]["gemini_retry_count"], 0)
             self.assertAlmostEqual(by_method["vlm_e2e"]["gemini_estimated_cost_usd"], 0.000258)
+            self.assertAlmostEqual(by_method["vlm_e2e"]["micro_page_cer_ci_lower"], 0.2)
+            self.assertAlmostEqual(by_method["vlm_e2e"]["micro_page_cer_ci_upper"], 0.2)
+            self.assertEqual(by_method["vlm_e2e"]["micro_page_cer_bootstrap_unique_pages"], 1)
             self.assertEqual(by_method["annotation_tool_gt_layout"]["gemini_estimated_cost_usd"], 0.0)
             self.assertEqual(by_method["vlm_e2e"]["layout_condition"], "predicted_layout")
             self.assertEqual(by_method["annotation_tool_gt_layout"]["layout_condition"], "human_corrected_gt_layout")
@@ -221,13 +344,32 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                 by_method["annotation_tool_gt_layout_ft_1"]["sibling_checkpoint_strategy"],
                 "best_norm_ed",
             )
-            with artifacts.layout_effort_impact_csv_path.open(encoding="utf-8", newline="") as handle:
-                impact_rows = list(csv.DictReader(handle))
-            self.assertEqual(len(impact_rows), 1)
-            self.assertEqual(impact_rows[0]["method_id"], "annotation_tool_gt_layout")
-            self.assertEqual(impact_rows[0]["layout_effort_edit_count"], "26")
-            self.assertAlmostEqual(float(impact_rows[0]["layout_effort_active_edit_time_seconds"]), 89.5632)
-            self.assertAlmostEqual(float(impact_rows[0]["page_cer_reduction"]), 0.3)
+            with artifacts.layout_mode_comparisons_csv_path.open(encoding="utf-8", newline="") as handle:
+                comparison_rows = list(csv.DictReader(handle))
+            self.assertEqual(len(comparison_rows), 4)
+            annotation_cer = next(
+                row
+                for row in comparison_rows
+                if row["engine"] == "Annotation Tool" and row["metric_key"] == "micro_page_cer"
+            )
+            self.assertAlmostEqual(float(annotation_cer["layout_effort_mean_seconds_per_page"]), 89.5632)
+            self.assertAlmostEqual(float(annotation_cer["layout_effort_ci_lower"]), 89.5632)
+            self.assertAlmostEqual(float(annotation_cer["relative_reduction_percent"]), 75.0)
+            gemini_cer = next(
+                row
+                for row in comparison_rows
+                if row["engine"] == "Gemini" and row["metric_key"] == "micro_page_cer"
+            )
+            self.assertAlmostEqual(float(gemini_cer["relative_reduction_percent"]), 50.0)
+            with artifacts.fold_metrics_csv_path.open(encoding="utf-8", newline="") as handle:
+                fold_rows = list(csv.DictReader(handle))
+            self.assertEqual(len(fold_rows), 4)
+            figure_names = {path.name for path in artifacts.figure_paths}
+            self.assertIn("micro_page_cer_by_method.png", figure_names)
+            self.assertIn("micro_textedit_by_method.png", figure_names)
+            self.assertNotIn("layout_effort_vs_ocr_gain.png", figure_names)
+            self.assertFalse((root / "report" / "layout_effort_impact.json").exists())
+            self.assertFalse(stale_figure.exists())
 
     def test_failed_gemini_request_without_metadata_is_not_reported_as_free(self):
         with tempfile.TemporaryDirectory() as tmp_dir:

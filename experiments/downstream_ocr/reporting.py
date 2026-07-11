@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import math
 import os
+import random
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
+
+from .metrics import aggregate_page_records
 
 
 METHOD_ORDER = (
@@ -69,6 +73,19 @@ EFFORT_GROUP_LABELS = {
 EFFORT_COMPARTMENT_ALPHA = 0.82
 EFFORT_MIN_COMPARTMENT_WIDTH = 2.25
 EFFORT_COMPARTMENT_GAP = 0.0
+BOOTSTRAP_CONFIDENCE_LEVEL = 0.95
+BOOTSTRAP_RESAMPLES = 10_000
+BOOTSTRAP_SEED = 42
+
+LAYOUT_MODE_COMPARISONS = (
+    ("Gemini", "vlm_e2e", "gemini_gt_layout"),
+    ("Annotation Tool", "annotation_tool_e2e", "annotation_tool_gt_layout"),
+)
+
+BOOTSTRAP_METRICS = {
+    "micro_page_cer": ("page_cer_distance", "page_cer_gt_chars", "Page CER"),
+    "micro_textedit": ("textedit_distance_sum", "textedit_max_length_sum", "TextEdit"),
+}
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 APP_INPUT_MANUSCRIPTS = REPO_ROOT / "app" / "input_manuscripts"
@@ -81,8 +98,10 @@ class ReportArtifacts:
     summary_csv_path: Path
     summary_json_path: Path
     per_page_csv_path: Path
-    layout_effort_impact_csv_path: Path
-    layout_effort_impact_json_path: Path
+    fold_metrics_csv_path: Path
+    fold_metrics_json_path: Path
+    layout_mode_comparisons_csv_path: Path
+    layout_mode_comparisons_json_path: Path
     gemini_usage_csv_path: Path
     gemini_usage_json_path: Path
     figure_paths: tuple[Path, ...]
@@ -152,6 +171,20 @@ def _format_cost(value: Any) -> str:
     if number is None:
         return ""
     return f"{number:.6f}"
+
+
+def _format_estimate_ci(estimate: Any, lower: Any, upper: Any, digits: int = 4) -> str:
+    estimate_value = _safe_float(estimate)
+    lower_value = _safe_float(lower)
+    upper_value = _safe_float(upper)
+    if estimate_value is None:
+        return ""
+    if lower_value is None or upper_value is None:
+        return f"{estimate_value:.{digits}f}"
+    return (
+        f"{estimate_value:.{digits}f} "
+        f"[{lower_value:.{digits}f}, {upper_value:.{digits}f}]"
+    )
 
 
 def _markdown_table(rows: list[dict], columns: list[tuple[str, str]]) -> str:
@@ -273,7 +306,7 @@ def _human_effort_label(method_id: str, method: dict) -> str:
     if method_id == "annotation_tool_e2e":
         return "none"
     if method.get("uses_finetuning"):
-        return f"human layout correction + {int(method.get('finetune_page_count') or 0)} read-mode page(s)"
+        return "human layout correction; Read Mode effort not quantified"
     if method.get("uses_gt_layout"):
         return "human layout correction"
     return "none"
@@ -606,132 +639,247 @@ def _augment_rows_with_usage(summary_rows: list[dict], usage_summaries: dict[str
             )
 
 
-LAYOUT_EFFORT_IMPACT_FIELDS = [
-    "method_id",
-    "display_name",
-    "fold_id",
-    "page_id",
-    "baseline_method_id",
-    "baseline_page_cer",
-    "target_page_cer",
-    "page_cer_reduction",
-    "baseline_textedit",
-    "target_textedit",
-    "textedit_reduction",
-    "layout_effort_edit_count",
-    "layout_effort_active_edit_time_seconds",
-    "layout_effort_revision_count",
-    "layout_effort_source_path",
-]
+def _cluster_key(row: dict) -> tuple[str, str]:
+    return (str(row.get("manuscript_id") or ""), str(row.get("page_id") or ""))
 
 
-def _is_human_corrected_local_layout_method(method_id: str) -> bool:
-    return method_id == "annotation_tool_gt_layout" or method_id.startswith("annotation_tool_gt_layout_ft_")
+def _stable_bootstrap_seed(label: str) -> int:
+    digest = hashlib.sha256(f"{BOOTSTRAP_SEED}:{label}".encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], byteorder="big", signed=False)
 
 
-def _has_layout_effort(row: dict) -> bool:
-    return _layout_effort_truthy(row.get("layout_effort_available"))
-
-
-def _layout_effort_impact_rows(per_page_rows: list[dict]) -> list[dict]:
-    baseline_by_page: dict[tuple[str, str], dict] = {}
-    for row in per_page_rows:
-        if row.get("method_id") == "annotation_tool_e2e":
-            baseline_by_page[(str(row.get("fold_id", "")), str(row.get("page_id", "")))] = row
-
-    impact_rows = []
-    for row in per_page_rows:
-        method_id = str(row.get("method_id") or "")
-        if not _is_human_corrected_local_layout_method(method_id):
-            continue
-        fold_id = str(row.get("fold_id", ""))
-        page_id = str(row.get("page_id", ""))
-        baseline = baseline_by_page.get((fold_id, page_id))
-        if baseline is None:
-            continue
-        baseline_cer = _safe_float(baseline.get("page_cer"))
-        target_cer = _safe_float(row.get("page_cer"))
-        if baseline_cer is None or target_cer is None:
-            continue
-        edit_count = _safe_float(row.get("layout_effort_edit_count"))
-        active_seconds = _safe_float(row.get("layout_effort_active_edit_time_seconds"))
-        if not _has_layout_effort(row) and edit_count is None and active_seconds is None:
-            continue
-        baseline_textedit = _safe_float(baseline.get("textedit"))
-        target_textedit = _safe_float(row.get("textedit"))
-        textedit_reduction = (
-            baseline_textedit - target_textedit
-            if baseline_textedit is not None and target_textedit is not None
-            else None
-        )
-        impact_rows.append(
-            {
-                "method_id": method_id,
-                "display_name": METHOD_LABELS.get(method_id, method_id),
-                "fold_id": fold_id,
-                "page_id": page_id,
-                "baseline_method_id": "annotation_tool_e2e",
-                "baseline_page_cer": baseline_cer,
-                "target_page_cer": target_cer,
-                "page_cer_reduction": baseline_cer - target_cer,
-                "baseline_textedit": baseline_textedit,
-                "target_textedit": target_textedit,
-                "textedit_reduction": textedit_reduction,
-                "layout_effort_edit_count": int(edit_count) if edit_count is not None else None,
-                "layout_effort_active_edit_time_seconds": active_seconds,
-                "layout_effort_revision_count": _safe_float(row.get("layout_effort_revision_count")),
-                "layout_effort_source_path": row.get("layout_effort_source_path", ""),
-            }
-        )
-    impact_rows.sort(key=lambda item: (_method_sort_key(item["method_id"]), item["fold_id"], item["page_id"]))
-    return impact_rows
-
-
-def _mean(values: list[float]) -> float | None:
-    return sum(values) / len(values) if values else None
-
-
-def _median(values: list[float]) -> float | None:
+def _percentile(values: list[float], probability: float) -> float | None:
     if not values:
         return None
-    sorted_values = sorted(values)
-    midpoint = len(sorted_values) // 2
-    if len(sorted_values) % 2:
-        return sorted_values[midpoint]
-    return (sorted_values[midpoint - 1] + sorted_values[midpoint]) / 2.0
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return float(ordered[0])
+    position = max(0.0, min(1.0, float(probability))) * (len(ordered) - 1)
+    lower_index = int(math.floor(position))
+    upper_index = int(math.ceil(position))
+    if lower_index == upper_index:
+        return float(ordered[lower_index])
+    fraction = position - lower_index
+    return float(ordered[lower_index] * (1.0 - fraction) + ordered[upper_index] * fraction)
 
 
-def _numeric_impact_values(rows: list[dict], key: str) -> list[float]:
-    values = []
+def _confidence_bounds(values: list[float]) -> tuple[float | None, float | None]:
+    tail = (1.0 - BOOTSTRAP_CONFIDENCE_LEVEL) / 2.0
+    return _percentile(values, tail), _percentile(values, 1.0 - tail)
+
+
+def _group_metric_counts(
+    rows: Iterable[dict],
+    *,
+    numerator_key: str,
+    denominator_key: str,
+) -> dict[tuple[str, str], tuple[float, float]]:
+    grouped: dict[tuple[str, str], list[float]] = {}
     for row in rows:
-        value = _safe_float(row.get(key))
-        if value is not None:
-            values.append(value)
-    return values
+        numerator = _safe_float(row.get(numerator_key))
+        denominator = _safe_float(row.get(denominator_key))
+        if numerator is None or denominator is None:
+            continue
+        counts = grouped.setdefault(_cluster_key(row), [0.0, 0.0])
+        counts[0] += numerator
+        counts[1] += denominator
+    return {key: (values[0], values[1]) for key, values in grouped.items()}
 
 
-def _layout_effort_summary_table_rows(impact_rows: list[dict]) -> list[dict]:
+def _bootstrap_micro_metric(
+    rows: Iterable[dict],
+    *,
+    numerator_key: str,
+    denominator_key: str,
+    seed_label: str,
+) -> dict | None:
+    grouped = _group_metric_counts(
+        rows,
+        numerator_key=numerator_key,
+        denominator_key=denominator_key,
+    )
+    cluster_keys = sorted(grouped)
+    if not cluster_keys:
+        return None
+    numerator = sum(grouped[key][0] for key in cluster_keys)
+    denominator = sum(grouped[key][1] for key in cluster_keys)
+    if denominator <= 0:
+        return None
+    estimate = numerator / denominator
+    if len(cluster_keys) == 1:
+        samples = [estimate]
+    else:
+        rng = random.Random(_stable_bootstrap_seed(seed_label))
+        samples = []
+        for _ in range(BOOTSTRAP_RESAMPLES):
+            sampled_keys = [cluster_keys[rng.randrange(len(cluster_keys))] for _ in cluster_keys]
+            sample_numerator = sum(grouped[key][0] for key in sampled_keys)
+            sample_denominator = sum(grouped[key][1] for key in sampled_keys)
+            if sample_denominator > 0:
+                samples.append(sample_numerator / sample_denominator)
+    lower, upper = _confidence_bounds(samples)
+    return {
+        "estimate": float(estimate),
+        "ci_lower": lower,
+        "ci_upper": upper,
+        "unique_page_count": len(cluster_keys),
+        "confidence_level": BOOTSTRAP_CONFIDENCE_LEVEL,
+        "bootstrap_resamples": BOOTSTRAP_RESAMPLES,
+        "cluster_unit": "manuscript_id+page_id",
+    }
+
+
+def _augment_rows_with_bootstrap_cis(summary_rows: list[dict], per_page_rows: list[dict]) -> None:
     rows_by_method: dict[str, list[dict]] = {}
-    for row in impact_rows:
-        rows_by_method.setdefault(row["method_id"], []).append(row)
-    table_rows = []
-    for method_id in sorted(rows_by_method, key=_method_sort_key):
-        rows = rows_by_method[method_id]
-        table_rows.append(
-            {
-                "Method": METHOD_LABELS.get(method_id, method_id),
-                "Pages": len(rows),
-                "Mean Edits": _format_float(_mean(_numeric_impact_values(rows, "layout_effort_edit_count")), 1),
-                "Mean Active Time (s)": _format_float(
-                    _mean(_numeric_impact_values(rows, "layout_effort_active_edit_time_seconds")),
-                    1,
-                ),
-                "Mean CER Reduction": _format_float(_mean(_numeric_impact_values(rows, "page_cer_reduction"))),
-                "Median CER Reduction": _format_float(_median(_numeric_impact_values(rows, "page_cer_reduction"))),
-                "Mean TextEdit Reduction": _format_float(_mean(_numeric_impact_values(rows, "textedit_reduction"))),
-            }
-        )
-    return table_rows
+    for row in per_page_rows:
+        rows_by_method.setdefault(str(row.get("method_id") or ""), []).append(row)
+    for summary in summary_rows:
+        method_id = str(summary.get("method_id") or "")
+        method_rows = rows_by_method.get(method_id, [])
+        for metric_key, (numerator_key, denominator_key, _) in BOOTSTRAP_METRICS.items():
+            result = _bootstrap_micro_metric(
+                method_rows,
+                numerator_key=numerator_key,
+                denominator_key=denominator_key,
+                seed_label=f"method:{method_id}:{metric_key}",
+            )
+            summary[f"{metric_key}_ci_lower"] = result["ci_lower"] if result else None
+            summary[f"{metric_key}_ci_upper"] = result["ci_upper"] if result else None
+            summary[f"{metric_key}_bootstrap_unique_pages"] = result["unique_page_count"] if result else 0
+
+
+def _mean_effort_by_cluster(rows: Iterable[dict]) -> dict[tuple[str, str], float]:
+    effort_by_cluster: dict[tuple[str, str], float] = {}
+    for row in rows:
+        effort = _safe_float(row.get("layout_effort_active_edit_time_seconds"))
+        if effort is not None:
+            effort_by_cluster.setdefault(_cluster_key(row), effort)
+    return effort_by_cluster
+
+
+def _bootstrap_mean_effort(rows: Iterable[dict], *, seed_label: str) -> dict | None:
+    effort_by_cluster = _mean_effort_by_cluster(rows)
+    cluster_keys = sorted(effort_by_cluster)
+    if not cluster_keys:
+        return None
+    estimate = sum(effort_by_cluster.values()) / len(cluster_keys)
+    if len(cluster_keys) == 1:
+        samples = [estimate]
+    else:
+        rng = random.Random(_stable_bootstrap_seed(seed_label))
+        samples = [
+            sum(effort_by_cluster[cluster_keys[rng.randrange(len(cluster_keys))]] for _ in cluster_keys)
+            / len(cluster_keys)
+            for _ in range(BOOTSTRAP_RESAMPLES)
+        ]
+    lower, upper = _confidence_bounds(samples)
+    return {
+        "mean_seconds_per_page": float(estimate),
+        "ci_lower": lower,
+        "ci_upper": upper,
+        "unique_page_count": len(cluster_keys),
+        "confidence_level": BOOTSTRAP_CONFIDENCE_LEVEL,
+        "bootstrap_resamples": BOOTSTRAP_RESAMPLES,
+        "cluster_unit": "manuscript_id+page_id",
+    }
+
+
+def _layout_mode_comparison_rows(per_page_rows: list[dict]) -> list[dict]:
+    rows_by_method: dict[str, list[dict]] = {}
+    for row in per_page_rows:
+        rows_by_method.setdefault(str(row.get("method_id") or ""), []).append(row)
+
+    comparison_rows: list[dict] = []
+    for engine, baseline_method_id, target_method_id in LAYOUT_MODE_COMPARISONS:
+        baseline_rows = rows_by_method.get(baseline_method_id, [])
+        target_rows = rows_by_method.get(target_method_id, [])
+        for metric_key, (numerator_key, denominator_key, metric_label) in BOOTSTRAP_METRICS.items():
+            baseline_groups = _group_metric_counts(
+                baseline_rows,
+                numerator_key=numerator_key,
+                denominator_key=denominator_key,
+            )
+            target_groups = _group_metric_counts(
+                target_rows,
+                numerator_key=numerator_key,
+                denominator_key=denominator_key,
+            )
+            common_keys = sorted(set(baseline_groups) & set(target_groups))
+            if not common_keys:
+                continue
+            common_key_set = set(common_keys)
+            effort = _bootstrap_mean_effort(
+                [row for row in target_rows if _cluster_key(row) in common_key_set],
+                seed_label="layout-effort",
+            )
+
+            def reduction(sampled_keys: list[tuple[str, str]]) -> tuple[float, float, float, float] | None:
+                baseline_numerator = sum(baseline_groups[key][0] for key in sampled_keys)
+                baseline_denominator = sum(baseline_groups[key][1] for key in sampled_keys)
+                target_numerator = sum(target_groups[key][0] for key in sampled_keys)
+                target_denominator = sum(target_groups[key][1] for key in sampled_keys)
+                if baseline_denominator <= 0 or target_denominator <= 0:
+                    return None
+                baseline_value = baseline_numerator / baseline_denominator
+                target_value = target_numerator / target_denominator
+                absolute = baseline_value - target_value
+                relative = (absolute / baseline_value) * 100.0 if baseline_value > 0 else 0.0
+                return baseline_value, target_value, absolute, relative
+
+            point = reduction(common_keys)
+            if point is None:
+                continue
+            if len(common_keys) == 1:
+                bootstrap_results = [point]
+            else:
+                rng = random.Random(
+                    _stable_bootstrap_seed(f"comparison:{baseline_method_id}:{target_method_id}:{metric_key}")
+                )
+                bootstrap_results = []
+                for _ in range(BOOTSTRAP_RESAMPLES):
+                    sampled = [common_keys[rng.randrange(len(common_keys))] for _ in common_keys]
+                    sample_result = reduction(sampled)
+                    if sample_result is not None:
+                        bootstrap_results.append(sample_result)
+            absolute_lower, absolute_upper = _confidence_bounds([item[2] for item in bootstrap_results])
+            relative_lower, relative_upper = _confidence_bounds([item[3] for item in bootstrap_results])
+            comparison_rows.append(
+                {
+                    "engine": engine,
+                    "baseline_method_id": baseline_method_id,
+                    "target_method_id": target_method_id,
+                    "metric_key": metric_key,
+                    "metric_label": metric_label,
+                    "baseline_micro": point[0],
+                    "target_micro": point[1],
+                    "absolute_reduction": point[2],
+                    "absolute_reduction_ci_lower": absolute_lower,
+                    "absolute_reduction_ci_upper": absolute_upper,
+                    "relative_reduction_percent": point[3],
+                    "relative_reduction_ci_lower": relative_lower,
+                    "relative_reduction_ci_upper": relative_upper,
+                    "layout_effort_mean_seconds_per_page": effort["mean_seconds_per_page"] if effort else None,
+                    "layout_effort_ci_lower": effort["ci_lower"] if effort else None,
+                    "layout_effort_ci_upper": effort["ci_upper"] if effort else None,
+                    "unique_page_count": len(common_keys),
+                    "confidence_level": BOOTSTRAP_CONFIDENCE_LEVEL,
+                    "bootstrap_resamples": BOOTSTRAP_RESAMPLES,
+                    "cluster_unit": "manuscript_id+page_id",
+                }
+            )
+    return comparison_rows
+
+
+def _fold_metric_rows(per_page_rows: list[dict]) -> list[dict]:
+    grouped: dict[tuple[str, str], list[dict]] = {}
+    for row in per_page_rows:
+        key = (str(row.get("method_id") or ""), str(row.get("fold_id") or ""))
+        grouped.setdefault(key, []).append(row)
+    rows = []
+    for (method_id, fold_id), records in sorted(grouped.items(), key=lambda item: (_method_sort_key(item[0][0]), item[0][1])):
+        aggregate = aggregate_page_records(records)
+        rows.append({"method_id": method_id, "fold_id": fold_id, **aggregate})
+    return rows
 
 
 def _plotting():
@@ -819,6 +967,32 @@ def _add_effort_group_guides(ax, group_spans: list[tuple[int, float, float, floa
             )
 
 
+def _layout_comparison_note(comparison_rows: list[dict], metric_key: str) -> str:
+    selected = [row for row in comparison_rows if row.get("metric_key") == metric_key]
+    lines = []
+    for row in selected:
+        effort = _safe_float(row.get("layout_effort_mean_seconds_per_page"))
+        effort_low = _safe_float(row.get("layout_effort_ci_lower"))
+        effort_high = _safe_float(row.get("layout_effort_ci_upper"))
+        reduction = _safe_float(row.get("relative_reduction_percent"))
+        reduction_low = _safe_float(row.get("relative_reduction_ci_lower"))
+        reduction_high = _safe_float(row.get("relative_reduction_ci_upper"))
+        if None in {effort, effort_low, effort_high, reduction, reduction_low, reduction_high}:
+            continue
+        lines.append(
+            f"{row['engine']} e2e → GT layout: "
+            f"{effort:.1f} s/page active layout editing (95% CI {effort_low:.1f}–{effort_high:.1f}); "
+            f"error ↓ {reduction:.1f}% (95% CI {reduction_low:.1f}–{reduction_high:.1f})"
+        )
+    if not lines:
+        return ""
+    lines.append(
+        "Bar error bars: 95% page-cluster bootstrap CI. Only Layout Mode effort is quantified; "
+        "Read Mode fine-tuning effort is not included."
+    )
+    return "\n".join(lines)
+
+
 def _save_bar_figure(
     rows: list[dict],
     key: str,
@@ -827,6 +1001,7 @@ def _save_bar_figure(
     title: str,
     ylabel: str,
     group_by_effort: bool = False,
+    comparison_rows: list[dict] | None = None,
 ) -> Path | None:
     plt = _plotting()
     if plt is None or not rows:
@@ -845,10 +1020,30 @@ def _save_bar_figure(
         x_limits = (-0.5, len(rows) - 0.5)
         bar_width = 0.8
     values = _numeric_values(rows, key)
+    ci_lower_values = [_safe_float(row.get(f"{key}_ci_lower")) for row in rows]
+    ci_upper_values = [_safe_float(row.get(f"{key}_ci_upper")) for row in rows]
+    lower_errors = [
+        max(0.0, value - lower) if lower is not None else 0.0
+        for value, lower in zip(values, ci_lower_values)
+    ]
+    upper_errors = [
+        max(0.0, upper - value) if upper is not None else 0.0
+        for value, upper in zip(values, ci_upper_values)
+    ]
     plot_width = x_limits[1] - x_limits[0]
     fig_width = max(12.0, plot_width * 1.05) if group_by_effort else max(8.0, len(rows) * 1.35)
-    fig, ax = plt.subplots(figsize=(fig_width, 5.0 if group_by_effort else 4.8))
-    bars = ax.bar(x_positions, values, width=bar_width, color=colors, edgecolor="#111111", linewidth=0.5)
+    fig, ax = plt.subplots(figsize=(fig_width, 6.0 if group_by_effort else 4.8))
+    bars = ax.bar(
+        x_positions,
+        values,
+        width=bar_width,
+        color=colors,
+        edgecolor="#111111",
+        linewidth=0.5,
+        yerr=[lower_errors, upper_errors],
+        capsize=4,
+        error_kw={"ecolor": "#7A1F1F", "elinewidth": 1.25, "capthick": 1.25},
+    )
     if not group_by_effort:
         ax.set_title(title)
     ax.set_ylabel(ylabel)
@@ -862,7 +1057,13 @@ def _save_bar_figure(
         ax.tick_params(axis="x", labelsize=9)
         ax.set_xlim(x_limits)
     ax.grid(axis="y", alpha=0.25)
-    max_value = max(values) if values else 0.0
+    max_value = max(
+        [
+            upper if upper is not None else value
+            for value, upper in zip(values, ci_upper_values)
+        ],
+        default=0.0,
+    )
     ax.set_ylim(0, max(max_value * 1.18, 0.05))
     if not group_by_effort:
         for bar, value in zip(bars, values):
@@ -876,7 +1077,19 @@ def _save_bar_figure(
             )
     if group_by_effort:
         _add_effort_group_guides(ax, group_spans)
-        fig.tight_layout(rect=(0, 0, 1, 0.86))
+        note = _layout_comparison_note(comparison_rows or [], key)
+        if note:
+            fig.text(
+                0.5,
+                0.015,
+                note,
+                ha="center",
+                va="bottom",
+                fontsize=8.5,
+                linespacing=1.25,
+                bbox={"boxstyle": "round,pad=0.4", "facecolor": "white", "edgecolor": "#777777", "alpha": 0.95},
+            )
+        fig.tight_layout(rect=(0, 0.16 if note else 0, 1, 0.84))
     else:
         fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -969,58 +1182,7 @@ def _save_gemini_token_figure(rows: list[dict], output_path: Path) -> Path | Non
     return output_path
 
 
-def _save_layout_effort_impact_figure(rows: list[dict], output_path: Path) -> Path | None:
-    plt = _plotting()
-    if plt is None or not rows:
-        return None
-    method_ids = sorted({row["method_id"] for row in rows}, key=_method_sort_key)
-    colors = ("#4C78A8", "#F58518", "#54A24B", "#E45756", "#72B7B2", "#B279A2")
-    figure_has_points = False
-    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.8), sharey=True)
-    panels = (
-        ("layout_effort_active_edit_time_seconds", "Human layout correction time (seconds)"),
-        ("layout_effort_edit_count", "Human layout correction edits"),
-    )
-    for ax, (x_key, xlabel) in zip(axes, panels):
-        for index, method_id in enumerate(method_ids):
-            method_rows = [row for row in rows if row["method_id"] == method_id]
-            points = [
-                (_safe_float(row.get(x_key)), _safe_float(row.get("page_cer_reduction")))
-                for row in method_rows
-            ]
-            points = [(x_value, y_value) for x_value, y_value in points if x_value is not None and y_value is not None]
-            if not points:
-                continue
-            figure_has_points = True
-            x_values = [point[0] for point in points]
-            y_values = [point[1] for point in points]
-            ax.scatter(
-                x_values,
-                y_values,
-                label=METHOD_LABELS.get(method_id, method_id),
-                color=colors[index % len(colors)],
-                alpha=0.8,
-                edgecolor="white",
-                linewidth=0.7,
-                s=58,
-            )
-        ax.axhline(0, color="#333333", linewidth=0.8, alpha=0.6)
-        ax.set_xlabel(xlabel)
-        ax.grid(alpha=0.25)
-    if not figure_has_points:
-        plt.close(fig)
-        return None
-    axes[0].set_ylabel("Page CER reduction vs annotation_tool_e2e")
-    axes[1].legend(loc="best", fontsize=8)
-    fig.suptitle("Human Layout Effort vs OCR Gain")
-    fig.tight_layout()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=180)
-    plt.close(fig)
-    return output_path
-
-
-def _write_figures(report_dir: Path, rows: list[dict], layout_effort_rows: list[dict]) -> list[Path]:
+def _write_figures(report_dir: Path, rows: list[dict], comparison_rows: list[dict]) -> list[Path]:
     figure_dir = report_dir / "figures"
     figure_paths = [
         _save_bar_figure(
@@ -1030,6 +1192,7 @@ def _write_figures(report_dir: Path, rows: list[dict], layout_effort_rows: list[
             title="Micro Page CER By Method",
             ylabel="Micro Page CER",
             group_by_effort=True,
+            comparison_rows=comparison_rows,
         ),
         _save_bar_figure(
             rows,
@@ -1038,11 +1201,11 @@ def _write_figures(report_dir: Path, rows: list[dict], layout_effort_rows: list[
             title="Micro Line-group TextEdit By Method",
             ylabel="Micro TextEdit",
             group_by_effort=True,
+            comparison_rows=comparison_rows,
         ),
         _save_layout_figure(rows, figure_dir / "layout_metrics_by_method.png"),
         _save_finetuning_curve(rows, figure_dir / "annotation_tool_finetuning_curve.png"),
         _save_gemini_token_figure(rows, figure_dir / "gemini_token_usage.png"),
-        _save_layout_effort_impact_figure(layout_effort_rows, figure_dir / "layout_effort_vs_ocr_gain.png"),
     ]
     return [path for path in figure_paths if path is not None]
 
@@ -1059,10 +1222,46 @@ def _summary_table_rows(rows: list[dict]) -> list[dict]:
                 "Valid Output": _format_float(row.get("valid_output_rate")),
                 "G-F1@0.50": _format_float(row.get("object_g_f1_50")),
                 "Pixel F1": _format_float(row.get("pixel_f1")),
-                "Micro CER": _format_float(row.get("micro_page_cer")),
-                "Micro TextEdit": _format_float(row.get("micro_textedit")),
+                "Micro CER (95% CI)": _format_estimate_ci(
+                    row.get("micro_page_cer"),
+                    row.get("micro_page_cer_ci_lower"),
+                    row.get("micro_page_cer_ci_upper"),
+                ),
+                "Micro TextEdit (95% CI)": _format_estimate_ci(
+                    row.get("micro_textedit"),
+                    row.get("micro_textedit_ci_lower"),
+                    row.get("micro_textedit_ci_upper"),
+                ),
                 "Gemini Tokens": row.get("gemini_total_token_count", 0),
                 "Gemini USD": _format_cost(row.get("gemini_estimated_cost_usd")),
+            }
+        )
+    return table_rows
+
+
+def _layout_mode_comparison_table_rows(rows: list[dict]) -> list[dict]:
+    table_rows = []
+    for row in rows:
+        table_rows.append(
+            {
+                "Comparison": f"{row['engine']} e2e → GT layout",
+                "Metric": row["metric_label"],
+                "Pages": row["unique_page_count"],
+                "Active Layout Edit Seconds/Page (95% CI)": _format_estimate_ci(
+                    row.get("layout_effort_mean_seconds_per_page"),
+                    row.get("layout_effort_ci_lower"),
+                    row.get("layout_effort_ci_upper"),
+                    digits=1,
+                ),
+                "Baseline": _format_float(row.get("baseline_micro")),
+                "GT Layout": _format_float(row.get("target_micro")),
+                "Relative Error Reduction (95% CI)": _format_estimate_ci(
+                    row.get("relative_reduction_percent"),
+                    row.get("relative_reduction_ci_lower"),
+                    row.get("relative_reduction_ci_upper"),
+                    digits=1,
+                )
+                + "%",
             }
         )
     return table_rows
@@ -1072,7 +1271,7 @@ def _write_markdown_report(
     output_root: Path,
     report_dir: Path,
     rows: list[dict],
-    layout_effort_rows: list[dict],
+    comparison_rows: list[dict],
     usage_rows: list[dict],
     figure_paths: list[Path],
 ) -> Path:
@@ -1087,8 +1286,8 @@ def _write_markdown_report(
         ("Valid Output", "Valid Output"),
         ("G-F1@0.50", "G-F1@0.50"),
         ("Pixel F1", "Pixel F1"),
-        ("Micro CER", "Micro CER"),
-        ("Micro TextEdit", "Micro TextEdit"),
+        ("Micro CER (95% CI)", "Micro CER (95% CI)"),
+        ("Micro TextEdit (95% CI)", "Micro TextEdit (95% CI)"),
         ("Gemini Tokens", "Gemini Tokens"),
         ("Gemini USD", "Gemini USD"),
     ]
@@ -1111,7 +1310,7 @@ def _write_markdown_report(
         }
         for row in gemini_rows
     ]
-    layout_effort_table_rows = _layout_effort_summary_table_rows(layout_effort_rows)
+    comparison_table_rows = _layout_mode_comparison_table_rows(comparison_rows)
 
     figure_lines = []
     for path in figure_paths:
@@ -1136,26 +1335,32 @@ def _write_markdown_report(
         "- Rows with `layout_condition=human_corrected_gt_layout` use layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
         "- Fine-tuning methods record the GUI runtime OCR active-learning recipe and sibling checkpoint selector in `summary_metrics.csv`.",
         "",
-        "## Human Layout Effort And OCR Gain",
+        "## Layout Mode Effort And OCR Reduction",
         "",
-        "These rows compare each local human-corrected GT-layout condition against `annotation_tool_e2e` on the same fold and page. Positive reductions mean the human-corrected layout condition lowered the error.",
+        (
+            "These paired comparisons quantify only active Layout Mode editing effort. "
+            "Read Mode fine-tuning effort is intentionally not included. Intervals are deterministic "
+            "95% page-cluster bootstrap confidence intervals; repeated occurrences of a page across "
+            "folds remain in the same resampled page cluster."
+        ),
         "",
         _markdown_table(
-            layout_effort_table_rows,
+            comparison_table_rows,
             [
-                ("Method", "Method"),
+                ("Comparison", "Comparison"),
+                ("Metric", "Metric"),
                 ("Pages", "Pages"),
-                ("Mean Edits", "Mean Edits"),
-                ("Mean Active Time (s)", "Mean Active Time (s)"),
-                ("Mean CER Reduction", "Mean CER Reduction"),
-                ("Median CER Reduction", "Median CER Reduction"),
-                ("Mean TextEdit Reduction", "Mean TextEdit Reduction"),
+                ("Active Layout Edit Seconds/Page (95% CI)", "Active Layout Edit Seconds/Page (95% CI)"),
+                ("Baseline", "Baseline"),
+                ("GT Layout", "GT Layout"),
+                ("Relative Error Reduction (95% CI)", "Relative Error Reduction (95% CI)"),
             ],
         )
-        if layout_effort_table_rows
-        else "No layout-effort impact rows found. This requires `annotation_tool_e2e`, local human-corrected GT-layout page records, and a manuscript `layout_analysis_output/layout_effort.json` file.",
+        if comparison_table_rows
+        else "No complete paired e2e-versus-GT-layout comparisons with layout-effort data were found.",
         "",
-        f"Per-page layout effort impact rows: `{(report_dir / 'layout_effort_impact.csv').relative_to(report_dir).as_posix()}`",
+        f"Paired layout comparison rows: `{(report_dir / 'layout_mode_comparisons.csv').relative_to(report_dir).as_posix()}`",
+        f"Per-fold metrics: `{(report_dir / 'fold_metrics.csv').relative_to(report_dir).as_posix()}`",
         "",
         "## Gemini Usage And Cost",
         "",
@@ -1204,6 +1409,9 @@ def write_experiment_report(
     report_dir.mkdir(parents=True, exist_ok=True)
 
     summary_rows, per_page_rows = _load_summary_rows(root)
+    _augment_rows_with_bootstrap_cis(summary_rows, per_page_rows)
+    fold_metric_rows = _fold_metric_rows(per_page_rows)
+    layout_mode_comparison_rows = _layout_mode_comparison_rows(per_page_rows)
     usage_rows, usage_summaries = collect_gemini_usage(
         root,
         input_usd_per_1m_tokens=input_usd_per_1m_tokens,
@@ -1214,11 +1422,12 @@ def write_experiment_report(
     summary_csv_path = report_dir / "summary_metrics.csv"
     summary_json_path = report_dir / "summary_metrics.json"
     per_page_csv_path = report_dir / "per_page_metrics.csv"
-    layout_effort_impact_csv_path = report_dir / "layout_effort_impact.csv"
-    layout_effort_impact_json_path = report_dir / "layout_effort_impact.json"
+    fold_metrics_csv_path = report_dir / "fold_metrics.csv"
+    fold_metrics_json_path = report_dir / "fold_metrics.json"
+    layout_mode_comparisons_csv_path = report_dir / "layout_mode_comparisons.csv"
+    layout_mode_comparisons_json_path = report_dir / "layout_mode_comparisons.json"
     gemini_usage_csv_path = report_dir / "gemini_usage.csv"
     gemini_usage_json_path = report_dir / "gemini_usage.json"
-    layout_effort_impact_rows = _layout_effort_impact_rows(per_page_rows)
 
     summary_fields = [
         "method_id",
@@ -1239,9 +1448,15 @@ def write_experiment_report(
         "mean_page_cer",
         "median_page_cer",
         "micro_page_cer",
+        "micro_page_cer_ci_lower",
+        "micro_page_cer_ci_upper",
+        "micro_page_cer_bootstrap_unique_pages",
         "mean_textedit",
         "median_textedit",
         "micro_textedit",
+        "micro_textedit_ci_lower",
+        "micro_textedit_ci_upper",
+        "micro_textedit_bootstrap_unique_pages",
         "gemini_usage_status",
         "gemini_page_count",
         "gemini_success_count",
@@ -1261,28 +1476,43 @@ def write_experiment_report(
     _write_csv(summary_csv_path, summary_rows, fieldnames=summary_fields)
     _write_json(summary_json_path, summary_rows)
     _write_csv(per_page_csv_path, per_page_rows)
-    _write_csv(
-        layout_effort_impact_csv_path,
-        layout_effort_impact_rows,
-        fieldnames=LAYOUT_EFFORT_IMPACT_FIELDS,
-    )
+    _write_csv(fold_metrics_csv_path, fold_metric_rows)
     _write_json(
-        layout_effort_impact_json_path,
+        fold_metrics_json_path,
         {
-            "comparison_baseline": "annotation_tool_e2e",
-            "positive_reduction_means": "lower error after the human-corrected GT-layout condition",
-            "rows": layout_effort_impact_rows,
+            "aggregation": "pooled independently within each method and fold",
+            "rows": fold_metric_rows,
+        },
+    )
+    _write_csv(layout_mode_comparisons_csv_path, layout_mode_comparison_rows)
+    _write_json(
+        layout_mode_comparisons_json_path,
+        {
+            "confidence_level": BOOTSTRAP_CONFIDENCE_LEVEL,
+            "bootstrap_resamples": BOOTSTRAP_RESAMPLES,
+            "cluster_unit": "manuscript_id+page_id",
+            "effort_definition": "mean active Layout Mode edit seconds per unique evaluated page",
+            "read_mode_effort_included": False,
+            "rows": layout_mode_comparison_rows,
         },
     )
     _write_csv(gemini_usage_csv_path, usage_rows)
     _write_json(gemini_usage_json_path, {"rows": usage_rows, "summaries": usage_summaries})
 
-    figure_paths = _write_figures(report_dir, summary_rows, layout_effort_impact_rows)
+    stale_paths = (
+        report_dir / "layout_effort_impact.csv",
+        report_dir / "layout_effort_impact.json",
+        report_dir / "figures" / "layout_effort_vs_ocr_gain.png",
+    )
+    for stale_path in stale_paths:
+        stale_path.unlink(missing_ok=True)
+
+    figure_paths = _write_figures(report_dir, summary_rows, layout_mode_comparison_rows)
     markdown_path = _write_markdown_report(
         root,
         report_dir,
         summary_rows,
-        layout_effort_impact_rows,
+        layout_mode_comparison_rows,
         usage_rows,
         figure_paths,
     )
@@ -1293,14 +1523,17 @@ def write_experiment_report(
         "summary_csv_path": str(summary_csv_path.resolve()),
         "summary_json_path": str(summary_json_path.resolve()),
         "per_page_csv_path": str(per_page_csv_path.resolve()),
-        "layout_effort_impact_csv_path": str(layout_effort_impact_csv_path.resolve()),
-        "layout_effort_impact_json_path": str(layout_effort_impact_json_path.resolve()),
+        "fold_metrics_csv_path": str(fold_metrics_csv_path.resolve()),
+        "fold_metrics_json_path": str(fold_metrics_json_path.resolve()),
+        "layout_mode_comparisons_csv_path": str(layout_mode_comparisons_csv_path.resolve()),
+        "layout_mode_comparisons_json_path": str(layout_mode_comparisons_json_path.resolve()),
         "gemini_usage_csv_path": str(gemini_usage_csv_path.resolve()),
         "gemini_usage_json_path": str(gemini_usage_json_path.resolve()),
         "figure_paths": [str(path.resolve()) for path in figure_paths],
         "method_count": len(summary_rows),
         "per_page_record_count": len(per_page_rows),
-        "layout_effort_impact_record_count": len(layout_effort_impact_rows),
+        "fold_metric_record_count": len(fold_metric_rows),
+        "layout_mode_comparison_record_count": len(layout_mode_comparison_rows),
         "gemini_usage_record_count": len(usage_rows),
     }
     _write_json(manifest_path, manifest)
@@ -1311,8 +1544,10 @@ def write_experiment_report(
         summary_csv_path=summary_csv_path,
         summary_json_path=summary_json_path,
         per_page_csv_path=per_page_csv_path,
-        layout_effort_impact_csv_path=layout_effort_impact_csv_path,
-        layout_effort_impact_json_path=layout_effort_impact_json_path,
+        fold_metrics_csv_path=fold_metrics_csv_path,
+        fold_metrics_json_path=fold_metrics_json_path,
+        layout_mode_comparisons_csv_path=layout_mode_comparisons_csv_path,
+        layout_mode_comparisons_json_path=layout_mode_comparisons_json_path,
         gemini_usage_csv_path=gemini_usage_csv_path,
         gemini_usage_json_path=gemini_usage_json_path,
         figure_paths=tuple(figure_paths),

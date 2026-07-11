@@ -129,9 +129,19 @@ The report folder includes:
 
 - `experiment_report.md`
 - `summary_metrics.csv` and `summary_metrics.json`
+- `fold_metrics.csv` and `fold_metrics.json`
 - `per_page_metrics.csv`
+- `layout_mode_comparisons.csv` and `layout_mode_comparisons.json`
 - `gemini_usage.csv` and `gemini_usage.json`
 - figures under `figures/`
+
+The main Micro Page CER and Micro TextEdit figures include deterministic 95%
+page-cluster bootstrap confidence intervals. The cluster unit is the unique
+`(manuscript_id, page_id)`, so repeated appearances of a page across folds are
+resampled together. The figures also report paired e2e-to-GT-layout relative
+error reductions for Gemini and the Annotation Tool together with mean active
+Layout Mode edit seconds per unique test page and its 95% confidence interval.
+Read Mode fine-tuning effort is intentionally not included.
 
 Gemini methods record SDK usage metadata when available, including prompt,
 candidate, and total token counts. Annotation-tool methods use local
