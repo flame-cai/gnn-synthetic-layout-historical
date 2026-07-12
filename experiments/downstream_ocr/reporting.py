@@ -34,14 +34,15 @@ METHOD_LABELS = {
     "annotation_tool_gt_layout_ft_3": "Annotation tool human-corrected GT layout + 3 page FT",
 }
 
+# Important: what we refer to as annotation tool here, is refered to as the Traditional Pipeline in the paper.
 FIGURE_METHOD_LABELS = {
     "vlm_e2e": "Gemini",
     "gemini_gt_layout": "Gemini",
-    "annotation_tool_e2e": "Annotation\nTool",
-    "annotation_tool_gt_layout": "Annotation\nTool",
-    "annotation_tool_gt_layout_ft_1": "Annotation\nTool",
-    "annotation_tool_gt_layout_ft_2": "Annotation\nTool",
-    "annotation_tool_gt_layout_ft_3": "Annotation\nTool",
+    "annotation_tool_e2e": "Traditional\nPipeline",
+    "annotation_tool_gt_layout": "Traditional\nPipeline",
+    "annotation_tool_gt_layout_ft_1": "Traditional\nPipeline",
+    "annotation_tool_gt_layout_ft_2": "Traditional\nPipeline",
+    "annotation_tool_gt_layout_ft_3": "Traditional\nPipeline",
 }
 
 EFFORT_LEVELS = {
@@ -65,9 +66,9 @@ EFFORT_LEVEL_COLORS = {
 EFFORT_GROUP_LABELS = {
     0: "Off the Shelf",
     1: "Layout post-correction",
-    2: "Layout post-correction\n+ 1 page OCR Fine-Tuning",
-    3: "Layout post-correction\n+ 2 pages OCR Fine-Tuning",
-    4: "Layout post-correction\n+ 3 pages OCR Fine-Tuning",
+    2: "Layout post-correction\n+ 1 page Fine-Tuning",
+    3: "Layout post-correction\n+ 2 pages Fine-Tuning",
+    4: "Layout post-correction\n+ 3 pages Fine-Tuning",
 }
 
 EFFORT_COMPARTMENT_ALPHA = 0.82
