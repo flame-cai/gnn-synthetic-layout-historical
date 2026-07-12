@@ -64,10 +64,10 @@ EFFORT_LEVEL_COLORS = {
 
 EFFORT_GROUP_LABELS = {
     0: "Off the Shelf",
-    1: "Manual layout correction",
-    2: "Manual layout correction\n+ 1 page Fine-Tuning",
-    3: "Manual layout correction\n+ 2 pages Fine-Tuning",
-    4: "Manual layout correction\n+ 3 pages Fine-Tuning",
+    1: "Layout post-correction",
+    2: "Layout post-correction\n+ 1 page OCR Fine-Tuning",
+    3: "Layout post-correction\n+ 2 pages OCR Fine-Tuning",
+    4: "Layout post-correction\n+ 3 pages OCR Fine-Tuning",
 }
 
 EFFORT_COMPARTMENT_ALPHA = 0.82
@@ -967,30 +967,89 @@ def _add_effort_group_guides(ax, group_spans: list[tuple[int, float, float, floa
             )
 
 
+
 def _layout_comparison_note(comparison_rows: list[dict], metric_key: str) -> str:
     selected = [row for row in comparison_rows if row.get("metric_key") == metric_key]
-    lines = []
+
+    effort_values = []
+    performance_improvements = []
+
     for row in selected:
         effort = _safe_float(row.get("layout_effort_mean_seconds_per_page"))
         effort_low = _safe_float(row.get("layout_effort_ci_lower"))
         effort_high = _safe_float(row.get("layout_effort_ci_upper"))
+
         reduction = _safe_float(row.get("relative_reduction_percent"))
         reduction_low = _safe_float(row.get("relative_reduction_ci_lower"))
         reduction_high = _safe_float(row.get("relative_reduction_ci_upper"))
-        if None in {effort, effort_low, effort_high, reduction, reduction_low, reduction_high}:
+
+        if None in {
+            effort,
+            effort_low,
+            effort_high,
+            reduction,
+            reduction_low,
+            reduction_high,
+        }:
             continue
-        lines.append(
-            f"{row['engine']} e2e → GT layout: "
-            f"{effort:.1f} s/page active layout editing (95% CI {effort_low:.1f}–{effort_high:.1f}); "
-            f"error ↓ {reduction:.1f}% (95% CI {reduction_low:.1f}–{reduction_high:.1f})"
+
+        effort_margin = (effort_high - effort_low) / 2
+        reduction_margin = (reduction_high - reduction_low) / 2
+
+        effort_values.append((effort, effort_margin))
+        performance_improvements.append(
+            f"performance of {row['engine']} by "
+            f"{reduction:.1f}% (±{reduction_margin:.1f}%)"
         )
-    if not lines:
+
+    if not performance_improvements:
         return ""
-    lines.append(
-        "Bar error bars: 95% page-cluster bootstrap CI. Only Layout Mode effort is quantified; "
-        "Read Mode fine-tuning effort is not included."
+
+    # Layout effort is expected to be shared across engines.
+    effort, effort_margin = effort_values[0]
+
+    if len(performance_improvements) == 1:
+        improvements_text = performance_improvements[0]
+    else:
+        improvements_text = (
+            ", ".join(performance_improvements[:-1])
+            + f", and {performance_improvements[-1]}"
+        )
+
+    note = (
+        "Manually post-correcting page layouts "
+        f"({effort:.1f} seconds per page, ±{effort_margin:.1f} seconds) "
+        f"improves {improvements_text}."
     )
-    return "\n".join(lines)
+
+    # Bar error bars: 95% page-cluster bootstrap CI. Only Layout Mode effort
+    # is quantified; Read Mode fine-tuning effort is not included.
+
+    return note
+# def _layout_comparison_note(comparison_rows: list[dict], metric_key: str) -> str:
+#     selected = [row for row in comparison_rows if row.get("metric_key") == metric_key]
+#     lines = []
+#     for row in selected:
+#         effort = _safe_float(row.get("layout_effort_mean_seconds_per_page"))
+#         effort_low = _safe_float(row.get("layout_effort_ci_lower"))
+#         effort_high = _safe_float(row.get("layout_effort_ci_upper"))
+#         reduction = _safe_float(row.get("relative_reduction_percent"))
+#         reduction_low = _safe_float(row.get("relative_reduction_ci_lower"))
+#         reduction_high = _safe_float(row.get("relative_reduction_ci_upper"))
+#         if None in {effort, effort_low, effort_high, reduction, reduction_low, reduction_high}:
+#             continue
+#         lines.append(
+#             f"{row['engine']} e2e → GT layout: "
+#             f"{effort:.1f} s/page active layout editing (95% CI {effort_low:.1f}–{effort_high:.1f}); "
+#             f"error ↓ {reduction:.1f}% (95% CI {reduction_low:.1f}–{reduction_high:.1f})"
+#         )
+#     if not lines:
+#         return ""
+#     lines.append(
+#         "Bar error bars: 95% page-cluster bootstrap CI. Only Layout Mode effort is quantified; "
+#         "Read Mode fine-tuning effort is not included."
+#     )
+#     return "\n".join(lines)
 
 
 def _save_bar_figure(
