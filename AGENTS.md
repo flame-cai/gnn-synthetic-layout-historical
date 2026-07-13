@@ -1,5 +1,7 @@
 # AGENTS.md
 
+To work with the repository use conda environment "gnn_layout"
+
 This file is for coding agents working in this repository. It explains the repository layout, maps the papers to the codebase, and documents the current verification and OCR fine-tuning research state so future agents can work from the actual source of truth instead of older assumptions.
 
 ## Repository Structure
