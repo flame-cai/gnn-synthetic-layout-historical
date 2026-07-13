@@ -60,8 +60,8 @@ test/word_3.png A
 ---
 
 **Important**: Please find the actual reference source code for training/fine-tuning text-line recognition models like vadakautuhala.pth here:
-gnn-synthetic-layout-historical\recognition_finetuning_ref\finetuning_reference_1
-gnn-synthetic-layout-historical\recognition_finetuning_ref\finetuning_reference_2
+.\recognition_finetuning_ref\finetuning_reference_1
+.\recognition_finetuning_ref\finetuning_reference_2
 
 **Recognition model Notes:**
 Please use **batch size of 1 for both training and inference of the recogntion model**.

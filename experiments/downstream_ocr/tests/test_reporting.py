@@ -6,7 +6,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from experiments.downstream_ocr.reporting import _bootstrap_micro_metric, write_experiment_report
+from experiments.downstream_ocr.reporting import (
+    EFFORT_GROUP_LABELS,
+    _bootstrap_micro_metric,
+    _effort_level,
+    write_experiment_report,
+)
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -53,6 +58,25 @@ def _page_record(
 
 
 class DownstreamOcrReportingTests(unittest.TestCase):
+    def test_predicted_layout_finetuning_compartments_follow_off_the_shelf(self):
+        ordered_method_ids = (
+            "annotation_tool_e2e",
+            "annotation_tool_pred_layout_ft_1",
+            "annotation_tool_pred_layout_ft_2",
+            "annotation_tool_pred_layout_ft_3",
+            "annotation_tool_gt_layout",
+            "annotation_tool_gt_layout_ft_1",
+            "annotation_tool_gt_layout_ft_2",
+            "annotation_tool_gt_layout_ft_3",
+        )
+        self.assertEqual(
+            [_effort_level(method_id) for method_id in ordered_method_ids],
+            list(range(8)),
+        )
+        self.assertEqual(EFFORT_GROUP_LABELS[0], "Off the Shelf")
+        for level in (1, 2, 3):
+            self.assertIn("No test layout correction", EFFORT_GROUP_LABELS[level])
+
     def test_page_cluster_bootstrap_keeps_repeated_fold_occurrences_together(self):
         rows = [
             _page_record(
@@ -262,6 +286,38 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                 },
             )
             _write_json(
+                root / "metrics" / "annotation_tool_pred_layout_ft_1" / "metrics.json",
+                {
+                    "method": {
+                        "method_id": "annotation_tool_pred_layout_ft_1",
+                        "display_name": "Annotation tool predicted test layout + 1 page FT",
+                        "uses_gt_layout": False,
+                        "uses_finetuning": True,
+                        "finetune_page_count": 1,
+                        "uses_gemini": False,
+                    },
+                    "ocr_active_learning_recipe": {
+                        "source": "app.ocr_active_learning_runtime._runtime_recipe",
+                        "sibling_checkpoint_strategy": "best_norm_ed",
+                        "recipe": {"sibling_checkpoint_strategy": "best_norm_ed"},
+                    },
+                    "aggregate": {
+                        "page_count": 1,
+                        "valid_output_rate": 1.0,
+                        "object_g_f1_50": 0.7,
+                        "object_g_f1_75": 0.6,
+                        "pixel_f1": 0.8,
+                        "mean_page_cer": 0.3,
+                        "median_page_cer": 0.3,
+                        "micro_page_cer": 0.3,
+                        "mean_textedit": 0.4,
+                        "median_textedit": 0.4,
+                        "micro_textedit": 0.4,
+                    },
+                    "page_records": [],
+                },
+            )
+            _write_json(
                 root / "metrics" / "annotation_tool_gt_layout_ft_1" / "metrics.json",
                 {
                     "method": {
@@ -332,6 +388,20 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertEqual(by_method["annotation_tool_gt_layout"]["gemini_estimated_cost_usd"], 0.0)
             self.assertEqual(by_method["vlm_e2e"]["layout_condition"], "predicted_layout")
             self.assertEqual(by_method["annotation_tool_gt_layout"]["layout_condition"], "human_corrected_gt_layout")
+            self.assertEqual(
+                by_method["annotation_tool_pred_layout_ft_1"]["training_layout_condition"],
+                "human_corrected_gt_layout",
+            )
+            self.assertEqual(
+                by_method["annotation_tool_pred_layout_ft_1"]["test_layout_condition"],
+                "predicted_layout",
+            )
+            self.assertTrue(by_method["annotation_tool_pred_layout_ft_1"]["human_training_layout"])
+            self.assertFalse(by_method["annotation_tool_pred_layout_ft_1"]["human_test_layout"])
+            self.assertIn(
+                "no test-page layout correction",
+                by_method["annotation_tool_pred_layout_ft_1"]["human_effort"],
+            )
             self.assertIn(
                 "not layout-detector performance",
                 by_method["annotation_tool_gt_layout"]["layout_metric_interpretation"],

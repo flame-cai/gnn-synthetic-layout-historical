@@ -111,9 +111,25 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
   --manuscript-root app\input_manuscripts\yajn `
   --output-root app\tests\logs\downstream_ocr_yajn `
   --method-id annotation_tool_gt_layout `
+  --method-id annotation_tool_pred_layout_ft_1 `
   --method-id annotation_tool_gt_layout_ft_1 `
   --write-diagnostics
 ```
+
+The local annotation-tool comparison now contains seven variants:
+
+- `annotation_tool_e2e`: predicted layout, base OCR checkpoint
+- `annotation_tool_gt_layout`: human-corrected test layout, base OCR checkpoint
+- `annotation_tool_pred_layout_ft_1/2/3`: human-corrected layout and Unicode text on 1/2/3 training pages, followed by OCR inference on predicted test layouts
+- `annotation_tool_gt_layout_ft_1/2/3`: the same 1/2/3-page checkpoints, followed by OCR inference on human-corrected test layouts
+
+Within each fold, the harness trains only one sequential 1/2/3-page checkpoint
+ladder from corrected training-page layouts. At a given fine-tuning depth, the
+predicted-layout and corrected-layout test variants reuse the exact same
+checkpoint. Predicted held-out layouts are also prepared once per fold and
+shared with `annotation_tool_e2e`, so the paired comparison changes the OCR
+checkpoint or test-layout condition without rerunning a different layout
+prediction for each method.
 
 Gemini-backed methods are available as `vlm_e2e` and `gemini_gt_layout`, but
 they make API calls and require `GEMINI_API_KEY` in `app/.env` or the process
@@ -141,7 +157,10 @@ page-cluster bootstrap confidence intervals. The cluster unit is the unique
 resampled together. The figures also report paired e2e-to-GT-layout relative
 error reductions for Gemini and the Annotation Tool together with mean active
 Layout Mode edit seconds per unique test page and its 95% confidence interval.
-Read Mode fine-tuning effort is intentionally not included.
+Three predicted-test-layout fine-tuning compartments appear immediately after
+the off-the-shelf compartment. They are followed by the test-page layout
+post-correction compartment and its 1/2/3-page fine-tuned variants. Read Mode
+fine-tuning effort is intentionally not included in the timing estimate.
 
 Gemini methods record SDK usage metadata when available, including prompt,
 candidate, and total token counts. Annotation-tool methods use local

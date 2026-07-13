@@ -134,7 +134,7 @@ Ensure the PIL Image manipulation (Spotlighting) occurs before the ThreadPoolExe
 
 ## Relevant links:
 The current implemented code for the experiment:
-gnn-synthetic-layout-historical\experiments\downstream_ocr
+.\experiments\downstream_ocr
 
 Production "app":
 .\app

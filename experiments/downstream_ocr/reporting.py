@@ -16,8 +16,11 @@ from .metrics import aggregate_page_records
 
 METHOD_ORDER = (
     "vlm_e2e",
-    "gemini_gt_layout",
     "annotation_tool_e2e",
+    "annotation_tool_pred_layout_ft_1",
+    "annotation_tool_pred_layout_ft_2",
+    "annotation_tool_pred_layout_ft_3",
+    "gemini_gt_layout",
     "annotation_tool_gt_layout",
     "annotation_tool_gt_layout_ft_1",
     "annotation_tool_gt_layout_ft_2",
@@ -29,8 +32,11 @@ METHOD_LABELS = {
     "gemini_gt_layout": "Gemini human-corrected GT layout",
     "annotation_tool_e2e": "Annotation tool e2e",
     "annotation_tool_gt_layout": "Annotation tool human-corrected GT layout",
+    "annotation_tool_pred_layout_ft_1": "Annotation tool predicted test layout + 1 page FT",
     "annotation_tool_gt_layout_ft_1": "Annotation tool human-corrected GT layout + 1 page FT",
+    "annotation_tool_pred_layout_ft_2": "Annotation tool predicted test layout + 2 page FT",
     "annotation_tool_gt_layout_ft_2": "Annotation tool human-corrected GT layout + 2 page FT",
+    "annotation_tool_pred_layout_ft_3": "Annotation tool predicted test layout + 3 page FT",
     "annotation_tool_gt_layout_ft_3": "Annotation tool human-corrected GT layout + 3 page FT",
 }
 
@@ -40,35 +46,47 @@ FIGURE_METHOD_LABELS = {
     "gemini_gt_layout": "Gemini",
     "annotation_tool_e2e": "Traditional\nPipeline",
     "annotation_tool_gt_layout": "Traditional\nPipeline",
+    "annotation_tool_pred_layout_ft_1": "Traditional\nPipeline",
     "annotation_tool_gt_layout_ft_1": "Traditional\nPipeline",
+    "annotation_tool_pred_layout_ft_2": "Traditional\nPipeline",
     "annotation_tool_gt_layout_ft_2": "Traditional\nPipeline",
+    "annotation_tool_pred_layout_ft_3": "Traditional\nPipeline",
     "annotation_tool_gt_layout_ft_3": "Traditional\nPipeline",
 }
 
 EFFORT_LEVELS = {
     "vlm_e2e": 0,
     "annotation_tool_e2e": 0,
-    "gemini_gt_layout": 1,
-    "annotation_tool_gt_layout": 1,
-    "annotation_tool_gt_layout_ft_1": 2,
-    "annotation_tool_gt_layout_ft_2": 3,
-    "annotation_tool_gt_layout_ft_3": 4,
+    "annotation_tool_pred_layout_ft_1": 1,
+    "annotation_tool_pred_layout_ft_2": 2,
+    "annotation_tool_pred_layout_ft_3": 3,
+    "gemini_gt_layout": 4,
+    "annotation_tool_gt_layout": 4,
+    "annotation_tool_gt_layout_ft_1": 5,
+    "annotation_tool_gt_layout_ft_2": 6,
+    "annotation_tool_gt_layout_ft_3": 7,
 }
 
 EFFORT_LEVEL_COLORS = {
     0: "#F7FBFF",
-    1: "#C6DBEF",
-    2: "#6BAED6",
-    3: "#2171B5",
-    4: "#08306B",
+    1: "#DEEBF7",
+    2: "#C6DBEF",
+    3: "#9ECAE1",
+    4: "#6BAED6",
+    5: "#4292C6",
+    6: "#2171B5",
+    7: "#08306B",
 }
 
 EFFORT_GROUP_LABELS = {
     0: "Off the Shelf",
-    1: "Layout post-correction",
-    2: "Layout post-correction\n+ 1 page Fine-Tuning",
-    3: "Layout post-correction\n+ 2 pages Fine-Tuning",
-    4: "Layout post-correction\n+ 3 pages Fine-Tuning",
+    1: "No test layout correction\n+ 1-page Fine-Tuning",
+    2: "No test layout correction\n+ 2-page Fine-Tuning",
+    3: "No test layout correction\n+ 3-page Fine-Tuning",
+    4: "Test-page layout\npost-correction",
+    5: "Test layout post-correction\n+ 1-page Fine-Tuning",
+    6: "Test layout post-correction\n+ 2-page Fine-Tuning",
+    7: "Test layout post-correction\n+ 3-page Fine-Tuning",
 }
 
 EFFORT_COMPARTMENT_ALPHA = 0.82
@@ -307,7 +325,17 @@ def _human_effort_label(method_id: str, method: dict) -> str:
     if method_id == "annotation_tool_e2e":
         return "none"
     if method.get("uses_finetuning"):
-        return "human layout correction; Read Mode effort not quantified"
+        page_count = int(method.get("finetune_page_count") or 0)
+        page_word = "page" if page_count == 1 else "pages"
+        test_layout = (
+            "human-corrected test layouts"
+            if method.get("uses_gt_layout")
+            else "no test-page layout correction"
+        )
+        return (
+            f"human-corrected layout and text on {page_count} training {page_word}; "
+            f"{test_layout}; Read Mode effort not quantified"
+        )
     if method.get("uses_gt_layout"):
         return "human layout correction"
     return "none"
@@ -321,6 +349,12 @@ def _engine_label(method_id: str, method: dict) -> str:
 
 def _layout_condition_label(method: dict) -> str:
     return "human_corrected_gt_layout" if method.get("uses_gt_layout") else "predicted_layout"
+
+
+def _training_layout_condition_label(method: dict) -> str:
+    if method.get("uses_finetuning"):
+        return "human_corrected_gt_layout"
+    return "not_applicable"
 
 
 def _layout_metric_interpretation(method: dict) -> str:
@@ -339,7 +373,11 @@ def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
         "display_name": METHOD_LABELS.get(method_id) or method.get("display_name") or method_id,
         "engine": _engine_label(method_id, method),
         "human_effort": _human_effort_label(method_id, method),
+        "human_training_layout": bool(method.get("uses_finetuning")),
+        "human_test_layout": bool(method.get("uses_gt_layout")),
         "human_layout": bool(method.get("uses_gt_layout")),
+        "training_layout_condition": _training_layout_condition_label(method),
+        "test_layout_condition": _layout_condition_label(method),
         "layout_condition": _layout_condition_label(method),
         "layout_metric_interpretation": _layout_metric_interpretation(method),
         "finetune_pages": int(method.get("finetune_page_count") or 0),
@@ -1189,27 +1227,59 @@ def _save_layout_figure(rows: list[dict], output_path: Path) -> Path | None:
 
 def _save_finetuning_curve(rows: list[dict], output_path: Path) -> Path | None:
     plt = _plotting()
-    curve_rows = [
-        row
-        for row in rows
-        if row["method_id"] == "annotation_tool_gt_layout"
-        or row["method_id"].startswith("annotation_tool_gt_layout_ft_")
-    ]
-    curve_rows.sort(key=lambda row: int(row.get("finetune_pages") or 0))
-    if plt is None or len(curve_rows) < 2:
+    series_specs = (
+        (
+            "Predicted test layout",
+            "annotation_tool_e2e",
+            "annotation_tool_pred_layout_ft_",
+            "#4C78A8",
+        ),
+        (
+            "Human-corrected test layout",
+            "annotation_tool_gt_layout",
+            "annotation_tool_gt_layout_ft_",
+            "#F58518",
+        ),
+    )
+    series = []
+    for label, baseline_id, finetune_prefix, color in series_specs:
+        curve_rows = [
+            row
+            for row in rows
+            if row["method_id"] == baseline_id
+            or row["method_id"].startswith(finetune_prefix)
+        ]
+        curve_rows.sort(key=lambda row: int(row.get("finetune_pages") or 0))
+        if len(curve_rows) >= 2:
+            series.append((label, color, curve_rows))
+    if plt is None or not series:
         return None
-    x_values = [int(row.get("finetune_pages") or 0) for row in curve_rows]
-    cer_values = _numeric_values(curve_rows, "micro_page_cer")
-    textedit_values = _numeric_values(curve_rows, "micro_textedit")
-    fig, ax = plt.subplots(figsize=(7.0, 4.6))
-    ax.plot(x_values, cer_values, marker="o", label="Micro Page CER", color="#4C78A8")
-    ax.plot(x_values, textedit_values, marker="o", label="Micro TextEdit", color="#F58518")
-    ax.set_title("Read Mode Fine-Tuning Curve")
-    ax.set_xlabel("Fine-tuning pages")
-    ax.set_ylabel("Error")
-    ax.set_xticks(x_values)
-    ax.grid(alpha=0.25)
-    ax.legend()
+
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.6), sharex=True)
+    metric_specs = (
+        ("micro_page_cer", "Micro Page CER"),
+        ("micro_textedit", "Micro TextEdit"),
+    )
+    all_x_values: set[int] = set()
+    for ax, (metric_key, metric_label) in zip(axes, metric_specs):
+        for series_label, color, curve_rows in series:
+            x_values = [int(row.get("finetune_pages") or 0) for row in curve_rows]
+            all_x_values.update(x_values)
+            ax.plot(
+                x_values,
+                _numeric_values(curve_rows, metric_key),
+                marker="o",
+                label=series_label,
+                color=color,
+            )
+        ax.set_title(metric_label)
+        ax.set_xlabel("Fine-tuning pages")
+        ax.set_ylabel("Error")
+        ax.grid(alpha=0.25)
+    for ax in axes:
+        ax.set_xticks(sorted(all_x_values))
+    axes[0].legend(fontsize=8.5)
+    fig.suptitle("Read Mode Fine-Tuning By Held-Out Layout Condition")
     fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=180)
@@ -1277,7 +1347,8 @@ def _summary_table_rows(rows: list[dict]) -> list[dict]:
             {
                 "Method": row["display_name"],
                 "Human Effort": row["human_effort"],
-                "Layout Condition": row["layout_condition"],
+                "Training Layout": row["training_layout_condition"],
+                "Test Layout": row["test_layout_condition"],
                 "Pages": row["page_count"],
                 "Valid Output": _format_float(row.get("valid_output_rate")),
                 "G-F1@0.50": _format_float(row.get("object_g_f1_50")),
@@ -1341,7 +1412,8 @@ def _write_markdown_report(
     table_columns = [
         ("Method", "Method"),
         ("Human Effort", "Human Effort"),
-        ("Layout Condition", "Layout Condition"),
+        ("Training Layout", "Training Layout"),
+        ("Test Layout", "Test Layout"),
         ("Pages", "Pages"),
         ("Valid Output", "Valid Output"),
         ("G-F1@0.50", "G-F1@0.50"),
@@ -1390,9 +1462,11 @@ def _write_markdown_report(
         "## Interpretation Guide",
         "",
         "- Compare `annotation_tool_e2e` against `annotation_tool_gt_layout` to estimate the practical value of human layout correction for the local OCR pipeline.",
-        "- Compare the `annotation_tool_gt_layout` fine-tuning series at 0/1/2/3 pages to estimate the value of Read Mode corrections as manuscript-local OCR supervision.",
+        "- Compare `annotation_tool_e2e` with the `annotation_tool_pred_layout_ft_1/2/3` series to estimate the value of manuscript-local Read Mode supervision when held-out layouts remain fully automatic.",
+        "- Compare `annotation_tool_gt_layout` with the `annotation_tool_gt_layout_ft_1/2/3` series to estimate the value of the same Read Mode supervision when held-out layouts are human-corrected.",
+        "- At each fine-tuning page count, compare `annotation_tool_pred_layout_ft_N` against `annotation_tool_gt_layout_ft_N`. Both rows use the same checkpoint trained from corrected training-page layout and Unicode text; only held-out layout correction differs.",
         "- Compare `vlm_e2e` against `gemini_gt_layout` as a practical Gemini system comparison. This comparison changes both layout grounding and prompt/interface format, so it is not a perfectly isolated layout-only ablation.",
-        "- Rows with `layout_condition=human_corrected_gt_layout` use layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
+        "- Rows with `test_layout_condition=human_corrected_gt_layout` use held-out layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
         "- Fine-tuning methods record the GUI runtime OCR active-learning recipe and sibling checkpoint selector in `summary_metrics.csv`.",
         "",
         "## Layout Mode Effort And OCR Reduction",
@@ -1494,7 +1568,11 @@ def write_experiment_report(
         "display_name",
         "engine",
         "human_effort",
+        "human_training_layout",
+        "human_test_layout",
         "human_layout",
+        "training_layout_condition",
+        "test_layout_condition",
         "layout_condition",
         "layout_metric_interpretation",
         "finetune_pages",

@@ -24,6 +24,7 @@ from experiments.downstream_ocr.pagexml import PageXmlPage, TextLine, load_pagex
 from experiments.downstream_ocr.runners import (
     MethodSpec,
     _write_layout_grounded_gemini_prediction_pagexml,
+    run_local_finetuning_ladder,
     run_local_gt_layout_finetuning_ladder,
 )
 from experiments.downstream_ocr.splits import load_or_create_folds_json, make_three_folds
@@ -440,6 +441,127 @@ class DownstreamOcrMetricTests(unittest.TestCase):
             self.assertEqual(Path(train_calls[2]["base_checkpoint"]).name, "checkpoint_2.pth")
             self.assertEqual([call["checkpoint"] for call in predict_calls], ["checkpoint_1.pth", "checkpoint_3.pth"])
             self.assertEqual(set(prediction_dirs), {"annotation_tool_gt_layout_ft_1", "annotation_tool_gt_layout_ft_3"})
+
+    def test_finetuning_ladder_reuses_checkpoints_across_test_layout_conditions(self):
+        class FakeRecipe:
+            oversampling_policy = "none"
+            augmentation_policy = "none"
+            history_sample_line_count = 10
+            sibling_checkpoint_strategy = "page_cer_selector"
+            width_policy = "batch_max_pad"
+            lr_scheduler = "none"
+            optimizer = "adadelta"
+            background_plus_rotation_variant_count = 10
+            shuffle_train_each_epoch = True
+            lr = 0.2
+            num_iter = 60
+
+            def to_dict(self):
+                return {"width_policy": self.width_policy}
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            paths = ManuscriptPaths(
+                manuscript_id="m",
+                root=root / "manuscript",
+                images_dir=root / "images",
+                pagexml_dir=root / "pagexml",
+                line_images_dir=root / "lines",
+                heatmaps_dir=root / "heatmaps",
+            )
+            fold = Fold(
+                fold_id="fold_1",
+                train_page_ids=("train_a", "train_b", "train_c"),
+                test_page_ids=("test_a", "test_b"),
+            )
+            gt_pages = {
+                page_id: SimpleNamespace(page_id=page_id, layout_condition="gt")
+                for page_id in (*fold.train_page_ids, *fold.test_page_ids)
+            }
+            predicted_pages = {
+                page_id: SimpleNamespace(page_id=page_id, layout_condition="predicted")
+                for page_id in fold.test_page_ids
+            }
+            train_calls = []
+            predict_calls = []
+
+            def fake_fine_tune(prepared, base_checkpoint, output_root, **kwargs):
+                step_index = int(kwargs["step_index"])
+                train_calls.append((prepared[0].page_id, prepared[0].layout_condition))
+                return SimpleNamespace(output_checkpoint=str(root / f"checkpoint_{step_index}.pth"))
+
+            def fake_predict(checkpoint, test_pages, output_root, **kwargs):
+                output = Path(output_root)
+                output.mkdir(parents=True, exist_ok=True)
+                predict_calls.append(
+                    {
+                        "method_id": output.parent.parent.name,
+                        "checkpoint": Path(checkpoint).name,
+                        "layouts": {page.layout_condition for page in test_pages.values()},
+                    }
+                )
+                return SimpleNamespace(prediction_folder=str(output))
+
+            methods = (
+                MethodSpec(
+                    "annotation_tool_pred_layout_ft_1",
+                    "pred ft1",
+                    uses_gt_layout=False,
+                    uses_finetuning=True,
+                    finetune_page_count=1,
+                ),
+                MethodSpec(
+                    "annotation_tool_gt_layout_ft_1",
+                    "gt ft1",
+                    uses_gt_layout=True,
+                    uses_finetuning=True,
+                    finetune_page_count=1,
+                ),
+                MethodSpec(
+                    "annotation_tool_pred_layout_ft_3",
+                    "pred ft3",
+                    uses_gt_layout=False,
+                    uses_finetuning=True,
+                    finetune_page_count=3,
+                ),
+                MethodSpec(
+                    "annotation_tool_gt_layout_ft_3",
+                    "gt ft3",
+                    uses_gt_layout=True,
+                    uses_finetuning=True,
+                    finetune_page_count=3,
+                ),
+            )
+
+            with patch(
+                "experiments.downstream_ocr.runners._prepare_gt_layout_pages",
+                return_value=gt_pages,
+            ), patch(
+                "experiments.downstream_ocr.runners._load_gui_runtime_ocr_recipe",
+                return_value=FakeRecipe(),
+            ):
+                prediction_dirs = run_local_finetuning_ladder(
+                    paths=paths,
+                    fold=fold,
+                    methods=methods,
+                    output_root=root / "out",
+                    fine_tune_fn=fake_fine_tune,
+                    predict_fn=fake_predict,
+                    predicted_layout_test_pages=predicted_pages,
+                )
+
+            self.assertEqual(
+                train_calls,
+                [("train_a", "gt"), ("train_b", "gt"), ("train_c", "gt")],
+            )
+            by_method = {call["method_id"]: call for call in predict_calls}
+            self.assertEqual(by_method["annotation_tool_pred_layout_ft_1"]["checkpoint"], "checkpoint_1.pth")
+            self.assertEqual(by_method["annotation_tool_gt_layout_ft_1"]["checkpoint"], "checkpoint_1.pth")
+            self.assertEqual(by_method["annotation_tool_pred_layout_ft_3"]["checkpoint"], "checkpoint_3.pth")
+            self.assertEqual(by_method["annotation_tool_gt_layout_ft_3"]["checkpoint"], "checkpoint_3.pth")
+            self.assertEqual(by_method["annotation_tool_pred_layout_ft_1"]["layouts"], {"predicted"})
+            self.assertEqual(by_method["annotation_tool_gt_layout_ft_1"]["layouts"], {"gt"})
+            self.assertEqual(set(prediction_dirs), {method.method_id for method in methods})
 
 
 if __name__ == "__main__":
