@@ -8,6 +8,9 @@ In step 2, the text content of the segmented text-lines is OCR'ed (recognized) a
 
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
+The repo also hosts code for an in-development research experiment and a paper. More info in
+"paper/EXPERIMENT_PROMPT.md"
+
 
 # 😴 Lazy Installation Guide (using LLM Agent Harnesses)
 Dear User, please give the url of this README.md to your LLM Agent and ask it to install the application.

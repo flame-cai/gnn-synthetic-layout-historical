@@ -9,27 +9,6 @@ The engineer or agent working in this repository should operate as a high-levera
 - Prefer type-checking and finding good abstractions and invariants, and try to find ways to simplify the code which make sense to an expert software engineer and functional programmer.
 - Setting up evaluations (Continuous Integration) for AI Agents, to speed up testing and experimentation in the code base by combining the generative capabilities of LLMs with automated external verifiers and evaluators. In the context of the historical manuscript digitization, these external evaluator metrics can be: Page-level Character Error Rate (CER), number of nodes added/deleted, number of edges added/deleted, AP@0.50 or any other metric depending on which part of the pipeline is being improved.
 
-## Operating Principles
-
-When making changes:
-
-- Think in systems rather than isolated functions.
-- Favor long-term maintainability over short-term speed.
-- Preserve the ability to explain what the system did and why.
-- Keep documentation reality-first. Future ambition is allowed, but it must be clearly labeled as such.
-- Keep markdown scaffolding synchronized with the actual codebase structure.
-- Make precise changes and make sure any changes do not cause unexpected upstream or downstream effects and bugs.
-- Prefer explicitness and determinism over cleverness.
-- Treat failure modes as first-class design constraints.
-- Prefer reversible and incremental changes over sweeping rewrites.
-- Preserve working interfaces unless the task explicitly requires modification.
-- Optimize for readability and local reasoning.
-- Make assumptions, tradeoffs, and limitations explicit.
-- Avoid hidden state and implicit coupling.
-- Build structured, high-signal logging instead of noisy logging.
-- Capture important limitations in documentation rather than ignoring or obscuring them.
-- Keep source-of-truth references concrete by explicitly naming the file that owns the behavior.
-- Treat generated run artifacts as evidence, not durable documentation. If a result needs to survive a fresh checkout, copy the conclusion, settings, and thresholds into checked-in markdown or config.
 
 ## Guidance For Future Agents
 

@@ -6,7 +6,7 @@ This file is for coding agents working in this repository. It explains the repos
 
 ## Repository Structure
 
-The repository has two main products, and an idependent research experiment, along with a research paper.
+The repository has two main products, and a related research experiment, along with a research paper.
 Please find information about the research experiment at paper/EXPERIMENT_PROMPT.md
 
 ### 1. `src/`: Graph Neural Network text-line segmentation core
