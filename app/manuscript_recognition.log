@@ -24528,3 +24528,45 @@
 2026-07-13 11:14:54,623 - INFO - 127.0.0.1 - - [13/Jul/2026 11:14:54] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
 2026-07-13 11:15:55,344 - INFO - 127.0.0.1 - - [13/Jul/2026 11:15:55] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
 2026-07-13 11:16:56,316 - INFO - 127.0.0.1 - - [13/Jul/2026 11:16:56] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 13:48:13,991 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-07-13 13:48:13,991 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-13 13:48:13,992 - INFO -  * Restarting with stat
+2026-07-13 13:48:17,052 - WARNING -  * Debugger is active!
+2026-07-13 13:48:17,052 - INFO -  * Debugger PIN: 764-649-467
+2026-07-13 13:56:48,701 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.12:5000
+2026-07-13 13:56:48,701 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-13 13:56:48,701 - INFO -  * Restarting with stat
+2026-07-13 13:56:51,727 - WARNING -  * Debugger is active!
+2026-07-13 13:56:51,728 - INFO -  * Debugger PIN: 764-649-467
+2026-07-13 13:57:04,289 - INFO - 127.0.0.1 - - [13/Jul/2026 13:57:04] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-13 13:57:26,803 - INFO - 127.0.0.1 - - [13/Jul/2026 13:57:26] "POST /upload HTTP/1.1" 200 -
+2026-07-13 13:57:27,207 - INFO - 127.0.0.1 - - [13/Jul/2026 13:57:27] "GET /manuscript/testing/pages HTTP/1.1" 200 -
+2026-07-13 13:57:27,475 - INFO - 127.0.0.1 - - [13/Jul/2026 13:57:27] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-13 13:57:27,853 - INFO - 127.0.0.1 - - [13/Jul/2026 13:57:27] "GET /semi-segment/testing/11 HTTP/1.1" 200 -
+2026-07-13 13:57:27,991 - INFO - 127.0.0.1 - - [13/Jul/2026 13:57:27] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 13:58:29,160 - INFO - 127.0.0.1 - - [13/Jul/2026 13:58:29] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 13:59:30,165 - INFO - 127.0.0.1 - - [13/Jul/2026 13:59:30] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 14:00:31,168 - INFO - 127.0.0.1 - - [13/Jul/2026 14:00:31] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 14:01:32,189 - INFO - 127.0.0.1 - - [13/Jul/2026 14:01:32] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 14:02:32,209 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:32] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 14:02:39,044 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:39] "OPTIONS /semi-segment/testing/11 HTTP/1.1" 200 -
+2026-07-13 14:02:39,304 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=testing page_id=11
+2026-07-13 14:02:40,523 - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported
+2026-07-13 14:02:40,734 - INFO - generated new fontManager
+2026-07-13 14:02:42,212 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:42] "POST /semi-segment/testing/11 HTTP/1.1" 200 -
+2026-07-13 14:02:42,276 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:42] "GET /semi-segment/testing/11 HTTP/1.1" 200 -
+2026-07-13 14:02:42,602 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:42] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 14:02:42,690 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:42] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-13 14:02:43,024 - INFO - Loading model from /mnt/hdd1/kartik/gnn_layout_ECCV/app/recognition/pretrained_model/vadakautuhala.pth...
+2026-07-13 14:02:43,354 - INFO - Model loaded successfully.
+2026-07-13 14:02:44,391 - INFO - Updated input_manuscripts/testing/layout_analysis_output/page-xml-format/11.xml: 19 lines recognized.
+2026-07-13 14:02:44,452 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-13 14:02:44,473 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:44] "GET /manuscript/testing/active-learning HTTP/1.1" 200 -
+2026-07-13 14:02:45,688 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:45] "GET /line-image/testing/11/3?v=1783931562015252157 HTTP/1.1" 200 -
+2026-07-13 14:02:50,207 - INFO - 127.0.0.1 - - [13/Jul/2026 14:02:50] "GET /line-image/testing/11/2?v=1783931562026006661 HTTP/1.1" 200 -

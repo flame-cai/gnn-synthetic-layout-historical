@@ -1,6 +1,8 @@
+# PLEASE DO NOT IMPLEMENT THESE UNLESS SPECIFICALLY REQUESTED
 
 dynamic KV cache for OCR.
 - put the big maps as the held out evaluation benchmark?
+
 ######################################
 
 
