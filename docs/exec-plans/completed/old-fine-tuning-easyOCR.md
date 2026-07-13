@@ -60,8 +60,8 @@ test/word_3.png A
 ---
 
 **Important**: Please find the actual reference source code for training/fine-tuning text-line recognition models like vadakautuhala.pth here:
-C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\recognition_finetuning_ref\finetuning_reference_1
-C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\recognition_finetuning_ref\finetuning_reference_2
+gnn-synthetic-layout-historical\recognition_finetuning_ref\finetuning_reference_1
+gnn-synthetic-layout-historical\recognition_finetuning_ref\finetuning_reference_2
 
 **Recognition model Notes:**
 Please use **batch size of 1 for both training and inference of the recogntion model**.
@@ -69,7 +69,7 @@ Make changes in recognition source code only where required, try to reuse as muc
 
 **Important**: This has been modified by our current repo to specialize in recognizing Sanskrit Characters from Sanskrit text-line images: notice the  --character argument in python deep-text-recognition-benchmark/train.py in train.sh. Keep it this way for now. But write code in such that in the future we can configure it to work with a different script. Hence please be carefull and only make changes where required.
 Reuse existing files from the current repo as much as possible:
-C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition
+.\app\recognition
 Reuse the --character arguement by copying it very carefully! Do not recall from memory, COPY IT.
 
 
@@ -122,8 +122,8 @@ Please version all fine-tuned models, and log experiment results in detail like 
 **IMPORTANT**: This evaluation test current works with one dataset 'eval_dataset', but we want to write the test such that it can be configured to work with multiple dataset which we will add later.
 
 Please feel free to study the current codebase and open relevant files to open it:
-- C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition
-- C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\app.py
+- .\app\recognition
+- .\app\app.py
 - and anything else you feel is relevant
 
 In the broader specifications mentioned in EVAL.md This specific evaluation is only for fine-tuning the recognition model, with all other models being pre-trained (CRAFT, v2).

@@ -211,7 +211,7 @@ The launcher should continue to prefer the `gnn_layout` interpreter and should s
 
 Work from the repository root:
 
-    cd C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical
+    cd gnn-synthetic-layout-historical
 
 Implement the shared config additions in:
 

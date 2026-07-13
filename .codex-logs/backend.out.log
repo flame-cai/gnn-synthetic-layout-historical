@@ -35,7 +35,7 @@ Running images2points on processed folder...
 ./input_manuscripts\new\images_resized
 [Warning] GPU auto-selection failed: NVML Shared Library Not Found
 Using device: cuda:0
-Current Working Directory: C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app
+Current Working Directory: .\app
 Finished processing. All data saved to: ./input_manuscripts\new/gnn-dataset
 Processing complete.
 2026-04-01 11:38:19,050 - INFO - 127.0.0.1 - - [01/Apr/2026 11:38:19] "POST /upload HTTP/1.1" 200 -

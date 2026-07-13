@@ -4,6 +4,9 @@ dynamic KV cache for OCR.
 ######################################
 
 
+sanitize all paths and windows specific things, make them relative:
+C:\\Users\\intro\\Documents\\Projects\\
+
 # Digitization
 
 ## Recheck these
@@ -13,13 +16,15 @@ dynamic KV cache for OCR.
 
 
 implementation slices
-36 - 43 - Page 10 <-- RE-LABEL text boxes.
+36 - 43 - Page 10 
 80 - 85 - Page 17
 101 - 105 - Page 22
 105 - 110 - Page 23
 112 - 113 - Page 24
 114 - 116 - Page 25
 123 - 126 - Page 28
+
+
 126 - 131 - Page 29
 135 - 141 - page 31
 143 - 147 - page 33 (incomplete)

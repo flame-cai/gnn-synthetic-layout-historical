@@ -24381,3 +24381,109 @@
 2026-07-11 09:16:27,443 - INFO - 127.0.0.1 - - [11/Jul/2026 09:16:27] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
 2026-07-11 09:16:27,537 - INFO - 127.0.0.1 - - [11/Jul/2026 09:16:27] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
 2026-07-11 09:16:30,469 - INFO - 127.0.0.1 - - [11/Jul/2026 09:16:30] "GET /semi-segment/dense/28 HTTP/1.1" 200 -
+2026-07-13 09:37:53,930 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-07-13 09:37:53,930 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-13 09:37:53,945 - INFO -  * Restarting with stat
+2026-07-13 09:38:02,932 - WARNING -  * Debugger is active!
+2026-07-13 09:38:02,932 - INFO -  * Debugger PIN: 434-625-588
+2026-07-13 09:38:06,611 - INFO - 127.0.0.1 - - [13/Jul/2026 09:38:06] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-13 09:38:32,680 - INFO - 127.0.0.1 - - [13/Jul/2026 09:38:32] "GET /manuscript/dense/pages HTTP/1.1" 200 -
+2026-07-13 09:38:32,945 - INFO - 127.0.0.1 - - [13/Jul/2026 09:38:32] "GET /manuscript/dense/pages HTTP/1.1" 200 -
+2026-07-13 09:38:33,042 - INFO - 127.0.0.1 - - [13/Jul/2026 09:38:33] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-13 09:38:34,008 - INFO - 127.0.0.1 - - [13/Jul/2026 09:38:34] "GET /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:38:34,169 - INFO - 127.0.0.1 - - [13/Jul/2026 09:38:34] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:39:35,313 - INFO - 127.0.0.1 - - [13/Jul/2026 09:39:35] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:40:07,468 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:07] "OPTIONS /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:40:08,177 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=dense page_id=29
+2026-07-13 09:40:21,100 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:21] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:40:21,578 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:21] "GET /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:40:21,600 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:21] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:40:21,970 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:21] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-13 09:40:22,281 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\dense\active_learning\recognition\checkpoints\ocr_28_r0139\model.pth...
+2026-07-13 09:40:23,245 - INFO - Model loaded successfully.
+2026-07-13 09:40:35,394 - INFO - Updated input_manuscripts\dense\layout_analysis_output\page-xml-format\29.xml: 61 lines recognized.
+2026-07-13 09:40:35,902 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:35] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-13 09:40:35,995 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:35] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:40:39,723 - INFO - 127.0.0.1 - - [13/Jul/2026 09:40:39] "GET /line-image/dense/29/38?v=1783915818208822000 HTTP/1.1" 200 -
+2026-07-13 09:41:21,976 - INFO - 127.0.0.1 - - [13/Jul/2026 09:41:21] "OPTIONS /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:41:24,980 - INFO - 127.0.0.1 - - [13/Jul/2026 09:41:24] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:41:25,080 - INFO - 127.0.0.1 - - [13/Jul/2026 09:41:25] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:42:01,979 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:01] "OPTIONS /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:42:05,198 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:05] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:42:05,313 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:05] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:42:21,973 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:21] "OPTIONS /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:42:25,615 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:25] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:42:25,706 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:25] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:42:41,972 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:41] "OPTIONS /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:42:44,948 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:44] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:42:45,039 - INFO - 127.0.0.1 - - [13/Jul/2026 09:42:45] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:43:01,976 - INFO - 127.0.0.1 - - [13/Jul/2026 09:43:01] "OPTIONS /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:43:04,978 - INFO - 127.0.0.1 - - [13/Jul/2026 09:43:04] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:43:05,077 - INFO - 127.0.0.1 - - [13/Jul/2026 09:43:05] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:43:21,977 - INFO - 127.0.0.1 - - [13/Jul/2026 09:43:21] "OPTIONS /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:43:24,946 - INFO - 127.0.0.1 - - [13/Jul/2026 09:43:24] "POST /semi-segment/dense/29 HTTP/1.1" 200 -
+2026-07-13 09:43:25,031 - INFO - 127.0.0.1 - - [13/Jul/2026 09:43:25] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:44:26,322 - INFO - 127.0.0.1 - - [13/Jul/2026 09:44:26] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:45:27,337 - INFO - 127.0.0.1 - - [13/Jul/2026 09:45:27] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:46:28,357 - INFO - 127.0.0.1 - - [13/Jul/2026 09:46:28] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:47:29,324 - INFO - 127.0.0.1 - - [13/Jul/2026 09:47:29] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:48:30,358 - INFO - 127.0.0.1 - - [13/Jul/2026 09:48:30] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:49:31,334 - INFO - 127.0.0.1 - - [13/Jul/2026 09:49:31] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:50:32,326 - INFO - 127.0.0.1 - - [13/Jul/2026 09:50:32] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:51:33,330 - INFO - 127.0.0.1 - - [13/Jul/2026 09:51:33] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:52:34,329 - INFO - 127.0.0.1 - - [13/Jul/2026 09:52:34] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:53:35,345 - INFO - 127.0.0.1 - - [13/Jul/2026 09:53:35] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:54:36,331 - INFO - 127.0.0.1 - - [13/Jul/2026 09:54:36] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:55:37,349 - INFO - 127.0.0.1 - - [13/Jul/2026 09:55:37] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:56:38,347 - INFO - 127.0.0.1 - - [13/Jul/2026 09:56:38] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:57:39,332 - INFO - 127.0.0.1 - - [13/Jul/2026 09:57:39] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:58:40,372 - INFO - 127.0.0.1 - - [13/Jul/2026 09:58:40] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 09:59:41,386 - INFO - 127.0.0.1 - - [13/Jul/2026 09:59:41] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:00:42,344 - INFO - 127.0.0.1 - - [13/Jul/2026 10:00:42] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:01:43,331 - INFO - 127.0.0.1 - - [13/Jul/2026 10:01:43] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:02:44,335 - INFO - 127.0.0.1 - - [13/Jul/2026 10:02:44] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:03:45,332 - INFO - 127.0.0.1 - - [13/Jul/2026 10:03:45] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:04:46,349 - INFO - 127.0.0.1 - - [13/Jul/2026 10:04:46] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:05:47,327 - INFO - 127.0.0.1 - - [13/Jul/2026 10:05:47] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:06:48,337 - INFO - 127.0.0.1 - - [13/Jul/2026 10:06:48] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:07:49,342 - INFO - 127.0.0.1 - - [13/Jul/2026 10:07:49] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:08:50,327 - INFO - 127.0.0.1 - - [13/Jul/2026 10:08:50] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:09:51,328 - INFO - 127.0.0.1 - - [13/Jul/2026 10:09:51] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:10:52,333 - INFO - 127.0.0.1 - - [13/Jul/2026 10:10:52] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:11:52,761 - INFO - 127.0.0.1 - - [13/Jul/2026 10:11:52] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:11:52,780 - INFO - 127.0.0.1 - - [13/Jul/2026 10:11:52] "GET /semi-segment/dense/31 HTTP/1.1" 200 -
+2026-07-13 10:12:53,174 - INFO - 127.0.0.1 - - [13/Jul/2026 10:12:53] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:13:54,344 - INFO - 127.0.0.1 - - [13/Jul/2026 10:13:54] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:14:55,340 - INFO - 127.0.0.1 - - [13/Jul/2026 10:14:55] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:15:56,337 - INFO - 127.0.0.1 - - [13/Jul/2026 10:15:56] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:16:57,343 - INFO - 127.0.0.1 - - [13/Jul/2026 10:16:57] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:17:58,320 - INFO - 127.0.0.1 - - [13/Jul/2026 10:17:58] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:18:59,337 - INFO - 127.0.0.1 - - [13/Jul/2026 10:18:59] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:20:00,324 - INFO - 127.0.0.1 - - [13/Jul/2026 10:20:00] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:20:25,979 - INFO - 127.0.0.1 - - [13/Jul/2026 10:20:25] "GET /semi-segment/dense/33 HTTP/1.1" 200 -
+2026-07-13 10:21:01,312 - INFO - 127.0.0.1 - - [13/Jul/2026 10:21:01] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:22:02,317 - INFO - 127.0.0.1 - - [13/Jul/2026 10:22:02] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:23:03,323 - INFO - 127.0.0.1 - - [13/Jul/2026 10:23:03] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:24:04,366 - INFO - 127.0.0.1 - - [13/Jul/2026 10:24:04] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:25:05,363 - INFO - 127.0.0.1 - - [13/Jul/2026 10:25:05] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:26:06,328 - INFO - 127.0.0.1 - - [13/Jul/2026 10:26:06] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:27:07,373 - INFO - 127.0.0.1 - - [13/Jul/2026 10:27:07] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:28:08,306 - INFO - 127.0.0.1 - - [13/Jul/2026 10:28:08] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:29:09,323 - INFO - 127.0.0.1 - - [13/Jul/2026 10:29:09] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:30:10,315 - INFO - 127.0.0.1 - - [13/Jul/2026 10:30:10] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:31:11,388 - INFO - 127.0.0.1 - - [13/Jul/2026 10:31:11] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:32:12,320 - INFO - 127.0.0.1 - - [13/Jul/2026 10:32:12] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:33:13,330 - INFO - 127.0.0.1 - - [13/Jul/2026 10:33:13] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:34:14,353 - INFO - 127.0.0.1 - - [13/Jul/2026 10:34:14] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:35:15,374 - INFO - 127.0.0.1 - - [13/Jul/2026 10:35:15] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:36:16,340 - INFO - 127.0.0.1 - - [13/Jul/2026 10:36:16] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:36:42,621 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\strategy_config.py', reloading
+2026-07-13 10:36:44,734 - INFO -  * Restarting with stat
+2026-07-13 10:36:57,349 - WARNING -  * Debugger is active!
+2026-07-13 10:36:57,349 - INFO -  * Debugger PIN: 434-625-588
+2026-07-13 10:37:17,340 - INFO - 127.0.0.1 - - [13/Jul/2026 10:37:17] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:38:18,303 - INFO - 127.0.0.1 - - [13/Jul/2026 10:38:18] "GET /manuscript/dense/active-learning HTTP/1.1" 200 -
+2026-07-13 10:38:54,710 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\line_segmentation\\strategy_config.py', reloading

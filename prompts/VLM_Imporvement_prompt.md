@@ -134,13 +134,13 @@ Ensure the PIL Image manipulation (Spotlighting) occurs before the ThreadPoolExe
 
 ## Relevant links:
 The current implemented code for the experiment:
-C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\experiments\downstream_ocr
+gnn-synthetic-layout-historical\experiments\downstream_ocr
 
 Production "app":
-C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app
+.\app
 
 "yajn" manuscript:
-C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\yajn
+.\app\input_manuscripts\yajn
 
 2-fold, 5-page live run on all competing methods:
 C:\tmp\downstream_ocr_report_all_5p2f

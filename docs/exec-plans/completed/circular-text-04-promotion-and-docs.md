@@ -201,7 +201,7 @@ If OCR fine-tuning behavior changed in any way while implementing the previous p
 
 Work from the repository root:
 
-    cd C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical
+    cd gnn-synthetic-layout-historical
 
 Add or update:
 
