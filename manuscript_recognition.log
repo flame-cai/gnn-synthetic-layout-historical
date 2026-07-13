@@ -131,3 +131,35 @@
 2026-07-13 12:56:43,490 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
 2026-07-13 12:56:43,759 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
 2026-07-13 12:56:43,848 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:06,472 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:06,518 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:06,762 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:07,006 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:07,350 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:07,527 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:07,876 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:08,049 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:08,377 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:08,554 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:08,907 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:09,070 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:09,431 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:09,614 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:09,692 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:10,047 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:11,458 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:11,646 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:11,722 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:12,067 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:12,310 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:12,654 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:12,737 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:12,834 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:16,338 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:16,679 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:16,765 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:16,854 - INFO - AFC is enabled with max remote calls: 10.
+2026-07-13 14:34:17,249 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:17,511 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:17,598 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
+2026-07-13 14:34:17,813 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent "HTTP/1.1 429 Too Many Requests"
