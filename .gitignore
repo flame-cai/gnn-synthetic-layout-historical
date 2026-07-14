@@ -18,6 +18,7 @@ app/input_manuscripts/*/
 app/input_manuscripts_original_backup/*/
 app/manuscript_recognition.log
 
+.claude
 
 
 # Env files
