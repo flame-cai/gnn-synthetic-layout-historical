@@ -14,8 +14,42 @@ import {
   const dependentVowelSigns = new Set(Object.values(dependentVowelMap));
   const vowelModifierSigns = new Set([ANUSVARA, VISARGA, CANDRABINDU]);
 
+  // Deferred vowel aliases keep their normal fallback rendering until every
+  // key is complete. Dependent aliases render through the consonant path;
+  // independent aliases retain their literal prefix keys.
+  const renderOpenConsonantTail = (consonants) =>
+    HALANT + consonants.map((consonant) => consonant + HALANT).join('') + ZWNJ;
+  const openConsonantTail = HALANT + ZWNJ;
+
+  const deferredVowelRules = [
+    {
+      context: 'dependent',
+      prefixKeys: ['L', 'l'],
+      completions: { 'i': 'Lli', 'I': 'LlI' },
+    },
+    {
+      context: 'independent',
+      prefixKeys: ['R', 'R'],
+      completions: { 'i': 'RRi', 'I': 'RRI' },
+    },
+  ].map((rule) => {
+    const renderedPrefixes = rule.context === 'dependent'
+      ? rule.prefixKeys.map((_, index) =>
+          renderOpenConsonantTail(
+            rule.prefixKeys.slice(0, index + 1).map((key) => singleConsonantMap[key]),
+          ))
+      : rule.prefixKeys.map((_, index) => rule.prefixKeys.slice(0, index + 1).join(''));
+    return {
+      ...rule,
+      renderedPrefixes,
+    };
+  });
+
+  let pendingVowelPrefix = null;
+
   export function resetInputState() {
     lastEffectiveKey = null;
+    pendingVowelPrefix = null;
   }
   
   export function handleInput(event, devanagariRef) {
@@ -53,6 +87,23 @@ import {
 
         return null;
     };
+
+    const hasSuffixBeforeCursor = (suffix) => {
+        const suffixStart = cursorPosition - suffix.length;
+        return suffixStart >= 0 && currentValue.slice(suffixStart, cursorPosition) === suffix;
+    };
+
+    const hasRenderedConsonantTailBeforeCursor = (suffix) => {
+        const suffixStart = cursorPosition - suffix.length;
+        return suffixStart > 0 &&
+            hasSuffixBeforeCursor(suffix) &&
+            Boolean(consonantClusterBefore(suffixStart));
+    };
+
+    const hasRenderedVowelPrefixBeforeCursor = (rule, renderedPrefix) =>
+        rule.context === 'dependent'
+            ? hasRenderedConsonantTailBeforeCursor(renderedPrefix)
+            : hasSuffixBeforeCursor(renderedPrefix);
 
     const reopenConsonantClusterBeforeMark = () => {
         const cluster = consonantClusterBefore(cursorPosition - 1);
@@ -159,6 +210,7 @@ import {
     // --- Backspace Handling (Keep existing logic) ---
     if (effectiveKey === 'Backspace') {
         lastEffectiveKey = null; // Reset sequence tracking
+        pendingVowelPrefix = null;
         if (dependentVowelSigns.has(charM1)) {
             console.log('Backspace: reopening consonant after removing dependent vowel');
             if (reopenConsonantClusterBeforeMark()) return;
@@ -185,6 +237,75 @@ import {
             console.log('Backspace: Default behavior');
             queueMicrotask(() => { devanagariRef.value = input.value; logCharactersBeforeCursor(input); });
             return;
+        }
+    }
+
+    // --- Deferred multi-key vowel aliases ---
+    // Invariant: resolve an alias only when its normal fallback is still
+    // immediately before the same cursor in the same input. Otherwise,
+    // preserve that fallback and continue with ordinary typing.
+    const pendingPrefix = pendingVowelPrefix;
+    pendingVowelPrefix = null;
+    let prefixAdvanced = false;
+
+    if (pendingPrefix &&
+        pendingPrefix.input === input &&
+        pendingPrefix.cursorPosition === cursorPosition) {
+        const { rule, matchedPrefixLength } = pendingPrefix;
+        const renderedPrefix = rule.renderedPrefixes[matchedPrefixLength - 1];
+
+        if (hasRenderedVowelPrefixBeforeCursor(rule, renderedPrefix)) {
+            const nextPrefixKey = rule.prefixKeys[matchedPrefixLength];
+            if (nextPrefixKey && effectiveKey === nextPrefixKey) {
+                const nextRenderedPrefix = rule.renderedPrefixes[matchedPrefixLength];
+                pendingVowelPrefix = {
+                    rule,
+                    matchedPrefixLength: matchedPrefixLength + 1,
+                    input,
+                    cursorPosition:
+                        cursorPosition + nextRenderedPrefix.length - renderedPrefix.length,
+                };
+                prefixAdvanced = true;
+            } else if (matchedPrefixLength === rule.prefixKeys.length) {
+                const vowelKey = rule.completions[effectiveKey];
+                const vowelMap = rule.context === 'dependent'
+                    ? dependentVowelMap
+                    : independentVowelMap;
+                const vowel = vowelMap[vowelKey];
+                if (vowelKey && vowel) {
+                    event.preventDefault();
+                    replacePreviousChars(
+                        input,
+                        devanagariRef,
+                        renderedPrefix.length,
+                        vowel,
+                        cursorPosition,
+                    );
+                    console.log(`Applied ${rule.context} vowel alias ${vowelKey}: ${vowel}`);
+                    lastEffectiveKey = effectiveKey;
+                    return;
+                }
+            }
+        }
+    }
+
+    if (!prefixAdvanced) {
+        const hasOpenConsonant = hasRenderedConsonantTailBeforeCursor(openConsonantTail);
+        const startingRule = deferredVowelRules.find((rule) =>
+            effectiveKey === rule.prefixKeys[0] &&
+            (rule.context === 'dependent' ? hasOpenConsonant : !hasOpenConsonant));
+        if (startingRule) {
+            const firstRenderedPrefix = startingRule.renderedPrefixes[0];
+            const initialRenderedLength = startingRule.context === 'dependent'
+                ? openConsonantTail.length
+                : 0;
+            pendingVowelPrefix = {
+                rule: startingRule,
+                matchedPrefixLength: 1,
+                input,
+                cursorPosition:
+                    cursorPosition + firstRenderedPrefix.length - initialRenderedLength,
+            };
         }
     }
 

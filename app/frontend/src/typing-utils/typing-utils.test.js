@@ -3,6 +3,92 @@ import { simulateDevanagariKeySequence, unicodeCodePoints } from './typingTestUt
 
 const cases = [
   {
+    name: 'R+R+i inserts independent vocalic R',
+    keys: ['R', 'R', 'i'],
+    expected: '\u090B',
+  },
+  {
+    name: 'R+R+I inserts independent long vocalic R',
+    keys: ['R', 'R', 'I'],
+    expected: '\u0960',
+  },
+  {
+    name: 'independent vocalic R can be lengthened by the existing replacement rule',
+    keys: ['R', 'R', 'i', 'I'],
+    expected: '\u0960',
+  },
+  {
+    name: 'incomplete R+R independent-vowel prefix remains literal',
+    keys: ['R', 'R'],
+    expected: 'RR',
+  },
+  {
+    name: 'divergent R+R+u sequence keeps its existing literal fallback',
+    keys: ['R', 'R', 'u'],
+    expected: 'RR\u0909',
+  },
+  {
+    name: 'existing literal RR text is not mistaken for a typed vowel prefix',
+    initialValue: 'RR',
+    keys: ['i'],
+    expected: 'RR\u0907',
+  },
+  {
+    name: 'R+R+i inserts independent vocalic R at a middle cursor',
+    initialValue: '\u092E\u092F',
+    initialCursor: 1,
+    keys: ['R', 'R', 'i'],
+    expected: '\u092E\u090B\u092F',
+  },
+  {
+    name: 'L+l+i applies vocalic L matra before anusvara',
+    keys: ['h', 'L', 'l', 'i', 'M'],
+    expected: '\u0939\u0962\u0902',
+  },
+  {
+    name: 'L+l+I applies long vocalic L matra before anusvara',
+    keys: ['h', 'L', 'l', 'I', 'M'],
+    expected: '\u0939\u0963\u0902',
+  },
+  {
+    name: 'L+l+i applies vocalic L matra after a conjunct tail',
+    keys: ['n', 'm', 'L', 'l', 'i'],
+    expected: '\u0928\u094D\u092E\u0962',
+  },
+  {
+    name: 'vocalic L matra can be lengthened by the existing replacement rule',
+    keys: ['h', 'L', 'l', 'i', 'i'],
+    expected: '\u0939\u0963',
+  },
+  {
+    name: 'uppercase L keeps its existing consonant behavior',
+    keys: ['h', 'L', 'a'],
+    expected: '\u0939\u094D\u0933',
+  },
+  {
+    name: 'incomplete L+l vowel prefix keeps its existing conjunct behavior',
+    keys: ['h', 'L', 'l', 'a'],
+    expected: '\u0939\u094D\u0933\u094D\u0932',
+  },
+  {
+    name: 'L+l+i at independent start keeps its existing consonant behavior',
+    keys: ['L', 'l', 'i'],
+    expected: '\u0933\u094D\u0932\u093F',
+  },
+  {
+    name: 'an existing L+l consonant suffix is not mistaken for a vowel prefix',
+    initialValue: '\u0939\u094D\u0933\u094D\u0932\u094D\u200C',
+    keys: ['i'],
+    expected: '\u0939\u094D\u0933\u094D\u0932\u093F',
+  },
+  {
+    name: 'L+l+i inserts vocalic L matra at a middle cursor without changing right-side text',
+    initialValue: '\u092E\u092F',
+    initialCursor: 1,
+    keys: ['h', 'L', 'l', 'i', 'M'],
+    expected: '\u092E\u0939\u0962\u0902\u092F',
+  },
+  {
     name: 'R+u applies vocalic R matra after a single consonant',
     keys: ['h', 'R', 'u'],
     expected: 'हृ',

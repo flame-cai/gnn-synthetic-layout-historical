@@ -5,9 +5,9 @@ dynamic KV cache for OCR.
 
 ######################################
 
-
-sanitize all paths and windows specific things, make them relative:
-C:\\Users\\intro\\Documents\\Projects\\
+# Circular:
+Page-CER calculation for concentric circles?
+Prompt Gemini for how to handle circles..
 
 # Digitization
 
@@ -25,8 +25,6 @@ implementation slices
 112 - 113 - Page 24
 114 - 116 - Page 25
 123 - 126 - Page 28
-
-
 126 - 131 - Page 29
 135 - 141 - page 31
 143 - 147 - page 33 (incomplete)
@@ -41,6 +39,7 @@ First understand the grouping..consonents, dependent, independent..
 No trickle down effects on other typing patterns. try to keep all other behaviour unchanged, but also try to find and maintain abstractions and invaraints.
 
 1) ऋ, द्भ, dyu
+
 
 
 
