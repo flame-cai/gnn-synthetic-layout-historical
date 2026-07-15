@@ -281,7 +281,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
                     "error": "Gemini did not finish within 12 seconds.",
                     "errorCode": "gemini_timeout",
                 },
-            ),
+            ) as gemini_mock,
         ):
             response = client.post(
                 "/recognize-text",
@@ -298,6 +298,11 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertEqual(response_json["failedEngine"], "gemini")
         self.assertTrue(response_json["retryable"])
         self.assertEqual(response_json["fallbackEngines"], ["local"])
+        gemini_mock.assert_called_once_with(
+            "any_manuscript",
+            "233_0001",
+            preserve_auto_orientation_metadata=True,
+        )
 
     def test_parse_gemini_transcriptions_accepts_common_json_wrappers(self):
         wrapped_payload = """
@@ -671,7 +676,7 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
       <TextLine id="line_0" custom="structure_line_id_7">
         <Coords points="10,10 40,10 40,20 10,20" />
         <Baseline points="10,15 25,15 40,15" />
-        <TextEquiv>
+        <TextEquiv custom="auto_orientation_model:decoded_text_devanagari_evidence_v1;auto_orientation_transform:rotate_180;auto_orientation_reason:test">
           <Unicode>old text</Unicode>
         </TextEquiv>
       </TextLine>
@@ -760,6 +765,10 @@ class RecognitionActiveLearningBackendUnitTest(unittest.TestCase):
         self.assertIsNotNone(textline)
         self.assertEqual(textline.find("./p:Coords", ns).get("points"), "10,10 40,10 40,20 10,20")
         self.assertEqual(textline.find("./p:Baseline", ns).get("points"), "10,15 25,15 40,15")
+        self.assertNotIn(
+            "auto_orientation_transform:rotate_180",
+            textline.find("./p:TextEquiv", ns).get("custom", ""),
+        )
 
     def test_layout_save_normalizes_textbox_labels_before_persistence(self):
         manuscript_root, _ = self._make_manuscript_root("normalize_textbox_labels")

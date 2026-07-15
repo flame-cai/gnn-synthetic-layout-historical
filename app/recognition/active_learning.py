@@ -5,6 +5,7 @@ import json
 import math
 import random
 import shutil
+import tempfile
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -15,6 +16,12 @@ import numpy as np
 
 try:
     from .active_learning_recipe import normalize_sibling_checkpoint_strategy
+    from .auto_orientation import (
+        IDENTITY_TRANSFORM,
+        ROTATE_180_TRANSFORM,
+        select_orientation_from_predictions,
+        should_auto_orient_from_predictions,
+    )
     from .lmdb_tools import create_lmdb_dataset
     from .ocr_defaults import (
         SANSKRIT_OCR_CHARACTER_SET,
@@ -31,6 +38,12 @@ try:
     from .train import train
 except ImportError:  # pragma: no cover - script execution fallback
     from active_learning_recipe import normalize_sibling_checkpoint_strategy
+    from auto_orientation import (
+        IDENTITY_TRANSFORM,
+        ROTATE_180_TRANSFORM,
+        select_orientation_from_predictions,
+        should_auto_orient_from_predictions,
+    )
     from lmdb_tools import create_lmdb_dataset
     from ocr_defaults import (
         SANSKRIT_OCR_CHARACTER_SET,
@@ -647,6 +660,40 @@ def run_checkpoint_on_prepared_pages(
         predictions = run_line_image_inference_from_loaded_model(test_root, model, converter, opt, device)
         prediction_lookup = {Path(prediction["image_path"]).name: prediction for prediction in predictions}
 
+        auto_orientation_records = {
+            Path(record.flat_image_rel_path).name: record
+            for record in prepared_page.records
+            if record.flat_image_rel_path
+            and should_auto_orient_from_predictions(record.crop_metadata)
+        }
+        rotated_prediction_lookup = {}
+        if auto_orientation_records:
+            with tempfile.TemporaryDirectory(
+                prefix="auto_orientation_rotate_180_",
+                dir=str(prepared_page.finetune_dataset_dir),
+            ) as rotated_root_str:
+                rotated_root = Path(rotated_root_str)
+                written_candidate_count = 0
+                for line_name in auto_orientation_records:
+                    source_path = test_root / line_name
+                    image = cv2.imread(str(source_path), cv2.IMREAD_GRAYSCALE)
+                    if image is None:
+                        continue
+                    cv2.imwrite(str(rotated_root / line_name), cv2.rotate(image, cv2.ROTATE_180))
+                    written_candidate_count += 1
+                if written_candidate_count:
+                    rotated_predictions = run_line_image_inference_from_loaded_model(
+                        rotated_root,
+                        model,
+                        converter,
+                        opt,
+                        device,
+                    )
+                    rotated_prediction_lookup = {
+                        Path(prediction["image_path"]).name: prediction
+                        for prediction in rotated_predictions
+                    }
+
         predictions_by_line_custom = {}
         page_gt_segments = []
         page_pred_segments = []
@@ -659,7 +706,21 @@ def run_checkpoint_on_prepared_pages(
 
             line_name = Path(record.flat_image_rel_path).name
             prediction = prediction_lookup.get(line_name, {})
-            predicted_text = prediction.get("predicted_label", "")
+            auto_orientation_metadata = None
+            if line_name in auto_orientation_records:
+                rotated_prediction = rotated_prediction_lookup.get(line_name, {})
+                selection = select_orientation_from_predictions(
+                    {
+                        IDENTITY_TRANSFORM: prediction.get("predicted_label", ""),
+                        ROTATE_180_TRANSFORM: rotated_prediction.get("predicted_label", ""),
+                    }
+                )
+                auto_orientation_metadata = selection.to_metadata()
+                if selection.selected_transform == ROTATE_180_TRANSFORM:
+                    prediction = rotated_prediction
+                predicted_text = selection.selected_text
+            else:
+                predicted_text = prediction.get("predicted_label", "")
             confidence_score = float(prediction.get("confidence_score", 0.0) or 0.0)
             resized_width = int(prediction.get("resized_width", 0) or 0)
             pad_fraction = float(prediction.get("pad_fraction", 0.0) or 0.0)
@@ -688,6 +749,7 @@ def run_checkpoint_on_prepared_pages(
                     "resized_width": resized_width,
                     "pad_fraction": pad_fraction,
                     "length_bucket": length_bucket,
+                    "auto_orientation": auto_orientation_metadata,
                 }
             )
 

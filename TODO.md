@@ -29,6 +29,20 @@ This is important, because in the experiment (C:\Users\intro\Documents\Projects\
 For now, please study and help me understand this. And remember that the change is precise (only for curved, closed circular text-line with no explicit orientation annotation), and it should apply to both: the production app, and the experiment (which reuses code from the production app)
 
 
+Okay great, now I want you to precisely implement an auto-orientation detection for both production app and the experiment, based on the following finding and the identity/rotate_180 candidate metadata:
+
+But we won't use the confidence. We will use the actual predictions.
+We observe that whenever the text-line orientation is wrong, the outputs contain many english characters and numbers.
+।le2tiseekeuk2utelr2aLंषg१२I2R2lr2titlःtLgए२२१८२
+In comparison, passing correctly oriented text-lines gives a prediction with mostly devanagari characters (as expected)
+?ईउऊऋऋलृलयपेओऔअअःकखगघऊचखजकीटठडषणतथदधनयफबभमयरसवशषसःअआ
+
+So I think we can use this, the automatically orient devanagari text-lines.
+What do you think? Please make a precise implementation. And you make also test if it is working as intended on the below dataset which has multiple curved and circular lines:
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\circle_testing
+
+For an open curved line, the fallback instead uses its endpoints: left-to-right when horizontally dominant, or top-to-bottom when vertically dominant, at [geometry.py (line 279)](/C:/Users/intro/Documents/Projects/gnn-synthetic-layout-historical/app/recognition/line_segmentation/geometry.py:279).
+
 
 implementation slices
 36 - 43 - Page 10 

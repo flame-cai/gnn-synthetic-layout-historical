@@ -17,6 +17,11 @@ import skimage.io as io
 from shapely.geometry import Polygon
 
 try:
+    from .auto_orientation import (
+        ROTATE_180_TRANSFORM,
+        auto_orientation_transform_from_custom,
+        has_explicit_reading_direction_annotation,
+    )
     from .line_segmentation import apply_text_line_segmentation_strategy
     from .line_segmentation.strategy_config import get_production_strategy_name
     from .line_segmentation.legacy_axis_bound import (
@@ -35,6 +40,11 @@ try:
         load_baseline_records as _strategy_load_baseline_records,
     )
 except ImportError:  # pragma: no cover - script execution fallback
+    from auto_orientation import (
+        ROTATE_180_TRANSFORM,
+        auto_orientation_transform_from_custom,
+        has_explicit_reading_direction_annotation,
+    )
     from line_segmentation import apply_text_line_segmentation_strategy
     from line_segmentation.strategy_config import get_production_strategy_name
     from line_segmentation.legacy_axis_bound import (
@@ -79,6 +89,7 @@ class PreparedLineRecord:
     app_image_rel_path: str | None = None
     flat_image_rel_path: str | None = None
     crop_metadata: dict | None = None
+    text_equiv_custom: str = ""
 
 
 @dataclass
@@ -235,6 +246,7 @@ def load_pagexml_lines(
             text_equiv = line.find("./p:TextEquiv", PAGE_XML_NS)
             unicode_elem = text_equiv.find("./p:Unicode", PAGE_XML_NS) if text_equiv is not None else None
             text = _normalize_text(unicode_elem.text if unicode_elem is not None else "")
+            text_equiv_custom = text_equiv.get("custom", "") if text_equiv is not None else ""
             if not text and not include_empty_text_lines:
                 continue
 
@@ -280,6 +292,7 @@ def load_pagexml_lines(
                     y_center=float(order_y),
                     x_min=float(order_x),
                     baseline_points=baseline_points,
+                    text_equiv_custom=text_equiv_custom,
                 )
             )
             line_fallback_index += 1
@@ -439,7 +452,16 @@ def prepare_page_line_dataset(
             crop_config=crop_config or segmentation_args or {},
         )
         raw_crop = crop_result.image
-        crop_metadata = crop_result.metadata
+        crop_metadata = dict(crop_result.metadata)
+        persisted_transform = auto_orientation_transform_from_custom(record.text_equiv_custom)
+        if persisted_transform is not None and has_explicit_reading_direction_annotation(crop_metadata):
+            crop_metadata["ignored_auto_orientation_transform"] = persisted_transform
+            crop_metadata["auto_orientation_ignore_reason"] = "explicit_reading_direction_annotation"
+        elif persisted_transform is not None:
+            if persisted_transform == ROTATE_180_TRANSFORM:
+                raw_crop = cv2.rotate(raw_crop, cv2.ROTATE_180)
+            crop_metadata["applied_auto_orientation_transform"] = persisted_transform
+            crop_metadata["auto_orientation_source"] = "pagexml_text_equiv_custom"
         jpg_bytes, decoded_jpg = _encode_like_app_jpg(raw_crop)
 
         app_rel_path = Path("image-format") / record.page_id / record.region_custom / f"line_{record.line_numeric_id}.jpg"

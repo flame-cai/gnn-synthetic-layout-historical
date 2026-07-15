@@ -74,6 +74,12 @@ from recognition.line_segmentation.ocr_crops import (
 )
 from recognition.line_segmentation.geometry import normalize_baseline_topology
 from recognition.pagexml_line_dataset import load_pagexml_lines
+from recognition.auto_orientation import (
+    ROTATE_180_TRANSFORM,
+    auto_orientation_custom_metadata,
+    auto_orientation_transform_from_custom,
+    has_explicit_reading_direction_annotation,
+)
 from segmentation.utils import load_images_from_folder
 from job_orchestrator import JobOrchestrator
 from ocr_active_learning_runtime import (
@@ -422,6 +428,19 @@ def _line_kind_from_metadata(line_metadata):
     return None
 
 
+def _auto_orientation_transforms_by_line_numeric_id(xml_path):
+    try:
+        _, records = load_pagexml_lines(xml_path, include_empty_text_lines=True)
+    except Exception:
+        return {}
+    return {
+        int(record.line_numeric_id): transform
+        for record in records
+        if (transform := auto_orientation_transform_from_custom(record.text_equiv_custom))
+        is not None
+    }
+
+
 def get_existing_line_image_previews(manuscript, page, xml_path):
     previews = {}
     xml_path = Path(xml_path)
@@ -437,6 +456,7 @@ def get_existing_line_image_previews(manuscript, page, xml_path):
     reading_annotations_by_line_id = load_reading_direction_annotations_by_line_id(
         default_reading_direction_metadata_path(xml_path)
     )
+    auto_orientation_by_line_id = _auto_orientation_transforms_by_line_numeric_id(xml_path)
 
     try:
         _, records = load_pagexml_lines(xml_path, include_empty_text_lines=True)
@@ -450,9 +470,8 @@ def get_existing_line_image_previews(manuscript, page, xml_path):
         line_kind = _line_kind_from_metadata(line_metadata)
         has_reading_annotation = bool(
             reading_annotations_by_line_id.get(line_numeric_id)
-            or (
-                isinstance(line_metadata, dict)
-                and isinstance(line_metadata.get("reading_direction_annotation"), dict)
+            or has_explicit_reading_direction_annotation(
+                {"strategy_line_metadata": line_metadata}
             )
         )
         should_show_preview = has_reading_annotation or (
@@ -482,10 +501,15 @@ def get_existing_line_image_previews(manuscript, page, xml_path):
             "hasReadingDirectionAnnotation": has_reading_annotation,
             "imageWidth": image_width,
             "imageHeight": image_height,
+            "autoOrientationTransform": (
+                None
+                if has_reading_annotation
+                else auto_orientation_by_line_id.get(line_numeric_id)
+            ),
             "imageUrl": (
                 f"/line-image/{quote(str(manuscript), safe='')}/"
                 f"{quote(str(page), safe='')}/{line_numeric_id}"
-                f"?v={image_path.stat().st_mtime_ns}"
+                f"?v={image_path.stat().st_mtime_ns}-{xml_path.stat().st_mtime_ns}"
             ),
         }
     return previews
@@ -512,6 +536,14 @@ def update_page_text_content(xml_path, text_content=None, confidences=None):
     tree = ET.parse(xml_path)
     root = tree.getroot()
     saved_line_count = 0
+    annotated_line_ids = set(
+        load_reading_direction_annotations_by_line_id(
+            default_reading_direction_metadata_path(xml_path)
+        )
+    )
+    line_metadata_by_numeric_id = load_line_segmentation_metadata_by_numeric_id(
+        default_line_segmentation_metadata_path(xml_path)
+    )
 
     for textline in root.findall(".//p:TextLine", ns):
         custom_attr = textline.get('custom', '')
@@ -522,8 +554,29 @@ def update_page_text_content(xml_path, text_content=None, confidences=None):
             line_id = str(custom_attr.split('structure_line_id_')[1])
         except IndexError:
             continue
+        try:
+            line_numeric_id = int(line_id)
+            has_reading_annotation = bool(
+                line_numeric_id in annotated_line_ids
+                or has_explicit_reading_direction_annotation(
+                    {
+                        "strategy_line_metadata": line_metadata_by_numeric_id.get(
+                            line_numeric_id, {}
+                        )
+                    }
+                )
+            )
+        except (TypeError, ValueError):
+            has_reading_annotation = False
 
-        for existing_equiv in textline.findall('./p:TextEquiv', ns):
+        existing_equivs = textline.findall('./p:TextEquiv', ns)
+        preserved_auto_orientation = ""
+        for existing_equiv in existing_equivs:
+            preserved_auto_orientation = (
+                auto_orientation_custom_metadata(existing_equiv.get("custom"))
+                or preserved_auto_orientation
+            )
+        for existing_equiv in existing_equivs:
             textline.remove(existing_equiv)
 
         line_text = normalized_text.get(line_id, "")
@@ -532,8 +585,13 @@ def update_page_text_content(xml_path, text_content=None, confidences=None):
 
         text_equiv = ET.SubElement(textline, f"{{{PAGE_XML_NAMESPACE}}}TextEquiv")
         line_confidences = normalized_confidences.get(line_id, [])
+        custom_fields = []
+        if preserved_auto_orientation and not has_reading_annotation:
+            custom_fields.append(preserved_auto_orientation)
         if line_confidences:
-            text_equiv.set('custom', f"confidences:{','.join(map(str, line_confidences))}")
+            custom_fields.append(f"confidences:{','.join(map(str, line_confidences))}")
+        if custom_fields:
+            text_equiv.set('custom', ";".join(custom_fields))
 
         unicode_elem = ET.SubElement(text_equiv, f"{{{PAGE_XML_NAMESPACE}}}Unicode")
         unicode_elem.text = line_text
@@ -1038,6 +1096,38 @@ def get_processed_line_image(manuscript, page, line_numeric_id):
     if image_path is None:
         return jsonify({"error": "Line image not found"}), 404
 
+    xml_root = manuscript_root / "layout_analysis_output" / "page-xml-format"
+    xml_path = _safe_existing_file(xml_root / f"{page}.xml", xml_root)
+    transform = (
+        _auto_orientation_transforms_by_line_numeric_id(xml_path).get(line_numeric_id)
+        if xml_path is not None
+        else None
+    )
+    if xml_path is not None:
+        reading_annotations = load_reading_direction_annotations_by_line_id(
+            default_reading_direction_metadata_path(xml_path)
+        )
+        line_metadata = load_line_segmentation_metadata_by_numeric_id(
+            default_line_segmentation_metadata_path(xml_path)
+        ).get(line_numeric_id, {})
+        if (
+            line_numeric_id in reading_annotations
+            or has_explicit_reading_direction_annotation(
+                {"strategy_line_metadata": line_metadata}
+            )
+        ):
+            transform = None
+    if transform == ROTATE_180_TRANSFORM:
+        try:
+            with Image.open(image_path) as line_image:
+                oriented_image = line_image.transpose(Image.Transpose.ROTATE_180)
+                image_buffer = io.BytesIO()
+                oriented_image.save(image_buffer, format="JPEG", quality=95)
+            image_buffer.seek(0)
+            return send_file(image_buffer, mimetype="image/jpeg", download_name=image_path.name)
+        except Exception as exc:
+            print(f"[{page}] Warning: could not orient line preview {image_path}: {exc}")
+
     return send_file(image_path, mimetype="image/jpeg")
 
 
@@ -1176,7 +1266,14 @@ def _parse_gemini_transcriptions(raw_text):
     return parsed
 
 
-def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_trace_points=4):
+def _run_gemini_recognition_internal(
+    manuscript,
+    page,
+    api_key=None,
+    N=1,
+    num_trace_points=4,
+    preserve_auto_orientation_metadata=False,
+):
     started_at = time.monotonic()
     print(f"[{page}] Starting parallel recognition with N={N}, points={num_trace_points}...")
     api_key = _server_gemini_api_key()
@@ -1407,11 +1504,26 @@ def _run_gemini_recognition_internal(manuscript, page, api_key=None, N=1, num_tr
                         if uni is None: uni = ET.SubElement(te, "Unicode")
                         uni.text = final_map[lid]
 
-                        if lid in final_confidences:
-                            conf_str = ",".join(map(str, final_confidences[lid]))
+                        if preserve_auto_orientation_metadata:
                             current_custom = te.get('custom', '')
-                            new_custom = f"confidences:{conf_str}" 
-                            te.set('custom', new_custom)
+                            preserved_auto_orientation = auto_orientation_custom_metadata(current_custom)
+                            try:
+                                has_reading_annotation = int(lid) in reading_annotations_by_line_id
+                            except (TypeError, ValueError):
+                                has_reading_annotation = False
+                            custom_fields = []
+                            if preserved_auto_orientation and not has_reading_annotation:
+                                custom_fields.append(preserved_auto_orientation)
+                            if lid in final_confidences:
+                                conf_str = ",".join(map(str, final_confidences[lid]))
+                                custom_fields.append(f"confidences:{conf_str}")
+                            if custom_fields:
+                                te.set('custom', ";".join(custom_fields))
+                            else:
+                                te.attrib.pop('custom', None)
+                        elif lid in final_confidences:
+                            conf_str = ",".join(map(str, final_confidences[lid]))
+                            te.set('custom', f"confidences:{conf_str}")
                         changed = True
             
             if changed:
@@ -1637,7 +1749,11 @@ def save_correction(manuscript, page):
                         if not _server_gemini_api_key():
                             print(f"[{p}] ERROR: Gemini is not configured on this server. Aborting recognition.")
                             return
-                        gemini_result = _run_gemini_recognition_internal(m, p)
+                        gemini_result = _run_gemini_recognition_internal(
+                            m,
+                            p,
+                            preserve_auto_orientation_metadata=True,
+                        )
                         if gemini_result.get("error"):
                             print(f"[{p}] ERROR in Gemini recognition: {gemini_result['error']}")
                             return
@@ -1696,7 +1812,11 @@ def recognize_text():
     if recognition_engine == 'gemini':
         if not _server_gemini_api_key():
             return jsonify({"error": "Gemini is not configured on this server."}), 400
-        result = _run_gemini_recognition_internal(manuscript, page)
+        result = _run_gemini_recognition_internal(
+            manuscript,
+            page,
+            preserve_auto_orientation_metadata=True,
+        )
         if result.get("error"):
             return jsonify(_recognition_failure_payload(result, "gemini")), 502
         record_prediction(
@@ -1848,6 +1968,13 @@ def _extract_unicode_text(textline, ns):
     return unicode_elem.text.strip()
 
 
+def _extract_auto_orientation_transform(textline, ns):
+    text_equiv = textline.find("./p:TextEquiv", ns)
+    return auto_orientation_transform_from_custom(
+        text_equiv.get("custom") if text_equiv is not None else None
+    )
+
+
 def _write_ocr_training_format_to_zip(zf, xml_files, image_format_dir):
     page_xml_namespace = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
     ns = {"p": page_xml_namespace}
@@ -1860,6 +1987,14 @@ def _write_ocr_training_format_to_zip(zf, xml_files, image_format_dir):
             continue
 
         page_id = xml_path.stem
+        annotated_line_ids = set(
+            load_reading_direction_annotations_by_line_id(
+                default_reading_direction_metadata_path(xml_path)
+            )
+        )
+        line_metadata_by_numeric_id = load_line_segmentation_metadata_by_numeric_id(
+            default_line_segmentation_metadata_path(xml_path)
+        )
         for region_index, region in enumerate(root.findall(".//p:TextRegion", ns)):
             textbox_label = region.get("custom") or f"textbox_label_{region_index}"
             gt_rows = []
@@ -1881,7 +2016,31 @@ def _write_ocr_training_format_to_zip(zf, xml_files, image_format_dir):
 
                 image_rel_path = f"text-line-images/{image_name}"
                 image_arcname = f"ocr-training-format/{page_id}/{textbox_label}/{image_rel_path}"
-                zf.write(source_image, image_arcname)
+                try:
+                    line_numeric_id = int(structure_line_id)
+                    has_reading_annotation = bool(
+                        line_numeric_id in annotated_line_ids
+                        or has_explicit_reading_direction_annotation(
+                            {
+                                "strategy_line_metadata": line_metadata_by_numeric_id.get(
+                                    line_numeric_id, {}
+                                )
+                            }
+                        )
+                    )
+                except (TypeError, ValueError):
+                    has_reading_annotation = False
+                if (
+                    not has_reading_annotation
+                    and _extract_auto_orientation_transform(textline, ns) == ROTATE_180_TRANSFORM
+                ):
+                    with Image.open(source_image) as line_image:
+                        oriented_image = line_image.transpose(Image.Transpose.ROTATE_180)
+                        image_buffer = io.BytesIO()
+                        oriented_image.save(image_buffer, format="JPEG", quality=95)
+                    zf.writestr(image_arcname, image_buffer.getvalue())
+                else:
+                    zf.write(source_image, image_arcname)
                 gt_rows.append(f"{image_rel_path}\t{label}")
 
             if gt_rows:

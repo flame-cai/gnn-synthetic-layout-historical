@@ -28123,3 +28123,172 @@
 2026-07-15 14:33:54,222 - INFO - 127.0.0.1 - - [15/Jul/2026 14:33:54] "GET /semi-segment/circle_new/65 HTTP/1.1" 200 -
 2026-07-15 14:33:54,349 - INFO - 127.0.0.1 - - [15/Jul/2026 14:33:54] "GET /manuscript/circle_new/active-learning HTTP/1.1" 200 -
 2026-07-15 14:34:55,561 - INFO - 127.0.0.1 - - [15/Jul/2026 14:34:55] "GET /manuscript/circle_new/active-learning HTTP/1.1" 200 -
+2026-07-15 14:35:56,541 - INFO - 127.0.0.1 - - [15/Jul/2026 14:35:56] "GET /manuscript/circle_new/active-learning HTTP/1.1" 200 -
+2026-07-15 14:36:57,567 - INFO - 127.0.0.1 - - [15/Jul/2026 14:36:57] "GET /manuscript/circle_new/active-learning HTTP/1.1" 200 -
+2026-07-15 14:37:58,536 - INFO - 127.0.0.1 - - [15/Jul/2026 14:37:58] "GET /manuscript/circle_new/active-learning HTTP/1.1" 200 -
+2026-07-15 14:38:59,554 - INFO - 127.0.0.1 - - [15/Jul/2026 14:38:59] "GET /manuscript/circle_new/active-learning HTTP/1.1" 200 -
+2026-07-15 14:39:16,350 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:16] "GET /manuscript/circle_new_backup/pages HTTP/1.1" 200 -
+2026-07-15 14:39:16,679 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:16] "GET /manuscript/circle_new_backup/pages HTTP/1.1" 200 -
+2026-07-15 14:39:16,936 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:16] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-15 14:39:17,306 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:17] "GET /semi-segment/circle_new_backup/65 HTTP/1.1" 200 -
+2026-07-15 14:39:17,412 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:17] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:39:29,094 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:29] "OPTIONS /semi-segment/circle_new_backup/65 HTTP/1.1" 200 -
+2026-07-15 14:39:29,542 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circle_new_backup page_id=65
+2026-07-15 14:39:32,475 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:32] "POST /semi-segment/circle_new_backup/65 HTTP/1.1" 200 -
+2026-07-15 14:39:32,783 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:32] "GET /semi-segment/circle_new_backup/65 HTTP/1.1" 200 -
+2026-07-15 14:39:32,853 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:32] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:39:33,119 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:33] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-15 14:39:33,483 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\circle_new\active_learning\recognition\checkpoints\ocr_65_r0025\model.pth...
+2026-07-15 14:39:34,242 - INFO - Model loaded successfully.
+2026-07-15 14:39:38,777 - INFO - Updated input_manuscripts\circle_new_backup\layout_analysis_output\page-xml-format\65.xml: 24 lines recognized.
+2026-07-15 14:39:39,017 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:39] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-15 14:39:39,081 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:39] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:39:41,158 - INFO - 127.0.0.1 - - [15/Jul/2026 14:39:41] "GET /line-image/circle_new_backup/65/7?v=1784106571117471400 HTTP/1.1" 200 -
+2026-07-15 14:40:10,705 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:10] "OPTIONS /semi-segment/circle_new_backup/65 HTTP/1.1" 200 -
+2026-07-15 14:40:11,139 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circle_new_backup page_id=65
+2026-07-15 14:40:13,936 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:13] "POST /semi-segment/circle_new_backup/65 HTTP/1.1" 200 -
+2026-07-15 14:40:14,214 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:14] "GET /semi-segment/circle_new_backup/65 HTTP/1.1" 200 -
+2026-07-15 14:40:14,308 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:14] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:40:14,540 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:14] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-15 14:40:19,316 - INFO - Updated input_manuscripts\circle_new_backup\layout_analysis_output\page-xml-format\65.xml: 24 lines recognized.
+2026-07-15 14:40:19,548 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:19] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-15 14:40:19,606 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:19] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:40:21,315 - INFO - 127.0.0.1 - - [15/Jul/2026 14:40:21] "GET /line-image/circle_new_backup/65/7?v=1784106612565474000 HTTP/1.1" 200 -
+2026-07-15 14:41:20,551 - INFO - 127.0.0.1 - - [15/Jul/2026 14:41:20] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:42:21,561 - INFO - 127.0.0.1 - - [15/Jul/2026 14:42:21] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:43:22,563 - INFO - 127.0.0.1 - - [15/Jul/2026 14:43:22] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:44:23,560 - INFO - 127.0.0.1 - - [15/Jul/2026 14:44:23] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:45:24,566 - INFO - 127.0.0.1 - - [15/Jul/2026 14:45:24] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:46:25,566 - INFO - 127.0.0.1 - - [15/Jul/2026 14:46:25] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:47:26,562 - INFO - 127.0.0.1 - - [15/Jul/2026 14:47:26] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:48:27,574 - INFO - 127.0.0.1 - - [15/Jul/2026 14:48:27] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:49:28,559 - INFO - 127.0.0.1 - - [15/Jul/2026 14:49:28] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:50:29,557 - INFO - 127.0.0.1 - - [15/Jul/2026 14:50:29] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:51:30,576 - INFO - 127.0.0.1 - - [15/Jul/2026 14:51:30] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:52:31,559 - INFO - 127.0.0.1 - - [15/Jul/2026 14:52:31] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:53:32,556 - INFO - 127.0.0.1 - - [15/Jul/2026 14:53:32] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:54:33,559 - INFO - 127.0.0.1 - - [15/Jul/2026 14:54:33] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:55:34,559 - INFO - 127.0.0.1 - - [15/Jul/2026 14:55:34] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:56:35,559 - INFO - 127.0.0.1 - - [15/Jul/2026 14:56:35] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:57:36,555 - INFO - 127.0.0.1 - - [15/Jul/2026 14:57:36] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:57:46,580 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\recognize_manuscript_text_v2_pretrained.py', reloading
+2026-07-15 14:57:48,323 - INFO -  * Restarting with stat
+2026-07-15 14:57:55,636 - WARNING -  * Debugger is active!
+2026-07-15 14:57:55,638 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 14:58:08,912 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\active_learning.py', reloading
+2026-07-15 14:58:11,781 - INFO -  * Restarting with stat
+2026-07-15 14:58:19,058 - WARNING -  * Debugger is active!
+2026-07-15 14:58:19,060 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 14:58:37,560 - INFO - 127.0.0.1 - - [15/Jul/2026 14:58:37] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 14:59:38,563 - INFO - 127.0.0.1 - - [15/Jul/2026 14:59:38] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:00:39,544 - INFO - 127.0.0.1 - - [15/Jul/2026 15:00:39] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:01:05,922 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\recognize_manuscript_text_v2_pretrained.py', reloading
+2026-07-15 15:01:08,597 - INFO -  * Restarting with stat
+2026-07-15 15:01:15,385 - WARNING -  * Debugger is active!
+2026-07-15 15:01:15,388 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:01:31,732 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\active_learning.py', reloading
+2026-07-15 15:01:33,930 - INFO -  * Restarting with stat
+2026-07-15 15:01:41,211 - WARNING -  * Debugger is active!
+2026-07-15 15:01:41,220 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:01:41,290 - INFO - 127.0.0.1 - - [15/Jul/2026 15:01:41] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:02:42,570 - INFO - 127.0.0.1 - - [15/Jul/2026 15:02:42] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:03:43,604 - INFO - 127.0.0.1 - - [15/Jul/2026 15:03:43] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:04:44,599 - INFO - 127.0.0.1 - - [15/Jul/2026 15:04:44] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:05:45,611 - INFO - 127.0.0.1 - - [15/Jul/2026 15:05:45] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:06:46,610 - INFO - 127.0.0.1 - - [15/Jul/2026 15:06:46] "GET /manuscript/circle_new_backup/active-learning HTTP/1.1" 200 -
+2026-07-15 15:12:56,366 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.242.80:5000
+2026-07-15 15:12:56,366 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-15 15:12:56,366 - INFO -  * Restarting with stat
+2026-07-15 15:13:09,765 - WARNING -  * Debugger is active!
+2026-07-15 15:13:09,775 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:13:13,510 - INFO - 127.0.0.1 - - [15/Jul/2026 15:13:13] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-15 15:13:14,891 - INFO - 127.0.0.1 - - [15/Jul/2026 15:13:14] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-15 15:13:46,588 - INFO - 127.0.0.1 - - [15/Jul/2026 15:13:46] "POST /upload HTTP/1.1" 200 -
+2026-07-15 15:13:46,664 - INFO - 127.0.0.1 - - [15/Jul/2026 15:13:46] "GET /manuscript/circle_test_1/pages HTTP/1.1" 200 -
+2026-07-15 15:13:46,985 - INFO - 127.0.0.1 - - [15/Jul/2026 15:13:46] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-15 15:13:48,724 - INFO - 127.0.0.1 - - [15/Jul/2026 15:13:48] "GET /semi-segment/circle_test_1/28 HTTP/1.1" 200 -
+2026-07-15 15:13:48,810 - INFO - 127.0.0.1 - - [15/Jul/2026 15:13:48] "GET /manuscript/circle_test_1/active-learning HTTP/1.1" 200 -
+2026-07-15 15:14:23,824 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:23] "OPTIONS /semi-segment/circle_test_1/28 HTTP/1.1" 200 -
+2026-07-15 15:14:24,175 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circle_test_1 page_id=28
+2026-07-15 15:14:31,799 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:31] "POST /semi-segment/circle_test_1/28 HTTP/1.1" 200 -
+2026-07-15 15:14:32,147 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:32] "GET /semi-segment/circle_test_1/28 HTTP/1.1" 200 -
+2026-07-15 15:14:32,203 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:32] "GET /manuscript/circle_test_1/active-learning HTTP/1.1" 200 -
+2026-07-15 15:14:32,504 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:32] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-15 15:14:32,865 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-07-15 15:14:35,183 - INFO - Model loaded successfully.
+2026-07-15 15:14:40,688 - INFO - Updated input_manuscripts\circle_test_1\layout_analysis_output\page-xml-format\28.xml: 21 lines recognized; 3 unannotated curved lines evaluated; 2 rotated.
+2026-07-15 15:14:40,972 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:40] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-15 15:14:41,079 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:41] "GET /manuscript/circle_test_1/active-learning HTTP/1.1" 200 -
+2026-07-15 15:14:44,013 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:44] "GET /line-image/circle_test_1/28/13?v=1784108671223948400 HTTP/1.1" 200 -
+2026-07-15 15:14:48,822 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:48] "GET /line-image/circle_test_1/28/12?v=1784108671178992900 HTTP/1.1" 200 -
+2026-07-15 15:14:51,336 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:51] "GET /line-image/circle_test_1/28/11?v=1784108671197596000 HTTP/1.1" 200 -
+2026-07-15 15:14:55,018 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:55] "[36mGET /line-image/circle_test_1/28/13?v=1784108671223948400 HTTP/1.1[0m" 304 -
+2026-07-15 15:14:57,654 - INFO - 127.0.0.1 - - [15/Jul/2026 15:14:57] "[36mGET /line-image/circle_test_1/28/11?v=1784108671197596000 HTTP/1.1[0m" 304 -
+2026-07-15 15:15:41,560 - INFO - 127.0.0.1 - - [15/Jul/2026 15:15:41] "GET /manuscript/circle_test_1/active-learning HTTP/1.1" 200 -
+2026-07-15 15:16:42,572 - INFO - 127.0.0.1 - - [15/Jul/2026 15:16:42] "GET /manuscript/circle_test_1/active-learning HTTP/1.1" 200 -
+2026-07-15 15:17:43,577 - INFO - 127.0.0.1 - - [15/Jul/2026 15:17:43] "GET /manuscript/circle_test_1/active-learning HTTP/1.1" 200 -
+2026-07-15 15:18:26,438 - INFO - 127.0.0.1 - - [15/Jul/2026 15:18:26] "[36mGET /line-image/circle_test_1/28/12?v=1784108671178992900 HTTP/1.1[0m" 304 -
+2026-07-15 15:18:31,018 - INFO - 127.0.0.1 - - [15/Jul/2026 15:18:31] "[36mGET /line-image/circle_test_1/28/13?v=1784108671223948400 HTTP/1.1[0m" 304 -
+2026-07-15 15:25:57,746 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\auto_orientation.py', reloading
+2026-07-15 15:26:00,488 - INFO -  * Restarting with stat
+2026-07-15 15:26:12,875 - WARNING -  * Debugger is active!
+2026-07-15 15:26:12,881 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:26:21,200 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-15 15:26:24,629 - INFO -  * Restarting with stat
+2026-07-15 15:26:35,175 - WARNING -  * Debugger is active!
+2026-07-15 15:26:35,179 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:26:42,424 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-15 15:26:46,096 - INFO -  * Restarting with stat
+2026-07-15 15:26:56,468 - WARNING -  * Debugger is active!
+2026-07-15 15:26:56,470 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:27:14,992 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_read_mode_line_image_previews_unit.py', reloading
+2026-07-15 15:27:18,000 - INFO -  * Restarting with stat
+2026-07-15 15:27:28,594 - WARNING -  * Debugger is active!
+2026-07-15 15:27:28,597 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:27:39,968 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_auto_orientation_unit.py', reloading
+2026-07-15 15:27:43,580 - INFO -  * Restarting with stat
+2026-07-15 15:27:54,009 - WARNING -  * Debugger is active!
+2026-07-15 15:27:54,013 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:30:48,843 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_read_mode_line_image_previews_unit.py', reloading
+2026-07-15 15:30:51,949 - INFO -  * Restarting with stat
+2026-07-15 15:31:04,364 - WARNING -  * Debugger is active!
+2026-07-15 15:31:04,368 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:37:19,658 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\recognition\\auto_orientation.py', reloading
+2026-07-15 15:37:22,866 - INFO -  * Restarting with stat
+2026-07-15 15:37:31,559 - WARNING -  * Debugger is active!
+2026-07-15 15:37:31,562 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:37:36,743 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-15 15:37:40,184 - INFO -  * Restarting with stat
+2026-07-15 15:37:49,715 - WARNING -  * Debugger is active!
+2026-07-15 15:37:49,716 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:38:06,256 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_read_mode_line_image_previews_unit.py', reloading
+2026-07-15 15:38:09,243 - INFO -  * Restarting with stat
+2026-07-15 15:38:17,390 - WARNING -  * Debugger is active!
+2026-07-15 15:38:17,391 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:38:40,030 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_auto_orientation_unit.py', reloading
+2026-07-15 15:38:42,100 - INFO -  * Restarting with stat
+2026-07-15 15:38:52,412 - WARNING -  * Debugger is active!
+2026-07-15 15:38:52,412 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:39:21,278 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-15 15:39:22,979 - INFO -  * Restarting with stat
+2026-07-15 15:39:31,217 - WARNING -  * Debugger is active!
+2026-07-15 15:39:31,219 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:39:34,379 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_read_mode_line_image_previews_unit.py', reloading
+2026-07-15 15:39:36,422 - INFO -  * Restarting with stat
+2026-07-15 15:39:46,081 - WARNING -  * Debugger is active!
+2026-07-15 15:39:46,087 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:44:07,127 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-15 15:44:10,485 - INFO -  * Restarting with stat
+2026-07-15 15:44:18,986 - WARNING -  * Debugger is active!
+2026-07-15 15:44:18,990 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:45:59,753 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-15 15:46:03,207 - INFO -  * Restarting with stat
+2026-07-15 15:46:12,745 - WARNING -  * Debugger is active!
+2026-07-15 15:46:12,747 - INFO -  * Debugger PIN: 434-625-588
+2026-07-15 15:47:32,453 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_recognition_active_learning_backend_unit.py', reloading
+2026-07-15 15:47:35,506 - INFO -  * Restarting with stat
+2026-07-15 15:47:47,378 - WARNING -  * Debugger is active!
+2026-07-15 15:47:47,386 - INFO -  * Debugger PIN: 434-625-588

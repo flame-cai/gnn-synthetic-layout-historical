@@ -7,6 +7,17 @@ It does not modify the production Flask app. Local OCR and fine-tuning methods
 import the existing production helpers from `app/recognition`, then write all
 run artifacts under the requested experiment output directory.
 
+Local OCR inference also shares production decoded-text auto-orientation. For
+unannotated `curved_open` and `closed_circular` unwrap crops, identity and
+180-degree-rotated predictions are compared using Devanagari evidence without
+using model confidence. The selected transform and both candidate predictions
+are retained in each inference result's per-line `auto_orientation` metadata.
+When PAGE XML already contains a persisted selected transform, shared dataset
+preparation applies it to the line image before pairing that image with its
+Unicode label and does not run auto-orientation on the already-oriented crop.
+Explicit reading-direction annotations remain authoritative: shared preparation
+ignores any stale persisted auto transform when an annotation is present.
+
 ## Initial Supported Workflows
 
 Validate strict PAGE-XML geometry before any expensive run:

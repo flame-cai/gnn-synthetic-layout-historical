@@ -1,4 +1,5 @@
 import json
+import io
 import shutil
 import sys
 import unittest
@@ -54,10 +55,16 @@ class ReadModeLineImagePreviewsUnitTest(unittest.TestCase):
       <TextLine id="region_0_line_1" custom="structure_line_id_2">
         <Coords points="10,40 120,35 130,60 20,65"/>
         <Baseline points="10,55 60,40 120,55"/>
+        <TextEquiv custom="auto_orientation_model:decoded_text_devanagari_evidence_v1;auto_orientation_transform:rotate_180;auto_orientation_reason:test">
+          <Unicode>राम</Unicode>
+        </TextEquiv>
       </TextLine>
       <TextLine id="region_0_line_2" custom="structure_line_id_3">
         <Coords points="10,80 110,80 110,100 10,100"/>
         <Baseline points="110,90 10,90"/>
+        <TextEquiv custom="auto_orientation_transform:rotate_180">
+          <Unicode>annotated</Unicode>
+        </TextEquiv>
       </TextLine>
     </TextRegion>
   </Page>
@@ -69,9 +76,10 @@ class ReadModeLineImagePreviewsUnitTest(unittest.TestCase):
 
     def _write_line_images(self):
         for line_id in (1, 2, 3):
-            Image.new("L", (100 + line_id, 24), color=240).save(
-                self.image_dir / f"line_{line_id}.jpg"
-            )
+            image = Image.new("L", (100 + line_id, 24), color=240)
+            if line_id in {2, 3}:
+                image.paste(20, (0, 0, 36, 24))
+            image.save(self.image_dir / f"line_{line_id}.jpg")
 
     def _write_metadata(self):
         (self.xml_dir / f"{self.page}_line_segmentation_metadata.json").write_text(
@@ -82,7 +90,14 @@ class ReadModeLineImagePreviewsUnitTest(unittest.TestCase):
                     "line_metadata": [
                         {"line_numeric_id": 1, "line_kind": "horizontal_straight"},
                         {"line_numeric_id": 2, "line_kind": "curved_open"},
-                        {"line_numeric_id": 3, "line_kind": "horizontal_straight"},
+                        {
+                            "line_numeric_id": 3,
+                            "line_kind": "horizontal_straight",
+                            "reading_direction_annotation": {
+                                "reading_direction": [1, 0],
+                                "cut_midpoint": [60, 90],
+                            },
+                        },
                     ],
                 }
             ),
@@ -119,8 +134,10 @@ class ReadModeLineImagePreviewsUnitTest(unittest.TestCase):
         self.assertEqual(previews["2"]["lineKind"], "curved_open")
         self.assertFalse(previews["2"]["hasReadingDirectionAnnotation"])
         self.assertEqual(previews["2"]["imageWidth"], 102)
+        self.assertEqual(previews["2"]["autoOrientationTransform"], "rotate_180")
         self.assertEqual(previews["3"]["lineKind"], "horizontal_straight")
         self.assertTrue(previews["3"]["hasReadingDirectionAnnotation"])
+        self.assertIsNone(previews["3"]["autoOrientationTransform"])
         self.assertIn(f"/line-image/{self.manuscript}/{self.page}/2", previews["2"]["imageUrl"])
 
     def test_line_image_route_serves_processed_crop_by_line_id(self):
@@ -134,6 +151,36 @@ class ReadModeLineImagePreviewsUnitTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "image/jpeg")
         self.assertGreater(len(response.data), 0)
+        with Image.open(io.BytesIO(response.data)) as served_image:
+            grayscale = served_image.convert("L")
+            left_pixel = grayscale.getpixel((10, 12))
+            right_pixel = grayscale.getpixel((90, 12))
+        self.assertGreater(left_pixel, right_pixel)
+        response.close()
+
+    def test_explicit_annotation_overrides_stale_auto_orientation_in_preview_route(self):
+        xml_path = self._write_page_xml()
+        self._write_line_images()
+        self._write_metadata()
+        (self.xml_dir / f"{self.page}_reading_direction_metadata.json").unlink()
+
+        previews = backend_app_module.get_existing_line_image_previews(
+            self.manuscript,
+            self.page,
+            xml_path,
+        )
+        self.assertTrue(previews["3"]["hasReadingDirectionAnnotation"])
+        self.assertIsNone(previews["3"]["autoOrientationTransform"])
+
+        client = backend_app_module.app.test_client()
+        response = client.get(f"/line-image/{self.manuscript}/{self.page}/3")
+
+        self.assertEqual(response.status_code, 200)
+        with Image.open(io.BytesIO(response.data)) as served_image:
+            grayscale = served_image.convert("L")
+            left_pixel = grayscale.getpixel((10, 12))
+            right_pixel = grayscale.getpixel((90, 12))
+        self.assertLess(left_pixel, right_pixel)
         response.close()
 
 

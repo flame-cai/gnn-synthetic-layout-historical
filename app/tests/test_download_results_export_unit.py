@@ -1,4 +1,5 @@
 import io
+import json
 import shutil
 import sys
 import unittest
@@ -47,8 +48,12 @@ class DownloadResultsExportUnitTest(unittest.TestCase):
         image_region_dir.mkdir(parents=True)
         resized_dir.mkdir(parents=True)
 
-        Image.new("L", (12, 6), color=210).save(image_region_dir / "line_7.jpg")
-        Image.new("L", (12, 6), color=220).save(image_region_dir / "line_8.jpg")
+        line_7_image = Image.new("L", (12, 6), color=230)
+        line_7_image.paste(20, (0, 0, 4, 6))
+        line_7_image.save(image_region_dir / "line_7.jpg")
+        line_8_image = Image.new("L", (12, 6), color=220)
+        line_8_image.paste(30, (0, 0, 4, 6))
+        line_8_image.save(image_region_dir / "line_8.jpg")
         Image.new("RGB", (20, 10), color=(255, 255, 255)).save(resized_dir / "233_0001.jpg")
         Image.new("RGB", (20, 10), color=(240, 240, 240)).save(resized_dir / "233_0002.jpg")
         saved_label = "\u0930\u093e\u092e"
@@ -61,10 +66,11 @@ class DownloadResultsExportUnitTest(unittest.TestCase):
       <Coords points="0,0 10,0 10,10 0,10" />
       <TextLine id="line_0" custom="structure_line_id_7">
         <Coords points="0,0 10,0 10,5 0,5" />
-        <TextEquiv><Unicode>{saved_label}</Unicode></TextEquiv>
+        <TextEquiv custom="auto_orientation_transform:rotate_180"><Unicode>{saved_label}</Unicode></TextEquiv>
       </TextLine>
       <TextLine id="line_1" custom="structure_line_id_8">
         <Coords points="0,5 10,5 10,10 0,10" />
+        <TextEquiv custom="auto_orientation_transform:rotate_180"><Unicode>annotated</Unicode></TextEquiv>
       </TextLine>
       <TextLine id="line_2" custom="structure_line_id_9">
         <Coords points="0,10 10,10 10,15 0,15" />
@@ -74,6 +80,21 @@ class DownloadResultsExportUnitTest(unittest.TestCase):
   </Page>
 </PcGts>
 """,
+            encoding="utf-8",
+        )
+        (xml_dir / "233_0001_reading_direction_metadata.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "line_annotations": [
+                        {
+                            "resolved_line_numeric_id": 8,
+                            "reading_direction": [1, 0],
+                            "cut_midpoint": [5, 8],
+                        }
+                    ],
+                }
+            ),
             encoding="utf-8",
         )
 
@@ -93,7 +114,7 @@ class DownloadResultsExportUnitTest(unittest.TestCase):
                 "ocr-training-format/233_0001/textbox_label_3/text-line-images/line_7.jpg",
                 names,
             )
-            self.assertNotIn(
+            self.assertIn(
                 "ocr-training-format/233_0001/textbox_label_3/text-line-images/line_8.jpg",
                 names,
             )
@@ -102,8 +123,34 @@ class DownloadResultsExportUnitTest(unittest.TestCase):
                 names,
             )
             gt_text = zf.read("ocr-training-format/233_0001/textbox_label_3/gt.txt").decode("utf-8")
+            with Image.open(
+                io.BytesIO(
+                    zf.read(
+                        "ocr-training-format/233_0001/textbox_label_3/text-line-images/line_7.jpg"
+                    )
+                )
+            ) as exported_image:
+                grayscale = exported_image.convert("L")
+                left_pixel = grayscale.getpixel((1, 3))
+                right_pixel = grayscale.getpixel((10, 3))
+            with Image.open(
+                io.BytesIO(
+                    zf.read(
+                        "ocr-training-format/233_0001/textbox_label_3/text-line-images/line_8.jpg"
+                    )
+                )
+            ) as annotated_exported_image:
+                annotated_grayscale = annotated_exported_image.convert("L")
+                annotated_left_pixel = annotated_grayscale.getpixel((1, 3))
+                annotated_right_pixel = annotated_grayscale.getpixel((10, 3))
 
-        self.assertEqual(gt_text, f"text-line-images/line_7.jpg\t{saved_label}\n")
+        self.assertEqual(
+            gt_text,
+            f"text-line-images/line_7.jpg\t{saved_label}\n"
+            "text-line-images/line_8.jpg\tannotated\n",
+        )
+        self.assertGreater(left_pixel, right_pixel)
+        self.assertLess(annotated_left_pixel, annotated_right_pixel)
 
     def test_download_requires_at_least_one_annotated_page_layout(self):
         upload_root = self._make_root("no_layouts")

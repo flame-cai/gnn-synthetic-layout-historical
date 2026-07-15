@@ -306,6 +306,28 @@ crop layer unwraps the line. If metadata is missing, malformed, unsupported,
 non-unwrapped for an unwrap strategy, or unwrap guards fail, OCR crop
 preparation falls back to the historical masked PAGE `Coords` crop.
 
+During local OCR inference, unwrapped `curved_open` and `closed_circular` lines
+without a valid reading-direction annotation use decoded-text auto-orientation.
+The runtime recognizes both the identity crop and its 180-degree rotation, then
+selects the decoded string with stronger Devanagari evidence. Devanagari
+letters, marks, and numbers are positive evidence; letters and numbers from
+other scripts are negative evidence; punctuation and whitespace are neutral.
+Model confidence is not used, and exact evidence ties preserve the identity
+crop. Annotated curved lines, straight lines, point lines, and masked crop
+fallbacks retain the single-orientation path. Production writes the selected
+transform into the PAGE `TextEquiv/@custom` audit metadata.
+
+That persisted transform is the orientation contract for subsequent use of the
+line. Read Mode applies it when serving the line-image preview, and text-only
+saves preserve it while replacing the Unicode text. Active-learning dataset
+preparation and the downloadable `ocr-training-format` apply the same transform
+to the image paired with the corrected Unicode label. The layout crop on disk
+remains the canonical, unmodified crop; oriented preview and training images
+are derived from it so the transform is applied exactly once.
+An explicit Layout Mode reading-direction annotation always takes precedence.
+If stale auto-orientation metadata is also present, preview, fine-tuning
+preparation, and OCR-training export ignore it; the next text save removes it.
+
 With the current production strategy, new layout saves write metadata requesting:
 
 ```text

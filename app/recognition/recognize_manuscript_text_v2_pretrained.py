@@ -15,6 +15,12 @@ from lxml import etree as ET
 from PIL import Image
 
 try:
+    from .auto_orientation import (
+        IDENTITY_TRANSFORM,
+        ROTATE_180_TRANSFORM,
+        select_orientation_from_predictions,
+        should_auto_orient_from_predictions,
+    )
     from .dataset import AlignCollate
     from .line_segmentation.ocr_crops import (
         crop_line_record_for_ocr,
@@ -25,6 +31,12 @@ try:
     from .ocr_defaults import build_label_converter, build_ocr_config, create_model, load_state_dict_compat
     from .pagexml_line_dataset import _encode_like_app_jpg, _load_processing_image, load_pagexml_lines
 except ImportError:  # pragma: no cover - script execution fallback
+    from auto_orientation import (
+        IDENTITY_TRANSFORM,
+        ROTATE_180_TRANSFORM,
+        select_orientation_from_predictions,
+        should_auto_orient_from_predictions,
+    )
     from dataset import AlignCollate
     from line_segmentation.ocr_crops import (
         crop_line_record_for_ocr,
@@ -244,7 +256,18 @@ def process_page_xml(
             logger.info(f"No valid text lines found in {xml_path}")
             return
 
-        dataset = InMemoryDataset([(item[0], item[1]) for item in batch_data], config)
+        candidate_batch_data = []
+        auto_orientation_group_ids = set()
+        for group_id, (line_image, context) in enumerate(batch_data):
+            crop_metadata = context[3]
+            candidate_batch_data.append((line_image, (group_id, IDENTITY_TRANSFORM)))
+            if should_auto_orient_from_predictions(crop_metadata):
+                auto_orientation_group_ids.add(group_id)
+                candidate_batch_data.append(
+                    (line_image.rotate(180, expand=False), (group_id, ROTATE_180_TRANSFORM))
+                )
+
+        dataset = InMemoryDataset(candidate_batch_data, config)
         align_collate = AlignCollate(imgH=config.imgH, imgW=config.imgW, keep_ratio_with_pad=config.PAD)
         data_loader = torch.utils.data.DataLoader(
             dataset,
@@ -255,7 +278,7 @@ def process_page_xml(
             pin_memory=True,
         )
 
-        updated_count = 0
+        predictions_by_group = {}
         with torch.no_grad():
             for image_tensors, metadata_list in data_loader:
                 batch_size = image_tensors.size(0)
@@ -268,19 +291,74 @@ def process_page_xml(
                 preds_str = converter.decode(preds_index, preds_size)
 
                 for index, pred_text in enumerate(preds_str):
-                    line_elem, _, _, _ = metadata_list[index]
-                    for existing_equiv in find_all(line_elem, "TextEquiv"):
-                        line_elem.remove(existing_equiv)
+                    group_id, transform = metadata_list[index]
+                    predictions_by_group.setdefault(int(group_id), {})[str(transform)] = pred_text
 
-                    qname_equiv = f"{{{ns_url}}}TextEquiv" if ns_url else "TextEquiv"
-                    qname_unicode = f"{{{ns_url}}}Unicode" if ns_url else "Unicode"
-                    text_equiv = ET.SubElement(line_elem, qname_equiv)
-                    unicode_elem = ET.SubElement(text_equiv, qname_unicode)
-                    unicode_elem.text = pred_text
-                    updated_count += 1
+        updated_count = 0
+        rotated_line_count = 0
+        auto_orientation_selections = []
+        for group_id, (_, context) in enumerate(batch_data):
+            line_elem, _, line_id, crop_metadata = context
+            candidate_predictions = predictions_by_group.get(group_id, {})
+            selection = None
+            if group_id in auto_orientation_group_ids:
+                selection = select_orientation_from_predictions(candidate_predictions)
+                pred_text = selection.selected_text
+                crop_metadata["auto_orientation"] = selection.to_metadata()
+                topology = crop_metadata.get("topology") or {}
+                auto_orientation_selections.append(
+                    {
+                        "line_id": str(line_id),
+                        "line_numeric_id": crop_metadata.get("line_numeric_id"),
+                        "line_kind": topology.get("line_kind"),
+                        **selection.to_metadata(),
+                    }
+                )
+                if selection.selected_transform == ROTATE_180_TRANSFORM:
+                    rotated_line_count += 1
+                logger.info(
+                    "Auto-oriented curved OCR line=%s transform=%s identity=%r rotate_180=%r",
+                    line_id,
+                    selection.selected_transform,
+                    candidate_predictions.get(IDENTITY_TRANSFORM, ""),
+                    candidate_predictions.get(ROTATE_180_TRANSFORM, ""),
+                )
+            else:
+                pred_text = candidate_predictions.get(IDENTITY_TRANSFORM, "")
+
+            for existing_equiv in find_all(line_elem, "TextEquiv"):
+                line_elem.remove(existing_equiv)
+
+            qname_equiv = f"{{{ns_url}}}TextEquiv" if ns_url else "TextEquiv"
+            qname_unicode = f"{{{ns_url}}}Unicode" if ns_url else "Unicode"
+            text_equiv = ET.SubElement(line_elem, qname_equiv)
+            if selection is not None:
+                text_equiv.set(
+                    "custom",
+                    (
+                        "auto_orientation_model:decoded_text_devanagari_evidence_v1;"
+                        f"auto_orientation_transform:{selection.selected_transform};"
+                        f"auto_orientation_reason:{selection.reason}"
+                    ),
+                )
+            unicode_elem = ET.SubElement(text_equiv, qname_unicode)
+            unicode_elem.text = pred_text
+            updated_count += 1
 
         tree.write(xml_path, pretty_print=True, encoding="UTF-8", xml_declaration=True)
-        logger.info(f"Updated {xml_path}: {updated_count} lines recognized.")
+        logger.info(
+            "Updated %s: %d lines recognized; %d unannotated curved lines evaluated; %d rotated.",
+            xml_path,
+            updated_count,
+            len(auto_orientation_group_ids),
+            rotated_line_count,
+        )
+        return {
+            "updated_line_count": updated_count,
+            "auto_orientation_line_count": len(auto_orientation_group_ids),
+            "auto_orientation_rotated_line_count": rotated_line_count,
+            "auto_orientation_selections": auto_orientation_selections,
+        }
     except Exception as exc:
         logger.error(f"Failed to process file {xml_path}: {exc}", exc_info=True)
 
