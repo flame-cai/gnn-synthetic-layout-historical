@@ -30,7 +30,10 @@ try:
         run_line_image_inference_from_loaded_model,
     )
     from .pagexml_line_dataset import (
+        MIN_FINETUNE_BASELINE_NODE_COUNT,
         PreparedPageDataset,
+        baseline_node_count_for_record,
+        finetune_skip_reason_for_record,
         load_prepared_page_dataset,
         prepare_page_line_dataset,
         write_prediction_pagexml,
@@ -52,7 +55,10 @@ except ImportError:  # pragma: no cover - script execution fallback
         run_line_image_inference_from_loaded_model,
     )
     from pagexml_line_dataset import (
+        MIN_FINETUNE_BASELINE_NODE_COUNT,
         PreparedPageDataset,
+        baseline_node_count_for_record,
+        finetune_skip_reason_for_record,
         load_prepared_page_dataset,
         prepare_page_line_dataset,
         write_prediction_pagexml,
@@ -413,8 +419,9 @@ def apply_ocr_training_augmentation(
     }
 
 
-def _collect_corpus_samples(prepared_pages: list[PreparedPageDataset]):
+def _collect_finetune_corpus_samples(prepared_pages: list[PreparedPageDataset]) -> tuple[list[dict], list[dict]]:
     samples = []
+    skipped = []
     for prepared_page in prepared_pages:
         dataset_root = Path(prepared_page.finetune_dataset_dir)
         for record in prepared_page.records:
@@ -423,6 +430,20 @@ def _collect_corpus_samples(prepared_pages: list[PreparedPageDataset]):
             source_path = dataset_root / record.flat_image_rel_path
             if not source_path.exists():
                 continue
+            target_name = f"{prepared_page.page_id}__{Path(record.flat_image_rel_path).name}"
+            skip_reason = finetune_skip_reason_for_record(record)
+            if skip_reason is not None:
+                skipped.append(
+                    {
+                        "page_id": prepared_page.page_id,
+                        "line_id": record.line_id,
+                        "line_custom": record.line_custom,
+                        "target_name": target_name,
+                        "baseline_node_count": baseline_node_count_for_record(record),
+                        "reason": skip_reason,
+                    }
+                )
+                continue
             samples.append(
                 {
                     "page_id": prepared_page.page_id,
@@ -430,11 +451,20 @@ def _collect_corpus_samples(prepared_pages: list[PreparedPageDataset]):
                     "line_custom": record.line_custom,
                     "source_path": source_path,
                     "label": record.text,
-                    "target_name": f"{prepared_page.page_id}__{Path(record.flat_image_rel_path).name}",
+                    "target_name": target_name,
+                    "baseline_node_count": baseline_node_count_for_record(record),
                 }
             )
+    return samples, skipped
+
+
+def _collect_corpus_samples(prepared_pages: list[PreparedPageDataset]):
+    samples, skipped = _collect_finetune_corpus_samples(prepared_pages)
     if not samples:
-        raise ValueError("No prepared line samples were found for OCR fine-tuning.")
+        raise ValueError(
+            "No fine-tuning-eligible prepared line samples were found for OCR fine-tuning "
+            f"(skipped {len(skipped)} one- or two-node line samples)."
+        )
     return samples
 
 
@@ -445,15 +475,22 @@ def _select_incremental_training_samples(
     split_seed: int = 42,
 ):
     current_pages = _normalize_prepared_pages(prepared_pages)
+    current_page_samples, current_skipped_samples = _collect_finetune_corpus_samples(current_pages)
+    if not current_page_samples:
+        raise ValueError(
+            "No fine-tuning-eligible prepared line samples were found for current OCR fine-tuning pages "
+            f"(skipped {len(current_skipped_samples)} one- or two-node line samples)."
+        )
     current_samples = [
         {**sample, "sample_origin": "current_page"}
-        for sample in _collect_corpus_samples(current_pages)
+        for sample in current_page_samples
     ]
 
     history_pages = _normalize_prepared_pages(history_source_pages or [])
     history_source_samples = []
+    history_skipped_samples = []
     if history_pages:
-        history_source_samples = _collect_corpus_samples(history_pages)
+        history_source_samples, history_skipped_samples = _collect_finetune_corpus_samples(history_pages)
 
     requested_history_count = max(0, int(history_sample_line_count))
     history_sample_seed = None
@@ -487,8 +524,14 @@ def _select_incremental_training_samples(
         "page_ids": selected_page_ids,
         "current_page_ids": [page.page_id for page in current_pages],
         "current_page_line_count": len(current_samples),
+        "current_page_source_line_count": len(current_samples) + len(current_skipped_samples),
+        "current_page_skipped_finetune_line_count": len(current_skipped_samples),
+        "current_page_skipped_finetune_line_refs": current_skipped_samples,
         "history_source_page_ids": [page.page_id for page in history_pages],
         "history_source_line_count": len(history_source_samples),
+        "history_source_total_line_count": len(history_source_samples) + len(history_skipped_samples),
+        "history_source_skipped_finetune_line_count": len(history_skipped_samples),
+        "history_source_skipped_finetune_line_refs": history_skipped_samples,
         "history_sample_requested_count": requested_history_count,
         "history_sample_line_count": len(selected_history_samples),
         "history_sample_seed": history_sample_seed,
@@ -502,6 +545,15 @@ def _select_incremental_training_samples(
             }
             for sample in selected_history_samples
         ],
+        "finetune_line_filter": {
+            "min_baseline_node_count": MIN_FINETUNE_BASELINE_NODE_COUNT,
+            "current_page_eligible_line_count": len(current_samples),
+            "current_page_skipped_line_count": len(current_skipped_samples),
+            "history_source_eligible_line_count": len(history_source_samples),
+            "history_source_skipped_line_count": len(history_skipped_samples),
+            "skipped_line_count": len(current_skipped_samples) + len(history_skipped_samples),
+            "skipped_line_refs": current_skipped_samples + history_skipped_samples,
+        },
     }
 
 
@@ -1013,8 +1065,14 @@ def prepare_incremental_finetune_dataset(
         "page_ids": selection_metadata["page_ids"],
         "current_page_ids": selection_metadata["current_page_ids"],
         "current_page_line_count": selection_metadata["current_page_line_count"],
+        "current_page_source_line_count": selection_metadata["current_page_source_line_count"],
+        "current_page_skipped_finetune_line_count": selection_metadata["current_page_skipped_finetune_line_count"],
+        "current_page_skipped_finetune_line_refs": selection_metadata["current_page_skipped_finetune_line_refs"],
         "history_source_page_ids": selection_metadata["history_source_page_ids"],
         "history_source_line_count": selection_metadata["history_source_line_count"],
+        "history_source_total_line_count": selection_metadata["history_source_total_line_count"],
+        "history_source_skipped_finetune_line_count": selection_metadata["history_source_skipped_finetune_line_count"],
+        "history_source_skipped_finetune_line_refs": selection_metadata["history_source_skipped_finetune_line_refs"],
         "history_sample_requested_count": selection_metadata["history_sample_requested_count"],
         "history_sample_line_count": selection_metadata["history_sample_line_count"],
         "history_sample_seed": selection_metadata["history_sample_seed"],
@@ -1044,6 +1102,7 @@ def prepare_incremental_finetune_dataset(
         "val_variant_counts": val_materialized["variant_counts"],
         "difficulty_scores": difficulty_scores,
         "replication_lookup": replication_lookup,
+        "finetune_line_filter": selection_metadata["finetune_line_filter"],
     }
     manifest_path = output_root / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")

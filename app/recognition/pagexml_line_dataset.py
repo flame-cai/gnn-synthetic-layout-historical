@@ -71,6 +71,10 @@ GEOMETRY_SOURCE_BASELINE_HEATMAP = "baseline_heatmap"
 SUPPORTED_GEOMETRY_SOURCES = {GEOMETRY_SOURCE_PAGEXML_COORDS, GEOMETRY_SOURCE_BASELINE_HEATMAP}
 DEFAULT_LINE_SEGMENTATION_STRATEGY = get_production_strategy_name()
 LOGGER = logging.getLogger(__name__)
+# Production PAGE Baselines are traced graph-node paths, so this threshold
+# filters graph lines that were derived from only one or two character nodes.
+MIN_FINETUNE_BASELINE_NODE_COUNT = 3
+FINETUNE_SKIP_REASON_SHORT_BASELINE = "baseline_node_count_below_minimum"
 
 
 @dataclass
@@ -90,6 +94,8 @@ class PreparedLineRecord:
     flat_image_rel_path: str | None = None
     crop_metadata: dict | None = None
     text_equiv_custom: str = ""
+    finetune_eligible: bool = True
+    finetune_skip_reason: str | None = None
 
 
 @dataclass
@@ -108,12 +114,33 @@ class PreparedPageDataset:
     geometry_summary: dict | None = None
     line_segmentation_strategy_name: str | None = None
     line_segmentation_metadata_path: str | None = None
+    finetune_filter: dict | None = None
 
 
 def _normalize_text(text):
     if text is None:
         return ""
     return unicodedata.normalize("NFC", text).strip()
+
+
+def baseline_node_count_for_record(record: PreparedLineRecord) -> int:
+    return len(record.baseline_points or [])
+
+
+def finetune_skip_reason_for_record(record: PreparedLineRecord) -> str | None:
+    explicit_reason = getattr(record, "finetune_skip_reason", None)
+    if explicit_reason:
+        return str(explicit_reason)
+    if getattr(record, "finetune_eligible", True) is False:
+        return "finetune_ineligible"
+    baseline_node_count = baseline_node_count_for_record(record)
+    if 0 < baseline_node_count < MIN_FINETUNE_BASELINE_NODE_COUNT:
+        return FINETUNE_SKIP_REASON_SHORT_BASELINE
+    return None
+
+
+def is_record_finetune_eligible(record: PreparedLineRecord) -> bool:
+    return finetune_skip_reason_for_record(record) is None
 
 
 def _parse_polygon(points_str):
@@ -339,6 +366,33 @@ def _build_geometry_summary(records, generation_summary, geometry_source, source
     return summary
 
 
+def _build_finetune_filter_summary(records: list[PreparedLineRecord]) -> dict:
+    skip_reason_counts: dict[str, int] = {}
+    skipped_line_refs = []
+    for record in records:
+        reason = finetune_skip_reason_for_record(record)
+        if reason is None:
+            continue
+        skip_reason_counts[reason] = skip_reason_counts.get(reason, 0) + 1
+        skipped_line_refs.append(
+            {
+                "page_id": record.page_id,
+                "line_id": record.line_id,
+                "line_custom": record.line_custom,
+                "baseline_node_count": baseline_node_count_for_record(record),
+                "reason": reason,
+            }
+        )
+    return {
+        "min_baseline_node_count": MIN_FINETUNE_BASELINE_NODE_COUNT,
+        "total_line_count": len(records),
+        "eligible_line_count": len(records) - len(skipped_line_refs),
+        "skipped_line_count": len(skipped_line_refs),
+        "skip_reason_counts": skip_reason_counts,
+        "skipped_line_refs": skipped_line_refs,
+    }
+
+
 def prepare_page_line_dataset(
     xml_path: str | Path,
     image_path: str | Path,
@@ -474,6 +528,7 @@ def prepare_page_line_dataset(
         cv2.imwrite(str(flat_abs_path), decoded_jpg)
 
         gt_lines.append(f"{flat_rel_path.as_posix()}\t{record.text}")
+        finetune_skip_reason = finetune_skip_reason_for_record(record)
         prepared_records.append(
             PreparedLineRecord(
                 **{
@@ -481,12 +536,15 @@ def prepare_page_line_dataset(
                     "app_image_rel_path": app_rel_path.as_posix(),
                     "flat_image_rel_path": flat_rel_path.as_posix(),
                     "crop_metadata": crop_metadata,
+                    "finetune_eligible": finetune_skip_reason is None,
+                    "finetune_skip_reason": finetune_skip_reason,
                 }
             )
         )
 
     gt_path = finetune_dataset_root / "gt.txt"
     gt_path.write_text("\n".join(gt_lines) + ("\n" if gt_lines else ""), encoding="utf-8")
+    finetune_filter_summary = _build_finetune_filter_summary(prepared_records)
 
     manifest_path = output_root / "manifest.json"
     manifest_payload = {
@@ -499,6 +557,7 @@ def prepare_page_line_dataset(
         "geometry_summary": geometry_summary,
         "line_segmentation_strategy_name": effective_strategy_name,
         "line_segmentation_metadata_path": str(strategy_metadata_path.resolve()) if strategy_metadata_path else None,
+        "finetune_filter": finetune_filter_summary,
         "records": [asdict(record) for record in prepared_records],
     }
     manifest_path.write_text(json.dumps(manifest_payload, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -518,6 +577,7 @@ def prepare_page_line_dataset(
         geometry_summary=geometry_summary,
         line_segmentation_strategy_name=effective_strategy_name,
         line_segmentation_metadata_path=str(strategy_metadata_path.resolve()) if strategy_metadata_path else None,
+        finetune_filter=finetune_filter_summary,
     )
 
 
@@ -541,6 +601,7 @@ def load_prepared_page_dataset(manifest_path: str | Path):
         geometry_summary=payload.get("geometry_summary"),
         line_segmentation_strategy_name=payload.get("line_segmentation_strategy_name"),
         line_segmentation_metadata_path=payload.get("line_segmentation_metadata_path"),
+        finetune_filter=payload.get("finetune_filter"),
     )
 
 

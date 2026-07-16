@@ -1567,6 +1567,7 @@ def prepare_gt_layout_pages_only(
                 "manifest_path": prepared_page.manifest_path,
                 "line_segmentation_strategy_name": prepared_page.line_segmentation_strategy_name,
                 "geometry_summary": prepared_page.geometry_summary,
+                "finetune_filter": prepared_page.finetune_filter,
             }
         )
     payload = {

@@ -30,7 +30,13 @@ from recognition.active_learning import (
 )
 from recognition.dataset import AlignCollate, Batch_Balanced_Dataset
 from recognition.lmdb_tools import create_lmdb_dataset
-from recognition.pagexml_line_dataset import PreparedLineRecord, PreparedPageDataset
+from recognition.pagexml_line_dataset import (
+    FINETUNE_SKIP_REASON_SHORT_BASELINE,
+    PreparedLineRecord,
+    PreparedPageDataset,
+    load_prepared_page_dataset,
+    prepare_page_line_dataset,
+)
 from tests.recognition_finetuning_config import get_page_plus_random_history_policy_configs
 from tests.recognition_finetuning_experiment import _page_plus_history_policy_slug, run_recognition_finetuning_experiment
 
@@ -43,16 +49,19 @@ def _make_workspace_tmp(name: str) -> Path:
     return root
 
 
-def _make_prepared_page(root: Path, page_id: str, line_specs: list[tuple[str, str]]) -> PreparedPageDataset:
+def _make_prepared_page(root: Path, page_id: str, line_specs: list[tuple]) -> PreparedPageDataset:
     dataset_dir = root / page_id / "finetune_dataset"
     test_dir = dataset_dir / "test"
     test_dir.mkdir(parents=True, exist_ok=True)
     image = np.full((16, 32), 200, dtype=np.uint8)
 
     records = []
-    for line_index, (line_suffix, text) in enumerate(line_specs, start=1):
+    for line_index, line_spec in enumerate(line_specs, start=1):
+        line_suffix, text = line_spec[:2]
+        baseline_node_count = int(line_spec[2]) if len(line_spec) >= 3 else 3
         filename = f"word_{line_suffix}.png"
         Image.fromarray(image).save(test_dir / filename)
+        baseline_points = [[point_index * 5, line_index] for point_index in range(baseline_node_count)]
         records.append(
             PreparedLineRecord(
                 page_id=page_id,
@@ -65,6 +74,7 @@ def _make_prepared_page(root: Path, page_id: str, line_specs: list[tuple[str, st
                 polygon_points=[[0, 0], [10, 0], [10, 10]],
                 y_center=float(line_index),
                 x_min=0.0,
+                baseline_points=baseline_points,
                 flat_image_rel_path=f"test/{filename}",
             )
         )
@@ -241,6 +251,102 @@ class RecognitionActiveLearningUnitTest(unittest.TestCase):
         self.assertEqual(dataset_bundle["logical_train_sample_count"], 2)
         self.assertEqual(dataset_bundle["train_sample_count"], 5)
         self.assertEqual(dataset_bundle["train_materialized_count"], 5)
+
+    def test_incremental_finetune_dataset_skips_one_and_two_node_lines(self):
+        root = _make_workspace_tmp("skip_short_baseline_lines")
+        prepared_page = _make_prepared_page(
+            root,
+            "p1",
+            [
+                ("0001", "one", 1),
+                ("0002", "two", 2),
+                ("0003", "three", 3),
+                ("0004", "unknown_baseline", 0),
+            ],
+        )
+
+        dataset_bundle = prepare_incremental_finetune_dataset(
+            [prepared_page],
+            root / "materialized",
+            base_checkpoint=root / "dummy.pth",
+            validation_ratio=0.0,
+            oversampling_policy="none",
+            augmentation_policy="none",
+        )
+
+        self.assertTrue((Path(prepared_page.finetune_dataset_dir) / "test" / "word_0001.png").exists())
+        self.assertTrue((Path(prepared_page.finetune_dataset_dir) / "test" / "word_0002.png").exists())
+        train_gt = dataset_bundle["train_gt_path"].read_text(encoding="utf-8")
+        self.assertNotIn("word_0001.png", train_gt)
+        self.assertNotIn("word_0002.png", train_gt)
+        self.assertIn("word_0003.png", train_gt)
+        self.assertIn("word_0004.png", train_gt)
+
+        manifest = dataset_bundle["manifest"]
+        self.assertEqual(manifest["current_page_source_line_count"], 4)
+        self.assertEqual(manifest["current_page_line_count"], 2)
+        self.assertEqual(manifest["current_page_skipped_finetune_line_count"], 2)
+        self.assertEqual(
+            {row["reason"] for row in manifest["current_page_skipped_finetune_line_refs"]},
+            {FINETUNE_SKIP_REASON_SHORT_BASELINE},
+        )
+
+    def test_pagexml_preparation_marks_short_baseline_lines_ineligible_but_keeps_crops(self):
+        root = _make_workspace_tmp("prepare_short_baseline_filter")
+        xml_path = root / "page.xml"
+        image_path = root / "page.jpg"
+        output_root = root / "prepared"
+        Image.fromarray(np.full((90, 140), 240, dtype=np.uint8)).save(image_path)
+        xml_path.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Page imageFilename="page.jpg" imageWidth="140" imageHeight="90">
+    <TextRegion id="region_0" custom="textbox_label_0">
+      <TextLine id="line_1" custom="structure_line_id_1">
+        <Coords points="10,10 90,10 90,22 10,22" />
+        <Baseline points="20,16" />
+        <TextEquiv><Unicode>one</Unicode></TextEquiv>
+      </TextLine>
+      <TextLine id="line_2" custom="structure_line_id_2">
+        <Coords points="10,34 90,34 90,46 10,46" />
+        <Baseline points="20,40 80,40" />
+        <TextEquiv><Unicode>two</Unicode></TextEquiv>
+      </TextLine>
+      <TextLine id="line_3" custom="structure_line_id_3">
+        <Coords points="10,58 110,58 110,70 10,70" />
+        <Baseline points="20,64 60,64 100,64" />
+        <TextEquiv><Unicode>three</Unicode></TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
+""",
+            encoding="utf-8",
+        )
+
+        prepared = prepare_page_line_dataset(xml_path, image_path, output_root)
+
+        self.assertEqual([len(record.baseline_points) for record in prepared.records], [1, 2, 3])
+        self.assertEqual([record.finetune_eligible for record in prepared.records], [False, False, True])
+        self.assertEqual(
+            [record.finetune_skip_reason for record in prepared.records],
+            [FINETUNE_SKIP_REASON_SHORT_BASELINE, FINETUNE_SKIP_REASON_SHORT_BASELINE, None],
+        )
+        self.assertEqual(prepared.finetune_filter["total_line_count"], 3)
+        self.assertEqual(prepared.finetune_filter["eligible_line_count"], 1)
+        self.assertEqual(prepared.finetune_filter["skipped_line_count"], 2)
+
+        test_root = Path(prepared.finetune_dataset_dir) / "test"
+        self.assertTrue((test_root / "word_0001.png").exists())
+        self.assertTrue((test_root / "word_0002.png").exists())
+        self.assertTrue((test_root / "word_0003.png").exists())
+
+        loaded = load_prepared_page_dataset(prepared.manifest_path)
+        self.assertEqual(loaded.finetune_filter["skipped_line_count"], 2)
+        self.assertEqual(
+            [record.finetune_skip_reason for record in loaded.records],
+            [FINETUNE_SKIP_REASON_SHORT_BASELINE, FINETUNE_SKIP_REASON_SHORT_BASELINE, None],
+        )
 
     def test_background_plus_rotation_materializes_ten_extra_train_variants_only(self):
         root = _make_workspace_tmp("bgrot_variants")
