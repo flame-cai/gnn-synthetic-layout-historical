@@ -15,13 +15,7 @@ If english predicted, flip the line vertically and try again. Choose the predict
 ## Recheck these in dense
 व्युहिश्र्वेत्‌=१
 छद्रवति=४
-## recheck in circle
-"e"
-"cha"
-"gha"
-"jha" and "pha"
-"Dha"
-"4" and "8"
+
 
 
 
