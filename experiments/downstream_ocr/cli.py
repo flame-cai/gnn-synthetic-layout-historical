@@ -15,8 +15,8 @@ from .runners import (
     run_local_gt_layout_experiment,
     run_methods_experiment,
 )
-from .splits import DEFAULT_SPLIT_SEED
-from .reporting import write_experiment_report
+from .splits import DEFAULT_SPLIT_SEED, default_manuscript_paths
+from .reporting import write_combined_table_report, write_experiment_report
 from .validation import validate_manuscript_pagexml, write_validation_report
 
 
@@ -75,7 +75,12 @@ def build_parser() -> argparse.ArgumentParser:
         "run-methods",
         help="Run selected experiment methods across the standard three folds.",
     )
-    methods.add_argument("--manuscript-root", default=str(DEFAULT_YAJN_ROOT))
+    methods.add_argument(
+        "--manuscript-root",
+        action="append",
+        dest="manuscript_roots",
+        help="Manuscript root to run. Repeat to run several manuscripts and build combined tables.",
+    )
     methods.add_argument("--output-root", required=True)
     methods.add_argument(
         "--method-id",
@@ -88,6 +93,8 @@ def build_parser() -> argparse.ArgumentParser:
     methods.add_argument("--fold-id", action="append", dest="fold_ids")
     methods.add_argument("--max-test-pages", type=int)
     methods.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
+    methods.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
+    methods.add_argument("--gemini-output-usd-per-1m-tokens", type=float)
 
     validate = subparsers.add_parser(
         "validate-dataset",
@@ -114,6 +121,21 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--output-root", required=True)
     report.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
     report.add_argument("--gemini-output-usd-per-1m-tokens", type=float)
+
+    combined_report = subparsers.add_parser(
+        "write-combined-report",
+        help="Generate the paper tables for multiple existing manuscript run roots at once.",
+    )
+    combined_report.add_argument(
+        "--input-root",
+        action="append",
+        dest="input_roots",
+        required=True,
+        help="Existing downstream OCR run root to include. Repeat once per manuscript.",
+    )
+    combined_report.add_argument("--output-root", required=True)
+    combined_report.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
+    combined_report.add_argument("--gemini-output-usd-per-1m-tokens", type=float)
     return parser
 
 
@@ -163,15 +185,43 @@ def main(argv: list[str] | None = None) -> None:
             split_seed=args.split_seed,
         )
     elif args.command == "run-methods":
-        run_methods_experiment(
-            manuscript_root=args.manuscript_root,
-            output_root=args.output_root,
-            method_ids=args.method_ids,
-            write_diagnostics=args.write_diagnostics,
-            fold_ids=args.fold_ids,
-            max_test_pages=args.max_test_pages,
-            split_seed=args.split_seed,
-        )
+        manuscript_roots = args.manuscript_roots or [str(DEFAULT_YAJN_ROOT)]
+        if len(manuscript_roots) == 1:
+            run_methods_experiment(
+                manuscript_root=manuscript_roots[0],
+                output_root=args.output_root,
+                method_ids=args.method_ids,
+                write_diagnostics=args.write_diagnostics,
+                fold_ids=args.fold_ids,
+                max_test_pages=args.max_test_pages,
+                split_seed=args.split_seed,
+                input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
+                output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
+            )
+        else:
+            combined_input_roots = []
+            parent_output_root = Path(args.output_root)
+            for manuscript_root in manuscript_roots:
+                paths = default_manuscript_paths(manuscript_root)
+                manuscript_output_root = parent_output_root / paths.manuscript_id
+                run_methods_experiment(
+                    manuscript_root=manuscript_root,
+                    output_root=manuscript_output_root,
+                    method_ids=args.method_ids,
+                    write_diagnostics=args.write_diagnostics,
+                    fold_ids=args.fold_ids,
+                    max_test_pages=args.max_test_pages,
+                    split_seed=args.split_seed,
+                    input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
+                    output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
+                )
+                combined_input_roots.append(manuscript_output_root)
+            write_combined_table_report(
+                combined_input_roots,
+                parent_output_root,
+                input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
+                output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
+            )
     elif args.command == "validate-dataset":
         report = validate_manuscript_pagexml(args.manuscript_root, repair_geometry=args.repair_geometry)
         if args.output_json:
@@ -202,6 +252,14 @@ def main(argv: list[str] | None = None) -> None:
         print({"reproducibility_json": str(path)})
     elif args.command == "write-report":
         artifacts = write_experiment_report(
+            args.output_root,
+            input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
+            output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
+        )
+        print({"report": str(artifacts.markdown_path)})
+    elif args.command == "write-combined-report":
+        artifacts = write_combined_table_report(
+            args.input_roots,
             args.output_root,
             input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
             output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,

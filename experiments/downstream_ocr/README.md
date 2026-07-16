@@ -127,7 +127,7 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
   --write-diagnostics
 ```
 
-The local annotation-tool comparison now contains seven variants:
+The local annotation-tool comparison contains eight variants:
 
 - `annotation_tool_e2e`: predicted layout, base OCR checkpoint
 - `annotation_tool_gt_layout`: human-corrected test layout, base OCR checkpoint
@@ -142,9 +142,9 @@ shared with `annotation_tool_e2e`, so the paired comparison changes the OCR
 checkpoint or test-layout condition without rerunning a different layout
 prediction for each method.
 
-Gemini-backed methods are available as `vlm_e2e` and `gemini_gt_layout`, but
-they make API calls and require `GEMINI_API_KEY` in `app/.env` or the process
-environment.
+The only enabled Gemini-backed method is `vlm_e2e`, the off-the-shelf
+page-image condition. `gemini_gt_layout` is disabled for the current experiment.
+Gemini calls require `GEMINI_API_KEY` in `app/.env` or the process environment.
 
 Each evaluation command writes an automatic report under:
 
@@ -159,19 +159,26 @@ The report folder includes:
 - `fold_metrics.csv` and `fold_metrics.json`
 - `per_page_metrics.csv`
 - `layout_mode_comparisons.csv` and `layout_mode_comparisons.json`
+- `table_1_off_the_shelf_models.csv` and `table_1_off_the_shelf_models.json`
+- `table_2_annotation_tool_gains.csv` and `table_2_annotation_tool_gains.json`
 - `gemini_usage.csv` and `gemini_usage.json`
 - figures under `figures/`
 
-The main Micro Page CER and Micro TextEdit figures include deterministic 95%
-page-cluster bootstrap confidence intervals. The cluster unit is the unique
-`(manuscript_id, page_id)`, so repeated appearances of a page across folds are
-resampled together. The figures also report paired e2e-to-GT-layout relative
-error reductions for Gemini and the Annotation Tool together with mean active
-Layout Mode edit seconds per unique test page and its 95% confidence interval.
-Three predicted-test-layout fine-tuning compartments appear immediately after
-the off-the-shelf compartment. They are followed by the test-page layout
-post-correction compartment and its 1/2/3-page fine-tuned variants. Read Mode
-fine-tuning effort is intentionally not included in the timing estimate.
+The former `micro_page_cer_by_method.png` and `micro_textedit_by_method.png`
+bar figures are no longer generated. They are replaced by two paper tables:
+
+- Table 1, off-the-shelf models, currently includes Gemini only. The table is
+  method-registry driven so future ChatGPT or Claude rows can be added with the
+  same prompt/input/test-set contract.
+- Table 2, annotation-tool gains, compares 0/1/2/3-page fine-tuning with and
+  without GT layout correction. It records Micro Page CER, Micro TextEdit, and
+  active Layout Mode correction seconds per evaluated page when
+  `layout_effort.json` is available.
+
+Deterministic 95% page-cluster bootstrap confidence intervals use the unique
+`(manuscript_id, page_id)` as the cluster unit, so repeated appearances of a
+page across folds are resampled together. Read Mode fine-tuning effort is
+intentionally not included in the layout timing estimate.
 
 Gemini methods record SDK usage metadata when available, including prompt,
 candidate, and total token counts. Annotation-tool methods use local
@@ -188,6 +195,37 @@ You can regenerate only the report for an existing run:
 ```powershell
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli write-report `
   --output-root app\tests\logs\downstream_ocr_yajn
+```
+
+You can prepare the two paper tables for multiple existing manuscript runs at
+once:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli write-combined-report `
+  --input-root app\tests\logs\downstream_ocr_yajn `
+  --input-root app\tests\logs\downstream_ocr_dense `
+  --input-root app\tests\logs\downstream_ocr_circle_10 `
+  --output-root app\tests\logs\downstream_ocr_combined_tables
+```
+
+Alternatively, `run-methods` accepts repeated manuscript roots and writes a
+combined report after the per-manuscript runs finish:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_10 `
+  --output-root app\tests\logs\downstream_ocr_all_manuscripts `
+  --method-id vlm_e2e `
+  --method-id annotation_tool_e2e `
+  --method-id annotation_tool_gt_layout `
+  --method-id annotation_tool_pred_layout_ft_1 `
+  --method-id annotation_tool_gt_layout_ft_1 `
+  --method-id annotation_tool_pred_layout_ft_2 `
+  --method-id annotation_tool_gt_layout_ft_2 `
+  --method-id annotation_tool_pred_layout_ft_3 `
+  --method-id annotation_tool_gt_layout_ft_3
 ```
 
 The existing prediction tree must be organized as:

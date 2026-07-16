@@ -24,6 +24,7 @@ from experiments.downstream_ocr.pagexml import PageXmlPage, TextLine, load_pagex
 from experiments.downstream_ocr.runners import (
     MethodSpec,
     _write_layout_grounded_gemini_prediction_pagexml,
+    method_by_id,
     run_local_finetuning_ladder,
     run_local_gt_layout_finetuning_ladder,
 )
@@ -57,6 +58,10 @@ def page(lines) -> PageXmlPage:
 
 
 class DownstreamOcrMetricTests(unittest.TestCase):
+    def test_gemini_gt_layout_method_is_disabled(self):
+        with self.assertRaisesRegex(ValueError, "disabled"):
+            method_by_id("gemini_gt_layout")
+
     def test_identical_gt_and_prediction(self):
         gt = page([line("a", (10, 10, 40, 20), "राम")])
         pred = page([line("a", (10, 10, 40, 20), "राम")])

@@ -10,6 +10,7 @@ from experiments.downstream_ocr.reporting import (
     EFFORT_GROUP_LABELS,
     _bootstrap_micro_metric,
     _effort_level,
+    write_combined_table_report,
     write_experiment_report,
 )
 
@@ -149,6 +150,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "finetune_page_count": 0,
                         "uses_gemini": True,
                     },
+                    "manuscript_id": "m",
                     "aggregate": {
                         "page_count": 1,
                         "valid_output_rate": 1.0,
@@ -185,6 +187,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "finetune_page_count": 0,
                         "uses_gemini": False,
                     },
+                    "manuscript_id": "m",
                     "manuscript_root": str(manuscript_root),
                     "aggregate": {
                         "page_count": 1,
@@ -222,6 +225,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "finetune_page_count": 0,
                         "uses_gemini": True,
                     },
+                    "manuscript_id": "m",
                     "manuscript_root": str(manuscript_root),
                     "aggregate": {
                         "page_count": 1,
@@ -259,6 +263,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "finetune_page_count": 0,
                         "uses_gemini": False,
                     },
+                    "manuscript_id": "m",
                     "manuscript_root": str(manuscript_root),
                     "aggregate": {
                         "page_count": 1,
@@ -296,6 +301,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "finetune_page_count": 1,
                         "uses_gemini": False,
                     },
+                    "manuscript_id": "m",
                     "ocr_active_learning_recipe": {
                         "source": "app.ocr_active_learning_runtime._runtime_recipe",
                         "sibling_checkpoint_strategy": "best_norm_ed",
@@ -328,6 +334,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "finetune_page_count": 1,
                         "uses_gemini": False,
                     },
+                    "manuscript_id": "m",
                     "ocr_active_learning_recipe": {
                         "source": "app.ocr_active_learning_runtime._runtime_recipe",
                         "sibling_checkpoint_strategy": "best_norm_ed",
@@ -376,8 +383,11 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertTrue(artifacts.markdown_path.exists())
             self.assertTrue(artifacts.summary_csv_path.exists())
             self.assertTrue(artifacts.gemini_usage_csv_path.exists())
+            self.assertTrue(artifacts.off_the_shelf_table_csv_path.exists())
+            self.assertTrue(artifacts.annotation_gains_table_csv_path.exists())
             summary = json.loads(artifacts.summary_json_path.read_text(encoding="utf-8"))
             by_method = {row["method_id"]: row for row in summary}
+            self.assertNotIn("gemini_gt_layout", by_method)
             self.assertEqual(by_method["vlm_e2e"]["gemini_total_token_count"], 200)
             self.assertEqual(by_method["vlm_e2e"]["gemini_attempt_count"], 1)
             self.assertEqual(by_method["vlm_e2e"]["gemini_retry_count"], 0)
@@ -416,7 +426,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             )
             with artifacts.layout_mode_comparisons_csv_path.open(encoding="utf-8", newline="") as handle:
                 comparison_rows = list(csv.DictReader(handle))
-            self.assertEqual(len(comparison_rows), 4)
+            self.assertEqual(len(comparison_rows), 2)
             annotation_cer = next(
                 row
                 for row in comparison_rows
@@ -425,32 +435,35 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertAlmostEqual(float(annotation_cer["layout_effort_mean_seconds_per_page"]), 89.5632)
             self.assertAlmostEqual(float(annotation_cer["layout_effort_ci_lower"]), 89.5632)
             self.assertAlmostEqual(float(annotation_cer["relative_reduction_percent"]), 75.0)
-            gemini_cer = next(
-                row
-                for row in comparison_rows
-                if row["engine"] == "Gemini" and row["metric_key"] == "micro_page_cer"
-            )
-            self.assertAlmostEqual(float(gemini_cer["relative_reduction_percent"]), 50.0)
             with artifacts.fold_metrics_csv_path.open(encoding="utf-8", newline="") as handle:
                 fold_rows = list(csv.DictReader(handle))
-            self.assertEqual(len(fold_rows), 4)
+            self.assertEqual(len(fold_rows), 3)
+            off_table = json.loads(artifacts.off_the_shelf_table_json_path.read_text(encoding="utf-8"))
+            self.assertEqual([row["method_id"] for row in off_table["rows"]], ["vlm_e2e"])
+            gains_table = json.loads(artifacts.annotation_gains_table_json_path.read_text(encoding="utf-8"))
+            gains_by_step = {row["finetune_pages"]: row for row in gains_table["rows"]}
+            self.assertAlmostEqual(gains_by_step[0]["page_cer_relative_reduction_percent"], 75.0)
+            self.assertAlmostEqual(gains_by_step[1]["page_cer_relative_reduction_percent"], 73.33333333333334)
+            self.assertIn("m: 89.6", gains_table["caption"])
             figure_names = {path.name for path in artifacts.figure_paths}
-            self.assertIn("micro_page_cer_by_method.png", figure_names)
-            self.assertIn("micro_textedit_by_method.png", figure_names)
+            self.assertNotIn("micro_page_cer_by_method.png", figure_names)
+            self.assertNotIn("micro_textedit_by_method.png", figure_names)
             self.assertNotIn("layout_effort_vs_ocr_gain.png", figure_names)
             self.assertFalse((root / "report" / "layout_effort_impact.json").exists())
+            self.assertFalse((root / "report" / "figures" / "micro_page_cer_by_method.png").exists())
+            self.assertFalse((root / "report" / "figures" / "micro_textedit_by_method.png").exists())
             self.assertFalse(stale_figure.exists())
 
     def test_failed_gemini_request_without_metadata_is_not_reported_as_free(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             _write_json(
-                root / "metrics" / "gemini_gt_layout" / "metrics.json",
+                root / "metrics" / "vlm_e2e" / "metrics.json",
                 {
                     "method": {
-                        "method_id": "gemini_gt_layout",
-                        "display_name": "Gemini GT Layout",
-                        "uses_gt_layout": True,
+                        "method_id": "vlm_e2e",
+                        "display_name": "VLM (End-to-End)",
+                        "uses_gt_layout": False,
                         "uses_finetuning": False,
                         "finetune_page_count": 0,
                         "uses_gemini": True,
@@ -472,7 +485,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                 },
             )
             _write_json(
-                root / "runs" / "gemini_gt_layout" / "fold_1" / "gemini_usage" / "p1.json",
+                root / "runs" / "vlm_e2e" / "fold_1" / "gemini_usage" / "p1.json",
                 {
                     "page_id": "p1",
                     "status": "api_timeout",
@@ -509,6 +522,75 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertEqual(summary[0]["gemini_request_count"], 4)
             self.assertEqual(summary[0]["gemini_missing_usage_count"], 1)
             self.assertIn("actual API cost may be higher", summary[0]["gemini_pricing_note"])
+
+    def test_combined_table_report_keeps_manuscripts_separate(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            input_roots = []
+            for manuscript_id, cer_offset in (("yajn", 0), ("dense", 2)):
+                run_root = root / f"run_{manuscript_id}"
+                input_roots.append(run_root)
+                for method_id, uses_gt_layout, distance in (
+                    ("vlm_e2e", False, 3 + cer_offset),
+                    ("annotation_tool_e2e", False, 5 + cer_offset),
+                    ("annotation_tool_gt_layout", True, 2 + cer_offset),
+                ):
+                    record = _page_record(
+                        method_id=method_id,
+                        page_id="p1",
+                        page_cer_distance=distance,
+                        page_cer_gt_chars=10,
+                        textedit_distance_sum=distance,
+                        textedit_max_length_sum=10,
+                    )
+                    record["manuscript_id"] = manuscript_id
+                    if uses_gt_layout:
+                        record.update(
+                            {
+                                "layout_effort_available": True,
+                                "layout_effort_active_edit_time_seconds": 60.0 + cer_offset,
+                            }
+                        )
+                    _write_json(
+                        run_root / "metrics" / method_id / "metrics.json",
+                        {
+                            "method": {
+                                "method_id": method_id,
+                                "display_name": method_id,
+                                "uses_gt_layout": uses_gt_layout,
+                                "uses_finetuning": False,
+                                "finetune_page_count": 0,
+                                "uses_gemini": method_id == "vlm_e2e",
+                            },
+                            "manuscript_id": manuscript_id,
+                            "aggregate": {
+                                "page_count": 1,
+                                "valid_output_rate": 1.0,
+                                "object_g_f1_50": 1.0,
+                                "object_g_f1_75": 1.0,
+                                "pixel_f1": 1.0,
+                                "mean_page_cer": distance / 10,
+                                "median_page_cer": distance / 10,
+                                "micro_page_cer": distance / 10,
+                                "mean_textedit": distance / 10,
+                                "median_textedit": distance / 10,
+                                "micro_textedit": distance / 10,
+                            },
+                            "page_records": [record],
+                        },
+                    )
+
+            artifacts = write_combined_table_report(input_roots, root / "combined")
+
+            off_table = json.loads(artifacts.off_the_shelf_table_json_path.read_text(encoding="utf-8"))
+            self.assertEqual([row["manuscript_id"] for row in off_table["rows"]], ["yajn", "dense"])
+            gains_table = json.loads(artifacts.annotation_gains_table_json_path.read_text(encoding="utf-8"))
+            gains_zero_rows = [row for row in gains_table["rows"] if row["finetune_pages"] == 0]
+            self.assertEqual([row["manuscript_id"] for row in gains_zero_rows], ["yajn", "dense"])
+            self.assertAlmostEqual(gains_zero_rows[0]["page_cer_relative_reduction_percent"], 60.0)
+            self.assertIn("yajn: 60.0", gains_table["caption"])
+            self.assertIn("dense: 62.0", gains_table["caption"])
+            self.assertTrue(artifacts.markdown_path.exists())
 
 
 if __name__ == "__main__":

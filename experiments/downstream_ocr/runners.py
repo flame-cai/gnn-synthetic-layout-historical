@@ -64,10 +64,19 @@ def _write_experiment_reproducibility(output_root: Path) -> Path:
     )
 
 
-def _write_report_artifacts(output_root: Path) -> None:
+def _write_report_artifacts(
+    output_root: Path,
+    *,
+    input_usd_per_1m_tokens: float | None = None,
+    output_usd_per_1m_tokens: float | None = None,
+) -> None:
     from .reporting import write_experiment_report
 
-    write_experiment_report(output_root)
+    write_experiment_report(
+        output_root,
+        input_usd_per_1m_tokens=input_usd_per_1m_tokens,
+        output_usd_per_1m_tokens=output_usd_per_1m_tokens,
+    )
 
 
 def _load_gui_runtime_ocr_recipe():
@@ -98,9 +107,12 @@ class MethodSpec:
     uses_gemini: bool = False
 
 
+DISABLED_METHOD_IDS = {
+    "gemini_gt_layout": "Gemini + GT Layout is disabled for the current experiment; use vlm_e2e for Gemini off-the-shelf.",
+}
+
 METHODS: tuple[MethodSpec, ...] = (
     MethodSpec("vlm_e2e", "VLM (End-to-End)", uses_gt_layout=False, uses_gemini=True),
-    MethodSpec("gemini_gt_layout", "VLM (End-to-End with Graph Layout Grounding)", uses_gt_layout=True, uses_gemini=True),
     MethodSpec("annotation_tool_e2e", "Annotation tool (End-to-End)", uses_gt_layout=False),
     MethodSpec("annotation_tool_gt_layout", "Annotation tool (End-to-End with Graph Layout Grounding)", uses_gt_layout=True),
     MethodSpec("annotation_tool_pred_layout_ft_1", "Annotation tool (Predicted test layout, 1-page fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=1),
@@ -119,6 +131,8 @@ def _ensure_app_import_path() -> None:
 
 
 def method_by_id(method_id: str) -> MethodSpec:
+    if method_id in DISABLED_METHOD_IDS:
+        raise ValueError(DISABLED_METHOD_IDS[method_id])
     for method in METHODS:
         if method.method_id == method_id:
             return method
@@ -1586,10 +1600,10 @@ def run_method(
     method: MethodSpec,
     run_dir: Path,
 ) -> tuple[Path, dict[str, str] | None]:
+    if method.method_id in DISABLED_METHOD_IDS:
+        raise ValueError(DISABLED_METHOD_IDS[method.method_id])
     if method.method_id == "vlm_e2e":
         return run_vlm_end_to_end_gemini(paths=paths, fold=fold, method=method, run_dir=run_dir)
-    if method.method_id == "gemini_gt_layout":
-        return run_layout_grounded_gemini_with_app_copy(paths=paths, fold=fold, method=method, run_dir=run_dir)
     if method.method_id == "annotation_tool_e2e":
         return run_annotation_tool_auto_layout(paths=paths, fold=fold, method=method, run_dir=run_dir), None
     if method.uses_gt_layout:
@@ -1606,6 +1620,8 @@ def run_methods_experiment(
     fold_ids: Iterable[str] | None = None,
     max_test_pages: int | None = None,
     split_seed: int = DEFAULT_SPLIT_SEED,
+    input_usd_per_1m_tokens: float | None = None,
+    output_usd_per_1m_tokens: float | None = None,
 ) -> dict:
     paths = default_manuscript_paths(manuscript_root)
     output_root = Path(output_root)
@@ -1637,7 +1653,11 @@ def run_methods_experiment(
         _write_json(output_root / "metrics" / method.method_id / "metrics.json", payload)
         _write_csv(output_root / "metrics" / method.method_id / "per_page.csv", all_records)
         results[method.method_id] = payload
-    _write_report_artifacts(output_root)
+    _write_report_artifacts(
+        output_root,
+        input_usd_per_1m_tokens=input_usd_per_1m_tokens,
+        output_usd_per_1m_tokens=output_usd_per_1m_tokens,
+    )
     return results
 
 

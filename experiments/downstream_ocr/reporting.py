@@ -20,7 +20,6 @@ METHOD_ORDER = (
     "annotation_tool_pred_layout_ft_1",
     "annotation_tool_pred_layout_ft_2",
     "annotation_tool_pred_layout_ft_3",
-    "gemini_gt_layout",
     "annotation_tool_gt_layout",
     "annotation_tool_gt_layout_ft_1",
     "annotation_tool_gt_layout_ft_2",
@@ -29,7 +28,6 @@ METHOD_ORDER = (
 
 METHOD_LABELS = {
     "vlm_e2e": "Gemini e2e",
-    "gemini_gt_layout": "Gemini human-corrected GT layout",
     "annotation_tool_e2e": "Annotation tool e2e",
     "annotation_tool_gt_layout": "Annotation tool human-corrected GT layout",
     "annotation_tool_pred_layout_ft_1": "Annotation tool predicted test layout + 1 page FT",
@@ -43,7 +41,6 @@ METHOD_LABELS = {
 # Important: what we refer to as annotation tool here, is refered to as the Traditional Pipeline in the paper.
 FIGURE_METHOD_LABELS = {
     "vlm_e2e": "Gemini",
-    "gemini_gt_layout": "Gemini",
     "annotation_tool_e2e": "Traditional\nPipeline",
     "annotation_tool_gt_layout": "Traditional\nPipeline",
     "annotation_tool_pred_layout_ft_1": "Traditional\nPipeline",
@@ -60,7 +57,6 @@ EFFORT_LEVELS = {
     "annotation_tool_pred_layout_ft_1": 1,
     "annotation_tool_pred_layout_ft_2": 2,
     "annotation_tool_pred_layout_ft_3": 3,
-    "gemini_gt_layout": 4,
     "annotation_tool_gt_layout": 4,
     "annotation_tool_gt_layout_ft_1": 5,
     "annotation_tool_gt_layout_ft_2": 6,
@@ -97,9 +93,26 @@ BOOTSTRAP_RESAMPLES = 10_000
 BOOTSTRAP_SEED = 42
 
 LAYOUT_MODE_COMPARISONS = (
-    ("Gemini", "vlm_e2e", "gemini_gt_layout"),
     ("Annotation Tool", "annotation_tool_e2e", "annotation_tool_gt_layout"),
 )
+
+DISABLED_METHOD_IDS = {"gemini_gt_layout"}
+
+OFF_THE_SHELF_METHODS = {
+    "vlm_e2e": {
+        "provider": "Gemini",
+        "model_family": "Gemini",
+        "input_contract": "page_image_only",
+        "prompt_contract": "vlm_end_to_end_prompt_v1_json_lines_or_polygons",
+    },
+}
+
+ANNOTATION_GAIN_METHOD_PAIRS = {
+    0: ("annotation_tool_e2e", "annotation_tool_gt_layout"),
+    1: ("annotation_tool_pred_layout_ft_1", "annotation_tool_gt_layout_ft_1"),
+    2: ("annotation_tool_pred_layout_ft_2", "annotation_tool_gt_layout_ft_2"),
+    3: ("annotation_tool_pred_layout_ft_3", "annotation_tool_gt_layout_ft_3"),
+}
 
 BOOTSTRAP_METRICS = {
     "micro_page_cer": ("page_cer_distance", "page_cer_gt_chars", "Page CER"),
@@ -121,9 +134,31 @@ class ReportArtifacts:
     fold_metrics_json_path: Path
     layout_mode_comparisons_csv_path: Path
     layout_mode_comparisons_json_path: Path
+    off_the_shelf_table_csv_path: Path
+    off_the_shelf_table_json_path: Path
+    annotation_gains_table_csv_path: Path
+    annotation_gains_table_json_path: Path
     gemini_usage_csv_path: Path
     gemini_usage_json_path: Path
     figure_paths: tuple[Path, ...]
+    manifest_path: Path
+
+
+@dataclass(frozen=True)
+class CombinedTableArtifacts:
+    report_dir: Path
+    markdown_path: Path
+    off_the_shelf_table_csv_path: Path
+    off_the_shelf_table_json_path: Path
+    annotation_gains_table_csv_path: Path
+    annotation_gains_table_json_path: Path
+    summary_csv_path: Path
+    summary_json_path: Path
+    per_page_csv_path: Path
+    fold_metrics_csv_path: Path
+    layout_mode_comparisons_csv_path: Path
+    gemini_usage_csv_path: Path
+    gemini_usage_json_path: Path
     manifest_path: Path
 
 
@@ -320,8 +355,6 @@ def _apply_layout_effort_fallback(row: dict, effort_by_page: dict[str, dict]) ->
 def _human_effort_label(method_id: str, method: dict) -> str:
     if method_id == "vlm_e2e":
         return "none"
-    if method_id == "gemini_gt_layout":
-        return "human layout correction"
     if method_id == "annotation_tool_e2e":
         return "none"
     if method.get("uses_finetuning"):
@@ -342,7 +375,7 @@ def _human_effort_label(method_id: str, method: dict) -> str:
 
 
 def _engine_label(method_id: str, method: dict) -> str:
-    if method.get("uses_gemini") or method_id in {"vlm_e2e", "gemini_gt_layout"}:
+    if method.get("uses_gemini") or method_id == "vlm_e2e":
         return "Gemini"
     return "Annotation tool"
 
@@ -369,6 +402,7 @@ def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
     aggregate = dict(payload.get("aggregate") or {})
     ocr_recipe = dict(payload.get("ocr_active_learning_recipe") or {})
     return {
+        "manuscript_id": str(payload.get("manuscript_id") or ""),
         "method_id": method_id,
         "display_name": METHOD_LABELS.get(method_id) or method.get("display_name") or method_id,
         "engine": _engine_label(method_id, method),
@@ -618,6 +652,8 @@ def _load_summary_rows(output_root: Path) -> tuple[list[dict], list[dict]]:
     for metrics_path in _metric_payload_paths(output_root):
         payload = _read_json(metrics_path)
         method_id = _payload_method_id(payload, metrics_path.parent.name)
+        if method_id in DISABLED_METHOD_IDS:
+            continue
         layout_effort_by_page = _layout_effort_from_payload(payload)
         summary_rows.append(_summary_row_from_payload(payload, metrics_path))
         for record in payload.get("page_records") or []:
@@ -1315,24 +1351,6 @@ def _save_gemini_token_figure(rows: list[dict], output_path: Path) -> Path | Non
 def _write_figures(report_dir: Path, rows: list[dict], comparison_rows: list[dict]) -> list[Path]:
     figure_dir = report_dir / "figures"
     figure_paths = [
-        _save_bar_figure(
-            rows,
-            "micro_page_cer",
-            figure_dir / "micro_page_cer_by_method.png",
-            title="Micro Page CER By Method",
-            ylabel="Micro Page CER",
-            group_by_effort=True,
-            comparison_rows=comparison_rows,
-        ),
-        _save_bar_figure(
-            rows,
-            "micro_textedit",
-            figure_dir / "micro_textedit_by_method.png",
-            title="Micro Line-group TextEdit By Method",
-            ylabel="Micro TextEdit",
-            group_by_effort=True,
-            comparison_rows=comparison_rows,
-        ),
         _save_layout_figure(rows, figure_dir / "layout_metrics_by_method.png"),
         _save_finetuning_curve(rows, figure_dir / "annotation_tool_finetuning_curve.png"),
         _save_gemini_token_figure(rows, figure_dir / "gemini_token_usage.png"),
@@ -1398,6 +1416,300 @@ def _layout_mode_comparison_table_rows(rows: list[dict]) -> list[dict]:
     return table_rows
 
 
+def _format_percent(value: Any, digits: int = 1) -> str:
+    number = _safe_float(value)
+    if number is None:
+        return ""
+    return f"{number:.{digits}f}%"
+
+
+def _format_seconds_ci(value: Any, lower: Any, upper: Any) -> str:
+    return _format_estimate_ci(value, lower, upper, digits=1)
+
+
+def _metric_ci_text(row: dict | None, key: str, digits: int = 4) -> str:
+    if row is None:
+        return ""
+    return _format_estimate_ci(
+        row.get(key),
+        row.get(f"{key}_ci_lower"),
+        row.get(f"{key}_ci_upper"),
+        digits=digits,
+    )
+
+
+def _safe_metric_reduction(baseline: Any, target: Any) -> tuple[float | None, float | None]:
+    baseline_value = _safe_float(baseline)
+    target_value = _safe_float(target)
+    if baseline_value is None or target_value is None:
+        return None, None
+    absolute = baseline_value - target_value
+    relative = (absolute / baseline_value) * 100.0 if baseline_value > 0 else 0.0
+    return absolute, relative
+
+
+def _summary_lookup(summary_rows: list[dict]) -> dict[tuple[str, str], dict]:
+    lookup: dict[tuple[str, str], dict] = {}
+    for row in summary_rows:
+        lookup[(str(row.get("manuscript_id") or ""), str(row.get("method_id") or ""))] = row
+    return lookup
+
+
+def _manuscript_sort_key(manuscript_id: str) -> tuple[int, str]:
+    preferred = ("yajn", "dense", "circle_10", "circle_new")
+    try:
+        return (preferred.index(manuscript_id), manuscript_id)
+    except ValueError:
+        return (len(preferred), manuscript_id)
+
+
+def _build_off_the_shelf_table_rows(summary_rows: list[dict]) -> list[dict]:
+    rows = []
+    for row in summary_rows:
+        method_id = str(row.get("method_id") or "")
+        metadata = OFF_THE_SHELF_METHODS.get(method_id)
+        if metadata is None:
+            continue
+        rows.append(
+            {
+                "manuscript_id": str(row.get("manuscript_id") or ""),
+                "provider": metadata["provider"],
+                "model_family": metadata["model_family"],
+                "method_id": method_id,
+                "input_contract": metadata["input_contract"],
+                "prompt_contract": metadata["prompt_contract"],
+                "test_set_contract": "same folds/test pages as the downstream OCR run",
+                "page_count": row.get("page_count"),
+                "valid_output_rate": row.get("valid_output_rate"),
+                "micro_page_cer": row.get("micro_page_cer"),
+                "micro_page_cer_ci_lower": row.get("micro_page_cer_ci_lower"),
+                "micro_page_cer_ci_upper": row.get("micro_page_cer_ci_upper"),
+                "micro_textedit": row.get("micro_textedit"),
+                "micro_textedit_ci_lower": row.get("micro_textedit_ci_lower"),
+                "micro_textedit_ci_upper": row.get("micro_textedit_ci_upper"),
+                "gemini_request_count": row.get("gemini_request_count"),
+                "gemini_total_token_count": row.get("gemini_total_token_count"),
+                "metrics_path": row.get("metrics_path", ""),
+            }
+        )
+    return sorted(rows, key=lambda item: (_manuscript_sort_key(item["manuscript_id"]), item["provider"], item["method_id"]))
+
+
+def _off_the_shelf_markdown_rows(rows: list[dict]) -> list[dict]:
+    return [
+        {
+            "Manuscript": row["manuscript_id"],
+            "Provider": row["provider"],
+            "Model Family": row["model_family"],
+            "Input": row["input_contract"],
+            "Prompt/Input Contract": row["prompt_contract"],
+            "Pages": row.get("page_count", ""),
+            "Valid Output": _format_float(row.get("valid_output_rate")),
+            "Micro CER (95% CI)": _format_estimate_ci(
+                row.get("micro_page_cer"),
+                row.get("micro_page_cer_ci_lower"),
+                row.get("micro_page_cer_ci_upper"),
+            ),
+            "Micro TextEdit (95% CI)": _format_estimate_ci(
+                row.get("micro_textedit"),
+                row.get("micro_textedit_ci_lower"),
+                row.get("micro_textedit_ci_upper"),
+            ),
+        }
+        for row in rows
+    ]
+
+
+def _per_page_rows_by_method(per_page_rows: list[dict]) -> dict[tuple[str, str], list[dict]]:
+    grouped: dict[tuple[str, str], list[dict]] = {}
+    for row in per_page_rows:
+        grouped.setdefault(
+            (str(row.get("manuscript_id") or ""), str(row.get("method_id") or "")),
+            [],
+        ).append(row)
+    return grouped
+
+
+def _layout_effort_for_table(
+    per_page_by_method: dict[tuple[str, str], list[dict]],
+    *,
+    manuscript_id: str,
+    gt_method_id: str,
+) -> dict | None:
+    rows = per_page_by_method.get((manuscript_id, gt_method_id), [])
+    return _bootstrap_mean_effort(
+        rows,
+        seed_label=f"annotation-gain-layout-effort:{manuscript_id}:{gt_method_id}",
+    )
+
+
+def _build_annotation_gains_table_rows(summary_rows: list[dict], per_page_rows: list[dict]) -> list[dict]:
+    lookup = _summary_lookup(summary_rows)
+    per_page_by_method = _per_page_rows_by_method(per_page_rows)
+    manuscript_ids = sorted(
+        {
+            manuscript_id
+            for manuscript_id, method_id in lookup
+            if any(method_id in pair for pair in ANNOTATION_GAIN_METHOD_PAIRS.values())
+        },
+        key=_manuscript_sort_key,
+    )
+    rows = []
+    for manuscript_id in manuscript_ids:
+        for finetune_pages, (pred_method_id, gt_method_id) in ANNOTATION_GAIN_METHOD_PAIRS.items():
+            pred_row = lookup.get((manuscript_id, pred_method_id))
+            gt_row = lookup.get((manuscript_id, gt_method_id))
+            page_abs, page_rel = _safe_metric_reduction(
+                pred_row.get("micro_page_cer") if pred_row else None,
+                gt_row.get("micro_page_cer") if gt_row else None,
+            )
+            text_abs, text_rel = _safe_metric_reduction(
+                pred_row.get("micro_textedit") if pred_row else None,
+                gt_row.get("micro_textedit") if gt_row else None,
+            )
+            effort = _layout_effort_for_table(
+                per_page_by_method,
+                manuscript_id=manuscript_id,
+                gt_method_id=gt_method_id,
+            )
+            rows.append(
+                {
+                    "manuscript_id": manuscript_id,
+                    "finetune_pages": finetune_pages,
+                    "without_gt_layout_method_id": pred_method_id,
+                    "with_gt_layout_method_id": gt_method_id,
+                    "without_gt_layout_pages": pred_row.get("page_count") if pred_row else None,
+                    "with_gt_layout_pages": gt_row.get("page_count") if gt_row else None,
+                    "without_gt_layout_valid_output_rate": pred_row.get("valid_output_rate") if pred_row else None,
+                    "with_gt_layout_valid_output_rate": gt_row.get("valid_output_rate") if gt_row else None,
+                    "without_gt_layout_micro_page_cer": pred_row.get("micro_page_cer") if pred_row else None,
+                    "without_gt_layout_micro_page_cer_ci_lower": pred_row.get("micro_page_cer_ci_lower") if pred_row else None,
+                    "without_gt_layout_micro_page_cer_ci_upper": pred_row.get("micro_page_cer_ci_upper") if pred_row else None,
+                    "with_gt_layout_micro_page_cer": gt_row.get("micro_page_cer") if gt_row else None,
+                    "with_gt_layout_micro_page_cer_ci_lower": gt_row.get("micro_page_cer_ci_lower") if gt_row else None,
+                    "with_gt_layout_micro_page_cer_ci_upper": gt_row.get("micro_page_cer_ci_upper") if gt_row else None,
+                    "page_cer_absolute_reduction": page_abs,
+                    "page_cer_relative_reduction_percent": page_rel,
+                    "without_gt_layout_micro_textedit": pred_row.get("micro_textedit") if pred_row else None,
+                    "without_gt_layout_micro_textedit_ci_lower": pred_row.get("micro_textedit_ci_lower") if pred_row else None,
+                    "without_gt_layout_micro_textedit_ci_upper": pred_row.get("micro_textedit_ci_upper") if pred_row else None,
+                    "with_gt_layout_micro_textedit": gt_row.get("micro_textedit") if gt_row else None,
+                    "with_gt_layout_micro_textedit_ci_lower": gt_row.get("micro_textedit_ci_lower") if gt_row else None,
+                    "with_gt_layout_micro_textedit_ci_upper": gt_row.get("micro_textedit_ci_upper") if gt_row else None,
+                    "textedit_absolute_reduction": text_abs,
+                    "textedit_relative_reduction_percent": text_rel,
+                    "layout_effort_mean_seconds_per_page": effort["mean_seconds_per_page"] if effort else None,
+                    "layout_effort_ci_lower": effort["ci_lower"] if effort else None,
+                    "layout_effort_ci_upper": effort["ci_upper"] if effort else None,
+                    "layout_effort_unique_page_count": effort["unique_page_count"] if effort else 0,
+                }
+            )
+    return rows
+
+
+def _annotation_gains_caption(rows: list[dict]) -> str:
+    effort_by_manuscript = {}
+    for row in rows:
+        manuscript_id = str(row.get("manuscript_id") or "")
+        if not manuscript_id or manuscript_id in effort_by_manuscript:
+            continue
+        effort = _safe_float(row.get("layout_effort_mean_seconds_per_page"))
+        if effort is None:
+            continue
+        effort_by_manuscript[manuscript_id] = _format_seconds_ci(
+            effort,
+            row.get("layout_effort_ci_lower"),
+            row.get("layout_effort_ci_upper"),
+        )
+    if not effort_by_manuscript:
+        return "GT layout-correction timing unavailable for these runs."
+    parts = [
+        f"{manuscript_id}: {effort_by_manuscript[manuscript_id]} s/page"
+        for manuscript_id in sorted(effort_by_manuscript, key=_manuscript_sort_key)
+    ]
+    return "GT layout-correction time, active Layout Mode seconds per evaluated page: " + "; ".join(parts) + "."
+
+
+def _annotation_gains_markdown_rows(rows: list[dict]) -> list[dict]:
+    formatted = []
+    for row in rows:
+        pred_metric_row = {
+            "micro_page_cer": row.get("without_gt_layout_micro_page_cer"),
+            "micro_page_cer_ci_lower": row.get("without_gt_layout_micro_page_cer_ci_lower"),
+            "micro_page_cer_ci_upper": row.get("without_gt_layout_micro_page_cer_ci_upper"),
+            "micro_textedit": row.get("without_gt_layout_micro_textedit"),
+            "micro_textedit_ci_lower": row.get("without_gt_layout_micro_textedit_ci_lower"),
+            "micro_textedit_ci_upper": row.get("without_gt_layout_micro_textedit_ci_upper"),
+        }
+        gt_metric_row = {
+            "micro_page_cer": row.get("with_gt_layout_micro_page_cer"),
+            "micro_page_cer_ci_lower": row.get("with_gt_layout_micro_page_cer_ci_lower"),
+            "micro_page_cer_ci_upper": row.get("with_gt_layout_micro_page_cer_ci_upper"),
+            "micro_textedit": row.get("with_gt_layout_micro_textedit"),
+            "micro_textedit_ci_lower": row.get("with_gt_layout_micro_textedit_ci_lower"),
+            "micro_textedit_ci_upper": row.get("with_gt_layout_micro_textedit_ci_upper"),
+        }
+        formatted.append(
+            {
+                "Manuscript": row["manuscript_id"],
+                "Fine-tuning Pages": row["finetune_pages"],
+                "Without GT Layout CER": _metric_ci_text(pred_metric_row, "micro_page_cer"),
+                "With GT Layout CER": _metric_ci_text(gt_metric_row, "micro_page_cer"),
+                "CER Reduction": _format_percent(row.get("page_cer_relative_reduction_percent")),
+                "Without GT Layout TextEdit": _metric_ci_text(pred_metric_row, "micro_textedit"),
+                "With GT Layout TextEdit": _metric_ci_text(gt_metric_row, "micro_textedit"),
+                "TextEdit Reduction": _format_percent(row.get("textedit_relative_reduction_percent")),
+                "GT Layout Time": _format_seconds_ci(
+                    row.get("layout_effort_mean_seconds_per_page"),
+                    row.get("layout_effort_ci_lower"),
+                    row.get("layout_effort_ci_upper"),
+                ),
+            }
+        )
+    return formatted
+
+
+def _write_primary_table_artifacts(
+    report_dir: Path,
+    summary_rows: list[dict],
+    per_page_rows: list[dict],
+) -> dict:
+    off_the_shelf_rows = _build_off_the_shelf_table_rows(summary_rows)
+    annotation_gains_rows = _build_annotation_gains_table_rows(summary_rows, per_page_rows)
+    annotation_caption = _annotation_gains_caption(annotation_gains_rows)
+
+    off_csv = report_dir / "table_1_off_the_shelf_models.csv"
+    off_json = report_dir / "table_1_off_the_shelf_models.json"
+    gains_csv = report_dir / "table_2_annotation_tool_gains.csv"
+    gains_json = report_dir / "table_2_annotation_tool_gains.json"
+
+    _write_csv(off_csv, off_the_shelf_rows)
+    _write_json(
+        off_json,
+        {
+            "caption": "Off-the-shelf models evaluated on the same held-out PAGE-XML folds used by all methods in each manuscript run.",
+            "rows": off_the_shelf_rows,
+        },
+    )
+    _write_csv(gains_csv, annotation_gains_rows)
+    _write_json(
+        gains_json,
+        {
+            "caption": annotation_caption,
+            "rows": annotation_gains_rows,
+        },
+    )
+    return {
+        "off_the_shelf_rows": off_the_shelf_rows,
+        "annotation_gains_rows": annotation_gains_rows,
+        "annotation_gains_caption": annotation_caption,
+        "off_the_shelf_table_csv_path": off_csv,
+        "off_the_shelf_table_json_path": off_json,
+        "annotation_gains_table_csv_path": gains_csv,
+        "annotation_gains_table_json_path": gains_json,
+    }
+
+
 def _write_markdown_report(
     output_root: Path,
     report_dir: Path,
@@ -1405,6 +1717,7 @@ def _write_markdown_report(
     comparison_rows: list[dict],
     usage_rows: list[dict],
     figure_paths: list[Path],
+    table_artifacts: dict,
 ) -> Path:
     report_path = report_dir / "experiment_report.md"
     generated_at = datetime.now(timezone.utc).isoformat()
@@ -1443,6 +1756,9 @@ def _write_markdown_report(
         for row in gemini_rows
     ]
     comparison_table_rows = _layout_mode_comparison_table_rows(comparison_rows)
+    off_the_shelf_table_rows = _off_the_shelf_markdown_rows(table_artifacts["off_the_shelf_rows"])
+    annotation_gains_table_rows = _annotation_gains_markdown_rows(table_artifacts["annotation_gains_rows"])
+    annotation_gains_caption = table_artifacts["annotation_gains_caption"]
 
     figure_lines = []
     for path in figure_paths:
@@ -1455,6 +1771,52 @@ def _write_markdown_report(
         f"- Generated at UTC: `{generated_at}`",
         f"- Output root: `{output_root.resolve()}`",
         "",
+        "## Table 1: Off-The-Shelf Models",
+        "",
+        "All off-the-shelf model rows use the same held-out folds as the annotation-tool rows for the same manuscript. The table is method-registry driven so future providers can be added with the same prompt/input/test-set contract.",
+        "",
+        _markdown_table(
+            off_the_shelf_table_rows,
+            [
+                ("Manuscript", "Manuscript"),
+                ("Provider", "Provider"),
+                ("Model Family", "Model Family"),
+                ("Input", "Input"),
+                ("Prompt/Input Contract", "Prompt/Input Contract"),
+                ("Pages", "Pages"),
+                ("Valid Output", "Valid Output"),
+                ("Micro CER (95% CI)", "Micro CER (95% CI)"),
+                ("Micro TextEdit (95% CI)", "Micro TextEdit (95% CI)"),
+            ],
+        )
+        if off_the_shelf_table_rows
+        else "No off-the-shelf model rows found.",
+        "",
+        f"Machine-readable rows: `{(report_dir / 'table_1_off_the_shelf_models.csv').relative_to(report_dir).as_posix()}`",
+        "",
+        "## Table 2: Annotation Tool Gains",
+        "",
+        annotation_gains_caption,
+        "",
+        _markdown_table(
+            annotation_gains_table_rows,
+            [
+                ("Manuscript", "Manuscript"),
+                ("Fine-tuning Pages", "Fine-tuning Pages"),
+                ("Without GT Layout CER", "Without GT Layout CER"),
+                ("With GT Layout CER", "With GT Layout CER"),
+                ("CER Reduction", "CER Reduction"),
+                ("Without GT Layout TextEdit", "Without GT Layout TextEdit"),
+                ("With GT Layout TextEdit", "With GT Layout TextEdit"),
+                ("TextEdit Reduction", "TextEdit Reduction"),
+                ("GT Layout Time", "GT Layout Time"),
+            ],
+        )
+        if annotation_gains_table_rows
+        else "No complete annotation-tool gain rows found.",
+        "",
+        f"Machine-readable rows: `{(report_dir / 'table_2_annotation_tool_gains.csv').relative_to(report_dir).as_posix()}`",
+        "",
         "## Headline Metrics",
         "",
         _markdown_table(table_rows, table_columns) if table_rows else "No metric rows found.",
@@ -1465,7 +1827,7 @@ def _write_markdown_report(
         "- Compare `annotation_tool_e2e` with the `annotation_tool_pred_layout_ft_1/2/3` series to estimate the value of manuscript-local Read Mode supervision when held-out layouts remain fully automatic.",
         "- Compare `annotation_tool_gt_layout` with the `annotation_tool_gt_layout_ft_1/2/3` series to estimate the value of the same Read Mode supervision when held-out layouts are human-corrected.",
         "- At each fine-tuning page count, compare `annotation_tool_pred_layout_ft_N` against `annotation_tool_gt_layout_ft_N`. Both rows use the same checkpoint trained from corrected training-page layout and Unicode text; only held-out layout correction differs.",
-        "- Compare `vlm_e2e` against `gemini_gt_layout` as a practical Gemini system comparison. This comparison changes both layout grounding and prompt/interface format, so it is not a perfectly isolated layout-only ablation.",
+        "- Gemini + GT Layout is disabled in the current experiment; Table 1 reports Gemini off-the-shelf only.",
         "- Rows with `test_layout_condition=human_corrected_gt_layout` use held-out layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
         "- Fine-tuning methods record the GUI runtime OCR active-learning recipe and sibling checkpoint selector in `summary_metrics.csv`.",
         "",
@@ -1564,6 +1926,7 @@ def write_experiment_report(
     gemini_usage_json_path = report_dir / "gemini_usage.json"
 
     summary_fields = [
+        "manuscript_id",
         "method_id",
         "display_name",
         "engine",
@@ -1641,10 +2004,13 @@ def write_experiment_report(
         report_dir / "layout_effort_impact.csv",
         report_dir / "layout_effort_impact.json",
         report_dir / "figures" / "layout_effort_vs_ocr_gain.png",
+        report_dir / "figures" / "micro_page_cer_by_method.png",
+        report_dir / "figures" / "micro_textedit_by_method.png",
     )
     for stale_path in stale_paths:
         stale_path.unlink(missing_ok=True)
 
+    table_artifacts = _write_primary_table_artifacts(report_dir, summary_rows, per_page_rows)
     figure_paths = _write_figures(report_dir, summary_rows, layout_mode_comparison_rows)
     markdown_path = _write_markdown_report(
         root,
@@ -1653,6 +2019,7 @@ def write_experiment_report(
         layout_mode_comparison_rows,
         usage_rows,
         figure_paths,
+        table_artifacts,
     )
     manifest_path = report_dir / "report_manifest.json"
     manifest = {
@@ -1665,6 +2032,10 @@ def write_experiment_report(
         "fold_metrics_json_path": str(fold_metrics_json_path.resolve()),
         "layout_mode_comparisons_csv_path": str(layout_mode_comparisons_csv_path.resolve()),
         "layout_mode_comparisons_json_path": str(layout_mode_comparisons_json_path.resolve()),
+        "off_the_shelf_table_csv_path": str(table_artifacts["off_the_shelf_table_csv_path"].resolve()),
+        "off_the_shelf_table_json_path": str(table_artifacts["off_the_shelf_table_json_path"].resolve()),
+        "annotation_gains_table_csv_path": str(table_artifacts["annotation_gains_table_csv_path"].resolve()),
+        "annotation_gains_table_json_path": str(table_artifacts["annotation_gains_table_json_path"].resolve()),
         "gemini_usage_csv_path": str(gemini_usage_csv_path.resolve()),
         "gemini_usage_json_path": str(gemini_usage_json_path.resolve()),
         "figure_paths": [str(path.resolve()) for path in figure_paths],
@@ -1686,8 +2057,159 @@ def write_experiment_report(
         fold_metrics_json_path=fold_metrics_json_path,
         layout_mode_comparisons_csv_path=layout_mode_comparisons_csv_path,
         layout_mode_comparisons_json_path=layout_mode_comparisons_json_path,
+        off_the_shelf_table_csv_path=table_artifacts["off_the_shelf_table_csv_path"],
+        off_the_shelf_table_json_path=table_artifacts["off_the_shelf_table_json_path"],
+        annotation_gains_table_csv_path=table_artifacts["annotation_gains_table_csv_path"],
+        annotation_gains_table_json_path=table_artifacts["annotation_gains_table_json_path"],
         gemini_usage_csv_path=gemini_usage_csv_path,
         gemini_usage_json_path=gemini_usage_json_path,
         figure_paths=tuple(figure_paths),
+        manifest_path=manifest_path,
+    )
+
+
+def write_combined_table_report(
+    input_roots: Iterable[str | Path],
+    output_root: str | Path,
+    *,
+    input_usd_per_1m_tokens: float | None = None,
+    output_usd_per_1m_tokens: float | None = None,
+) -> CombinedTableArtifacts:
+    roots = [Path(root) for root in input_roots]
+    if not roots:
+        raise ValueError("At least one input root is required for a combined table report.")
+
+    root = Path(output_root)
+    report_dir = root / "report"
+    report_dir.mkdir(parents=True, exist_ok=True)
+
+    summary_rows: list[dict] = []
+    per_page_rows: list[dict] = []
+    usage_rows: list[dict] = []
+    input_root_payloads = []
+    for input_root in roots:
+        run_summary_rows, run_per_page_rows = _load_summary_rows(input_root)
+        _augment_rows_with_bootstrap_cis(run_summary_rows, run_per_page_rows)
+        run_usage_rows, run_usage_summaries = collect_gemini_usage(
+            input_root,
+            input_usd_per_1m_tokens=input_usd_per_1m_tokens,
+            output_usd_per_1m_tokens=output_usd_per_1m_tokens,
+        )
+        _augment_rows_with_usage(run_summary_rows, run_usage_summaries)
+        for row in run_summary_rows:
+            row["source_output_root"] = str(input_root.resolve())
+        for row in run_per_page_rows:
+            row["source_output_root"] = str(input_root.resolve())
+        for row in run_usage_rows:
+            row["source_output_root"] = str(input_root.resolve())
+        summary_rows.extend(run_summary_rows)
+        per_page_rows.extend(run_per_page_rows)
+        usage_rows.extend(run_usage_rows)
+        input_root_payloads.append(
+            {
+                "input_root": str(input_root.resolve()),
+                "method_count": len(run_summary_rows),
+                "per_page_record_count": len(run_per_page_rows),
+                "gemini_usage_record_count": len(run_usage_rows),
+            }
+        )
+
+    summary_rows.sort(key=lambda row: (_manuscript_sort_key(str(row.get("manuscript_id") or "")), _method_sort_key(row["method_id"])))
+    per_page_rows.sort(
+        key=lambda row: (
+            _manuscript_sort_key(str(row.get("manuscript_id") or "")),
+            _method_sort_key(str(row.get("method_id") or "")),
+            row.get("fold_id", ""),
+            row.get("page_id", ""),
+        )
+    )
+
+    summary_csv_path = report_dir / "summary_metrics.csv"
+    summary_json_path = report_dir / "summary_metrics.json"
+    per_page_csv_path = report_dir / "per_page_metrics.csv"
+    fold_metrics_csv_path = report_dir / "fold_metrics.csv"
+    fold_metrics_json_path = report_dir / "fold_metrics.json"
+    layout_mode_comparisons_csv_path = report_dir / "layout_mode_comparisons.csv"
+    layout_mode_comparisons_json_path = report_dir / "layout_mode_comparisons.json"
+    gemini_usage_csv_path = report_dir / "gemini_usage.csv"
+    gemini_usage_json_path = report_dir / "gemini_usage.json"
+    _write_csv(summary_csv_path, summary_rows)
+    _write_json(summary_json_path, summary_rows)
+    _write_csv(per_page_csv_path, per_page_rows)
+    fold_metric_rows = _fold_metric_rows(per_page_rows)
+    comparison_rows = _layout_mode_comparison_rows(per_page_rows)
+    _write_csv(fold_metrics_csv_path, fold_metric_rows)
+    _write_json(
+        fold_metrics_json_path,
+        {
+            "aggregation": "pooled independently within each method and fold across combined input roots",
+            "rows": fold_metric_rows,
+        },
+    )
+    _write_csv(layout_mode_comparisons_csv_path, comparison_rows)
+    _write_json(
+        layout_mode_comparisons_json_path,
+        {
+            "confidence_level": BOOTSTRAP_CONFIDENCE_LEVEL,
+            "bootstrap_resamples": BOOTSTRAP_RESAMPLES,
+            "cluster_unit": "manuscript_id+page_id",
+            "effort_definition": "mean active Layout Mode edit seconds per unique evaluated page",
+            "read_mode_effort_included": False,
+            "rows": comparison_rows,
+        },
+    )
+    _write_csv(gemini_usage_csv_path, usage_rows)
+    _write_json(gemini_usage_json_path, {"rows": usage_rows})
+
+    table_artifacts = _write_primary_table_artifacts(report_dir, summary_rows, per_page_rows)
+    markdown_path = _write_markdown_report(
+        root,
+        report_dir,
+        summary_rows,
+        comparison_rows,
+        usage_rows,
+        [],
+        table_artifacts,
+    )
+
+    manifest_path = report_dir / "combined_table_report_manifest.json"
+    _write_json(
+        manifest_path,
+        {
+            "report_dir": str(report_dir.resolve()),
+            "markdown_path": str(markdown_path.resolve()),
+            "summary_csv_path": str(summary_csv_path.resolve()),
+            "summary_json_path": str(summary_json_path.resolve()),
+            "per_page_csv_path": str(per_page_csv_path.resolve()),
+            "fold_metrics_csv_path": str(fold_metrics_csv_path.resolve()),
+            "fold_metrics_json_path": str(fold_metrics_json_path.resolve()),
+            "layout_mode_comparisons_csv_path": str(layout_mode_comparisons_csv_path.resolve()),
+            "layout_mode_comparisons_json_path": str(layout_mode_comparisons_json_path.resolve()),
+            "gemini_usage_csv_path": str(gemini_usage_csv_path.resolve()),
+            "gemini_usage_json_path": str(gemini_usage_json_path.resolve()),
+            "off_the_shelf_table_csv_path": str(table_artifacts["off_the_shelf_table_csv_path"].resolve()),
+            "off_the_shelf_table_json_path": str(table_artifacts["off_the_shelf_table_json_path"].resolve()),
+            "annotation_gains_table_csv_path": str(table_artifacts["annotation_gains_table_csv_path"].resolve()),
+            "annotation_gains_table_json_path": str(table_artifacts["annotation_gains_table_json_path"].resolve()),
+            "input_roots": input_root_payloads,
+            "method_count": len(summary_rows),
+            "per_page_record_count": len(per_page_rows),
+        },
+    )
+
+    return CombinedTableArtifacts(
+        report_dir=report_dir,
+        markdown_path=markdown_path,
+        off_the_shelf_table_csv_path=table_artifacts["off_the_shelf_table_csv_path"],
+        off_the_shelf_table_json_path=table_artifacts["off_the_shelf_table_json_path"],
+        annotation_gains_table_csv_path=table_artifacts["annotation_gains_table_csv_path"],
+        annotation_gains_table_json_path=table_artifacts["annotation_gains_table_json_path"],
+        summary_csv_path=summary_csv_path,
+        summary_json_path=summary_json_path,
+        per_page_csv_path=per_page_csv_path,
+        fold_metrics_csv_path=fold_metrics_csv_path,
+        layout_mode_comparisons_csv_path=layout_mode_comparisons_csv_path,
+        gemini_usage_csv_path=gemini_usage_csv_path,
+        gemini_usage_json_path=gemini_usage_json_path,
         manifest_path=manifest_path,
     )
