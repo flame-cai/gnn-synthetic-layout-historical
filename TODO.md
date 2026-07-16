@@ -24,6 +24,10 @@ If english predicted, flip the line vertically and try again. Choose the predict
 "4" and "8"
 
 
+
+###################
+
+
 I want you to make a precise edit to how the production "app" in the Read Mode, recognizes text from circular (closed) or curved text lines? Can you please tell me how this happens when no text-line orientatation annotation are done? We know that we explicit annotations are done in the layout mode, we know the right orientation to process the text-line image in. But here, I want you to study what happens when no explicit text-line orientation annotations are present. 
 This is important, because in the experiment (C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\paper\EXPERIMENT_PROMPT.md) we don't explicitly annotate text-line orientations (along with any other labels) when we use the Traditional Pipeline (Annotation Tool) Off-the-shelf.
 For now, please study and help me understand this. And remember that the change is precise (only for curved, closed circular text-line with no explicit orientation annotation), and it should apply to both: the production app, and the experiment (which reuses code from the production app)
@@ -43,6 +47,10 @@ C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manu
 
 For an open curved line, the fallback instead uses its endpoints: left-to-right when horizontally dominant, or top-to-bottom when vertically dominant, at [geometry.py (line 279)](/C:/Users/intro/Documents/Projects/gnn-synthetic-layout-historical/app/recognition/line_segmentation/geometry.py:279).
 
+
+DO NOT FINETUNE ON SINGLE NODE IMAGES.
+
+##############
 
 implementation slices
 36 - 43 - Page 10 
