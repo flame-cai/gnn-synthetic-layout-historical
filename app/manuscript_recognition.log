@@ -28816,3 +28816,133 @@
 2026-07-16 11:21:48,871 - INFO - 127.0.0.1 - - [16/Jul/2026 11:21:48] "GET /recognition/readers HTTP/1.1" 200 -
 2026-07-16 11:21:49,345 - INFO - 127.0.0.1 - - [16/Jul/2026 11:21:49] "GET /semi-segment/circle_new/65 HTTP/1.1" 200 -
 2026-07-16 11:21:49,422 - INFO - 127.0.0.1 - - [16/Jul/2026 11:21:49] "GET /manuscript/circle_new/active-learning HTTP/1.1" 200 -
+2026-07-17 10:52:42,924 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-07-17 10:52:42,925 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-17 10:52:42,927 - INFO -  * Restarting with stat
+2026-07-17 10:52:53,324 - WARNING -  * Debugger is active!
+2026-07-17 10:52:53,327 - INFO -  * Debugger PIN: 434-625-588
+2026-07-17 10:53:06,308 - INFO - 127.0.0.1 - - [17/Jul/2026 10:53:06] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-17 10:55:05,557 - INFO - 127.0.0.1 - - [17/Jul/2026 10:55:05] "POST /upload HTTP/1.1" 200 -
+2026-07-17 10:55:05,604 - INFO - 127.0.0.1 - - [17/Jul/2026 10:55:05] "GET /manuscript/circle_demo/pages HTTP/1.1" 200 -
+2026-07-17 10:55:05,924 - INFO - 127.0.0.1 - - [17/Jul/2026 10:55:05] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-17 10:55:06,891 - INFO - 127.0.0.1 - - [17/Jul/2026 10:55:06] "GET /semi-segment/circle_demo/15 HTTP/1.1" 200 -
+2026-07-17 10:55:06,998 - INFO - 127.0.0.1 - - [17/Jul/2026 10:55:06] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 10:56:07,366 - INFO - 127.0.0.1 - - [17/Jul/2026 10:56:07] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 10:57:07,902 - INFO - 127.0.0.1 - - [17/Jul/2026 10:57:07] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 10:58:08,891 - INFO - 127.0.0.1 - - [17/Jul/2026 10:58:08] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 10:59:09,889 - INFO - 127.0.0.1 - - [17/Jul/2026 10:59:09] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:00:10,894 - INFO - 127.0.0.1 - - [17/Jul/2026 11:00:10] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:01:11,887 - INFO - 127.0.0.1 - - [17/Jul/2026 11:01:11] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:02:12,909 - INFO - 127.0.0.1 - - [17/Jul/2026 11:02:12] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:03:13,904 - INFO - 127.0.0.1 - - [17/Jul/2026 11:03:13] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:04:14,889 - INFO - 127.0.0.1 - - [17/Jul/2026 11:04:14] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:05:15,906 - INFO - 127.0.0.1 - - [17/Jul/2026 11:05:15] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:06:16,898 - INFO - 127.0.0.1 - - [17/Jul/2026 11:06:16] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:07:17,891 - INFO - 127.0.0.1 - - [17/Jul/2026 11:07:17] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:08:18,894 - INFO - 127.0.0.1 - - [17/Jul/2026 11:08:18] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:09:19,903 - INFO - 127.0.0.1 - - [17/Jul/2026 11:09:19] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:10:19,990 - INFO - 127.0.0.1 - - [17/Jul/2026 11:10:19] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:11:20,371 - INFO - 127.0.0.1 - - [17/Jul/2026 11:11:20] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:12:20,440 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:20] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:12:24,452 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:24] "OPTIONS /semi-segment/circle_demo/15 HTTP/1.1" 200 -
+2026-07-17 11:12:24,780 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circle_demo page_id=15
+2026-07-17 11:12:29,392 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:29] "POST /semi-segment/circle_demo/15 HTTP/1.1" 200 -
+2026-07-17 11:12:29,723 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:29] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:12:29,986 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:29] "GET /semi-segment/circle_demo/15 HTTP/1.1" 200 -
+2026-07-17 11:12:30,326 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:30] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:12:30,636 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-07-17 11:12:32,786 - INFO - Model loaded successfully.
+2026-07-17 11:12:43,890 - INFO - Updated input_manuscripts\circle_demo\layout_analysis_output\page-xml-format\15.xml: 44 lines recognized; 4 unannotated curved lines evaluated; 0 rotated.
+2026-07-17 11:12:44,173 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:12:44,215 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:44] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:12:47,731 - INFO - 127.0.0.1 - - [17/Jul/2026 11:12:47] "GET /line-image/circle_demo/15/4?v=1784266948834940700-1784266948332459800 HTTP/1.1" 200 -
+2026-07-17 11:13:44,596 - INFO - 127.0.0.1 - - [17/Jul/2026 11:13:44] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:14:22,819 - INFO - 127.0.0.1 - - [17/Jul/2026 11:14:22] "GET /line-image/circle_demo/15/42?v=1784266948812637800-1784266948332459800 HTTP/1.1" 200 -
+2026-07-17 11:14:44,675 - INFO - 127.0.0.1 - - [17/Jul/2026 11:14:44] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:15:36,264 - INFO - 127.0.0.1 - - [17/Jul/2026 11:15:36] "OPTIONS /semi-segment/circle_demo/15 HTTP/1.1" 200 -
+2026-07-17 11:15:37,067 - INFO - 127.0.0.1 - - [17/Jul/2026 11:15:37] "POST /semi-segment/circle_demo/15 HTTP/1.1" 200 -
+2026-07-17 11:15:37,496 - INFO - 127.0.0.1 - - [17/Jul/2026 11:15:37] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:15:38,623 - INFO - 127.0.0.1 - - [17/Jul/2026 11:15:38] "GET /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:15:55,012 - INFO - 127.0.0.1 - - [17/Jul/2026 11:15:55] "OPTIONS /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:15:55,341 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circle_demo page_id=28
+2026-07-17 11:16:37,663 - INFO - 127.0.0.1 - - [17/Jul/2026 11:16:37] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:16:37,680 - INFO - 127.0.0.1 - - [17/Jul/2026 11:16:37] "POST /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:16:38,063 - INFO - 127.0.0.1 - - [17/Jul/2026 11:16:38] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:16:38,396 - INFO - 127.0.0.1 - - [17/Jul/2026 11:16:38] "GET /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:16:38,497 - INFO - 127.0.0.1 - - [17/Jul/2026 11:16:38] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:16:43,770 - INFO - Auto-oriented curved OCR line=region_13_line_0 transform=identity identity='' rotate_180=''
+2026-07-17 11:16:43,770 - INFO - Auto-oriented curved OCR line=region_14_line_0 transform=identity identity='' rotate_180=''
+2026-07-17 11:16:43,773 - INFO - Updated input_manuscripts\circle_demo\layout_analysis_output\page-xml-format\28.xml: 19 lines recognized; 4 unannotated curved lines evaluated; 0 rotated.
+2026-07-17 11:16:44,062 - INFO - 127.0.0.1 - - [17/Jul/2026 11:16:44] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:16:44,102 - INFO - 127.0.0.1 - - [17/Jul/2026 11:16:44] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:17:44,969 - INFO - 127.0.0.1 - - [17/Jul/2026 11:17:44] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:18:45,964 - INFO - 127.0.0.1 - - [17/Jul/2026 11:18:45] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:19:46,955 - INFO - 127.0.0.1 - - [17/Jul/2026 11:19:46] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:20:47,965 - INFO - 127.0.0.1 - - [17/Jul/2026 11:20:47] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:21:48,955 - INFO - 127.0.0.1 - - [17/Jul/2026 11:21:48] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:22:49,960 - INFO - 127.0.0.1 - - [17/Jul/2026 11:22:49] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:23:50,959 - INFO - 127.0.0.1 - - [17/Jul/2026 11:23:50] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:24:51,962 - INFO - 127.0.0.1 - - [17/Jul/2026 11:24:51] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:25:53,007 - INFO - 127.0.0.1 - - [17/Jul/2026 11:25:53] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:26:53,964 - INFO - 127.0.0.1 - - [17/Jul/2026 11:26:53] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:27:54,957 - INFO - 127.0.0.1 - - [17/Jul/2026 11:27:54] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:28:55,956 - INFO - 127.0.0.1 - - [17/Jul/2026 11:28:55] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:29:05,283 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:05] "GET /line-image/circle_demo/28/12?v=1784267197162312600-1784267196686424800 HTTP/1.1" 200 -
+2026-07-17 11:29:23,394 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:23] "OPTIONS /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:29:24,029 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circle_demo page_id=28
+2026-07-17 11:29:29,819 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:29] "POST /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:29:30,209 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:30] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:29:30,268 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:30] "GET /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:29:30,612 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:30] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:29:37,845 - INFO - Auto-oriented curved OCR line=region_13_line_0 transform=identity identity='' rotate_180=''
+2026-07-17 11:29:37,847 - INFO - Auto-oriented curved OCR line=region_14_line_0 transform=identity identity='' rotate_180=''
+2026-07-17 11:29:37,847 - INFO - Auto-oriented curved OCR line=region_15_line_0 transform=identity identity='' rotate_180='&'
+2026-07-17 11:29:37,856 - INFO - Updated input_manuscripts\circle_demo\layout_analysis_output\page-xml-format\28.xml: 22 lines recognized; 7 unannotated curved lines evaluated; 3 rotated.
+2026-07-17 11:29:38,227 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:38] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:29:38,323 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:38] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:29:46,932 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:46] "GET /line-image/circle_demo/28/13?v=1784267969098778700-1784267968611185400 HTTP/1.1" 200 -
+2026-07-17 11:29:50,881 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:50] "GET /line-image/circle_demo/28/12?v=1784267969076061800-1784267968611185400 HTTP/1.1" 200 -
+2026-07-17 11:29:53,718 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:53] "GET /line-image/circle_demo/28/11?v=1784267969044191600-1784267968611185400 HTTP/1.1" 200 -
+2026-07-17 11:29:57,208 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:57] "GET /line-image/circle_demo/28/17?v=1784267969114376800-1784267968611185400 HTTP/1.1" 200 -
+2026-07-17 11:29:58,069 - INFO - 127.0.0.1 - - [17/Jul/2026 11:29:58] "GET /line-image/circle_demo/28/13?v=1784267969098778700-1784267968611185400 HTTP/1.1" 200 -
+2026-07-17 11:30:38,727 - INFO - 127.0.0.1 - - [17/Jul/2026 11:30:38] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:30:44,882 - INFO - 127.0.0.1 - - [17/Jul/2026 11:30:44] "OPTIONS /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:30:45,514 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=circle_demo page_id=28
+2026-07-17 11:30:52,138 - INFO - 127.0.0.1 - - [17/Jul/2026 11:30:52] "POST /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:30:52,486 - INFO - 127.0.0.1 - - [17/Jul/2026 11:30:52] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:30:52,546 - INFO - 127.0.0.1 - - [17/Jul/2026 11:30:52] "GET /semi-segment/circle_demo/28 HTTP/1.1" 200 -
+2026-07-17 11:30:52,892 - INFO - 127.0.0.1 - - [17/Jul/2026 11:30:52] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:30:59,897 - INFO - Auto-oriented curved OCR line=region_12_line_0 transform=identity identity='' rotate_180=''
+2026-07-17 11:30:59,897 - INFO - Auto-oriented curved OCR line=region_13_line_0 transform=identity identity='' rotate_180=''
+2026-07-17 11:30:59,897 - INFO - Auto-oriented curved OCR line=region_14_line_0 transform=identity identity='' rotate_180='&'
+2026-07-17 11:30:59,907 - INFO - Updated input_manuscripts\circle_demo\layout_analysis_output\page-xml-format\28.xml: 21 lines recognized; 6 unannotated curved lines evaluated; 2 rotated.
+2026-07-17 11:31:00,272 - INFO - 127.0.0.1 - - [17/Jul/2026 11:31:00] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-17 11:31:00,374 - INFO - 127.0.0.1 - - [17/Jul/2026 11:31:00] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:31:10,015 - INFO - 127.0.0.1 - - [17/Jul/2026 11:31:10] "GET /line-image/circle_demo/28/13?v=1784268051443991000-1784268050969982600 HTTP/1.1" 200 -
+2026-07-17 11:31:19,121 - INFO - 127.0.0.1 - - [17/Jul/2026 11:31:19] "GET /line-image/circle_demo/28/12?v=1784268051406545200-1784268050969982600 HTTP/1.1" 200 -
+2026-07-17 11:32:00,726 - INFO - 127.0.0.1 - - [17/Jul/2026 11:32:00] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:33:00,761 - INFO - 127.0.0.1 - - [17/Jul/2026 11:33:00] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:34:01,958 - INFO - 127.0.0.1 - - [17/Jul/2026 11:34:01] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:35:02,950 - INFO - 127.0.0.1 - - [17/Jul/2026 11:35:02] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:36:03,956 - INFO - 127.0.0.1 - - [17/Jul/2026 11:36:03] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:37:04,959 - INFO - 127.0.0.1 - - [17/Jul/2026 11:37:04] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:38:05,948 - INFO - 127.0.0.1 - - [17/Jul/2026 11:38:05] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:39:06,964 - INFO - 127.0.0.1 - - [17/Jul/2026 11:39:06] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:40:07,948 - INFO - 127.0.0.1 - - [17/Jul/2026 11:40:07] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:41:08,913 - INFO - 127.0.0.1 - - [17/Jul/2026 11:41:08] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:42:09,957 - INFO - 127.0.0.1 - - [17/Jul/2026 11:42:09] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:43:10,953 - INFO - 127.0.0.1 - - [17/Jul/2026 11:43:10] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:44:11,957 - INFO - 127.0.0.1 - - [17/Jul/2026 11:44:11] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:45:12,956 - INFO - 127.0.0.1 - - [17/Jul/2026 11:45:12] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:46:13,956 - INFO - 127.0.0.1 - - [17/Jul/2026 11:46:13] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:47:14,962 - INFO - 127.0.0.1 - - [17/Jul/2026 11:47:14] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:48:15,998 - INFO - 127.0.0.1 - - [17/Jul/2026 11:48:15] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:49:16,958 - INFO - 127.0.0.1 - - [17/Jul/2026 11:49:16] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:50:17,962 - INFO - 127.0.0.1 - - [17/Jul/2026 11:50:17] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:51:18,957 - INFO - 127.0.0.1 - - [17/Jul/2026 11:51:18] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:52:19,638 - INFO - 127.0.0.1 - - [17/Jul/2026 11:52:19] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:53:20,964 - INFO - 127.0.0.1 - - [17/Jul/2026 11:53:20] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
+2026-07-17 11:53:43,200 - INFO - 127.0.0.1 - - [17/Jul/2026 11:53:43] "GET /existing-manuscripts HTTP/1.1" 200 -
