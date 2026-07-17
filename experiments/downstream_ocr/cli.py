@@ -18,6 +18,8 @@ from .runners import (
 from .splits import DEFAULT_SPLIT_SEED, default_manuscript_paths
 from .reporting import write_combined_table_report, write_experiment_report
 from .validation import validate_manuscript_pagexml, write_validation_report
+from .vlm_cache import acquire_vlm_predictions
+from .vlm_providers import VLM_PROVIDER_SPECS
 
 
 DEFAULT_YAJN_ROOT = Path("app") / "input_manuscripts" / "yajn"
@@ -65,7 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
     adapt_json.add_argument("--manuscript-root", default=str(DEFAULT_YAJN_ROOT))
     adapt_json.add_argument("--json-root", required=True)
     adapt_json.add_argument("--output-root", required=True)
-    adapt_json.add_argument("--method-id", default="vlm_e2e")
+    adapt_json.add_argument("--method-id", default="gemini_e2e")
     adapt_json.add_argument("--write-diagnostics", action="store_true")
     adapt_json.add_argument("--fold-id", action="append", dest="fold_ids")
     adapt_json.add_argument("--max-test-pages", type=int)
@@ -93,8 +95,44 @@ def build_parser() -> argparse.ArgumentParser:
     methods.add_argument("--fold-id", action="append", dest="fold_ids")
     methods.add_argument("--max-test-pages", type=int)
     methods.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
+    methods.add_argument(
+        "--vlm-predictions-root",
+        help="Immutable pre-prediction cache created by prepredict-vlms. Required for VLM methods.",
+    )
     methods.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
     methods.add_argument("--gemini-output-usd-per-1m-tokens", type=float)
+
+    prepredict = subparsers.add_parser(
+        "prepredict-vlms",
+        help="Acquire each provider prediction once per manuscript page into an immutable cache.",
+    )
+    prepredict.add_argument(
+        "--manuscript-root",
+        action="append",
+        dest="manuscript_roots",
+        required=True,
+        help="Manuscript root to acquire. Repeat once per manuscript.",
+    )
+    prepredict.add_argument(
+        "--provider-id",
+        action="append",
+        dest="provider_ids",
+        required=True,
+        choices=[spec.provider_id for spec in VLM_PROVIDER_SPECS],
+        help="VLM provider to acquire. Repeat for multiple providers.",
+    )
+    prepredict.add_argument("--output-root", required=True)
+    prepredict.add_argument("--env-path", default=str(Path("app") / ".env"))
+    prepredict.add_argument("--timeout-seconds", type=float, default=45.0)
+    prepredict.add_argument("--page-workers", type=int, default=4)
+    prepredict.add_argument("--request-spacing-seconds", type=float, default=0.25)
+    prepredict.add_argument(
+        "--max-retries",
+        type=int,
+        default=3,
+        help="Retries after the initial paid attempt (default: 3).",
+    )
+    prepredict.add_argument("--retry-base-delay-seconds", type=float, default=1.0)
 
     validate = subparsers.add_parser(
         "validate-dataset",
@@ -116,7 +154,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     report = subparsers.add_parser(
         "write-report",
-        help="Generate summary tables, figures, Gemini usage tables, and a Markdown report for an existing run.",
+        help="Generate summary tables, figures, VLM acquisition-usage tables, and a Markdown report for an existing run.",
     )
     report.add_argument("--output-root", required=True)
     report.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
@@ -195,6 +233,7 @@ def main(argv: list[str] | None = None) -> None:
                 fold_ids=args.fold_ids,
                 max_test_pages=args.max_test_pages,
                 split_seed=args.split_seed,
+                vlm_predictions_root=args.vlm_predictions_root,
                 input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
                 output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
             )
@@ -212,6 +251,7 @@ def main(argv: list[str] | None = None) -> None:
                     fold_ids=args.fold_ids,
                     max_test_pages=args.max_test_pages,
                     split_seed=args.split_seed,
+                    vlm_predictions_root=args.vlm_predictions_root,
                     input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
                     output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
                 )
@@ -222,6 +262,34 @@ def main(argv: list[str] | None = None) -> None:
                 input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
                 output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
             )
+    elif args.command == "prepredict-vlms":
+        manifests = acquire_vlm_predictions(
+            manuscript_roots=args.manuscript_roots,
+            cache_root=args.output_root,
+            provider_ids=args.provider_ids,
+            env_path=args.env_path,
+            timeout_seconds=args.timeout_seconds,
+            page_workers=args.page_workers,
+            request_spacing_seconds=args.request_spacing_seconds,
+            max_retries=args.max_retries,
+            retry_base_delay_seconds=args.retry_base_delay_seconds,
+        )
+        print(
+            {
+                "cache_root": str(Path(args.output_root).resolve()),
+                "acquisitions": [
+                    {
+                        "manuscript_id": manifest["manuscript_id"],
+                        "provider_id": manifest["provider"]["provider_id"],
+                        "model_id": manifest["provider"]["model_id"],
+                        "page_count": manifest["page_count"],
+                        "success_count": manifest["success_count"],
+                        "failure_count": manifest["failure_count"],
+                    }
+                    for manifest in manifests
+                ],
+            }
+        )
     elif args.command == "validate-dataset":
         report = validate_manuscript_pagexml(args.manuscript_root, repair_geometry=args.repair_geometry)
         if args.output_json:

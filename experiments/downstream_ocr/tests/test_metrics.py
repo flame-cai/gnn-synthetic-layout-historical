@@ -275,9 +275,9 @@ class DownstreamOcrMetricTests(unittest.TestCase):
             self.assertEqual(texts["line_a"], "pred-a")
             self.assertEqual(texts["line_b"], "")
 
-    def test_correct_aggregation_over_three_folds(self):
+    def test_correct_aggregation_over_default_folds(self):
         folds = make_three_folds(tuple(f"p{i}" for i in range(12)))
-        self.assertEqual(len(folds), 3)
+        self.assertEqual(len(folds), 5)
         records = []
         for fold in folds:
             records.append(
@@ -301,7 +301,7 @@ class DownstreamOcrMetricTests(unittest.TestCase):
                 }
             )
         aggregate = aggregate_page_records(records)
-        self.assertEqual(aggregate["page_count"], 3)
+        self.assertEqual(aggregate["page_count"], 5)
         self.assertAlmostEqual(aggregate["object_recall_50"], 0.5)
         self.assertAlmostEqual(aggregate["micro_page_cer"], 0.2)
 
@@ -340,7 +340,7 @@ class DownstreamOcrMetricTests(unittest.TestCase):
             self.assertEqual(folds_a, folds_b)
             payload = json.loads(folds_path.read_text(encoding="utf-8"))
             self.assertEqual(payload["split_seed"], 7)
-            self.assertEqual(len(payload["folds"]), 3)
+            self.assertEqual(len(payload["folds"]), 5)
 
     def test_finetuning_ladder_trains_once_and_reuses_step_checkpoints(self):
         class FakeRecipe:

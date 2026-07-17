@@ -50,6 +50,17 @@ class AdapterResult:
     output_path: Path | None = None
 
 
+def _strip_single_json_code_fence(text: str) -> str:
+    lines = text.splitlines()
+    if len(lines) < 3:
+        return text
+    opening = lines[0].strip().lower()
+    closing = lines[-1].strip()
+    if opening not in {"```", "```json"} or closing != "```":
+        return text
+    return "\n".join(lines[1:-1]).strip()
+
+
 def parse_json_payload(raw_payload: str | bytes | dict[str, Any]) -> dict[str, Any]:
     if isinstance(raw_payload, dict):
         return raw_payload
@@ -57,6 +68,7 @@ def parse_json_payload(raw_payload: str | bytes | dict[str, Any]) -> dict[str, A
     text = text.strip()
     if not text:
         raise AdapterError("empty_response")
+    text = _strip_single_json_code_fence(text)
     try:
         payload = json.loads(text)
     except json.JSONDecodeError as exc:

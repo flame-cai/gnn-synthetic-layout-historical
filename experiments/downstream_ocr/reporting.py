@@ -12,10 +12,11 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from .metrics import aggregate_page_records
+from .vlm_providers import VLM_PROVIDER_SPECS, is_vlm_method
 
 
 METHOD_ORDER = (
-    "vlm_e2e",
+    *(spec.method_id for spec in VLM_PROVIDER_SPECS),
     "annotation_tool_e2e",
     "annotation_tool_pred_layout_ft_1",
     "annotation_tool_pred_layout_ft_2",
@@ -27,7 +28,7 @@ METHOD_ORDER = (
 )
 
 METHOD_LABELS = {
-    "vlm_e2e": "Gemini e2e",
+    **{spec.method_id: spec.display_name for spec in VLM_PROVIDER_SPECS},
     "annotation_tool_e2e": "Annotation tool e2e",
     "annotation_tool_gt_layout": "Annotation tool human-corrected GT layout",
     "annotation_tool_pred_layout_ft_1": "Annotation tool predicted test layout + 1 page FT",
@@ -40,7 +41,7 @@ METHOD_LABELS = {
 
 # Important: what we refer to as annotation tool here, is refered to as the Traditional Pipeline in the paper.
 FIGURE_METHOD_LABELS = {
-    "vlm_e2e": "Gemini",
+    **{spec.method_id: spec.display_name.split(" (", 1)[0] for spec in VLM_PROVIDER_SPECS},
     "annotation_tool_e2e": "Traditional\nPipeline",
     "annotation_tool_gt_layout": "Traditional\nPipeline",
     "annotation_tool_pred_layout_ft_1": "Traditional\nPipeline",
@@ -52,7 +53,7 @@ FIGURE_METHOD_LABELS = {
 }
 
 EFFORT_LEVELS = {
-    "vlm_e2e": 0,
+    **{spec.method_id: 0 for spec in VLM_PROVIDER_SPECS},
     "annotation_tool_e2e": 0,
     "annotation_tool_pred_layout_ft_1": 1,
     "annotation_tool_pred_layout_ft_2": 2,
@@ -99,12 +100,13 @@ LAYOUT_MODE_COMPARISONS = (
 DISABLED_METHOD_IDS = {"gemini_gt_layout"}
 
 OFF_THE_SHELF_METHODS = {
-    "vlm_e2e": {
-        "provider": "Gemini",
-        "model_family": "Gemini",
+    spec.method_id: {
+        "provider": spec.display_name.split(" (", 1)[0],
+        "model_family": spec.model_id,
         "input_contract": "page_image_only",
         "prompt_contract": "vlm_end_to_end_prompt_v1_json_lines_or_polygons",
-    },
+    }
+    for spec in VLM_PROVIDER_SPECS
 }
 
 ANNOTATION_GAIN_METHOD_PAIRS = {
@@ -138,8 +140,8 @@ class ReportArtifacts:
     off_the_shelf_table_json_path: Path
     annotation_gains_table_csv_path: Path
     annotation_gains_table_json_path: Path
-    gemini_usage_csv_path: Path
-    gemini_usage_json_path: Path
+    vlm_usage_csv_path: Path
+    vlm_usage_json_path: Path
     figure_paths: tuple[Path, ...]
     manifest_path: Path
 
@@ -157,8 +159,8 @@ class CombinedTableArtifacts:
     per_page_csv_path: Path
     fold_metrics_csv_path: Path
     layout_mode_comparisons_csv_path: Path
-    gemini_usage_csv_path: Path
-    gemini_usage_json_path: Path
+    vlm_usage_csv_path: Path
+    vlm_usage_json_path: Path
     manifest_path: Path
 
 
@@ -353,7 +355,7 @@ def _apply_layout_effort_fallback(row: dict, effort_by_page: dict[str, dict]) ->
 
 
 def _human_effort_label(method_id: str, method: dict) -> str:
-    if method_id == "vlm_e2e":
+    if is_vlm_method(method_id):
         return "none"
     if method_id == "annotation_tool_e2e":
         return "none"
@@ -375,8 +377,10 @@ def _human_effort_label(method_id: str, method: dict) -> str:
 
 
 def _engine_label(method_id: str, method: dict) -> str:
-    if method.get("uses_gemini") or method_id == "vlm_e2e":
-        return "Gemini"
+    provider_id = method.get("provider_id")
+    for spec in VLM_PROVIDER_SPECS:
+        if method_id == spec.method_id or provider_id == spec.provider_id:
+            return spec.display_name.split(" (", 1)[0]
     return "Annotation tool"
 
 
@@ -518,127 +522,134 @@ def _env_float(name: str) -> float | None:
     return _safe_float(raw)
 
 
-def collect_gemini_usage(
+def collect_vlm_usage(
     output_root: str | Path,
     *,
     input_usd_per_1m_tokens: float | None = None,
     output_usd_per_1m_tokens: float | None = None,
 ) -> tuple[list[dict], dict[str, dict]]:
     root = Path(output_root)
-    input_rate = input_usd_per_1m_tokens
-    output_rate = output_usd_per_1m_tokens
-    if input_rate is None:
-        input_rate = _env_float("GEMINI_INPUT_USD_PER_1M_TOKENS")
-    if output_rate is None:
-        output_rate = _env_float("GEMINI_OUTPUT_USD_PER_1M_TOKENS")
-
     rows: list[dict] = []
-    for usage_path in sorted(root.glob("runs/*/*/gemini_usage/*.json")):
-        try:
-            relative_parts = usage_path.relative_to(root).parts
-        except ValueError:
-            relative_parts = usage_path.parts
-        if len(relative_parts) < 5:
+    seen_results: set[Path] = set()
+    for metrics_path in _metric_payload_paths(root):
+        metrics_payload = _read_json(metrics_path)
+        method_id = _payload_method_id(metrics_payload, metrics_path.parent.name)
+        cache = metrics_payload.get("preprediction_cache")
+        if not isinstance(cache, dict):
             continue
-        method_id = relative_parts[1]
-        fold_id = relative_parts[2]
-        page_id = usage_path.stem
-        payload = _read_json(usage_path)
-        usage_records = _usage_records_from_payload(payload)
-        usage_summary = summarize_usage_metadata(usage_records)
-        status = payload.get("status", "success" if usage_records else "unknown")
-        request_count = _safe_int(payload.get("request_count"))
-        if request_count <= 0:
-            request_count = len(usage_records)
-        if request_count <= 0 and status not in {"unknown", "not_attempted"}:
-            request_count = 1
-        attempt_count = _safe_int(payload.get("attempt_count"))
-        if attempt_count <= 0:
-            attempt_count = request_count
-        retry_count = _safe_int(payload.get("retry_count"))
-        if "retry_count" not in payload:
-            retry_count = max(0, attempt_count - 1)
-        usage_metadata_available = _has_usage_counts(usage_summary)
-        estimated_cost = (
-            _estimate_gemini_cost_usd(
-                prompt_tokens=usage_summary["prompt_token_count"],
-                candidate_tokens=usage_summary["candidates_token_count"],
-                input_usd_per_1m_tokens=input_rate,
-                output_usd_per_1m_tokens=output_rate,
+        manifest_path = Path(str(cache.get("manifest_path") or ""))
+        if not manifest_path.exists():
+            continue
+        manifest = _read_json(manifest_path)
+        provider = dict(manifest.get("provider") or {})
+        provider_id = str(provider.get("provider_id") or "")
+        input_rate = (
+            input_usd_per_1m_tokens
+            if provider_id == "gemini" and input_usd_per_1m_tokens is not None
+            else _env_float(f"{provider_id.upper()}_INPUT_USD_PER_1M_TOKENS")
+        )
+        output_rate = (
+            output_usd_per_1m_tokens
+            if provider_id == "gemini" and output_usd_per_1m_tokens is not None
+            else _env_float(f"{provider_id.upper()}_OUTPUT_USD_PER_1M_TOKENS")
+        )
+        for page_id, page_entry in sorted((manifest.get("pages") or {}).items()):
+            result_path = (manifest_path.parent / page_entry["result_path"]).resolve()
+            if result_path in seen_results:
+                continue
+            seen_results.add(result_path)
+            payload = _read_json(result_path)
+            attempt_count = _safe_int(payload.get("attempt_count"))
+            input_tokens = _safe_int(payload.get("input_tokens"))
+            output_tokens = _safe_int(payload.get("output_tokens"))
+            total_tokens = _safe_int(payload.get("total_tokens"))
+            usage_metadata_available = any((input_tokens, output_tokens, total_tokens))
+            estimated_cost = (
+                _estimate_gemini_cost_usd(
+                    prompt_tokens=input_tokens,
+                    candidate_tokens=output_tokens,
+                    input_usd_per_1m_tokens=input_rate,
+                    output_usd_per_1m_tokens=output_rate,
+                )
+                if usage_metadata_available
+                else None
             )
-            if usage_metadata_available
-            else None
-        )
-        rows.append(
-            {
-                "method_id": method_id,
-                "fold_id": fold_id,
-                "page_id": page_id,
-                "status": status,
-                "elapsed_seconds": _safe_float(payload.get("elapsed_seconds")),
-                "attempt_count": attempt_count,
-                "retry_count": retry_count,
-                "max_retries": _safe_int(payload.get("max_retries")),
-                "request_count": request_count,
-                "usage_metadata_available": usage_metadata_available,
-                "prompt_token_count": usage_summary["prompt_token_count"],
-                "candidates_token_count": usage_summary["candidates_token_count"],
-                "total_token_count": usage_summary["total_token_count"],
-                "total_billable_characters": usage_summary["total_billable_characters"],
-                "estimated_cost_usd": estimated_cost,
-                "usage_path": str(usage_path),
-            }
-        )
+            rows.append(
+                {
+                    "manuscript_id": manifest.get("manuscript_id", ""),
+                    "method_id": method_id,
+                    "provider_id": provider_id,
+                    "model_id": provider.get("model_id", ""),
+                    "fold_id": "acquisition_cache",
+                    "page_id": page_id,
+                    "status": payload.get("status", "unknown"),
+                    "elapsed_seconds": _safe_float(payload.get("elapsed_seconds")),
+                    "attempt_count": attempt_count,
+                    "retry_count": max(0, attempt_count - 1),
+                    "max_retries": manifest.get("max_retries_after_initial_attempt", 0),
+                    "request_count": attempt_count,
+                    "usage_metadata_available": usage_metadata_available,
+                    "prompt_token_count": input_tokens,
+                    "candidates_token_count": output_tokens,
+                    "total_token_count": total_tokens,
+                    "total_billable_characters": 0,
+                    "estimated_cost_usd": estimated_cost,
+                    "usage_path": str(result_path),
+                    "input_usd_per_1m_tokens": input_rate,
+                    "output_usd_per_1m_tokens": output_rate,
+                }
+            )
 
     summaries: dict[str, dict] = {}
     for row in rows:
         method_id = row["method_id"]
+        pricing_available = (
+            row.get("input_usd_per_1m_tokens") is not None
+            and row.get("output_usd_per_1m_tokens") is not None
+        )
         summary = summaries.setdefault(
             method_id,
             {
                 "method_id": method_id,
-                "gemini_usage_status": "api_usage_recorded",
-                "gemini_page_count": 0,
-                "gemini_success_count": 0,
-                "gemini_attempt_count": 0,
-                "gemini_retry_count": 0,
-                "gemini_request_count": 0,
-                "gemini_missing_usage_count": 0,
-                "gemini_elapsed_seconds": 0.0,
-                "gemini_prompt_token_count": 0,
-                "gemini_candidates_token_count": 0,
-                "gemini_total_token_count": 0,
-                "gemini_total_billable_characters": 0,
-                "gemini_estimated_cost_usd": 0.0 if input_rate is not None and output_rate is not None else None,
-                "gemini_pricing_note": (
-                    "Estimated from GEMINI_INPUT_USD_PER_1M_TOKENS and "
-                    "GEMINI_OUTPUT_USD_PER_1M_TOKENS."
-                    if input_rate is not None and output_rate is not None
-                    else "Token counts recorded; USD estimate omitted because Gemini price env vars were not set."
+                "vlm_usage_status": "api_usage_recorded",
+                "vlm_page_count": 0,
+                "vlm_success_count": 0,
+                "vlm_attempt_count": 0,
+                "vlm_retry_count": 0,
+                "vlm_request_count": 0,
+                "vlm_missing_usage_count": 0,
+                "vlm_elapsed_seconds": 0.0,
+                "vlm_input_token_count": 0,
+                "vlm_output_token_count": 0,
+                "vlm_total_token_count": 0,
+                "vlm_estimated_cost_usd": 0.0 if pricing_available else None,
+                "vlm_pricing_note": (
+                    "Estimated from provider-specific input/output token rates."
+                    if pricing_available
+                    else "Token counts recorded; USD estimate omitted because provider price env vars were not set."
                 ),
             },
         )
-        summary["gemini_page_count"] += 1
+        summary["vlm_page_count"] += 1
         if row.get("status") == "success":
-            summary["gemini_success_count"] += 1
-        summary["gemini_attempt_count"] += _safe_int(row.get("attempt_count"))
-        summary["gemini_retry_count"] += _safe_int(row.get("retry_count"))
-        summary["gemini_request_count"] += _safe_int(row.get("request_count"))
+            summary["vlm_success_count"] += 1
+        summary["vlm_attempt_count"] += _safe_int(row.get("attempt_count"))
+        summary["vlm_retry_count"] += _safe_int(row.get("retry_count"))
+        summary["vlm_request_count"] += _safe_int(row.get("request_count"))
         if row.get("request_count") and not row.get("usage_metadata_available"):
-            summary["gemini_missing_usage_count"] += 1
-        summary["gemini_elapsed_seconds"] += _safe_float(row.get("elapsed_seconds")) or 0.0
-        summary["gemini_prompt_token_count"] += _safe_int(row.get("prompt_token_count"))
-        summary["gemini_candidates_token_count"] += _safe_int(row.get("candidates_token_count"))
-        summary["gemini_total_token_count"] += _safe_int(row.get("total_token_count"))
-        summary["gemini_total_billable_characters"] += _safe_int(row.get("total_billable_characters"))
-        if summary["gemini_estimated_cost_usd"] is not None:
-            summary["gemini_estimated_cost_usd"] += _safe_float(row.get("estimated_cost_usd")) or 0.0
+            summary["vlm_missing_usage_count"] += 1
+        summary["vlm_elapsed_seconds"] += _safe_float(row.get("elapsed_seconds")) or 0.0
+        summary["vlm_input_token_count"] += _safe_int(row.get("prompt_token_count"))
+        summary["vlm_output_token_count"] += _safe_int(row.get("candidates_token_count"))
+        summary["vlm_total_token_count"] += _safe_int(row.get("total_token_count"))
+        if summary["vlm_estimated_cost_usd"] is not None:
+            summary["vlm_estimated_cost_usd"] += _safe_float(row.get("estimated_cost_usd")) or 0.0
 
     for summary in summaries.values():
-        missing_usage_count = _safe_int(summary.get("gemini_missing_usage_count"))
+        missing_usage_count = _safe_int(summary.get("vlm_missing_usage_count"))
         if missing_usage_count > 0:
-            summary["gemini_pricing_note"] = (
-                "Known-usage subtotal from Gemini usage metadata; "
+            summary["vlm_pricing_note"] = (
+                "Known-usage subtotal from provider usage metadata; "
                 f"{missing_usage_count} attempted request(s) returned no usage metadata, "
                 "so actual API cost may be higher."
             )
@@ -674,42 +685,40 @@ def _augment_rows_with_usage(summary_rows: list[dict], usage_summaries: dict[str
         usage = usage_summaries.get(method_id)
         if usage:
             row.update(usage)
-        elif row["engine"] == "Gemini":
+        elif is_vlm_method(method_id):
             row.update(
                 {
-                    "gemini_usage_status": "no_usage_metadata_found",
-                    "gemini_page_count": 0,
-                    "gemini_success_count": 0,
-                    "gemini_attempt_count": 0,
-                    "gemini_retry_count": 0,
-                    "gemini_request_count": 0,
-                    "gemini_missing_usage_count": 0,
-                    "gemini_elapsed_seconds": 0.0,
-                    "gemini_prompt_token_count": 0,
-                    "gemini_candidates_token_count": 0,
-                    "gemini_total_token_count": 0,
-                    "gemini_total_billable_characters": 0,
-                    "gemini_estimated_cost_usd": None,
-                    "gemini_pricing_note": "No Gemini usage JSON files were found for this method.",
+                    "vlm_usage_status": "no_usage_metadata_found",
+                    "vlm_page_count": 0,
+                    "vlm_success_count": 0,
+                    "vlm_attempt_count": 0,
+                    "vlm_retry_count": 0,
+                    "vlm_request_count": 0,
+                    "vlm_missing_usage_count": 0,
+                    "vlm_elapsed_seconds": 0.0,
+                    "vlm_input_token_count": 0,
+                    "vlm_output_token_count": 0,
+                    "vlm_total_token_count": 0,
+                    "vlm_estimated_cost_usd": None,
+                    "vlm_pricing_note": "No referenced VLM acquisition-cache usage records were found for this method.",
                 }
             )
         else:
             row.update(
                 {
-                    "gemini_usage_status": "not_applicable_no_api_cost",
-                    "gemini_page_count": 0,
-                    "gemini_success_count": 0,
-                    "gemini_attempt_count": 0,
-                    "gemini_retry_count": 0,
-                    "gemini_request_count": 0,
-                    "gemini_missing_usage_count": 0,
-                    "gemini_elapsed_seconds": 0.0,
-                    "gemini_prompt_token_count": 0,
-                    "gemini_candidates_token_count": 0,
-                    "gemini_total_token_count": 0,
-                    "gemini_total_billable_characters": 0,
-                    "gemini_estimated_cost_usd": 0.0,
-                    "gemini_pricing_note": "Annotation-tool methods use local computation; no Gemini API cost.",
+                    "vlm_usage_status": "not_applicable_no_api_cost",
+                    "vlm_page_count": 0,
+                    "vlm_success_count": 0,
+                    "vlm_attempt_count": 0,
+                    "vlm_retry_count": 0,
+                    "vlm_request_count": 0,
+                    "vlm_missing_usage_count": 0,
+                    "vlm_elapsed_seconds": 0.0,
+                    "vlm_input_token_count": 0,
+                    "vlm_output_token_count": 0,
+                    "vlm_total_token_count": 0,
+                    "vlm_estimated_cost_usd": 0.0,
+                    "vlm_pricing_note": "Annotation-tool methods use local computation; no VLM API cost.",
                 }
             )
 
@@ -1323,19 +1332,19 @@ def _save_finetuning_curve(rows: list[dict], output_path: Path) -> Path | None:
     return output_path
 
 
-def _save_gemini_token_figure(rows: list[dict], output_path: Path) -> Path | None:
+def _save_vlm_token_figure(rows: list[dict], output_path: Path) -> Path | None:
     plt = _plotting()
-    gemini_rows = [row for row in rows if row.get("engine") == "Gemini"]
-    if plt is None or not gemini_rows:
+    vlm_rows = [row for row in rows if is_vlm_method(str(row.get("method_id") or ""))]
+    if plt is None or not vlm_rows:
         return None
-    labels = _method_labels(gemini_rows)
-    prompt = _numeric_values(gemini_rows, "gemini_prompt_token_count")
-    candidates = _numeric_values(gemini_rows, "gemini_candidates_token_count")
-    fig, ax = plt.subplots(figsize=(max(6.5, len(gemini_rows) * 1.7), 4.5))
-    positions = list(range(len(gemini_rows)))
+    labels = _method_labels(vlm_rows)
+    prompt = _numeric_values(vlm_rows, "vlm_input_token_count")
+    candidates = _numeric_values(vlm_rows, "vlm_output_token_count")
+    fig, ax = plt.subplots(figsize=(max(6.5, len(vlm_rows) * 1.7), 4.5))
+    positions = list(range(len(vlm_rows)))
     ax.bar(positions, prompt, label="Prompt tokens", color="#4C78A8")
     ax.bar(positions, candidates, bottom=prompt, label="Candidate tokens", color="#F58518")
-    ax.set_title("Gemini Token Usage")
+    ax.set_title("VLM Acquisition Token Usage")
     ax.set_ylabel("Tokens")
     ax.set_xticks(positions)
     ax.set_xticklabels(labels, rotation=25, ha="right")
@@ -1353,7 +1362,7 @@ def _write_figures(report_dir: Path, rows: list[dict], comparison_rows: list[dic
     figure_paths = [
         _save_layout_figure(rows, figure_dir / "layout_metrics_by_method.png"),
         _save_finetuning_curve(rows, figure_dir / "annotation_tool_finetuning_curve.png"),
-        _save_gemini_token_figure(rows, figure_dir / "gemini_token_usage.png"),
+        _save_vlm_token_figure(rows, figure_dir / "vlm_token_usage.png"),
     ]
     return [path for path in figure_paths if path is not None]
 
@@ -1381,8 +1390,8 @@ def _summary_table_rows(rows: list[dict]) -> list[dict]:
                     row.get("micro_textedit_ci_lower"),
                     row.get("micro_textedit_ci_upper"),
                 ),
-                "Gemini Tokens": row.get("gemini_total_token_count", 0),
-                "Gemini USD": _format_cost(row.get("gemini_estimated_cost_usd")),
+                "API Tokens": row.get("vlm_total_token_count", 0),
+                "API USD": _format_cost(row.get("vlm_estimated_cost_usd")),
             }
         )
     return table_rows
@@ -1487,8 +1496,8 @@ def _build_off_the_shelf_table_rows(summary_rows: list[dict]) -> list[dict]:
                 "micro_textedit": row.get("micro_textedit"),
                 "micro_textedit_ci_lower": row.get("micro_textedit_ci_lower"),
                 "micro_textedit_ci_upper": row.get("micro_textedit_ci_upper"),
-                "gemini_request_count": row.get("gemini_request_count"),
-                "gemini_total_token_count": row.get("gemini_total_token_count"),
+                "vlm_request_count": row.get("vlm_request_count"),
+                "vlm_total_token_count": row.get("vlm_total_token_count"),
                 "metrics_path": row.get("metrics_path", ""),
             }
         )
@@ -1733,27 +1742,27 @@ def _write_markdown_report(
         ("Pixel F1", "Pixel F1"),
         ("Micro CER (95% CI)", "Micro CER (95% CI)"),
         ("Micro TextEdit (95% CI)", "Micro TextEdit (95% CI)"),
-        ("Gemini Tokens", "Gemini Tokens"),
-        ("Gemini USD", "Gemini USD"),
+        ("API Tokens", "API Tokens"),
+        ("API USD", "API USD"),
     ]
 
-    gemini_rows = [row for row in rows if row.get("engine") == "Gemini"]
-    gemini_table_rows = [
+    vlm_rows = [row for row in rows if is_vlm_method(str(row.get("method_id") or ""))]
+    vlm_table_rows = [
         {
             "Method": row["display_name"],
-            "Pages": row.get("gemini_page_count", 0),
-            "Attempts": row.get("gemini_attempt_count", 0),
-            "Retries": row.get("gemini_retry_count", 0),
-            "Requests": row.get("gemini_request_count", 0),
-            "Missing Usage": row.get("gemini_missing_usage_count", 0),
-            "Prompt Tokens": row.get("gemini_prompt_token_count", 0),
-            "Candidate Tokens": row.get("gemini_candidates_token_count", 0),
-            "Total Tokens": row.get("gemini_total_token_count", 0),
-            "Elapsed Seconds": _format_float(row.get("gemini_elapsed_seconds"), digits=2),
-            "Estimated USD": _format_cost(row.get("gemini_estimated_cost_usd")),
-            "Usage Note": row.get("gemini_pricing_note", ""),
+            "Pages": row.get("vlm_page_count", 0),
+            "Attempts": row.get("vlm_attempt_count", 0),
+            "Retries": row.get("vlm_retry_count", 0),
+            "Requests": row.get("vlm_request_count", 0),
+            "Missing Usage": row.get("vlm_missing_usage_count", 0),
+            "Input Tokens": row.get("vlm_input_token_count", 0),
+            "Output Tokens": row.get("vlm_output_token_count", 0),
+            "Total Tokens": row.get("vlm_total_token_count", 0),
+            "Elapsed Seconds": _format_float(row.get("vlm_elapsed_seconds"), digits=2),
+            "Estimated USD": _format_cost(row.get("vlm_estimated_cost_usd")),
+            "Usage Note": row.get("vlm_pricing_note", ""),
         }
-        for row in gemini_rows
+        for row in vlm_rows
     ]
     comparison_table_rows = _layout_mode_comparison_table_rows(comparison_rows)
     off_the_shelf_table_rows = _off_the_shelf_markdown_rows(table_artifacts["off_the_shelf_rows"])
@@ -1827,7 +1836,7 @@ def _write_markdown_report(
         "- Compare `annotation_tool_e2e` with the `annotation_tool_pred_layout_ft_1/2/3` series to estimate the value of manuscript-local Read Mode supervision when held-out layouts remain fully automatic.",
         "- Compare `annotation_tool_gt_layout` with the `annotation_tool_gt_layout_ft_1/2/3` series to estimate the value of the same Read Mode supervision when held-out layouts are human-corrected.",
         "- At each fine-tuning page count, compare `annotation_tool_pred_layout_ft_N` against `annotation_tool_gt_layout_ft_N`. Both rows use the same checkpoint trained from corrected training-page layout and Unicode text; only held-out layout correction differs.",
-        "- Gemini + GT Layout is disabled in the current experiment; Table 1 reports Gemini off-the-shelf only.",
+        "- VLM rows are end-to-end off-the-shelf acquisitions; layout-corrected VLM variants remain disabled.",
         "- Rows with `test_layout_condition=human_corrected_gt_layout` use held-out layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
         "- Fine-tuning methods record the GUI runtime OCR active-learning recipe and sibling checkpoint selector in `summary_metrics.csv`.",
         "",
@@ -1858,12 +1867,12 @@ def _write_markdown_report(
         f"Paired layout comparison rows: `{(report_dir / 'layout_mode_comparisons.csv').relative_to(report_dir).as_posix()}`",
         f"Per-fold metrics: `{(report_dir / 'fold_metrics.csv').relative_to(report_dir).as_posix()}`",
         "",
-        "## Gemini Usage And Cost",
+        "## VLM Acquisition Usage And Cost",
         "",
-        "Annotation-tool methods use local computation and are assigned zero Gemini API cost. Gemini rows report API token usage when the SDK returns usage metadata. USD estimates are only filled when `GEMINI_INPUT_USD_PER_1M_TOKENS` and `GEMINI_OUTPUT_USD_PER_1M_TOKENS` are set for the run.",
+        "Each cached provider/page acquisition is counted exactly once, independent of how many folds reuse it. Annotation-tool methods use local computation and have zero VLM API cost. USD estimates require `<PROVIDER>_INPUT_USD_PER_1M_TOKENS` and `<PROVIDER>_OUTPUT_USD_PER_1M_TOKENS`.",
         "",
         _markdown_table(
-            gemini_table_rows,
+            vlm_table_rows,
             [
                 ("Method", "Method"),
                 ("Pages", "Pages"),
@@ -1871,18 +1880,18 @@ def _write_markdown_report(
                 ("Retries", "Retries"),
                 ("Requests", "Requests"),
                 ("Missing Usage", "Missing Usage"),
-                ("Prompt Tokens", "Prompt Tokens"),
-                ("Candidate Tokens", "Candidate Tokens"),
+                ("Input Tokens", "Input Tokens"),
+                ("Output Tokens", "Output Tokens"),
                 ("Total Tokens", "Total Tokens"),
                 ("Elapsed Seconds", "Elapsed Seconds"),
                 ("Estimated USD", "Estimated USD"),
                 ("Usage Note", "Usage Note"),
             ],
         )
-        if gemini_table_rows
-        else "No Gemini usage rows found.",
+        if vlm_table_rows
+        else "No VLM acquisition usage rows found.",
         "",
-        f"Per-page Gemini usage rows: `{(report_dir / 'gemini_usage.csv').relative_to(report_dir).as_posix()}`",
+        f"Per-page VLM acquisition rows: `{(report_dir / 'vlm_usage.csv').relative_to(report_dir).as_posix()}`",
         f"Per-page metric rows: `{(report_dir / 'per_page_metrics.csv').relative_to(report_dir).as_posix()}`",
         "",
         "## Figures",
@@ -1908,7 +1917,7 @@ def write_experiment_report(
     _augment_rows_with_bootstrap_cis(summary_rows, per_page_rows)
     fold_metric_rows = _fold_metric_rows(per_page_rows)
     layout_mode_comparison_rows = _layout_mode_comparison_rows(per_page_rows)
-    usage_rows, usage_summaries = collect_gemini_usage(
+    usage_rows, usage_summaries = collect_vlm_usage(
         root,
         input_usd_per_1m_tokens=input_usd_per_1m_tokens,
         output_usd_per_1m_tokens=output_usd_per_1m_tokens,
@@ -1922,8 +1931,8 @@ def write_experiment_report(
     fold_metrics_json_path = report_dir / "fold_metrics.json"
     layout_mode_comparisons_csv_path = report_dir / "layout_mode_comparisons.csv"
     layout_mode_comparisons_json_path = report_dir / "layout_mode_comparisons.json"
-    gemini_usage_csv_path = report_dir / "gemini_usage.csv"
-    gemini_usage_json_path = report_dir / "gemini_usage.json"
+    vlm_usage_csv_path = report_dir / "vlm_usage.csv"
+    vlm_usage_json_path = report_dir / "vlm_usage.json"
 
     summary_fields = [
         "manuscript_id",
@@ -1958,20 +1967,19 @@ def write_experiment_report(
         "micro_textedit_ci_lower",
         "micro_textedit_ci_upper",
         "micro_textedit_bootstrap_unique_pages",
-        "gemini_usage_status",
-        "gemini_page_count",
-        "gemini_success_count",
-        "gemini_attempt_count",
-        "gemini_retry_count",
-        "gemini_request_count",
-        "gemini_missing_usage_count",
-        "gemini_elapsed_seconds",
-        "gemini_prompt_token_count",
-        "gemini_candidates_token_count",
-        "gemini_total_token_count",
-        "gemini_total_billable_characters",
-        "gemini_estimated_cost_usd",
-        "gemini_pricing_note",
+        "vlm_usage_status",
+        "vlm_page_count",
+        "vlm_success_count",
+        "vlm_attempt_count",
+        "vlm_retry_count",
+        "vlm_request_count",
+        "vlm_missing_usage_count",
+        "vlm_elapsed_seconds",
+        "vlm_input_token_count",
+        "vlm_output_token_count",
+        "vlm_total_token_count",
+        "vlm_estimated_cost_usd",
+        "vlm_pricing_note",
         "metrics_path",
     ]
     _write_csv(summary_csv_path, summary_rows, fieldnames=summary_fields)
@@ -1997,8 +2005,8 @@ def write_experiment_report(
             "rows": layout_mode_comparison_rows,
         },
     )
-    _write_csv(gemini_usage_csv_path, usage_rows)
-    _write_json(gemini_usage_json_path, {"rows": usage_rows, "summaries": usage_summaries})
+    _write_csv(vlm_usage_csv_path, usage_rows)
+    _write_json(vlm_usage_json_path, {"rows": usage_rows, "summaries": usage_summaries})
 
     stale_paths = (
         report_dir / "layout_effort_impact.csv",
@@ -2036,14 +2044,14 @@ def write_experiment_report(
         "off_the_shelf_table_json_path": str(table_artifacts["off_the_shelf_table_json_path"].resolve()),
         "annotation_gains_table_csv_path": str(table_artifacts["annotation_gains_table_csv_path"].resolve()),
         "annotation_gains_table_json_path": str(table_artifacts["annotation_gains_table_json_path"].resolve()),
-        "gemini_usage_csv_path": str(gemini_usage_csv_path.resolve()),
-        "gemini_usage_json_path": str(gemini_usage_json_path.resolve()),
+        "vlm_usage_csv_path": str(vlm_usage_csv_path.resolve()),
+        "vlm_usage_json_path": str(vlm_usage_json_path.resolve()),
         "figure_paths": [str(path.resolve()) for path in figure_paths],
         "method_count": len(summary_rows),
         "per_page_record_count": len(per_page_rows),
         "fold_metric_record_count": len(fold_metric_rows),
         "layout_mode_comparison_record_count": len(layout_mode_comparison_rows),
-        "gemini_usage_record_count": len(usage_rows),
+        "vlm_usage_record_count": len(usage_rows),
     }
     _write_json(manifest_path, manifest)
 
@@ -2061,8 +2069,8 @@ def write_experiment_report(
         off_the_shelf_table_json_path=table_artifacts["off_the_shelf_table_json_path"],
         annotation_gains_table_csv_path=table_artifacts["annotation_gains_table_csv_path"],
         annotation_gains_table_json_path=table_artifacts["annotation_gains_table_json_path"],
-        gemini_usage_csv_path=gemini_usage_csv_path,
-        gemini_usage_json_path=gemini_usage_json_path,
+        vlm_usage_csv_path=vlm_usage_csv_path,
+        vlm_usage_json_path=vlm_usage_json_path,
         figure_paths=tuple(figure_paths),
         manifest_path=manifest_path,
     )
@@ -2090,7 +2098,7 @@ def write_combined_table_report(
     for input_root in roots:
         run_summary_rows, run_per_page_rows = _load_summary_rows(input_root)
         _augment_rows_with_bootstrap_cis(run_summary_rows, run_per_page_rows)
-        run_usage_rows, run_usage_summaries = collect_gemini_usage(
+        run_usage_rows, run_usage_summaries = collect_vlm_usage(
             input_root,
             input_usd_per_1m_tokens=input_usd_per_1m_tokens,
             output_usd_per_1m_tokens=output_usd_per_1m_tokens,
@@ -2110,7 +2118,7 @@ def write_combined_table_report(
                 "input_root": str(input_root.resolve()),
                 "method_count": len(run_summary_rows),
                 "per_page_record_count": len(run_per_page_rows),
-                "gemini_usage_record_count": len(run_usage_rows),
+                "vlm_usage_record_count": len(run_usage_rows),
             }
         )
 
@@ -2131,8 +2139,8 @@ def write_combined_table_report(
     fold_metrics_json_path = report_dir / "fold_metrics.json"
     layout_mode_comparisons_csv_path = report_dir / "layout_mode_comparisons.csv"
     layout_mode_comparisons_json_path = report_dir / "layout_mode_comparisons.json"
-    gemini_usage_csv_path = report_dir / "gemini_usage.csv"
-    gemini_usage_json_path = report_dir / "gemini_usage.json"
+    vlm_usage_csv_path = report_dir / "vlm_usage.csv"
+    vlm_usage_json_path = report_dir / "vlm_usage.json"
     _write_csv(summary_csv_path, summary_rows)
     _write_json(summary_json_path, summary_rows)
     _write_csv(per_page_csv_path, per_page_rows)
@@ -2158,8 +2166,8 @@ def write_combined_table_report(
             "rows": comparison_rows,
         },
     )
-    _write_csv(gemini_usage_csv_path, usage_rows)
-    _write_json(gemini_usage_json_path, {"rows": usage_rows})
+    _write_csv(vlm_usage_csv_path, usage_rows)
+    _write_json(vlm_usage_json_path, {"rows": usage_rows})
 
     table_artifacts = _write_primary_table_artifacts(report_dir, summary_rows, per_page_rows)
     markdown_path = _write_markdown_report(
@@ -2185,8 +2193,8 @@ def write_combined_table_report(
             "fold_metrics_json_path": str(fold_metrics_json_path.resolve()),
             "layout_mode_comparisons_csv_path": str(layout_mode_comparisons_csv_path.resolve()),
             "layout_mode_comparisons_json_path": str(layout_mode_comparisons_json_path.resolve()),
-            "gemini_usage_csv_path": str(gemini_usage_csv_path.resolve()),
-            "gemini_usage_json_path": str(gemini_usage_json_path.resolve()),
+            "vlm_usage_csv_path": str(vlm_usage_csv_path.resolve()),
+            "vlm_usage_json_path": str(vlm_usage_json_path.resolve()),
             "off_the_shelf_table_csv_path": str(table_artifacts["off_the_shelf_table_csv_path"].resolve()),
             "off_the_shelf_table_json_path": str(table_artifacts["off_the_shelf_table_json_path"].resolve()),
             "annotation_gains_table_csv_path": str(table_artifacts["annotation_gains_table_csv_path"].resolve()),
@@ -2209,7 +2217,7 @@ def write_combined_table_report(
         per_page_csv_path=per_page_csv_path,
         fold_metrics_csv_path=fold_metrics_csv_path,
         layout_mode_comparisons_csv_path=layout_mode_comparisons_csv_path,
-        gemini_usage_csv_path=gemini_usage_csv_path,
-        gemini_usage_json_path=gemini_usage_json_path,
+        vlm_usage_csv_path=vlm_usage_csv_path,
+        vlm_usage_json_path=vlm_usage_json_path,
         manifest_path=manifest_path,
     )

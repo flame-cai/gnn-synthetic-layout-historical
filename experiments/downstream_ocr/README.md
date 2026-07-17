@@ -94,7 +94,7 @@ Evaluate already generated PAGE-XML predictions:
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli evaluate-existing `
   --manuscript-root app\input_manuscripts\yajn `
   --predictions-root path\to\prediction-tree `
-  --method-id vlm_e2e `
+  --method-id gemini_e2e `
   --output-root app\tests\logs\downstream_ocr_yajn_eval `
   --write-diagnostics
 ```
@@ -106,7 +106,7 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli adapt-vlm-json 
   --manuscript-root app\input_manuscripts\yajn `
   --json-root path\to\raw-json `
   --output-root app\tests\logs\downstream_ocr_yajn_vlm_json `
-  --method-id vlm_e2e `
+  --method-id gemini_e2e `
   --write-diagnostics
 ```
 
@@ -142,9 +142,67 @@ shared with `annotation_tool_e2e`, so the paired comparison changes the OCR
 checkpoint or test-layout condition without rerunning a different layout
 prediction for each method.
 
-The only enabled Gemini-backed method is `vlm_e2e`, the off-the-shelf
-page-image condition. `gemini_gt_layout` is disabled for the current experiment.
-Gemini calls require `GEMINI_API_KEY` in `app/.env` or the process environment.
+## One-Time VLM Pre-Prediction
+
+Paid VLM inference is a separate acquisition phase. Acquire every page once,
+before creating or selecting folds:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_new `
+  --output-root app\tests\logs\downstream_ocr_vlm_cache `
+  --provider-id gemini `
+  --provider-id openai `
+  --provider-id claude
+```
+
+The enabled provider methods are:
+
+- `gemini_e2e`: `gemini-3.5-flash`
+- `openai_e2e`: `gpt-5.6-luna`
+- `claude_e2e`: `claude-sonnet-5`
+
+All three receive the same resized page image followed by the exact
+`VLM_END_TO_END_PROMPT` string from `adapter.py`. Keys are read from `app/.env`
+through `GEMINI_API_KEY`, `OPENAI_API_KEY`, and `CLAUDE_API_KEY`. Keys and image
+bytes are never written to the cache.
+
+The cache is immutable at the page/request level. Its request fingerprint pins
+the provider, exact model, exact prompt, image bytes, and template PAGE-XML.
+Successful outputs and failures after retry exhaustion are both terminal. A
+second acquisition command validates and reuses them without an API call.
+An interrupted non-terminal page directory is refused because automatically
+retrying it could duplicate a paid request. Use a new cache root after manual
+inspection.
+
+`--max-retries 3` means three retries after the initial attempt. Raw responses,
+attempt metadata, normalized JSON, PAGE-XML, token usage, and terminal status
+are retained per page.
+
+DeepSeek V4-Flash is deliberately not registered: the official DeepSeek API
+documents V4 as text-only and rejects image content. Sarvam is deferred.
+
+Run folds strictly offline by pointing `run-methods` at the completed cache:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_new `
+  --output-root app\tests\logs\downstream_ocr_all_manuscripts `
+  --vlm-predictions-root app\tests\logs\downstream_ocr_vlm_cache `
+  --method-id gemini_e2e `
+  --method-id openai_e2e `
+  --method-id claude_e2e `
+  --method-id annotation_tool_e2e
+```
+
+Before doing local OCR work, `run-methods` validates that every requested VLM
+cache contains the exact current page set and matching fingerprints. It then
+copies only each fold's test-page predictions into that fold's run directory.
+This command never loads an API key or performs a VLM network request.
 
 Each evaluation command writes an automatic report under:
 
@@ -161,15 +219,14 @@ The report folder includes:
 - `layout_mode_comparisons.csv` and `layout_mode_comparisons.json`
 - `table_1_off_the_shelf_models.csv` and `table_1_off_the_shelf_models.json`
 - `table_2_annotation_tool_gains.csv` and `table_2_annotation_tool_gains.json`
-- `gemini_usage.csv` and `gemini_usage.json`
+- `vlm_usage.csv` and `vlm_usage.json`
 - figures under `figures/`
 
 The former `micro_page_cer_by_method.png` and `micro_textedit_by_method.png`
 bar figures are no longer generated. They are replaced by two paper tables:
 
-- Table 1, off-the-shelf models, currently includes Gemini only. The table is
-  method-registry driven so future ChatGPT or Claude rows can be added with the
-  same prompt/input/test-set contract.
+- Table 1 contains the enabled Gemini, OpenAI, and Claude off-the-shelf methods
+  under the same prompt/input/test-set contract.
 - Table 2, annotation-tool gains, compares 0/1/2/3-page fine-tuning with and
   without GT layout correction. It records Micro Page CER, Micro TextEdit, and
   active Layout Mode correction seconds per evaluated page when
@@ -180,14 +237,18 @@ Deterministic 95% page-cluster bootstrap confidence intervals use the unique
 page across folds are resampled together. Read Mode fine-tuning effort is
 intentionally not included in the layout timing estimate.
 
-Gemini methods record SDK usage metadata when available, including prompt,
-candidate, and total token counts. Annotation-tool methods use local
-computation and are reported with zero Gemini API cost. USD estimates are left
-blank unless you provide Gemini rates through environment variables:
+VLM methods record provider usage metadata when available. Each acquired
+provider/page result is counted once, even when several folds reuse it.
+Annotation-tool methods use local computation and have zero VLM API cost. USD
+estimates are blank unless provider-specific rates are supplied:
 
 ```powershell
 $env:GEMINI_INPUT_USD_PER_1M_TOKENS="..."
 $env:GEMINI_OUTPUT_USD_PER_1M_TOKENS="..."
+$env:OPENAI_INPUT_USD_PER_1M_TOKENS="..."
+$env:OPENAI_OUTPUT_USD_PER_1M_TOKENS="..."
+$env:CLAUDE_INPUT_USD_PER_1M_TOKENS="..."
+$env:CLAUDE_OUTPUT_USD_PER_1M_TOKENS="..."
 ```
 
 You can regenerate only the report for an existing run:
@@ -204,7 +265,7 @@ once:
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli write-combined-report `
   --input-root app\tests\logs\downstream_ocr_yajn `
   --input-root app\tests\logs\downstream_ocr_dense `
-  --input-root app\tests\logs\downstream_ocr_circle_10 `
+  --input-root app\tests\logs\downstream_ocr_circle_new `
   --output-root app\tests\logs\downstream_ocr_combined_tables
 ```
 
@@ -215,9 +276,12 @@ combined report after the per-manuscript runs finish:
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
   --manuscript-root app\input_manuscripts\yajn `
   --manuscript-root app\input_manuscripts\dense `
-  --manuscript-root app\input_manuscripts\circle_10 `
+  --manuscript-root app\input_manuscripts\circle_new `
   --output-root app\tests\logs\downstream_ocr_all_manuscripts `
-  --method-id vlm_e2e `
+  --vlm-predictions-root app\tests\logs\downstream_ocr_vlm_cache `
+  --method-id gemini_e2e `
+  --method-id openai_e2e `
+  --method-id claude_e2e `
   --method-id annotation_tool_e2e `
   --method-id annotation_tool_gt_layout `
   --method-id annotation_tool_pred_layout_ft_1 `
@@ -250,7 +314,7 @@ its failure `status` in the per-page record.
 When `--write-diagnostics` is passed, evaluated pages get polygon overlay and
 pixel-mask overlap PNGs under `<output-root>/diagnostics/`.
 
-## Gemini/VLM Adapter
+## VLM Adapter
 
 `adapter.py` defines the VLM end-to-end prompt and a JSON-to-PAGE adapter that
 accepts either `polygon_2d` or `box_2d`. Curved and circular lines should use

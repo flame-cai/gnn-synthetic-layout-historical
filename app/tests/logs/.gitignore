@@ -1,2 +1,3 @@
 *
 !.gitignore
+!downstream_ocr_vlm_cache/

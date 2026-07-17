@@ -20,6 +20,59 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def _write_vlm_cache(
+    root: Path,
+    *,
+    manuscript_id: str = "m",
+    status: str = "success",
+    attempt_count: int = 1,
+    input_tokens: int = 142,
+    output_tokens: int = 58,
+) -> dict:
+    cache_dir = root / "acquisitions" / manuscript_id / "gemini_e2e"
+    result_path = cache_dir / "pages" / "p1" / "result.json"
+    _write_json(
+        result_path,
+        {
+            "status": status,
+            "attempt_count": attempt_count,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_tokens": input_tokens + output_tokens,
+            "elapsed_seconds": 1.5,
+        },
+    )
+    manifest_path = cache_dir / "manifest.json"
+    _write_json(
+        manifest_path,
+        {
+            "manuscript_id": manuscript_id,
+            "provider": {
+                "provider_id": "gemini",
+                "method_id": "gemini_e2e",
+                "display_name": "Gemini (End-to-End)",
+                "model_id": "gemini-3.5-flash",
+                "api_key_env": "GEMINI_API_KEY",
+            },
+            "page_ids": ["p1"],
+            "page_count": 1,
+            "max_retries_after_initial_attempt": 3,
+            "pages": {
+                "p1": {
+                    "status": status,
+                    "result_path": "pages/p1/result.json",
+                    "prediction_path": "pages/p1/prediction.xml",
+                }
+            },
+        },
+    )
+    return {
+        "manifest_path": str(manifest_path.resolve()),
+        "provider": {"provider_id": "gemini", "model_id": "gemini-3.5-flash"},
+        "page_count": 1,
+    }
+
+
 def _page_record(
     *,
     method_id: str,
@@ -120,9 +173,10 @@ class DownstreamOcrReportingTests(unittest.TestCase):
         self.assertAlmostEqual(result["ci_lower"], 0.2)
         self.assertAlmostEqual(result["ci_upper"], 0.8)
 
-    def test_report_summarizes_metrics_and_gemini_usage(self):
+    def test_report_summarizes_metrics_and_cached_vlm_usage(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
+            cache_metadata = _write_vlm_cache(root)
             manuscript_root = root / "manuscript"
             _write_json(
                 manuscript_root / "layout_analysis_output" / "layout_effort.json",
@@ -140,17 +194,19 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                 },
             )
             _write_json(
-                root / "metrics" / "vlm_e2e" / "metrics.json",
+                root / "metrics" / "gemini_e2e" / "metrics.json",
                 {
                     "method": {
-                        "method_id": "vlm_e2e",
-                        "display_name": "VLM (End-to-End)",
+                        "method_id": "gemini_e2e",
+                        "display_name": "Gemini (End-to-End)",
                         "uses_gt_layout": False,
                         "uses_finetuning": False,
                         "finetune_page_count": 0,
-                        "uses_gemini": True,
+                        "provider_id": "gemini",
+                        "model_id": "gemini-3.5-flash",
                     },
                     "manuscript_id": "m",
+                    "preprediction_cache": cache_metadata,
                     "aggregate": {
                         "page_count": 1,
                         "valid_output_rate": 1.0,
@@ -166,7 +222,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                     },
                     "page_records": [
                         _page_record(
-                            method_id="vlm_e2e",
+                            method_id="gemini_e2e",
                             page_id="p1",
                             page_cer_distance=2,
                             page_cer_gt_chars=10,
@@ -356,19 +412,6 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                     "page_records": [],
                 },
             )
-            _write_json(
-                root / "runs" / "vlm_e2e" / "fold_1" / "gemini_usage" / "p1.json",
-                {
-                    "page_id": "p1",
-                    "status": "success",
-                    "elapsed_seconds": 1.5,
-                    "usage_metadata": {
-                        "prompt_token_count": 142,
-                        "candidates_token_count": 58,
-                        "total_token_count": 200,
-                    },
-                },
-            )
             _write_json(root / "report" / "layout_effort_impact.json", {"stale": True})
             stale_figure = root / "report" / "figures" / "layout_effort_vs_ocr_gain.png"
             stale_figure.parent.mkdir(parents=True, exist_ok=True)
@@ -382,21 +425,21 @@ class DownstreamOcrReportingTests(unittest.TestCase):
 
             self.assertTrue(artifacts.markdown_path.exists())
             self.assertTrue(artifacts.summary_csv_path.exists())
-            self.assertTrue(artifacts.gemini_usage_csv_path.exists())
+            self.assertTrue(artifacts.vlm_usage_csv_path.exists())
             self.assertTrue(artifacts.off_the_shelf_table_csv_path.exists())
             self.assertTrue(artifacts.annotation_gains_table_csv_path.exists())
             summary = json.loads(artifacts.summary_json_path.read_text(encoding="utf-8"))
             by_method = {row["method_id"]: row for row in summary}
             self.assertNotIn("gemini_gt_layout", by_method)
-            self.assertEqual(by_method["vlm_e2e"]["gemini_total_token_count"], 200)
-            self.assertEqual(by_method["vlm_e2e"]["gemini_attempt_count"], 1)
-            self.assertEqual(by_method["vlm_e2e"]["gemini_retry_count"], 0)
-            self.assertAlmostEqual(by_method["vlm_e2e"]["gemini_estimated_cost_usd"], 0.000258)
-            self.assertAlmostEqual(by_method["vlm_e2e"]["micro_page_cer_ci_lower"], 0.2)
-            self.assertAlmostEqual(by_method["vlm_e2e"]["micro_page_cer_ci_upper"], 0.2)
-            self.assertEqual(by_method["vlm_e2e"]["micro_page_cer_bootstrap_unique_pages"], 1)
-            self.assertEqual(by_method["annotation_tool_gt_layout"]["gemini_estimated_cost_usd"], 0.0)
-            self.assertEqual(by_method["vlm_e2e"]["layout_condition"], "predicted_layout")
+            self.assertEqual(by_method["gemini_e2e"]["vlm_total_token_count"], 200)
+            self.assertEqual(by_method["gemini_e2e"]["vlm_attempt_count"], 1)
+            self.assertEqual(by_method["gemini_e2e"]["vlm_retry_count"], 0)
+            self.assertAlmostEqual(by_method["gemini_e2e"]["vlm_estimated_cost_usd"], 0.000258)
+            self.assertAlmostEqual(by_method["gemini_e2e"]["micro_page_cer_ci_lower"], 0.2)
+            self.assertAlmostEqual(by_method["gemini_e2e"]["micro_page_cer_ci_upper"], 0.2)
+            self.assertEqual(by_method["gemini_e2e"]["micro_page_cer_bootstrap_unique_pages"], 1)
+            self.assertEqual(by_method["annotation_tool_gt_layout"]["vlm_estimated_cost_usd"], 0.0)
+            self.assertEqual(by_method["gemini_e2e"]["layout_condition"], "predicted_layout")
             self.assertEqual(by_method["annotation_tool_gt_layout"]["layout_condition"], "human_corrected_gt_layout")
             self.assertEqual(
                 by_method["annotation_tool_pred_layout_ft_1"]["training_layout_condition"],
@@ -439,7 +482,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                 fold_rows = list(csv.DictReader(handle))
             self.assertEqual(len(fold_rows), 3)
             off_table = json.loads(artifacts.off_the_shelf_table_json_path.read_text(encoding="utf-8"))
-            self.assertEqual([row["method_id"] for row in off_table["rows"]], ["vlm_e2e"])
+            self.assertEqual([row["method_id"] for row in off_table["rows"]], ["gemini_e2e"])
             gains_table = json.loads(artifacts.annotation_gains_table_json_path.read_text(encoding="utf-8"))
             gains_by_step = {row["finetune_pages"]: row for row in gains_table["rows"]}
             self.assertAlmostEqual(gains_by_step[0]["page_cer_relative_reduction_percent"], 75.0)
@@ -454,20 +497,30 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertFalse((root / "report" / "figures" / "micro_textedit_by_method.png").exists())
             self.assertFalse(stale_figure.exists())
 
-    def test_failed_gemini_request_without_metadata_is_not_reported_as_free(self):
+    def test_failed_vlm_request_without_metadata_is_not_reported_as_free(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
+            cache_metadata = _write_vlm_cache(
+                root,
+                status="api_timeout",
+                attempt_count=4,
+                input_tokens=0,
+                output_tokens=0,
+            )
             _write_json(
-                root / "metrics" / "vlm_e2e" / "metrics.json",
+                root / "metrics" / "gemini_e2e" / "metrics.json",
                 {
                     "method": {
-                        "method_id": "vlm_e2e",
-                        "display_name": "VLM (End-to-End)",
+                        "method_id": "gemini_e2e",
+                        "display_name": "Gemini (End-to-End)",
                         "uses_gt_layout": False,
                         "uses_finetuning": False,
                         "finetune_page_count": 0,
-                        "uses_gemini": True,
+                        "provider_id": "gemini",
+                        "model_id": "gemini-3.5-flash",
                     },
+                    "manuscript_id": "m",
+                    "preprediction_cache": cache_metadata,
                     "aggregate": {
                         "page_count": 1,
                         "valid_output_rate": 0.0,
@@ -484,32 +537,13 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                     "page_records": [],
                 },
             )
-            _write_json(
-                root / "runs" / "vlm_e2e" / "fold_1" / "gemini_usage" / "p1.json",
-                {
-                    "page_id": "p1",
-                    "status": "api_timeout",
-                    "elapsed_seconds": 45.0,
-                    "attempt_count": 4,
-                    "retry_count": 3,
-                    "max_retries": 3,
-                    "request_count": 4,
-                    "usage_records": [],
-                    "usage_metadata": {
-                        "prompt_token_count": 0,
-                        "candidates_token_count": 0,
-                        "total_token_count": 0,
-                    },
-                },
-            )
-
             artifacts = write_experiment_report(
                 root,
                 input_usd_per_1m_tokens=1.5,
                 output_usd_per_1m_tokens=9.0,
             )
 
-            usage = json.loads(artifacts.gemini_usage_json_path.read_text(encoding="utf-8"))
+            usage = json.loads(artifacts.vlm_usage_json_path.read_text(encoding="utf-8"))
             self.assertEqual(usage["rows"][0]["attempt_count"], 4)
             self.assertEqual(usage["rows"][0]["retry_count"], 3)
             self.assertEqual(usage["rows"][0]["request_count"], 4)
@@ -517,11 +551,11 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertIsNone(usage["rows"][0]["estimated_cost_usd"])
 
             summary = json.loads(artifacts.summary_json_path.read_text(encoding="utf-8"))
-            self.assertEqual(summary[0]["gemini_attempt_count"], 4)
-            self.assertEqual(summary[0]["gemini_retry_count"], 3)
-            self.assertEqual(summary[0]["gemini_request_count"], 4)
-            self.assertEqual(summary[0]["gemini_missing_usage_count"], 1)
-            self.assertIn("actual API cost may be higher", summary[0]["gemini_pricing_note"])
+            self.assertEqual(summary[0]["vlm_attempt_count"], 4)
+            self.assertEqual(summary[0]["vlm_retry_count"], 3)
+            self.assertEqual(summary[0]["vlm_request_count"], 4)
+            self.assertEqual(summary[0]["vlm_missing_usage_count"], 1)
+            self.assertIn("actual API cost may be higher", summary[0]["vlm_pricing_note"])
 
     def test_combined_table_report_keeps_manuscripts_separate(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -531,7 +565,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                 run_root = root / f"run_{manuscript_id}"
                 input_roots.append(run_root)
                 for method_id, uses_gt_layout, distance in (
-                    ("vlm_e2e", False, 3 + cer_offset),
+                    ("gemini_e2e", False, 3 + cer_offset),
                     ("annotation_tool_e2e", False, 5 + cer_offset),
                     ("annotation_tool_gt_layout", True, 2 + cer_offset),
                 ):
@@ -560,7 +594,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                                 "uses_gt_layout": uses_gt_layout,
                                 "uses_finetuning": False,
                                 "finetune_page_count": 0,
-                                "uses_gemini": method_id == "vlm_e2e",
+                                "provider_id": "gemini" if method_id == "gemini_e2e" else None,
                             },
                             "manuscript_id": manuscript_id,
                             "aggregate": {

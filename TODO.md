@@ -21,6 +21,34 @@ If english predicted, flip the line vertically and try again. Choose the predict
 व्युहिश्र्वेत्‌=१
 छद्रवति=४
 
+torch-geometric 2.7.0
+
+# Prepredict
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_new `
+  --output-root app\tests\logs\downstream_ocr_vlm_cache `
+  --provider-id claude
+
+
+# Run Experiment
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_new `
+  --output-root app\tests\logs\ocr_5fold_new `
+  --vlm-predictions-root app\tests\logs\downstream_ocr_vlm_cache `
+  --method-id gemini_e2e `
+  --method-id openai_e2e `
+  --method-id annotation_tool_e2e `
+  --method-id annotation_tool_gt_layout `
+  --method-id annotation_tool_pred_layout_ft_1 `
+  --method-id annotation_tool_gt_layout_ft_1 `
+  --method-id annotation_tool_pred_layout_ft_2 `
+  --method-id annotation_tool_gt_layout_ft_2 `
+  --method-id annotation_tool_pred_layout_ft_3 `
+  --method-id annotation_tool_gt_layout_ft_3
 
 
 

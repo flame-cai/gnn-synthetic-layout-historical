@@ -58,7 +58,7 @@ def make_three_folds(
     page_ids: list[str] | tuple[str, ...],
     *,
     train_size: int = 3,
-    fold_count: int = 3,
+    fold_count: int = 5,
     seed: int = DEFAULT_SPLIT_SEED,
 ) -> tuple[Fold, ...]:
     ordered = tuple(sorted(page_ids))
@@ -105,7 +105,7 @@ def write_folds_json(
     folds: tuple[Fold, ...],
     split_seed: int = DEFAULT_SPLIT_SEED,
     train_size: int = 3,
-    fold_count: int = 3,
+    fold_count: int = 5,
 ) -> Path:
     output = Path(folds_path)
     ordered = tuple(sorted(str(page_id) for page_id in page_ids))
@@ -149,7 +149,7 @@ def load_or_create_folds_json(
     page_ids: list[str] | tuple[str, ...],
     split_seed: int = DEFAULT_SPLIT_SEED,
     train_size: int = 3,
-    fold_count: int = 3,
+    fold_count: int = 5,
 ) -> tuple[Fold, ...]:
     path = Path(folds_path)
     ordered = tuple(sorted(str(page_id) for page_id in page_ids))

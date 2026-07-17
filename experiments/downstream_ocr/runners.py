@@ -38,6 +38,8 @@ from .splits import (
     discover_page_ids,
     load_or_create_folds_json,
 )
+from .vlm_cache import materialize_cached_fold, validate_vlm_cache
+from .vlm_providers import VLM_PROVIDER_SPECS, is_vlm_method
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -104,15 +106,26 @@ class MethodSpec:
     uses_gt_layout: bool
     uses_finetuning: bool = False
     finetune_page_count: int = 0
-    uses_gemini: bool = False
+    provider_id: str | None = None
+    model_id: str | None = None
 
 
 DISABLED_METHOD_IDS = {
-    "gemini_gt_layout": "Gemini + GT Layout is disabled for the current experiment; use vlm_e2e for Gemini off-the-shelf.",
+    "gemini_gt_layout": "Gemini + GT Layout is disabled for the current experiment.",
+    "vlm_e2e": "The provider-ambiguous vlm_e2e method was removed. Use gemini_e2e, openai_e2e, or claude_e2e.",
 }
 
 METHODS: tuple[MethodSpec, ...] = (
-    MethodSpec("vlm_e2e", "VLM (End-to-End)", uses_gt_layout=False, uses_gemini=True),
+    *(
+        MethodSpec(
+            spec.method_id,
+            spec.display_name,
+            uses_gt_layout=False,
+            provider_id=spec.provider_id,
+            model_id=spec.model_id,
+        )
+        for spec in VLM_PROVIDER_SPECS
+    ),
     MethodSpec("annotation_tool_e2e", "Annotation tool (End-to-End)", uses_gt_layout=False),
     MethodSpec("annotation_tool_gt_layout", "Annotation tool (End-to-End with Graph Layout Grounding)", uses_gt_layout=True),
     MethodSpec("annotation_tool_pred_layout_ft_1", "Annotation tool (Predicted test layout, 1-page fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=1),
@@ -1447,7 +1460,7 @@ def adapt_vlm_json_and_evaluate(
     manuscript_root: str | Path,
     json_root: str | Path,
     output_root: str | Path,
-    method_id: str = "vlm_e2e",
+    method_id: str = "gemini_e2e",
     write_diagnostics: bool = False,
     fold_ids: Iterable[str] | None = None,
     max_test_pages: int | None = None,
@@ -1599,11 +1612,23 @@ def run_method(
     fold: Fold,
     method: MethodSpec,
     run_dir: Path,
+    vlm_predictions_root: Path | None = None,
 ) -> tuple[Path, dict[str, str] | None]:
     if method.method_id in DISABLED_METHOD_IDS:
         raise ValueError(DISABLED_METHOD_IDS[method.method_id])
-    if method.method_id == "vlm_e2e":
-        return run_vlm_end_to_end_gemini(paths=paths, fold=fold, method=method, run_dir=run_dir)
+    if is_vlm_method(method.method_id):
+        if vlm_predictions_root is None:
+            raise ValueError(
+                f"--vlm-predictions-root is required for cached VLM method {method.method_id}."
+            )
+        prediction_dir, statuses, _ = materialize_cached_fold(
+            paths=paths,
+            fold=fold,
+            cache_root=vlm_predictions_root,
+            method_id=method.method_id,
+            output_dir=run_dir / "predictions",
+        )
+        return prediction_dir, statuses
     if method.method_id == "annotation_tool_e2e":
         return run_annotation_tool_auto_layout(paths=paths, fold=fold, method=method, run_dir=run_dir), None
     if method.uses_gt_layout:
@@ -1620,11 +1645,24 @@ def run_methods_experiment(
     fold_ids: Iterable[str] | None = None,
     max_test_pages: int | None = None,
     split_seed: int = DEFAULT_SPLIT_SEED,
+    vlm_predictions_root: str | Path | None = None,
     input_usd_per_1m_tokens: float | None = None,
     output_usd_per_1m_tokens: float | None = None,
 ) -> dict:
     paths = default_manuscript_paths(manuscript_root)
     output_root = Path(output_root)
+    methods = tuple(method_by_id(method_id) for method_id in method_ids)
+    vlm_methods = tuple(method for method in methods if is_vlm_method(method.method_id))
+    if vlm_methods and vlm_predictions_root is None:
+        raise ValueError("--vlm-predictions-root is required when any cached VLM method is selected.")
+    cache_manifests = {
+        method.method_id: validate_vlm_cache(
+            paths=paths,
+            cache_root=Path(vlm_predictions_root),
+            method_id=method.method_id,
+        )
+        for method in vlm_methods
+    }
     folds = select_folds(
         _load_or_create_run_folds(paths, output_root, split_seed=split_seed),
         fold_ids=fold_ids,
@@ -1632,13 +1670,13 @@ def run_methods_experiment(
     )
     _write_experiment_reproducibility(output_root)
     results = {}
-    methods = tuple(method_by_id(method_id) for method_id in method_ids)
     records_by_method = _run_methods_with_finetuning_ladder(
         paths=paths,
         folds=folds,
         methods=methods,
         output_root=output_root,
         write_diagnostics=write_diagnostics,
+        vlm_predictions_root=Path(vlm_predictions_root) if vlm_predictions_root is not None else None,
     )
     for method in methods:
         all_records = records_by_method[method.method_id]
@@ -1650,6 +1688,19 @@ def run_methods_experiment(
             "aggregate": aggregate_page_records(all_records),
             "page_records": all_records,
         }
+        if method.method_id in cache_manifests:
+            cache_dir = (
+                Path(vlm_predictions_root)
+                / paths.manuscript_id
+                / method.method_id
+            )
+            payload["preprediction_cache"] = {
+                "cache_root": str(Path(vlm_predictions_root).resolve()),
+                "manifest_path": str((cache_dir / "manifest.json").resolve()),
+                "provider": cache_manifests[method.method_id]["provider"],
+                "prompt_sha256": cache_manifests[method.method_id]["prompt_sha256"],
+                "page_count": cache_manifests[method.method_id]["page_count"],
+            }
         _write_json(output_root / "metrics" / method.method_id / "metrics.json", payload)
         _write_csv(output_root / "metrics" / method.method_id / "per_page.csv", all_records)
         results[method.method_id] = payload
@@ -1668,6 +1719,7 @@ def _run_methods_with_finetuning_ladder(
     methods: Iterable[MethodSpec],
     output_root: Path,
     write_diagnostics: bool = False,
+    vlm_predictions_root: Path | None = None,
 ) -> dict[str, list[dict]]:
     method_list = tuple(methods)
     records_by_method: dict[str, list[dict]] = {method.method_id: [] for method in method_list}
@@ -1730,6 +1782,7 @@ def _run_methods_with_finetuning_ladder(
                     fold=fold,
                     method=method,
                     run_dir=run_dir,
+                    vlm_predictions_root=vlm_predictions_root,
                 )
             records_by_method[method.method_id].extend(
                 evaluate_prediction_folder(
