@@ -40,7 +40,8 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli validate-datase
 Repair mode is in-memory during evaluation. It follows the production crop
 boundary in spirit: invalid PAGE `Coords` are rasterized as filled contours in
 page coordinates, valid foreground contours are extracted, and those repaired
-geometries are used for IoU, masks, reading order, and TextEdit grouping.
+geometries are used for IoU, masks, and Page CER reading order. TextEdit reads
+only direct `TextLine/TextEquiv/Unicode` transcriptions and never uses geometry.
 
 Prepare production-style GT-layout OCR crops for a small smoke check:
 
@@ -228,8 +229,8 @@ bar figures are no longer generated. They are replaced by two paper tables:
 - Table 1 contains the enabled Gemini, OpenAI, and Claude off-the-shelf methods
   under the same prompt/input/test-set contract.
 - Table 2, annotation-tool gains, compares 0/1/2/3-page fine-tuning with and
-  without GT layout correction. It records Micro Page CER, Micro TextEdit, and
-  active Layout Mode correction seconds per evaluated page when
+  without GT layout correction. It records Micro Page CER, TextEdit
+  `ALL_page_avg`, and active Layout Mode correction seconds per evaluated page when
   `layout_effort.json` is available.
 
 Deterministic 95% page-cluster bootstrap confidence intervals use the unique
@@ -257,6 +258,17 @@ You can regenerate only the report for an existing run:
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli write-report `
   --output-root app\tests\logs\downstream_ocr_yajn
 ```
+
+To recompute only TextEdit from retained PAGE-XML predictions and then rebuild
+every manuscript and combined report under an existing multi-manuscript run:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli refresh-textedit `
+  --output-root app\tests\logs\ocr_5fold_new
+```
+
+This command preserves all non-TextEdit per-page and aggregate metric values.
+Missing prediction XML is evaluated as an empty prediction rather than skipped.
 
 You can prepare the two paper tables for multiple existing manuscript runs at
 once:
@@ -305,11 +317,27 @@ The evaluator implements:
 - Object Precision/Recall/G-F1 at IoU 0.50 and 0.75
 - Pixel Precision/Recall/F1 from polygon masks
 - Page CER
-- Line-group TextEdit (OmniDocBench-style)
+- Unordered PAGE-XML TextLine TextEdit using OmniDocBench v1.5 `simple_match`
 - pooled fold/manuscript aggregates and valid output rate
 
 Failed model output is represented as an empty PAGE prediction and must keep
 its failure `status` in the per-page record.
+
+TextEdit treats each PAGE `TextLine` as one atomic unit. It extracts one direct
+`TextEquiv/Unicode` transcription per line, applies the official
+`textblock2unicode` and `clean_string` normalization, computes all pairwise
+normalized edit costs, and uses the official Hungarian `simple_match`.
+Coordinates, baselines, XML order, reading order, region membership, region
+labels, IDs, image dimensions, and all geometry are ignored. The primary score
+is official `Edit_dist.ALL_page_avg`, the mean of page-level ratios;
+`edit_whole` and `edit_sample_avg` are retained as supplementary outputs.
+
+The pinned source is OmniDocBench branch `v1_5`, commit
+`59b103c4b47d3a01fada83491585d6512a40c0bc`. The minimal vendored source,
+Apache-2.0 license, modification notice, and upstream manifest are under
+`omnidocbench_v1_5/`. The adapter is registered as
+`pagexml2pagexml_dataset`; its example configuration is
+`configs/pagexml_textedit.yaml`.
 
 When `--write-diagnostics` is passed, evaluated pages get polygon overlay and
 pixel-mask overlap PNGs under `<output-root>/diagnostics/`.

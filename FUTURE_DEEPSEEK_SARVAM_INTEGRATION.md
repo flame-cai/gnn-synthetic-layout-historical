@@ -1009,74 +1009,19 @@ v1.5 uses truth-value checks on pred_idx when filling some diagnostic metadata, 
 
 
 
+In the below experiment code, and in this experiment report, we are calculating the performance of various competing methods Gemini, OpenAI, claude, and Annotation Tool Variants (with and without finetuning and layout correction). 
 
+Experiment code:
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\experiments\downstream_ocr
 
-We much implement textedit exactly, but treat each text-line predicted by Sarvam and also  (Gemini, OpenAI, claude) as a text_block, after applying the respective appropriate adapters for both Sarvam and (Gemini, OpenAI, claude). But everything else needs to be exactly implemented.
+The methods which currently use API are Gemini, OpenAI, claude/
 
-Then implement sarvam. It does predicted with text-line level granularity. So we need an adapter which will parse the predicted text-lines in HTML as text-blocks for a fair evaluation with Gemini and OpenAI.
+Right now, we want to add another competing method "Sarvam" which will use the API Key:
+SARVAM_API_KEY="XXX" in app/.env, and add it's predictions to the experiment:
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\tests\logs\ocr_5fold_new
 
-- Sarvam gives text-line level text (the textedit matching can help Sarvam)
-- GT has text-line level text 
-- Annotation tool has text-line level text (the textedit cannot help)
-- Gemini, Openai, Claude also has text-line level text. (the textedit cannot help)
-
-################
-
-Thus we can use the TextEdit Metric from OmniDocBench, but should consider each detected text-line as a paragraph when calculating the metric.
-TextEdit metric does not depend on the text-line locations or anything spatial.
-
-The requirements are:
-
-- P(1) and P(2) must be adjacent to each other so they can be merged.
-- Their internal order must be correct.
-- The merged text must be sufficiently similar to GT(122)
-
-There is no requirement in the original OmniDocBench TextEdit matching that prediction index 1 must match a GT index near 1. The matching searches for textually similar GT–prediction pairs and allows adjacent paragraphs to be merged or split.
-
-so being predictions being adjacent to each other help the matching? but is this matching like almost being lenient? and if the predictions are already "good" in the sense that they don't need to be split or merged.. then the matching (and the prediction order) should not matter?
-
-Your conclusion is therefore correct under these conditions:
-- predictions already form good one-to-one paragraphs;
-- paragraphs are sufficiently distinct to match unambiguously;
-- there are no major missing or duplicate blocks.
-###########
-
-
-
-In OmniDocBench’s evaluation terminology, the textual units evaluated by TextEdit are grouped under the category:
-
-text_block
-
-The configuration uses:
-
-text_block:  # Configuration for text paragraphs
-  metric:
-    - Edit_dist
-
-For predictions, the model normally outputs page-level Markdown. OmniDocBench parses and segments that Markdown—primarily using blank lines or double line breaks—to create paragraph-like units that are evaluated as text_block items.
-
-The approximate pipeline is:
-
-Prediction Markdown
-        ↓
-Markdown parsing and paragraph segmentation
-        ↓
-Sequence of text_block evaluation items
-        ↓
-simple_match or quick_match
-        ↓
-TextEdit
-
-The important nuance is that text_block is an evaluation category, not a guarantee that every unit is a true semantic paragraph.
-
-A predicted text_block may correspond to:
-
-a text-line in a historical manuscript page (which is prepared by an adapter to convert predicted Sarvam and (Gemini, Openai)) outputs.
-
-
-###################
-Saravam Vision does not localize. It output in HTML format, without the locations of the text-lines.
-It however distinguishes between text-lines: which can be deduced using </p> and </br>.
+The things we want to focus on in this, is that Sarvam's predictions are in HTML format, which we will need to convert to the expected PAGE-XML format.
+Saravam does not localize. It output in HTML format, without the locations of the text-lines. It however distinguishes between text-lines: which can be deduced using </p> and </br>, for example:
 
 <p class="paragraph">हृत्तिको द्यात<br/>
 प्राग्भवति=१</p>
@@ -1085,6 +1030,15 @@ It however distinguishes between text-lines: which can be deduced using </p> and
 स्वप्राकास्पस्थले=५<br/>
 एजनसर्वनेत्वा<br/>
 =३</p>
+
+Hence please think carefully how to extract each text-line in the HTML as a <TextLine><TextEquiv><Unicode>.
+
+Thus we want to take these text-lines distinguished in the HTML and format them as <TextLine><TextEquiv><Unicode>. Every textline in each page will have just one TextRegion. Also in the resulting PAGE-XML Baseline and Coords will be empty, as the HTML does give any information about the position of the Baseline in the image.
+
+Important points:
+- We want to get sarvam's predictions only once, convert them to PAGE-XML, and save these predicts in PAGE-XML format in C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\tests\logs\downstream_ocr_vlm_cache. This cache predictions can we reused for different data splits, folds, when generating the report.
+- Ensure that the conversion happens such that the downstream experiment report generation happens smoothly. We are just implementing another method like the existing claude_e2e, gemini_e2e, and openai_e2e. It's just that this new method Sarvam needs an adapter to convert it's HTML output to the expected PAGE-XML format, and then store it's predictions for each page in each manuscript (circle_new, dense, yajn) in the app\tests\logs\downstream_ocr_vlm_cache. Hence please think about the right place to write the sarvam implementation.
+- Once done, please tell me which command to run to add Sarvam's predictions to the VLM cache for all pages of all three manuscripts.
 
 
 # Example Input:

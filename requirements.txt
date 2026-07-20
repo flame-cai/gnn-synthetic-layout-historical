@@ -49,3 +49,6 @@ pydantic
 wandb
 nvidia-ml-py3
 lxml
+python-Levenshtein
+pylatexenc
+beautifulsoup4

@@ -13,12 +13,12 @@ from shapely.geometry import box
 from experiments.downstream_ocr.adapter import AdapterError, vlm_json_to_page
 from experiments.downstream_ocr.metrics import (
     aggregate_page_records,
-    build_textedit_groups,
     compute_iou_matrix,
     evaluate_page,
     match_objects,
     page_text,
     polygons_to_mask,
+    unordered_textline_textedit,
 )
 from experiments.downstream_ocr.pagexml import PageXmlPage, TextLine, load_pagexml, write_pagexml
 from experiments.downstream_ocr.runners import (
@@ -122,23 +122,25 @@ class DownstreamOcrMetricTests(unittest.TestCase):
         self.assertLess(compute_iou_matrix(gt, pred_below)[0, 0], 0.75)
         self.assertGreater(compute_iou_matrix(gt, pred_above)[0, 0], 0.75)
 
-    def test_one_gt_split_into_two_predictions_textedit_groups(self):
+    def test_one_gt_split_into_two_predictions_is_not_merged_for_textedit(self):
         gt = [line("g", (0, 0, 100, 10), "abcdef")]
         pred = [
             line("p1", (0, 0, 50, 10), "abc"),
             line("p2", (50, 0, 100, 10), "def"),
         ]
-        groups = build_textedit_groups(gt, pred)
-        self.assertEqual(groups, [("abcdef", "abc def")])
+        result = unordered_textline_textedit(gt, pred, image_name="page_1.jpg")
+        self.assertGreater(result["textedit_all_page_avg"], 0.0)
+        self.assertEqual(result["textedit_match_count"], 2)
 
-    def test_two_gt_lines_merged_into_one_prediction(self):
+    def test_two_gt_lines_are_not_merged_into_one_prediction(self):
         gt = [
             line("g1", (0, 0, 100, 10), "abc"),
             line("g2", (0, 10, 100, 20), "def"),
         ]
         pred = [line("p", (0, 0, 100, 20), "abc def")]
-        groups = build_textedit_groups(gt, pred)
-        self.assertEqual(groups, [("abc def", "abc def")])
+        result = unordered_textline_textedit(gt, pred, image_name="page_1.jpg")
+        self.assertGreater(result["textedit_all_page_avg"], 0.0)
+        self.assertEqual(result["textedit_match_count"], 2)
 
     def test_optimal_matching_beats_greedy_failure_case(self):
         matrix = np.asarray(

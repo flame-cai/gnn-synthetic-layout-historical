@@ -12,6 +12,7 @@ from .runners import (
     adapt_vlm_json_and_evaluate,
     evaluate_existing_prediction_tree,
     prepare_gt_layout_pages_only,
+    refresh_textedit_results,
     run_local_gt_layout_experiment,
     run_methods_experiment,
 )
@@ -159,6 +160,15 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--output-root", required=True)
     report.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
     report.add_argument("--gemini-output-usd-per-1m-tokens", type=float)
+
+    refresh_textedit = subparsers.add_parser(
+        "refresh-textedit",
+        help=(
+            "Recompute only TextEdit from retained PAGE-XML predictions, then "
+            "regenerate per-manuscript and combined reports."
+        ),
+    )
+    refresh_textedit.add_argument("--output-root", required=True)
 
     combined_report = subparsers.add_parser(
         "write-combined-report",
@@ -325,6 +335,8 @@ def main(argv: list[str] | None = None) -> None:
             output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
         )
         print({"report": str(artifacts.markdown_path)})
+    elif args.command == "refresh-textedit":
+        print(refresh_textedit_results(args.output_root))
     elif args.command == "write-combined-report":
         artifacts = write_combined_table_report(
             args.input_roots,

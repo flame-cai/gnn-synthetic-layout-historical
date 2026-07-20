@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from .dataset.pagexml2pagexml_dataset import textedit_reproducibility_metadata
 from .metrics import aggregate_page_records
 from .vlm_providers import VLM_PROVIDER_SPECS, is_vlm_method
 
@@ -118,7 +119,11 @@ ANNOTATION_GAIN_METHOD_PAIRS = {
 
 BOOTSTRAP_METRICS = {
     "micro_page_cer": ("page_cer_distance", "page_cer_gt_chars", "Page CER"),
-    "micro_textedit": ("textedit_distance_sum", "textedit_max_length_sum", "TextEdit"),
+    "textedit_all_page_avg": (
+        "textedit_all_page_avg",
+        "textedit_page_count",
+        "TextEdit ALL_page_avg",
+    ),
 }
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -405,6 +410,15 @@ def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
     method_id = _payload_method_id(payload, metrics_path.parent.name)
     aggregate = dict(payload.get("aggregate") or {})
     ocr_recipe = dict(payload.get("ocr_active_learning_recipe") or {})
+    textedit_all_page_avg = _safe_float(
+        aggregate.get("textedit_all_page_avg", aggregate.get("mean_textedit"))
+    )
+    textedit_edit_whole = _safe_float(
+        aggregate.get("textedit_edit_whole", aggregate.get("micro_textedit"))
+    )
+    textedit_edit_sample_avg = _safe_float(
+        aggregate.get("textedit_edit_sample_avg")
+    )
     return {
         "manuscript_id": str(payload.get("manuscript_id") or ""),
         "method_id": method_id,
@@ -432,6 +446,9 @@ def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
         "mean_textedit": _safe_float(aggregate.get("mean_textedit")),
         "median_textedit": _safe_float(aggregate.get("median_textedit")),
         "micro_textedit": _safe_float(aggregate.get("micro_textedit")),
+        "textedit_all_page_avg": textedit_all_page_avg,
+        "textedit_edit_whole": textedit_edit_whole,
+        "textedit_edit_sample_avg": textedit_edit_sample_avg,
         "metrics_path": str(metrics_path),
     }
 
@@ -670,6 +687,11 @@ def _load_summary_rows(output_root: Path) -> tuple[list[dict], list[dict]]:
         for record in payload.get("page_records") or []:
             row = dict(record)
             row.setdefault("method_id", method_id)
+            row.setdefault(
+                "textedit_all_page_avg",
+                row.get("textedit", 0.0),
+            )
+            row.setdefault("textedit_page_count", 1)
             row["display_name"] = METHOD_LABELS.get(method_id, method_id)
             _apply_layout_effort_fallback(row, layout_effort_by_page)
             per_page_rows.append(row)
@@ -1303,7 +1325,7 @@ def _save_finetuning_curve(rows: list[dict], output_path: Path) -> Path | None:
     fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.6), sharex=True)
     metric_specs = (
         ("micro_page_cer", "Micro Page CER"),
-        ("micro_textedit", "Micro TextEdit"),
+        ("textedit_all_page_avg", "TextEdit ALL_page_avg"),
     )
     all_x_values: set[int] = set()
     for ax, (metric_key, metric_label) in zip(axes, metric_specs):
@@ -1385,10 +1407,10 @@ def _summary_table_rows(rows: list[dict]) -> list[dict]:
                     row.get("micro_page_cer_ci_lower"),
                     row.get("micro_page_cer_ci_upper"),
                 ),
-                "Micro TextEdit (95% CI)": _format_estimate_ci(
-                    row.get("micro_textedit"),
-                    row.get("micro_textedit_ci_lower"),
-                    row.get("micro_textedit_ci_upper"),
+                "TextEdit ALL_page_avg (95% CI)": _format_estimate_ci(
+                    row.get("textedit_all_page_avg"),
+                    row.get("textedit_all_page_avg_ci_lower"),
+                    row.get("textedit_all_page_avg_ci_upper"),
                 ),
                 "API Tokens": row.get("vlm_total_token_count", 0),
                 "API USD": _format_cost(row.get("vlm_estimated_cost_usd")),
@@ -1493,9 +1515,9 @@ def _build_off_the_shelf_table_rows(summary_rows: list[dict]) -> list[dict]:
                 "micro_page_cer": row.get("micro_page_cer"),
                 "micro_page_cer_ci_lower": row.get("micro_page_cer_ci_lower"),
                 "micro_page_cer_ci_upper": row.get("micro_page_cer_ci_upper"),
-                "micro_textedit": row.get("micro_textedit"),
-                "micro_textedit_ci_lower": row.get("micro_textedit_ci_lower"),
-                "micro_textedit_ci_upper": row.get("micro_textedit_ci_upper"),
+                "textedit_all_page_avg": row.get("textedit_all_page_avg"),
+                "textedit_all_page_avg_ci_lower": row.get("textedit_all_page_avg_ci_lower"),
+                "textedit_all_page_avg_ci_upper": row.get("textedit_all_page_avg_ci_upper"),
                 "vlm_request_count": row.get("vlm_request_count"),
                 "vlm_total_token_count": row.get("vlm_total_token_count"),
                 "metrics_path": row.get("metrics_path", ""),
@@ -1519,10 +1541,10 @@ def _off_the_shelf_markdown_rows(rows: list[dict]) -> list[dict]:
                 row.get("micro_page_cer_ci_lower"),
                 row.get("micro_page_cer_ci_upper"),
             ),
-            "Micro TextEdit (95% CI)": _format_estimate_ci(
-                row.get("micro_textedit"),
-                row.get("micro_textedit_ci_lower"),
-                row.get("micro_textedit_ci_upper"),
+            "TextEdit ALL_page_avg (95% CI)": _format_estimate_ci(
+                row.get("textedit_all_page_avg"),
+                row.get("textedit_all_page_avg_ci_lower"),
+                row.get("textedit_all_page_avg_ci_upper"),
             ),
         }
         for row in rows
@@ -1573,8 +1595,8 @@ def _build_annotation_gains_table_rows(summary_rows: list[dict], per_page_rows: 
                 gt_row.get("micro_page_cer") if gt_row else None,
             )
             text_abs, text_rel = _safe_metric_reduction(
-                pred_row.get("micro_textedit") if pred_row else None,
-                gt_row.get("micro_textedit") if gt_row else None,
+                pred_row.get("textedit_all_page_avg") if pred_row else None,
+                gt_row.get("textedit_all_page_avg") if gt_row else None,
             )
             effort = _layout_effort_for_table(
                 per_page_by_method,
@@ -1599,12 +1621,12 @@ def _build_annotation_gains_table_rows(summary_rows: list[dict], per_page_rows: 
                     "with_gt_layout_micro_page_cer_ci_upper": gt_row.get("micro_page_cer_ci_upper") if gt_row else None,
                     "page_cer_absolute_reduction": page_abs,
                     "page_cer_relative_reduction_percent": page_rel,
-                    "without_gt_layout_micro_textedit": pred_row.get("micro_textedit") if pred_row else None,
-                    "without_gt_layout_micro_textedit_ci_lower": pred_row.get("micro_textedit_ci_lower") if pred_row else None,
-                    "without_gt_layout_micro_textedit_ci_upper": pred_row.get("micro_textedit_ci_upper") if pred_row else None,
-                    "with_gt_layout_micro_textedit": gt_row.get("micro_textedit") if gt_row else None,
-                    "with_gt_layout_micro_textedit_ci_lower": gt_row.get("micro_textedit_ci_lower") if gt_row else None,
-                    "with_gt_layout_micro_textedit_ci_upper": gt_row.get("micro_textedit_ci_upper") if gt_row else None,
+                    "without_gt_layout_textedit_all_page_avg": pred_row.get("textedit_all_page_avg") if pred_row else None,
+                    "without_gt_layout_textedit_all_page_avg_ci_lower": pred_row.get("textedit_all_page_avg_ci_lower") if pred_row else None,
+                    "without_gt_layout_textedit_all_page_avg_ci_upper": pred_row.get("textedit_all_page_avg_ci_upper") if pred_row else None,
+                    "with_gt_layout_textedit_all_page_avg": gt_row.get("textedit_all_page_avg") if gt_row else None,
+                    "with_gt_layout_textedit_all_page_avg_ci_lower": gt_row.get("textedit_all_page_avg_ci_lower") if gt_row else None,
+                    "with_gt_layout_textedit_all_page_avg_ci_upper": gt_row.get("textedit_all_page_avg_ci_upper") if gt_row else None,
                     "textedit_absolute_reduction": text_abs,
                     "textedit_relative_reduction_percent": text_rel,
                     "layout_effort_mean_seconds_per_page": effort["mean_seconds_per_page"] if effort else None,
@@ -1646,17 +1668,17 @@ def _annotation_gains_markdown_rows(rows: list[dict]) -> list[dict]:
             "micro_page_cer": row.get("without_gt_layout_micro_page_cer"),
             "micro_page_cer_ci_lower": row.get("without_gt_layout_micro_page_cer_ci_lower"),
             "micro_page_cer_ci_upper": row.get("without_gt_layout_micro_page_cer_ci_upper"),
-            "micro_textedit": row.get("without_gt_layout_micro_textedit"),
-            "micro_textedit_ci_lower": row.get("without_gt_layout_micro_textedit_ci_lower"),
-            "micro_textedit_ci_upper": row.get("without_gt_layout_micro_textedit_ci_upper"),
+            "textedit_all_page_avg": row.get("without_gt_layout_textedit_all_page_avg"),
+            "textedit_all_page_avg_ci_lower": row.get("without_gt_layout_textedit_all_page_avg_ci_lower"),
+            "textedit_all_page_avg_ci_upper": row.get("without_gt_layout_textedit_all_page_avg_ci_upper"),
         }
         gt_metric_row = {
             "micro_page_cer": row.get("with_gt_layout_micro_page_cer"),
             "micro_page_cer_ci_lower": row.get("with_gt_layout_micro_page_cer_ci_lower"),
             "micro_page_cer_ci_upper": row.get("with_gt_layout_micro_page_cer_ci_upper"),
-            "micro_textedit": row.get("with_gt_layout_micro_textedit"),
-            "micro_textedit_ci_lower": row.get("with_gt_layout_micro_textedit_ci_lower"),
-            "micro_textedit_ci_upper": row.get("with_gt_layout_micro_textedit_ci_upper"),
+            "textedit_all_page_avg": row.get("with_gt_layout_textedit_all_page_avg"),
+            "textedit_all_page_avg_ci_lower": row.get("with_gt_layout_textedit_all_page_avg_ci_lower"),
+            "textedit_all_page_avg_ci_upper": row.get("with_gt_layout_textedit_all_page_avg_ci_upper"),
         }
         formatted.append(
             {
@@ -1665,8 +1687,8 @@ def _annotation_gains_markdown_rows(rows: list[dict]) -> list[dict]:
                 "Without GT Layout CER": _metric_ci_text(pred_metric_row, "micro_page_cer"),
                 "With GT Layout CER": _metric_ci_text(gt_metric_row, "micro_page_cer"),
                 "CER Reduction": _format_percent(row.get("page_cer_relative_reduction_percent")),
-                "Without GT Layout TextEdit": _metric_ci_text(pred_metric_row, "micro_textedit"),
-                "With GT Layout TextEdit": _metric_ci_text(gt_metric_row, "micro_textedit"),
+                "Without GT Layout TextEdit": _metric_ci_text(pred_metric_row, "textedit_all_page_avg"),
+                "With GT Layout TextEdit": _metric_ci_text(gt_metric_row, "textedit_all_page_avg"),
                 "TextEdit Reduction": _format_percent(row.get("textedit_relative_reduction_percent")),
                 "GT Layout Time": _format_seconds_ci(
                     row.get("layout_effort_mean_seconds_per_page"),
@@ -1741,7 +1763,7 @@ def _write_markdown_report(
         ("G-F1@0.50", "G-F1@0.50"),
         ("Pixel F1", "Pixel F1"),
         ("Micro CER (95% CI)", "Micro CER (95% CI)"),
-        ("Micro TextEdit (95% CI)", "Micro TextEdit (95% CI)"),
+        ("TextEdit ALL_page_avg (95% CI)", "TextEdit ALL_page_avg (95% CI)"),
         ("API Tokens", "API Tokens"),
         ("API USD", "API USD"),
     ]
@@ -1795,7 +1817,7 @@ def _write_markdown_report(
                 ("Pages", "Pages"),
                 ("Valid Output", "Valid Output"),
                 ("Micro CER (95% CI)", "Micro CER (95% CI)"),
-                ("Micro TextEdit (95% CI)", "Micro TextEdit (95% CI)"),
+                ("TextEdit ALL_page_avg (95% CI)", "TextEdit ALL_page_avg (95% CI)"),
             ],
         )
         if off_the_shelf_table_rows
@@ -1839,6 +1861,8 @@ def _write_markdown_report(
         "- VLM rows are end-to-end off-the-shelf acquisitions; layout-corrected VLM variants remain disabled.",
         "- Rows with `test_layout_condition=human_corrected_gt_layout` use held-out layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
         "- Fine-tuning methods record the GUI runtime OCR active-learning recipe and sibling checkpoint selector in `summary_metrics.csv`.",
+        "- TextEdit is Unordered PAGE-XML TextLine TextEdit using OmniDocBench v1.5 `simple_match`; the headline value is official `Edit_dist.ALL_page_avg`, not pooled `edit_whole`.",
+        "- TextEdit ignores XML order, coordinates, baselines, geometry, TextRegion membership, IDs, and labels. Each PAGE `TextLine` remains atomic, so split and merged lines are penalized.",
         "",
         "## Layout Mode Effort And OCR Reduction",
         "",
@@ -1933,6 +1957,7 @@ def write_experiment_report(
     layout_mode_comparisons_json_path = report_dir / "layout_mode_comparisons.json"
     vlm_usage_csv_path = report_dir / "vlm_usage.csv"
     vlm_usage_json_path = report_dir / "vlm_usage.json"
+    textedit_metric_path = report_dir / "textedit_metric.json"
 
     summary_fields = [
         "manuscript_id",
@@ -1964,9 +1989,12 @@ def write_experiment_report(
         "mean_textedit",
         "median_textedit",
         "micro_textedit",
-        "micro_textedit_ci_lower",
-        "micro_textedit_ci_upper",
-        "micro_textedit_bootstrap_unique_pages",
+        "textedit_all_page_avg",
+        "textedit_all_page_avg_ci_lower",
+        "textedit_all_page_avg_ci_upper",
+        "textedit_all_page_avg_bootstrap_unique_pages",
+        "textedit_edit_whole",
+        "textedit_edit_sample_avg",
         "vlm_usage_status",
         "vlm_page_count",
         "vlm_success_count",
@@ -2007,6 +2035,7 @@ def write_experiment_report(
     )
     _write_csv(vlm_usage_csv_path, usage_rows)
     _write_json(vlm_usage_json_path, {"rows": usage_rows, "summaries": usage_summaries})
+    _write_json(textedit_metric_path, textedit_reproducibility_metadata())
 
     stale_paths = (
         report_dir / "layout_effort_impact.csv",
@@ -2046,6 +2075,8 @@ def write_experiment_report(
         "annotation_gains_table_json_path": str(table_artifacts["annotation_gains_table_json_path"].resolve()),
         "vlm_usage_csv_path": str(vlm_usage_csv_path.resolve()),
         "vlm_usage_json_path": str(vlm_usage_json_path.resolve()),
+        "textedit_metric_path": str(textedit_metric_path.resolve()),
+        "textedit_metric": textedit_reproducibility_metadata(),
         "figure_paths": [str(path.resolve()) for path in figure_paths],
         "method_count": len(summary_rows),
         "per_page_record_count": len(per_page_rows),
@@ -2141,6 +2172,7 @@ def write_combined_table_report(
     layout_mode_comparisons_json_path = report_dir / "layout_mode_comparisons.json"
     vlm_usage_csv_path = report_dir / "vlm_usage.csv"
     vlm_usage_json_path = report_dir / "vlm_usage.json"
+    textedit_metric_path = report_dir / "textedit_metric.json"
     _write_csv(summary_csv_path, summary_rows)
     _write_json(summary_json_path, summary_rows)
     _write_csv(per_page_csv_path, per_page_rows)
@@ -2168,6 +2200,7 @@ def write_combined_table_report(
     )
     _write_csv(vlm_usage_csv_path, usage_rows)
     _write_json(vlm_usage_json_path, {"rows": usage_rows})
+    _write_json(textedit_metric_path, textedit_reproducibility_metadata())
 
     table_artifacts = _write_primary_table_artifacts(report_dir, summary_rows, per_page_rows)
     markdown_path = _write_markdown_report(
@@ -2195,6 +2228,8 @@ def write_combined_table_report(
             "layout_mode_comparisons_json_path": str(layout_mode_comparisons_json_path.resolve()),
             "vlm_usage_csv_path": str(vlm_usage_csv_path.resolve()),
             "vlm_usage_json_path": str(vlm_usage_json_path.resolve()),
+            "textedit_metric_path": str(textedit_metric_path.resolve()),
+            "textedit_metric": textedit_reproducibility_metadata(),
             "off_the_shelf_table_csv_path": str(table_artifacts["off_the_shelf_table_csv_path"].resolve()),
             "off_the_shelf_table_json_path": str(table_artifacts["off_the_shelf_table_json_path"].resolve()),
             "annotation_gains_table_csv_path": str(table_artifacts["annotation_gains_table_csv_path"].resolve()),

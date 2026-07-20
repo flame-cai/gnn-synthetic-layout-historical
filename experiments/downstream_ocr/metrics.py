@@ -10,6 +10,10 @@ import numpy as np
 from shapely.geometry.base import BaseGeometry
 from shapely.strtree import STRtree
 
+from .dataset.pagexml2pagexml_dataset import (
+    evaluate_text_line_items,
+    items_from_text_lines,
+)
 from .pagexml import PageXmlPage, TextLine, iter_polygon_parts
 from .text import levenshtein_distance, normalize_text
 
@@ -33,12 +37,6 @@ def polygon_iou(gt_polygon: BaseGeometry, pred_polygon: BaseGeometry) -> float:
     intersection = gt_polygon.intersection(pred_polygon).area
     union = gt_polygon.union(pred_polygon).area
     return float(intersection / union) if union > 0 else 0.0
-
-
-def intersection_over_min_area(gt_polygon: BaseGeometry, pred_polygon: BaseGeometry) -> float:
-    intersection = gt_polygon.intersection(pred_polygon).area
-    denom = min(gt_polygon.area, pred_polygon.area)
-    return float(intersection / denom) if denom > 0 else 0.0
 
 
 def _query_indices(tree: STRtree, geometries: list[BaseGeometry], query_geometry: BaseGeometry) -> list[int]:
@@ -182,75 +180,18 @@ def page_cer(gt_lines: list[TextLine], pred_lines: list[TextLine]) -> dict:
     }
 
 
-class _DisjointSet:
-    def __init__(self):
-        self.parent: dict[tuple[str, int], tuple[str, int]] = {}
-
-    def add(self, item: tuple[str, int]) -> None:
-        self.parent.setdefault(item, item)
-
-    def find(self, item: tuple[str, int]) -> tuple[str, int]:
-        self.add(item)
-        parent = self.parent[item]
-        if parent != item:
-            parent = self.find(parent)
-            self.parent[item] = parent
-        return parent
-
-    def union(self, left: tuple[str, int], right: tuple[str, int]) -> None:
-        left_root = self.find(left)
-        right_root = self.find(right)
-        if left_root != right_root:
-            self.parent[right_root] = left_root
-
-    def components(self) -> list[set[tuple[str, int]]]:
-        grouped: dict[tuple[str, int], set[tuple[str, int]]] = {}
-        for item in list(self.parent):
-            grouped.setdefault(self.find(item), set()).add(item)
-        return list(grouped.values())
-
-
-def build_textedit_groups(
+def unordered_textline_textedit(
     gt_lines: list[TextLine],
     pred_lines: list[TextLine],
     *,
-    threshold: float = 0.50,
-) -> list[tuple[str, str]]:
-    dsu = _DisjointSet()
-    for gt_idx in range(len(gt_lines)):
-        dsu.add(("gt", gt_idx))
-    for pred_idx in range(len(pred_lines)):
-        dsu.add(("pred", pred_idx))
-    for gt_idx, gt_line in enumerate(gt_lines):
-        for pred_idx, pred_line in enumerate(pred_lines):
-            if intersection_over_min_area(gt_line.polygon, pred_line.polygon) >= threshold:
-                dsu.union(("gt", gt_idx), ("pred", pred_idx))
-
-    groups: list[tuple[str, str]] = []
-    for component in dsu.components():
-        gt_group = [gt_lines[index] for side, index in component if side == "gt"]
-        pred_group = [pred_lines[index] for side, index in component if side == "pred"]
-        gt_text = " ".join(
-            text for text in (normalize_text(line.text) for line in order_lines_geometrically(gt_group)) if text
-        )
-        pred_text = " ".join(
-            text for text in (normalize_text(line.text) for line in order_lines_geometrically(pred_group)) if text
-        )
-        groups.append((gt_text, pred_text))
-    return groups
-
-
-def line_group_textedit(gt_lines: list[TextLine], pred_lines: list[TextLine]) -> dict:
-    edit_sum = 0
-    max_length_sum = 0
-    for gt_text, pred_text in build_textedit_groups(gt_lines, pred_lines):
-        edit_sum += levenshtein_distance(gt_text, pred_text)
-        max_length_sum += max(len(gt_text), len(pred_text))
-    return {
-        "textedit_distance_sum": edit_sum,
-        "textedit_max_length_sum": max_length_sum,
-        "textedit": edit_sum / max_length_sum if max_length_sum > 0 else 0.0,
-    }
+    image_name: str,
+) -> dict:
+    """Evaluate in-memory PAGE TextLines through the official text-only path."""
+    return evaluate_text_line_items(
+        items_from_text_lines(gt_lines, ground_truth=True),
+        items_from_text_lines(pred_lines, ground_truth=False),
+        image_name=image_name,
+    )
 
 
 def evaluate_page(
@@ -262,6 +203,7 @@ def evaluate_page(
     pred_page: PageXmlPage,
     status: str = "success",
     method_id: str | None = None,
+    calculate_textedit: bool = True,
 ) -> dict:
     if gt_page.width != pred_page.width or gt_page.height != pred_page.height:
         raise ValueError(
@@ -283,13 +225,21 @@ def evaluate_page(
     }
     if method_id is not None:
         record["method_id"] = method_id
-    for payload in (
+    payloads = [
         {key: value for key, value in object_50.items() if not key.startswith("matches_")},
         {key: value for key, value in object_75.items() if not key.startswith("matches_")},
         pixel_metrics(gt_lines, pred_lines, gt_page.width, gt_page.height),
         page_cer(gt_lines, pred_lines),
-        line_group_textedit(gt_lines, pred_lines),
-    ):
+    ]
+    if calculate_textedit:
+        payloads.append(
+            unordered_textline_textedit(
+                gt_lines,
+                pred_lines,
+                image_name=gt_page.image_filename,
+            )
+        )
+    for payload in payloads:
         record.update(payload)
     return record
 
@@ -314,9 +264,31 @@ def aggregate_page_records(records: Iterable[dict]) -> dict:
     cer_chars = sum(int(row["page_cer_gt_chars"]) for row in rows)
     textedit_distance = sum(int(row["textedit_distance_sum"]) for row in rows)
     textedit_denominator = sum(int(row["textedit_max_length_sum"]) for row in rows)
+    textedit_sample_ratio_sum = sum(
+        float(row.get("textedit_sample_ratio_sum", row["textedit"]))
+        for row in rows
+    )
+    textedit_sample_count = sum(
+        int(row.get("textedit_sample_count", 1))
+        for row in rows
+    )
     page_cers = [float(row["page_cer"]) for row in rows]
-    textedits = [float(row["textedit"]) for row in rows]
+    textedits = [
+        float(row.get("textedit_all_page_avg", row["textedit"]))
+        for row in rows
+    ]
     successful = sum(1 for row in rows if row.get("status") == "success")
+    textedit_all_page_avg = (
+        float(statistics.mean(textedits)) if textedits else 0.0
+    )
+    textedit_edit_whole = safe_divide(
+        textedit_distance,
+        textedit_denominator,
+    )
+    textedit_edit_sample_avg = safe_divide(
+        textedit_sample_ratio_sum,
+        textedit_sample_count,
+    )
     return {
         "page_count": count,
         "valid_output_rate": safe_divide(successful, count),
@@ -341,9 +313,12 @@ def aggregate_page_records(records: Iterable[dict]) -> dict:
         "mean_page_cer": float(statistics.mean(page_cers)) if page_cers else 0.0,
         "median_page_cer": _median(page_cers),
         "micro_page_cer": safe_divide(cer_distance, cer_chars),
-        "mean_textedit": float(statistics.mean(textedits)) if textedits else 0.0,
+        "mean_textedit": textedit_all_page_avg,
         "median_textedit": _median(textedits),
-        "micro_textedit": safe_divide(textedit_distance, textedit_denominator),
+        "micro_textedit": textedit_edit_whole,
+        "textedit_all_page_avg": textedit_all_page_avg,
+        "textedit_edit_whole": textedit_edit_whole,
+        "textedit_edit_sample_avg": textedit_edit_sample_avg,
     }
 
 

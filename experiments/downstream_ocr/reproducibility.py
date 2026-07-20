@@ -25,6 +25,9 @@ TRACKED_DISTRIBUTIONS: tuple[str, ...] = (
     "torch",
     "torchvision",
     "rapidfuzz",
+    "python-Levenshtein",
+    "pylatexenc",
+    "beautifulsoup4",
 )
 
 TRACKED_IMPORTS: tuple[str, ...] = (
@@ -37,6 +40,9 @@ TRACKED_IMPORTS: tuple[str, ...] = (
     "google.genai",
     "torch",
     "rapidfuzz",
+    "Levenshtein",
+    "pylatexenc",
+    "bs4",
 )
 
 

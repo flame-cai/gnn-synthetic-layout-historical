@@ -17,8 +17,18 @@ from typing import Callable, Iterable
 from dotenv import load_dotenv
 
 from .adapter import AdapterError, VLM_END_TO_END_PROMPT, vlm_json_to_pagexml
+from .dataset.pagexml2pagexml_dataset import (
+    PageXmlPair,
+    TEXTEDIT_AGGREGATE_KEYS,
+    evaluate_pagexml_pairs,
+    textedit_reproducibility_metadata,
+)
 from .diagnostics import write_page_diagnostics
-from .metrics import aggregate_page_records, evaluate_page
+from .metrics import (
+    FAILURE_STATUSES,
+    aggregate_page_records,
+    evaluate_page,
+)
 from .pagexml import (
     empty_page_like,
     extract_structure_line_id,
@@ -1369,9 +1379,12 @@ def evaluate_prediction_folder(
     diagnostics_dir: Path | None = None,
 ) -> list[dict]:
     records = []
+    textedit_pairs: list[PageXmlPair] = []
+    records_by_textedit_key: dict[str, dict] = {}
     layout_effort_by_page = _load_layout_effort_by_page(paths.root)
     for page_id in fold.test_page_ids:
-        gt_page = load_pagexml(paths.pagexml_dir / f"{page_id}.xml", repair_geometry=True)
+        gt_xml_path = paths.pagexml_dir / f"{page_id}.xml"
+        gt_page = load_pagexml(gt_xml_path, repair_geometry=True)
         pred_path = prediction_dir / f"{page_id}.xml"
         status = (statuses or {}).get(page_id, "success")
         if not pred_path.exists():
@@ -1387,7 +1400,22 @@ def evaluate_prediction_folder(
             gt_page=gt_page,
             pred_page=pred_page,
             status=status,
+            calculate_textedit=False,
         )
+        textedit_key = f"{fold.fold_id}:{page_id}"
+        textedit_pairs.append(
+            PageXmlPair(
+                key=textedit_key,
+                gt_xml_path=gt_xml_path,
+                pred_xml_path=(
+                    None
+                    if status in FAILURE_STATUSES or not pred_path.exists()
+                    else pred_path
+                ),
+                image_name=gt_page.image_filename,
+            )
+        )
+        records_by_textedit_key[textedit_key] = record
         record.update(_layout_effort_fields(layout_effort_by_page, page_id))
         if diagnostics_dir is not None:
             record.update(
@@ -1398,6 +1426,9 @@ def evaluate_prediction_folder(
                 )
             )
         records.append(record)
+    textedit_evaluation = evaluate_pagexml_pairs(textedit_pairs)
+    for textedit_key, payload in textedit_evaluation.page_metrics.items():
+        records_by_textedit_key[textedit_key].update(payload)
     return records
 
 
@@ -1433,6 +1464,7 @@ def evaluate_existing_prediction_tree(
         "method": asdict(method),
         "manuscript_id": paths.manuscript_id,
         "folds": [asdict(fold) for fold in folds],
+        "textedit_metric": textedit_reproducibility_metadata(),
         "aggregate": aggregate,
         "page_records": all_records,
     }
@@ -1440,6 +1472,139 @@ def evaluate_existing_prediction_tree(
     _write_csv(output_root / method_id / "per_page.csv", all_records)
     _write_report_artifacts(output_root)
     return payload
+
+
+def _retained_prediction_path(
+    output_root: Path,
+    *,
+    method_id: str,
+    fold_id: str,
+    page_id: str,
+) -> Path | None:
+    fold_root = output_root / "runs" / method_id / fold_id
+    candidates = (
+        fold_root / "prediction_page_xml" / f"{page_id}.xml",
+        fold_root / "predictions" / f"{page_id}.xml",
+    )
+    return next((candidate for candidate in candidates if candidate.exists()), None)
+
+
+def refresh_textedit_for_existing_run(
+    output_root: str | Path,
+    *,
+    manuscript_root: str | Path | None = None,
+) -> dict:
+    """Refresh only TextEdit fields from retained PAGE-XML predictions."""
+    root = Path(output_root)
+    metrics_paths = sorted((root / "metrics").glob("*/metrics.json"))
+    if not metrics_paths:
+        raise ValueError(f"No method metrics found under {root / 'metrics'}")
+
+    first_payload = json.loads(metrics_paths[0].read_text(encoding="utf-8"))
+    manuscript_id = str(first_payload.get("manuscript_id") or root.name)
+    paths = default_manuscript_paths(
+        manuscript_root or (APP_ROOT / "input_manuscripts" / manuscript_id)
+    )
+    refreshed_methods = []
+    refreshed_page_count = 0
+
+    for metrics_path in metrics_paths:
+        payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+        method = dict(payload.get("method") or {})
+        method_id = str(method.get("method_id") or metrics_path.parent.name)
+        page_records = list(payload.get("page_records") or [])
+        pairs = []
+        records_by_key = {}
+        for record in page_records:
+            fold_id = str(record["fold_id"])
+            page_id = str(record["page_id"])
+            key = f"{fold_id}:{page_id}"
+            pred_path = _retained_prediction_path(
+                root,
+                method_id=method_id,
+                fold_id=fold_id,
+                page_id=page_id,
+            )
+            if record.get("status") in FAILURE_STATUSES:
+                pred_path = None
+            gt_path = paths.pagexml_dir / f"{page_id}.xml"
+            pairs.append(
+                PageXmlPair(
+                    key=key,
+                    gt_xml_path=gt_path,
+                    pred_xml_path=pred_path,
+                )
+            )
+            records_by_key[key] = record
+
+        evaluation = evaluate_pagexml_pairs(pairs)
+        for key, textedit_payload in evaluation.page_metrics.items():
+            records_by_key[key].update(textedit_payload)
+
+        refreshed_aggregate = aggregate_page_records(page_records)
+        official_edit_dist = evaluation.official_result["Edit_dist"]
+        refreshed_aggregate["textedit_all_page_avg"] = float(
+            official_edit_dist["ALL_page_avg"]
+        )
+        refreshed_aggregate["textedit_edit_whole"] = float(
+            official_edit_dist["edit_whole"]
+        )
+        refreshed_aggregate["textedit_edit_sample_avg"] = float(
+            official_edit_dist["edit_sample_avg"]
+        )
+        refreshed_aggregate["mean_textedit"] = refreshed_aggregate[
+            "textedit_all_page_avg"
+        ]
+        refreshed_aggregate["micro_textedit"] = refreshed_aggregate[
+            "textedit_edit_whole"
+        ]
+        aggregate = dict(payload.get("aggregate") or {})
+        for key in TEXTEDIT_AGGREGATE_KEYS:
+            aggregate[key] = refreshed_aggregate[key]
+        payload["aggregate"] = aggregate
+        payload["page_records"] = page_records
+        payload["textedit_metric"] = textedit_reproducibility_metadata()
+        _write_json(metrics_path, payload)
+        _write_csv(metrics_path.parent / "per_page.csv", page_records)
+        refreshed_methods.append(method_id)
+        refreshed_page_count += len(page_records)
+
+    _write_report_artifacts(root)
+    return {
+        "output_root": str(root.resolve()),
+        "manuscript_id": manuscript_id,
+        "method_ids": refreshed_methods,
+        "method_count": len(refreshed_methods),
+        "page_record_count": refreshed_page_count,
+        "textedit_metric": textedit_reproducibility_metadata(),
+    }
+
+
+def refresh_textedit_results(output_root: str | Path) -> dict:
+    """Refresh one manuscript run or every manuscript child of a combined run."""
+    root = Path(output_root)
+    if (root / "folds.json").exists():
+        return {
+            "runs": [refresh_textedit_for_existing_run(root)],
+            "combined_report": None,
+        }
+
+    run_roots = sorted(
+        child
+        for child in root.iterdir()
+        if child.is_dir() and (child / "folds.json").exists()
+    )
+    if not run_roots:
+        raise ValueError(f"No manuscript run roots found under {root}")
+    runs = [refresh_textedit_for_existing_run(run_root) for run_root in run_roots]
+
+    from .reporting import write_combined_table_report
+
+    combined = write_combined_table_report(run_roots, root)
+    return {
+        "runs": runs,
+        "combined_report": str(combined.markdown_path.resolve()),
+    }
 
 
 def _select_json_dir(json_root: Path, *, fold: Fold, method_id: str) -> Path:
@@ -1511,6 +1676,7 @@ def adapt_vlm_json_and_evaluate(
         "manuscript_id": paths.manuscript_id,
         "json_root": str(json_root),
         "folds": [asdict(fold) for fold in folds],
+        "textedit_metric": textedit_reproducibility_metadata(),
         "aggregate": aggregate_page_records(all_records),
         "page_records": all_records,
     }
@@ -1559,6 +1725,7 @@ def run_local_gt_layout_experiment(
             "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
+            "textedit_metric": textedit_reproducibility_metadata(),
             "aggregate": aggregate_page_records(all_records),
             "page_records": all_records,
         }
@@ -1685,6 +1852,7 @@ def run_methods_experiment(
             "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
+            "textedit_metric": textedit_reproducibility_metadata(),
             "aggregate": aggregate_page_records(all_records),
             "page_records": all_records,
         }
