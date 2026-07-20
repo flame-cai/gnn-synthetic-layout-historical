@@ -118,11 +118,15 @@ class MethodSpec:
     finetune_page_count: int = 0
     provider_id: str | None = None
     model_id: str | None = None
+    provides_layout: bool = True
 
 
 DISABLED_METHOD_IDS = {
     "gemini_gt_layout": "Gemini + GT Layout is disabled for the current experiment.",
-    "vlm_e2e": "The provider-ambiguous vlm_e2e method was removed. Use gemini_e2e, openai_e2e, or claude_e2e.",
+    "vlm_e2e": (
+        "The provider-ambiguous vlm_e2e method was removed. Use gemini_e2e, "
+        "openai_e2e, claude_e2e, or sarvam_e2e."
+    ),
 }
 
 METHODS: tuple[MethodSpec, ...] = (
@@ -133,6 +137,7 @@ METHODS: tuple[MethodSpec, ...] = (
             uses_gt_layout=False,
             provider_id=spec.provider_id,
             model_id=spec.model_id,
+            provides_layout=spec.provides_layout,
         )
         for spec in VLM_PROVIDER_SPECS
     ),
@@ -1391,7 +1396,12 @@ def evaluate_prediction_folder(
             pred_page = empty_page_like(gt_page)
             status = "empty_response"
         else:
-            pred_page = load_pagexml(pred_path, strict=True, repair_geometry=True)
+            pred_page = load_pagexml(
+                pred_path,
+                strict=True,
+                repair_geometry=True,
+                allow_empty_geometry=not method.provides_layout,
+            )
         record = evaluate_page(
             manuscript_id=paths.manuscript_id,
             fold_id=fold.fold_id,
@@ -1401,6 +1411,8 @@ def evaluate_prediction_folder(
             pred_page=pred_page,
             status=status,
             calculate_textedit=False,
+            calculate_layout_metrics=method.provides_layout,
+            calculate_page_cer=method.provides_layout,
         )
         textedit_key = f"{fold.fold_id}:{page_id}"
         textedit_pairs.append(

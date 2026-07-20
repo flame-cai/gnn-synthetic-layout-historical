@@ -1038,7 +1038,8 @@ Thus we want to take these text-lines distinguished in the HTML and format them 
 Important points:
 - We want to get sarvam's predictions only once, convert them to PAGE-XML, and save these predicts in PAGE-XML format in C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\tests\logs\downstream_ocr_vlm_cache. This cache predictions can we reused for different data splits, folds, when generating the report.
 - Ensure that the conversion happens such that the downstream experiment report generation happens smoothly. We are just implementing another method like the existing claude_e2e, gemini_e2e, and openai_e2e. It's just that this new method Sarvam needs an adapter to convert it's HTML output to the expected PAGE-XML format, and then store it's predictions for each page in each manuscript (circle_new, dense, yajn) in the app\tests\logs\downstream_ocr_vlm_cache. Hence please think about the right place to write the sarvam implementation.
-- Once done, please tell me which command to run to add Sarvam's predictions to the VLM cache for all pages of all three manuscripts.
+- Once done, please tell me which command to run to add Sarvam's predictions to the VLM cache for all pages of all three manuscripts, and then tell me which command to run, to generate the report for C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\tests\logs\ocr_5fold_new to include Sarvam.
+- Please follow good experiment hygiene, and fit into the existing experiment code well.
 
 
 # Example Input:

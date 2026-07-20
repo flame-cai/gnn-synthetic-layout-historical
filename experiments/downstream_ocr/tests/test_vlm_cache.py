@@ -206,8 +206,10 @@ class VlmCacheTests(unittest.TestCase):
         self.assertEqual(by_provider["openai"].model_id, "gpt-5.6-terra")
         self.assertEqual(by_provider["claude"].model_id, "claude-sonnet-5")
         self.assertEqual(by_provider["gemini"].model_id, "gemini-3.5-flash")
+        self.assertEqual(by_provider["sarvam"].model_id, "sarvam-vision")
         self.assertNotIn("deepseek", by_provider)
-        self.assertNotIn("sarvam", by_provider)
+        self.assertFalse(by_provider["sarvam"].provides_layout)
+        self.assertFalse(by_provider["sarvam"].uses_shared_prompt)
         self.assertIn("Output ONLY raw valid JSON", VLM_END_TO_END_PROMPT)
 
     def test_provider_registry_has_complete_unique_dispatch(self):

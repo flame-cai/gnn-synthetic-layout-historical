@@ -2,12 +2,23 @@ from __future__ import annotations
 
 import base64
 import importlib.util
+import inspect
 import mimetypes
+import tempfile
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-from .adapter import VLM_END_TO_END_PROMPT
+from .adapter import (
+    SARVAM_HTML_OUTPUT_ADAPTER_ID,
+    VLM_END_TO_END_PROMPT,
+    VLM_JSON_OUTPUT_ADAPTER_ID,
+)
+
+
+VLM_PROMPT_CONTRACT = "vlm_end_to_end_prompt_v1_json_lines_or_polygons"
+SARVAM_DOCUMENT_CONTRACT = "sarvam_document_digitization_html_sa_in_v1_no_prompt"
 
 
 @dataclass(frozen=True)
@@ -18,6 +29,13 @@ class VlmProviderSpec:
     model_id: str
     api_key_env: str
     request_contract_version: int = 1
+    uses_shared_prompt: bool = True
+    output_adapter_id: str = VLM_JSON_OUTPUT_ADAPTER_ID
+    input_contract: str = "page_image_only"
+    prompt_contract: str = VLM_PROMPT_CONTRACT
+    provides_layout: bool = True
+    language_code: str | None = None
+    output_format: str | None = None
 
 
 @dataclass(frozen=True)
@@ -53,6 +71,19 @@ VLM_PROVIDER_SPECS: tuple[VlmProviderSpec, ...] = (
         api_key_env="CLAUDE_API_KEY",
         request_contract_version=2,
     ),
+    VlmProviderSpec(
+        provider_id="sarvam",
+        method_id="sarvam_e2e",
+        display_name="Sarvam (End-to-End)",
+        model_id="sarvam-vision",
+        api_key_env="SARVAM_API_KEY",
+        uses_shared_prompt=False,
+        output_adapter_id=SARVAM_HTML_OUTPUT_ADAPTER_ID,
+        prompt_contract=SARVAM_DOCUMENT_CONTRACT,
+        provides_layout=False,
+        language_code="sa-IN",
+        output_format="html",
+    ),
 )
 
 _BY_PROVIDER_ID = {spec.provider_id: spec for spec in VLM_PROVIDER_SPECS}
@@ -61,6 +92,7 @@ _PROVIDER_IMPORT_NAMES = {
     "gemini": "google.genai",
     "openai": "openai",
     "claude": "anthropic",
+    "sarvam": "sarvamai",
 }
 
 if len(_BY_PROVIDER_ID) != len(VLM_PROVIDER_SPECS):
@@ -253,10 +285,137 @@ def _invoke_claude(
     )
 
 
+def _call_wait_until_complete(job: Any, timeout_seconds: float) -> Any:
+    wait = job.wait_until_complete
+    try:
+        parameters = inspect.signature(wait).parameters
+    except (TypeError, ValueError):
+        parameters = {}
+    if "timeout_seconds" in parameters:
+        return wait(timeout_seconds=timeout_seconds)
+    if "timeout" in parameters:
+        return wait(timeout=timeout_seconds)
+    return wait()
+
+
+def _safe_extract_zip(zip_path: Path, output_dir: Path) -> None:
+    resolved_output = output_dir.resolve()
+    with zipfile.ZipFile(zip_path) as archive:
+        for member in archive.infolist():
+            target = (output_dir / member.filename).resolve()
+            try:
+                target.relative_to(resolved_output)
+            except ValueError as exc:
+                raise RuntimeError(
+                    f"Sarvam output ZIP contains an unsafe path: {member.filename!r}."
+                ) from exc
+        archive.extractall(output_dir)
+
+
+def _find_sarvam_html_output(output_dir: Path, image_path: Path) -> Path:
+    for zip_path in tuple(
+        path
+        for path in output_dir.rglob("*")
+        if path.is_file() and path.suffix.lower() == ".zip"
+    ):
+        extraction_dir = zip_path.with_suffix("")
+        extraction_dir.mkdir(parents=True, exist_ok=True)
+        _safe_extract_zip(zip_path, extraction_dir)
+
+    candidates = sorted(
+        path
+        for path in output_dir.rglob("*")
+        if path.is_file() and path.suffix.lower() in {".html", ".htm"}
+    )
+    if len(candidates) == 1:
+        return candidates[0]
+    stem_matches = [
+        path for path in candidates if image_path.stem.lower() in path.stem.lower()
+    ]
+    if len(stem_matches) == 1:
+        return stem_matches[0]
+    if not candidates:
+        raise RuntimeError("Sarvam job completed without an HTML output file.")
+    raise RuntimeError(
+        "Sarvam job produced multiple ambiguous HTML output files: "
+        + ", ".join(str(path.relative_to(output_dir)) for path in candidates)
+    )
+
+
+def _invoke_sarvam(
+    spec: VlmProviderSpec,
+    *,
+    api_key: str,
+    image_path: Path,
+    prompt: str | None,
+    timeout_seconds: float,
+) -> VlmProviderResponse:
+    from sarvamai import SarvamAI
+
+    if prompt is not None:
+        raise ValueError("Sarvam Document Digitization does not accept the shared VLM prompt.")
+    if not spec.language_code or not spec.output_format:
+        raise ValueError("Sarvam provider configuration is missing language/output format.")
+
+    client = SarvamAI(api_subscription_key=api_key)
+    create_job = client.document_intelligence.create_job
+    job_parameters = {
+        "language": spec.language_code,
+        "output_format": spec.output_format,
+    }
+    try:
+        create_parameters = inspect.signature(create_job).parameters
+    except (TypeError, ValueError):
+        create_parameters = {}
+    if "job_parameters" in create_parameters and "language" not in create_parameters:
+        job = create_job(job_parameters=job_parameters)
+    elif "language" in create_parameters or "output_format" in create_parameters:
+        job = create_job(**job_parameters)
+    else:
+        # Current SDK releases expose these fields directly; older releases use
+        # the job_parameters mapping shown in the original experiment recipe.
+        try:
+            job = create_job(**job_parameters)
+        except TypeError:
+            job = create_job(job_parameters=job_parameters)
+
+    if hasattr(job, "upload_files"):
+        job.upload_files(file_paths=[str(image_path)])
+    elif hasattr(job, "upload_file"):
+        job.upload_file(str(image_path))
+    else:
+        raise RuntimeError("Installed Sarvam SDK job has no supported upload method.")
+
+    job.start()
+    status = _call_wait_until_complete(job, timeout_seconds)
+    job_state = str(_value(status, "job_state", "") or "")
+    normalized_job_state = job_state.strip().lower().rsplit(".", 1)[-1]
+    if normalized_job_state not in {"completed", "complete", "succeeded", "success"}:
+        raise RuntimeError(f"Sarvam job ended in unexpected state: {job_state or 'unknown'}.")
+
+    with tempfile.TemporaryDirectory(prefix="sarvam_document_") as temporary_dir:
+        output_dir = Path(temporary_dir)
+        if hasattr(job, "download_outputs"):
+            job.download_outputs(output_dir=str(output_dir))
+        elif hasattr(job, "download_output"):
+            job.download_output(str(output_dir / "output.zip"))
+        else:
+            raise RuntimeError("Installed Sarvam SDK job has no supported download method.")
+        html_path = _find_sarvam_html_output(output_dir, image_path)
+        raw_html = html_path.read_text(encoding="utf-8-sig")
+
+    return VlmProviderResponse(
+        raw_text=raw_html,
+        response_id=str(_value(job, "job_id", "") or "") or None,
+        finish_reason=job_state,
+    )
+
+
 _INVOKERS: dict[str, Callable[..., VlmProviderResponse]] = {
     "gemini": _invoke_gemini,
     "openai": _invoke_openai,
     "claude": _invoke_claude,
+    "sarvam": _invoke_sarvam,
 }
 
 _REGISTERED_PROVIDER_IDS = set(_BY_PROVIDER_ID)
@@ -273,11 +432,15 @@ def invoke_provider(
     *,
     api_key: str,
     image_path: Path,
-    prompt: str = VLM_END_TO_END_PROMPT,
+    prompt: str | None = VLM_END_TO_END_PROMPT,
     timeout_seconds: float = 45.0,
 ) -> VlmProviderResponse:
-    if prompt != VLM_END_TO_END_PROMPT:
+    if spec.uses_shared_prompt and prompt != VLM_END_TO_END_PROMPT:
         raise ValueError("VLM acquisitions must use the exact shared end-to-end prompt.")
+    if not spec.uses_shared_prompt and prompt is not None:
+        raise ValueError(
+            f"Provider {spec.provider_id!r} does not use the shared end-to-end prompt."
+        )
     return _INVOKERS[spec.provider_id](
         spec,
         api_key=api_key,

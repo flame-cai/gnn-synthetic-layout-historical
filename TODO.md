@@ -1,9 +1,9 @@
 TODO
 Add auto delete finetuned models
 Adapt prompt for Claude
-Adapt for Sarvam
-Adjust the TextEdit Metric to treat Gemini More Fairly 0.5 threshold
-Adjust both metric for circular layouts? how does sarvam predict bounding box of circular text
+
+
+mention that retried three times. if output is still invalid, we consider 0 values.
 
 #######
 # Prepredict

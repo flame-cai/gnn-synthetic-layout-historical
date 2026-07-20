@@ -16,6 +16,7 @@ torch-spline-conv
 google-genai
 openai
 anthropic
+sarvamai
 google-api-core
 
 # Data Science & Imaging

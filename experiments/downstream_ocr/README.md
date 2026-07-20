@@ -148,6 +148,13 @@ prediction for each method.
 Paid VLM inference is a separate acquisition phase. Acquire every page once,
 before creating or selecting folds:
 
+Existing `gnn_layout` environments created before Sarvam support need the new
+SDK once:
+
+```powershell
+conda run -n gnn_layout python -m pip install sarvamai
+```
+
 ```powershell
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms `
   --manuscript-root app\input_manuscripts\yajn `
@@ -156,22 +163,40 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms
   --output-root app\tests\logs\downstream_ocr_vlm_cache `
   --provider-id gemini `
   --provider-id openai `
-  --provider-id claude
+  --provider-id claude `
+  --provider-id sarvam
 ```
 
 The enabled provider methods are:
 
 - `gemini_e2e`: `gemini-3.5-flash`
-- `openai_e2e`: `gpt-5.6-luna`
+- `openai_e2e`: `gpt-5.6-terra`
 - `claude_e2e`: `claude-sonnet-5`
+- `sarvam_e2e`: Sarvam Vision Document Digitization (`sa-IN`, HTML)
 
-All three receive the same resized page image followed by the exact
-`VLM_END_TO_END_PROMPT` string from `adapter.py`. Keys are read from `app/.env`
-through `GEMINI_API_KEY`, `OPENAI_API_KEY`, and `CLAUDE_API_KEY`. Keys and image
-bytes are never written to the cache.
+Gemini, OpenAI, and Claude receive the same resized page image followed by the
+exact `VLM_END_TO_END_PROMPT` string from `adapter.py`. Sarvam receives one
+resized page image per Document Digitization job with `language=sa-IN` and
+`output_format=html`; that API does not receive the shared prompt and does not
+return line geometry. Keys are read from `app/.env` through `GEMINI_API_KEY`,
+`OPENAI_API_KEY`, `CLAUDE_API_KEY`, and `SARVAM_API_KEY`. Keys and image bytes
+are never written to the cache.
+
+Sarvam HTML is converted immediately to PAGE-XML. Semantic text blocks such as
+`p`, headings, list items, `header`, `footer`, `aside`, table cells, and
+Sarvam's text-bearing classes (`sidebar`, `folio`, `formula`, and related
+classes) end a text line. Each `br` inside a block also ends a text line. Nested
+text blocks are emitted once rather than duplicated through their containers.
+Content under `head`, `style`, `script`, templates, and SVG is ignored. Empty
+fragments are discarded while DOM order and Unicode text are preserved. The
+resulting page has one `TextRegion`; every `TextLine` contains
+`TextEquiv/Unicode` plus empty `Coords` and `Baseline`. Because Sarvam supplies
+no geometry, only TextEdit is evaluated for `sarvam_e2e`; Page CER and layout
+metrics are explicitly unavailable.
 
 The cache is immutable at the page/request level. Its request fingerprint pins
-the provider, exact model, exact prompt, image bytes, and template PAGE-XML.
+the provider, exact model, prompt or document-job parameters, image bytes,
+template PAGE-XML, and the Sarvam output adapter where applicable.
 Successful outputs and failures after retry exhaustion are both terminal. A
 second acquisition command validates and reuses them without an API call.
 An interrupted non-terminal page directory is refused because automatically
@@ -179,11 +204,46 @@ retrying it could duplicate a paid request. Use a new cache root after manual
 inspection.
 
 `--max-retries 3` means three retries after the initial attempt. Raw responses,
-attempt metadata, normalized JSON, PAGE-XML, token usage, and terminal status
-are retained per page.
+attempt metadata, normalized JSON when applicable, PAGE-XML, usage metadata,
+and terminal status are retained per page.
 
 DeepSeek V4-Flash is deliberately not registered: the official DeepSeek API
-documents V4 as text-only and rejects image content. Sarvam is deferred.
+documents V4 as text-only and rejects image content.
+
+Acquire Sarvam once for all three manuscripts, with up to eight active page
+jobs. `--max-retries 3` applies the same policy as Gemini, OpenAI, and Claude:
+one initial attempt plus up to three retries. Once a terminal result is cached,
+later fold and report runs do not call Sarvam again:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_new `
+  --output-root app\tests\logs\downstream_ocr_vlm_cache `
+  --provider-id sarvam `
+  --page-workers 8 `
+  --timeout-seconds 600 `
+  --request-spacing-seconds 6 `
+  --max-retries 3
+```
+
+After that cache is complete, add `sarvam_e2e` to the existing five-fold run
+and regenerate all per-manuscript and combined reports:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_new `
+  --output-root app\tests\logs\ocr_5fold_new `
+  --vlm-predictions-root app\tests\logs\downstream_ocr_vlm_cache `
+  --method-id sarvam_e2e
+```
+
+The existing `folds.json` files are reused. Only Sarvam is materialized and
+evaluated by this command; retained metrics for the other methods remain in
+place and are included when each report is rebuilt.
 
 Run folds strictly offline by pointing `run-methods` at the completed cache:
 
@@ -197,6 +257,7 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
   --method-id gemini_e2e `
   --method-id openai_e2e `
   --method-id claude_e2e `
+  --method-id sarvam_e2e `
   --method-id annotation_tool_e2e
 ```
 
@@ -226,8 +287,9 @@ The report folder includes:
 The former `micro_page_cer_by_method.png` and `micro_textedit_by_method.png`
 bar figures are no longer generated. They are replaced by two paper tables:
 
-- Table 1 contains the enabled Gemini, OpenAI, and Claude off-the-shelf methods
-  under the same prompt/input/test-set contract.
+- Table 1 contains the enabled Gemini, OpenAI, Claude, and Sarvam off-the-shelf
+  methods. Each row records its prompt/input contract; all rows use the same
+  manuscript folds and test pages.
 - Table 2, annotation-tool gains, compares 0/1/2/3-page fine-tuning with and
   without GT layout correction. It records Micro Page CER, TextEdit
   `ALL_page_avg`, and active Layout Mode correction seconds per evaluated page when
@@ -294,6 +356,7 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
   --method-id gemini_e2e `
   --method-id openai_e2e `
   --method-id claude_e2e `
+  --method-id sarvam_e2e `
   --method-id annotation_tool_e2e `
   --method-id annotation_tool_gt_layout `
   --method-id annotation_tool_pred_layout_ft_1 `

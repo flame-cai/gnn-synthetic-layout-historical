@@ -24,6 +24,7 @@ FAILURE_STATUSES = {
     "empty_response",
     "json_parse_error",
     "json_schema_error",
+    "html_parse_error",
     "adapter_error",
     "other_output_error",
 }
@@ -204,6 +205,8 @@ def evaluate_page(
     status: str = "success",
     method_id: str | None = None,
     calculate_textedit: bool = True,
+    calculate_layout_metrics: bool = True,
+    calculate_page_cer: bool = True,
 ) -> dict:
     if gt_page.width != pred_page.width or gt_page.height != pred_page.height:
         raise ValueError(
@@ -212,9 +215,6 @@ def evaluate_page(
         )
     gt_lines = list(gt_page.lines)
     pred_lines = [] if status in FAILURE_STATUSES else list(pred_page.lines)
-    iou_matrix = compute_iou_matrix(gt_lines, pred_lines)
-    object_50 = object_metrics(iou_matrix, len(gt_lines), len(pred_lines), 0.50)
-    object_75 = object_metrics(iou_matrix, len(gt_lines), len(pred_lines), 0.75)
     record = {
         "manuscript_id": manuscript_id,
         "fold_id": fold_id,
@@ -222,15 +222,67 @@ def evaluate_page(
         "status": status,
         "num_gt_lines": len(gt_lines),
         "num_pred_lines": len(pred_lines),
+        "layout_metrics_available": bool(calculate_layout_metrics),
+        "page_cer_available": bool(calculate_page_cer),
     }
     if method_id is not None:
         record["method_id"] = method_id
-    payloads = [
-        {key: value for key, value in object_50.items() if not key.startswith("matches_")},
-        {key: value for key, value in object_75.items() if not key.startswith("matches_")},
-        pixel_metrics(gt_lines, pred_lines, gt_page.width, gt_page.height),
-        page_cer(gt_lines, pred_lines),
-    ]
+    payloads = []
+    if calculate_layout_metrics:
+        iou_matrix = compute_iou_matrix(gt_lines, pred_lines)
+        object_50 = object_metrics(iou_matrix, len(gt_lines), len(pred_lines), 0.50)
+        object_75 = object_metrics(iou_matrix, len(gt_lines), len(pred_lines), 0.75)
+        payloads.extend(
+            [
+                {
+                    key: value
+                    for key, value in object_50.items()
+                    if not key.startswith("matches_")
+                },
+                {
+                    key: value
+                    for key, value in object_75.items()
+                    if not key.startswith("matches_")
+                },
+                pixel_metrics(gt_lines, pred_lines, gt_page.width, gt_page.height),
+            ]
+        )
+    else:
+        payloads.append(
+            {
+                key: None
+                for key in (
+                    "tp_50",
+                    "fp_50",
+                    "fn_50",
+                    "object_precision_50",
+                    "object_recall_50",
+                    "object_g_f1_50",
+                    "tp_75",
+                    "fp_75",
+                    "fn_75",
+                    "object_precision_75",
+                    "object_recall_75",
+                    "object_g_f1_75",
+                    "pixel_tp",
+                    "pixel_fp",
+                    "pixel_fn",
+                    "pixel_precision",
+                    "pixel_recall",
+                    "pixel_f1",
+                )
+            }
+        )
+    if calculate_page_cer:
+        payloads.append(page_cer(gt_lines, pred_lines))
+    else:
+        payloads.append(
+            {
+                "page_cer_distance": None,
+                "page_cer_gt_chars": None,
+                "page_cer": None,
+            }
+        )
     if calculate_textedit:
         payloads.append(
             unordered_textline_textedit(
@@ -251,17 +303,31 @@ def _median(values: list[float]) -> float:
 def aggregate_page_records(records: Iterable[dict]) -> dict:
     rows = list(records)
     count = len(rows)
-    tp_50 = sum(int(row["tp_50"]) for row in rows)
-    fp_50 = sum(int(row["fp_50"]) for row in rows)
-    fn_50 = sum(int(row["fn_50"]) for row in rows)
-    tp_75 = sum(int(row["tp_75"]) for row in rows)
-    fp_75 = sum(int(row["fp_75"]) for row in rows)
-    fn_75 = sum(int(row["fn_75"]) for row in rows)
-    pixel_tp = sum(int(row["pixel_tp"]) for row in rows)
-    pixel_fp = sum(int(row["pixel_fp"]) for row in rows)
-    pixel_fn = sum(int(row["pixel_fn"]) for row in rows)
-    cer_distance = sum(int(row["page_cer_distance"]) for row in rows)
-    cer_chars = sum(int(row["page_cer_gt_chars"]) for row in rows)
+    layout_rows = [
+        row
+        for row in rows
+        if row.get("layout_metrics_available", True)
+        and row.get("tp_50") is not None
+    ]
+    cer_rows = [
+        row
+        for row in rows
+        if row.get("page_cer_available", True)
+        and row.get("page_cer") is not None
+    ]
+    layout_metrics_available = bool(layout_rows) or not rows
+    page_cer_available = bool(cer_rows) or not rows
+    tp_50 = sum(int(row["tp_50"]) for row in layout_rows)
+    fp_50 = sum(int(row["fp_50"]) for row in layout_rows)
+    fn_50 = sum(int(row["fn_50"]) for row in layout_rows)
+    tp_75 = sum(int(row["tp_75"]) for row in layout_rows)
+    fp_75 = sum(int(row["fp_75"]) for row in layout_rows)
+    fn_75 = sum(int(row["fn_75"]) for row in layout_rows)
+    pixel_tp = sum(int(row["pixel_tp"]) for row in layout_rows)
+    pixel_fp = sum(int(row["pixel_fp"]) for row in layout_rows)
+    pixel_fn = sum(int(row["pixel_fn"]) for row in layout_rows)
+    cer_distance = sum(int(row["page_cer_distance"]) for row in cer_rows)
+    cer_chars = sum(int(row["page_cer_gt_chars"]) for row in cer_rows)
     textedit_distance = sum(int(row["textedit_distance_sum"]) for row in rows)
     textedit_denominator = sum(int(row["textedit_max_length_sum"]) for row in rows)
     textedit_sample_ratio_sum = sum(
@@ -272,7 +338,7 @@ def aggregate_page_records(records: Iterable[dict]) -> dict:
         int(row.get("textedit_sample_count", 1))
         for row in rows
     )
-    page_cers = [float(row["page_cer"]) for row in rows]
+    page_cers = [float(row["page_cer"]) for row in cer_rows]
     textedits = [
         float(row.get("textedit_all_page_avg", row["textedit"]))
         for row in rows
@@ -292,27 +358,73 @@ def aggregate_page_records(records: Iterable[dict]) -> dict:
     return {
         "page_count": count,
         "valid_output_rate": safe_divide(successful, count),
-        "tp_50": tp_50,
-        "fp_50": fp_50,
-        "fn_50": fn_50,
-        "object_precision_50": safe_divide(tp_50, tp_50 + fp_50),
-        "object_recall_50": safe_divide(tp_50, tp_50 + fn_50),
-        "object_g_f1_50": safe_divide(2 * tp_50, 2 * tp_50 + fp_50 + fn_50),
-        "tp_75": tp_75,
-        "fp_75": fp_75,
-        "fn_75": fn_75,
-        "object_precision_75": safe_divide(tp_75, tp_75 + fp_75),
-        "object_recall_75": safe_divide(tp_75, tp_75 + fn_75),
-        "object_g_f1_75": safe_divide(2 * tp_75, 2 * tp_75 + fp_75 + fn_75),
-        "pixel_tp": pixel_tp,
-        "pixel_fp": pixel_fp,
-        "pixel_fn": pixel_fn,
-        "pixel_precision": safe_divide(pixel_tp, pixel_tp + pixel_fp),
-        "pixel_recall": safe_divide(pixel_tp, pixel_tp + pixel_fn),
-        "pixel_f1": safe_divide(2 * pixel_tp, 2 * pixel_tp + pixel_fp + pixel_fn),
-        "mean_page_cer": float(statistics.mean(page_cers)) if page_cers else 0.0,
-        "median_page_cer": _median(page_cers),
-        "micro_page_cer": safe_divide(cer_distance, cer_chars),
+        "layout_metric_page_count": len(layout_rows),
+        "page_cer_page_count": len(cer_rows),
+        "tp_50": tp_50 if layout_metrics_available else None,
+        "fp_50": fp_50 if layout_metrics_available else None,
+        "fn_50": fn_50 if layout_metrics_available else None,
+        "object_precision_50": (
+            safe_divide(tp_50, tp_50 + fp_50)
+            if layout_metrics_available
+            else None
+        ),
+        "object_recall_50": (
+            safe_divide(tp_50, tp_50 + fn_50)
+            if layout_metrics_available
+            else None
+        ),
+        "object_g_f1_50": (
+            safe_divide(2 * tp_50, 2 * tp_50 + fp_50 + fn_50)
+            if layout_metrics_available
+            else None
+        ),
+        "tp_75": tp_75 if layout_metrics_available else None,
+        "fp_75": fp_75 if layout_metrics_available else None,
+        "fn_75": fn_75 if layout_metrics_available else None,
+        "object_precision_75": (
+            safe_divide(tp_75, tp_75 + fp_75)
+            if layout_metrics_available
+            else None
+        ),
+        "object_recall_75": (
+            safe_divide(tp_75, tp_75 + fn_75)
+            if layout_metrics_available
+            else None
+        ),
+        "object_g_f1_75": (
+            safe_divide(2 * tp_75, 2 * tp_75 + fp_75 + fn_75)
+            if layout_metrics_available
+            else None
+        ),
+        "pixel_tp": pixel_tp if layout_metrics_available else None,
+        "pixel_fp": pixel_fp if layout_metrics_available else None,
+        "pixel_fn": pixel_fn if layout_metrics_available else None,
+        "pixel_precision": (
+            safe_divide(pixel_tp, pixel_tp + pixel_fp)
+            if layout_metrics_available
+            else None
+        ),
+        "pixel_recall": (
+            safe_divide(pixel_tp, pixel_tp + pixel_fn)
+            if layout_metrics_available
+            else None
+        ),
+        "pixel_f1": (
+            safe_divide(2 * pixel_tp, 2 * pixel_tp + pixel_fp + pixel_fn)
+            if layout_metrics_available
+            else None
+        ),
+        "mean_page_cer": (
+            float(statistics.mean(page_cers))
+            if page_cers
+            else (0.0 if not rows else None)
+        ),
+        "median_page_cer": (
+            _median(page_cers) if page_cers else (0.0 if not rows else None)
+        ),
+        "micro_page_cer": (
+            safe_divide(cer_distance, cer_chars) if page_cer_available else None
+        ),
         "mean_textedit": textedit_all_page_avg,
         "median_textedit": _median(textedits),
         "micro_textedit": textedit_edit_whole,

@@ -14,7 +14,14 @@ from typing import Callable, Iterable
 
 from dotenv import load_dotenv
 
-from .adapter import AdapterError, VLM_END_TO_END_PROMPT, parse_json_payload, vlm_json_to_pagexml
+from .adapter import (
+    AdapterError,
+    VLM_END_TO_END_PROMPT,
+    VLM_JSON_OUTPUT_ADAPTER_ID,
+    parse_json_payload,
+    provider_output_to_pagexml,
+    vlm_json_to_pagexml,
+)
 from .pagexml import empty_page_like, load_pagexml, write_pagexml
 from .splits import IMAGE_EXTENSIONS, Fold, ManuscriptPaths, default_manuscript_paths, discover_page_ids
 from .vlm_providers import (
@@ -71,6 +78,18 @@ def _prompt_sha256() -> str:
     return _sha256_bytes(VLM_END_TO_END_PROMPT.encode("utf-8"))
 
 
+def _provider_prompt(spec: VlmProviderSpec) -> str | None:
+    return VLM_END_TO_END_PROMPT if spec.uses_shared_prompt else None
+
+
+def _provider_prompt_sha256(spec: VlmProviderSpec) -> str | None:
+    return _prompt_sha256() if spec.uses_shared_prompt else None
+
+
+def _output_adapter_version(spec: VlmProviderSpec) -> int:
+    return 2
+
+
 def _canonical_sha256(payload: dict) -> str:
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
     return _sha256_bytes(encoded)
@@ -110,20 +129,31 @@ def _request_payload(
         "provider_id": spec.provider_id,
         "method_id": spec.method_id,
         "model_id": spec.model_id,
-        "prompt_sha256": _prompt_sha256(),
+        "prompt_sha256": _provider_prompt_sha256(spec),
         "image_sha256": _sha256_file(image_path),
         "pagexml_sha256": _sha256_file(pagexml_path),
     }
+    if not spec.uses_shared_prompt:
+        identity["request_parameters"] = {
+            "language": spec.language_code,
+            "output_format": spec.output_format,
+        }
+        identity["output_adapter_id"] = spec.output_adapter_id
     if spec.request_contract_version != 1:
         identity["request_contract_version"] = spec.request_contract_version
-    return {
+    request = {
         **identity,
         "request_fingerprint": _canonical_sha256(identity),
         "image_path": str(image_path.resolve()),
         "pagexml_path": str(pagexml_path.resolve()),
-        "prompt": VLM_END_TO_END_PROMPT,
-        "input_order": ["page_image", "prompt"],
+        "input_order": (
+            ["page_image", "prompt"] if spec.uses_shared_prompt else ["page_image"]
+        ),
     }
+    prompt = _provider_prompt(spec)
+    if prompt is not None:
+        request["prompt"] = prompt
+    return request
 
 
 def _validate_terminal_result(result: dict, expected_request: dict, result_path: Path) -> None:
@@ -157,7 +187,11 @@ def _try_repair_cached_json_fence(
     page_dir: Path,
     result: dict,
 ) -> dict:
-    if result.get("status") != "json_parse_error":
+    if (
+        result.get("status") != "json_parse_error"
+        or result.get("output_adapter_id", VLM_JSON_OUTPUT_ADAPTER_ID)
+        != VLM_JSON_OUTPUT_ADAPTER_ID
+    ):
         return result
     template_page = load_pagexml(
         paths.pagexml_dir / f"{page_id}.xml",
@@ -179,6 +213,7 @@ def _try_repair_cached_json_fence(
             "status": "success",
             "error": None,
             "output_adapter_version": OUTPUT_ADAPTER_VERSION,
+            "output_adapter_id": VLM_JSON_OUTPUT_ADAPTER_ID,
             "derived_output_updated_at_utc": _utc_now(),
             "local_output_repairs": [
                 *(result.get("local_output_repairs") or []),
@@ -274,7 +309,7 @@ def _acquire_page(
                 spec,
                 api_key=api_key,
                 image_path=image_path,
-                prompt=VLM_END_TO_END_PROMPT,
+                prompt=_provider_prompt(spec),
                 timeout_seconds=timeout_seconds,
             )
             raw_text = response.raw_text
@@ -295,13 +330,15 @@ def _acquire_page(
                 raw_text,
                 encoding="utf-8",
             )
-            parsed_payload = parse_json_payload(raw_text)
-            vlm_json_to_pagexml(
-                parsed_payload,
+            provider_output_to_pagexml(
+                raw_text,
+                output_adapter_id=spec.output_adapter_id,
                 template_page=gt_page,
                 output_path=page_dir / "prediction.xml",
             )
-            _write_json_atomic(page_dir / "normalized_response.json", parsed_payload)
+            if spec.output_adapter_id == VLM_JSON_OUTPUT_ADAPTER_ID:
+                parsed_payload = parse_json_payload(raw_text)
+                _write_json_atomic(page_dir / "normalized_response.json", parsed_payload)
             attempt["status"] = "success"
             attempts.append(attempt)
             final_status = "success"
@@ -347,7 +384,8 @@ def _acquire_page(
         "elapsed_seconds": time.monotonic() - acquisition_started,
         "completed_at_utc": _utc_now(),
         "prediction_path": "prediction.xml",
-        "output_adapter_version": OUTPUT_ADAPTER_VERSION,
+        "output_adapter_version": _output_adapter_version(spec),
+        "output_adapter_id": spec.output_adapter_id,
     }
     _write_json_atomic(result_path, result)
     return result
@@ -422,7 +460,7 @@ def acquire_manuscript_provider(
         "schema_version": CACHE_SCHEMA_VERSION,
         "manuscript_id": paths.manuscript_id,
         "provider": asdict(spec),
-        "prompt_sha256": _prompt_sha256(),
+        "prompt_sha256": _provider_prompt_sha256(spec),
         "page_ids": list(page_ids),
         "page_count": len(page_ids),
         "success_count": sum(item["status"] == "success" for item in results.values()),
@@ -462,7 +500,7 @@ def validate_vlm_cache(
     provider = manifest.get("provider", {})
     if provider.get("provider_id") != spec.provider_id or provider.get("model_id") != spec.model_id:
         raise VlmCacheError(f"VLM cache provider/model mismatch: {manifest_path}.")
-    if manifest.get("prompt_sha256") != _prompt_sha256():
+    if manifest.get("prompt_sha256") != _provider_prompt_sha256(spec):
         raise VlmCacheError(f"VLM cache prompt mismatch: {manifest_path}.")
 
     for page_id in page_ids:

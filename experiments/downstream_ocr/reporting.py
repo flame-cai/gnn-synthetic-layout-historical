@@ -104,8 +104,9 @@ OFF_THE_SHELF_METHODS = {
     spec.method_id: {
         "provider": spec.display_name.split(" (", 1)[0],
         "model_family": spec.model_id,
-        "input_contract": "page_image_only",
-        "prompt_contract": "vlm_end_to_end_prompt_v1_json_lines_or_polygons",
+        "input_contract": spec.input_contract,
+        "prompt_contract": spec.prompt_contract,
+        "provides_layout": spec.provides_layout,
     }
     for spec in VLM_PROVIDER_SPECS
 }
@@ -390,6 +391,8 @@ def _engine_label(method_id: str, method: dict) -> str:
 
 
 def _layout_condition_label(method: dict) -> str:
+    if not method.get("provides_layout", True):
+        return "no_layout_output"
     return "human_corrected_gt_layout" if method.get("uses_gt_layout") else "predicted_layout"
 
 
@@ -400,6 +403,8 @@ def _training_layout_condition_label(method: dict) -> str:
 
 
 def _layout_metric_interpretation(method: dict) -> str:
+    if not method.get("provides_layout", True):
+        return "Not applicable: the method emits text lines without coordinates or baselines."
     if method.get("uses_gt_layout"):
         return "Human-corrected GT-layout condition; layout metrics are not layout-detector performance."
     return "Predicted-layout condition; layout metrics reflect the method's geometry output."
@@ -432,10 +437,19 @@ def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
         "test_layout_condition": _layout_condition_label(method),
         "layout_condition": _layout_condition_label(method),
         "layout_metric_interpretation": _layout_metric_interpretation(method),
+        "provides_layout": bool(method.get("provides_layout", True)),
         "finetune_pages": int(method.get("finetune_page_count") or 0),
         "ocr_recipe_source": ocr_recipe.get("source", ""),
         "sibling_checkpoint_strategy": ocr_recipe.get("sibling_checkpoint_strategy", ""),
         "page_count": int(aggregate.get("page_count") or 0),
+        "layout_metric_page_count": int(
+            aggregate.get("layout_metric_page_count", aggregate.get("page_count", 0))
+            or 0
+        ),
+        "page_cer_page_count": int(
+            aggregate.get("page_cer_page_count", aggregate.get("page_count", 0))
+            or 0
+        ),
         "valid_output_rate": _safe_float(aggregate.get("valid_output_rate")),
         "object_g_f1_50": _safe_float(aggregate.get("object_g_f1_50")),
         "object_g_f1_75": _safe_float(aggregate.get("object_g_f1_75")),
@@ -1509,8 +1523,10 @@ def _build_off_the_shelf_table_rows(summary_rows: list[dict]) -> list[dict]:
                 "method_id": method_id,
                 "input_contract": metadata["input_contract"],
                 "prompt_contract": metadata["prompt_contract"],
+                "provides_layout": metadata["provides_layout"],
                 "test_set_contract": "same folds/test pages as the downstream OCR run",
                 "page_count": row.get("page_count"),
+                "page_cer_page_count": row.get("page_cer_page_count"),
                 "valid_output_rate": row.get("valid_output_rate"),
                 "micro_page_cer": row.get("micro_page_cer"),
                 "micro_page_cer_ci_lower": row.get("micro_page_cer_ci_lower"),
@@ -1540,7 +1556,9 @@ def _off_the_shelf_markdown_rows(rows: list[dict]) -> list[dict]:
                 row.get("micro_page_cer"),
                 row.get("micro_page_cer_ci_lower"),
                 row.get("micro_page_cer_ci_upper"),
-            ),
+            )
+            if int(row.get("page_cer_page_count") or 0) > 0
+            else "N/A (no geometry)",
             "TextEdit ALL_page_avg (95% CI)": _format_estimate_ci(
                 row.get("textedit_all_page_avg"),
                 row.get("textedit_all_page_avg_ci_lower"),
@@ -1804,7 +1822,7 @@ def _write_markdown_report(
         "",
         "## Table 1: Off-The-Shelf Models",
         "",
-        "All off-the-shelf model rows use the same held-out folds as the annotation-tool rows for the same manuscript. The table is method-registry driven so future providers can be added with the same prompt/input/test-set contract.",
+        "All off-the-shelf model rows use the same held-out folds as the annotation-tool rows for the same manuscript. Each row records its own prompt/input contract. Methods without line geometry are evaluated with TextEdit only; Page CER and layout metrics are reported as unavailable.",
         "",
         _markdown_table(
             off_the_shelf_table_rows,
@@ -1972,10 +1990,13 @@ def write_experiment_report(
         "test_layout_condition",
         "layout_condition",
         "layout_metric_interpretation",
+        "provides_layout",
         "finetune_pages",
         "ocr_recipe_source",
         "sibling_checkpoint_strategy",
         "page_count",
+        "layout_metric_page_count",
+        "page_cer_page_count",
         "valid_output_rate",
         "object_g_f1_50",
         "object_g_f1_75",

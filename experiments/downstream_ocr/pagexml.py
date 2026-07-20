@@ -228,7 +228,13 @@ def extract_unicode_text(textline: ET.Element) -> str:
     return "" if unicode_elem is None or unicode_elem.text is None else unicode_elem.text
 
 
-def load_pagexml(path: str | Path, *, strict: bool = True, repair_geometry: bool = False) -> PageXmlPage:
+def load_pagexml(
+    path: str | Path,
+    *,
+    strict: bool = True,
+    repair_geometry: bool = False,
+    allow_empty_geometry: bool = False,
+) -> PageXmlPage:
     xml_path = Path(path)
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -256,22 +262,27 @@ def load_pagexml(path: str | Path, *, strict: bool = True, repair_geometry: bool
             line_id = textline.get("id") or f"{region_id}_line_{fallback_index}"
             coords_elem = first_child(textline, "Coords")
             if coords_elem is None or not coords_elem.get("points"):
-                if strict:
+                if allow_empty_geometry:
+                    points: tuple[tuple[float, float], ...] = ()
+                    polygon: BaseGeometry = GeometryCollection()
+                elif strict:
                     raise ValueError(f"{xml_path}:{line_id}: missing TextLine/Coords points.")
-                continue
-            points = parse_points(coords_elem.get("points"))
-            polygon = validate_polygon(
-                points,
-                width=width,
-                height=height,
-                context=f"{xml_path}:{line_id}",
-                repair=repair_geometry,
-            )
+                else:
+                    continue
+            else:
+                points = parse_points(coords_elem.get("points"))
+                polygon = validate_polygon(
+                    points,
+                    width=width,
+                    height=height,
+                    context=f"{xml_path}:{line_id}",
+                    repair=repair_geometry,
+                )
             lines.append(
                 TextLine(
                     page_id=page_id,
                     line_id=line_id,
-                    points=exterior_points_for_xml(polygon),
+                    points=exterior_points_for_xml(polygon) if not polygon.is_empty else (),
                     polygon=polygon,
                     text=extract_unicode_text(textline),
                     region_id=region_id,
@@ -361,6 +372,62 @@ def write_pagexml(
         unicode_elem = ET.SubElement(text_equiv, qualified("Unicode", namespace))
         unicode_elem.text = line.text or ""
 
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if hasattr(ET, "indent"):
+        ET.indent(tree, space="\t", level=0)
+    tree.write(output, encoding="UTF-8", xml_declaration=True)
+    return output
+
+
+def write_text_only_pagexml(
+    page: PageXmlPage,
+    output_path: str | Path,
+    *,
+    lines: Iterable[TextLine] | None = None,
+    region_id: str = "region_0",
+) -> Path:
+    """Write text-line transcriptions without inventing PAGE geometry."""
+    output = Path(output_path)
+    namespace = page.namespace or PAGE_XML_2013_NAMESPACE
+    ET.register_namespace("", namespace)
+
+    root = ET.Element(qualified("PcGts", namespace))
+    page_elem = ET.SubElement(
+        root,
+        qualified("Page", namespace),
+        {
+            "imageFilename": page.image_filename,
+            "imageWidth": str(int(page.width)),
+            "imageHeight": str(int(page.height)),
+        },
+    )
+    region_elem = ET.SubElement(
+        page_elem,
+        qualified("TextRegion", namespace),
+        {
+            "id": region_id,
+            "custom": "text_only_no_geometry",
+        },
+    )
+    ET.SubElement(region_elem, qualified("Coords", namespace), {"points": ""})
+
+    for line_index, line in enumerate(lines if lines is not None else page.lines):
+        line_elem = ET.SubElement(
+            region_elem,
+            qualified("TextLine", namespace),
+            {"id": line.line_id or f"line_{line_index}"},
+        )
+        ET.SubElement(line_elem, qualified("Coords", namespace), {"points": ""})
+        ET.SubElement(line_elem, qualified("Baseline", namespace), {"points": ""})
+        text_equiv = ET.SubElement(
+            line_elem,
+            qualified("TextEquiv", namespace),
+            {"index": "0"},
+        )
+        unicode_elem = ET.SubElement(text_equiv, qualified("Unicode", namespace))
+        unicode_elem.text = line.text or ""
+
+    tree = ET.ElementTree(root)
     output.parent.mkdir(parents=True, exist_ok=True)
     if hasattr(ET, "indent"):
         ET.indent(tree, space="\t", level=0)
