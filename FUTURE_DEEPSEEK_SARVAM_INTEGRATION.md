@@ -3,7 +3,11 @@
 
 In for these experiment results, I want you to change how the metric TextEdit is being calculated, and then regenerate the report for:
 C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\tests\logs\ocr_5fold_new
-Everything else should remain unchanged. We just want to precisely swap and change how TextEdit is being calculated, and then regenerate the report for all competing methods.
+
+Experiment code:
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\experiments\downstream_ocr
+
+Completely remove the existing TextEdit metric calculation. We want a fresh new implementation. Everything else should remain unchanged. We just want to precisely swap and change how TextEdit is being calculated, and then regenerate the report for all competing methods.
 
 For all competing methods, we already have their predictions in the standard PAGE-XML format. The Ground Truths are also in the standard PAGE-XML format. So for each page in each manuscript, we will have a prediction and a Ground truth, both in PAGE-XML format.
 
