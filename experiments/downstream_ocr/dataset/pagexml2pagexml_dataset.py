@@ -16,6 +16,7 @@ from ..omnidocbench_v1_5 import (
 from ..omnidocbench_v1_5.metrics.cal_metric import call_Edit_dist
 from ..omnidocbench_v1_5.registry.registry import DATASET_REGISTRY
 from ..omnidocbench_v1_5.utils.match import match_gt2pred_simple
+from ..devanagari_textedit import evaluate_devanagari_textedit_items
 
 
 LOGGER = logging.getLogger(__name__)
@@ -251,6 +252,7 @@ class TextEditEvaluation:
     page_metrics: dict[str, dict]
     official_result: dict
     matches_by_key: dict[str, tuple[dict, ...]]
+    devanagari_matches_by_key: dict[str, tuple[dict, ...]]
 
 
 def _metric_image_name(key: str, image_name: str) -> str:
@@ -327,6 +329,8 @@ def _page_metric(samples: list[dict]) -> dict:
 def evaluate_pagexml_pairs(pairs: list[PageXmlPair]) -> TextEditEvaluation:
     all_matches: list[dict] = []
     matches_by_key: dict[str, tuple[dict, ...]] = {}
+    devanagari_matches_by_key: dict[str, tuple[dict, ...]] = {}
+    devanagari_page_metrics: dict[str, dict] = {}
     for pair in pairs:
         gt_image_name, gt_items = parse_pagexml(
             pair.gt_xml_path,
@@ -357,22 +361,30 @@ def evaluate_pagexml_pairs(pairs: list[PageXmlPair]) -> TextEditEvaluation:
             match["_pagexml_evaluation_key"] = pair.key
         matches_by_key[pair.key] = tuple(matches)
         all_matches.extend(matches)
+        (
+            devanagari_page_metrics[pair.key],
+            devanagari_matches_by_key[pair.key],
+        ) = evaluate_devanagari_textedit_items(gt_items, pred_items)
 
     official_result = _call_official_edit_dist(all_matches)
     page_metrics = {
-        pair.key: _page_metric(
-            [
-                sample
-                for sample in all_matches
-                if sample["_pagexml_evaluation_key"] == pair.key
-            ]
-        )
+        pair.key: {
+            **_page_metric(
+                [
+                    sample
+                    for sample in all_matches
+                    if sample["_pagexml_evaluation_key"] == pair.key
+                ]
+            ),
+            **devanagari_page_metrics[pair.key],
+        }
         for pair in pairs
     }
     return TextEditEvaluation(
         page_metrics=page_metrics,
         official_result=official_result,
         matches_by_key=matches_by_key,
+        devanagari_matches_by_key=devanagari_matches_by_key,
     )
 
 
@@ -384,7 +396,14 @@ def evaluate_text_line_items(
 ) -> dict:
     matches = match_items(gt_items, pred_items, image_name=image_name)
     _call_official_edit_dist(matches)
-    return _page_metric(matches)
+    devanagari_metric, _ = evaluate_devanagari_textedit_items(
+        gt_items,
+        pred_items,
+    )
+    return {
+        **_page_metric(matches),
+        **devanagari_metric,
+    }
 
 
 @DATASET_REGISTRY.register(DATASET_NAME)

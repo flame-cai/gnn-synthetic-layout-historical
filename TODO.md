@@ -14,7 +14,7 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms
   --output-root app\tests\logs\downstream_ocr_vlm_cache `
   --provider-id claude
 
-
+hygiene 
 # Run Experiment
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
   --manuscript-root app\input_manuscripts\yajn `

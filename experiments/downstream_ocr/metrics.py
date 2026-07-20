@@ -355,6 +355,68 @@ def aggregate_page_records(records: Iterable[dict]) -> dict:
         textedit_sample_ratio_sum,
         textedit_sample_count,
     )
+    devanagari_textedit_rows = [
+        row
+        for row in rows
+        if row.get("devanagari_textedit_distance_sum") is not None
+        and row.get("devanagari_textedit_max_length_sum") is not None
+        and row.get(
+            "devanagari_textedit_all_page_avg",
+            row.get("devanagari_textedit"),
+        )
+        is not None
+    ]
+    devanagari_textedit_available = bool(devanagari_textedit_rows) or not rows
+    devanagari_textedit_distance = sum(
+        int(row["devanagari_textedit_distance_sum"])
+        for row in devanagari_textedit_rows
+    )
+    devanagari_textedit_denominator = sum(
+        int(row["devanagari_textedit_max_length_sum"])
+        for row in devanagari_textedit_rows
+    )
+    devanagari_textedit_sample_ratio_sum = sum(
+        float(
+            row.get(
+                "devanagari_textedit_sample_ratio_sum",
+                row.get("devanagari_textedit", 0.0),
+            )
+        )
+        for row in devanagari_textedit_rows
+    )
+    devanagari_textedit_sample_count = sum(
+        int(row.get("devanagari_textedit_sample_count", 1))
+        for row in devanagari_textedit_rows
+    )
+    devanagari_textedits = [
+        float(
+            row["devanagari_textedit_all_page_avg"]
+            if row.get("devanagari_textedit_all_page_avg") is not None
+            else row.get("devanagari_textedit", 0.0)
+        )
+        for row in devanagari_textedit_rows
+    ]
+    devanagari_textedit_all_page_avg = (
+        float(statistics.mean(devanagari_textedits))
+        if devanagari_textedits
+        else (0.0 if not rows else None)
+    )
+    devanagari_textedit_edit_whole = (
+        safe_divide(
+            devanagari_textedit_distance,
+            devanagari_textedit_denominator,
+        )
+        if devanagari_textedit_available
+        else None
+    )
+    devanagari_textedit_edit_sample_avg = (
+        safe_divide(
+            devanagari_textedit_sample_ratio_sum,
+            devanagari_textedit_sample_count,
+        )
+        if devanagari_textedit_available
+        else None
+    )
     return {
         "page_count": count,
         "valid_output_rate": safe_divide(successful, count),
@@ -431,6 +493,23 @@ def aggregate_page_records(records: Iterable[dict]) -> dict:
         "textedit_all_page_avg": textedit_all_page_avg,
         "textedit_edit_whole": textedit_edit_whole,
         "textedit_edit_sample_avg": textedit_edit_sample_avg,
+        "devanagari_textedit_page_count": len(devanagari_textedit_rows),
+        "mean_devanagari_textedit": devanagari_textedit_all_page_avg,
+        "median_devanagari_textedit": (
+            _median(devanagari_textedits)
+            if devanagari_textedits
+            else (0.0 if not rows else None)
+        ),
+        "micro_devanagari_textedit": devanagari_textedit_edit_whole,
+        "devanagari_textedit_all_page_avg": (
+            devanagari_textedit_all_page_avg
+        ),
+        "devanagari_textedit_edit_whole": (
+            devanagari_textedit_edit_whole
+        ),
+        "devanagari_textedit_edit_sample_avg": (
+            devanagari_textedit_edit_sample_avg
+        ),
     }
 
 

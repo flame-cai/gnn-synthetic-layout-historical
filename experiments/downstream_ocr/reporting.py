@@ -12,6 +12,9 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from .dataset.pagexml2pagexml_dataset import textedit_reproducibility_metadata
+from .devanagari_textedit import (
+    devanagari_textedit_reproducibility_metadata,
+)
 from .metrics import aggregate_page_records
 from .vlm_providers import VLM_PROVIDER_SPECS, is_vlm_method
 
@@ -123,7 +126,12 @@ BOOTSTRAP_METRICS = {
     "textedit_all_page_avg": (
         "textedit_all_page_avg",
         "textedit_page_count",
-        "TextEdit ALL_page_avg",
+        "Upstream TextEdit ALL_page_avg",
+    ),
+    "devanagari_textedit_all_page_avg": (
+        "devanagari_textedit_all_page_avg",
+        "devanagari_textedit_page_count",
+        "Devanagari-relaxed TextEdit ALL_page_avg",
     ),
 }
 
@@ -148,6 +156,8 @@ class ReportArtifacts:
     annotation_gains_table_json_path: Path
     vlm_usage_csv_path: Path
     vlm_usage_json_path: Path
+    textedit_metric_path: Path
+    devanagari_textedit_metric_path: Path
     figure_paths: tuple[Path, ...]
     manifest_path: Path
 
@@ -167,6 +177,8 @@ class CombinedTableArtifacts:
     layout_mode_comparisons_csv_path: Path
     vlm_usage_csv_path: Path
     vlm_usage_json_path: Path
+    textedit_metric_path: Path
+    devanagari_textedit_metric_path: Path
     manifest_path: Path
 
 
@@ -424,6 +436,21 @@ def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
     textedit_edit_sample_avg = _safe_float(
         aggregate.get("textedit_edit_sample_avg")
     )
+    devanagari_textedit_all_page_avg = _safe_float(
+        aggregate.get(
+            "devanagari_textedit_all_page_avg",
+            aggregate.get("mean_devanagari_textedit"),
+        )
+    )
+    devanagari_textedit_edit_whole = _safe_float(
+        aggregate.get(
+            "devanagari_textedit_edit_whole",
+            aggregate.get("micro_devanagari_textedit"),
+        )
+    )
+    devanagari_textedit_edit_sample_avg = _safe_float(
+        aggregate.get("devanagari_textedit_edit_sample_avg")
+    )
     return {
         "manuscript_id": str(payload.get("manuscript_id") or ""),
         "method_id": method_id,
@@ -463,6 +490,27 @@ def _summary_row_from_payload(payload: dict, metrics_path: Path) -> dict:
         "textedit_all_page_avg": textedit_all_page_avg,
         "textedit_edit_whole": textedit_edit_whole,
         "textedit_edit_sample_avg": textedit_edit_sample_avg,
+        "devanagari_textedit_page_count": int(
+            aggregate.get("devanagari_textedit_page_count") or 0
+        ),
+        "mean_devanagari_textedit": _safe_float(
+            aggregate.get("mean_devanagari_textedit")
+        ),
+        "median_devanagari_textedit": _safe_float(
+            aggregate.get("median_devanagari_textedit")
+        ),
+        "micro_devanagari_textedit": _safe_float(
+            aggregate.get("micro_devanagari_textedit")
+        ),
+        "devanagari_textedit_all_page_avg": (
+            devanagari_textedit_all_page_avg
+        ),
+        "devanagari_textedit_edit_whole": (
+            devanagari_textedit_edit_whole
+        ),
+        "devanagari_textedit_edit_sample_avg": (
+            devanagari_textedit_edit_sample_avg
+        ),
         "metrics_path": str(metrics_path),
     }
 
@@ -706,6 +754,8 @@ def _load_summary_rows(output_root: Path) -> tuple[list[dict], list[dict]]:
                 row.get("textedit", 0.0),
             )
             row.setdefault("textedit_page_count", 1)
+            if row.get("devanagari_textedit_all_page_avg") is not None:
+                row.setdefault("devanagari_textedit_page_count", 1)
             row["display_name"] = METHOD_LABELS.get(method_id, method_id)
             _apply_layout_effort_fallback(row, layout_effort_by_page)
             per_page_rows.append(row)
@@ -1336,10 +1386,14 @@ def _save_finetuning_curve(rows: list[dict], output_path: Path) -> Path | None:
     if plt is None or not series:
         return None
 
-    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.6), sharex=True)
+    fig, axes = plt.subplots(1, 3, figsize=(15.5, 4.6), sharex=True)
     metric_specs = (
         ("micro_page_cer", "Micro Page CER"),
-        ("textedit_all_page_avg", "TextEdit ALL_page_avg"),
+        ("textedit_all_page_avg", "Upstream TextEdit"),
+        (
+            "devanagari_textedit_all_page_avg",
+            "Devanagari-relaxed TextEdit",
+        ),
     )
     all_x_values: set[int] = set()
     for ax, (metric_key, metric_label) in zip(axes, metric_specs):
@@ -1421,10 +1475,21 @@ def _summary_table_rows(rows: list[dict]) -> list[dict]:
                     row.get("micro_page_cer_ci_lower"),
                     row.get("micro_page_cer_ci_upper"),
                 ),
-                "TextEdit ALL_page_avg (95% CI)": _format_estimate_ci(
+                "Upstream TextEdit (95% CI)": _format_estimate_ci(
                     row.get("textedit_all_page_avg"),
                     row.get("textedit_all_page_avg_ci_lower"),
                     row.get("textedit_all_page_avg_ci_upper"),
+                ),
+                "Devanagari-relaxed TextEdit (95% CI)": (
+                    _format_estimate_ci(
+                        row.get("devanagari_textedit_all_page_avg"),
+                        row.get(
+                            "devanagari_textedit_all_page_avg_ci_lower"
+                        ),
+                        row.get(
+                            "devanagari_textedit_all_page_avg_ci_upper"
+                        ),
+                    )
                 ),
                 "API Tokens": row.get("vlm_total_token_count", 0),
                 "API USD": _format_cost(row.get("vlm_estimated_cost_usd")),
@@ -1534,6 +1599,15 @@ def _build_off_the_shelf_table_rows(summary_rows: list[dict]) -> list[dict]:
                 "textedit_all_page_avg": row.get("textedit_all_page_avg"),
                 "textedit_all_page_avg_ci_lower": row.get("textedit_all_page_avg_ci_lower"),
                 "textedit_all_page_avg_ci_upper": row.get("textedit_all_page_avg_ci_upper"),
+                "devanagari_textedit_all_page_avg": row.get(
+                    "devanagari_textedit_all_page_avg"
+                ),
+                "devanagari_textedit_all_page_avg_ci_lower": row.get(
+                    "devanagari_textedit_all_page_avg_ci_lower"
+                ),
+                "devanagari_textedit_all_page_avg_ci_upper": row.get(
+                    "devanagari_textedit_all_page_avg_ci_upper"
+                ),
                 "vlm_request_count": row.get("vlm_request_count"),
                 "vlm_total_token_count": row.get("vlm_total_token_count"),
                 "metrics_path": row.get("metrics_path", ""),
@@ -1559,10 +1633,15 @@ def _off_the_shelf_markdown_rows(rows: list[dict]) -> list[dict]:
             )
             if int(row.get("page_cer_page_count") or 0) > 0
             else "N/A (no geometry)",
-            "TextEdit ALL_page_avg (95% CI)": _format_estimate_ci(
+            "Upstream TextEdit (95% CI)": _format_estimate_ci(
                 row.get("textedit_all_page_avg"),
                 row.get("textedit_all_page_avg_ci_lower"),
                 row.get("textedit_all_page_avg_ci_upper"),
+            ),
+            "Devanagari-relaxed TextEdit (95% CI)": _format_estimate_ci(
+                row.get("devanagari_textedit_all_page_avg"),
+                row.get("devanagari_textedit_all_page_avg_ci_lower"),
+                row.get("devanagari_textedit_all_page_avg_ci_upper"),
             ),
         }
         for row in rows
@@ -1616,6 +1695,20 @@ def _build_annotation_gains_table_rows(summary_rows: list[dict], per_page_rows: 
                 pred_row.get("textedit_all_page_avg") if pred_row else None,
                 gt_row.get("textedit_all_page_avg") if gt_row else None,
             )
+            devanagari_text_abs, devanagari_text_rel = (
+                _safe_metric_reduction(
+                    (
+                        pred_row.get("devanagari_textedit_all_page_avg")
+                        if pred_row
+                        else None
+                    ),
+                    (
+                        gt_row.get("devanagari_textedit_all_page_avg")
+                        if gt_row
+                        else None
+                    ),
+                )
+            )
             effort = _layout_effort_for_table(
                 per_page_by_method,
                 manuscript_id=manuscript_id,
@@ -1647,6 +1740,14 @@ def _build_annotation_gains_table_rows(summary_rows: list[dict], per_page_rows: 
                     "with_gt_layout_textedit_all_page_avg_ci_upper": gt_row.get("textedit_all_page_avg_ci_upper") if gt_row else None,
                     "textedit_absolute_reduction": text_abs,
                     "textedit_relative_reduction_percent": text_rel,
+                    "without_gt_layout_devanagari_textedit_all_page_avg": pred_row.get("devanagari_textedit_all_page_avg") if pred_row else None,
+                    "without_gt_layout_devanagari_textedit_all_page_avg_ci_lower": pred_row.get("devanagari_textedit_all_page_avg_ci_lower") if pred_row else None,
+                    "without_gt_layout_devanagari_textedit_all_page_avg_ci_upper": pred_row.get("devanagari_textedit_all_page_avg_ci_upper") if pred_row else None,
+                    "with_gt_layout_devanagari_textedit_all_page_avg": gt_row.get("devanagari_textedit_all_page_avg") if gt_row else None,
+                    "with_gt_layout_devanagari_textedit_all_page_avg_ci_lower": gt_row.get("devanagari_textedit_all_page_avg_ci_lower") if gt_row else None,
+                    "with_gt_layout_devanagari_textedit_all_page_avg_ci_upper": gt_row.get("devanagari_textedit_all_page_avg_ci_upper") if gt_row else None,
+                    "devanagari_textedit_absolute_reduction": devanagari_text_abs,
+                    "devanagari_textedit_relative_reduction_percent": devanagari_text_rel,
                     "layout_effort_mean_seconds_per_page": effort["mean_seconds_per_page"] if effort else None,
                     "layout_effort_ci_lower": effort["ci_lower"] if effort else None,
                     "layout_effort_ci_upper": effort["ci_upper"] if effort else None,
@@ -1689,6 +1790,15 @@ def _annotation_gains_markdown_rows(rows: list[dict]) -> list[dict]:
             "textedit_all_page_avg": row.get("without_gt_layout_textedit_all_page_avg"),
             "textedit_all_page_avg_ci_lower": row.get("without_gt_layout_textedit_all_page_avg_ci_lower"),
             "textedit_all_page_avg_ci_upper": row.get("without_gt_layout_textedit_all_page_avg_ci_upper"),
+            "devanagari_textedit_all_page_avg": row.get(
+                "without_gt_layout_devanagari_textedit_all_page_avg"
+            ),
+            "devanagari_textedit_all_page_avg_ci_lower": row.get(
+                "without_gt_layout_devanagari_textedit_all_page_avg_ci_lower"
+            ),
+            "devanagari_textedit_all_page_avg_ci_upper": row.get(
+                "without_gt_layout_devanagari_textedit_all_page_avg_ci_upper"
+            ),
         }
         gt_metric_row = {
             "micro_page_cer": row.get("with_gt_layout_micro_page_cer"),
@@ -1697,6 +1807,15 @@ def _annotation_gains_markdown_rows(rows: list[dict]) -> list[dict]:
             "textedit_all_page_avg": row.get("with_gt_layout_textedit_all_page_avg"),
             "textedit_all_page_avg_ci_lower": row.get("with_gt_layout_textedit_all_page_avg_ci_lower"),
             "textedit_all_page_avg_ci_upper": row.get("with_gt_layout_textedit_all_page_avg_ci_upper"),
+            "devanagari_textedit_all_page_avg": row.get(
+                "with_gt_layout_devanagari_textedit_all_page_avg"
+            ),
+            "devanagari_textedit_all_page_avg_ci_lower": row.get(
+                "with_gt_layout_devanagari_textedit_all_page_avg_ci_lower"
+            ),
+            "devanagari_textedit_all_page_avg_ci_upper": row.get(
+                "with_gt_layout_devanagari_textedit_all_page_avg_ci_upper"
+            ),
         }
         formatted.append(
             {
@@ -1705,9 +1824,22 @@ def _annotation_gains_markdown_rows(rows: list[dict]) -> list[dict]:
                 "Without GT Layout CER": _metric_ci_text(pred_metric_row, "micro_page_cer"),
                 "With GT Layout CER": _metric_ci_text(gt_metric_row, "micro_page_cer"),
                 "CER Reduction": _format_percent(row.get("page_cer_relative_reduction_percent")),
-                "Without GT Layout TextEdit": _metric_ci_text(pred_metric_row, "textedit_all_page_avg"),
-                "With GT Layout TextEdit": _metric_ci_text(gt_metric_row, "textedit_all_page_avg"),
-                "TextEdit Reduction": _format_percent(row.get("textedit_relative_reduction_percent")),
+                "Without GT Layout Upstream TextEdit": _metric_ci_text(pred_metric_row, "textedit_all_page_avg"),
+                "With GT Layout Upstream TextEdit": _metric_ci_text(gt_metric_row, "textedit_all_page_avg"),
+                "Upstream TextEdit Reduction": _format_percent(row.get("textedit_relative_reduction_percent")),
+                "Without GT Layout Devanagari TextEdit": _metric_ci_text(
+                    pred_metric_row,
+                    "devanagari_textedit_all_page_avg",
+                ),
+                "With GT Layout Devanagari TextEdit": _metric_ci_text(
+                    gt_metric_row,
+                    "devanagari_textedit_all_page_avg",
+                ),
+                "Devanagari TextEdit Reduction": _format_percent(
+                    row.get(
+                        "devanagari_textedit_relative_reduction_percent"
+                    )
+                ),
                 "GT Layout Time": _format_seconds_ci(
                     row.get("layout_effort_mean_seconds_per_page"),
                     row.get("layout_effort_ci_lower"),
@@ -1781,7 +1913,11 @@ def _write_markdown_report(
         ("G-F1@0.50", "G-F1@0.50"),
         ("Pixel F1", "Pixel F1"),
         ("Micro CER (95% CI)", "Micro CER (95% CI)"),
-        ("TextEdit ALL_page_avg (95% CI)", "TextEdit ALL_page_avg (95% CI)"),
+        ("Upstream TextEdit (95% CI)", "Upstream TextEdit (95% CI)"),
+        (
+            "Devanagari-relaxed TextEdit (95% CI)",
+            "Devanagari-relaxed TextEdit (95% CI)",
+        ),
         ("API Tokens", "API Tokens"),
         ("API USD", "API USD"),
     ]
@@ -1822,7 +1958,7 @@ def _write_markdown_report(
         "",
         "## Table 1: Off-The-Shelf Models",
         "",
-        "All off-the-shelf model rows use the same held-out folds as the annotation-tool rows for the same manuscript. Each row records its own prompt/input contract. Methods without line geometry are evaluated with TextEdit only; Page CER and layout metrics are reported as unavailable.",
+        "All off-the-shelf model rows use the same held-out folds as the annotation-tool rows for the same manuscript. Each row records its own prompt/input contract. Methods without line geometry are evaluated with the two unordered TextEdit metrics only; Page CER and layout metrics are reported as unavailable.",
         "",
         _markdown_table(
             off_the_shelf_table_rows,
@@ -1835,7 +1971,11 @@ def _write_markdown_report(
                 ("Pages", "Pages"),
                 ("Valid Output", "Valid Output"),
                 ("Micro CER (95% CI)", "Micro CER (95% CI)"),
-                ("TextEdit ALL_page_avg (95% CI)", "TextEdit ALL_page_avg (95% CI)"),
+                ("Upstream TextEdit (95% CI)", "Upstream TextEdit (95% CI)"),
+                (
+                    "Devanagari-relaxed TextEdit (95% CI)",
+                    "Devanagari-relaxed TextEdit (95% CI)",
+                ),
             ],
         )
         if off_the_shelf_table_rows
@@ -1855,9 +1995,30 @@ def _write_markdown_report(
                 ("Without GT Layout CER", "Without GT Layout CER"),
                 ("With GT Layout CER", "With GT Layout CER"),
                 ("CER Reduction", "CER Reduction"),
-                ("Without GT Layout TextEdit", "Without GT Layout TextEdit"),
-                ("With GT Layout TextEdit", "With GT Layout TextEdit"),
-                ("TextEdit Reduction", "TextEdit Reduction"),
+                (
+                    "Without GT Layout Upstream TextEdit",
+                    "Without GT Layout Upstream TextEdit",
+                ),
+                (
+                    "With GT Layout Upstream TextEdit",
+                    "With GT Layout Upstream TextEdit",
+                ),
+                (
+                    "Upstream TextEdit Reduction",
+                    "Upstream TextEdit Reduction",
+                ),
+                (
+                    "Without GT Layout Devanagari TextEdit",
+                    "Without GT Layout Devanagari TextEdit",
+                ),
+                (
+                    "With GT Layout Devanagari TextEdit",
+                    "With GT Layout Devanagari TextEdit",
+                ),
+                (
+                    "Devanagari TextEdit Reduction",
+                    "Devanagari TextEdit Reduction",
+                ),
                 ("GT Layout Time", "GT Layout Time"),
             ],
         )
@@ -1879,8 +2040,9 @@ def _write_markdown_report(
         "- VLM rows are end-to-end off-the-shelf acquisitions; layout-corrected VLM variants remain disabled.",
         "- Rows with `test_layout_condition=human_corrected_gt_layout` use held-out layout obtained through careful human inspection and correction. Their G-F1 and pixel F1 scores describe the provided human-corrected layout condition, not automatic layout-detector performance.",
         "- Fine-tuning methods record the GUI runtime OCR active-learning recipe and sibling checkpoint selector in `summary_metrics.csv`.",
-        "- TextEdit is Unordered PAGE-XML TextLine TextEdit using OmniDocBench v1.5 `simple_match`; the headline value is official `Edit_dist.ALL_page_avg`, not pooled `edit_whole`.",
-        "- TextEdit ignores XML order, coordinates, baselines, geometry, TextRegion membership, IDs, and labels. Each PAGE `TextLine` remains atomic, so split and merged lines are penalized.",
+        "- Upstream TextEdit is kept unchanged for compatibility with OmniDocBench v1.5 `simple_match`; its headline value is official `Edit_dist.ALL_page_avg`, not pooled `edit_whole`.",
+        "- Devanagari-relaxed TextEdit uses the same unordered, one-to-one line-matching idea, but its normalization keeps Unicode letters, vowel signs and other combining marks, numbers, danda, double danda, and the Devanagari abbreviation sign. It ignores spaces, most punctuation, symbols, and format controls.",
+        "- Both TextEdit metrics ignore XML order, coordinates, baselines, geometry, TextRegion membership, IDs, and labels. Each PAGE `TextLine` remains atomic, so split and merged lines are penalized.",
         "",
         "## Layout Mode Effort And OCR Reduction",
         "",
@@ -1976,6 +2138,9 @@ def write_experiment_report(
     vlm_usage_csv_path = report_dir / "vlm_usage.csv"
     vlm_usage_json_path = report_dir / "vlm_usage.json"
     textedit_metric_path = report_dir / "textedit_metric.json"
+    devanagari_textedit_metric_path = (
+        report_dir / "devanagari_textedit_metric.json"
+    )
 
     summary_fields = [
         "manuscript_id",
@@ -2016,6 +2181,16 @@ def write_experiment_report(
         "textedit_all_page_avg_bootstrap_unique_pages",
         "textedit_edit_whole",
         "textedit_edit_sample_avg",
+        "devanagari_textedit_page_count",
+        "mean_devanagari_textedit",
+        "median_devanagari_textedit",
+        "micro_devanagari_textedit",
+        "devanagari_textedit_all_page_avg",
+        "devanagari_textedit_all_page_avg_ci_lower",
+        "devanagari_textedit_all_page_avg_ci_upper",
+        "devanagari_textedit_all_page_avg_bootstrap_unique_pages",
+        "devanagari_textedit_edit_whole",
+        "devanagari_textedit_edit_sample_avg",
         "vlm_usage_status",
         "vlm_page_count",
         "vlm_success_count",
@@ -2057,6 +2232,10 @@ def write_experiment_report(
     _write_csv(vlm_usage_csv_path, usage_rows)
     _write_json(vlm_usage_json_path, {"rows": usage_rows, "summaries": usage_summaries})
     _write_json(textedit_metric_path, textedit_reproducibility_metadata())
+    _write_json(
+        devanagari_textedit_metric_path,
+        devanagari_textedit_reproducibility_metadata(),
+    )
 
     stale_paths = (
         report_dir / "layout_effort_impact.csv",
@@ -2098,6 +2277,12 @@ def write_experiment_report(
         "vlm_usage_json_path": str(vlm_usage_json_path.resolve()),
         "textedit_metric_path": str(textedit_metric_path.resolve()),
         "textedit_metric": textedit_reproducibility_metadata(),
+        "devanagari_textedit_metric_path": str(
+            devanagari_textedit_metric_path.resolve()
+        ),
+        "devanagari_textedit_metric": (
+            devanagari_textedit_reproducibility_metadata()
+        ),
         "figure_paths": [str(path.resolve()) for path in figure_paths],
         "method_count": len(summary_rows),
         "per_page_record_count": len(per_page_rows),
@@ -2123,6 +2308,8 @@ def write_experiment_report(
         annotation_gains_table_json_path=table_artifacts["annotation_gains_table_json_path"],
         vlm_usage_csv_path=vlm_usage_csv_path,
         vlm_usage_json_path=vlm_usage_json_path,
+        textedit_metric_path=textedit_metric_path,
+        devanagari_textedit_metric_path=devanagari_textedit_metric_path,
         figure_paths=tuple(figure_paths),
         manifest_path=manifest_path,
     )
@@ -2194,6 +2381,9 @@ def write_combined_table_report(
     vlm_usage_csv_path = report_dir / "vlm_usage.csv"
     vlm_usage_json_path = report_dir / "vlm_usage.json"
     textedit_metric_path = report_dir / "textedit_metric.json"
+    devanagari_textedit_metric_path = (
+        report_dir / "devanagari_textedit_metric.json"
+    )
     _write_csv(summary_csv_path, summary_rows)
     _write_json(summary_json_path, summary_rows)
     _write_csv(per_page_csv_path, per_page_rows)
@@ -2222,6 +2412,10 @@ def write_combined_table_report(
     _write_csv(vlm_usage_csv_path, usage_rows)
     _write_json(vlm_usage_json_path, {"rows": usage_rows})
     _write_json(textedit_metric_path, textedit_reproducibility_metadata())
+    _write_json(
+        devanagari_textedit_metric_path,
+        devanagari_textedit_reproducibility_metadata(),
+    )
 
     table_artifacts = _write_primary_table_artifacts(report_dir, summary_rows, per_page_rows)
     markdown_path = _write_markdown_report(
@@ -2251,6 +2445,12 @@ def write_combined_table_report(
             "vlm_usage_json_path": str(vlm_usage_json_path.resolve()),
             "textedit_metric_path": str(textedit_metric_path.resolve()),
             "textedit_metric": textedit_reproducibility_metadata(),
+            "devanagari_textedit_metric_path": str(
+                devanagari_textedit_metric_path.resolve()
+            ),
+            "devanagari_textedit_metric": (
+                devanagari_textedit_reproducibility_metadata()
+            ),
             "off_the_shelf_table_csv_path": str(table_artifacts["off_the_shelf_table_csv_path"].resolve()),
             "off_the_shelf_table_json_path": str(table_artifacts["off_the_shelf_table_json_path"].resolve()),
             "annotation_gains_table_csv_path": str(table_artifacts["annotation_gains_table_csv_path"].resolve()),
@@ -2275,5 +2475,7 @@ def write_combined_table_report(
         layout_mode_comparisons_csv_path=layout_mode_comparisons_csv_path,
         vlm_usage_csv_path=vlm_usage_csv_path,
         vlm_usage_json_path=vlm_usage_json_path,
+        textedit_metric_path=textedit_metric_path,
+        devanagari_textedit_metric_path=devanagari_textedit_metric_path,
         manifest_path=manifest_path,
     )

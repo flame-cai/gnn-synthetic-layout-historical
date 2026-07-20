@@ -81,10 +81,23 @@ def _page_record(
     page_cer_gt_chars: int,
     textedit_distance_sum: int,
     textedit_max_length_sum: int,
+    devanagari_textedit_distance_sum: int | None = None,
+    devanagari_textedit_max_length_sum: int | None = None,
     fold_id: str = "fold_1",
 ) -> dict:
     page_cer = page_cer_distance / page_cer_gt_chars
     textedit = textedit_distance_sum / textedit_max_length_sum
+    devanagari_distance = (
+        textedit_distance_sum
+        if devanagari_textedit_distance_sum is None
+        else devanagari_textedit_distance_sum
+    )
+    devanagari_denominator = (
+        textedit_max_length_sum
+        if devanagari_textedit_max_length_sum is None
+        else devanagari_textedit_max_length_sum
+    )
+    devanagari_textedit = devanagari_distance / devanagari_denominator
     return {
         "manuscript_id": "m",
         "fold_id": fold_id,
@@ -108,6 +121,11 @@ def _page_record(
         "textedit_distance_sum": textedit_distance_sum,
         "textedit_max_length_sum": textedit_max_length_sum,
         "textedit": textedit,
+        "devanagari_textedit_distance_sum": devanagari_distance,
+        "devanagari_textedit_max_length_sum": devanagari_denominator,
+        "devanagari_textedit": devanagari_textedit,
+        "devanagari_textedit_all_page_avg": devanagari_textedit,
+        "devanagari_textedit_page_count": 1,
     }
 
 
@@ -219,6 +237,11 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "mean_textedit": 0.3,
                         "median_textedit": 0.3,
                         "micro_textedit": 0.3,
+                        "mean_devanagari_textedit": 0.35,
+                        "median_devanagari_textedit": 0.35,
+                        "micro_devanagari_textedit": 0.35,
+                        "devanagari_textedit_all_page_avg": 0.35,
+                        "devanagari_textedit_page_count": 1,
                     },
                     "page_records": [
                         _page_record(
@@ -228,6 +251,8 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                             page_cer_gt_chars=10,
                             textedit_distance_sum=3,
                             textedit_max_length_sum=10,
+                            devanagari_textedit_distance_sum=7,
+                            devanagari_textedit_max_length_sum=20,
                         )
                     ],
                 },
@@ -257,6 +282,11 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "mean_textedit": 0.5,
                         "median_textedit": 0.5,
                         "micro_textedit": 0.5,
+                        "mean_devanagari_textedit": 0.6,
+                        "median_devanagari_textedit": 0.6,
+                        "micro_devanagari_textedit": 0.6,
+                        "devanagari_textedit_all_page_avg": 0.6,
+                        "devanagari_textedit_page_count": 1,
                     },
                     "page_records": [
                         _page_record(
@@ -266,6 +296,8 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                             page_cer_gt_chars=10,
                             textedit_distance_sum=5,
                             textedit_max_length_sum=10,
+                            devanagari_textedit_distance_sum=6,
+                            devanagari_textedit_max_length_sum=10,
                         )
                     ],
                 },
@@ -333,6 +365,11 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                         "mean_textedit": 0.15,
                         "median_textedit": 0.15,
                         "micro_textedit": 0.15,
+                        "mean_devanagari_textedit": 0.2,
+                        "median_devanagari_textedit": 0.2,
+                        "micro_devanagari_textedit": 0.2,
+                        "devanagari_textedit_all_page_avg": 0.2,
+                        "devanagari_textedit_page_count": 1,
                     },
                     "page_records": [
                         _page_record(
@@ -342,6 +379,8 @@ class DownstreamOcrReportingTests(unittest.TestCase):
                             page_cer_gt_chars=10,
                             textedit_distance_sum=3,
                             textedit_max_length_sum=20,
+                            devanagari_textedit_distance_sum=4,
+                            devanagari_textedit_max_length_sum=20,
                         )
                     ],
                 },
@@ -428,6 +467,8 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertTrue(artifacts.vlm_usage_csv_path.exists())
             self.assertTrue(artifacts.off_the_shelf_table_csv_path.exists())
             self.assertTrue(artifacts.annotation_gains_table_csv_path.exists())
+            self.assertTrue(artifacts.textedit_metric_path.exists())
+            self.assertTrue(artifacts.devanagari_textedit_metric_path.exists())
             summary = json.loads(artifacts.summary_json_path.read_text(encoding="utf-8"))
             by_method = {row["method_id"]: row for row in summary}
             self.assertNotIn("gemini_gt_layout", by_method)
@@ -469,7 +510,7 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             )
             with artifacts.layout_mode_comparisons_csv_path.open(encoding="utf-8", newline="") as handle:
                 comparison_rows = list(csv.DictReader(handle))
-            self.assertEqual(len(comparison_rows), 2)
+            self.assertEqual(len(comparison_rows), 3)
             annotation_cer = next(
                 row
                 for row in comparison_rows
@@ -483,6 +524,12 @@ class DownstreamOcrReportingTests(unittest.TestCase):
             self.assertEqual(len(fold_rows), 3)
             off_table = json.loads(artifacts.off_the_shelf_table_json_path.read_text(encoding="utf-8"))
             self.assertEqual([row["method_id"] for row in off_table["rows"]], ["gemini_e2e"])
+            self.assertAlmostEqual(
+                off_table["rows"][0][
+                    "devanagari_textedit_all_page_avg"
+                ],
+                0.35,
+            )
             gains_table = json.loads(artifacts.annotation_gains_table_json_path.read_text(encoding="utf-8"))
             gains_by_step = {row["finetune_pages"]: row for row in gains_table["rows"]}
             self.assertAlmostEqual(gains_by_step[0]["page_cer_relative_reduction_percent"], 75.0)

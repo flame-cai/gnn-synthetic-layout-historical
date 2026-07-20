@@ -23,6 +23,10 @@ from .dataset.pagexml2pagexml_dataset import (
     evaluate_pagexml_pairs,
     textedit_reproducibility_metadata,
 )
+from .devanagari_textedit import (
+    DEVANAGARI_TEXTEDIT_AGGREGATE_KEYS,
+    devanagari_textedit_reproducibility_metadata,
+)
 from .diagnostics import write_page_diagnostics
 from .metrics import (
     FAILURE_STATUSES,
@@ -1477,6 +1481,9 @@ def evaluate_existing_prediction_tree(
         "manuscript_id": paths.manuscript_id,
         "folds": [asdict(fold) for fold in folds],
         "textedit_metric": textedit_reproducibility_metadata(),
+        "devanagari_textedit_metric": (
+            devanagari_textedit_reproducibility_metadata()
+        ),
         "aggregate": aggregate,
         "page_records": all_records,
     }
@@ -1573,9 +1580,17 @@ def refresh_textedit_for_existing_run(
         aggregate = dict(payload.get("aggregate") or {})
         for key in TEXTEDIT_AGGREGATE_KEYS:
             aggregate[key] = refreshed_aggregate[key]
+        for key in DEVANAGARI_TEXTEDIT_AGGREGATE_KEYS:
+            aggregate[key] = refreshed_aggregate[key]
+        aggregate["devanagari_textedit_page_count"] = refreshed_aggregate[
+            "devanagari_textedit_page_count"
+        ]
         payload["aggregate"] = aggregate
         payload["page_records"] = page_records
         payload["textedit_metric"] = textedit_reproducibility_metadata()
+        payload["devanagari_textedit_metric"] = (
+            devanagari_textedit_reproducibility_metadata()
+        )
         _write_json(metrics_path, payload)
         _write_csv(metrics_path.parent / "per_page.csv", page_records)
         refreshed_methods.append(method_id)
@@ -1589,6 +1604,9 @@ def refresh_textedit_for_existing_run(
         "method_count": len(refreshed_methods),
         "page_record_count": refreshed_page_count,
         "textedit_metric": textedit_reproducibility_metadata(),
+        "devanagari_textedit_metric": (
+            devanagari_textedit_reproducibility_metadata()
+        ),
     }
 
 
@@ -1689,6 +1707,9 @@ def adapt_vlm_json_and_evaluate(
         "json_root": str(json_root),
         "folds": [asdict(fold) for fold in folds],
         "textedit_metric": textedit_reproducibility_metadata(),
+        "devanagari_textedit_metric": (
+            devanagari_textedit_reproducibility_metadata()
+        ),
         "aggregate": aggregate_page_records(all_records),
         "page_records": all_records,
     }
@@ -1738,6 +1759,9 @@ def run_local_gt_layout_experiment(
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
             "textedit_metric": textedit_reproducibility_metadata(),
+            "devanagari_textedit_metric": (
+                devanagari_textedit_reproducibility_metadata()
+            ),
             "aggregate": aggregate_page_records(all_records),
             "page_records": all_records,
         }
@@ -1865,6 +1889,9 @@ def run_methods_experiment(
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
             "textedit_metric": textedit_reproducibility_metadata(),
+            "devanagari_textedit_metric": (
+                devanagari_textedit_reproducibility_metadata()
+            ),
             "aggregate": aggregate_page_records(all_records),
             "page_records": all_records,
         }

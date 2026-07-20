@@ -191,8 +191,8 @@ Content under `head`, `style`, `script`, templates, and SVG is ignored. Empty
 fragments are discarded while DOM order and Unicode text are preserved. The
 resulting page has one `TextRegion`; every `TextLine` contains
 `TextEquiv/Unicode` plus empty `Coords` and `Baseline`. Because Sarvam supplies
-no geometry, only TextEdit is evaluated for `sarvam_e2e`; Page CER and layout
-metrics are explicitly unavailable.
+no geometry, only the two unordered TextEdit metrics are evaluated for
+`sarvam_e2e`; Page CER and layout metrics are explicitly unavailable.
 
 The cache is immutable at the page/request level. Its request fingerprint pins
 the provider, exact model, prompt or document-job parameters, image bytes,
@@ -282,6 +282,7 @@ The report folder includes:
 - `table_1_off_the_shelf_models.csv` and `table_1_off_the_shelf_models.json`
 - `table_2_annotation_tool_gains.csv` and `table_2_annotation_tool_gains.json`
 - `vlm_usage.csv` and `vlm_usage.json`
+- `textedit_metric.json` and `devanagari_textedit_metric.json`
 - figures under `figures/`
 
 The former `micro_page_cer_by_method.png` and `micro_textedit_by_method.png`
@@ -291,9 +292,9 @@ bar figures are no longer generated. They are replaced by two paper tables:
   methods. Each row records its prompt/input contract; all rows use the same
   manuscript folds and test pages.
 - Table 2, annotation-tool gains, compares 0/1/2/3-page fine-tuning with and
-  without GT layout correction. It records Micro Page CER, TextEdit
-  `ALL_page_avg`, and active Layout Mode correction seconds per evaluated page when
-  `layout_effort.json` is available.
+  without GT layout correction. It records Micro Page CER, upstream TextEdit,
+  Devanagari-relaxed TextEdit, and active Layout Mode correction seconds per
+  evaluated page when `layout_effort.json` is available.
 
 Deterministic 95% page-cluster bootstrap confidence intervals use the unique
 `(manuscript_id, page_id)` as the cluster unit, so repeated appearances of a
@@ -321,8 +322,9 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli write-report `
   --output-root app\tests\logs\downstream_ocr_yajn
 ```
 
-To recompute only TextEdit from retained PAGE-XML predictions and then rebuild
-every manuscript and combined report under an existing multi-manuscript run:
+To recompute both TextEdit metrics from retained PAGE-XML predictions and then
+rebuild every manuscript and combined report under an existing
+multi-manuscript run:
 
 ```powershell
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli refresh-textedit `
@@ -330,7 +332,9 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli refresh-textedi
 ```
 
 This command preserves all non-TextEdit per-page and aggregate metric values.
-Missing prediction XML is evaluated as an empty prediction rather than skipped.
+It leaves the upstream TextEdit definition unchanged and adds or refreshes the
+Devanagari-relaxed fields. Missing prediction XML is evaluated as an empty
+prediction rather than skipped.
 
 You can prepare the two paper tables for multiple existing manuscript runs at
 once:
@@ -380,20 +384,31 @@ The evaluator implements:
 - Object Precision/Recall/G-F1 at IoU 0.50 and 0.75
 - Pixel Precision/Recall/F1 from polygon masks
 - Page CER
-- Unordered PAGE-XML TextLine TextEdit using OmniDocBench v1.5 `simple_match`
+- Upstream-compatible unordered PAGE-XML TextLine TextEdit using OmniDocBench
+  v1.5 `simple_match`
+- Devanagari-relaxed unordered PAGE-XML TextLine TextEdit
 - pooled fold/manuscript aggregates and valid output rate
 
 Failed model output is represented as an empty PAGE prediction and must keep
 its failure `status` in the per-page record.
 
-TextEdit treats each PAGE `TextLine` as one atomic unit. It extracts one direct
-`TextEquiv/Unicode` transcription per line, applies the official
+Upstream TextEdit treats each PAGE `TextLine` as one atomic unit. It extracts
+one direct `TextEquiv/Unicode` transcription per line, applies the official
 `textblock2unicode` and `clean_string` normalization, computes all pairwise
 normalized edit costs, and uses the official Hungarian `simple_match`.
 Coordinates, baselines, XML order, reading order, region membership, region
 labels, IDs, image dimensions, and all geometry are ignored. The primary score
 is official `Edit_dist.ALL_page_avg`, the mean of page-level ratios;
 `edit_whole` and `edit_sample_avg` are retained as supplementary outputs.
+
+Devanagari-relaxed TextEdit keeps the same unordered, one-to-one line-matching
+idea but uses NFC and keeps all Unicode letters, combining marks, and numbers,
+plus danda (`।`), double danda (`॥`), and the Devanagari abbreviation sign
+(`॰`). This preserves vowel signs, virama, anusvara, visarga, nukta, and accent
+marks that the upstream `clean_string` can remove. It ignores whitespace, most
+punctuation, symbols, and format controls such as ZWJ/ZWNJ. Its primary score is
+also an unweighted mean of page-level edit ratios. The original upstream
+TextEdit fields remain unchanged for compatibility.
 
 The pinned source is OmniDocBench branch `v1_5`, commit
 `59b103c4b47d3a01fada83491585d6512a40c0bc`. The minimal vendored source,

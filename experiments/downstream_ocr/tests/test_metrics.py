@@ -300,12 +300,23 @@ class DownstreamOcrMetricTests(unittest.TestCase):
                     "textedit_distance_sum": 1,
                     "textedit_max_length_sum": 5,
                     "textedit": 0.2,
+                    "devanagari_textedit_distance_sum": 3,
+                    "devanagari_textedit_max_length_sum": 5,
+                    "devanagari_textedit_sample_ratio_sum": 0.6,
+                    "devanagari_textedit_sample_count": 1,
+                    "devanagari_textedit": 0.6,
+                    "devanagari_textedit_all_page_avg": 0.6,
                 }
             )
         aggregate = aggregate_page_records(records)
         self.assertEqual(aggregate["page_count"], 5)
         self.assertAlmostEqual(aggregate["object_recall_50"], 0.5)
         self.assertAlmostEqual(aggregate["micro_page_cer"], 0.2)
+        self.assertAlmostEqual(
+            aggregate["devanagari_textedit_all_page_avg"],
+            0.6,
+        )
+        self.assertAlmostEqual(aggregate["micro_devanagari_textedit"], 0.6)
 
     def test_seeded_random_folds_are_deterministic_and_cover_pages(self):
         page_ids = tuple(f"p{i}" for i in range(12))

@@ -12,6 +12,9 @@ from experiments.downstream_ocr.dataset.pagexml2pagexml_dataset import (
     match_pagexml,
     parse_pagexml,
 )
+from experiments.downstream_ocr.devanagari_textedit import (
+    devanagari_relaxed_normalize,
+)
 from experiments.downstream_ocr.omnidocbench_v1_5.registry.registry import (
     DATASET_REGISTRY,
 )
@@ -100,6 +103,41 @@ class PageXmlTextEditTests(unittest.TestCase):
         self.assertEqual(result.page_metrics["page"]["textedit_all_page_avg"], 0.0)
         self.assertEqual(
             result.official_result["Edit_dist"]["ALL_page_avg"],
+            0.0,
+        )
+        self.assertEqual(
+            result.page_metrics["page"][
+                "devanagari_textedit_all_page_avg"
+            ],
+            0.0,
+        )
+
+    def test_devanagari_relaxed_normalization_keeps_textual_marks(self):
+        text = "\u0915\u094d \u0915\u093e,\u0915\u0902\u0964\u200d"
+        self.assertEqual(
+            devanagari_relaxed_normalize(text),
+            "\u0915\u094d\u0915\u093e\u0915\u0902\u0964",
+        )
+
+    def test_devanagari_relaxed_metric_penalizes_a_missing_vowel_sign(self):
+        gt = _pagexml([{"lines": [{"text": "\u0915\u093e"}]}])
+        pred = _pagexml([{"lines": [{"text": "\u0915"}]}])
+        result, _, _ = self._evaluate(gt, pred)
+
+        # OmniDocBench clean_string drops the combining vowel sign. The new
+        # metric keeps it, while leaving the compatibility score unchanged.
+        self.assertEqual(result.page_metrics["page"]["textedit"], 0.0)
+        self.assertEqual(
+            result.page_metrics["page"]["devanagari_textedit"],
+            0.5,
+        )
+
+    def test_devanagari_relaxed_metric_is_nfc_equivalent(self):
+        gt = _pagexml([{"lines": [{"text": "\u0958"}]}])
+        pred = _pagexml([{"lines": [{"text": "\u0915\u093c"}]}])
+        result, _, _ = self._evaluate(gt, pred)
+        self.assertEqual(
+            result.page_metrics["page"]["devanagari_textedit"],
             0.0,
         )
 
@@ -322,4 +360,3 @@ class PageXmlTextEditTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
