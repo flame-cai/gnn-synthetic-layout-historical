@@ -1,28 +1,11 @@
-Prepare Table
+TODO
 Add auto delete finetuned models
+Adapt prompt for Claude
+Adapt for Sarvam
+Adjust the TextEdit Metric to treat Gemini More Fairly 0.5 threshold
+Adjust both metric for circular layouts? how does sarvam predict bounding box of circular text
 
-
-
-# PLEASE DO NOT IMPLEMENT THESE UNLESS SPECIFICALLY REQUESTED
-
-dynamic KV cache for OCR.
-- put the big maps as the held out evaluation benchmark?
-
-######################################
-
-# Circular:
-Page-CER calculation for concentric circles?
-Prompt Gemini for how to handle circles..
-If english predicted, flip the line vertically and try again. Choose the prediction with the least number of english characters.
-
-# Digitization
-
-## Recheck these in dense
-व्युहिश्र्वेत्‌=१
-छद्रवति=४
-
-torch-geometric 2.7.0
-
+#######
 # Prepredict
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms `
   --manuscript-root app\input_manuscripts\yajn `
@@ -49,6 +32,29 @@ conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
   --method-id annotation_tool_gt_layout_ft_2 `
   --method-id annotation_tool_pred_layout_ft_3 `
   --method-id annotation_tool_gt_layout_ft_3
+
+
+# PLEASE DO NOT IMPLEMENT THESE UNLESS SPECIFICALLY REQUESTED
+
+dynamic KV cache for OCR.
+- put the big maps as the held out evaluation benchmark?
+
+######################################
+
+# Circular:
+Page-CER calculation for concentric circles?
+Prompt Gemini for how to handle circles..
+If english predicted, flip the line vertically and try again. Choose the prediction with the least number of english characters.
+
+# Digitization
+
+## Recheck these in dense
+व्युहिश्र्वेत्‌=१
+छद्रवति=४
+
+torch-geometric 2.7.0
+
+
 
 
 
