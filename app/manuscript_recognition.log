@@ -28946,3 +28946,194 @@
 2026-07-17 11:52:19,638 - INFO - 127.0.0.1 - - [17/Jul/2026 11:52:19] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
 2026-07-17 11:53:20,964 - INFO - 127.0.0.1 - - [17/Jul/2026 11:53:20] "GET /manuscript/circle_demo/active-learning HTTP/1.1" 200 -
 2026-07-17 11:53:43,200 - INFO - 127.0.0.1 - - [17/Jul/2026 11:53:43] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-21 11:44:09,870 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-07-21 11:44:09,870 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-21 11:44:09,873 - INFO -  * Restarting with stat
+2026-07-21 11:44:23,122 - WARNING -  * Debugger is active!
+2026-07-21 11:44:23,128 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:44:23,174 - INFO - 127.0.0.1 - - [21/Jul/2026 11:44:23] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-21 11:46:47,056 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-07-21 11:46:47,056 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-21 11:46:47,059 - INFO -  * Restarting with stat
+2026-07-21 11:46:59,186 - WARNING -  * Debugger is active!
+2026-07-21 11:46:59,190 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:46:59,247 - INFO - 127.0.0.1 - - [21/Jul/2026 11:46:59] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-21 11:47:19,789 - INFO - 127.0.0.1 - - [21/Jul/2026 11:47:19] "POST /upload HTTP/1.1" 200 -
+2026-07-21 11:47:20,199 - INFO - 127.0.0.1 - - [21/Jul/2026 11:47:20] "GET /manuscript/my_manuscript_viz/pages HTTP/1.1" 200 -
+2026-07-21 11:47:20,448 - INFO - 127.0.0.1 - - [21/Jul/2026 11:47:20] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-21 11:47:20,815 - INFO - 127.0.0.1 - - [21/Jul/2026 11:47:20] "GET /semi-segment/my_manuscript_viz/15 HTTP/1.1" 200 -
+2026-07-21 11:47:20,885 - INFO - 127.0.0.1 - - [21/Jul/2026 11:47:20] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:48:21,524 - INFO - 127.0.0.1 - - [21/Jul/2026 11:48:21] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:49:22,519 - INFO - 127.0.0.1 - - [21/Jul/2026 11:49:22] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:50:23,523 - INFO - 127.0.0.1 - - [21/Jul/2026 11:50:23] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:51:24,534 - INFO - 127.0.0.1 - - [21/Jul/2026 11:51:24] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:52:25,523 - INFO - 127.0.0.1 - - [21/Jul/2026 11:52:25] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:53:26,517 - INFO - 127.0.0.1 - - [21/Jul/2026 11:53:26] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:54:27,523 - INFO - 127.0.0.1 - - [21/Jul/2026 11:54:27] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:54:29,066 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 11:54:31,893 - INFO -  * Restarting with stat
+2026-07-21 11:54:40,531 - WARNING -  * Debugger is active!
+2026-07-21 11:54:40,535 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:55:20,557 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 11:55:23,486 - INFO -  * Restarting with stat
+2026-07-21 11:55:33,583 - WARNING -  * Debugger is active!
+2026-07-21 11:55:33,588 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:55:33,643 - INFO - 127.0.0.1 - - [21/Jul/2026 11:55:33] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:55:44,001 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\app.py', reloading
+2026-07-21 11:55:47,177 - INFO -  * Restarting with stat
+2026-07-21 11:55:58,321 - WARNING -  * Debugger is active!
+2026-07-21 11:55:58,327 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:55:58,376 - INFO - 127.0.0.1 - - [21/Jul/2026 11:55:58] "GET /manuscript/my_manuscript_viz/pages HTTP/1.1" 200 -
+2026-07-21 11:55:58,386 - INFO - 127.0.0.1 - - [21/Jul/2026 11:55:58] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-21 11:56:00,211 - INFO - 127.0.0.1 - - [21/Jul/2026 11:56:00] "GET /semi-segment/my_manuscript_viz/15 HTTP/1.1" 200 -
+2026-07-21 11:56:00,300 - INFO - 127.0.0.1 - - [21/Jul/2026 11:56:00] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:56:37,999 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_pipeline_visualization_unit.py', reloading
+2026-07-21 11:56:39,509 - INFO -  * Restarting with stat
+2026-07-21 11:56:50,472 - WARNING -  * Debugger is active!
+2026-07-21 11:56:50,476 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:57:01,528 - INFO - 127.0.0.1 - - [21/Jul/2026 11:57:01] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:57:52,237 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_pipeline_visualization_unit.py', reloading
+2026-07-21 11:57:55,206 - INFO -  * Restarting with stat
+2026-07-21 11:58:03,899 - WARNING -  * Debugger is active!
+2026-07-21 11:58:03,903 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:58:03,953 - INFO - 127.0.0.1 - - [21/Jul/2026 11:58:03] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 11:58:26,632 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_pipeline_visualization_unit.py', reloading
+2026-07-21 11:58:29,639 - INFO -  * Restarting with stat
+2026-07-21 11:58:41,721 - WARNING -  * Debugger is active!
+2026-07-21 11:58:41,725 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 11:59:04,530 - INFO - 127.0.0.1 - - [21/Jul/2026 11:59:04] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:00:05,523 - INFO - 127.0.0.1 - - [21/Jul/2026 12:00:05] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:01:06,520 - INFO - 127.0.0.1 - - [21/Jul/2026 12:01:06] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:02:07,520 - INFO - 127.0.0.1 - - [21/Jul/2026 12:02:07] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:03:08,523 - INFO - 127.0.0.1 - - [21/Jul/2026 12:03:08] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:04:09,528 - INFO - 127.0.0.1 - - [21/Jul/2026 12:04:09] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:04:24,765 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 12:04:28,124 - INFO -  * Restarting with stat
+2026-07-21 12:04:40,215 - WARNING -  * Debugger is active!
+2026-07-21 12:04:40,221 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:04:44,444 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_pipeline_visualization_unit.py', reloading
+2026-07-21 12:04:47,592 - INFO -  * Restarting with stat
+2026-07-21 12:04:55,862 - WARNING -  * Debugger is active!
+2026-07-21 12:04:55,866 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:05:10,529 - INFO - 127.0.0.1 - - [21/Jul/2026 12:05:10] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:05:35,277 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 12:05:38,381 - INFO -  * Restarting with stat
+2026-07-21 12:05:50,807 - WARNING -  * Debugger is active!
+2026-07-21 12:05:50,812 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:06:11,525 - INFO - 127.0.0.1 - - [21/Jul/2026 12:06:11] "GET /manuscript/my_manuscript_viz/active-learning HTTP/1.1" 200 -
+2026-07-21 12:06:30,418 - INFO - 127.0.0.1 - - [21/Jul/2026 12:06:30] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-21 12:07:08,635 - INFO - 127.0.0.1 - - [21/Jul/2026 12:07:08] "POST /upload HTTP/1.1" 200 -
+2026-07-21 12:07:08,669 - INFO - 127.0.0.1 - - [21/Jul/2026 12:07:08] "GET /manuscript/my_manuscript_viz_2/pages HTTP/1.1" 200 -
+2026-07-21 12:07:08,997 - INFO - 127.0.0.1 - - [21/Jul/2026 12:07:08] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-21 12:07:09,700 - INFO - 127.0.0.1 - - [21/Jul/2026 12:07:09] "GET /semi-segment/my_manuscript_viz_2/15 HTTP/1.1" 200 -
+2026-07-21 12:07:09,780 - INFO - 127.0.0.1 - - [21/Jul/2026 12:07:09] "GET /manuscript/my_manuscript_viz_2/active-learning HTTP/1.1" 200 -
+2026-07-21 12:08:03,595 - INFO - 127.0.0.1 - - [21/Jul/2026 12:08:03] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-21 12:08:56,446 - INFO - 127.0.0.1 - - [21/Jul/2026 12:08:56] "POST /upload HTTP/1.1" 200 -
+2026-07-21 12:08:56,777 - INFO - 127.0.0.1 - - [21/Jul/2026 12:08:56] "GET /manuscript/my_manuscript_viz3/pages HTTP/1.1" 200 -
+2026-07-21 12:08:57,030 - INFO - 127.0.0.1 - - [21/Jul/2026 12:08:57] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-21 12:08:57,367 - INFO - 127.0.0.1 - - [21/Jul/2026 12:08:57] "GET /semi-segment/my_manuscript_viz3/28 HTTP/1.1" 200 -
+2026-07-21 12:08:57,453 - INFO - 127.0.0.1 - - [21/Jul/2026 12:08:57] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:09:57,787 - INFO - 127.0.0.1 - - [21/Jul/2026 12:09:57] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:10:15,111 - INFO - 127.0.0.1 - - [21/Jul/2026 12:10:15] "OPTIONS /semi-segment/my_manuscript_viz3/28 HTTP/1.1" 200 -
+2026-07-21 12:10:15,499 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_viz3 page_id=28
+2026-07-21 12:10:20,252 - INFO - 127.0.0.1 - - [21/Jul/2026 12:10:20] "POST /semi-segment/my_manuscript_viz3/28 HTTP/1.1" 200 -
+2026-07-21 12:10:20,499 - INFO - 127.0.0.1 - - [21/Jul/2026 12:10:20] "GET /semi-segment/my_manuscript_viz3/28 HTTP/1.1" 200 -
+2026-07-21 12:10:20,601 - INFO - 127.0.0.1 - - [21/Jul/2026 12:10:20] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:10:20,870 - INFO - 127.0.0.1 - - [21/Jul/2026 12:10:20] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-21 12:10:21,196 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-07-21 12:10:22,025 - INFO - Model loaded successfully.
+2026-07-21 12:10:26,276 - INFO - Updated input_manuscripts\my_manuscript_viz3\layout_analysis_output\page-xml-format\28.xml: 21 lines recognized; 3 unannotated curved lines evaluated; 2 rotated.
+2026-07-21 12:10:26,467 - INFO - 127.0.0.1 - - [21/Jul/2026 12:10:26] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-21 12:10:26,517 - INFO - 127.0.0.1 - - [21/Jul/2026 12:10:26] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:15:50,493 - INFO - 127.0.0.1 - - [21/Jul/2026 12:15:50] "POST /upload HTTP/1.1" 200 -
+2026-07-21 12:15:50,531 - INFO - 127.0.0.1 - - [21/Jul/2026 12:15:50] "GET /manuscript/my_manuscript_viz3/pages HTTP/1.1" 200 -
+2026-07-21 12:15:50,845 - INFO - 127.0.0.1 - - [21/Jul/2026 12:15:50] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-21 12:15:51,377 - INFO - 127.0.0.1 - - [21/Jul/2026 12:15:51] "GET /semi-segment/my_manuscript_viz3/56 HTTP/1.1" 200 -
+2026-07-21 12:15:51,447 - INFO - 127.0.0.1 - - [21/Jul/2026 12:15:51] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:16:45,080 - INFO - 127.0.0.1 - - [21/Jul/2026 12:16:45] "OPTIONS /semi-segment/my_manuscript_viz3/56 HTTP/1.1" 200 -
+2026-07-21 12:16:45,399 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=my_manuscript_viz3 page_id=56
+2026-07-21 12:16:48,557 - INFO - 127.0.0.1 - - [21/Jul/2026 12:16:48] "POST /semi-segment/my_manuscript_viz3/56 HTTP/1.1" 200 -
+2026-07-21 12:16:48,893 - INFO - 127.0.0.1 - - [21/Jul/2026 12:16:48] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:16:49,076 - INFO - 127.0.0.1 - - [21/Jul/2026 12:16:49] "GET /semi-segment/my_manuscript_viz3/56 HTTP/1.1" 200 -
+2026-07-21 12:16:49,433 - INFO - 127.0.0.1 - - [21/Jul/2026 12:16:49] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-21 12:16:57,930 - INFO - Updated input_manuscripts\my_manuscript_viz3\layout_analysis_output\page-xml-format\56.xml: 46 lines recognized; 6 unannotated curved lines evaluated; 1 rotated.
+2026-07-21 12:16:58,089 - INFO - 127.0.0.1 - - [21/Jul/2026 12:16:58] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-21 12:16:58,142 - INFO - 127.0.0.1 - - [21/Jul/2026 12:16:58] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:17:58,534 - INFO - 127.0.0.1 - - [21/Jul/2026 12:17:58] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:18:59,562 - INFO - 127.0.0.1 - - [21/Jul/2026 12:18:59] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:20:00,528 - INFO - 127.0.0.1 - - [21/Jul/2026 12:20:00] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:21:01,532 - INFO - 127.0.0.1 - - [21/Jul/2026 12:21:01] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:22:02,573 - INFO - 127.0.0.1 - - [21/Jul/2026 12:22:02] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:23:03,532 - INFO - 127.0.0.1 - - [21/Jul/2026 12:23:03] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:24:04,571 - INFO - 127.0.0.1 - - [21/Jul/2026 12:24:04] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:25:05,536 - INFO - 127.0.0.1 - - [21/Jul/2026 12:25:05] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:26:06,538 - INFO - 127.0.0.1 - - [21/Jul/2026 12:26:06] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:27:07,551 - INFO - 127.0.0.1 - - [21/Jul/2026 12:27:07] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:28:08,545 - INFO - 127.0.0.1 - - [21/Jul/2026 12:28:08] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:29:09,540 - INFO - 127.0.0.1 - - [21/Jul/2026 12:29:09] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:30:10,529 - INFO - 127.0.0.1 - - [21/Jul/2026 12:30:10] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:31:11,540 - INFO - 127.0.0.1 - - [21/Jul/2026 12:31:11] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:32:12,556 - INFO - 127.0.0.1 - - [21/Jul/2026 12:32:12] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:33:13,534 - INFO - 127.0.0.1 - - [21/Jul/2026 12:33:13] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:34:14,541 - INFO - 127.0.0.1 - - [21/Jul/2026 12:34:14] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:35:15,540 - INFO - 127.0.0.1 - - [21/Jul/2026 12:35:15] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:36:16,543 - INFO - 127.0.0.1 - - [21/Jul/2026 12:36:16] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:37:17,540 - INFO - 127.0.0.1 - - [21/Jul/2026 12:37:17] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:38:18,555 - INFO - 127.0.0.1 - - [21/Jul/2026 12:38:18] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:39:19,538 - INFO - 127.0.0.1 - - [21/Jul/2026 12:39:19] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:40:20,535 - INFO - 127.0.0.1 - - [21/Jul/2026 12:40:20] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:41:21,535 - INFO - 127.0.0.1 - - [21/Jul/2026 12:41:21] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:42:22,527 - INFO - 127.0.0.1 - - [21/Jul/2026 12:42:22] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:43:23,543 - INFO - 127.0.0.1 - - [21/Jul/2026 12:43:23] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:44:24,543 - INFO - 127.0.0.1 - - [21/Jul/2026 12:44:24] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:45:25,543 - INFO - 127.0.0.1 - - [21/Jul/2026 12:45:25] "GET /manuscript/my_manuscript_viz3/active-learning HTTP/1.1" 200 -
+2026-07-21 12:46:56,779 - INFO - 127.0.0.1 - - [21/Jul/2026 12:46:56] "POST /upload HTTP/1.1" 200 -
+2026-07-21 12:46:56,816 - INFO - 127.0.0.1 - - [21/Jul/2026 12:46:56] "GET /manuscript/my_manuscript_viz4/pages HTTP/1.1" 200 -
+2026-07-21 12:46:57,127 - INFO - 127.0.0.1 - - [21/Jul/2026 12:46:57] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-21 12:46:57,629 - INFO - 127.0.0.1 - - [21/Jul/2026 12:46:57] "GET /semi-segment/my_manuscript_viz4/28 HTTP/1.1" 200 -
+2026-07-21 12:46:57,698 - INFO - 127.0.0.1 - - [21/Jul/2026 12:46:57] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:47:58,528 - INFO - 127.0.0.1 - - [21/Jul/2026 12:47:58] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:48:58,555 - INFO - 127.0.0.1 - - [21/Jul/2026 12:48:58] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:49:19,268 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 12:49:20,967 - INFO -  * Restarting with stat
+2026-07-21 12:49:33,153 - WARNING -  * Debugger is active!
+2026-07-21 12:49:33,158 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:49:59,526 - INFO - 127.0.0.1 - - [21/Jul/2026 12:49:59] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:50:24,710 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 12:50:27,660 - INFO -  * Restarting with stat
+2026-07-21 12:50:37,345 - WARNING -  * Debugger is active!
+2026-07-21 12:50:37,350 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:51:00,524 - INFO - 127.0.0.1 - - [21/Jul/2026 12:51:00] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:52:01,515 - INFO - 127.0.0.1 - - [21/Jul/2026 12:52:01] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:53:02,522 - INFO - 127.0.0.1 - - [21/Jul/2026 12:53:02] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:53:30,495 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 12:53:33,641 - INFO -  * Restarting with stat
+2026-07-21 12:53:41,165 - WARNING -  * Debugger is active!
+2026-07-21 12:53:41,167 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:54:03,519 - INFO - 127.0.0.1 - - [21/Jul/2026 12:54:03] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:54:29,112 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\tests\\test_pipeline_visualization_unit.py', reloading
+2026-07-21 12:54:31,784 - INFO -  * Restarting with stat
+2026-07-21 12:54:40,146 - WARNING -  * Debugger is active!
+2026-07-21 12:54:40,148 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:55:04,524 - INFO - 127.0.0.1 - - [21/Jul/2026 12:55:04] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:56:05,521 - INFO - 127.0.0.1 - - [21/Jul/2026 12:56:05] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:57:06,521 - INFO - 127.0.0.1 - - [21/Jul/2026 12:57:06] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:58:07,517 - INFO - 127.0.0.1 - - [21/Jul/2026 12:58:07] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 12:58:44,568 - INFO -  * Detected change in 'C:\\Users\\intro\\Documents\\Projects\\gnn-synthetic-layout-historical\\app\\pipeline_visualization.py', reloading
+2026-07-21 12:58:47,290 - INFO -  * Restarting with stat
+2026-07-21 12:58:54,943 - WARNING -  * Debugger is active!
+2026-07-21 12:58:54,946 - INFO -  * Debugger PIN: 434-625-588
+2026-07-21 12:59:08,518 - INFO - 127.0.0.1 - - [21/Jul/2026 12:59:08] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 13:00:09,529 - INFO - 127.0.0.1 - - [21/Jul/2026 13:00:09] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 13:01:10,514 - INFO - 127.0.0.1 - - [21/Jul/2026 13:01:10] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 13:02:11,515 - INFO - 127.0.0.1 - - [21/Jul/2026 13:02:11] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 13:03:12,520 - INFO - 127.0.0.1 - - [21/Jul/2026 13:03:12] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 13:04:13,514 - INFO - 127.0.0.1 - - [21/Jul/2026 13:04:13] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 13:05:14,527 - INFO - 127.0.0.1 - - [21/Jul/2026 13:05:14] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -
+2026-07-21 13:06:15,523 - INFO - 127.0.0.1 - - [21/Jul/2026 13:06:15] "GET /manuscript/my_manuscript_viz4/active-learning HTTP/1.1" 200 -

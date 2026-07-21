@@ -84,7 +84,11 @@ Important manuscript-local paths include:
 - `gnn-dataset/`: initial graph-format files from preprocessing.
 - `processing_settings.json`: upload-time processing settings, including
   `target_longest_side`, `min_distance`, and optional line-segmentation
-  overrides such as `BINARIZE_THRESHOLD`.
+  overrides such as `BINARIZE_THRESHOLD`. It also records the opt-in
+  `pipeline_visualization` setting.
+- `visualizations/<page>/`: optional, disposable pipeline-stage images and a
+  `manifest.json`. These are diagnostics only and are never read by layout,
+  OCR, exports, or active learning.
 - `node_corrections/`: legacy cumulative node correction summaries used by the
   download metrics export.
 - `layout_analysis_output/gnn-format/`: corrected graph, labels, and dimensions
@@ -106,6 +110,52 @@ Important manuscript-local paths include:
 Uploading a manuscript name that already exists currently replaces that
 manuscript directory in `app/app.py`. Treat manuscript names as mutable working
 folders, not archival identifiers.
+
+## Optional Pipeline Visualizations
+
+The upload screen has a **Save pipeline visualizations (background)** switch.
+It is off by default. When enabled, `app/pipeline_visualization.py` records the
+following real artifacts for every uploaded page under
+`visualizations/<page>/`:
+
+1. original resized page image;
+2. CRAFT heatmap;
+3. GNN preprocessing overlay: angular-KNN candidate connectivity, categorical
+   heuristic-degree one-hot node colors, and categorical heuristic-overlap
+   one-hot edge colors;
+4--5. one predicted-versus-human-corrected graph comparison, written only after
+   a human layout correction. It uses the color-blind-safe Okabe-Ito palette:
+   blue means human-added/predicted-missing and vermilion means
+   human-deleted/predicted-extra;
+6. the exact processed OCR line images, including configured unwrapped crops,
+   both as a contact sheet and as `06_processed_line_images/` files preserving
+   their text-region hierarchy;
+7--8. one per-line OCR comparison. Predicted and human-corrected Unicode text
+   are grapheme-aligned in identically sized cells, one directly above the
+   other, with the same blue/vermilion correction semantics and per-line CED
+   (grapheme edit distance) and CER.
+
+Stages 1--3 are queued after upload. Stages 4--6 are queued after a layout
+save, but the combined graph comparison is written only when the frontend
+supplies a real pre-correction versus corrected graph difference. The combined
+OCR comparison is written once a committed Read Mode save has both XML
+snapshots. The manifest marks unavailable downstream stages as `pending`; the
+app never invents ground truth before a human save.
+
+For a committed Read Mode text save, the sidecar also copies the current PAGE
+XML immediately before the save to `07_ocr_predictions_page.xml`, then copies
+the updated PAGE XML to `08_ocr_ground_truth_page.xml`. These two snapshots are
+created synchronously around the XML update so a later background task cannot
+replace the OCR prediction before it is captured. The background sidecar then
+writes `07_08_ocr_text_correction_diff.jpg`, its UTF-8 metrics JSON, and one
+losslessly rendered PNG per line under `07_08_ocr_text_correction_diff/`.
+
+The sidecar is best effort: it has a separate daemon worker, serializes its own
+writes, and logs an error without changing the upload, layout-save, or OCR
+result. To enable it by default for non-browser uploads, set
+`APP_PIPELINE_VISUALIZATION=true`; a manuscript's saved upload setting takes
+precedence. `max_line_previews` in `processing_settings.json` controls the
+contact-sheet cap (default 24, bounded to 1--100).
 
 ## Production Text-Line Strategy
 

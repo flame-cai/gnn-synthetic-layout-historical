@@ -46,6 +46,14 @@
             title="Normalized heatmap threshold for text-line polygon generation"
           />
         </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input v-model="formPipelineVisualizationEnabled" type="checkbox" />
+            Save pipeline visualizations (background)
+          </label>
+          <small>Writes per-page stage artifacts without changing layout or OCR processing.</small>
+        </div>
         
         <div class="form-group">
           <label>Images:</label>
@@ -85,6 +93,7 @@ const formName = ref('my_manuscript')
 const formLongestSide = ref(3500)
 const formMinDistance = ref(20)
 const formBinarizationThreshold = ref('')
+const formPipelineVisualizationEnabled = ref(false)
 const selectedFiles = ref([])
 const uploading = ref(false)
 const uploadStatus = ref('')
@@ -128,6 +137,7 @@ const upload = async () => {
   if (thresholdOverride !== '') {
     formData.append('binarizationThreshold', thresholdOverride)
   }
+  formData.append('pipelineVisualizationEnabled', String(formPipelineVisualizationEnabled.value))
   selectedFiles.value.forEach(file => formData.append('images', file))
 
   try {
@@ -198,6 +208,9 @@ body { margin: 0; font-family: sans-serif; background: #222; color: white; }
 .app-container { display: flex; flex-direction: column; height: 100vh; }
 .upload-card { max-width: 500px; margin: 100px auto; padding: 20px; background: #333; border-radius: 8px; }
 .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+.checkbox-group label { flex-direction: row; align-items: center; gap: 8px; }
+.checkbox-group input { width: auto; margin: 0; }
+.checkbox-group small { margin-top: 6px; color: #aaa; }
 input { padding: 8px; background: #444; border: 1px solid #555; color: white; margin-top: 5px; }
 button { padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; }
 button:disabled { background: #555; }

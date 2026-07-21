@@ -3801,6 +3801,9 @@ const saveModifications = async (background = false, options = {}) => {
     : {}
   const requestBody = {
     graph: workingGraph, 
+    // This is the graph the human saw before the current correction session.
+    // The backend uses it only for opt-in diagnostic visualizations.
+    baselineGraph: saveScope === 'layout' ? graph.value : null,
     modifications: modifications.value,
     textlineLabels: dummyTextlineLabels, 
     textboxLabels: labelsToSend,

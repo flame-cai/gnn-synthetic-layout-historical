@@ -97,6 +97,14 @@ from text_recovery import (
     build_latest_text_recovery_plan,
     build_text_recovery_state,
 )
+from pipeline_visualization import (
+    default_enabled as pipeline_visualization_default_enabled,
+    enqueue as enqueue_pipeline_visualization,
+    layout_artifacts as save_layout_visualizations,
+    ocr_prediction_artifacts as save_ocr_prediction_visualizations,
+    read_mode_pagexml_artifact as save_read_mode_pagexml_artifact,
+    upload_artifacts as save_upload_visualizations,
+)
 
 app = Flask(__name__)
 CORS(app)
@@ -139,6 +147,7 @@ def _write_manuscript_processing_settings(
     target_longest_side,
     min_distance,
     binarize_threshold=None,
+    pipeline_visualization_enabled=None,
 ):
     line_segmentation_args = {}
     if binarize_threshold is not None:
@@ -148,6 +157,15 @@ def _write_manuscript_processing_settings(
         "target_longest_side": int(target_longest_side),
         "min_distance": int(min_distance),
         "line_segmentation_args": line_segmentation_args,
+        "pipeline_visualization": {
+            "enabled": (
+                pipeline_visualization_default_enabled()
+                if pipeline_visualization_enabled is None
+                else str(pipeline_visualization_enabled).strip().lower()
+                in {"1", "true", "yes", "on", "enabled"}
+            ),
+            "max_line_previews": 24,
+        },
     }
     settings_path = _manuscript_processing_settings_path(manuscript_path)
     settings_path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
@@ -928,6 +946,12 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
             text_payload=result.get("text", {}),
             active_learning=result["activeLearning"],
         )
+        enqueue_pipeline_visualization(
+            save_ocr_prediction_visualizations,
+            base_path,
+            page,
+            result.get("text", {}),
+        )
         return result
 
     except Exception as e:
@@ -959,6 +983,7 @@ def upload_manuscript():
         target_longest_side=longest_side,
         min_distance=min_distance,
         binarize_threshold=binarize_threshold,
+        pipeline_visualization_enabled=request.form.get('pipelineVisualizationEnabled'),
     )
 
     files = request.files.getlist('images')
@@ -974,6 +999,12 @@ def upload_manuscript():
         processed_pages = []
         for f in sorted(Path(manuscript_path).glob("gnn-dataset/*_dims.txt")):
             processed_pages.append(f.name.replace("_dims.txt", ""))
+        for page in processed_pages:
+            enqueue_pipeline_visualization(
+                save_upload_visualizations,
+                manuscript_path,
+                page,
+            )
             
         return jsonify({"message": "Processed successfully", "pages": processed_pages})
     except Exception as e:
@@ -1611,6 +1642,7 @@ def save_correction(manuscript, page):
     
     textline_labels = data.get('textlineLabels')
     graph_data = data.get('graph') or {}
+    baseline_graph = data.get('baselineGraph') or None
     nodes_data = graph_data.get('nodes') or []
     textbox_labels = _resolve_textbox_labels_for_layout(
         graph_data,
@@ -1647,7 +1679,16 @@ def save_correction(manuscript, page):
         layout_processing_metrics = None
         layout_artifacts_regenerated = False
         if save_scope == 'text_only' and xml_path.exists():
+            snapshot_read_mode_pagexml = save_intent == 'commit'
+            if snapshot_read_mode_pagexml:
+                save_read_mode_pagexml_artifact(
+                    manuscript_path, page, xml_path, ground_truth=False
+                )
             result = update_page_text_content(xml_path, text_content=text_content)
+            if snapshot_read_mode_pagexml:
+                save_read_mode_pagexml_artifact(
+                    manuscript_path, page, xml_path, ground_truth=True
+                )
         else:
             if save_scope == 'layout' and xml_path.exists():
                 try:
@@ -1738,6 +1779,20 @@ def save_correction(manuscript, page):
                 print(f"[{page}] Error saving layout effort log: {logging_error}")
                 traceback.print_exc()
 
+            enqueue_pipeline_visualization(
+                save_layout_visualizations,
+                manuscript_path,
+                page,
+                baseline_graph=baseline_graph,
+                corrected_graph=graph_data,
+            )
+        elif save_scope == 'text_only':
+            enqueue_pipeline_visualization(
+                save_layout_visualizations,
+                manuscript_path,
+                page,
+            )
+
         if run_recognition: 
             # --- MODIFIED: Robust background task with engine switch & logging ---
             checkpoint_path, checkpoint_id, _ = _get_manuscript_local_checkpoint(manuscript)
@@ -1769,6 +1824,12 @@ def save_correction(manuscript, page):
                                 str(Path(UPLOAD_FOLDER) / m / "layout_analysis_output" / "page-xml-format" / f"{p}.xml")
                             ),
                             base_checkpoint_path=OCR_MODEL_PATH,
+                        )
+                        enqueue_pipeline_visualization(
+                            save_ocr_prediction_visualizations,
+                            Path(UPLOAD_FOLDER) / m,
+                            p,
+                            gemini_result.get("text", {}),
                         )
                     else:
                         _run_local_recognition_internal(
@@ -1831,6 +1892,12 @@ def recognize_text():
                 str(Path(UPLOAD_FOLDER) / manuscript / "layout_analysis_output" / "page-xml-format" / f"{page}.xml")
             ),
             base_checkpoint_path=OCR_MODEL_PATH,
+        )
+        enqueue_pipeline_visualization(
+            save_ocr_prediction_visualizations,
+            Path(UPLOAD_FOLDER) / manuscript,
+            page,
+            result.get("text", {}),
         )
         result["activeLearning"] = _get_manuscript_active_learning_state(manuscript)
         result["pageWorkflow"] = _build_page_workflow(
