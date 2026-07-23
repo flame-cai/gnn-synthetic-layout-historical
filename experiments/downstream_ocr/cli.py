@@ -98,6 +98,14 @@ def build_parser() -> argparse.ArgumentParser:
     methods.add_argument("--max-test-pages", type=int)
     methods.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
     methods.add_argument(
+        "--gnn-finetuning-config",
+        default=str(DEFAULT_GNN_FINETUNING_CONFIG),
+        help=(
+            "GNN continuation recipe for predicted-layout fine-tuning methods. "
+            "Defaults to the checked-in deleted-node-supervision recipe."
+        ),
+    )
+    methods.add_argument(
         "--vlm-predictions-root",
         help="Immutable pre-prediction cache created by prepredict-vlms. Required for VLM methods.",
     )
@@ -257,6 +265,7 @@ def main(argv: list[str] | None = None) -> None:
                 allow_vlm_pagexml_drift=args.allow_vlm_pagexml_drift,
                 input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
                 output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
+                gnn_finetuning_config=args.gnn_finetuning_config,
             )
         else:
             combined_input_roots = []
@@ -276,6 +285,7 @@ def main(argv: list[str] | None = None) -> None:
                     allow_vlm_pagexml_drift=args.allow_vlm_pagexml_drift,
                     input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
                     output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
+                    gnn_finetuning_config=args.gnn_finetuning_config,
                 )
                 combined_input_roots.append(manuscript_output_root)
             write_combined_table_report(

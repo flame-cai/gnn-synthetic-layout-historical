@@ -56,6 +56,25 @@ class GNNFineTuningTests(unittest.TestCase):
             "bidirectional",
         )
 
+    def test_no_deleted_nodes_recipe_keeps_the_same_training_recipe(self):
+        recipe = load_gnn_finetuning_recipe(
+            REPO_ROOT
+            / "experiments"
+            / "downstream_ocr"
+            / "configs"
+            / "gnn_finetuning_no_deleted_nodes.yaml"
+        )
+
+        self.assertEqual(recipe.augmentations_per_page, 50)
+        self.assertEqual(recipe.history_replay_ratio, 0.20)
+        self.assertEqual(recipe.trainable_scope, TRAINABLE_SCOPE_FULL_MODEL)
+        self.assertEqual(recipe.deleted_node_supervision, {"enabled": False})
+        self.assertEqual(recipe.training_config["training_params"]["epochs"], 10)
+        self.assertEqual(
+            recipe.training_config["training_params"]["learning_rate"],
+            0.001,
+        )
+
     def test_full_model_scope_unfreezes_every_parameter(self):
         class DummyBackbone(torch.nn.Module):
             def __init__(self):

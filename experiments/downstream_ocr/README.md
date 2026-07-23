@@ -146,13 +146,21 @@ model/backbone classes are pinned separately in
 `configs/gnn_finetuning.yaml`; the architecture is never reconstructed from
 the generic GNN training config.
 
-For GNN fine-tuning only, original CRAFT nodes missing from the corrected
-graph are recovered with the configured image-space matching tolerance and
-appended with text-line label `-1`. The ground-truth builder skips that label,
-so every generated candidate edge incident to a recovered deleted node has
-binary target `0`. Corrected unmatched nodes (including manual additions) are
-left untouched. This does not change inference: isolated nodes are not deleted
-or filtered.
+The default GNN fine-tuning recipe recovers original CRAFT nodes missing from
+the corrected graph with the configured image-space matching tolerance and
+appends them with text-line label `-1`. The ground-truth builder skips that
+label, so every generated candidate edge incident to a recovered deleted node
+has binary target `0`. Corrected unmatched nodes (including manual additions)
+are left untouched. This does not change inference: isolated nodes are not
+deleted or filtered.
+
+The controlled no-deleted-node recipe instead fine-tunes directly from the
+human-corrected `layout_analysis_output/gnn-format` files. It changes no other
+GNN hyperparameter, augmentation, split, OCR, or evaluation behavior:
+
+```powershell
+--gnn-finetuning-config experiments/downstream_ocr/configs/gnn_finetuning_no_deleted_nodes.yaml
+```
 
 At a given fine-tuning depth, the predicted-layout and corrected-layout test
 variants still reuse the exact same OCR checkpoint. Human-corrected test

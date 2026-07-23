@@ -71,7 +71,12 @@ DEFAULT_GEMINI_MAX_RETRIES = 3
 DEFAULT_GEMINI_RETRY_BASE_DELAY_SECONDS = 1.0
 
 
-def _write_experiment_reproducibility(output_root: Path) -> Path:
+def _write_experiment_reproducibility(
+    output_root: Path,
+    *,
+    gnn_finetuning_config: str | Path = DEFAULT_GNN_FINETUNING_CONFIG,
+) -> Path:
+    gnn_finetuning_config = Path(gnn_finetuning_config)
     return write_reproducibility_manifest(
         output_root,
         repo_root=REPO_ROOT,
@@ -79,7 +84,7 @@ def _write_experiment_reproducibility(output_root: Path) -> Path:
             BASE_OCR_CHECKPOINT,
             PRETRAINED_GNN_MODEL,
             PRETRAINED_GNN_CONFIG,
-            DEFAULT_GNN_FINETUNING_CONFIG,
+            gnn_finetuning_config,
             REPO_ROOT / "src" / "configs" / "augment.yaml",
         ),
     )
@@ -118,14 +123,18 @@ def _ocr_recipe_metadata_for_method(method: "MethodSpec") -> dict | None:
     }
 
 
-def _gnn_recipe_metadata_for_method(method: "MethodSpec") -> dict | None:
+def _gnn_recipe_metadata_for_method(
+    method: "MethodSpec",
+    gnn_finetuning_config: str | Path = DEFAULT_GNN_FINETUNING_CONFIG,
+) -> dict | None:
     if not method.uses_finetuning or method.uses_gt_layout:
         return None
     from .gnn_finetuning import load_gnn_finetuning_recipe
 
-    recipe = load_gnn_finetuning_recipe(DEFAULT_GNN_FINETUNING_CONFIG)
+    gnn_finetuning_config = Path(gnn_finetuning_config)
+    recipe = load_gnn_finetuning_recipe(gnn_finetuning_config)
     return {
-        "source": str(DEFAULT_GNN_FINETUNING_CONFIG.resolve()),
+        "source": str(gnn_finetuning_config.resolve()),
         "recipe": recipe.metadata(),
         "test_layout_checkpoint_condition": "fold_local_finetuned_gnn",
     }
@@ -572,6 +581,7 @@ def run_local_finetuning_ladder(
     predicted_layout_test_pages_by_count: dict[int, dict] | None = None,
     gnn_ladder_fn: Callable | None = None,
     predicted_layout_prepare_fn: Callable | None = None,
+    gnn_finetuning_config: str | Path = DEFAULT_GNN_FINETUNING_CONFIG,
 ) -> dict[str, Path]:
     """Train one corrected-layout OCR ladder and fold-local GNN ladder.
 
@@ -636,7 +646,7 @@ def run_local_finetuning_ladder(
                 train_page_ids=selected_train,
                 base_checkpoint=PRETRAINED_GNN_MODEL,
                 output_root=ladder_dir / "gnn_finetune",
-                config_path=DEFAULT_GNN_FINETUNING_CONFIG,
+                config_path=gnn_finetuning_config,
             )
             predicted_layout_test_pages_by_count = {}
             requested_counts = sorted(
@@ -1965,9 +1975,11 @@ def run_methods_experiment(
     allow_vlm_pagexml_drift: bool = False,
     input_usd_per_1m_tokens: float | None = None,
     output_usd_per_1m_tokens: float | None = None,
+    gnn_finetuning_config: str | Path = DEFAULT_GNN_FINETUNING_CONFIG,
 ) -> dict:
     paths = default_manuscript_paths(manuscript_root)
     output_root = Path(output_root)
+    gnn_finetuning_config = Path(gnn_finetuning_config)
     methods = tuple(method_by_id(method_id) for method_id in method_ids)
     vlm_methods = tuple(method for method in methods if is_vlm_method(method.method_id))
     if vlm_methods and vlm_predictions_root is None:
@@ -1986,7 +1998,10 @@ def run_methods_experiment(
         fold_ids=fold_ids,
         max_test_pages=max_test_pages,
     )
-    _write_experiment_reproducibility(output_root)
+    _write_experiment_reproducibility(
+        output_root,
+        gnn_finetuning_config=gnn_finetuning_config,
+    )
     results = {}
     records_by_method = _run_methods_with_finetuning_ladder(
         paths=paths,
@@ -1996,12 +2011,17 @@ def run_methods_experiment(
         write_diagnostics=write_diagnostics,
         vlm_predictions_root=Path(vlm_predictions_root) if vlm_predictions_root is not None else None,
         allow_vlm_pagexml_drift=allow_vlm_pagexml_drift,
+        gnn_finetuning_config=gnn_finetuning_config,
     )
     for method in methods:
         all_records = records_by_method[method.method_id]
         payload = {
             "method": asdict(method),
             "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
+            "gnn_finetuning_recipe": _gnn_recipe_metadata_for_method(
+                method,
+                gnn_finetuning_config,
+            ),
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
             "textedit_metric": textedit_reproducibility_metadata(),
@@ -2045,6 +2065,7 @@ def _run_methods_with_finetuning_ladder(
     write_diagnostics: bool = False,
     vlm_predictions_root: Path | None = None,
     allow_vlm_pagexml_drift: bool = False,
+    gnn_finetuning_config: str | Path = DEFAULT_GNN_FINETUNING_CONFIG,
 ) -> dict[str, list[dict]]:
     method_list = tuple(methods)
     records_by_method: dict[str, list[dict]] = {method.method_id: [] for method in method_list}
@@ -2076,6 +2097,7 @@ def _run_methods_with_finetuning_ladder(
                 fold=fold,
                 methods=finetune_methods,
                 output_root=output_root,
+                gnn_finetuning_config=gnn_finetuning_config,
             )
             for method in finetune_methods:
                 records_by_method[method.method_id].extend(

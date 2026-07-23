@@ -191,28 +191,31 @@ def load_gnn_finetuning_recipe(config_path: str | Path) -> GNNFineTuningRecipe:
         raise ValueError(
             f"Unsupported GNN trainable_scope {trainable_scope!r}."
         )
-    if not deleted_node_supervision.get("enabled", False):
-        raise ValueError(
-            "The deleted-node experiment requires deleted_node_supervision.enabled."
-        )
-    match_tolerance = float(
-        deleted_node_supervision["match_tolerance_image_pixels"]
+    deleted_node_supervision_enabled = bool(
+        deleted_node_supervision.get("enabled", False)
     )
-    if match_tolerance < 0.0:
-        raise ValueError(
-            "deleted_node_supervision.match_tolerance_image_pixels must be nonnegative."
+    if deleted_node_supervision_enabled:
+        match_tolerance = float(
+            deleted_node_supervision["match_tolerance_image_pixels"]
         )
-    noise_label = int(deleted_node_supervision["noise_textline_label"])
-    if noise_label != -1:
-        raise ValueError(
-            "Deleted CRAFT nodes must use noise_textline_label -1 so the "
-            "ground-truth edge builder gives them no positive edges."
-        )
-    deleted_node_supervision = {
-        "enabled": True,
-        "match_tolerance_image_pixels": match_tolerance,
-        "noise_textline_label": noise_label,
-    }
+        if match_tolerance < 0.0:
+            raise ValueError(
+                "deleted_node_supervision.match_tolerance_image_pixels must "
+                "be nonnegative."
+            )
+        noise_label = int(deleted_node_supervision["noise_textline_label"])
+        if noise_label != -1:
+            raise ValueError(
+                "Deleted CRAFT nodes must use noise_textline_label -1 so the "
+                "ground-truth edge builder gives them no positive edges."
+            )
+        deleted_node_supervision = {
+            "enabled": True,
+            "match_tolerance_image_pixels": match_tolerance,
+            "noise_textline_label": noise_label,
+        }
+    else:
+        deleted_node_supervision = {"enabled": False}
     required_training_keys = {
         "epochs",
         "batch_size",
@@ -1034,29 +1037,36 @@ def run_gnn_finetuning_ladder(
     corrected_graph_dir = (
         manuscript_root / "layout_analysis_output" / "gnn-format"
     )
+    recipe = load_gnn_finetuning_recipe(config_path)
     if not base_checkpoint.is_file():
         raise FileNotFoundError(f"Pretrained GNN checkpoint not found: {base_checkpoint}")
     if not corrected_graph_dir.is_dir():
         raise FileNotFoundError(
             f"Corrected graph-format labels not found: {corrected_graph_dir}"
         )
-    if not raw_graph_dir.is_dir():
+    if recipe.deleted_node_supervision["enabled"] and not raw_graph_dir.is_dir():
         raise FileNotFoundError(
             f"Raw CRAFT graph-format inputs not found: {raw_graph_dir}"
         )
 
-    recipe = load_gnn_finetuning_recipe(config_path)
-    supervision_dir = output_root / "deleted_node_supervision"
-    supervision_by_page = {
-        page_id: prepare_deleted_node_supervision_page(
-            page_id=page_id,
-            raw_source_dir=raw_graph_dir,
-            corrected_source_dir=corrected_graph_dir,
-            output_dir=supervision_dir,
-            recipe=recipe,
-        )
-        for page_id in selected_train
-    }
+    deleted_node_supervision_enabled = bool(
+        recipe.deleted_node_supervision["enabled"]
+    )
+    if deleted_node_supervision_enabled:
+        training_graph_dir = output_root / "deleted_node_supervision"
+        supervision_by_page = {
+            page_id: prepare_deleted_node_supervision_page(
+                page_id=page_id,
+                raw_source_dir=raw_graph_dir,
+                corrected_source_dir=corrected_graph_dir,
+                output_dir=training_graph_dir,
+                recipe=recipe,
+            )
+            for page_id in selected_train
+        }
+    else:
+        training_graph_dir = corrected_graph_dir
+        supervision_by_page = {}
     augmentations_by_page: dict[str, tuple[str, ...]] = {}
     augmentation_dirs_by_page: dict[str, Path] = {}
     for page_index, page_id in enumerate(selected_train):
@@ -1065,7 +1075,7 @@ def run_gnn_finetuning_ladder(
         augmentations_by_page[page_id] = augment_corrected_graph_page(
             page_id=page_id,
             page_index=page_index,
-            source_dir=supervision_dir,
+            source_dir=training_graph_dir,
             output_dir=augmentation_dir,
             recipe=recipe,
         )
@@ -1084,7 +1094,7 @@ def run_gnn_finetuning_ladder(
     processed_original_by_page = {
         page_id: _process_graph_or_fail(
             page_id,
-            supervision_dir,
+            training_graph_dir,
             recipe.preprocessing_config,
         )
         for page_id in selected_train
@@ -1167,7 +1177,12 @@ def run_gnn_finetuning_ladder(
             "manuscript_root": str(manuscript_root.resolve()),
             "raw_graph_source_dir": str(raw_graph_dir.resolve()),
             "corrected_graph_source_dir": str(corrected_graph_dir.resolve()),
-            "deleted_node_supervision_dir": str(supervision_dir.resolve()),
+            "training_graph_source_dir": str(training_graph_dir.resolve()),
+            "deleted_node_supervision_dir": (
+                str(training_graph_dir.resolve())
+                if deleted_node_supervision_enabled
+                else None
+            ),
             "deleted_node_supervision_by_page": supervision_by_page,
             "train_page_ids": list(selected_train),
             "base_checkpoint": str(base_checkpoint.resolve()),
