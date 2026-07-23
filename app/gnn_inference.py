@@ -53,6 +53,7 @@ from gnn_training.gnn_data_preparation.feature_engineering import (
 # Global Cache
 LOADED_MODEL = None
 LOADED_CONFIG = None
+LOADED_MODEL_KEY = None
 DEVICE = None
 LOGGER = logging.getLogger(__name__)
 
@@ -141,17 +142,22 @@ def _components_from_structural_labels(structural_labels: np.ndarray, num_nodes:
 
 
 def load_model_once(model_checkpoint_path, config_path):
-    global LOADED_MODEL, LOADED_CONFIG, DEVICE
-    if LOADED_MODEL is None:
+    global LOADED_MODEL, LOADED_CONFIG, LOADED_MODEL_KEY, DEVICE
+    model_key = (
+        str(Path(model_checkpoint_path).resolve()),
+        str(Path(config_path).resolve()),
+    )
+    if LOADED_MODEL is None or LOADED_MODEL_KEY != model_key:
         DEVICE = get_device()
         print(f"Loading model from {model_checkpoint_path} on {DEVICE}...")
         checkpoint = torch.load(model_checkpoint_path, map_location=DEVICE, weights_only=False)
         LOADED_MODEL = checkpoint['model']
         LOADED_MODEL.to(DEVICE)
         LOADED_MODEL.eval()
-        
+
         with open(config_path, 'r') as f:
             LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
+        LOADED_MODEL_KEY = model_key
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
 
 def generate_xml_and_images_for_page(

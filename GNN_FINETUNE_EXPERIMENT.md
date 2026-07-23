@@ -15,7 +15,7 @@ Please keep the following in mind while implementing:
 
 Please study the code, understand the task, and ask me for clarifications if required.
 
-Once implemented, we want to first test of 1 fold, for all three manuscripts and check if it's working. We will check this by looking at the column (no-layout-postcorrection) for rows pages fine-tuned 0,1,2,3. Name this experiment as "GNN_finetune_1_fold_test". Once this is done, and I verify the results myself, we will continue to run a full 5 fold experiment with all competing methods and ablations including VLM.
+Once implemented, we want to first test of 1 fold, for all three manuscripts and check if it's working. We will check this by looking at the column (no-layout-postcorrection) for rows pages fine-tuned 0,1,2,3. Name this experiment as "GNN_finetune_1_fold_test". Once this is done, and I want to verify the results myself. Then we might adjust the fine-tuning hyperparamenter for the GNN iteratively. Finally, we will continue to run a full 5 fold experiment with all competing methods and ablations including VLM.
 
 Note that this change should not we another ablation of the Annotation tool. This change should update the Annotation tool, finetuning, no-layout-postcorrection abltation itself. It's just that we are fine-tuning both, the GNN and the OCR model, instead of just the OCR model.
 
@@ -39,10 +39,10 @@ C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\tests\logs
 
 Note that I've change the dataset annotations a little bit, hence it's okay if some of the results table values do not exactly match the values of the current 5-fold experiment we have:
 C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\tests\logs\ocr_5fold_new
-Hence only use this experiment result table values to do common sense verification if required. No strict checking. Ideally, after fine-tuning the GNN too, we should see a steeper drop in both metric values, in the column (no-layout-postcorrection) over the rows pages finetuned 0,1,2,3 because hopefully the predicted layout would also improve with each page finetuned by GNN, along with improvement in text-line predictions of the OCR model.
+Hence only use this experiment result table values to do common sense verification if required. No strict checking. Ideally, after fine-tuning the GNN too, we should see a _steeper_ drop in both metric values, in the column (no-layout-postcorrection) over the rows pages finetuned 0,1,2,3 because hopefully the predicted layout would also improve with each page finetuned by GNN, along with improvement in text-line predictions of the OCR model.
 
 
-Keep the metric calculation unchanged.
+Keep the both metric calculation unchanged. Do not make any other unnecessary changes to the experiment.
 
 
 Right now, we have kept the experiment code as shared with the production app as possible. But as the production app at the moment does not support GNN finetuning, we will diverge the experiment code from the production when it comes to GNN finetuning. We will update the production app once the experiment is successful late on.

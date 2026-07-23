@@ -116,7 +116,7 @@ fold/method (`<json-root>/<fold_id>/<method_id>/<page_id>.json`). Adapter
 failures and missing JSON files are written as empty PAGE predictions and
 retained in the per-page `status`.
 
-Run explicit methods across all three folds:
+Run explicit methods across all standard folds:
 
 ```powershell
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
@@ -132,16 +132,48 @@ The local annotation-tool comparison contains eight variants:
 
 - `annotation_tool_e2e`: predicted layout, base OCR checkpoint
 - `annotation_tool_gt_layout`: human-corrected test layout, base OCR checkpoint
-- `annotation_tool_pred_layout_ft_1/2/3`: human-corrected layout and Unicode text on 1/2/3 training pages, followed by OCR inference on predicted test layouts
+- `annotation_tool_pred_layout_ft_1/2/3`: human-corrected graph layout and Unicode text on 1/2/3 training pages, followed by fold-local GNN plus OCR fine-tuning and OCR inference on test layouts predicted by the matching fine-tuned GNN checkpoint
 - `annotation_tool_gt_layout_ft_1/2/3`: the same 1/2/3-page checkpoints, followed by OCR inference on human-corrected test layouts
 
-Within each fold, the harness trains only one sequential 1/2/3-page checkpoint
-ladder from corrected training-page layouts. At a given fine-tuning depth, the
-predicted-layout and corrected-layout test variants reuse the exact same
-checkpoint. Predicted held-out layouts are also prepared once per fold and
-shared with `annotation_tool_e2e`, so the paired comparison changes the OCR
-checkpoint or test-layout condition without rerunning a different layout
-prediction for each method.
+Within each fold, the harness trains one sequential 1/2/3-page OCR checkpoint
+ladder and, when a predicted-layout fine-tuning method is requested, one
+sequential GNN checkpoint ladder. Each corrected GNN training page is augmented
+50 times with `src/configs/augment.yaml`. The current page's 50 variants plus a
+deterministic 20% sample of every earlier page's variants are fine-tuned with
+the unchanged model object; only fold training pages are used for training or
+checkpoint selection. Continuation hyperparameters and the expected serialized
+model/backbone classes are pinned separately in
+`configs/gnn_finetuning.yaml`; the architecture is never reconstructed from
+the generic GNN training config.
+
+For GNN fine-tuning only, original CRAFT nodes missing from the corrected
+graph are recovered with the configured image-space matching tolerance and
+appended with text-line label `-1`. The ground-truth builder skips that label,
+so every generated candidate edge incident to a recovered deleted node has
+binary target `0`. Corrected unmatched nodes (including manual additions) are
+left untouched. This does not change inference: isolated nodes are not deleted
+or filtered.
+
+At a given fine-tuning depth, the predicted-layout and corrected-layout test
+variants still reuse the exact same OCR checkpoint. Human-corrected test
+layouts bypass GNN inference. Predicted test layouts are regenerated at each
+depth with that depth's fold-local GNN checkpoint. `annotation_tool_e2e`
+continues to use the immutable pretrained GNN and OCR checkpoints.
+
+One-fold, three-manuscript joint fine-tuning test:
+
+```powershell
+conda run -n gnn_layout python -m experiments.downstream_ocr.cli run-methods `
+  --manuscript-root app\input_manuscripts\yajn `
+  --manuscript-root app\input_manuscripts\dense `
+  --manuscript-root app\input_manuscripts\circle_new `
+  --output-root app\tests\logs\GNN_finetune_1_fold_test `
+  --fold-id fold_1 `
+  --method-id annotation_tool_e2e `
+  --method-id annotation_tool_pred_layout_ft_1 `
+  --method-id annotation_tool_pred_layout_ft_2 `
+  --method-id annotation_tool_pred_layout_ft_3
+```
 
 ## One-Time VLM Pre-Prediction
 
@@ -265,6 +297,14 @@ Before doing local OCR work, `run-methods` validates that every requested VLM
 cache contains the exact current page set and matching fingerprints. It then
 copies only each fold's test-page predictions into that fold's run directory.
 This command never loads an API key or performs a VLM network request.
+
+Cache validation is strict by default, including the PAGE-XML ground-truth
+hash. If human PAGE-XML annotations changed but the page images are byte-for-byte
+identical, pass `--allow-vlm-pagexml-drift`. This opt-in permits only the
+PAGE-XML hash to differ: page set, image hash, provider/model, prompt, request
+contract, cached terminal record, and PAGE image filename/dimensions/namespace
+must still match. The resulting metric payload records
+`preprediction_cache.pagexml_drift_allowed=true`.
 
 Each evaluation command writes an automatic report under:
 

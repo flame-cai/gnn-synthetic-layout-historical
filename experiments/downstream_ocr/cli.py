@@ -6,6 +6,7 @@ from pathlib import Path
 from .reproducibility import write_reproducibility_manifest
 from .runners import (
     BASE_OCR_CHECKPOINT,
+    DEFAULT_GNN_FINETUNING_CONFIG,
     PRETRAINED_GNN_CONFIG,
     PRETRAINED_GNN_MODEL,
     REPO_ROOT,
@@ -76,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     methods = subparsers.add_parser(
         "run-methods",
-        help="Run selected experiment methods across the standard three folds.",
+        help="Run selected experiment methods across the standard folds.",
     )
     methods.add_argument(
         "--manuscript-root",
@@ -99,6 +100,15 @@ def build_parser() -> argparse.ArgumentParser:
     methods.add_argument(
         "--vlm-predictions-root",
         help="Immutable pre-prediction cache created by prepredict-vlms. Required for VLM methods.",
+    )
+    methods.add_argument(
+        "--allow-vlm-pagexml-drift",
+        action="store_true",
+        help=(
+            "Reuse cached VLM predictions when only PAGE-XML ground-truth hashes changed; "
+            "image, page set, provider/model, prompt, request contract, and PAGE identity "
+            "must still match exactly."
+        ),
     )
     methods.add_argument("--gemini-input-usd-per-1m-tokens", type=float)
     methods.add_argument("--gemini-output-usd-per-1m-tokens", type=float)
@@ -244,6 +254,7 @@ def main(argv: list[str] | None = None) -> None:
                 max_test_pages=args.max_test_pages,
                 split_seed=args.split_seed,
                 vlm_predictions_root=args.vlm_predictions_root,
+                allow_vlm_pagexml_drift=args.allow_vlm_pagexml_drift,
                 input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
                 output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
             )
@@ -262,6 +273,7 @@ def main(argv: list[str] | None = None) -> None:
                     max_test_pages=args.max_test_pages,
                     split_seed=args.split_seed,
                     vlm_predictions_root=args.vlm_predictions_root,
+                    allow_vlm_pagexml_drift=args.allow_vlm_pagexml_drift,
                     input_usd_per_1m_tokens=args.gemini_input_usd_per_1m_tokens,
                     output_usd_per_1m_tokens=args.gemini_output_usd_per_1m_tokens,
                 )
@@ -325,6 +337,8 @@ def main(argv: list[str] | None = None) -> None:
                 BASE_OCR_CHECKPOINT,
                 PRETRAINED_GNN_MODEL,
                 PRETRAINED_GNN_CONFIG,
+                DEFAULT_GNN_FINETUNING_CONFIG,
+                REPO_ROOT / "src" / "configs" / "augment.yaml",
             ),
         )
         print({"reproducibility_json": str(path)})

@@ -156,13 +156,137 @@ def _request_payload(
     return request
 
 
-def _validate_terminal_result(result: dict, expected_request: dict, result_path: Path) -> None:
+_REQUEST_IDENTITY_KEYS = (
+    "schema_version",
+    "manuscript_id",
+    "page_id",
+    "provider_id",
+    "method_id",
+    "model_id",
+    "prompt_sha256",
+    "image_sha256",
+    "pagexml_sha256",
+    "request_parameters",
+    "output_adapter_id",
+    "request_contract_version",
+)
+
+
+def _request_identity(request: dict) -> dict:
+    return {
+        key: request[key]
+        for key in _REQUEST_IDENTITY_KEYS
+        if key in request
+    }
+
+
+def _validate_pagexml_drift_compatibility(
+    *,
+    result: dict,
+    expected_request: dict,
+    result_path: Path,
+) -> None:
+    request_path = result_path.parent / "request.json"
+    if not request_path.exists():
+        raise VlmCacheError(
+            f"Cached request metadata is missing, so PAGE-XML drift cannot be audited: {request_path}."
+        )
+    cached_request = json.loads(request_path.read_text(encoding="utf-8"))
+    cached_identity = _request_identity(cached_request)
+    expected_identity = _request_identity(expected_request)
+    if _canonical_sha256(cached_identity) != cached_request.get("request_fingerprint"):
+        raise VlmCacheError(f"Cached VLM request fingerprint is invalid: {request_path}.")
+    if result.get("request_fingerprint") != cached_request.get("request_fingerprint"):
+        raise VlmCacheError(
+            f"Cached VLM request/result fingerprints disagree: {result_path}."
+        )
+
+    cached_without_pagexml = {
+        key: value
+        for key, value in cached_identity.items()
+        if key != "pagexml_sha256"
+    }
+    expected_without_pagexml = {
+        key: value
+        for key, value in expected_identity.items()
+        if key != "pagexml_sha256"
+    }
+    if cached_without_pagexml != expected_without_pagexml:
+        raise VlmCacheError(
+            f"Cached VLM request differs in more than the PAGE-XML ground truth: {result_path}."
+        )
+    for key in ("input_order", "prompt"):
+        if cached_request.get(key) != expected_request.get(key):
+            raise VlmCacheError(
+                f"Cached VLM request contract differs for {key}: {request_path}."
+            )
+    for key in (
+        "schema_version",
+        "manuscript_id",
+        "page_id",
+        "provider_id",
+        "method_id",
+        "model_id",
+        "prompt_sha256",
+        "image_sha256",
+        "pagexml_sha256",
+    ):
+        if result.get(key) != cached_request.get(key):
+            raise VlmCacheError(
+                f"Cached VLM request/result metadata disagree for {key}: {result_path}."
+            )
+
+    prediction_path = result_path.parent / "prediction.xml"
+    cached_prediction = load_pagexml(
+        prediction_path,
+        strict=False,
+        repair_geometry=True,
+        allow_empty_geometry=True,
+    )
+    current_page = load_pagexml(
+        expected_request["pagexml_path"],
+        strict=False,
+        repair_geometry=True,
+        allow_empty_geometry=True,
+    )
+    cached_page_identity = (
+        cached_prediction.image_filename,
+        cached_prediction.width,
+        cached_prediction.height,
+        cached_prediction.namespace,
+    )
+    current_page_identity = (
+        current_page.image_filename,
+        current_page.width,
+        current_page.height,
+        current_page.namespace,
+    )
+    if cached_page_identity != current_page_identity:
+        raise VlmCacheError(
+            "Cached VLM prediction PAGE identity is incompatible with the current "
+            f"ground truth: {prediction_path}."
+        )
+
+
+def _validate_terminal_result(
+    result: dict,
+    expected_request: dict,
+    result_path: Path,
+    *,
+    allow_pagexml_drift: bool = False,
+) -> None:
     if result.get("schema_version") != CACHE_SCHEMA_VERSION:
         raise VlmCacheError(f"Unsupported cache schema in {result_path}.")
     if result.get("request_fingerprint") != expected_request["request_fingerprint"]:
-        raise VlmCacheError(
-            f"Cached VLM request does not match the current provider/model/prompt/input: {result_path}. "
-            "Use a new cache root for a new acquisition."
+        if not allow_pagexml_drift:
+            raise VlmCacheError(
+                f"Cached VLM request does not match the current provider/model/prompt/input: {result_path}. "
+                "Use a new cache root for a new acquisition."
+            )
+        _validate_pagexml_drift_compatibility(
+            result=result,
+            expected_request=expected_request,
+            result_path=result_path,
         )
     if result.get("status") is None:
         raise VlmCacheError(f"Cache result is not terminal: {result_path}.")
@@ -485,6 +609,7 @@ def validate_vlm_cache(
     paths: ManuscriptPaths,
     cache_root: str | Path,
     method_id: str,
+    allow_pagexml_drift: bool = False,
 ) -> dict:
     spec = provider_by_method_id(method_id)
     output = _cache_dir(Path(cache_root), paths.manuscript_id, method_id)
@@ -509,7 +634,12 @@ def validate_vlm_cache(
             raise VlmCacheError(f"Missing terminal VLM result: {result_path}.")
         expected_request = _request_payload(paths=paths, page_id=page_id, spec=spec)
         result = json.loads(result_path.read_text(encoding="utf-8"))
-        _validate_terminal_result(result, expected_request, result_path)
+        _validate_terminal_result(
+            result,
+            expected_request,
+            result_path,
+            allow_pagexml_drift=allow_pagexml_drift,
+        )
     return manifest
 
 
@@ -520,8 +650,14 @@ def materialize_cached_fold(
     cache_root: str | Path,
     method_id: str,
     output_dir: Path,
+    allow_pagexml_drift: bool = False,
 ) -> tuple[Path, dict[str, str], dict]:
-    manifest = validate_vlm_cache(paths=paths, cache_root=cache_root, method_id=method_id)
+    manifest = validate_vlm_cache(
+        paths=paths,
+        cache_root=cache_root,
+        method_id=method_id,
+        allow_pagexml_drift=allow_pagexml_drift,
+    )
     source = _cache_dir(Path(cache_root), paths.manuscript_id, method_id)
     output_dir.mkdir(parents=True, exist_ok=True)
     statuses: dict[str, str] = {}
@@ -536,6 +672,7 @@ def materialize_cached_fold(
         "provider": manifest["provider"],
         "prompt_sha256": manifest["prompt_sha256"],
         "page_count": manifest["page_count"],
+        "pagexml_drift_allowed": allow_pagexml_drift,
     }
     return output_dir, statuses, cache_metadata
 

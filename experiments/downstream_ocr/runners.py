@@ -61,6 +61,9 @@ APP_ROOT = REPO_ROOT / "app"
 BASE_OCR_CHECKPOINT = APP_ROOT / "recognition" / "pretrained_model" / "vadakautuhala.pth"
 PRETRAINED_GNN_MODEL = APP_ROOT / "pretrained_gnn" / "v2.pt"
 PRETRAINED_GNN_CONFIG = APP_ROOT / "pretrained_gnn" / "gnn_preprocessing_v2.yaml"
+DEFAULT_GNN_FINETUNING_CONFIG = (
+    REPO_ROOT / "experiments" / "downstream_ocr" / "configs" / "gnn_finetuning.yaml"
+)
 DEFAULT_GEMINI_TIMEOUT_SECONDS = 45.0
 DEFAULT_GEMINI_PAGE_WORKERS = 4
 DEFAULT_GEMINI_REQUEST_SPACING_SECONDS = 0.25
@@ -76,6 +79,8 @@ def _write_experiment_reproducibility(output_root: Path) -> Path:
             BASE_OCR_CHECKPOINT,
             PRETRAINED_GNN_MODEL,
             PRETRAINED_GNN_CONFIG,
+            DEFAULT_GNN_FINETUNING_CONFIG,
+            REPO_ROOT / "src" / "configs" / "augment.yaml",
         ),
     )
 
@@ -110,6 +115,19 @@ def _ocr_recipe_metadata_for_method(method: "MethodSpec") -> dict | None:
         "source": "app.ocr_active_learning_runtime._runtime_recipe",
         "recipe": recipe.to_dict(),
         "sibling_checkpoint_strategy": recipe.sibling_checkpoint_strategy,
+    }
+
+
+def _gnn_recipe_metadata_for_method(method: "MethodSpec") -> dict | None:
+    if not method.uses_finetuning or method.uses_gt_layout:
+        return None
+    from .gnn_finetuning import load_gnn_finetuning_recipe
+
+    recipe = load_gnn_finetuning_recipe(DEFAULT_GNN_FINETUNING_CONFIG)
+    return {
+        "source": str(DEFAULT_GNN_FINETUNING_CONFIG.resolve()),
+        "recipe": recipe.metadata(),
+        "test_layout_checkpoint_condition": "fold_local_finetuned_gnn",
     }
 
 
@@ -149,11 +167,11 @@ METHODS: tuple[MethodSpec, ...] = (
     ),
     MethodSpec("annotation_tool_e2e", "Annotation tool (End-to-End)", uses_gt_layout=False),
     MethodSpec("annotation_tool_gt_layout", "Annotation tool (End-to-End with Graph Layout Grounding)", uses_gt_layout=True),
-    MethodSpec("annotation_tool_pred_layout_ft_1", "Annotation tool (Predicted test layout, 1-page fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=1),
+    MethodSpec("annotation_tool_pred_layout_ft_1", "Annotation tool (Predicted test layout, 1-page joint GNN+OCR fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=1),
     MethodSpec("annotation_tool_gt_layout_ft_1", "Annotation tool (GT Layout, 1-page fine-tuning)", uses_gt_layout=True, uses_finetuning=True, finetune_page_count=1),
-    MethodSpec("annotation_tool_pred_layout_ft_2", "Annotation tool (Predicted test layout, 2-page fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=2),
+    MethodSpec("annotation_tool_pred_layout_ft_2", "Annotation tool (Predicted test layout, 2-page joint GNN+OCR fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=2),
     MethodSpec("annotation_tool_gt_layout_ft_2", "Annotation tool (GT Layout, 2-page fine-tuning)", uses_gt_layout=True, uses_finetuning=True, finetune_page_count=2),
-    MethodSpec("annotation_tool_pred_layout_ft_3", "Annotation tool (Predicted test layout, 3-page fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=3),
+    MethodSpec("annotation_tool_pred_layout_ft_3", "Annotation tool (Predicted test layout, 3-page joint GNN+OCR fine-tuning)", uses_gt_layout=False, uses_finetuning=True, finetune_page_count=3),
     MethodSpec("annotation_tool_gt_layout_ft_3", "Annotation tool (GT Layout, 3-page fine-tuning)", uses_gt_layout=True, uses_finetuning=True, finetune_page_count=3),
 )
 
@@ -401,6 +419,8 @@ def _prepare_annotation_tool_predicted_layout_pages(
     paths: ManuscriptPaths,
     fold: Fold,
     preparation_dir: Path,
+    gnn_model_path: Path = PRETRAINED_GNN_MODEL,
+    gnn_config_path: Path = PRETRAINED_GNN_CONFIG,
 ) -> dict:
     _ensure_app_import_path()
     from gnn_inference import generate_xml_and_images_for_page, run_gnn_prediction_for_page
@@ -412,8 +432,8 @@ def _prepare_annotation_tool_predicted_layout_pages(
         graph = run_gnn_prediction_for_page(
             str(manuscript_root),
             page_id,
-            str(PRETRAINED_GNN_MODEL),
-            str(PRETRAINED_GNN_CONFIG),
+            str(gnn_model_path),
+            str(gnn_config_path),
         )
         node_count = len(graph.get("nodes", []))
         textbox_labels = graph.get("textbox_labels") or [0] * node_count
@@ -549,13 +569,16 @@ def run_local_finetuning_ladder(
     output_root: Path,
     fine_tune_fn: Callable | None = None,
     predict_fn: Callable | None = None,
-    predicted_layout_test_pages: dict | None = None,
+    predicted_layout_test_pages_by_count: dict[int, dict] | None = None,
+    gnn_ladder_fn: Callable | None = None,
+    predicted_layout_prepare_fn: Callable | None = None,
 ) -> dict[str, Path]:
-    """Train one corrected-layout checkpoint ladder and vary only test layout.
+    """Train one corrected-layout OCR ladder and fold-local GNN ladder.
 
-    Every fine-tuning page is prepared from its human-corrected PAGE layout.
-    Each resulting checkpoint can then be evaluated on either human-corrected
-    or fully predicted held-out layouts according to ``uses_gt_layout``.
+    Every fine-tuning page supplies corrected PAGE layout and Unicode text to
+    the OCR ladder and corrected graph-format labels to the GNN ladder.
+    Human-corrected held-out layouts bypass GNN inference. Predicted held-out
+    layouts are regenerated with the GNN checkpoint at the same page depth.
     """
     selected_methods = tuple(
         sorted(
@@ -600,19 +623,67 @@ def run_local_finetuning_ladder(
     )
 
     predicted_layout_methods = tuple(method for method in selected_methods if not method.uses_gt_layout)
-    if predicted_layout_methods and predicted_layout_test_pages is None:
-        predicted_layout_test_pages = _prepare_annotation_tool_predicted_layout_pages(
-            paths=paths,
-            fold=fold,
-            preparation_dir=ladder_dir / "predicted_layout_test_pages",
-        )
     if predicted_layout_methods:
-        missing_predicted_pages = sorted(set(fold.test_page_ids) - set(predicted_layout_test_pages or {}))
-        if missing_predicted_pages:
-            raise ValueError(
-                f"{fold.fold_id}: predicted-layout preparation is missing test pages: "
-                f"{missing_predicted_pages}"
+        if predicted_layout_test_pages_by_count is None:
+            if gnn_ladder_fn is None:
+                from .gnn_finetuning import run_gnn_finetuning_ladder
+
+                gnn_ladder_fn = run_gnn_finetuning_ladder
+            if predicted_layout_prepare_fn is None:
+                predicted_layout_prepare_fn = _prepare_annotation_tool_predicted_layout_pages
+            gnn_ladder_result = gnn_ladder_fn(
+                manuscript_root=paths.root,
+                train_page_ids=selected_train,
+                base_checkpoint=PRETRAINED_GNN_MODEL,
+                output_root=ladder_dir / "gnn_finetune",
+                config_path=DEFAULT_GNN_FINETUNING_CONFIG,
             )
+            predicted_layout_test_pages_by_count = {}
+            requested_counts = sorted(
+                {method.finetune_page_count for method in predicted_layout_methods}
+            )
+            for finetune_page_count in requested_counts:
+                try:
+                    gnn_checkpoint = gnn_ladder_result.checkpoint_by_count[
+                        finetune_page_count
+                    ]
+                except KeyError as exc:
+                    raise ValueError(
+                        f"{fold.fold_id}: GNN ladder did not produce a "
+                        f"{finetune_page_count}-page checkpoint."
+                    ) from exc
+                predicted_layout_test_pages_by_count[finetune_page_count] = (
+                    predicted_layout_prepare_fn(
+                        paths=paths,
+                        fold=fold,
+                        preparation_dir=(
+                            ladder_dir
+                            / "predicted_layout_test_pages"
+                            / f"step_{finetune_page_count:02d}"
+                        ),
+                        gnn_model_path=Path(gnn_checkpoint),
+                        gnn_config_path=PRETRAINED_GNN_CONFIG,
+                    )
+                )
+        else:
+            gnn_ladder_result = None
+
+        for method in predicted_layout_methods:
+            prepared_at_count = predicted_layout_test_pages_by_count.get(
+                method.finetune_page_count,
+                {},
+            )
+            missing_predicted_pages = sorted(
+                set(fold.test_page_ids) - set(prepared_at_count)
+            )
+            if missing_predicted_pages:
+                raise ValueError(
+                    f"{fold.fold_id}: {method.finetune_page_count}-page "
+                    "predicted-layout preparation is missing test pages: "
+                    f"{missing_predicted_pages}"
+                )
+    else:
+        gnn_ladder_result = None
 
     recipe = _load_gui_runtime_ocr_recipe()
     recipe_payload = {
@@ -658,9 +729,18 @@ def run_local_finetuning_ladder(
     prediction_dirs: dict[str, Path] = {}
     for method in selected_methods:
         checkpoint = checkpoint_by_count[method.finetune_page_count]
-        source_test_pages = gt_layout_pages if method.uses_gt_layout else predicted_layout_test_pages
+        source_test_pages = (
+            gt_layout_pages
+            if method.uses_gt_layout
+            else predicted_layout_test_pages_by_count[method.finetune_page_count]
+        )
         test_pages = {page_id: source_test_pages[page_id] for page_id in fold.test_page_ids}
         method_run_dir = output_root / "runs" / method.method_id / fold.fold_id
+        gnn_checkpoint = None
+        if not method.uses_gt_layout and gnn_ladder_result is not None:
+            gnn_checkpoint = gnn_ladder_result.checkpoint_by_count[
+                method.finetune_page_count
+            ]
         _write_json(
             method_run_dir / "ocr_active_learning_recipe.json",
             {
@@ -671,6 +751,16 @@ def run_local_finetuning_ladder(
                 "training_layout_condition": "human_corrected_gt_layout",
                 "test_layout_condition": (
                     "human_corrected_gt_layout" if method.uses_gt_layout else "predicted_layout"
+                ),
+                "gnn_finetuning_condition": (
+                    "not_applied_to_human_corrected_test_layout"
+                    if method.uses_gt_layout
+                    else "fold_local_joint_finetuning"
+                ),
+                "gnn_checkpoint_path": (
+                    str(Path(gnn_checkpoint).resolve())
+                    if gnn_checkpoint is not None
+                    else None
                 ),
             },
         )
@@ -692,6 +782,19 @@ def run_local_finetuning_ladder(
             "checkpoint_by_finetune_page_count": {
                 str(count): str(path.resolve()) for count, path in checkpoint_by_count.items()
             },
+            "gnn_checkpoint_by_finetune_page_count": (
+                {
+                    str(count): str(path.resolve())
+                    for count, path in gnn_ladder_result.checkpoint_by_count.items()
+                }
+                if gnn_ladder_result is not None
+                else {}
+            ),
+            "gnn_ladder_summary_path": (
+                str(gnn_ladder_result.summary_path.resolve())
+                if gnn_ladder_result is not None
+                else None
+            ),
             "training_layout_condition": "human_corrected_gt_layout",
             "method_test_layout_conditions": {
                 method.method_id: (
@@ -1763,6 +1866,7 @@ def run_local_gt_layout_experiment(
         payload = {
             "method": asdict(method),
             "ocr_active_learning_recipe": _ocr_recipe_metadata_for_method(method),
+            "gnn_finetuning_recipe": _gnn_recipe_metadata_for_method(method),
             "manuscript_id": paths.manuscript_id,
             "folds": [asdict(fold) for fold in folds],
             "textedit_metric": textedit_reproducibility_metadata(),
@@ -1823,6 +1927,7 @@ def run_method(
     method: MethodSpec,
     run_dir: Path,
     vlm_predictions_root: Path | None = None,
+    allow_vlm_pagexml_drift: bool = False,
 ) -> tuple[Path, dict[str, str] | None]:
     if method.method_id in DISABLED_METHOD_IDS:
         raise ValueError(DISABLED_METHOD_IDS[method.method_id])
@@ -1837,6 +1942,7 @@ def run_method(
             cache_root=vlm_predictions_root,
             method_id=method.method_id,
             output_dir=run_dir / "predictions",
+            allow_pagexml_drift=allow_vlm_pagexml_drift,
         )
         return prediction_dir, statuses
     if method.method_id == "annotation_tool_e2e":
@@ -1856,6 +1962,7 @@ def run_methods_experiment(
     max_test_pages: int | None = None,
     split_seed: int = DEFAULT_SPLIT_SEED,
     vlm_predictions_root: str | Path | None = None,
+    allow_vlm_pagexml_drift: bool = False,
     input_usd_per_1m_tokens: float | None = None,
     output_usd_per_1m_tokens: float | None = None,
 ) -> dict:
@@ -1870,6 +1977,7 @@ def run_methods_experiment(
             paths=paths,
             cache_root=Path(vlm_predictions_root),
             method_id=method.method_id,
+            allow_pagexml_drift=allow_vlm_pagexml_drift,
         )
         for method in vlm_methods
     }
@@ -1887,6 +1995,7 @@ def run_methods_experiment(
         output_root=output_root,
         write_diagnostics=write_diagnostics,
         vlm_predictions_root=Path(vlm_predictions_root) if vlm_predictions_root is not None else None,
+        allow_vlm_pagexml_drift=allow_vlm_pagexml_drift,
     )
     for method in methods:
         all_records = records_by_method[method.method_id]
@@ -1914,6 +2023,7 @@ def run_methods_experiment(
                 "provider": cache_manifests[method.method_id]["provider"],
                 "prompt_sha256": cache_manifests[method.method_id]["prompt_sha256"],
                 "page_count": cache_manifests[method.method_id]["page_count"],
+                "pagexml_drift_allowed": allow_vlm_pagexml_drift,
             }
         _write_json(output_root / "metrics" / method.method_id / "metrics.json", payload)
         _write_csv(output_root / "metrics" / method.method_id / "per_page.csv", all_records)
@@ -1934,6 +2044,7 @@ def _run_methods_with_finetuning_ladder(
     output_root: Path,
     write_diagnostics: bool = False,
     vlm_predictions_root: Path | None = None,
+    allow_vlm_pagexml_drift: bool = False,
 ) -> dict[str, list[dict]]:
     method_list = tuple(methods)
     records_by_method: dict[str, list[dict]] = {method.method_id: [] for method in method_list}
@@ -1944,7 +2055,6 @@ def _run_methods_with_finetuning_ladder(
     for fold in folds:
         needs_predicted_layout_pages = any(
             method.method_id == "annotation_tool_e2e"
-            or (method.uses_finetuning and not method.uses_gt_layout)
             for method in method_list
         )
         predicted_layout_test_pages = None
@@ -1966,7 +2076,6 @@ def _run_methods_with_finetuning_ladder(
                 fold=fold,
                 methods=finetune_methods,
                 output_root=output_root,
-                predicted_layout_test_pages=predicted_layout_test_pages,
             )
             for method in finetune_methods:
                 records_by_method[method.method_id].extend(
@@ -1997,6 +2106,7 @@ def _run_methods_with_finetuning_ladder(
                     method=method,
                     run_dir=run_dir,
                     vlm_predictions_root=vlm_predictions_root,
+                    allow_vlm_pagexml_drift=allow_vlm_pagexml_drift,
                 )
             records_by_method[method.method_id].extend(
                 evaluate_prediction_folder(

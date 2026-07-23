@@ -294,6 +294,7 @@ class VlmCacheTests(unittest.TestCase):
             method=method,
             run_dir=Path("output") / "runs" / "gemini_e2e" / "fold_1",
             vlm_predictions_root=cache_root,
+            allow_vlm_pagexml_drift=False,
         )
 
     def test_method_ladder_does_not_pass_vlm_cache_to_annotation_tool(self):
@@ -462,6 +463,117 @@ class VlmCacheTests(unittest.TestCase):
                     paths=default_manuscript_paths(manuscript),
                     cache_root=cache_root,
                     method_id="gemini_e2e",
+                )
+
+    def test_pagexml_drift_is_opt_in_and_keeps_image_request_strict(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            manuscript = _make_manuscript(root)
+            cache_root = root / "cache"
+
+            def fake_invoke(*args, **kwargs):
+                return VlmProviderResponse(
+                    raw_text=json.dumps({"status": "success", "regions": []})
+                )
+
+            with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
+                acquire_manuscript_provider(
+                    manuscript_root=manuscript,
+                    cache_root=cache_root,
+                    provider_id="gemini",
+                    env_path=root / ".env",
+                    page_workers=1,
+                    request_spacing_seconds=0,
+                    invoke=fake_invoke,
+                )
+
+            pagexml_path = (
+                manuscript / "layout_analysis_output" / "page-xml-format" / "p1.xml"
+            )
+            pagexml_path.write_text(
+                pagexml_path.read_text(encoding="utf-8") + "\n",
+                encoding="utf-8",
+            )
+            paths = default_manuscript_paths(manuscript)
+            with self.assertRaisesRegex(VlmCacheError, "does not match"):
+                validate_vlm_cache(
+                    paths=paths,
+                    cache_root=cache_root,
+                    method_id="gemini_e2e",
+                )
+            validate_vlm_cache(
+                paths=paths,
+                cache_root=cache_root,
+                method_id="gemini_e2e",
+                allow_pagexml_drift=True,
+            )
+
+            request_path = (
+                cache_root
+                / "manuscript"
+                / "gemini_e2e"
+                / "pages"
+                / "p1"
+                / "request.json"
+            )
+            request = json.loads(request_path.read_text(encoding="utf-8"))
+            request["input_order"] = ["prompt", "page_image"]
+            request_path.write_text(json.dumps(request), encoding="utf-8")
+            with self.assertRaisesRegex(VlmCacheError, "request contract"):
+                validate_vlm_cache(
+                    paths=paths,
+                    cache_root=cache_root,
+                    method_id="gemini_e2e",
+                    allow_pagexml_drift=True,
+                )
+            request["input_order"] = ["page_image", "prompt"]
+            request_path.write_text(json.dumps(request), encoding="utf-8")
+
+            (manuscript / "images_resized" / "p1.jpg").write_bytes(b"changed-image")
+            with self.assertRaisesRegex(VlmCacheError, "more than the PAGE-XML"):
+                validate_vlm_cache(
+                    paths=paths,
+                    cache_root=cache_root,
+                    method_id="gemini_e2e",
+                    allow_pagexml_drift=True,
+                )
+
+    def test_pagexml_drift_rejects_incompatible_page_identity(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            manuscript = _make_manuscript(root)
+            cache_root = root / "cache"
+
+            with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
+                acquire_manuscript_provider(
+                    manuscript_root=manuscript,
+                    cache_root=cache_root,
+                    provider_id="gemini",
+                    env_path=root / ".env",
+                    page_workers=1,
+                    request_spacing_seconds=0,
+                    invoke=lambda *args, **kwargs: VlmProviderResponse(
+                        raw_text=json.dumps({"status": "success", "regions": []})
+                    ),
+                )
+
+            write_pagexml(
+                PageXmlPage(
+                    page_id="p1",
+                    image_filename="p1.jpg",
+                    width=101,
+                    height=80,
+                    lines=(),
+                ),
+                manuscript / "layout_analysis_output" / "page-xml-format" / "p1.xml",
+                lines=(),
+            )
+            with self.assertRaisesRegex(VlmCacheError, "PAGE identity"):
+                validate_vlm_cache(
+                    paths=default_manuscript_paths(manuscript),
+                    cache_root=cache_root,
+                    method_id="gemini_e2e",
+                    allow_pagexml_drift=True,
                 )
 
     def test_partial_page_directory_is_never_replayed_automatically(self):

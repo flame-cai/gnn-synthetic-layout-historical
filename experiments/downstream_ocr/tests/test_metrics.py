@@ -565,7 +565,10 @@ class DownstreamOcrMetricTests(unittest.TestCase):
                     output_root=root / "out",
                     fine_tune_fn=fake_fine_tune,
                     predict_fn=fake_predict,
-                    predicted_layout_test_pages=predicted_pages,
+                    predicted_layout_test_pages_by_count={
+                        1: predicted_pages,
+                        3: predicted_pages,
+                    },
                 )
 
             self.assertEqual(
@@ -580,6 +583,141 @@ class DownstreamOcrMetricTests(unittest.TestCase):
             self.assertEqual(by_method["annotation_tool_pred_layout_ft_1"]["layouts"], {"predicted"})
             self.assertEqual(by_method["annotation_tool_gt_layout_ft_1"]["layouts"], {"gt"})
             self.assertEqual(set(prediction_dirs), {method.method_id for method in methods})
+
+    def test_predicted_layout_finetuning_uses_matching_fold_local_gnn_checkpoint(self):
+        class FakeRecipe:
+            oversampling_policy = "none"
+            augmentation_policy = "none"
+            history_sample_line_count = 10
+            sibling_checkpoint_strategy = "page_cer_selector"
+            width_policy = "batch_max_pad"
+            lr_scheduler = "none"
+            optimizer = "adadelta"
+            background_plus_rotation_variant_count = 10
+            shuffle_train_each_epoch = True
+            lr = 0.2
+            num_iter = 60
+
+            def to_dict(self):
+                return {"width_policy": self.width_policy}
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            paths = ManuscriptPaths(
+                manuscript_id="m",
+                root=root / "manuscript",
+                images_dir=root / "images",
+                pagexml_dir=root / "pagexml",
+                line_images_dir=root / "lines",
+                heatmaps_dir=root / "heatmaps",
+            )
+            fold = Fold(
+                fold_id="fold_1",
+                train_page_ids=("train_a", "train_b", "train_c"),
+                test_page_ids=("test_a", "test_b"),
+            )
+            gt_pages = {
+                page_id: SimpleNamespace(page_id=page_id, layout_condition="gt")
+                for page_id in fold.train_page_ids
+            }
+            gnn_calls = []
+            layout_calls = []
+            predict_calls = []
+
+            def fake_ocr_fine_tune(prepared, base_checkpoint, output_root, **kwargs):
+                step_index = int(kwargs["step_index"])
+                return SimpleNamespace(
+                    output_checkpoint=str(root / f"ocr_checkpoint_{step_index}.pth")
+                )
+
+            def fake_ocr_predict(checkpoint, test_pages, output_root, **kwargs):
+                output = Path(output_root)
+                output.mkdir(parents=True, exist_ok=True)
+                predict_calls.append(
+                    {
+                        "method_id": output.parent.parent.name,
+                        "ocr_checkpoint": Path(checkpoint).name,
+                        "layouts": {
+                            page.layout_condition for page in test_pages.values()
+                        },
+                    }
+                )
+                return SimpleNamespace(prediction_folder=str(output))
+
+            def fake_gnn_ladder(**kwargs):
+                gnn_calls.append(kwargs)
+                return SimpleNamespace(
+                    checkpoint_by_count={
+                        count: root / f"gnn_checkpoint_{count}.pt"
+                        for count in (1, 2, 3)
+                    },
+                    summary_path=root / "gnn_ladder_summary.json",
+                )
+
+            def fake_prepare_predicted_layout(**kwargs):
+                checkpoint = Path(kwargs["gnn_model_path"])
+                layout_calls.append(checkpoint.name)
+                return {
+                    page_id: SimpleNamespace(
+                        page_id=page_id,
+                        layout_condition=f"predicted:{checkpoint.stem}",
+                    )
+                    for page_id in fold.test_page_ids
+                }
+
+            methods = (
+                MethodSpec(
+                    "annotation_tool_pred_layout_ft_1",
+                    "pred ft1",
+                    uses_gt_layout=False,
+                    uses_finetuning=True,
+                    finetune_page_count=1,
+                ),
+                MethodSpec(
+                    "annotation_tool_pred_layout_ft_3",
+                    "pred ft3",
+                    uses_gt_layout=False,
+                    uses_finetuning=True,
+                    finetune_page_count=3,
+                ),
+            )
+
+            with patch(
+                "experiments.downstream_ocr.runners._prepare_gt_layout_pages",
+                return_value=gt_pages,
+            ), patch(
+                "experiments.downstream_ocr.runners._load_gui_runtime_ocr_recipe",
+                return_value=FakeRecipe(),
+            ):
+                run_local_finetuning_ladder(
+                    paths=paths,
+                    fold=fold,
+                    methods=methods,
+                    output_root=root / "out",
+                    fine_tune_fn=fake_ocr_fine_tune,
+                    predict_fn=fake_ocr_predict,
+                    gnn_ladder_fn=fake_gnn_ladder,
+                    predicted_layout_prepare_fn=fake_prepare_predicted_layout,
+                )
+
+            self.assertEqual(len(gnn_calls), 1)
+            self.assertEqual(
+                tuple(gnn_calls[0]["train_page_ids"]),
+                fold.train_page_ids,
+            )
+            self.assertEqual(
+                layout_calls,
+                ["gnn_checkpoint_1.pt", "gnn_checkpoint_3.pt"],
+            )
+            by_method = {call["method_id"]: call for call in predict_calls}
+            self.assertEqual(
+                by_method["annotation_tool_pred_layout_ft_1"]["layouts"],
+                {"predicted:gnn_checkpoint_1"},
+            )
+            self.assertEqual(
+                by_method["annotation_tool_pred_layout_ft_3"]["layouts"],
+                {"predicted:gnn_checkpoint_3"},
+            )
 
 
 if __name__ == "__main__":
