@@ -34,6 +34,7 @@ class VlmProviderSpec:
     input_contract: str = "page_image_only"
     prompt_contract: str = VLM_PROMPT_CONTRACT
     provides_layout: bool = True
+    page_cer_uses_output_order: bool = False
     language_code: str | None = None
     output_format: str | None = None
 
@@ -81,6 +82,7 @@ VLM_PROVIDER_SPECS: tuple[VlmProviderSpec, ...] = (
         output_adapter_id=SARVAM_HTML_OUTPUT_ADAPTER_ID,
         prompt_contract=SARVAM_DOCUMENT_CONTRACT,
         provides_layout=False,
+        page_cer_uses_output_order=True,
         language_code="sa-IN",
         output_format="html",
     ),

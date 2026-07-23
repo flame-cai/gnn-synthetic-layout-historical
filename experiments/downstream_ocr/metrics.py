@@ -160,18 +160,33 @@ def order_lines_geometrically(lines: Iterable[TextLine]) -> list[TextLine]:
     )
 
 
-def page_text(lines: Iterable[TextLine]) -> str:
+def page_text(
+    lines: Iterable[TextLine],
+    *,
+    preserve_input_order: bool = False,
+) -> str:
+    ordered_lines = (
+        list(lines) if preserve_input_order else order_lines_geometrically(lines)
+    )
     texts = [
         normalized
-        for normalized in (normalize_text(line.text) for line in order_lines_geometrically(lines))
+        for normalized in (normalize_text(line.text) for line in ordered_lines)
         if normalized
     ]
     return " ".join(texts)
 
 
-def page_cer(gt_lines: list[TextLine], pred_lines: list[TextLine]) -> dict:
+def page_cer(
+    gt_lines: list[TextLine],
+    pred_lines: list[TextLine],
+    *,
+    predicted_lines_in_output_order: bool = False,
+) -> dict:
     gt_page_text = page_text(gt_lines)
-    pred_page_text = page_text(pred_lines)
+    pred_page_text = page_text(
+        pred_lines,
+        preserve_input_order=predicted_lines_in_output_order,
+    )
     distance = levenshtein_distance(gt_page_text, pred_page_text)
     gt_chars = len(gt_page_text)
     return {
@@ -207,6 +222,7 @@ def evaluate_page(
     calculate_textedit: bool = True,
     calculate_layout_metrics: bool = True,
     calculate_page_cer: bool = True,
+    page_cer_predicted_lines_in_output_order: bool = False,
 ) -> dict:
     if gt_page.width != pred_page.width or gt_page.height != pred_page.height:
         raise ValueError(
@@ -274,7 +290,13 @@ def evaluate_page(
             }
         )
     if calculate_page_cer:
-        payloads.append(page_cer(gt_lines, pred_lines))
+        payloads.append(
+            page_cer(
+                gt_lines,
+                pred_lines,
+                predicted_lines_in_output_order=page_cer_predicted_lines_in_output_order,
+            )
+        )
     else:
         payloads.append(
             {

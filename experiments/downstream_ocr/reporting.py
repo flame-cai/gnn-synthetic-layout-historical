@@ -1958,7 +1958,7 @@ def _write_markdown_report(
         "",
         "## Table 1: Off-The-Shelf Models",
         "",
-        "All off-the-shelf model rows use the same held-out folds as the annotation-tool rows for the same manuscript. Each row records its own prompt/input contract. Methods without line geometry are evaluated with the two unordered TextEdit metrics only; Page CER and layout metrics are reported as unavailable.",
+        "All off-the-shelf model rows use the same held-out folds as the annotation-tool rows for the same manuscript. Each row records its own prompt/input contract. Methods without line geometry have no layout metrics; when a provider explicitly guarantees output reading order, Page CER uses that declared order. Otherwise, only the two unordered TextEdit metrics are available.",
         "",
         _markdown_table(
             off_the_shelf_table_rows,

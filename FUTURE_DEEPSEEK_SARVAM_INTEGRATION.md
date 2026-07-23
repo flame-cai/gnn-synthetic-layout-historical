@@ -1002,13 +1002,6 @@ v1.5 uses truth-value checks on pred_idx when filling some diagnostic metadata, 
 
 
 
-
-
-
-
-
-
-
 In the below experiment code, and in this experiment report, we are calculating the performance of various competing methods Gemini, OpenAI, claude, and Annotation Tool Variants (with and without finetuning and layout correction). 
 
 Experiment code:

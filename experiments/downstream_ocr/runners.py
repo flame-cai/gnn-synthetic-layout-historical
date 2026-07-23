@@ -123,6 +123,7 @@ class MethodSpec:
     provider_id: str | None = None
     model_id: str | None = None
     provides_layout: bool = True
+    page_cer_uses_output_order: bool = False
 
 
 DISABLED_METHOD_IDS = {
@@ -142,6 +143,7 @@ METHODS: tuple[MethodSpec, ...] = (
             provider_id=spec.provider_id,
             model_id=spec.model_id,
             provides_layout=spec.provides_layout,
+            page_cer_uses_output_order=spec.page_cer_uses_output_order,
         )
         for spec in VLM_PROVIDER_SPECS
     ),
@@ -1416,7 +1418,12 @@ def evaluate_prediction_folder(
             status=status,
             calculate_textedit=False,
             calculate_layout_metrics=method.provides_layout,
-            calculate_page_cer=method.provides_layout,
+            calculate_page_cer=(
+                method.provides_layout or method.page_cer_uses_output_order
+            ),
+            page_cer_predicted_lines_in_output_order=(
+                method.page_cer_uses_output_order
+            ),
         )
         textedit_key = f"{fold.fold_id}:{page_id}"
         textedit_pairs.append(

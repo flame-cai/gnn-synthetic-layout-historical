@@ -373,7 +373,7 @@ class SarvamAdapterTests(unittest.TestCase):
             )
             self.assertEqual(len(prediction.lines), 5)
 
-    def test_report_marks_sarvam_cer_as_not_applicable(self):
+    def test_report_uses_sarvam_output_order_for_cer(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             gt_line = TextLine(
@@ -398,7 +398,8 @@ class SarvamAdapterTests(unittest.TestCase):
                 gt_page=PageXmlPage("p1", "p1.jpg", 100, 80, (gt_line,)),
                 pred_page=PageXmlPage("p1", "p1.jpg", 100, 80, (pred_line,)),
                 calculate_layout_metrics=False,
-                calculate_page_cer=False,
+                calculate_page_cer=True,
+                page_cer_predicted_lines_in_output_order=True,
             )
             metrics_path = root / "metrics" / "sarvam_e2e" / "metrics.json"
             metrics_path.parent.mkdir(parents=True)
@@ -429,12 +430,9 @@ class SarvamAdapterTests(unittest.TestCase):
                 artifacts.off_the_shelf_table_json_path.read_text(encoding="utf-8")
             )
             self.assertEqual(table["rows"][0]["method_id"], "sarvam_e2e")
-            self.assertIsNone(table["rows"][0]["micro_page_cer"])
+            self.assertEqual(table["rows"][0]["micro_page_cer"], 0.0)
             self.assertEqual(table["rows"][0]["textedit_all_page_avg"], 0.0)
-            self.assertIn(
-                "N/A (no geometry)",
-                artifacts.markdown_path.read_text(encoding="utf-8"),
-            )
+            self.assertIn("0.0000", artifacts.markdown_path.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

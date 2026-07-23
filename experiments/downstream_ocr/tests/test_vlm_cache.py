@@ -209,6 +209,7 @@ class VlmCacheTests(unittest.TestCase):
         self.assertEqual(by_provider["sarvam"].model_id, "sarvam-vision")
         self.assertNotIn("deepseek", by_provider)
         self.assertFalse(by_provider["sarvam"].provides_layout)
+        self.assertTrue(by_provider["sarvam"].page_cer_uses_output_order)
         self.assertFalse(by_provider["sarvam"].uses_shared_prompt)
         self.assertIn("Output ONLY raw valid JSON", VLM_END_TO_END_PROMPT)
 
