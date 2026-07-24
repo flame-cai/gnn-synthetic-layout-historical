@@ -30329,3 +30329,165 @@
 2026-07-23 11:36:22,438 - INFO - 127.0.0.1 - - [23/Jul/2026 11:36:22] "POST /semi-segment/yajn_new/233_0016 HTTP/1.1" 200 -
 2026-07-23 11:36:22,486 - INFO - 127.0.0.1 - - [23/Jul/2026 11:36:22] "GET /manuscript/yajn_new/active-learning HTTP/1.1" 200 -
 2026-07-23 11:36:32,385 - INFO - 127.0.0.1 - - [23/Jul/2026 11:36:32] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-24 10:18:32,559 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-07-24 10:18:32,559 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-24 10:18:32,561 - INFO -  * Restarting with stat
+2026-07-24 10:18:43,828 - WARNING -  * Debugger is active!
+2026-07-24 10:18:43,832 - INFO -  * Debugger PIN: 413-547-542
+2026-07-24 10:18:43,883 - INFO - 127.0.0.1 - - [24/Jul/2026 10:18:43] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-24 10:19:41,084 - INFO - 127.0.0.1 - - [24/Jul/2026 10:19:41] "POST /upload HTTP/1.1" 200 -
+2026-07-24 10:19:41,444 - INFO - 127.0.0.1 - - [24/Jul/2026 10:19:41] "GET /manuscript/viz/pages HTTP/1.1" 200 -
+2026-07-24 10:19:41,701 - INFO - 127.0.0.1 - - [24/Jul/2026 10:19:41] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-24 10:19:42,733 - INFO - 127.0.0.1 - - [24/Jul/2026 10:19:42] "GET /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:19:42,773 - INFO - 127.0.0.1 - - [24/Jul/2026 10:19:42] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:20:43,132 - INFO - 127.0.0.1 - - [24/Jul/2026 10:20:43] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:21:01,988 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:01] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:21:02,334 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=viz page_id=11
+2026-07-24 10:21:06,179 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:06] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:21:06,528 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:06] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:21:06,609 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:06] "GET /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:21:06,939 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:06] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-24 10:21:07,203 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-07-24 10:21:08,261 - INFO - Model loaded successfully.
+2026-07-24 10:21:13,463 - INFO - Auto-oriented curved OCR line=region_14_line_0 transform=identity identity='' rotate_180=''
+2026-07-24 10:21:13,473 - INFO - Updated input_manuscripts\viz\layout_analysis_output\page-xml-format\11.xml: 25 lines recognized; 5 unannotated curved lines evaluated; 0 rotated.
+2026-07-24 10:21:13,599 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:13] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-24 10:21:13,632 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:13] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:21:47,449 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:47] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:21:47,905 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:47] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:21:47,942 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:47] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:21:51,549 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:51] "GET /line-image/viz/11/4?v=1784868665715731400-1784868665468451000 HTTP/1.1" 200 -
+2026-07-24 10:21:53,366 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:53] "GET /line-image/viz/11/5?v=1784868665719009000-1784868665468451000 HTTP/1.1" 200 -
+2026-07-24 10:21:55,380 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:55] "GET /line-image/viz/11/8?v=1784868665775720200-1784868665468451000 HTTP/1.1" 200 -
+2026-07-24 10:21:56,811 - INFO - 127.0.0.1 - - [24/Jul/2026 10:21:56] "GET /line-image/viz/11/6?v=1784868665721176200-1784868665468451000 HTTP/1.1" 200 -
+2026-07-24 10:22:03,278 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:03] "GET /line-image/viz/11/9?v=1784868665777718500-1784868665468451000 HTTP/1.1" 200 -
+2026-07-24 10:22:06,943 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:06] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:07,449 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:07] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:07,475 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:07] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:22:15,210 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:15] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:15,613 - INFO - Applying production text-line segmentation strategy strategy=local_polygons_stable_unwrap_v1 manuscript=viz page_id=11
+2026-07-24 10:22:18,345 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:18] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:18,683 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:18] "GET /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:18,710 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:18] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:22:19,012 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:19] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-24 10:22:24,443 - INFO - Auto-oriented curved OCR line=region_15_line_0 transform=identity identity='' rotate_180=''
+2026-07-24 10:22:24,451 - INFO - Updated input_manuscripts\viz\layout_analysis_output\page-xml-format\11.xml: 26 lines recognized; 5 unannotated curved lines evaluated; 0 rotated.
+2026-07-24 10:22:24,592 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:24] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-24 10:22:24,630 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:24] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:22:27,143 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:27] "POST /recover-text/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:29,617 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:29] "GET /line-image/viz/11/4?v=1784868737819980000-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:31,634 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:31] "GET /line-image/viz/11/5?v=1784868737822262200-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:32,956 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:32] "GET /line-image/viz/11/8?v=1784868737863100400-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:34,943 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:34] "GET /line-image/viz/11/6?v=1784868737824268600-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:36,464 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:36] "GET /line-image/viz/11/25?v=1784868737861103300-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:38,548 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:38] "GET /line-image/viz/11/9?v=1784868737865235600-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:38,708 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:38] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:39,270 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:39] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:39,307 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:39] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:22:48,503 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:48] "GET /line-image/viz/11/24?v=1784868737898263100-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:59,015 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:59] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:59,283 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:59] "GET /line-image/viz/11/2?v=1784868737840906800-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:22:59,554 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:59] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:22:59,588 - INFO - 127.0.0.1 - - [24/Jul/2026 10:22:59] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:23:09,578 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:09] "GET /line-image/viz/11/1?v=1784868737859100800-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:23:19,016 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:19] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:23:19,551 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:19] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:23:19,579 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:19] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:23:39,019 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:39] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:23:39,579 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:39] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:23:39,612 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:39] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:23:59,012 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:59] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:23:59,565 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:59] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:23:59,594 - INFO - 127.0.0.1 - - [24/Jul/2026 10:23:59] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:24:09,212 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:09] "GET /line-image/viz/11/22?v=1784868737890881400-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:24:10,533 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:10] "GET /line-image/viz/11/21?v=1784868737893277900-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:24:13,661 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:13] "GET /line-image/viz/11/17?v=1784868737895908000-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:24:14,957 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:14] "GET /line-image/viz/11/18?v=1784868737900438700-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:24:16,906 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:16] "GET /line-image/viz/11/23?v=1784868737902696000-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:24:18,131 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:18] "GET /line-image/viz/11/19?v=1784868737904813000-1784868737614799900 HTTP/1.1" 200 -
+2026-07-24 10:24:19,018 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:19] "OPTIONS /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:24:19,539 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:19] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:24:19,566 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:19] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:24:23,212 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:23] "POST /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 10:24:23,249 - INFO - 127.0.0.1 - - [24/Jul/2026 10:24:23] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:25:24,472 - INFO - 127.0.0.1 - - [24/Jul/2026 10:25:24] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:26:25,472 - INFO - 127.0.0.1 - - [24/Jul/2026 10:26:25] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:27:25,503 - INFO - 127.0.0.1 - - [24/Jul/2026 10:27:25] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:28:26,524 - INFO - 127.0.0.1 - - [24/Jul/2026 10:28:26] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:29:27,524 - INFO - 127.0.0.1 - - [24/Jul/2026 10:29:27] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:30:28,476 - INFO - 127.0.0.1 - - [24/Jul/2026 10:30:28] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:31:29,519 - INFO - 127.0.0.1 - - [24/Jul/2026 10:31:29] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:32:30,527 - INFO - 127.0.0.1 - - [24/Jul/2026 10:32:30] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:33:31,476 - INFO - 127.0.0.1 - - [24/Jul/2026 10:33:31] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:34:32,478 - INFO - 127.0.0.1 - - [24/Jul/2026 10:34:32] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:35:33,491 - INFO - 127.0.0.1 - - [24/Jul/2026 10:35:33] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:36:34,481 - INFO - 127.0.0.1 - - [24/Jul/2026 10:36:34] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:37:35,480 - INFO - 127.0.0.1 - - [24/Jul/2026 10:37:35] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:38:36,481 - INFO - 127.0.0.1 - - [24/Jul/2026 10:38:36] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:39:37,475 - INFO - 127.0.0.1 - - [24/Jul/2026 10:39:37] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:40:38,475 - INFO - 127.0.0.1 - - [24/Jul/2026 10:40:38] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:41:39,486 - INFO - 127.0.0.1 - - [24/Jul/2026 10:41:39] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:42:40,472 - INFO - 127.0.0.1 - - [24/Jul/2026 10:42:40] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:43:41,482 - INFO - 127.0.0.1 - - [24/Jul/2026 10:43:41] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 10:44:42,474 - INFO - 127.0.0.1 - - [24/Jul/2026 10:44:42] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:21:16,010 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.16.181.69:5000
+2026-07-24 12:21:16,010 - INFO - [33mPress CTRL+C to quit[0m
+2026-07-24 12:21:16,010 - INFO -  * Restarting with stat
+2026-07-24 12:21:28,253 - WARNING -  * Debugger is active!
+2026-07-24 12:21:28,259 - INFO -  * Debugger PIN: 413-547-542
+2026-07-24 12:21:28,367 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:28] "GET /existing-manuscripts HTTP/1.1" 200 -
+2026-07-24 12:21:31,685 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:31] "GET /manuscript/viz/pages HTTP/1.1" 200 -
+2026-07-24 12:21:32,053 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:32] "GET /manuscript/viz/pages HTTP/1.1" 200 -
+2026-07-24 12:21:32,300 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:32] "GET /recognition/readers HTTP/1.1" 200 -
+2026-07-24 12:21:32,817 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:32] "GET /semi-segment/viz/11 HTTP/1.1" 200 -
+2026-07-24 12:21:32,940 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:32] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:21:45,296 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:45] "OPTIONS /recognize-text HTTP/1.1" 200 -
+2026-07-24 12:21:45,628 - INFO - Loading model from C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\recognition\pretrained_model\vadakautuhala.pth...
+2026-07-24 12:21:48,209 - INFO - Model loaded successfully.
+2026-07-24 12:21:55,237 - INFO - Auto-oriented curved OCR line=region_15_line_0 transform=identity identity='' rotate_180=''
+2026-07-24 12:21:55,249 - INFO - Updated input_manuscripts\viz\layout_analysis_output\page-xml-format\11.xml: 26 lines recognized; 5 unannotated curved lines evaluated; 0 rotated.
+2026-07-24 12:21:55,512 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:55] "POST /recognize-text HTTP/1.1" 200 -
+2026-07-24 12:21:55,560 - INFO - 127.0.0.1 - - [24/Jul/2026 12:21:55] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:22:27,516 - INFO - 127.0.0.1 - - [24/Jul/2026 12:22:27] "GET /line-image/viz/11/2?v=1784868737840906800-1784868862300331600 HTTP/1.1" 200 -
+2026-07-24 12:22:40,826 - INFO - 127.0.0.1 - - [24/Jul/2026 12:22:40] "GET /line-image/viz/11/1?v=1784868737859100800-1784868862300331600 HTTP/1.1" 200 -
+2026-07-24 12:22:55,959 - INFO - 127.0.0.1 - - [24/Jul/2026 12:22:55] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:23:04,269 - INFO - 127.0.0.1 - - [24/Jul/2026 12:23:04] "[36mGET /line-image/viz/11/2?v=1784868737840906800-1784868862300331600 HTTP/1.1[0m" 304 -
+2026-07-24 12:23:56,543 - INFO - 127.0.0.1 - - [24/Jul/2026 12:23:56] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:24:57,530 - INFO - 127.0.0.1 - - [24/Jul/2026 12:24:57] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:25:58,529 - INFO - 127.0.0.1 - - [24/Jul/2026 12:25:58] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:26:59,526 - INFO - 127.0.0.1 - - [24/Jul/2026 12:26:59] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:27:59,880 - INFO - 127.0.0.1 - - [24/Jul/2026 12:27:59] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:29:00,489 - INFO - 127.0.0.1 - - [24/Jul/2026 12:29:00] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:30:01,525 - INFO - 127.0.0.1 - - [24/Jul/2026 12:30:01] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:31:02,528 - INFO - 127.0.0.1 - - [24/Jul/2026 12:31:02] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:32:03,497 - INFO - 127.0.0.1 - - [24/Jul/2026 12:32:03] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:33:04,525 - INFO - 127.0.0.1 - - [24/Jul/2026 12:33:04] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:34:05,523 - INFO - 127.0.0.1 - - [24/Jul/2026 12:34:05] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:35:06,526 - INFO - 127.0.0.1 - - [24/Jul/2026 12:35:06] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:36:07,492 - INFO - 127.0.0.1 - - [24/Jul/2026 12:36:07] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:37:08,488 - INFO - 127.0.0.1 - - [24/Jul/2026 12:37:08] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:42:29,737 - INFO - 127.0.0.1 - - [24/Jul/2026 12:42:29] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:43:30,486 - INFO - 127.0.0.1 - - [24/Jul/2026 12:43:30] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:44:31,490 - INFO - 127.0.0.1 - - [24/Jul/2026 12:44:31] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:45:32,517 - INFO - 127.0.0.1 - - [24/Jul/2026 12:45:32] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:46:33,521 - INFO - 127.0.0.1 - - [24/Jul/2026 12:46:33] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:47:34,532 - INFO - 127.0.0.1 - - [24/Jul/2026 12:47:34] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:48:35,529 - INFO - 127.0.0.1 - - [24/Jul/2026 12:48:35] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:49:36,492 - INFO - 127.0.0.1 - - [24/Jul/2026 12:49:36] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:50:37,551 - INFO - 127.0.0.1 - - [24/Jul/2026 12:50:37] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:51:21,610 - INFO - 127.0.0.1 - - [24/Jul/2026 12:51:21] "[36mGET /line-image/viz/11/2?v=1784868737840906800-1784868862300331600 HTTP/1.1[0m" 304 -
+2026-07-24 12:51:37,645 - INFO - 127.0.0.1 - - [24/Jul/2026 12:51:37] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:52:38,527 - INFO - 127.0.0.1 - - [24/Jul/2026 12:52:38] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:53:39,550 - INFO - 127.0.0.1 - - [24/Jul/2026 12:53:39] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:54:40,536 - INFO - 127.0.0.1 - - [24/Jul/2026 12:54:40] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:55:41,534 - INFO - 127.0.0.1 - - [24/Jul/2026 12:55:41] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:56:42,543 - INFO - 127.0.0.1 - - [24/Jul/2026 12:56:42] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:57:43,531 - INFO - 127.0.0.1 - - [24/Jul/2026 12:57:43] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:58:44,527 - INFO - 127.0.0.1 - - [24/Jul/2026 12:58:44] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -
+2026-07-24 12:59:45,531 - INFO - 127.0.0.1 - - [24/Jul/2026 12:59:45] "GET /manuscript/viz/active-learning HTTP/1.1" 200 -

@@ -5,6 +5,20 @@ Adapt prompt for Claude
 
 mention that retried three times. if output is still invalid, we consider 0 values.
 
+
+
+# generate text-line annotation
+conda run -n gnn_layout python paper\figures\flowchart\generate_unicode_level_error_visualization.py
+
+# Generate page figure
+
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python app/visualize_layout_corrections.py `
+  "app/input_manuscripts/circle_new/images/35.jpg" `
+  --edge-width 5 `
+  --node-radius 12 `
+  --outline-width 1
+
 #######
 # Prepredict
 conda run -n gnn_layout python -m experiments.downstream_ocr.cli prepredict-vlms `

@@ -142,6 +142,31 @@ OCR comparison is written once a committed Read Mode save has both XML
 snapshots. The manifest marks unavailable downstream stages as `pending`; the
 app never invents ground truth before a human save.
 
+## Headless Layout-Correction Overlay
+
+`app/visualize_layout_corrections.py` creates one standalone image without
+starting Flask or the frontend:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python app/visualize_layout_corrections.py app/input_manuscripts/<manuscript>/images/<page>.jpg
+```
+
+The script re-runs the production GNN against the original `gnn-dataset`
+inputs in a temporary directory, compares that graph with the corrected graph
+under `layout_analysis_output/gnn-format`, and writes only
+`visualizations/<page>_layout_corrections.png`. Manuscript-local output is
+rejected outside `visualizations/`.
+
+The page background is converted to grayscale. The overlay uses orange
+(`#f58231`) for prediction-missing/human-added nodes and edges, blue
+(`#4363d8`) for prediction-extra/human-deleted nodes and edges, and black for
+unchanged graph elements. Every graph element has a thin black outline, and
+node radius is required to exceed edge width. The output omits the correction
+legend by default so it retains the source page dimensions; pass `--legend` to
+append the legend. Counts are net graph
+differences; an edit that was later undone has no surviving location to draw.
+
 For a committed Read Mode text save, the sidecar also copies the current PAGE
 XML immediately before the save to `07_ocr_predictions_page.xml`, then copies
 the updated PAGE XML to `08_ocr_ground_truth_page.xml`. These two snapshots are

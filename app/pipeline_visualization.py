@@ -545,14 +545,18 @@ def _match_nodes(baseline_nodes: list[dict], corrected_nodes: list[dict], tolera
     return matches
 
 
-def _dashed_line(canvas, start, end, color, thickness=2):
+def _dashed_line(canvas, start, end, color, thickness=2, outline_color=(0, 0, 0), outline_thickness=1):
     start, end = np.array(start, dtype=float), np.array(end, dtype=float)
     length = np.linalg.norm(end - start)
     if length == 0:
         return
     direction = (end - start) / length
     for distance in np.arange(0, length, 10):
-        cv2.line(canvas, tuple(np.int32(start + direction * distance)), tuple(np.int32(start + direction * min(distance + 5, length))), color, thickness, cv2.LINE_AA)
+        pt1 = tuple(np.int32(start + direction * distance))
+        pt2 = tuple(np.int32(start + direction * min(distance + 5, length)))
+        if outline_thickness > 0:
+            cv2.line(canvas, pt1, pt2, outline_color, thickness + outline_thickness * 2, cv2.LINE_AA)
+        cv2.line(canvas, pt1, pt2, color, thickness, cv2.LINE_AA)
 
 
 def _draw_diff_graph(image: np.ndarray, baseline_graph: Mapping, corrected_graph: Mapping, *, corrected_view: bool) -> tuple[np.ndarray, bool]:
@@ -577,28 +581,49 @@ def _draw_diff_graph(image: np.ndarray, baseline_graph: Mapping, corrected_graph
 
     canvas = image.copy()
     to_point = lambda node: (int(round(float(node["x"]))), int(round(float(node["y"]))))
+    
+    # New Colors (in OpenCV BGR)
+    COLOR_MISSING = (49, 130, 245)  # Orange (#f58231)
+    COLOR_EXTRA = (216, 99, 67)     # Blue (#4363d8)
+    COLOR_CORRECT = (0, 0, 0)       # Black
+    COLOR_OUTLINE = (0, 0, 0)       # Black
+
+    def draw_edge(pt1, pt2, color, thickness, is_dashed=False):
+        if is_dashed:
+            _dashed_line(canvas, pt1, pt2, color, thickness, outline_color=COLOR_OUTLINE, outline_thickness=1)
+        else:
+            cv2.line(canvas, pt1, pt2, COLOR_OUTLINE, thickness + 2, cv2.LINE_AA) # Outline
+            cv2.line(canvas, pt1, pt2, color, thickness, cv2.LINE_AA)             # Inner color
+
+    # Edges are now bolder (base thickness 3 instead of 2)
     if corrected_view:
         for source, target in corrected_edges - added_edges:
-            cv2.line(canvas, to_point(corrected_nodes[source]), to_point(corrected_nodes[target]), CB_GREY, 2, cv2.LINE_AA)
+            draw_edge(to_point(corrected_nodes[source]), to_point(corrected_nodes[target]), COLOR_CORRECT, 3)
         for source, target in added_edges:
-            cv2.line(canvas, to_point(corrected_nodes[source]), to_point(corrected_nodes[target]), CB_BLUE, 3, cv2.LINE_AA)
+            draw_edge(to_point(corrected_nodes[source]), to_point(corrected_nodes[target]), COLOR_MISSING, 3)
         for source, target in deleted_edges:
-            _dashed_line(canvas, to_point(baseline_nodes[source]), to_point(baseline_nodes[target]), CB_VERMILION)
+            draw_edge(to_point(baseline_nodes[source]), to_point(baseline_nodes[target]), COLOR_EXTRA, 3, is_dashed=True)
     else:
         for source, target in baseline_edges - deleted_edges:
-            cv2.line(canvas, to_point(baseline_nodes[source]), to_point(baseline_nodes[target]), CB_GREY, 2, cv2.LINE_AA)
+            draw_edge(to_point(baseline_nodes[source]), to_point(baseline_nodes[target]), COLOR_CORRECT, 3)
         for source, target in deleted_edges:
-            cv2.line(canvas, to_point(baseline_nodes[source]), to_point(baseline_nodes[target]), CB_VERMILION, 3, cv2.LINE_AA)
+            draw_edge(to_point(baseline_nodes[source]), to_point(baseline_nodes[target]), COLOR_EXTRA, 3)
         for source, target in added_edges:
-            _dashed_line(canvas, to_point(corrected_nodes[source]), to_point(corrected_nodes[target]), CB_BLUE)
+            draw_edge(to_point(corrected_nodes[source]), to_point(corrected_nodes[target]), COLOR_MISSING, 3, is_dashed=True)
+
+    def draw_node(pt, color, radius):
+        cv2.circle(canvas, pt, radius + 1, COLOR_OUTLINE, -1, cv2.LINE_AA) # Outline circle
+        cv2.circle(canvas, pt, radius, color, -1, cv2.LINE_AA)           # Filled center
 
     for index, node in enumerate(corrected_nodes):
-        color = CB_BLUE if index in added_nodes else (55, 55, 55)
-        cv2.circle(canvas, to_point(node), 4, color, -1, cv2.LINE_AA)
+        if index in added_nodes:
+            draw_node(to_point(node), COLOR_MISSING, 4)
+        else:
+            draw_node(to_point(node), COLOR_CORRECT, 4)
     for index in removed_nodes:
-        cv2.circle(canvas, to_point(baseline_nodes[index]), 5, CB_VERMILION, 2, cv2.LINE_AA)
-    return canvas, True
+        draw_node(to_point(baseline_nodes[index]), COLOR_EXTRA, 4)
 
+    return canvas, True
 
 def _layout_diff_comparison(predicted: np.ndarray, corrected: np.ndarray) -> np.ndarray:
     header = 36
@@ -607,16 +632,21 @@ def _layout_diff_comparison(predicted: np.ndarray, corrected: np.ndarray) -> np.
     cv2.putText(left, "Predicted graph", (12, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.putText(right, "Human-corrected graph", (12, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
     comparison = np.hstack([left, right])
+    
+    # Legend colors in OpenCV BGR
+    COLOR_MISSING = (49, 130, 245)
+    COLOR_EXTRA = (216, 99, 67)
+    COLOR_CORRECT = (0, 0, 0)
+    
     return _append_legend(
         comparison,
         [
-            ("Unchanged node/edge", CB_GREY),
-            ("Human-added / predicted-missing", CB_BLUE),
-            ("Human-deleted / predicted-extra", CB_VERMILION),
+            ("Unchanged node/edge", COLOR_CORRECT),
+            ("Missing (human-added / predicted-missing)", COLOR_MISSING),
+            ("Extra (human-deleted / predicted-extra)", COLOR_EXTRA),
         ],
         title="Layout correction diff",
     )
-
 
 def layout_artifacts(
     manuscript_root: str | Path,
@@ -639,7 +669,7 @@ def layout_artifacts(
                 _update_manifest(
                     root,
                     page_id,
-                    layout_graph_diff=_stage("04_05_layout_graph_correction_diff.jpg", "Color-blind-safe comparison: blue is human-added/predicted-missing; vermilion is human-deleted/predicted-extra."),
+                    layout_graph_diff=_stage("04_05_layout_graph_correction_diff.jpg", "Comparison: orange (#f58231) is human-added/predicted-missing; blue (#4363d8) is human-deleted/predicted-extra."),
                 )
 
         crops = _line_images(manuscript_root, page_id, _config(manuscript_root)["max_line_previews"])
@@ -649,6 +679,8 @@ def layout_artifacts(
             stage["directory"] = "06_processed_line_images"
             stage["line_image_count"] = copied_crop_count
             _update_manifest(root, page_id, processed_line_images=stage)
+
+
 def ocr_prediction_artifacts(manuscript_root: str | Path, page_id: str, predictions: Mapping[str, str] | None) -> None:
     """Record that OCR completed; the comparison is frozen at Read Mode save."""
     manuscript_root = Path(manuscript_root)
