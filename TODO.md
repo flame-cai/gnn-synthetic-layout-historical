@@ -5,7 +5,7 @@ Adapt prompt for Claude
 
 in the unicode figure, the rendering is not happening correctly..especially for conjoins...can you use chrome to prepare this figure?
 
-can you help me find the curved text-line with the best CER in the manuscript:
+<!-- can you help me find the curved text-line with the best CER in the manuscript:
 C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\circle_new
 by CER here, I mean the difference between the prediction of that line by the previously fine-tuned model, and the ground truth annotation (after corrections are done by the user)
 
@@ -13,9 +13,9 @@ by CER here, I mean the difference between the prediction of that line by the pr
 app/visualize_layout_corrections.py
 - text-line annotations (graph based)
 - text-region annotation (graph based)
-- unicode text annotations (graph based)
+- unicode text annotations (graph based) -->
 
-
+<!-- 
 # dataset stats:
 For the experiment in this repo, I want you to calculate the statistics of the sanskirt manuscripts in our sanskrit dataset which we are experimenting with:
 
@@ -29,7 +29,7 @@ For each manuscript, use it's 2013 format PAGE-XML files for each page (found in
 Table 1
 - number of pages
 - number of text-lines (min, max, average)
-- number of grapheme clusters (min, max, average)
+- number of grapheme clusters (min, max, average) -->
 
 <!-- Table 2 (use layout_analysis_output\layout_effort.json)
 - layout type (single column, moderate marninalia for "yajn", single column dense marginalia for "dense", circular text, complex layout for "circle_new")
@@ -37,7 +37,7 @@ Table 1
 - nodes added/deleted
 - edges added/deleted -->
 
-Figure 1:
+<!-- Figure 1:
 For all manuscripts combines, count the top 10 most common grapheme clusters, and and least common grapheme clusters. Create one horizontal figure, with two subfigures (bar plots). Y axis should denote frequency, X axis be the ordered grapheme clusters rendered as X axis ticks. Use chrome to render.
 Use C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\get_graphemes.py to get atomic grapheme clusters
 
@@ -45,7 +45,7 @@ For circular_new, also count the orientation of circular text-lines (we will inc
 
 First get the stats in json, then prepare one or more latex tables and figures.
 Do all of this in an independent folder experiments/dataset_stats.
-Do not make any other changes to the code. 
+Do not make any other changes to the code.  -->
 
 
 
