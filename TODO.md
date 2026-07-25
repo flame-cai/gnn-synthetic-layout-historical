@@ -3,7 +3,38 @@ Add auto delete finetuned models
 Adapt prompt for Claude
 
 
-mention that retried three times. if output is still invalid, we consider 0 values.
+
+# types of annotations figure
+app/visualize_layout_corrections.py
+- text-line annotations (graph based)
+- text-region annotation (graph based)
+- unicode text annotations (graph based)
+
+
+# dataset stats:
+For the experiment in this repo, I want you to calculate the statistics of the sanskrit dataset we are experimenting with:
+
+For each manuscript, use it's 2013 format PAGE-XML files for each page to calculate the following statistics:
+- number of pages
+- number of text-lines (min, max, average)
+- highest and lowest frequency graphemes (using C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\get_graphemes.py)
+- layout type (single column, moderate marninalia for "yajn", single column dense marginalia for "dense", circular text, complex layout for "circle_new")
+- average manual layout correction time (min, max, average)
+
+for circular_new, also count the orientation of circular text-lines (we will include this in caption)
+
+for all three manuscripts:
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\circle_new
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\dense
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\yajn
+
+"he annotations were done with the help of semi-automated workflow"
+
+
+# error analysis:
+take all successfully predicted lines for Gemini GT Layout, and Annotation Tool GT layout
+- top 25 grapheme cluster errors
+
 
 
 
