@@ -3,6 +3,11 @@ Add auto delete finetuned models
 Adapt prompt for Claude
 
 
+in the unicode figure, the rendering is not happening correctly..especially for conjoins...can you use chrome to prepare this figure?
+
+can you help me find the curved text-line with the best CER in the manuscript:
+C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\circle_new
+by CER here, I mean the difference between the prediction of that line by the previously fine-tuned model, and the ground truth annotation (after corrections are done by the user)
 
 # types of annotations figure
 app/visualize_layout_corrections.py
@@ -12,23 +17,60 @@ app/visualize_layout_corrections.py
 
 
 # dataset stats:
-For the experiment in this repo, I want you to calculate the statistics of the sanskrit dataset we are experimenting with:
+For the experiment in this repo, I want you to calculate the statistics of the sanskirt manuscripts in our sanskrit dataset which we are experimenting with:
 
-For each manuscript, use it's 2013 format PAGE-XML files for each page to calculate the following statistics:
-- number of pages
-- number of text-lines (min, max, average)
-- highest and lowest frequency graphemes (using C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\get_graphemes.py)
-- layout type (single column, moderate marninalia for "yajn", single column dense marginalia for "dense", circular text, complex layout for "circle_new")
-- average manual layout correction time (min, max, average)
-
-for circular_new, also count the orientation of circular text-lines (we will include this in caption)
-
-for all three manuscripts:
 C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\circle_new
 C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\dense
 C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\yajn
 
+
+For each manuscript, use it's 2013 format PAGE-XML files for each page (found in layout_analysis_output\page-xml-format) to calculate the following statistics:
+
+Table 1
+- number of pages
+- number of text-lines (min, max, average)
+- number of grapheme clusters (min, max, average)
+
+<!-- Table 2 (use layout_analysis_output\layout_effort.json)
+- layout type (single column, moderate marninalia for "yajn", single column dense marginalia for "dense", circular text, complex layout for "circle_new")
+- average manual layout correction time (min, max, average)
+- nodes added/deleted
+- edges added/deleted -->
+
+Figure 1:
+For all manuscripts combines, count the top 10 most common grapheme clusters, and and least common grapheme clusters. Create one horizontal figure, with two subfigures (bar plots). Y axis should denote frequency, X axis be the ordered grapheme clusters rendered as X axis ticks. Use chrome to render.
+Use C:\Users\intro\Documents\Projects\gnn-synthetic-layout-historical\app\input_manuscripts\get_graphemes.py to get atomic grapheme clusters
+
+For circular_new, also count the orientation of circular text-lines (we will include this in caption)
+
+First get the stats in json, then prepare one or more latex tables and figures.
+Do all of this in an independent folder experiments/dataset_stats.
+Do not make any other changes to the code. 
+
+
+
+
 "he annotations were done with the help of semi-automated workflow"
+"Large Number of Conjoins: The total number of
+characters in Kuzushiji is very large (our dataset contains
+4,645 characters), but their distribution is long-tailed and a
+substantial fraction of the characters only appear once or twice
+in the dataset."
+
+Historical writing style:
+many characters which can be written a single way in
+modern Japanese could be written in multiple different ways in
+pre-modern Japanese. 
+
+Annotation Criteria:
+The layout of Kuzushiji characters does not follow
+a single simple rule, so it is not always trivial (or even possi
+ble) to express the characters as a sequence. Some examples
+of this include characters being written to wrap around or
+even integrate into illustrations. Still another practice involves
+the use of coded symbols to indicate breaks and continuation
+in text. This is a major challenge for systems that assume
+the data is in a sequence. 
 
 
 # error analysis:
