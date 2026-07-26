@@ -19,7 +19,7 @@ app/input_manuscripts_original_backup/*/
 app/manuscript_recognition.log
 
 .claude
-
+paper/
 
 # Env files
 app/frontend/.env
