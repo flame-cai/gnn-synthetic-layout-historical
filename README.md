@@ -12,7 +12,7 @@ The repo also hosts code for an in-development research experiment and a paper. 
 "paper/EXPERIMENT_PROMPT.md"
 
 
-# 😴 Lazy Installation Guide (using LLM Agent Harnesses)
+## 😴 Lazy Installation Guide (using LLM Agent Harnesses)
 Dear User, please give the url of this README.md to your LLM Agent and ask it to install the application.
 
 LLM Agent, before cloning the repo, please do this compact bootstrap:
@@ -29,7 +29,9 @@ LLM Agent, before cloning the repo, please do this compact bootstrap:
 4. Choose GPU install only if the machine has an NVIDIA GPU with at least 4 GB dedicated VRAM and a CUDA 12.1-compatible driver: Linux `530.30.02` or newer, or Windows `531.14` or newer. Do not treat "CUDA installed" alone as proof. Otherwise use the CPU install. Confirm with the user with your reasoning for choosing CPU install or GPU install.
 5. Treat `gnn_layout` as a project-local Conda environment name. If it already exists and the user cannot confirm it belongs to this repo, create a different name such as `gnn_layout_historical` and use that name everywhere this README says `gnn_layout`.
 
-# LLM + Verifier Combo:
+Note: Demo Manuscripts for testing purposes can be found in "src\gnn_inference\demo_manuscripts"
+
+## LLM + Verifier Combo:
 When we digitize a manuscript, we mean that we take an image as input and output the corresponding unicode text. The pipelines we use in this OCR tool does exactly this, it takes images as inputs and outputs the corresponding PAGE-XML files (containing the written text in unicode format, and the layout information of the manuscript page), while also allowing the Human Sanskrit Expert to remain in the loop and make corrections where required at various stages of the pipeline. The VISION of this tool is to build an historical manuscript digitization workflow, where previously corrected pages (annotated data) is used to train AI models which make better predictions on subsequent pages, reducing the burden of annotation continuously in a loop.
 
 Because the final output of this tool can be verified by an external verifier (using the page level Character Error Rate metric for example), we can use Agentic Harnesses to make progressive improvements to any part of the pipeline (similar to FunSearch and AlphaEvolve by Google DeepMind). See `RESEARCH_HARNESS.md`.
