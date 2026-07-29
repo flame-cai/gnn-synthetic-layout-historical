@@ -7,6 +7,11 @@ It does not modify the production Flask app. Local OCR and fine-tuning methods
 import the existing production helpers from `app/recognition`, then write all
 run artifacts under the requested experiment output directory.
 
+The predicted-layout `annotation_tool_pred_layout_ft_1/2/3` methods additionally
+perform fold-local GNN fine-tuning from corrected graph pages. Those checkpoints
+exist only for the experiment run: they are not read by, selected by, or
+promoted into the production app, which continues to use its pre-trained GNN.
+
 Local OCR inference also shares production decoded-text auto-orientation. For
 unannotated `curved_open` and `closed_circular` unwrap crops, identity and
 180-degree-rotated predictions are compared using Devanagari evidence without

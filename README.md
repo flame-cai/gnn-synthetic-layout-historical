@@ -38,7 +38,7 @@ Because the final output of this tool can be verified by an external verifier (u
 
 
 **Version:** 4.0  
-**Last Updated:** June 11, 2026
+**Last Updated:** July 29, 2026
 
 ## ✅ **Project Components**
 *   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
@@ -114,7 +114,7 @@ The semi-automatic annotation tool presented in this work natively supports grap
 This graph based problem formulation easily supports working with irregular and curved text-lines, complex layouts, and attempts to make layout annotation and _layout post-correction_ less time consuming, by allowing the user to simply hover over edges while pressing the key `d` to delete them, and to hover over nodes while pressing the key `a` to connect them. The tool also supports `adding/deleting nodes`, and labelling at the `text-box level` as illustrated in the GIF below.
 
 ![GNN Layout UI Demo](./app/demo_tutorial.gif)
-***Figure:** It took `~12 hours` by `1 annotator` to annotate complex layouts of all `481 pages` of the dataset presented. The version of the tool used to do this relied on a heuristic algorithm (more details in the paper) rather than a Graph Neural Network (which demostrates superior performance). Hence the annotation time is expected to be even lower with the current version of the tool, which uses a Graph Neural Network. Right now, the tool uses a pre-trained GNN to perform the task, however in the future, we expect the GNN to be **iteratively finetuned on any target manuscript** in an active learning setting. This will allow the GNN to learn from previously seen page layouts of a target manuscript, to make predictions on the subsequent pages, allowing **rapid reduction in human effort and annotation time.***
+***Figure:** It took `~12 hours` by `1 annotator` to annotate complex layouts of all `481 pages` of the dataset presented. The version of the tool used to do this relied on a heuristic algorithm (more details in the paper) rather than a Graph Neural Network (which demostrates superior performance). Hence the annotation time is expected to be even lower with the current version of the tool, which uses a Graph Neural Network. The production app currently uses a pre-trained GNN and does not fine-tune or promote GNN checkpoints. Fold-local GNN fine-tuning is implemented only in the isolated `experiments/downstream_ocr/` comparison harness, where it evaluates whether corrected pages improve later predicted layouts. This keeps experimental GNN adaptation from changing the checkpoints used by the app.***
 
 
 
@@ -190,10 +190,42 @@ Access the UI at `http://localhost:5173`.
 
 `npm ci` only needs to be run once for the first setup, or again when `package-lock.json` changes. To launch the frontend subsequently, run only `npm run dev`.
 
+#### Supported Manuscript Image Formats
+
+The production image-preprocessing path recognizes JPEG (`.jpg`, `.jpeg`), PNG,
+BMP, TIFF (`.tif`, `.tiff`), WebP, AVIF, and JPEG 2000 (`.jp2`) source images.
+Support for AVIF and JPEG 2000 also depends on the installed Pillow build having
+the corresponding decoder. Images whose width and height are both below 600 px
+are rejected before layout processing; larger images are resized according to
+the configured longest-side setting.
+
 #### Current OCR Active Learning Runtime
 The app includes a manuscript-local OCR active-learning runtime for the local EasyOCR checkpoint family. Commit saves can record page revisions and queue OCR fine-tune/rebase work; draft autosaves do not create OCR lineage. Runtime checkpoints, telemetry, and profiling live under `app/input_manuscripts/<manuscript>/active_learning/recognition/`. Gemini can still be used for prediction, but it is not the active-learning checkpoint lineage.
 
 Detailed recipe, checkpoint, telemetry, and gate behavior will live in `RESEARCH_HARNESS.md`.
+
+#### Text Recovery And Devanagari Typing
+
+Before a Layout Mode save regenerates an existing page, the app snapshots the
+current PAGE XML. If a layout change loses or replaces text-line structure, Read
+Mode can restore safely matched text from the newest snapshot without changing
+the newly generated geometry. Recovered text is written to the current PAGE XML
+for review; use a normal Text Review commit afterwards if it should become OCR
+training ground truth.
+
+The Read Mode Devanagari keyboard and its browser-free regression tests are
+documented in [TYPING_TESTING.md](./TYPING_TESTING.md). Run them with
+`npm --prefix app/frontend run test:typing`.
+
+#### Current Production And Experiment Boundaries
+
+The production app and the downstream comparison harness deliberately have different adaptation scopes:
+
+- The app runs the pre-trained GNN plus human graph corrections. It does not fine-tune, select, or promote a GNN checkpoint.
+- `experiments/downstream_ocr/` can fine-tune a GNN fold-locally from corrected graph pages for its `annotation_tool_pred_layout_ft_1/2/3` evaluation methods. Its artifacts do not update the app.
+- The app can fine-tune its manuscript-local OCR checkpoint only after a committed Text Review save. OCR fine-tuning excludes text-line images whose graph-derived PAGE baseline has one or two nodes; three or more baseline nodes are required. This filter is recorded in the fine-tuning manifest and does not remove those short lines from layout exports or OCR inference.
+
+When a production layout is saved, the corrected GNN graph is converted into connected text-line components and PAGE `Baseline` polylines. Existing manual region labels are retained by component majority; an unannotated component is assigned its own unused text-region label. The production text-line strategy then derives PAGE `Coords` and a rectangular OCR crop for every line. For curved or circular lines, the local OCR reader can recognize both the canonical crop and a 180-degree rotation, and choose the decoded result with stronger Devanagari evidence when no explicit reading-direction annotation exists. The selected transform is saved with the PAGE text so previews, fine-tuning preparation, and OCR-training export use the same orientation exactly once.
 
 
 #### Text-Line Strategy Evaluation And Promotion

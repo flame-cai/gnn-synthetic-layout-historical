@@ -67,6 +67,7 @@ Important production/runtime tests:
 - `app/tests/test_strategy_ablation_config_unit.py`
 - `app/tests/test_strategy_adoption_unit.py`
 - `app/tests/test_strategy_aware_ocr_crops_unit.py`
+- `app/tests/test_auto_orientation_unit.py`
 
 ## Manuscript Runtime State
 
@@ -102,6 +103,9 @@ Important manuscript-local paths include:
   text region.
 - `layout_analysis_output/images_resized/`: resized images copied beside saved
   PAGE XML for export and OCR.
+- `layout_analysis_output/text_recovery_backups/<page>/`: timestamped PAGE XML
+  snapshots and metadata taken before a Layout Mode save regenerates an existing
+  page. These snapshots are used only by Text Recovery.
 - `overlay_exports/`: generated page overlay JPEGs from the `/save-overlay`
   route.
 - `active_learning/recognition/`: manuscript-local OCR registry, revisions,
@@ -110,6 +114,16 @@ Important manuscript-local paths include:
 Uploading a manuscript name that already exists currently replaces that
 manuscript directory in `app/app.py`. Treat manuscript names as mutable working
 folders, not archival identifiers.
+
+## Supported Source Images
+
+The production preprocessor recognizes source JPEG (`.jpg`, `.jpeg`), PNG, BMP,
+TIFF (`.tif`, `.tiff`), WebP, AVIF, and JPEG 2000 (`.jp2`) images. Decoding AVIF
+and JPEG 2000 depends on the installed Pillow build exposing those codecs. A
+source image is rejected when both dimensions are under 600 px; otherwise the
+upload-time `target_longest_side` setting controls whether it is resized before
+layout processing. The uploaded originals remain under `images/`, while the
+processed layout page is written under `images_resized/`.
 
 ## Optional Pipeline Visualizations
 
@@ -305,6 +319,51 @@ does the production layout work:
 12. Writes app line images through the shared OCR crop layer.
 13. Copies the resized page image into `layout_analysis_output/images_resized/`.
 
+### Region Defaults And GNN Adaptation Boundary
+
+Text-region labels are resolved after connected components are recomputed from
+the corrected graph. If a component contains valid manual region labels, the
+most common label is applied to every node in that component. If it has no
+valid label, the app allocates an unused non-negative label to that component.
+Consequently, each unannotated text line is saved in its own `TextRegion`; the
+app does not place all unannotated lines in one shared region. Region folders
+for line images and the PAGE XML hierarchy use those resolved labels.
+
+The production app always performs layout inference with its pre-trained GNN.
+It does not queue GNN fine-tuning jobs, select GNN checkpoints, or promote a
+fine-tuned GNN. The fold-local GNN fine-tuning used by
+`experiments/downstream_ocr/` is an isolated evaluation workflow and cannot
+change the GNN used by production layout saves.
+
+### Corrected Graph To OCR Line Image
+
+The layout-save pipeline turns a corrected graph prediction into an OCR input
+as follows:
+
+1. GNN edges plus manual node and edge corrections are materialized as
+   connected text-line components and ordered PAGE `Baseline` polylines.
+2. The production strategy builds a PAGE `Coords` polygon around each baseline.
+   The current `local_polygons_stable_unwrap_v1` strategy starts from the
+   CRAFT heatmap, applies baseline-local cleanup and component assignment, and
+   records line topology and crop metadata. Production-only image fallback can
+   derive local foreground from the resized page when a corrected line has no
+   usable heatmap component; anchor-window clipping narrows sparse open-line
+   geometry after that cleanup.
+3. The shared crop layer reads the saved PAGE geometry and metadata. It uses
+   stable arclength/tangent sampling and vectorized remap grids to unwrap
+   `curved_open` and `closed_circular` lines through their local polygons,
+   masks outside-polygon pixels to the page median color, and trims the result.
+   If metadata is absent or invalid, or an unwrap guard fails, it writes the
+   historical masked PAGE `Coords` crop instead.
+4. The resulting rectangular crop is saved under
+   `image-format/<page>/textbox_label_<region>/line_<id>.jpg` and is the image
+   supplied to local OCR. The same crop contract is reused for line-image
+   export and OCR active-learning preparation.
+
+This boundary is intentionally based on saved PAGE geometry and metadata, so
+OCR, exports, and fine-tuning preparation do not need to reconstruct the live
+graph or reload a heatmap.
+
 For text-only saves, `update_page_text_content()` updates PAGE `TextEquiv`
 content in place and does not regenerate layout geometry or line images.
 
@@ -313,6 +372,30 @@ Those counters are used by the ZIP export's `node_metrics.json`; they are not
 the active-learning or human-effort source of truth. Use
 `active_learning/telemetry/human_interventions.json` for unified
 intervention logging.
+
+## Text Recovery After Layout Regeneration
+
+Before a Layout Mode save replaces an existing page's PAGE XML, the backend
+copies that XML and writes backup metadata under:
+
+```text
+layout_analysis_output/text_recovery_backups/<page>/
+```
+
+The most recent snapshot is available to Read Mode through:
+
+- `POST /recover-text/<manuscript>/<page>`
+
+Recovery does not restore old geometry. It compares the prior non-empty line
+text with the current page's lines, using text similarity and, where available,
+PAGE `Coords` overlap. Ambiguous or low-confidence candidates are excluded. For
+accepted matches, the route writes the recovered text into the current PAGE XML
+and clears that line's recognition confidence; unmatched current lines retain
+their existing text. The frontend presents the resulting text for review.
+
+Text Recovery is not an OCR supervision event or an active-learning job. A user
+must review the recovered text and make a normal Text Review `text_only` commit
+before it can become OCR ground truth.
 
 ## Reading Direction And Layout Staleness
 
@@ -496,6 +579,14 @@ layout lineage, or recoverability state, but they are not OCR supervision. A
 layout save with text present is still not supervised OCR input unless it is a
 Text Review `text_only` commit.
 
+Prepared lines with a graph-derived PAGE baseline of one or two nodes are kept
+in PAGE XML, line-image exports, and OCR inference, but are excluded from OCR
+fine-tuning. The fine-tuning corpus requires at least three baseline nodes and
+records skipped short lines with the reason
+`baseline_node_count_below_minimum` in its manifest. This protects the
+recognition model from being adapted on extremely short graph crops without
+discarding those lines from the user-facing workflow.
+
 The frontend currently autosaves dirty Text Review drafts about every 20 seconds
 while Text Review is active. Draft saves create revision/recovery state but do
 not enqueue OCR training.
@@ -653,6 +744,14 @@ The preview payload intentionally includes only lines that are non-straight
 according to line-segmentation metadata or have a reading-direction annotation.
 This keeps the Text Review view focused on lines where crop orientation is most
 likely to matter.
+
+Read Mode also uses the Devanagari keyboard implementation in
+`app/frontend/src/typing-utils/devanagariInputUtils.js`. Its browser-free
+regression guide and test command are in [TYPING_TESTING.md](./TYPING_TESTING.md):
+
+```powershell
+npm --prefix app/frontend run test:typing
+```
 
 The results ZIP route is:
 

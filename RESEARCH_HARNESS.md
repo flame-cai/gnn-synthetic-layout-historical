@@ -166,6 +166,14 @@ OCR active-learning research harness, the surrogate OCR fine-tuning pre-commit
 gate, and the GUI-safe OCR active-learning runtime documented in
 `PRODUCTION.md`.
 
+The separately scoped `experiments/downstream_ocr/` comparison harness also
+has fold-local GNN fine-tuning methods. In its predicted-layout
+`annotation_tool_pred_layout_ft_1/2/3` variants, corrected graph pages are
+used to continue a GNN for that fold before it predicts the test layouts. This
+is experiment-only: it writes artifacts under its requested output root and
+never trains, selects, or promotes the GNN used by the production Flask app.
+Do not describe those experiment checkpoints as production active learning.
+
 ### 1. OCR Fine-Tuning Hyperparameter Harness
 
 #### Stage Boundary
@@ -332,6 +340,13 @@ The commit boundary is implemented in `app/ocr_active_learning_runtime.py`:
 `save_intent == "commit"`, `save_scope == "text_only"`, and at least one
 non-empty text line are required for supervised OCR input.
 
+Fine-tuning corpus preparation adds a line-level quality boundary: a
+graph-derived PAGE baseline with one or two nodes is not an OCR fine-tuning
+sample. `app/recognition/pagexml_line_dataset.py` requires at least three
+baseline nodes and records skipped lines as
+`baseline_node_count_below_minimum`. The line remains available for PAGE
+export and OCR inference; only its use as OCR supervision is excluded.
+
 #### Future Hyperparameter Change Workflow
 
 To change OCR hyperparameters:
@@ -424,6 +439,11 @@ manual node and edge edits, text-line labels, text-region labels, text content,
 and optional reading-direction annotations. Production first writes baseline
 PAGE XML, then applies `production_strategy_name` to generate final PAGE
 `Coords`.
+
+During that production conversion, a component with manual region labels keeps
+its majority label. A component with no valid label is assigned a distinct,
+unused region label, so each unannotated text line is emitted in its own PAGE
+`TextRegion` and line-image folder.
 
 #### Source Of Truth Files
 
@@ -532,6 +552,13 @@ OCR crop preparation is centralized in
 and requests an unwrap crop model, the crop layer unwraps the line. If metadata
 is missing, malformed, unsupported, or unwrap fails, it falls back to the
 historical masked PAGE `Coords` crop.
+
+For the current stable strategy, the crop layer samples the line polygon along
+a smoothed arclength/tangent baseline with vectorized remap grids, creating a
+rectangular crop for OCR while masking pixels outside the polygon. This is the
+post-graph conversion used by app line-image export, local OCR inference, and
+active-learning preparation. It is deterministic geometry processing, rather
+than a second learned text-line-image model.
 
 #### Reading-Direction Metadata
 
