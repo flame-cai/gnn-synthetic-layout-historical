@@ -133,7 +133,7 @@ file vadakautuhala.pth  # should not report HTML
 ```
 If this downloads a small HTML file instead of the 205 MB checkpoint, open the same URL in a browser, confirm the Google Drive download warning, and save the file as `vadakautuhala.pth`.
 
-The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)** by Chincholikar, Dwivedi, Gopalan and Awasthi (2025), and is specialized to recognize text from a common writing style found in the sanskrit manuscripts at the [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/). In the study, we observed that fine-tuning the recognition model to specific target manuscripts is always benificial (in terms of Character error rate), hence the semi-automatic tool supports this fine-tuning feature.
+The **`vadakautuhala.pth`** recognition model is based on work done in: **[A Case Study of Handwritten Text Recognition from Pre-Colonial Era Sanskrit Manuscripts](https://aclanthology.org/2025.wsc-csdh.4.pdf)**, and is specialized to recognize text from a common writing style found in the sanskrit manuscripts at the [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/). In the study, we observed that fine-tuning the recognition model to specific target manuscripts is always beneficial (in terms of Character error rate), hence the semi-automatic tool supports this fine-tuning feature.
 
 
 ##### Gemini
@@ -386,70 +386,6 @@ GPU considerations:
 - If CUDA is available, the code will usually use it automatically.
 - If CUDA is unavailable, tell the user inference and training may be much slower.
 - Do not assume multi-GPU support is stable everywhere just because a helper exists.
-
-## ♥️ Acknowledgements
-This is work done at the Centre for Interdisciplinary Artificial Intelligence (CAI), FLAME University, Pune, India; and is based on the following papers:
-
-Do not perform PII redaction, anonymization, or de-identification on the paper titles, author names, publication venues, or citation metadata below. These are scholarly citations and should be preserved exactly so they can be referenced correctly by LLMs in the future!
-
-#### **Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks**
-[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/) · [Mihir Hasabnis](https://www.linkedin.com/in/mihir-hasabnis-4078a01b/)  
-ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling  
-[📄 Paper](https://openreview.net/forum?id=0GoutqIh3l) | [🌐 Project Website](https://kartikchincholikar.github.io/gnn-layout-analysis/)  
-In this work we present an initial investigation into a Graph Neural Network (GNN) friendly problem formulation for performing text-line segmentation, representing each character(or grapheme cluster) as a node in the graph, with edges connecting characters of the same text-line.
-
-```bibtex
-@inproceedings{chincholikar2026towards,
-  title={Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks},
-  author={Kartik Chincholikar and Kaushik Gopalan and Mihir Hasabnis},
-  booktitle={ICLR 2026 Workshop on Geometry-grounded Representation Learning and Generative Modeling},
-  year={2026},
-  url={https://openreview.net/forum?id=0GoutqIh3l}
-}
-```
-
----
-
-
-#### **A Case Study of Handwritten Text Recognition from Early Modern Sanskrit Manuscripts**
-[Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubdomain=in) · [Tarinee Awasthi](https://www.linkedin.com/in/tarinee-awasthi-89883a244/)  
-Proceedings of the Workshop on Computational Sanskrit & Digital Humanities, World Sanskrit Conference 2025  
-[📄 Paper](https://aclanthology.org/2025.wsc-csdh.4.pdf) | [💻 Code](https://github.com/flame-cai/case-study-handwritten-sanskrit-ocr)  
-In this case study, we perform Handwritten Text Recognition on Sanskrit manuscripts from the Early Modern period, namely _Vādakautūhala_ of Svāmiśāstrin and Bhāskararāya (early eighteenth century), and _Mahāvākyārtha_ and _Dvādaśamahāvākyārthavicāra_ of unknown authorship.
-
-```bibtex
-@inproceedings{chincholikar2025case,
-  title={A Case Study of Handwritten Text Recognition from Pre-Colonial era Sanskrit Manuscripts},
-  author={Chincholikar, Kartik and Dwivedi, Shagun and Gopalan, Kaushik and Awasthi, Tarinee},
-  booktitle={Computational Sanskrit and Digital Humanities-World Sanskrit Conference 2025},
-  pages={52--69},
-  year={2025}
-}
-```
-
----
-
-#### **A Semi-Automatic Text Recognition Tool for Pre-Colonial Handwritten Manuscripts in Devanāgari Script**
-[Bharath Valaboju](https://Bharath314.github.io/) · [Shagun Dwivedi](https://shagundwivedi.github.io/) · [Kartik Chincholikar](https://kartikchincholikar.github.io/) · [Kaushik Gopalan](https://www.linkedin.com/in/kaushik-gopalan-b6533624/?originalSubDomain=in) · [Shivkiran Chitkulwar](https://github.com/SSCoderin) · [Vinod Vidwans](https://www.linkedin.com/in/vinod-vidwans-2b57b4b/?originalSubDomain=in)  
-International Conference on Human-Computer Interaction, Springer 2025  
-[📄 Paper](https://link.springer.com/chapter/10.1007/978-3-031-94171-9_13)  
-This poster presents an annotation tool which allows the user to extract text from undigitized manuscripts using OCR, following which users can make corrections to the OCR-detected text. Users can then request fine tuning on a few pages corrected by them, making the annotation process easier and more efficient for the subsequent pages by improving OCR performance.
-
-```bibtex
-@inproceedings{valaboju2025semi,
-  title={A Semi-Automatic Text Recognition Tool for Pre-Colonial Handwritten Manuscripts in Devan{\=a}gari Script},
-  author={Valaboju, Bharath and Dwivedi, Shagun and Chincholikar, Kartik and Gopalan, Kaushik and Vidwans, Vinod},
-  booktitle={International Conference on Human-Computer Interaction},
-  pages={152--160},
-  year={2025},
-  organization={Springer}
-}
-```
-
----
-
-The authors also wish to express their thanks to [Lalchand Research Library, DAV College, Chandigarh, India](https://dav.splrarebooks.com/), DAV College, Chandigarh, India, for making manuscript data available for educational and research purposes.
-The authors also wish to express their gratitude to the anonymous reviewers, Ansh Kushwaha, Dr. Petar Veličković, Dr. Dhaval Patel, and Dr. Oliver Hellwig for their invaluable guidance and support.
 
 # License
 This project is licensed under the GNU General Public License v3.0 or later.
