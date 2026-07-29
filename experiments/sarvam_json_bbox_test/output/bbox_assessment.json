@@ -1,0 +1,9 @@
+{
+  "coordinate_space": {
+    "width": 3500,
+    "height": 1511
+  },
+  "blocks": 8,
+  "line_level_boxes": false,
+  "reason": "Each returned box is a layout block; several blocks contain multiple newline-delimited text lines."
+}

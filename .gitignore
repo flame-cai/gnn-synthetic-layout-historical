@@ -37,8 +37,10 @@ app/frontend/npm-debug.log*
 app/tests/ci_eval_*/
 app/tests/manuscript_recognition.log
 
-experiments/
 docs/
 
 TODO.md
 app/tests/eval_dataset/
+
+__pycache__/
+*.py[cod]

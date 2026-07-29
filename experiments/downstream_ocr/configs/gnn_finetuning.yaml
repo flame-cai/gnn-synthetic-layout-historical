@@ -1,0 +1,42 @@
+schema_version: 2
+
+# The pretrained checkpoint is supplied by the downstream experiment runner.
+# These checked-in configs remain the source of truth for augmentation and
+# feature construction. The model architecture is never reconstructed from a
+# YAML file: the trusted checkpoint's complete model object is continued.
+augmentation_config: src/configs/augment.yaml
+preprocessing_config: app/pretrained_gnn/gnn_preprocessing_v2.yaml
+
+expected_model_class: gnn_training.training.models.gnn_models.EdgeClassifier
+expected_backbone_class: gnn_training.training.models.gnn_models.SplineConvBackbone
+trainable_scope: full_model
+
+# Fine-tuning-only supervision: recover original CRAFT nodes that are absent
+# from the human-corrected graph. Label them as noise so every candidate edge
+# incident to them is a negative binary-edge example. Corrected unmatched
+# (manually added) nodes are left completely untouched.
+deleted_node_supervision:
+  enabled: true
+  match_tolerance_image_pixels: 2.0
+  noise_textline_label: -1
+
+# At step N, train on all 50 augmentations of the newly corrected page and a
+# deterministic sample of this fraction of each earlier page's augmentations.
+history_replay_ratio: 0.20
+
+device: auto
+random_seed: 43
+checkpoint_metric: val_textline_f1_score
+
+training_params:
+  epochs: 10
+  batch_size: 4
+  learning_rate: 0.001
+  lr_warmup_epochs: 5
+  optimizer: Adam
+  imbalance_handler: focal_loss
+  focal_loss_alpha: 0.90
+  focal_loss_gamma: 2.0
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.001
+  early_stopping_mode: max
