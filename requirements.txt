@@ -29,6 +29,8 @@ matplotlib
 shapely
 pillow
 opencv-python
+freetype-py
+uharfbuzz
 
 # Backend & Web
 flask
