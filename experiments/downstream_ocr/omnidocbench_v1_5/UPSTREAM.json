@@ -1,7 +1,0 @@
-{
-  "repository": "https://github.com/opendatalab/OmniDocBench",
-  "branch": "v1_5",
-  "commit": "59b103c4b47d3a01fada83491585d6512a40c0bc",
-  "license": "Apache-2.0",
-  "integration": "vendored minimal source boundary"
-}
