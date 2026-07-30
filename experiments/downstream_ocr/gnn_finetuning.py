@@ -9,6 +9,7 @@ import os
 import random
 import shutil
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable
@@ -933,6 +934,13 @@ def fine_tune_gnn_checkpoint(
         "recipe": recipe.metadata(),
     }
 
+    # Match the OCR ladder's ``train_seconds`` contract: measure the model
+    # continuation itself, while excluding graph augmentation/preparation and
+    # metadata serialization. CUDA synchronization keeps the wall-clock value
+    # accurate when kernels are queued asynchronously.
+    if getattr(device, "type", None) == "cuda":
+        torch.cuda.synchronize(device)
+    training_started = time.perf_counter()
     for epoch in range(1, epochs + 1):
         train_metrics = train_one_epoch(
             model,
@@ -994,6 +1002,10 @@ def fine_tune_gnn_checkpoint(
         if epochs_without_improvement >= patience:
             break
 
+    if getattr(device, "type", None) == "cuda":
+        torch.cuda.synchronize(device)
+    train_seconds = time.perf_counter() - training_started
+
     if best_epoch is None or best_value is None or not output_checkpoint.is_file():
         raise RuntimeError(f"GNN fine-tuning did not produce a checkpoint: {output_dir}")
     metadata_path = _write_json(
@@ -1006,6 +1018,7 @@ def fine_tune_gnn_checkpoint(
             "selected_metric_name": checkpoint_metric,
             "selected_metric_value": best_value,
             "epochs_completed": len(epoch_records),
+            "train_seconds": train_seconds,
             "epoch_records": epoch_records,
         },
     )
