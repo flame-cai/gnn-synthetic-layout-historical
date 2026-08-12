@@ -159,6 +159,80 @@ checkpoint lineage are not migrated by either command.
 - Do not treat a GUI runtime promotion as research proof.
 - Do not treat research promotion as GUI rollout.
 
+## Evaluation Datasets
+
+**New harnesses build on `dataset_release/`. `app/tests/eval_dataset/` and
+`app/tests/eval_dataset_v2/` are retained locally, are no longer tracked, and
+are not distributed.**
+
+Both legacy datasets were the substrate on which the retained OCR fine-tuning
+recipe and the promoted text-line unwrapping strategy were refined. The gate
+thresholds in `app/tests/precommit_gate_config.py` and the promotion provenance
+in `app/recognition/line_segmentation/strategy_config.py` were calibrated
+against them and remain the evidence base for the current benchmark. Those
+records are not rewritten by this change. Three existing gates still read the
+local copies and continue to work on a machine that has them; a fresh clone does
+not, and the fix for a fresh clone is to migrate the gate, not to restore the
+data.
+
+### Directory contract
+
+A recognition evaluation dataset is three directories plus a page ordering.
+`RecognitionEvalDatasetConfig` needs `images_dir`, `pagexml_dir` and
+`heatmaps_dir`; pages are ordered by sorted image stem, then split by
+`fine_tune_page_count` and `eval_page_start_index` / `eval_page_end_index`. A
+released manuscript satisfies that contract directly:
+
+| Config field | Legacy path | `dataset_release` path |
+| --- | --- | --- |
+| `images_dir` | `app/tests/<dataset>/images` | `dataset_release/manuscripts/<manuscript>/inputs` |
+| `pagexml_dir` | `app/tests/<dataset>/labels/PAGE-XML` | `dataset_release/manuscripts/<manuscript>/labels/page_xml` |
+| `heatmaps_dir` | `app/tests/<dataset>/heatmaps` | `dataset_release/manuscripts/<manuscript>/heatmaps` |
+
+`labels/unicode_output/` in `eval_dataset` has no reader anywhere in the tree
+and has no counterpart in the release; per-line Unicode lives inside the PAGE
+XML, which is what the harness actually reads.
+
+### What the released manuscripts correspond to
+
+| Legacy dataset | Pages | Nearest released manuscript | Relationship |
+| --- | --- | --- | --- |
+| `eval_dataset` | 15 (`233_0002`…`233_0016`) | `moderate_layout` | **Same manuscript.** Heatmaps are byte-identical. Images are the pre-resize DAV scans; the release is defined on the resized raster. PAGE XML is an **older annotation snapshot** (`Created` 2026-01-31 against the release's 2026-07-23) with different region labels. |
+| `eval_dataset_v2` | 5 (`page_2`…`page_6`, 2500×2500) | `circular_layout` | **Different manuscript**, same regime. Not present in the release in any form. `circular_layout` is a role substitute, not the same data. |
+
+### Why a swap is not drop-in
+
+Three consequences follow, and a migrated gate must handle all three.
+
+1. **Thresholds do not transfer.** `max_curve_metric_value`,
+   `max_final_page_cer`, `min_first_step_gain` and the strategy-ablation
+   regression allowances were calibrated on the legacy pages and labels.
+   Changing the ground truth — even for the same manuscript, because the
+   annotations were revised — moves every metric. A migrated gate must be
+   recalibrated against the new dataset and its new numbers recorded in
+   checked-in source, exactly as the current ones are.
+2. **`moderate_layout` page rasters are withheld.** They are under third-party
+   copyright and are not in the release. A clone must reconstruct them with
+   `dataset_release/tools/prepare_images.py` before that manuscript can drive
+   any image-dependent gate. `dense_layout` and `circular_layout` ship their
+   rasters and work immediately.
+3. **The circular gate loses its manuscript.** `eval_dataset_v2` has no
+   released counterpart, so migrating gate 3 means re-establishing a circular
+   baseline on `circular_layout` from scratch, not porting a threshold.
+
+### Why the legacy data is no longer tracked
+
+`app/tests/eval_dataset/images/` holds the original DAV scans of the
+`moderate_layout` manuscript byte-for-byte. Those images are licensed for
+research use but not for redistribution, which is why the release withholds
+them and ships `SCRAPE.md` plus a checksum manifest instead. Tracking them here
+contradicted that. `eval_dataset_v2` is untracked in the same change because it
+is 90 MB serving one gate.
+
+Removing them from tracking removes them from the current tip only; they remain
+in earlier commits. Purging them from history would require a rewrite and a
+force-push, which is a separate decision.
+
 ## Current Harness Instances
 
 The OCR work has three layers that should be understood together: the offline
@@ -580,7 +654,8 @@ Implementation:
 
 Dataset:
 
-- `app/tests/eval_dataset/`
+- `app/tests/eval_dataset/` (local only; not tracked -- see
+  [Evaluation datasets](#evaluation-datasets))
 
 What it does:
 
@@ -617,7 +692,8 @@ Implementation:
 
 Dataset:
 
-- `app/tests/eval_dataset/`
+- `app/tests/eval_dataset/` (local only; not tracked -- see
+  [Evaluation datasets](#evaluation-datasets))
 
 What it does:
 
@@ -680,7 +756,8 @@ Implementation:
 
 Dataset:
 
-- `app/tests/eval_dataset_v2/`
+- `app/tests/eval_dataset_v2/` (local only; not tracked -- see
+  [Evaluation datasets](#evaluation-datasets))
 
 The checked test expects:
 

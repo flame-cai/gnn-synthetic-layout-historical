@@ -37,6 +37,13 @@ app/frontend/npm-debug.log*
 app/tests/ci_eval_*/
 app/tests/manuscript_recognition.log
 
+# Legacy verifier-gate datasets. Retained locally so the existing pre-commit
+# gates keep running, but no longer distributed: eval_dataset carries the
+# pre-resize DAV scans, which are not redistributable. New harnesses build on
+# dataset_release/ instead -- see RESEARCH_HARNESS.md, "Evaluation datasets".
+app/tests/eval_dataset/
+app/tests/eval_dataset_v2/
+
 # Kept from the pre-existing local .gitignore; a leading-slash pattern is
 # relative to this file, so this absolute path is inert. app/input_manuscripts/*/
 # above is the rule that actually applies.

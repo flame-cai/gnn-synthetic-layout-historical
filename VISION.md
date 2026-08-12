@@ -157,6 +157,8 @@ The text-line segmentation harness currently uses three external verifier gates:
 
 The surrogate OCR gates keep the retained hybrid recipe, but the checked-in pre-commit registry controls their fine-tuning page prefix separately from slower research studies. The regular OCR gate now defaults to three fine-tuning pages so the commit guard stays bounded while still measuring the same held-out evaluation pages.
 
+Those three datasets are **retained locally but no longer tracked or distributed**. Both the OCR fine-tuning recipe and the text-line unwrapping strategy were refined against them, so the thresholds and promoted-strategy provenance recorded in the checked-in registries remain the evidence base for the current benchmark and are not being rewritten. What changes is the direction of new work: **any new gate, ablation or active-learning study builds on `dataset_release/` rather than on `app/tests/eval_dataset*`.** The mapping, the reasons a swap is not drop-in, and the recalibration a migrated gate needs are set out in `RESEARCH_HARNESS.md` under "Evaluation datasets".
+
 The launcher is:
 
 - `scripts/run_precommit_eval.py`

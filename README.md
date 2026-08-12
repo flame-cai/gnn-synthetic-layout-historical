@@ -209,6 +209,12 @@ The comparison launcher runs three checks when a proposed research strategy is c
 - a surrogate OCR fine-tuning gate on `app/tests/eval_dataset/`
 - a circular-layout OCR fine-tuning gate on `app/tests/eval_dataset_v2/`
 
+Those two datasets are retained locally but are no longer tracked, so these
+gates run on a machine that already has them and not on a fresh clone. New
+harnesses build on `dataset_release/` instead; the path mapping and the
+recalibration a migrated gate needs are documented in `RESEARCH_HARNESS.md`
+under "Evaluation Datasets".
+
 To run the full sequence manually from the repository root:
 
 ```bash
