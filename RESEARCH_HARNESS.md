@@ -220,6 +220,37 @@ Three consequences follow, and a migrated gate must handle all three.
    released counterpart, so migrating gate 3 means re-establishing a circular
    baseline on `circular_layout` from scratch, not porting a threshold.
 
+### The retained calibration is narrower than the release
+
+The retained OCR fine-tuning recipe and the promoted text-line unwrapping
+strategy are the choices the recorded evidence supports, and they remain the
+trusted defaults. They are not, however, known to be optimal on
+`dataset_release`, and nothing in the recorded evidence claims they are. Two
+limits of the basis they were selected on:
+
+- **Coverage.** They were established on 20 pages of two manuscripts: one that
+  is in the release but under **superseded annotations**, and one that is **not
+  in the release at all**. The release spans three manuscripts, 31 pages and 882
+  text lines across three deliberately contrasting layout regimes.
+- **Observability.** Neither legacy dataset labels the properties the unwrapping
+  strategy actually selects on. Their PAGE XML carries only
+  `structure_line_id_N`; there is no line kind and no reading direction, so
+  curved, closed and single-point lines could only be measured indirectly
+  through aggregate page CER. The release labels them explicitly — 38
+  `curved_open`, 9 `closed_circular`, 172 `point`, plus 25 human reading
+  directions and per-line arclength/normal frame parameters — so a strategy can
+  be scored on the 47 hard cases directly rather than inferred from a page mean.
+
+The release also ships five documented folds per manuscript, so a re-derivation
+gets a stated split protocol and page-cluster confidence intervals instead of a
+single fixed page prefix.
+
+Re-optimizing the fine-tuning hyperparameters and the unwrapping strategy
+against `dataset_release` is therefore open work, and the natural first use of
+it. Doing so means re-deriving thresholds rather than porting them (see above),
+and recording the new evidence the same way the current evidence is recorded:
+in checked-in source, with the promotion command, not silently.
+
 ### Why the legacy data is no longer tracked
 
 `app/tests/eval_dataset/images/` holds the original DAV scans of the
