@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Metadata>
+		<Creator>GNN-Layout-Analysis</Creator>
+		<Created>2026-07-15T13:50:48.137251</Created>
+	</Metadata>
+	<Page imageFilename="64.jpg" imageWidth="2540" imageHeight="3500">
+		<TextRegion id="region_0" custom="textbox_label_0">
+			<Coords points="645,635 1737,635 1737,649 645,649" />
+			<TextLine id="region_0_line_0" custom="structure_line_id_0">
+				<Baseline points="645,649 695,648 750,642 798,644 838,642 891,638 964,639 1034,642 1101,639 1129,638 1216,635 1265,644 1316,644 1376,645 1423,648 1471,642 1534,638 1596,638 1661,642 1712,642 1737,642" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="textbox_label_1">
+			<Coords points="649,709 1367,709 1367,728 649,728" />
+			<TextLine id="region_1_line_0" custom="structure_line_id_1">
+				<Baseline points="649,728 686,728 754,722 826,722 910,722 1003,726 1097,718 1138,709 1185,709 1236,712 1296,714 1338,718 1367,719" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="textbox_label_2">
+			<Coords points="250,726 275,726 275,729 250,729" />
+			<TextLine id="region_2_line_0" custom="structure_line_id_2">
+				<Baseline points="250,726 275,729" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="textbox_label_3">
+			<Coords points="635,799 1254,799 1254,813 635,813" />
+			<TextLine id="region_3_line_0" custom="structure_line_id_3">
+				<Baseline points="635,807 694,810 775,813 807,810 855,813 925,812 1002,807 1051,802 1096,799 1135,803 1180,803 1223,802 1254,802" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="textbox_label_4">
+			<Coords points="173,841 227,841 227,854 173,854" />
+			<TextLine id="region_4_line_0" custom="structure_line_id_4">
+				<Baseline points="173,854 227,841" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="textbox_label_5">
+			<Coords points="630,882 1568,882 1568,904 630,904" />
+			<TextLine id="region_5_line_0" custom="structure_line_id_5">
+				<Baseline points="630,904 663,900 723,900 775,900 812,897 855,897 939,900 1017,901 1107,894 1174,890 1213,887 1247,883 1272,883 1317,882 1366,883 1405,886 1443,886 1485,883 1526,883 1568,883" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_6" custom="textbox_label_6">
+			<Coords points="1170,1216 1672,1216 1672,1853 1170,1853" />
+			<TextLine id="region_6_line_0" custom="structure_line_id_6">
+				<Baseline points="1170,1283 1208,1255 1358,1216 1404,1216 1503,1247 1540,1268 1602,1350 1628,1374 1672,1477 1672,1515 1664,1608 1651,1655 1617,1722 1590,1750 1520,1815 1468,1843 1377,1853 1328,1849 1240,1813 1198,1797" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="textbox_label_7">
+			<Coords points="673,1926 1464,1926 1464,1950 673,1950" />
+			<TextLine id="region_7_line_0" custom="structure_line_id_7">
+				<Baseline points="673,1950 712,1947 768,1947 830,1950 868,1950 915,1950 967,1950 998,1947 1041,1950 1092,1946 1115,1941 1176,1933 1222,1936 1264,1932 1310,1932 1372,1926 1415,1926 1464,1926" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_8" custom="textbox_label_8">
+			<Coords points="1100,1993 1811,1993 1811,2856 1100,2856" />
+			<TextLine id="region_8_line_0" custom="structure_line_id_8">
+				<Baseline points="1100,2086 1135,2067 1170,2045 1268,2006 1311,1996 1404,1993 1457,2000 1535,2038 1573,2053 1629,2084 1684,2136 1727,2185 1783,2305 1797,2342 1810,2413 1811,2459 1783,2602 1768,2640 1685,2753 1656,2780 1541,2829 1488,2856" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_9" custom="textbox_label_9">
+			<Coords points="982,3382 1572,3382 1572,3391 982,3391" />
+			<TextLine id="region_9_line_0" custom="structure_line_id_9">
+				<Baseline points="982,3391 1021,3388 1054,3388 1086,3388 1121,3388 1202,3388 1250,3388 1269,3388 1303,3388 1328,3389 1353,3388 1380,3388 1419,3388 1478,3389 1513,3389 1544,3389 1572,3382" />
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "circular_layout",
+  "split_seed": 42,
+  "train_size": 3,
+  "fold_count": 5,
+  "page_ids": [
+    "11",
+    "14",
+    "15",
+    "28",
+    "35",
+    "49",
+    "56",
+    "64",
+    "65"
+  ],
+  "folds": [
+    {
+      "fold_id": "fold_1",
+      "train_page_ids": [
+        "14",
+        "11",
+        "49"
+      ],
+      "test_page_ids": [
+        "15",
+        "28",
+        "35",
+        "56",
+        "64",
+        "65"
+      ]
+    },
+    {
+      "fold_id": "fold_2",
+      "train_page_ids": [
+        "35",
+        "28",
+        "14"
+      ],
+      "test_page_ids": [
+        "11",
+        "15",
+        "49",
+        "56",
+        "64",
+        "65"
+      ]
+    },
+    {
+      "fold_id": "fold_3",
+      "train_page_ids": [
+        "15",
+        "14",
+        "49"
+      ],
+      "test_page_ids": [
+        "11",
+        "28",
+        "35",
+        "56",
+        "64",
+        "65"
+      ]
+    },
+    {
+      "fold_id": "fold_4",
+      "train_page_ids": [
+        "65",
+        "14",
+        "35"
+      ],
+      "test_page_ids": [
+        "11",
+        "15",
+        "28",
+        "49",
+        "56",
+        "64"
+      ]
+    },
+    {
+      "fold_id": "fold_5",
+      "train_page_ids": [
+        "56",
+        "11",
+        "64"
+      ],
+      "test_page_ids": [
+        "14",
+        "15",
+        "28",
+        "35",
+        "49",
+        "65"
+      ]
+    }
+  ]
+}

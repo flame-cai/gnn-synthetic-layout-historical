@@ -1,0 +1,10 @@
+manuscript_id,page_id,image_width,image_height,region_count,text_line_count,node_count,edge_count,graph_component_count,cycle_edge_count,text_chars_nfc,line_kinds
+circular_layout,11,2729,3500,24,24,192,170,24,2,518,"{""closed_circular"": 2, ""curved_open"": 2, ""horizontal_straight"": 9, ""point"": 11}"
+circular_layout,14,2745,3500,35,35,216,183,35,2,820,"{""closed_circular"": 2, ""curved_open"": 6, ""horizontal_straight"": 5, ""point"": 22}"
+circular_layout,15,2684,3500,36,36,252,217,36,1,552,"{""closed_circular"": 1, ""curved_open"": 2, ""horizontal_straight"": 13, ""point"": 20}"
+circular_layout,28,2674,3500,26,26,422,397,26,1,844,"{""closed_circular"": 1, ""curved_open"": 3, ""horizontal_straight"": 12, ""point"": 10}"
+circular_layout,35,2564,3500,14,14,323,310,14,1,756,"{""closed_circular"": 1, ""curved_open"": 3, ""horizontal_straight"": 10}"
+circular_layout,49,2504,3500,21,21,160,139,21,0,273,"{""curved_open"": 4, ""horizontal_straight"": 7, ""point"": 9, ""vertical_straight"": 1}"
+circular_layout,56,2598,3500,65,65,300,236,65,1,588,"{""closed_circular"": 1, ""curved_open"": 5, ""horizontal_straight"": 20, ""point"": 39}"
+circular_layout,64,2540,3500,10,10,148,138,10,0,359,"{""curved_open"": 3, ""horizontal_straight"": 7}"
+circular_layout,65,2587,3500,24,24,160,137,24,1,323,"{""closed_circular"": 1, ""curved_open"": 1, ""horizontal_straight"": 8, ""point"": 14}"

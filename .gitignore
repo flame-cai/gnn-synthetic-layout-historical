@@ -37,7 +37,14 @@ app/frontend/npm-debug.log*
 app/tests/ci_eval_*/
 app/tests/manuscript_recognition.log
 
-experiments/
+# Kept from the pre-existing local .gitignore; a leading-slash pattern is
+# relative to this file, so this absolute path is inert. app/input_manuscripts/*/
+# above is the rule that actually applies.
+/mnt/ssd/kartik/gnn_layout_ECCV/app/input_manuscripts
+
 docs/
 
 TODO.md
+# Use the /* form, not experiments/: only /* permits re-including a subpath
+# later with a negation such as !experiments/downstream_ocr
+experiments/*

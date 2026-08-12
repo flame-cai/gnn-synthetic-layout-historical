@@ -1,0 +1,5 @@
+{
+  "target_longest_side": 3500,
+  "min_distance": 20,
+  "line_segmentation_args": {}
+}

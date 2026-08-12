@@ -1,0 +1,1384 @@
+{
+  "schema": "line_geometry-1",
+  "page_id": "65",
+  "strategy_name": "local_polygons_stable_unwrap_v1",
+  "reading_direction_model": "cross_cut_clockwise_90",
+  "line_count": 24,
+  "geometry_summary": {
+    "geometry_source": "baseline_heatmap",
+    "line_segmentation_strategy_name": "local_polygons_stable_unwrap_v1",
+    "prepared_line_count": 24,
+    "source_text_line_count": 24,
+    "crop_model_counts": {
+      "local_polygon_stable_unwrap": 24
+    },
+    "topology_counts": {
+      "horizontal_straight": 8,
+      "point": 14,
+      "curved_open": 1,
+      "closed_circular": 1
+    },
+    "normalization_action_counts": {
+      "preserved_left_to_right": 8,
+      "preserved_annotated_reading_direction": 1,
+      "annotated_point_direction": 7,
+      "annotated_cut_clockwise": 1
+    },
+    "orientation_policy": {
+      "reading_order": "left_to_right",
+      "circular_direction": "clockwise"
+    }
+  },
+  "lines": [
+    {
+      "line_id": "region_0_line_0",
+      "line_custom": "structure_line_id_0",
+      "line_numeric_id": 0,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 17,
+        "normalized_point_count": 17,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 959.1715331441526,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -27.0,
+      "local_s_max": 1000.0,
+      "local_n_min": -61.0,
+      "local_n_max": 65.0,
+      "line_half_width_px": 58.54709970258058,
+      "local_canvas_width_px": 1035,
+      "local_canvas_height_px": 131,
+      "page_polygon_point_count": 410,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_1_line_0",
+      "line_custom": "structure_line_id_16",
+      "line_numeric_id": 16,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "preserved",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -31.0,
+      "local_s_max": 37.0,
+      "local_n_min": -43.0,
+      "local_n_max": 37.0,
+      "line_half_width_px": 43.0,
+      "local_canvas_width_px": 75,
+      "local_canvas_height_px": 87,
+      "page_polygon_point_count": 38,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_2_line_0",
+      "line_custom": "structure_line_id_2",
+      "line_numeric_id": 2,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "preserved",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -37.0,
+      "local_s_max": 43.0,
+      "local_n_min": -54.0,
+      "local_n_max": 18.0,
+      "line_half_width_px": 53.95,
+      "local_canvas_width_px": 88,
+      "local_canvas_height_px": 79,
+      "page_polygon_point_count": 40,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_3_line_0",
+      "line_custom": "structure_line_id_15",
+      "line_numeric_id": 15,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "preserved",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -49.0,
+      "local_s_max": 43.0,
+      "local_n_min": -44.0,
+      "local_n_max": 30.0,
+      "line_half_width_px": 44.0,
+      "local_canvas_width_px": 99,
+      "local_canvas_height_px": 81,
+      "page_polygon_point_count": 44,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_4_line_0",
+      "line_custom": "structure_line_id_3",
+      "line_numeric_id": 3,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 2,
+        "normalized_point_count": 2,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 45.39823785126467,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -19.0,
+      "local_s_max": 66.0,
+      "local_n_min": -30.0,
+      "local_n_max": 27.0,
+      "line_half_width_px": 25.98575989436754,
+      "local_canvas_width_px": 92,
+      "local_canvas_height_px": 60,
+      "page_polygon_point_count": 40,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_5_line_0",
+      "line_custom": "structure_line_id_1",
+      "line_numeric_id": 1,
+      "line_kind": "curved_open",
+      "topology": {
+        "original_point_count": 22,
+        "normalized_point_count": 22,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_annotated_reading_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 1730.7294105837275,
+        "line_kind": "curved_open",
+        "orientation_action": "preserved_annotated_reading_direction",
+        "reading_direction": [
+          0.87789557291438,
+          -0.4788521306805813
+        ],
+        "reading_cut_point": [
+          1071.4285714285716,
+          1089.1294642857142
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 1,
+        "reading_direction": [
+          0.87789557291438,
+          -0.4788521306805813
+        ],
+        "cut_start": [
+          1075.7142857142858,
+          1096.986607142857
+        ],
+        "cut_end": [
+          1067.142857142857,
+          1081.2723214285716
+        ],
+        "cut_midpoint": [
+          1071.4285714285716,
+          1089.1294642857142
+        ],
+        "component_node_indices": [
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          26,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -18.0,
+      "local_s_max": 1763.0,
+      "local_n_min": -39.0,
+      "local_n_max": 38.0,
+      "line_half_width_px": 31.504035681834736,
+      "local_canvas_width_px": 1790,
+      "local_canvas_height_px": 79,
+      "page_polygon_point_count": 376,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_6_line_0",
+      "line_custom": "structure_line_id_17",
+      "line_numeric_id": 17,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "preserved",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -38.0,
+      "local_s_max": 37.0,
+      "local_n_min": -25.0,
+      "local_n_max": 55.0,
+      "line_half_width_px": 54.0,
+      "local_canvas_width_px": 82,
+      "local_canvas_height_px": 87,
+      "page_polygon_point_count": 40,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_7_line_0",
+      "line_custom": "structure_line_id_23",
+      "line_numeric_id": 23,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "preserved",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -26.0,
+      "local_s_max": 43.0,
+      "local_n_min": -40.0,
+      "local_n_max": 33.0,
+      "line_half_width_px": 40.0,
+      "local_canvas_width_px": 76,
+      "local_canvas_height_px": 80,
+      "page_polygon_point_count": 36,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_8_line_0",
+      "line_custom": "structure_line_id_18",
+      "line_numeric_id": 18,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "preserved",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -30.0,
+      "local_s_max": 42.0,
+      "local_n_min": -31.0,
+      "local_n_max": 41.0,
+      "line_half_width_px": 40.0,
+      "local_canvas_width_px": 79,
+      "local_canvas_height_px": 79,
+      "page_polygon_point_count": 36,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_9_line_0",
+      "line_custom": "structure_line_id_4",
+      "line_numeric_id": 4,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 21,
+        "normalized_point_count": 21,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 1034.4780059933287,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -22.0,
+      "local_s_max": 1069.0,
+      "local_n_min": -58.0,
+      "local_n_max": 56.0,
+      "line_half_width_px": 48.80312221787972,
+      "local_canvas_width_px": 1099,
+      "local_canvas_height_px": 123,
+      "page_polygon_point_count": 375,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_10_line_0",
+      "line_custom": "structure_line_id_5",
+      "line_numeric_id": 5,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 16,
+        "normalized_point_count": 16,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 740.2573524232791,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -26.0,
+      "local_s_max": 808.0,
+      "local_n_min": -59.0,
+      "local_n_max": 64.0,
+      "line_half_width_px": 61.15173798218947,
+      "local_canvas_width_px": 844,
+      "local_canvas_height_px": 131,
+      "page_polygon_point_count": 281,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_11_line_0",
+      "line_custom": "structure_line_id_6",
+      "line_numeric_id": 6,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 2,
+        "normalized_point_count": 2,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 46.2709412050371,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -19.0,
+      "local_s_max": 67.0,
+      "local_n_min": -26.0,
+      "local_n_max": 27.0,
+      "line_half_width_px": 26.0,
+      "local_canvas_width_px": 93,
+      "local_canvas_height_px": 60,
+      "page_polygon_point_count": 36,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_12_line_0",
+      "line_custom": "structure_line_id_8",
+      "line_numeric_id": 8,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "preserved",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -13.0,
+      "local_s_max": 20.0,
+      "local_n_min": -20.0,
+      "local_n_max": 21.0,
+      "line_half_width_px": 20.0,
+      "local_canvas_width_px": 40,
+      "local_canvas_height_px": 48,
+      "page_polygon_point_count": 20,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_13_line_0",
+      "line_custom": "structure_line_id_20",
+      "line_numeric_id": 20,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "annotated_point_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "annotated_point_direction",
+        "reading_direction": [
+          -0.96476382123773,
+          -0.26311740579211707
+        ],
+        "reading_cut_point": [
+          1202.1428571428573,
+          2392.388392857143
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 20,
+        "reading_direction": [
+          -0.96476382123773,
+          -0.26311740579211707
+        ],
+        "cut_start": [
+          1204.2857142857144,
+          2384.53125
+        ],
+        "cut_end": [
+          1200.0,
+          2400.245535714286
+        ],
+        "cut_midpoint": [
+          1202.1428571428573,
+          2392.388392857143
+        ],
+        "component_node_indices": [
+          152
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -15.0,
+      "local_s_max": 16.0,
+      "local_n_min": -18.0,
+      "local_n_max": 19.0,
+      "line_half_width_px": 18.0,
+      "local_canvas_width_px": 38,
+      "local_canvas_height_px": 44,
+      "page_polygon_point_count": 18,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_14_line_0",
+      "line_custom": "structure_line_id_21",
+      "line_numeric_id": 21,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "annotated_point_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "annotated_point_direction",
+        "reading_direction": [
+          -0.09053574604252633,
+          -0.9958932064677032
+        ],
+        "reading_cut_point": [
+          1346.4285714285716,
+          2466.6741071428573
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 21,
+        "reading_direction": [
+          -0.09053574604252633,
+          -0.9958932064677032
+        ],
+        "cut_start": [
+          1354.2857142857144,
+          2465.9598214285716
+        ],
+        "cut_end": [
+          1338.5714285714287,
+          2467.388392857143
+        ],
+        "cut_midpoint": [
+          1346.4285714285716,
+          2466.6741071428573
+        ],
+        "component_node_indices": [
+          153
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -15.0,
+      "local_s_max": 16.0,
+      "local_n_min": -18.0,
+      "local_n_max": 19.0,
+      "line_half_width_px": 18.0,
+      "local_canvas_width_px": 38,
+      "local_canvas_height_px": 44,
+      "page_polygon_point_count": 18,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_15_line_0",
+      "line_custom": "structure_line_id_19",
+      "line_numeric_id": 19,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "annotated_point_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "annotated_point_direction",
+        "reading_direction": [
+          -0.8000000000000077,
+          0.5999999999999899
+        ],
+        "reading_cut_point": [
+          1055.7142857142858,
+          2471.6741071428573
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 19,
+        "reading_direction": [
+          -0.8000000000000077,
+          0.5999999999999899
+        ],
+        "cut_start": [
+          1051.4285714285716,
+          2465.9598214285716
+        ],
+        "cut_end": [
+          1060.0,
+          2477.388392857143
+        ],
+        "cut_midpoint": [
+          1055.7142857142858,
+          2471.6741071428573
+        ],
+        "component_node_indices": [
+          151
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -38.0,
+      "local_s_max": 34.0,
+      "local_n_min": -24.0,
+      "local_n_max": 55.0,
+      "line_half_width_px": 54.0,
+      "local_canvas_width_px": 79,
+      "local_canvas_height_px": 86,
+      "page_polygon_point_count": 38,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_16_line_0",
+      "line_custom": "structure_line_id_9",
+      "line_numeric_id": 9,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 2,
+        "normalized_point_count": 2,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 49.49747468305833,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -19.0,
+      "local_s_max": 70.0,
+      "local_n_min": -26.0,
+      "local_n_max": 27.0,
+      "line_half_width_px": 26.0,
+      "local_canvas_width_px": 96,
+      "local_canvas_height_px": 60,
+      "page_polygon_point_count": 36,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_17_line_0",
+      "line_custom": "structure_line_id_10",
+      "line_numeric_id": 10,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "annotated_point_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "annotated_point_direction",
+        "reading_direction": [
+          0.19611613513819903,
+          -0.9805806756909171
+        ],
+        "reading_cut_point": [
+          1400.0,
+          2585.9598214285716
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 10,
+        "reading_direction": [
+          0.19611613513819903,
+          -0.9805806756909171
+        ],
+        "cut_start": [
+          1407.1428571428573,
+          2587.388392857143
+        ],
+        "cut_end": [
+          1392.857142857143,
+          2584.53125
+        ],
+        "cut_midpoint": [
+          1400.0,
+          2585.9598214285716
+        ],
+        "component_node_indices": [
+          104
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -22.0,
+      "local_s_max": 18.0,
+      "local_n_min": -20.0,
+      "local_n_max": 23.0,
+      "line_half_width_px": 21.614881487614138,
+      "local_canvas_width_px": 49,
+      "local_canvas_height_px": 51,
+      "page_polygon_point_count": 22,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_18_line_0",
+      "line_custom": "structure_line_id_11",
+      "line_numeric_id": 11,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "annotated_point_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "annotated_point_direction",
+        "reading_direction": [
+          0.0,
+          1.0
+        ],
+        "reading_cut_point": [
+          1012.8571428571429,
+          2585.9598214285716
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 11,
+        "reading_direction": [
+          0.0,
+          1.0
+        ],
+        "cut_start": [
+          1005.7142857142858,
+          2585.9598214285716
+        ],
+        "cut_end": [
+          1020.0000000000001,
+          2585.9598214285716
+        ],
+        "cut_midpoint": [
+          1012.8571428571429,
+          2585.9598214285716
+        ],
+        "component_node_indices": [
+          105
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -25.0,
+      "local_s_max": 27.0,
+      "local_n_min": -24.0,
+      "local_n_max": 24.0,
+      "line_half_width_px": 23.7,
+      "local_canvas_width_px": 61,
+      "local_canvas_height_px": 56,
+      "page_polygon_point_count": 27,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_19_line_0",
+      "line_custom": "structure_line_id_7",
+      "line_numeric_id": 7,
+      "line_kind": "closed_circular",
+      "topology": {
+        "original_point_count": 46,
+        "normalized_point_count": 46,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 1,
+        "normalization_actions": [
+          "annotated_cut_clockwise"
+        ],
+        "is_closed": true,
+        "closed_path_tolerance": 12.0,
+        "cut_index": 0,
+        "baseline_length": 1791.084937033937,
+        "line_kind": "closed_circular",
+        "orientation_action": "annotated_cut_clockwise",
+        "reading_direction": [
+          0.9950371902099882,
+          -0.09950371902100832
+        ],
+        "reading_cut_point": [
+          1110.7142857142858,
+          2347.388392857143
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 7,
+        "reading_direction": [
+          0.9950371902099882,
+          -0.09950371902100832
+        ],
+        "cut_start": [
+          1111.4285714285716,
+          2354.53125
+        ],
+        "cut_end": [
+          1110.0,
+          2340.245535714286
+        ],
+        "cut_midpoint": [
+          1110.7142857142858,
+          2347.388392857143
+        ],
+        "component_node_indices": [
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          99,
+          101,
+          102,
+          103,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          114,
+          115,
+          116,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          149,
+          150
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": 0.0,
+      "local_s_max": 1791.084937033937,
+      "local_n_min": -51.0,
+      "local_n_max": 55.0,
+      "line_half_width_px": 39.711271430964864,
+      "local_canvas_width_px": 1802,
+      "local_canvas_height_px": 113,
+      "page_polygon_point_count": 388,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_20_line_0",
+      "line_custom": "structure_line_id_22",
+      "line_numeric_id": 22,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "annotated_point_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "annotated_point_direction",
+        "reading_direction": [
+          0.6139406135149262,
+          0.7893522173763218
+        ],
+        "reading_cut_point": [
+          1070.7142857142858,
+          2722.388392857143
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 22,
+        "reading_direction": [
+          0.6139406135149262,
+          0.7893522173763218
+        ],
+        "cut_start": [
+          1064.2857142857144,
+          2727.388392857143
+        ],
+        "cut_end": [
+          1077.142857142857,
+          2717.388392857143
+        ],
+        "cut_midpoint": [
+          1070.7142857142858,
+          2722.388392857143
+        ],
+        "component_node_indices": [
+          154
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -15.0,
+      "local_s_max": 16.0,
+      "local_n_min": -18.0,
+      "local_n_max": 19.0,
+      "line_half_width_px": 18.0,
+      "local_canvas_width_px": 38,
+      "local_canvas_height_px": 44,
+      "page_polygon_point_count": 18,
+      "fallback_used": true,
+      "fallback_reason": "image_adaptive_binarization_no_assigned_components"
+    },
+    {
+      "line_id": "region_21_line_0",
+      "line_custom": "structure_line_id_12",
+      "line_numeric_id": 12,
+      "line_kind": "point",
+      "topology": {
+        "original_point_count": 1,
+        "normalized_point_count": 1,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "annotated_point_direction"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 0.0,
+        "line_kind": "point",
+        "orientation_action": "annotated_point_direction",
+        "reading_direction": [
+          0.7071067811865476,
+          -0.7071067811865476
+        ],
+        "reading_cut_point": [
+          1323.5714285714287,
+          2736.6741071428573
+        ]
+      },
+      "reading_direction_annotation": {
+        "resolved_line_numeric_id": 12,
+        "reading_direction": [
+          0.7071067811865476,
+          -0.7071067811865476
+        ],
+        "cut_start": [
+          1328.5714285714287,
+          2741.6741071428573
+        ],
+        "cut_end": [
+          1318.5714285714287,
+          2731.6741071428573
+        ],
+        "cut_midpoint": [
+          1323.5714285714287,
+          2736.6741071428573
+        ],
+        "component_node_indices": [
+          113
+        ]
+      },
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -23.0,
+      "local_s_max": 34.0,
+      "local_n_min": -36.0,
+      "local_n_max": 20.0,
+      "line_half_width_px": 35.55706345359769,
+      "local_canvas_width_px": 66,
+      "local_canvas_height_px": 63,
+      "page_polygon_point_count": 29,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_22_line_0",
+      "line_custom": "structure_line_id_13",
+      "line_numeric_id": 13,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 2,
+        "normalized_point_count": 2,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 28.442925306655784,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -3.0,
+      "local_s_max": 40.0,
+      "local_n_min": -19.0,
+      "local_n_max": 25.0,
+      "line_half_width_px": 20.294446254417938,
+      "local_canvas_width_px": 50,
+      "local_canvas_height_px": 46,
+      "page_polygon_point_count": 27,
+      "fallback_used": false,
+      "fallback_reason": null
+    },
+    {
+      "line_id": "region_23_line_0",
+      "line_custom": "structure_line_id_14",
+      "line_numeric_id": 14,
+      "line_kind": "horizontal_straight",
+      "topology": {
+        "original_point_count": 17,
+        "normalized_point_count": 17,
+        "split_index": null,
+        "mirror_pair_count": null,
+        "mirror_match_tolerance": 4.0,
+        "mean_mirror_distance": null,
+        "max_mirror_distance": null,
+        "was_out_and_back": false,
+        "out_and_back_detection": null,
+        "short_tail_trimmed": false,
+        "dominant_axis_deduped": false,
+        "dominant_axis": null,
+        "repeated_near_point_count": 0,
+        "normalization_actions": [
+          "preserved_left_to_right"
+        ],
+        "is_closed": false,
+        "closed_path_tolerance": 12.0,
+        "cut_index": null,
+        "baseline_length": 541.0712390527328,
+        "line_kind": "horizontal_straight",
+        "orientation_action": "preserved_left_to_right",
+        "reading_direction": null,
+        "reading_cut_point": null
+      },
+      "reading_direction_annotation": null,
+      "crop_model": "local_polygon_stable_unwrap",
+      "local_s_min": -11.0,
+      "local_s_max": 556.0,
+      "local_n_min": -23.0,
+      "local_n_max": 30.0,
+      "line_half_width_px": 21.878010130797502,
+      "local_canvas_width_px": 575,
+      "local_canvas_height_px": 57,
+      "page_polygon_point_count": 234,
+      "fallback_used": false,
+      "fallback_reason": null
+    }
+  ]
+}

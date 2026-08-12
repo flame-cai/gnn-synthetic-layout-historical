@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Metadata>
+		<Creator>GNN-Layout-Analysis</Creator>
+		<Created>2026-07-23T09:43:06.484445</Created>
+	</Metadata>
+	<Page imageFilename="233_0006.jpg" imageWidth="2500" imageHeight="950">
+		<TextRegion id="region_0" custom="textbox_label_2">
+			<Coords points="286,64 512,64 512,66 286,66" />
+			<TextLine id="region_0_line_0" custom="structure_line_id_0">
+				<Baseline points="286,64 324,66 366,66 400,64 436,64 476,64 512,66" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="textbox_label_3">
+			<Coords points="1787,106 2110,106 2110,130 1787,130" />
+			<TextLine id="region_1_line_0" custom="structure_line_id_1">
+				<Baseline points="1787,130 1832,122 1872,120 1930,112 1958,114 1986,108 2020,106 2068,110 2110,106" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="textbox_label_4">
+			<Coords points="316,142 463,142 463,144 316,144" />
+			<TextLine id="region_2_line_0" custom="structure_line_id_2">
+				<Baseline points="316,142 358,144 398,144 434,144 463,144" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="textbox_label_5">
+			<Coords points="610,184 610,184 610,184 610,184" />
+			<TextLine id="region_3_line_0" custom="structure_line_id_3">
+				<Baseline points="610,184" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="textbox_label_6">
+			<Coords points="2132,184 2132,184 2132,184 2132,184" />
+			<TextLine id="region_4_line_0" custom="structure_line_id_4">
+				<Baseline points="2132,184" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="textbox_label_7">
+			<Coords points="68,210 230,210 230,216 68,216" />
+			<TextLine id="region_5_line_0" custom="structure_line_id_5">
+				<Baseline points="68,210 120,214 164,214 196,214 230,216" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_6" custom="textbox_label_8">
+			<Coords points="2026,406 2026,406 2026,406 2026,406" />
+			<TextLine id="region_6_line_0" custom="structure_line_id_9">
+				<Baseline points="2026,406" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="textbox_label_9">
+			<Coords points="56,420 234,420 234,426 56,426" />
+			<TextLine id="region_7_line_0" custom="structure_line_id_10">
+				<Baseline points="56,420 86,426 112,426 136,426 172,424 196,422 234,422" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_8" custom="textbox_label_10">
+			<Coords points="2246,436 2444,436 2444,438 2246,438" />
+			<TextLine id="region_8_line_0" custom="structure_line_id_12">
+				<Baseline points="2246,436 2272,436 2300,436 2328,436 2368,436 2406,438 2444,436" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_9" custom="textbox_label_0">
+			<Coords points="356,218 2192,218 2192,660 356,660" />
+			<TextLine id="region_9_line_0" custom="structure_line_id_6">
+				<Baseline points="364,220 402,218 463,220 509,224 564,224 610,225 646,225 692,224 722,225 770,230 826,225 872,228 902,224 930,222 966,222 1012,228 1052,225 1096,231 1134,230 1180,224 1224,234 1266,234 1293,238 1322,236 1364,240 1412,236 1464,238 1508,242 1544,244 1596,242 1648,244 1692,242 1734,238 1772,236 1820,236 1858,238 1884,238 1920,234 1968,242 2014,242 2058,238 2088,242 2122,244 2168,242" />
+			</TextLine>
+			<TextLine id="region_9_line_1" custom="structure_line_id_7">
+				<Baseline points="358,292 402,292 446,296 492,296 546,294 594,290 622,296 664,296 724,294 780,298 846,296 882,298 920,300 966,298 998,300 1048,298 1096,304 1146,300 1190,304 1236,306 1286,306 1326,306 1351,306 1384,306 1426,302 1477,304 1502,304 1544,304 1596,300 1660,304 1714,306 1750,308 1794,306 1852,306 1913,300 1978,306 2028,306 2078,310 2132,308 2184,310" />
+			</TextLine>
+			<TextLine id="region_9_line_2" custom="structure_line_id_8">
+				<Baseline points="360,358 410,362 448,366 497,366 548,364 596,358 662,362 718,360 770,364 824,368 874,366 927,370 976,370 1028,368 1076,368 1110,368 1162,366 1206,364 1242,370 1276,371 1336,371 1390,370 1452,374 1506,374 1550,371 1610,374 1658,376 1706,378 1752,380 1807,378 1855,378 1896,376 1936,376 1981,374 2032,374 2072,371 2118,376 2190,376" />
+			</TextLine>
+			<TextLine id="region_9_line_3" custom="structure_line_id_11">
+				<Baseline points="370,440 424,432 482,432 542,429 592,428 646,428 709,429 760,434 810,434 868,438 926,434 995,434 1046,429 1096,429 1144,428 1186,428 1226,436 1300,438 1338,438 1392,436 1454,440 1520,442 1568,442 1593,438 1638,438 1680,440 1719,438 1766,442 1818,444 1865,442 1902,444 1940,440 1981,436 2020,442 2058,444 2114,442 2154,442 2192,438" />
+			</TextLine>
+			<TextLine id="region_9_line_4" custom="structure_line_id_14">
+				<Baseline points="356,500 410,500 462,502 516,502 572,500 608,502 648,502 704,500 760,502 808,506 862,500 892,506 930,506 964,504 1016,500 1058,506 1100,506 1160,502 1198,506 1242,502 1296,506 1348,502 1402,506 1448,508 1496,506 1555,508 1603,506 1634,506 1692,508 1729,509 1772,506 1814,512 1874,516 1904,514 1942,514 1988,514 2018,518 2080,514 2118,516 2146,518 2184,522" />
+			</TextLine>
+			<TextLine id="region_9_line_5" custom="structure_line_id_15">
+				<Baseline points="360,574 406,578 451,572 496,568 528,572 576,576 620,568 666,570 708,572 738,574 764,574 792,574 852,574 898,574 942,572 985,574 1026,574 1076,576 1114,578 1178,578 1214,578 1240,576 1280,574 1324,578 1374,578 1422,578 1462,578 1506,576 1548,576 1588,578 1630,576 1678,580 1738,576 1797,574 1854,580 1904,580 1948,576 1990,580 2044,582 2106,574 2150,574 2184,582" />
+			</TextLine>
+			<TextLine id="region_9_line_6" custom="structure_line_id_16">
+				<Baseline points="368,650 417,650 472,651 516,656 564,650 594,646 646,648 692,646 730,644 766,644 820,644 884,641 940,641 990,641 1024,644 1060,644 1102,640 1144,640 1188,640 1236,641 1278,638 1326,640 1374,640 1438,638 1492,646 1532,644 1564,646 1600,650 1654,650 1698,650 1734,650 1764,648 1804,650 1832,651 1874,654 1912,656 1966,650 2008,651 2042,654 2086,658 2128,660 2176,658" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="textbox_label_11">
+			<Coords points="78,500 313,500 313,509 78,509" />
+			<TextLine id="region_10_line_0" custom="structure_line_id_13">
+				<Baseline points="78,502 112,502 142,500 190,502 224,500 258,500 294,506 313,509" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_11" custom="textbox_label_15">
+			<Coords points="1736,546 1736,546 1736,546 1736,546" />
+			<TextLine id="region_11_line_0" custom="structure_line_id_22">
+				<Baseline points="1736,546" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_12" custom="textbox_label_12">
+			<Coords points="78,640 330,640 330,648 78,648" />
+			<TextLine id="region_12_line_0" custom="structure_line_id_17">
+				<Baseline points="78,641 110,640 148,641 176,644 208,644 240,641 274,640 304,644 330,648" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_13" custom="textbox_label_13">
+			<Coords points="2276,656 2382,656 2382,662 2276,662" />
+			<TextLine id="region_13_line_0" custom="structure_line_id_18">
+				<Baseline points="2276,656 2332,658 2382,662" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_14" custom="textbox_label_14">
+			<Coords points="1188,792 1330,792 1330,798 1188,798" />
+			<TextLine id="region_14_line_0" custom="structure_line_id_19">
+				<Baseline points="1188,798 1232,796 1276,792 1306,796 1330,794" />
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_15" custom="textbox_label_1">
+			<Coords points="1630,814 2306,814 2306,868 1630,868" />
+			<TextLine id="region_15_line_0" custom="structure_line_id_20">
+				<Baseline points="1630,820 1656,820 1686,816 1728,818 1760,820 1787,818 1816,816 1845,814 1890,814 1923,814 1974,818 2002,820 2022,820 2054,814 2096,822 2138,830 2172,826" />
+			</TextLine>
+			<TextLine id="region_15_line_1" custom="structure_line_id_21">
+				<Baseline points="1630,858 1666,862 1698,864 1728,866 1760,868 1800,866 1832,866 1876,864 1922,862 1960,866 1996,866 2020,866 2039,866 2066,866 2110,866 2154,866 2190,866 2228,864 2270,859 2306,858" />
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

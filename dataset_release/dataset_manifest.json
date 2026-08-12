@@ -1,0 +1,165 @@
+{
+  "schema": "manuscript_layout_dataset/manifest-2",
+  "dataset_name": "Sanskrit Manuscript Layout Regimes",
+  "manuscripts": [
+    {
+      "manuscript_id": "moderate_layout",
+      "source": {
+        "bibtex_key": "Yajna",
+        "work": "Yājñavalkyasmṛtiḥ (Ācārādhyāyaḥ)",
+        "work_ascii": "Yajnavalakyasmritih (Acharadhyayah)",
+        "author": "Unknown",
+        "date": "Unknown",
+        "holding_institution": "Lalchand Research Library, DAV College, Chandigarh, India",
+        "url": "https://dav.splrarebooks.com/collection/view/yajnavalakyasmritih-acharadhyayah",
+        "genre": "dharmaśāstra",
+        "rights_basis": "Copyright retained by the holding institution; research use permitted, redistribution not permitted.",
+        "page_rasters_redistributed": false,
+        "pages_used": 15
+      },
+      "page_count": 15,
+      "page_ids": [
+        "233_0002",
+        "233_0003",
+        "233_0004",
+        "233_0005",
+        "233_0006",
+        "233_0007",
+        "233_0008",
+        "233_0009",
+        "233_0010",
+        "233_0011",
+        "233_0012",
+        "233_0013",
+        "233_0014",
+        "233_0015",
+        "233_0016"
+      ],
+      "page_rasters_included": false,
+      "text_region_count": 195,
+      "text_line_count": 316,
+      "line_kind_counts": {
+        "curved_open": 2,
+        "horizontal_straight": 282,
+        "point": 32
+      },
+      "reading_direction_annotation_count": 0,
+      "empty_transcription_line_count": 7,
+      "transcribed_chars_nfc": 12495,
+      "transcribed_devanagari_chars": 12264,
+      "node_count": 6015,
+      "edge_count": 5699,
+      "graph_component_count": 316,
+      "cycle_edge_count": 0
+    },
+    {
+      "manuscript_id": "dense_layout",
+      "source": {
+        "bibtex_key": "Muhurta",
+        "work": "Muhūrta Mārtaṇḍa",
+        "work_ascii": "Muhurta Martanda (841 Gha Alm 4 Shlf 5 Devanagari Jyotish)",
+        "author": "Unknown",
+        "date": "Unknown",
+        "holding_institution": "eGangotri Digital Preservation Trust (Dharmarth Trust J&K collection)",
+        "url": "https://archive.org/details/MuhurtaMartanda841GhaAlm4Shlf5DevanagariJyotish",
+        "archive_identifier": "MuhurtaMartanda841GhaAlm4Shlf5DevanagariJyotish",
+        "genre": "jyotiṣa",
+        "rights_basis": "CC0 1.0 Universal Public Domain Dedication (http://creativecommons.org/publicdomain/zero/1.0/), as recorded in the item metadata.",
+        "page_rasters_redistributed": true,
+        "pages_used": 7
+      },
+      "page_count": 7,
+      "page_ids": [
+        "10",
+        "17",
+        "22",
+        "23",
+        "24",
+        "25",
+        "28"
+      ],
+      "page_rasters_included": true,
+      "text_region_count": 146,
+      "text_line_count": 311,
+      "line_kind_counts": {
+        "curved_open": 7,
+        "horizontal_straight": 289,
+        "point": 15
+      },
+      "reading_direction_annotation_count": 0,
+      "empty_transcription_line_count": 2,
+      "transcribed_chars_nfc": 10090,
+      "transcribed_devanagari_chars": 9471,
+      "node_count": 4886,
+      "edge_count": 4575,
+      "graph_component_count": 311,
+      "cycle_edge_count": 0
+    },
+    {
+      "manuscript_id": "circular_layout",
+      "source": {
+        "bibtex_key": "Tantra",
+        "work": "Tantrarāja, with Yantra and Mantra Uddhāra",
+        "work_ascii": "Tantra Raj With Yantra And Mantra Uddhara (5890 1430 Ka Almira 26 Shlf 3 Devanagari Stotr)",
+        "author": "Unknown",
+        "date": "Unknown",
+        "holding_institution": "eGangotri Digital Preservation Trust (Dharmarth Trust J&K collection)",
+        "url": "https://archive.org/details/TantraRajWithYantraAndMantraUddhara58901430KaAlmira26Shlf3DevanagariStotr",
+        "archive_identifier": "TantraRajWithYantraAndMantraUddhara58901430KaAlmira26Shlf3DevanagariStotr",
+        "genre": "tantra",
+        "rights_basis": "CC0 1.0 Universal Public Domain Dedication (http://creativecommons.org/publicdomain/zero/1.0/), as recorded in the item metadata.",
+        "page_rasters_redistributed": true,
+        "pages_used": 9
+      },
+      "page_count": 9,
+      "page_ids": [
+        "11",
+        "14",
+        "15",
+        "28",
+        "35",
+        "49",
+        "56",
+        "64",
+        "65"
+      ],
+      "page_rasters_included": true,
+      "text_region_count": 255,
+      "text_line_count": 255,
+      "line_kind_counts": {
+        "closed_circular": 9,
+        "curved_open": 29,
+        "horizontal_straight": 91,
+        "point": 125,
+        "vertical_straight": 1
+      },
+      "reading_direction_annotation_count": 25,
+      "empty_transcription_line_count": 5,
+      "transcribed_chars_nfc": 5033,
+      "transcribed_devanagari_chars": 4467,
+      "node_count": 2173,
+      "edge_count": 1927,
+      "graph_component_count": 255,
+      "cycle_edge_count": 9
+    }
+  ],
+  "totals": {
+    "manuscript_count": 3,
+    "page_count": 31,
+    "text_region_count": 596,
+    "text_line_count": 882,
+    "transcribed_chars_nfc": 27618,
+    "transcribed_devanagari_chars": 26202,
+    "node_count": 13074,
+    "edge_count": 12201,
+    "cycle_edge_count": 9,
+    "reading_direction_annotation_count": 25
+  },
+  "split_protocol": {
+    "seed": 42,
+    "train_size": 3,
+    "fold_count": 5,
+    "sampling": "random.Random(42).sample over sorted page ids, five draws from one stream",
+    "note": "Folds are resampled draws, not a partition: training sets overlap and pages recur across test sets."
+  }
+}

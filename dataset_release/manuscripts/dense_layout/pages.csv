@@ -1,0 +1,8 @@
+manuscript_id,page_id,image_width,image_height,region_count,text_line_count,node_count,edge_count,graph_component_count,cycle_edge_count,text_chars_nfc,line_kinds
+dense_layout,10,3500,1511,38,78,1146,1068,78,0,2329,"{""curved_open"": 5, ""horizontal_straight"": 62, ""point"": 11}"
+dense_layout,17,3500,1511,13,39,633,594,39,0,1250,"{""curved_open"": 1, ""horizontal_straight"": 37, ""point"": 1}"
+dense_layout,22,3500,1578,16,49,778,729,49,0,1687,"{""horizontal_straight"": 49}"
+dense_layout,23,3500,1586,25,52,806,754,52,0,1684,"{""horizontal_straight"": 50, ""point"": 2}"
+dense_layout,24,3500,1555,10,15,254,239,15,0,553,"{""curved_open"": 1, ""horizontal_straight"": 13, ""point"": 1}"
+dense_layout,25,3500,1601,20,31,567,536,31,0,1108,"{""horizontal_straight"": 31}"
+dense_layout,28,3500,1605,24,47,702,655,47,0,1479,"{""horizontal_straight"": 47}"

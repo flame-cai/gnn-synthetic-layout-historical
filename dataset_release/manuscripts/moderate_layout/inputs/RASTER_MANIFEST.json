@@ -1,0 +1,160 @@
+{
+  "schema": "withheld_raster_manifest-1",
+  "manuscript_id": "moderate_layout",
+  "reason": "page rasters are under third-party copyright and are not redistributed",
+  "target_longest_side": 3500,
+  "derivation": "PIL open -> LANCZOS downscale only if max(w, h) > 3500 -> convert to RGB if mode in {RGBA, P, LA} -> save as JPEG at Pillow's default quality",
+  "reference_pillow_version": "11.3.0",
+  "pages": [
+    {
+      "page_id": "233_0002",
+      "filename": "233_0002.jpg",
+      "width": 2500,
+      "height": 940,
+      "source_sha256": "495cc331e33c2a8f2be38210a69b15dca300c9a829071c5f3df091ca82a5c195",
+      "source_bytes": 280341,
+      "derived_sha256": "ff18358897c072e121dd4ec6d86455fcde4ab11a1b823ff50ee7cc4f009577ce",
+      "derived_bytes": 364164
+    },
+    {
+      "page_id": "233_0003",
+      "filename": "233_0003.jpg",
+      "width": 2500,
+      "height": 932,
+      "source_sha256": "824dc4721e89b5448627de16df0ab3da529971e4cf810dec8f01f25ccc8e273c",
+      "source_bytes": 276321,
+      "derived_sha256": "eded373357f786df927a540331e44dcfb0109f32e9cb876b1c31ae1c18e71c6c",
+      "derived_bytes": 359465
+    },
+    {
+      "page_id": "233_0004",
+      "filename": "233_0004.jpg",
+      "width": 2500,
+      "height": 932,
+      "source_sha256": "bd6c662bd2492743df14101baca8aa06db1fa055bec1972472a84de7672719d3",
+      "source_bytes": 249599,
+      "derived_sha256": "0c51574be0e1b7765e296c818925edd153250fd4701541b6f0d519174aa77110",
+      "derived_bytes": 329363
+    },
+    {
+      "page_id": "233_0005",
+      "filename": "233_0005.jpg",
+      "width": 2500,
+      "height": 967,
+      "source_sha256": "2a1d05a58cfecc1699da1847f1218899b3f231d8f255e23a38e231dd2afe1adb",
+      "source_bytes": 262079,
+      "derived_sha256": "52110ff8f74923a702e53a9094eed52906ff57b2a5f8451a8b9b511a4a340dd6",
+      "derived_bytes": 345873
+    },
+    {
+      "page_id": "233_0006",
+      "filename": "233_0006.jpg",
+      "width": 2500,
+      "height": 950,
+      "source_sha256": "e5294ad2aa3496559962ff7720e4533548613fb307524410c4b962df8d74b757",
+      "source_bytes": 288734,
+      "derived_sha256": "826c4df02e126b6f84f2ee58f2e6fe895bf00924cf3ce475353d416144b6b005",
+      "derived_bytes": 374256
+    },
+    {
+      "page_id": "233_0007",
+      "filename": "233_0007.jpg",
+      "width": 2500,
+      "height": 950,
+      "source_sha256": "9cea8bd31d9d39a40cb88968b91d0c49187571b5cee9570af1f1f46f4cf0a73e",
+      "source_bytes": 264879,
+      "derived_sha256": "8e0fd8f749660290137a727423c82ed8deb94178a231a0e9c9fbcc636f78fdfe",
+      "derived_bytes": 346769
+    },
+    {
+      "page_id": "233_0008",
+      "filename": "233_0008.jpg",
+      "width": 2500,
+      "height": 949,
+      "source_sha256": "57cda89de30d235519be9b38609408c8cfdf0fc3d215446448835b3854970bf5",
+      "source_bytes": 275957,
+      "derived_sha256": "c4722f4f86532b1b9e614ae8d2e34a29fb0f3ed7f240837f558f12bdc3caa563",
+      "derived_bytes": 358714
+    },
+    {
+      "page_id": "233_0009",
+      "filename": "233_0009.jpg",
+      "width": 2500,
+      "height": 928,
+      "source_sha256": "64835f7ef0e1f0e1835d29087246051484a2df3d7cb9a646c5fff3948b32ed10",
+      "source_bytes": 275674,
+      "derived_sha256": "4bec1fba68928e5729ed89824b076d5b49b5e7c3a6a4d9fad71af89132e610a1",
+      "derived_bytes": 358419
+    },
+    {
+      "page_id": "233_0010",
+      "filename": "233_0010.jpg",
+      "width": 2500,
+      "height": 928,
+      "source_sha256": "366912ed325bfd8521ceb87211a219f9de892593f11680e6f2955c7144e78939",
+      "source_bytes": 268880,
+      "derived_sha256": "fe71ccd216c7fe44f511fe43c7be9f15bb7bca4610c2d4adb69181c76b42bcd5",
+      "derived_bytes": 350789
+    },
+    {
+      "page_id": "233_0011",
+      "filename": "233_0011.jpg",
+      "width": 2500,
+      "height": 928,
+      "source_sha256": "f8691711f391d00af74c3fc98f2b2336983595526cdb0ea33e08e1575a97ec74",
+      "source_bytes": 283622,
+      "derived_sha256": "37d6c60dc3d001afa3ca7536300a0d37de9fee6586e1a13f27640e81114e7685",
+      "derived_bytes": 366019
+    },
+    {
+      "page_id": "233_0012",
+      "filename": "233_0012.jpg",
+      "width": 2500,
+      "height": 926,
+      "source_sha256": "b7db423e2f5c69a29bf6ebd1b6b272772c9237cdcc3873341bb4029483be24a8",
+      "source_bytes": 295014,
+      "derived_sha256": "947b0a51bb593822885e7502a36fc3096aec9637beaaeab4cc2387a9f6aead87",
+      "derived_bytes": 376631
+    },
+    {
+      "page_id": "233_0013",
+      "filename": "233_0013.jpg",
+      "width": 2500,
+      "height": 926,
+      "source_sha256": "03e8f98113e815d3b36b608442f6687b30ebb26be0bb10ffd642a75489700035",
+      "source_bytes": 319084,
+      "derived_sha256": "8768e396d2e6eb83329ae24d8e30da37e0064082203649be720b666cf65e4629",
+      "derived_bytes": 406901
+    },
+    {
+      "page_id": "233_0014",
+      "filename": "233_0014.jpg",
+      "width": 2500,
+      "height": 912,
+      "source_sha256": "382d6d185d78aacad7be98bbf4e5280d641beee1622e7d74affe0d9766f536a5",
+      "source_bytes": 292395,
+      "derived_sha256": "7ea93af30ebebef63fcb3c06b9f8f7cc97dae2199ab844ffd22d1e6b2c24d6fb",
+      "derived_bytes": 374647
+    },
+    {
+      "page_id": "233_0015",
+      "filename": "233_0015.jpg",
+      "width": 2500,
+      "height": 921,
+      "source_sha256": "b8a9eabb26745c3d21bdf497dc748d5fb1a48f745de733fdac020143ddba375a",
+      "source_bytes": 289709,
+      "derived_sha256": "ba99c31dcfe993be49854eecae515d5e1088c37fa343d238d07dedcd1440aa34",
+      "derived_bytes": 372744
+    },
+    {
+      "page_id": "233_0016",
+      "filename": "233_0016.jpg",
+      "width": 2500,
+      "height": 935,
+      "source_sha256": "e327f0b39b8f5b26cc850503e52644684e3f8071acaae7b8e91107067fab0587",
+      "source_bytes": 284296,
+      "derived_sha256": "f76fa3fe6445cd8978b6edd9359aac620a412d0f16a9b474b8eec29bc802a359",
+      "derived_bytes": 366010
+    }
+  ]
+}
