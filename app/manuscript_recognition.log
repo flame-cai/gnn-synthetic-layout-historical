@@ -34696,3 +34696,4 @@
 2026-08-14 18:35:29,403 - INFO - 127.0.0.1 - - [14/Aug/2026 18:35:29] "GET /manuscript/my_manuscript_JJJ/layout-active-learning HTTP/1.1" 200 -
 2026-08-14 18:35:29,407 - INFO - 127.0.0.1 - - [14/Aug/2026 18:35:29] "GET /manuscript/my_manuscript_JJJ/active-learning HTTP/1.1" 200 -
 2026-08-14 18:35:31,582 - INFO - 127.0.0.1 - - [14/Aug/2026 18:35:31] "GET /manuscript/my_manuscript_JJJ/active-learning HTTP/1.1" 200 -
+2026-08-14 18:35:32,597 - INFO - 127.0.0.1 - - [14/Aug/2026 18:35:32] "GET /manuscript/my_manuscript_JJJ/layout-active-learning HTTP/1.1" 200 -
