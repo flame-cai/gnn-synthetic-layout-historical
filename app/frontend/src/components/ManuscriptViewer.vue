@@ -40,8 +40,8 @@
       <div class="top-bar-center workflow-panel" style="justify-content: center; align-items: center; padding: 8px;">
         <div class="workflow-controls" style="justify-content: center; width: 100%; gap: 12px;">
           
-          <!-- Active Learning Toggle (Always shown) -->
-          <div class="workflow-toggle-group">
+          <!-- OCR Active Learning Toggle (Always shown) -->
+          <div class="workflow-toggle-group" :title="ocrActiveLearningExplainer">
             <label class="toggle-switch">
               <input type="checkbox" v-model="activeLearningEnabled">
               <span class="slider"></span>
@@ -50,6 +50,28 @@
               <span class="workflow-toggle-label">Improve Future Reading</span>
               <span class="workflow-toggle-subcopy">{{ activeLearningStatus }}</span>
               <span class="workflow-toggle-meta">{{ activeReaderStatusLabel }}</span>
+            </div>
+          </div>
+
+          <!-- Layout (GNN) Active Learning Toggle (Always shown) -->
+          <div class="workflow-toggle-group" :title="layoutActiveLearningExplainer">
+            <label class="toggle-switch">
+              <input type="checkbox" v-model="layoutActiveLearningEnabled">
+              <span class="slider"></span>
+            </label>
+            <div class="workflow-toggle-copy">
+              <span class="workflow-toggle-label">Improve Future Layout</span>
+              <span class="workflow-toggle-subcopy">{{ layoutActiveLearningStatus }}</span>
+              <span class="workflow-toggle-meta">{{ layoutModelStatusLabel }}</span>
+              <button
+                v-if="layoutBackfillAvailable"
+                class="workflow-inline-action"
+                :disabled="layoutBackfillInFlight"
+                :title="layoutBackfillTitle"
+                @click="startLayoutBackfill"
+              >
+                {{ layoutBackfillLabel }}
+              </button>
             </div>
           </div>
 
@@ -106,6 +128,21 @@
               style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
             >
               {{ primaryTopBarActionLabel }}
+            </button>
+          </span>
+          <span
+            v-if="replaceLayoutAvailable"
+            class="control-shell action-slot"
+            :class="{ 'is-disabled': replaceLayoutDisabled }"
+            :title="replaceLayoutButtonTitle"
+          >
+            <button
+              class="action-btn recovery-action"
+              @click="replaceWithNewLayout"
+              :disabled="replaceLayoutDisabled"
+              style="padding: 6px 12px; min-height: 32px; font-size: 0.85rem;"
+            >
+              {{ replaceLayoutInFlight ? 'Re-reading Layout...' : 'Replace With New Layout' }}
             </button>
           </span>
           <span
@@ -894,6 +931,16 @@ const sortedLineIds = ref([])
 const autoRecogEnabled = ref(localStorage.getItem('auto_prepare_next_page') === 'true')
 const activeLearningEnabled = ref(localStorage.getItem('active_learning_enabled') !== 'false')
 const activeLearningStatus = ref('Not updating right now')
+// Layout learning trains a second, heavier model, so it is opt-in: absent a
+// stored preference this stays off, while OCR learning keeps its existing
+// default-on behaviour above.
+const layoutActiveLearningEnabled = ref(localStorage.getItem('layout_active_learning_enabled') === 'true')
+const layoutActiveLearningStatus = ref('Not improving layout right now')
+const layoutBackfillInFlight = ref(false)
+const replaceLayoutInFlight = ref(false)
+// Set from the backend: true when this page's graph came from the human's
+// saved corrections rather than a fresh model prediction.
+const pageHasSavedLayout = ref(false)
 const recognitionEngine = ref(normalizeRecognitionEngine(localStorage.getItem('recognition_engine') || 'local'))
 const devanagariModeEnabled = ref(true) 
 const recognitionInFlight = ref(false)
@@ -924,6 +971,18 @@ const activeLearningMeta = reactive({
   active_checkpoint_path: null,
   pending_jobs: [],
   needs_rebase: false,
+})
+const layoutActiveLearningMeta = reactive({
+  code: 'idle',
+  label: 'Not improving layout right now',
+  active_checkpoint_id: 'base',
+  active_checkpoint_path: null,
+  pending_jobs: [],
+  needs_rebase: false,
+  corrected_page_count: 0,
+  trained_page_count: 0,
+  untrained_corrected_page_count: 0,
+  backfill_available: false,
 })
 const pageWorkflow = reactive({
   state: 'missing_page_xml',
@@ -964,6 +1023,7 @@ const pageWorkflow = reactive({
 // NEW: Persist keys/settings to local storage
 watch(autoRecogEnabled, (val) => localStorage.setItem('auto_prepare_next_page', String(val)))
 watch(activeLearningEnabled, (val) => localStorage.setItem('active_learning_enabled', String(val)))
+watch(layoutActiveLearningEnabled, (val) => localStorage.setItem('layout_active_learning_enabled', String(val)))
 const localTextConfidence = reactive({}) 
 const autoSaveInterval = ref(null) // NEW
 let activeLearningPollTimeoutId = null
@@ -1580,6 +1640,62 @@ const describeLocalCheckpoint = (checkpointId) => {
 const localCheckpointDescriptor = computed(() => describeLocalCheckpoint(activeLearningMeta.active_checkpoint_id))
 const activeReaderStatusLabel = computed(() => `Trainable Reader: ${localCheckpointDescriptor.value.modelLabel}`)
 
+const layoutModelStatusLabel = computed(() => {
+  const checkpointId = layoutActiveLearningMeta.active_checkpoint_id
+  if (!checkpointId || checkpointId === 'base') return 'Layout Model: Built-in'
+  const trained = layoutActiveLearningMeta.trained_page_count || 0
+  return `Layout Model: Learned From ${trained} Page${trained === 1 ? '' : 's'}`
+})
+
+const ocrActiveLearningExplainer =
+  'Improve Future Reading (OCR active learning): each page whose text you correct and save ' +
+  'in Read Mode is used to fine-tune the recognition model for this manuscript, so the text ' +
+  'predicted on later pages needs less correction. Runs in the background; your corrections ' +
+  'are never overwritten.'
+
+const layoutActiveLearningExplainer =
+  'Improve Future Layout (layout active learning): each page whose text-line graph you ' +
+  'correct and save in Layout Mode is used to fine-tune the layout model for this ' +
+  'manuscript, so nodes and edges predicted on later pages need less correction. Runs in the ' +
+  'background and only affects pages you have not corrected yet; opening a page never waits ' +
+  'for training to finish.'
+
+const layoutBackfillAvailable = computed(
+  () => layoutActiveLearningEnabled.value && Boolean(layoutActiveLearningMeta.backfill_available)
+)
+
+const layoutBackfillLabel = computed(() => {
+  if (layoutBackfillInFlight.value) return 'Starting...'
+  const count = layoutActiveLearningMeta.untrained_corrected_page_count || 0
+  return `Learn from ${count} corrected page${count === 1 ? '' : 's'}`
+})
+
+const layoutBackfillTitle = computed(() => {
+  const count = layoutActiveLearningMeta.untrained_corrected_page_count || 0
+  return (
+    `Train the layout model on all ${count} page${count === 1 ? '' : 's'} you have already ` +
+    'corrected in this manuscript, in one background run.'
+  )
+})
+
+// "Replace With New Layout" is the layout counterpart of "Replace With New
+// Reading": only meaningful in Layout Mode on a page that already has a saved
+// graph, because a page without one is already showing a fresh prediction.
+const replaceLayoutAvailable = computed(
+  () => layoutModeActive.value && graphIsLoaded.value && pageHasSavedLayout.value
+)
+
+const replaceLayoutDisabled = computed(
+  () => replaceLayoutInFlight.value || isProcessingSave.value || recognitionInFlight.value
+)
+
+const replaceLayoutButtonTitle = computed(
+  () =>
+    'Discard this page\'s saved text lines and re-run the layout model over its current ' +
+    'nodes, using whatever the model has learned since. Nodes you added or deleted are kept, ' +
+    'as are text-region labels. Nothing is written until you save.'
+)
+
 const recognitionEngineOptionLabel = (engine) =>
   readerCapabilities[engine]?.label || RECOGNITION_READER_LABELS[engine] || String(engine || 'Reader')
 
@@ -2101,9 +2217,25 @@ const applyActiveLearningState = (payload = {}) => {
   activeLearningMeta.needs_rebase = Boolean(payload.needs_rebase)
 }
 
+const applyLayoutActiveLearningState = (payload = {}) => {
+  layoutActiveLearningMeta.code = payload.code || 'idle'
+  layoutActiveLearningStatus.value = payload.label || 'Not improving layout right now'
+  layoutActiveLearningMeta.label = layoutActiveLearningStatus.value
+  layoutActiveLearningMeta.active_checkpoint_id = payload.active_checkpoint_id || 'base'
+  layoutActiveLearningMeta.active_checkpoint_path = payload.active_checkpoint_path || null
+  layoutActiveLearningMeta.pending_jobs = Array.isArray(payload.pending_jobs) ? payload.pending_jobs : []
+  layoutActiveLearningMeta.needs_rebase = Boolean(payload.needs_rebase)
+  layoutActiveLearningMeta.corrected_page_count = payload.corrected_page_count || 0
+  layoutActiveLearningMeta.trained_page_count = payload.trained_page_count || 0
+  layoutActiveLearningMeta.untrained_corrected_page_count = payload.untrained_corrected_page_count || 0
+  layoutActiveLearningMeta.backfill_available = Boolean(payload.backfill_available)
+}
+
 const activeLearningNeedsFastPolling = () =>
   activeLearningMeta.pending_jobs.length > 0 ||
-  ['queued', 'running', 'paused_for_ocr'].includes(activeLearningMeta.code)
+  ['queued', 'running', 'paused_for_ocr'].includes(activeLearningMeta.code) ||
+  layoutActiveLearningMeta.pending_jobs.length > 0 ||
+  ['queued', 'running'].includes(layoutActiveLearningMeta.code)
 
 const currentActiveLearningPollDelay = () =>
   activeLearningNeedsFastPolling() ? activeLearningPollDelayMs.active : activeLearningPollDelayMs.idle
@@ -2128,14 +2260,57 @@ const refreshActiveLearningState = async () => {
   if (!localManuscriptName.value || activeLearningPollInFlight) return
   activeLearningPollInFlight = true
   try {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/manuscript/${localManuscriptName.value}/active-learning`)
-    if (!response.ok) return
-    const data = await response.json()
-    applyActiveLearningState(data)
+    const base = `${import.meta.env.VITE_BACKEND_URL}/manuscript/${localManuscriptName.value}`
+    const [ocrResponse, layoutResponse] = await Promise.all([
+      fetch(`${base}/active-learning`),
+      fetch(`${base}/layout-active-learning`),
+    ])
+    if (ocrResponse.ok) applyActiveLearningState(await ocrResponse.json())
+    if (layoutResponse.ok) applyLayoutActiveLearningState(await layoutResponse.json())
   } catch (err) {
     console.warn('Active learning state refresh failed', err)
   } finally {
     activeLearningPollInFlight = false
+  }
+}
+
+const replaceWithNewLayout = async () => {
+  if (!localManuscriptName.value || replaceLayoutInFlight.value) return
+  const confirmed = window.confirm(
+    'Replace this page\'s saved text lines with a fresh prediction from the layout model?\n\n' +
+      'Nodes you added or deleted are kept, and so are text-region labels. The text lines ' +
+      '(edges) are discarded and predicted again.\n\n' +
+      'Nothing is written until you save the page.'
+  )
+  if (!confirmed) return
+  replaceLayoutInFlight.value = true
+  try {
+    await fetchPageData(localManuscriptName.value, localCurrentPage.value, true, false, true)
+  } catch (err) {
+    error.value = err.message
+    console.warn('[replace-layout] failed', err)
+  } finally {
+    replaceLayoutInFlight.value = false
+  }
+}
+
+const startLayoutBackfill = async () => {
+  if (!localManuscriptName.value || layoutBackfillInFlight.value) return
+  layoutBackfillInFlight.value = true
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/manuscript/${localManuscriptName.value}/layout-active-learning/backfill`,
+      { method: 'POST' }
+    )
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Could not start layout learning')
+    if (data.layout_active_learning) applyLayoutActiveLearningState(data.layout_active_learning)
+    rescheduleActiveLearningPolling(activeLearningPollDelayMs.immediate)
+  } catch (err) {
+    error.value = err.message
+    console.warn('[layout-backfill] failed', err)
+  } finally {
+    layoutBackfillInFlight.value = false
   }
 }
 
@@ -2702,7 +2877,7 @@ const computeTextlines = () => {
   nodeToTextlineMap.value = newNodeToTextlineMap
 }
 
-const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRecognition = false) => {
+const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRecognition = false, forceRelayout = false) => {
   if (!manuscript || !page) return;
   
   if (!isRefresh) {
@@ -2731,14 +2906,16 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
 
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/semi-segment/${manuscript}/${page}`
+      `${import.meta.env.VITE_BACKEND_URL}/semi-segment/${manuscript}/${page}` +
+        (forceRelayout ? '?relayout=1' : '')
     )
     if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch page data')
     const data = await response.json()
     pageData = data
 
     dimensions.value = data.dimensions
-    
+    pageHasSavedLayout.value = Boolean(data.layoutFromSavedGraph)
+
     if (data.image) imageData.value = data.image;
     points.value = data.points.map((p) => ({ coordinates: [p[0], p[1]], segment: null }))
 
@@ -2767,6 +2944,7 @@ const fetchPageData = async (manuscript, page, isRefresh = false, autoPrepareRec
     lineImagePreviews.value = data.lineImagePreviews || {}
     replaceLocalRecognitionData(data.textContent || {}, data.textConfidences || {})
     clearTextRecoveryHighlights()
+    if (data.layoutActiveLearning) applyLayoutActiveLearningState(data.layoutActiveLearning)
     if (data.activeLearning) {
       applyActiveLearningState(data.activeLearning)
     }
@@ -2846,6 +3024,7 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
     replaceLocalRecognitionData(data.text || {}, data.confidences || {})
     clearTextRecoveryHighlights()
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    if (data.layoutActiveLearning) applyLayoutActiveLearningState(data.layoutActiveLearning)
     rescheduleActiveLearningPolling(activeLearningPollDelayMs.immediate)
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
     sortLinesTopToBottom()
@@ -2887,6 +3066,7 @@ const recoverTextFromBackup = async () => {
       recognitionDraftDirty.value = true
     }
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    if (data.layoutActiveLearning) applyLayoutActiveLearningState(data.layoutActiveLearning)
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
     sortLinesTopToBottom()
     if (!focusedLineId.value && sortedLineIds.value.length > 0) {
@@ -3812,6 +3992,7 @@ const saveModifications = async (background = false, options = {}) => {
     runRecognition: false,
     recognitionEngine: recognitionEngine.value, // <--- NEW PARAMETER
     activeLearningEnabled: activeLearningEnabled.value,
+    layoutActiveLearningEnabled: layoutActiveLearningEnabled.value,
     saveIntent: background ? 'draft' : 'commit',
     saveScope,
     layoutEffort: layoutEffortForSave,
@@ -3842,6 +4023,7 @@ const saveModifications = async (background = false, options = {}) => {
     // If auto-recog was run, update text
     const data = await res.json()
     if (data.activeLearning) applyActiveLearningState(data.activeLearning)
+    if (data.layoutActiveLearning) applyLayoutActiveLearningState(data.layoutActiveLearning)
     rescheduleActiveLearningPolling(activeLearningPollDelayMs.immediate)
     if (data.pageWorkflow) applyPageWorkflow(data.pageWorkflow)
 
@@ -4506,6 +4688,29 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   color: #c9d0d7;
   line-height: 1.1;
   white-space: nowrap;
+}
+
+.workflow-inline-action {
+  margin-top: 3px;
+  align-self: flex-start;
+  padding: 1px 7px;
+  font-size: 0.64rem;
+  line-height: 1.3;
+  color: #eaf2ff;
+  background: rgba(67, 99, 216, 0.35);
+  border: 1px solid rgba(120, 150, 240, 0.55);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.workflow-inline-action:hover:not(:disabled) {
+  background: rgba(67, 99, 216, 0.55);
+}
+
+.workflow-inline-action:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .workflow-select {

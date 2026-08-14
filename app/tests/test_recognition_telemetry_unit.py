@@ -148,9 +148,19 @@ class RecognitionTelemetryUnitTest(unittest.TestCase):
         self.assertEqual(metrics["final_edges"], 2)
         self.assertEqual(metrics["nodes_added"], 1)
         self.assertEqual(metrics["reading_direction_modification_count"], 1)
-        self.assertEqual(metrics["text_region_annotations_changed"], 1)
+        # Merging two singly-occupied regions into one changes the region
+        # membership of *both* text lines, so this counts 2, not 1. Region ids
+        # are auto-assigned and therefore unstable, so the metric compares
+        # membership rather than label ids -- otherwise the same merge would
+        # score 1 or 2 depending on which id happened to survive.
+        self.assertEqual(metrics["text_region_annotations_changed"], 2)
+        self.assertEqual(
+            [row["line_id"] for row in metrics["text_region_metrics"]["changed_text_lines"]],
+            ["0", "1"],
+        )
         self.assertEqual(metrics["reading_direction_annotations_added"], 1)
-        self.assertEqual(metrics["total_layout_interventions"], 3)
+        # 1 node added + 2 region-membership changes + 1 reading direction added.
+        self.assertEqual(metrics["total_layout_interventions"], 4)
 
 
 if __name__ == "__main__":

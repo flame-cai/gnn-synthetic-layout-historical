@@ -504,7 +504,9 @@ def segmentLinesFromPointClusters(BASE_PATH, page, upscale_heatmap=True, debug_m
                                                     debug_mode=(upscale_heatmap and debug_mode), debug_info=debug_info)
 
     poly_viz_page_img = image.copy()
-    colors = [plt.cm.get_cmap('hsv', len(unique_labels) + 1)(i) for i in range(len(unique_labels))]
+    # plt.get_cmap, not plt.cm.get_cmap: the latter was removed in Matplotlib
+    # 3.9. Same colours, and this spelling works on older releases too.
+    colors = [plt.get_cmap('hsv', len(unique_labels) + 1)(i) for i in range(len(unique_labels))]
     label_to_color_idx = {label: i for i, label in enumerate(unique_labels)}
     line_polygons_data = {}  # To store polygon data AND image data
 

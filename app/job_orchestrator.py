@@ -9,7 +9,7 @@ import time
 import traceback
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from enum import Enum, IntEnum
 from pathlib import Path
 from typing import Callable
@@ -27,6 +27,9 @@ class JobType(str, Enum):
     OCR_REBASE = "ocr_rebase"
     CRAFT_BATCH_INFER = "craft_batch_infer"
     GNN_PAGE_INFER = "gnn_page_infer"
+    GNN_FINE_TUNE = "gnn_fine_tune"
+    GNN_REBASE = "gnn_rebase"
+    GNN_BACKFILL = "gnn_backfill"
 
 
 class JobPriority(IntEnum):
@@ -56,11 +59,15 @@ class QueuedJob:
     isolated: bool = False
     job_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     created_at: str = field(default_factory=_utc_now_iso)
+    # ISO timestamp before which this job must not start. Background training
+    # uses it to leave room for imminent interactive work, so the common case
+    # never has to preempt-and-restart a job that had already begun.
+    not_before: str | None = None
 
 
 def _isolated_job_entry(job_type: str, payload: dict, result_queue) -> None:
     try:
-        from ocr_active_learning_runtime import dispatch_isolated_job
+        from active_learning_jobs import dispatch_isolated_job
 
         result_queue.put({"ok": True, "result": dispatch_isolated_job(job_type, payload)})
     except Exception as exc:  # pragma: no cover - process failures are integration concerns
@@ -178,16 +185,70 @@ class JobOrchestrator:
     def get_job_status(self, job_id: str) -> dict:
         return copy.deepcopy(self._jobs.get(str(job_id), {}))
 
+    def _job_is_deferred(self, record: dict, now: datetime) -> bool:
+        not_before = record.get("not_before")
+        if not not_before:
+            return False
+        try:
+            return datetime.fromisoformat(str(not_before)) > now
+        except ValueError:
+            return False
+
     def _next_job_id(self) -> str | None:
+        now = datetime.now(timezone.utc)
+        deferred: list[tuple[int, int, str]] = []
+        selected: str | None = None
         while self._heap:
-            _, _, job_id = heapq.heappop(self._heap)
+            entry = heapq.heappop(self._heap)
+            job_id = entry[2]
             record = self._jobs.get(job_id)
             if record is None:
                 continue
             if record["state"] != JobState.QUEUED.value:
                 continue
-            return job_id
-        return None
+            if self._job_is_deferred(record, now):
+                # Still queued, just not eligible yet; put it back and keep
+                # looking so a deferred job never blocks an eligible one.
+                deferred.append(entry)
+                continue
+            selected = job_id
+            break
+        for entry in deferred:
+            heapq.heappush(self._heap, entry)
+        return selected
+
+    def defer_queued_jobs(
+        self,
+        delay_seconds: float,
+        job_types: set[str] | None = None,
+    ) -> list[str]:
+        """Hold back queued background jobs to make room for interactive work.
+
+        Only affects jobs that have not started, so nothing in flight is lost.
+        Returns the ids that moved.
+        """
+        if delay_seconds <= 0:
+            return []
+        deadline = datetime.now(timezone.utc) + timedelta(seconds=float(delay_seconds))
+        deadline_iso = deadline.isoformat()
+        moved = []
+        with self._condition:
+            for job_id, record in self._jobs.items():
+                if record.get("state") != JobState.QUEUED.value:
+                    continue
+                if job_types is not None and str(record.get("job_type")) not in job_types:
+                    continue
+                current = record.get("not_before")
+                if current:
+                    try:
+                        if datetime.fromisoformat(str(current)) >= deadline:
+                            continue
+                    except ValueError:
+                        pass
+                record["not_before"] = deadline_iso
+                record["updated_at"] = _utc_now_iso()
+                moved.append(str(job_id))
+        return moved
 
     def _run_direct_job(self, record: dict) -> dict | None:
         handler = self._handlers.get(str(record["job_type"]))

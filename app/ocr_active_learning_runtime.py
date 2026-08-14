@@ -50,7 +50,12 @@ def configure_runtime(base_checkpoint_path: str | Path, orchestrator: JobOrchest
     _RUNTIME_STATE["base_checkpoint_path"] = str(Path(base_checkpoint_path).resolve())
     if orchestrator is not None:
         _RUNTIME_STATE["orchestrator"] = orchestrator
-        orchestrator.set_state_listener(_handle_orchestrator_event)
+        # The orchestrator holds one listener and now carries layout jobs too,
+        # so route through the shared dispatcher rather than binding this
+        # runtime's handler directly.
+        from active_learning_jobs import handle_orchestrator_event
+
+        orchestrator.set_state_listener(handle_orchestrator_event)
         orchestrator.start_workers()
 
 
@@ -800,6 +805,10 @@ def _record_job_event(registry: ManuscriptOcrRegistry, event_name: str, job_stat
 
 
 def _handle_orchestrator_event(event_name: str, job_status: dict) -> None:
+    job_type = str(job_status.get("job_type") or "")
+    if job_type and job_type not in {JobType.OCR_FINE_TUNE.value, JobType.OCR_REBASE.value}:
+        # Layout jobs share the orchestrator; they own a different registry.
+        return
     manuscript_root = (job_status.get("payload") or {}).get("manuscript_root") or job_status.get("manuscript_root")
     if not manuscript_root:
         return

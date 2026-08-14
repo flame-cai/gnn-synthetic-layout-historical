@@ -43,13 +43,32 @@ The app currently supports:
 - manual grouping of text lines into text regions
 - OCR using either the local Sanskrit checkpoint or Gemini
 - PAGE-XML export and cropped line-image export
+- manuscript-local active learning for **both** models, as two separate
+  opt-ins: OCR from corrected text (Read Mode commits) and the layout GNN from
+  corrected graphs (Layout Mode commits)
 
 Important app paths:
 
 - `app/app.py`: Flask backend and current save and recognition routes.
 - `app/frontend/`: browser UI.
 - `app/recognition/`: local OCR code, training code, active-learning utilities, and pretrained checkpoint handling.
+- `app/layout_active_learning_runtime.py` and `app/manuscript_layout_registry.py`:
+  manuscript-local layout (GNN) active learning, mirroring the OCR runtime and
+  registry. See "Layout Active-Learning Runtime" in `PRODUCTION.md`.
 - `app/tests/`: headless evaluation dataset, OCR fine-tuning verifier, unit tests, and generated local run artifacts.
+
+The layout GNN is fine-tuned manuscript-locally from Layout Mode commit saves,
+the mirror of OCR fine-tuning from Read Mode commit saves, and each is a
+separate GUI opt-in. The shared implementation lives in
+`src/gnn_training/gnn_finetuning.py`, which the app imports directly and
+`experiments/downstream_ocr/gnn_finetuning.py` re-exports unchanged; production
+must import it from `src/`, because `experiments/` is untracked. The runtime
+recipe `app/pretrained_gnn/gnn_active_learning.yaml` copies the canonical
+experiment hyperparameters and keeps deleted-node supervision off. A per-save
+step continues the active checkpoint incrementally, while a backfill or rebase
+pools every corrected page into one run. Inference always outranks training:
+page load never waits on a job, and queued training yields to interactive reads.
+Full contract in `PRODUCTION.md`.
 
 ## Research And Production Docs
 
@@ -69,6 +88,7 @@ Read these before changing behavior:
 - `VISION.md`: long-term product direction of iteratively fine-tuning to keep reducing burden of human annotation with each new fine-tuned page
 - `RESEARCH_HARNESS.md`: LLM-assisted verifier-driven evolution harness to improve various parts of the pipeline
 - `PRODUCTION.md`: production GUI runtime, OCR active-learning save contracts, manuscript-local OCR state, and production validation commands
+- `dataset_release/DATASET.md`: the released ground-truth dataset — label layers, coordinate spaces, evaluation folds, and how the release is built and verified
 - `docs/exec-plans/tech-debt-tracker.md`: current high-priority debts
 
 
@@ -96,3 +116,7 @@ Do not perform PII redaction, anonymization, or de-identification on the paper t
 
 **Authors:** Bharath Valaboju, Shagun Dwivedi, Kartik Chincholikar, Kaushik Gopalan, Shivkiran Chitkulwar, Vinod Vidwans  
 **Published in:** International Conference on Human-Computer Interaction, Springer 2025
+
+
+
+

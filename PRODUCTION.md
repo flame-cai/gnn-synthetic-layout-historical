@@ -19,7 +19,8 @@ The app supports manuscript digitization with human correction in the loop:
 - OCR through Gemini or the local OCR checkpoint family
 - manual OCR text correction
 - PAGE XML, line-image, OCR-training-format, resized-image, and overlay export
-- manuscript-local OCR active learning for the local OCR model
+- manuscript-local active learning for the local OCR model and the layout GNN,
+  as two separate opt-ins
 
 The production app is not the research harness. It may use a strategy or recipe
 that was selected by research gates, but changing production behavior must be
@@ -32,11 +33,16 @@ Important production runtime files:
 - `app/app.py`
 - `app/frontend/`
 - `app/gnn_inference.py`
+- `app/active_learning_jobs.py`
 - `app/device_leases.py`
 - `app/job_orchestrator.py`
+- `app/layout_active_learning_runtime.py`
+- `app/manuscript_layout_registry.py`
 - `app/manuscript_ocr_registry.py`
 - `app/ocr_active_learning_runtime.py`
 - `app/ocr_model_manager.py`
+- `app/pretrained_gnn/gnn_active_learning.yaml`
+- `src/gnn_training/gnn_finetuning.py`
 - `app/profiling.py`
 - `app/telemetry.py`
 - `app/recognition/active_learning.py`
@@ -56,7 +62,10 @@ Important production runtime files:
 Important production/runtime tests:
 
 - `app/tests/test_download_results_export_unit.py`
+- `app/tests/test_active_learning_joint_e2e.py`
 - `app/tests/test_job_orchestrator_unit.py`
+- `app/tests/test_layout_active_learning_e2e.py`
+- `app/tests/test_layout_active_learning_unit.py`
 - `app/tests/test_line_segmentation_strategy_unit.py`
 - `app/tests/test_manuscript_ocr_registry_unit.py`
 - `app/tests/test_profiling_unit.py`
@@ -106,6 +115,10 @@ Important manuscript-local paths include:
   route.
 - `active_learning/recognition/`: manuscript-local OCR registry, revisions,
   checkpoints, prepared pages, telemetry, profiling, and job state.
+- `active_learning/layout/`: the same for the layout GNN — registry, corrected
+  graph snapshots per revision, cached augmentations, checkpoints, training runs,
+  and profiling.
+- `active_learning/telemetry/`: shared across both lineages.
 
 Uploading a manuscript name that already exists currently replaces that
 manuscript directory in `app/app.py`. Treat manuscript names as mutable working
@@ -113,8 +126,10 @@ folders, not archival identifiers.
 
 ## Optional Pipeline Visualizations
 
-The upload screen has a **Save pipeline visualizations (background)** switch.
-It is off by default. When enabled, `app/pipeline_visualization.py` records the
+Pipeline visualizations were a temporary diagnostic and the upload-screen switch
+has been removed. The capability remains: set `APP_PIPELINE_VISUALIZATION=true`,
+or set `pipeline_visualization.enabled` in a manuscript's
+`processing_settings.json`, which takes precedence. When enabled, `app/pipeline_visualization.py` records the
 following real artifacts for every uploaded page under
 `visualizations/<page>/`:
 
@@ -566,10 +581,183 @@ and recorded in the manuscript OCR registry. Future hyperparameter changes
 should go back through the research verifier before replacing this runtime
 recipe.
 
+## Layout Active-Learning Runtime
+
+The app fine-tunes two models, not one. OCR active learning improves the
+recognition model from corrected text; layout active learning improves the
+text-line GNN from corrected graphs. They are separate opt-ins with separate
+lineages, and the GUI exposes one toggle each:
+
+- **Improve Future Reading** — OCR. Default on, preserving previous behaviour.
+- **Improve Future Layout** — layout GNN. Default off; it trains a second model.
+
+Layout state is manuscript-local and lives beside the OCR state:
+
+```text
+input_manuscripts/<manuscript>/active_learning/layout/
+    registry.json
+    checkpoints/<checkpoint_id>/model.pt
+    revisions/<page>/rev_NNNN/gnn-format/     snapshot of the six corrected files
+    augmentations/<page>/rev_NNNN/            cached 50 variants for replay
+    training/<candidate_id>/
+    profiling/
+```
+
+### Supervision boundary
+
+Layout supervision is a **Layout Mode commit save with at least one node**:
+
+- `saveIntent == "commit"`
+- `saveScope == "layout"`
+- the saved graph has at least one node
+
+Saving asserts the layout is correct, so a page the human did not have to edit
+still counts. Re-saving an unchanged graph is deduplicated by a content hash
+over node positions (rounded to 0.1 px), the canonicalised edge set, region
+labels, and reading directions, so it records no new revision and queues no
+job. Draft autosaves and Read Mode `text_only` commits never touch layout
+lineage, exactly as Layout Mode saves never become OCR supervision.
+
+Each non-duplicate supervised revision snapshots the six `gnn-format` files
+before any job runs, so training uses the graph as it was saved even if the
+user keeps editing while the job is queued.
+
+### Recipe
+
+`app/pretrained_gnn/gnn_active_learning.yaml`, whose hyperparameters are
+identical to the canonical experiment recipe
+`experiments/downstream_ocr/configs/gnn_finetuning_no_deleted_nodes.yaml`:
+50 augmentations per page, 20% history replay, Adam 1e-3 with 5-epoch warmup,
+10 epochs, focal loss, selection on `val_textline_f1_score`, continuing the
+serialized checkpoint's model object rather than rebuilding the architecture.
+
+`deleted_node_supervision` is **disabled**, and this matters more in the GUI
+than in the experiment: deleting spurious CRAFT nodes is a primary Layout Mode
+action, so app pages routinely sit in the high-deletion regime where
+re-inserting deleted nodes as all-negative edge supervision collapsed held-out
+layout quality (`circle_new` fold_4: G-F1 0.577 -> 0.214). Keeping it off also
+means training never needs the raw `gnn-dataset/` proposals. Evidence:
+`experiments/downstream_ocr/GNN_SUPERVISION_FINDINGS.md`.
+
+The production copy exists because `experiments/` is untracked and production
+must not import untracked code. Keep the two in step, and take any change back
+through the research harness first.
+
+### Training schedules
+
+Two schedules, same hyperparameters; only the data schedule differs.
+
+- **Incremental** (`gnn_fine_tune`, one per supervised save): continues the
+  manuscript's active checkpoint on the new page's 50 augmentations plus a
+  deterministic 20% replay of each already-consumed page. This is the
+  experiment recipe, and it is O(1) per save.
+- **Pooled** (`gnn_backfill`, `gnn_rebase`): trains one checkpoint from the
+  pretrained base over every saved page at once, each contributing all 50
+  augmentations to every epoch, with no history subsample. Used when every page
+  is already in hand, where a ladder would only approximate what pooling can do
+  exactly — and where pooling is also roughly half the GPU work at ten pages.
+
+Backfill is offered from the toggle when a manuscript has corrected pages the
+layout model has not learned from yet, including pages corrected before this
+feature existed: those are adopted into the registry and snapshotted first.
+Recorrecting a page that already shaped the active checkpoint marks
+`needs_rebase` and queues one pooled rebase rather than stacking a second step
+for the same page.
+
+### Contention: page load never blocks
+
+This is the one place layout learning deliberately differs from OCR. Local OCR
+inference is an explicit user action, so `prepare_for_interactive_ocr(...)` can
+preempt and requeue a running job. GNN inference runs on **every page open**, so
+the same strategy would both stall navigation and starve training, since a
+requeued GNN step restarts from scratch.
+
+Instead, `GET /semi-segment/<manuscript>/<page>` predicts with the newest
+*promoted* layout checkpoint and ignores queued or running work. Nothing in the
+layout runtime calls `preempt_for_interactive`. Consequences worth knowing:
+
+- A page opened while a fine-tune is in flight uses the previous checkpoint.
+  The status line says training is running; the page does not wait.
+- If CUDA is out of memory because a training job holds the GPU, GNN inference
+  falls back to CPU rather than failing. Inference is small, so this is a slower
+  page load, not a broken one.
+- `load_model_once` keys its cache on the resolved checkpoint path, so a
+  promotion is picked up by the next page load with no restart.
+- The registry resolves active -> previous active -> pretrained base, so a
+  missing or half-written checkpoint degrades page load instead of ending it.
+
+A page that already has saved `gnn-format` edges is returned from disk and never
+re-predicted, so improving the model never overwrites human layout corrections.
+Fine-tuning only affects pages not yet corrected.
+
+The reverse also holds: training must not start underneath imminent inference.
+Automatic layout jobs (`gnn_fine_tune`, `gnn_rebase`) are queued with a
+`not_before` head start, `LAYOUT_RUNTIME_TRAINING_START_DELAY_SECONDS` (default
+25), and every interactive read pushes that deadline back through
+`defer_layout_training_for_interactive_work(...)`. A user-requested backfill is
+not deferred. Preemption remains the backstop for a job that did start: local
+OCR calls `prepare_for_interactive_ocr(...)`, which cancels and requeues any
+running GPU job including a layout one. This deferral was added because the
+first real GUI session preempted and restarted 5 of 6 layout jobs; the head
+start removes the race rather than resolving it.
+
+### Replace With New Layout
+
+The layout counterpart of Read Mode's Replace With New Reading, and the only way
+to re-run the GNN on a page that already has a saved graph:
+
+    GET /semi-segment/<manuscript>/<page>?relayout=1
+
+It re-predicts edges over the page's **current** node set, so manual node
+additions and deletions survive, and it carries the saved per-node region labels
+forward because the node set is unchanged. Text-line labels are not carried
+forward: they are the components of the edge set being replaced. Nothing is
+written — the user keeps the result by saving the page or discards it by
+reloading. The response reports `layoutFromSavedGraph`, which the GUI uses to
+show the button only where there is something to replace.
+
+### Checkpoint retention
+
+Each layout checkpoint is roughly 51 MB and one is produced per corrected page,
+so promotion prunes checkpoint directories the fallback ladder can no longer
+reach. Protected: base, active, previous active, the in-flight candidate, and
+anything a pending job still needs. Pruned records remain in `registry.json`
+with `status="pruned"` for lineage. Set
+`LAYOUT_RUNTIME_PRUNE_OBSOLETE_CHECKPOINTS=0` to keep them while debugging.
+
+Layout learning is a follow-up to the save, never a gate on it. Layout artifacts
+are written before the runtime is called, and a failure there is caught, logged,
+and reported without failing the save.
+
+### Job types and routing
+
+`gnn_fine_tune`, `gnn_rebase` and `gnn_backfill` join `ocr_fine_tune` and
+`ocr_rebase` on the same orchestrator, the same exclusive `gpu` lease, and one
+shared state listener. `app/active_learning_jobs.py` routes both isolated job
+execution and job-state events to the runtime that owns the job type, so neither
+lineage writes into the other's registry. Layout jobs are isolated child
+processes like OCR jobs.
+
+Because the orchestrator runs isolated jobs as daemonic processes, and a
+daemonic process may not have children, graph augmentation falls back to serial
+execution there. Augmenting one page is sub-second either way.
+
+### Routes
+
+- `GET /manuscript/<name>/layout-active-learning` — status, including how many
+  corrected pages the layout model has and has not learned from.
+- `POST /manuscript/<name>/layout-active-learning/backfill` — queue one pooled
+  run over every corrected page.
+
+`POST /semi-segment/<manuscript>/<page>` accepts `layoutActiveLearningEnabled`
+alongside the existing `activeLearningEnabled`, and returns
+`layoutActiveLearning` plus `layoutActiveLearningQueuedJobIds`.
+
 ## Job Orchestration And Device Leases
 
 The app uses a generic job orchestrator for background work. The active
-production integration is OCR fine-tune and OCR rebase.
+production integrations are OCR fine-tune/rebase and layout GNN
+fine-tune/rebase/backfill.
 
 The orchestrator supports:
 
@@ -730,6 +918,32 @@ $env:CONDA_NO_PLUGINS='true'
 conda run -n gnn_layout python -m unittest app.tests.test_recognition_telemetry_unit -v
 conda run -n gnn_layout python -m unittest app.tests.test_profiling_unit -v
 ```
+
+Layout active learning. The unit tests are fast and need no GPU; the two
+end-to-end suites train for real and need the pretrained GNN checkpoint, the
+released ground-truth graphs, and (for the joint suite) the base OCR
+checkpoint. They skip cleanly when those are absent:
+
+```powershell
+$env:CONDA_NO_PLUGINS='true'
+conda run -n gnn_layout python -m unittest app.tests.test_layout_active_learning_unit -v
+conda run -n gnn_layout python -m unittest app.tests.test_layout_active_learning_e2e -v
+conda run -n gnn_layout python -m unittest app.tests.test_active_learning_joint_e2e -v
+```
+
+`test_layout_active_learning_e2e` is the evidence that fine-tuning works, in
+two directions. It trains on the three pages of the released `circular_layout`
+fold_1 and scores the six held-out pages on their ground-truth node set, so
+predicted and ground-truth edges are directly comparable. It also runs a
+falsifiable check: one page corrected under a deliberately absurd convention
+(every node isolated, no edges) must make the model decline to connect nodes on
+a different, never-seen page. Observed on an RTX 6000 Ada:
+
+| Check | Held-out measure | Before | After |
+| --- | --- | --- | --- |
+| Normal, 3 pages, incremental | text-line F1 | 0.7962 | 0.9063 |
+| Normal, 3 pages, pooled backfill | text-line F1 | 0.7962 | 0.9086 |
+| Extreme, 1 page, all edges deleted | predicted positive-edge rate | 0.1083 | 0.0001 |
 
 Production strategy, crop behavior, and adoption:
 

@@ -457,7 +457,7 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         self.assertEqual(crop_metadata["unwrap_strategy"], "horizontal_straight_fit_tangent")
         self.assertTrue(crop_metadata["horizontal_straight_fit"]["eligible"])
 
-    def test_stable_unwrap_strategy_changes_only_crop_model_for_all_local_polygon_lines(self):
+    def test_stable_unwrap_strategy_is_independent_and_adds_unwrap_crops(self):
         tmp_root, xml_path, image_path, heatmap_path = self._make_single_line_page(
             "stable_unwrap_circular",
             "48,16 78,48 48,80 18,48 48,16 18,48 48,80 78,48",
@@ -481,10 +481,20 @@ class LineSegmentationStrategyUnitTest(unittest.TestCase):
         )
 
         self.assertEqual(proposed.strategy_name, "local_polygons_stable_unwrap_v1")
-        self.assertEqual(
-            benchmark.line_metadata[0]["coords_points"],
-            proposed.line_metadata[0]["coords_points"],
-        )
+
+        # This used to assert the two strategies emit identical Coords, which
+        # was true when local_polygons_stable_unwrap_v1 was frozen out of
+        # local_polygons_v1 on 2026-05-30. It stopped being true once the
+        # frozen copy took geometry fixes that local_polygons_v1 never got
+        # (f3bf6c5 heatmap assignment, f11af33 heatmap/baseline interception).
+        # The freeze is a provenance statement, not a promise of ongoing
+        # equality, so assert what still has to hold: both build a real polygon
+        # from the same inputs, and the frozen copy is nobody's delegate.
+        benchmark_coords = benchmark.line_metadata[0]["coords_points"]
+        proposed_coords = proposed.line_metadata[0]["coords_points"]
+        for coords in (benchmark_coords, proposed_coords):
+            self.assertGreaterEqual(len(coords), 4)
+            self.assertTrue(all(len(point) == 2 for point in coords))
         self.assertEqual(proposed.line_metadata[0]["crop_model"], "local_polygon_stable_unwrap")
         self.assertNotIn("geometry_delegate_strategy_name", proposed.geometry_summary)
         self.assertFalse(proposed.geometry_summary["production_coupled"])

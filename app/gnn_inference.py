@@ -142,6 +142,12 @@ def _components_from_structural_labels(structural_labels: np.ndarray, num_nodes:
 
 
 def load_model_once(model_checkpoint_path, config_path):
+    """Load and cache the layout GNN, keyed on the resolved checkpoint path.
+
+    Layout active learning promotes manuscript-local checkpoints, so the key
+    includes the path: promoting a new checkpoint changes the key and the next
+    page load transparently picks the new model up.
+    """
     global LOADED_MODEL, LOADED_CONFIG, LOADED_MODEL_KEY, DEVICE
     model_key = (
         str(Path(model_checkpoint_path).resolve()),
@@ -159,6 +165,50 @@ def load_model_once(model_checkpoint_path, config_path):
             LOADED_CONFIG = DatasetCreationConfig(**yaml.safe_load(f))
         LOADED_MODEL_KEY = model_key
     return LOADED_MODEL, LOADED_CONFIG, DEVICE
+
+
+def _is_cuda_oom(exc: BaseException) -> bool:
+    if isinstance(exc, getattr(torch.cuda, "OutOfMemoryError", ())):
+        return True
+    return isinstance(exc, RuntimeError) and "out of memory" in str(exc).lower()
+
+
+def _predict_edge_labels(model, node_features, edge_index, edge_features, device, threshold=0.5):
+    """Score candidate edges, degrading to CPU rather than failing on OOM.
+
+    Page load must never block or fail because a background layout fine-tune is
+    holding GPU memory. Inference here is small (a few thousand nodes, two
+    SplineConv layers), so a CPU pass is a slower page load, not a broken one.
+    """
+    global LOADED_MODEL, DEVICE
+
+    def _run(active_device):
+        data = Data(
+            x=node_features,
+            edge_index=edge_index,
+            edge_attr=edge_features,
+        ).to(active_device)
+        with torch.no_grad():
+            logits = model(data.x, data.edge_index, data.edge_attr)
+            probs = F.softmax(logits, dim=1)
+            return (probs[:, 1] > threshold).cpu().numpy(), data.edge_index.cpu().numpy()
+
+    try:
+        return _run(device)
+    except Exception as exc:  # noqa: BLE001 - re-raised unless it is a CUDA OOM
+        if not _is_cuda_oom(exc):
+            raise
+        LOGGER.warning(
+            "Layout GNN inference hit CUDA OOM (a background job may hold the GPU); "
+            "falling back to CPU for this and subsequent pages until the model reloads."
+        )
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        cpu_device = torch.device("cpu")
+        model.to(cpu_device)
+        LOADED_MODEL = model
+        DEVICE = cpu_device
+        return _run(cpu_device)
 
 def generate_xml_and_images_for_page(
     manuscript_path,
@@ -663,7 +713,23 @@ def get_node_labels_from_edge_labels(edge_index, pred_edge_labels, num_nodes):
     
     return node_labels
 
-def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_path):
+def run_gnn_prediction_for_page(
+    manuscript_path,
+    page_id,
+    model_path,
+    config_path,
+    force_regenerate_edges=False,
+):
+    """Return the page's working graph, predicting edges only when needed.
+
+    A page with a saved graph is returned from disk: human layout corrections
+    are ground truth and are never silently overwritten by an improved model.
+
+    ``force_regenerate_edges`` is the explicit "Replace With New Layout" path.
+    It re-runs the GNN over the page's *current* node set -- so manual node
+    additions and deletions survive -- and returns fresh edges without writing
+    anything. The caller decides whether to keep them by saving.
+    """
     print(f"Fetching data for page: {page_id}")
     
     base_path = Path(manuscript_path)
@@ -716,7 +782,11 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
         "edges": [],
         "textline_labels": [-1] * len(points_normalized),
         "textbox_labels": [],
-        "dimensions": [full_width, full_height]
+        "dimensions": [full_width, full_height],
+        # True when the graph came straight from the human's saved corrections
+        # rather than the model. The GUI uses it to decide whether "Replace
+        # With New Layout" has anything to replace.
+        "from_saved_graph": False,
     }
 
     # --- 2. Check for Saved Topology (Edges/Labels) ---
@@ -724,7 +794,7 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
     saved_labels_path = history_dir / f"{page_id}_labels_textline.txt"
     saved_textbox_path = history_dir / f"{page_id}_labels_textbox.txt"
     
-    if saved_edges_path.exists():
+    if saved_edges_path.exists() and not force_regenerate_edges:
         print(f"Found saved edge topology...")
         saved_edges = []
         try:
@@ -744,7 +814,8 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
             print(f"Warning reading edges: {e}")
             
         response["edges"] = saved_edges
-        
+        response["from_saved_graph"] = True
+
         if saved_labels_path.exists():
             try:
                 labels = np.loadtxt(saved_labels_path, dtype=int, ndmin=1)
@@ -761,7 +832,18 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
 
         return response
 
-    # --- 3. Run GNN (Only if no history exists) ---
+    if force_regenerate_edges and saved_textbox_path.exists():
+        # Region labels are per node and the node set is unchanged, so they
+        # survive a relayout. Text-line labels do not: they are the components
+        # of the edge set the GNN is about to replace.
+        try:
+            tb_labels = np.loadtxt(saved_textbox_path, dtype=int, ndmin=1)
+            if tb_labels.size == len(points_normalized):
+                response["textbox_labels"] = tb_labels.tolist()
+        except Exception as e:
+            print(f"Warning reading textbox labels for relayout: {e}")
+
+    # --- 3. Run GNN (no saved history, or an explicit relayout request) ---
     if len(points_normalized) == 0:
         return response
 
@@ -783,18 +865,13 @@ def run_gnn_prediction_for_page(manuscript_path, page_id, model_path, config_pat
 
     node_features = get_node_features(points_normalized, input_graph_data["heuristic_degrees"], d_config.features)
     edge_features = get_edge_features(edge_index, node_features, input_graph_data["heuristic_edge_counts"], d_config.features)
-    
-    data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_features).to(device)
 
-    threshold = 0.5
-    with torch.no_grad():
-        logits = model(data.x, data.edge_index, data.edge_attr)
-        probs = F.softmax(logits, dim=1)
-        pred_edge_labels = (probs[:, 1] > threshold).cpu().numpy()
+    pred_edge_labels, edge_index_cpu = _predict_edge_labels(
+        model, node_features, edge_index, edge_features, device
+    )
 
     model_positive_edges = set()
-    edge_index_cpu = data.edge_index.cpu().numpy()
-    
+
     for idx, is_pos in enumerate(pred_edge_labels):
         if is_pos:
             u, v = edge_index_cpu[:, idx]

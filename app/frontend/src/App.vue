@@ -47,14 +47,6 @@
           />
         </div>
 
-        <div class="form-group checkbox-group">
-          <label>
-            <input v-model="formPipelineVisualizationEnabled" type="checkbox" />
-            Save pipeline visualizations (background)
-          </label>
-          <small>Writes per-page stage artifacts without changing layout or OCR processing.</small>
-        </div>
-        
         <div class="form-group">
           <label>Images:</label>
           <input type="file" multiple @change="handleFileChange" accept="image/*" />
@@ -93,7 +85,6 @@ const formName = ref('my_manuscript')
 const formLongestSide = ref(3500)
 const formMinDistance = ref(20)
 const formBinarizationThreshold = ref('')
-const formPipelineVisualizationEnabled = ref(false)
 const selectedFiles = ref([])
 const uploading = ref(false)
 const uploadStatus = ref('')
@@ -137,7 +128,10 @@ const upload = async () => {
   if (thresholdOverride !== '') {
     formData.append('binarizationThreshold', thresholdOverride)
   }
-  formData.append('pipelineVisualizationEnabled', String(formPipelineVisualizationEnabled.value))
+  // Pipeline visualizations were a temporary diagnostic and are no longer
+  // offered in the upload menu. The backend still honours the
+  // APP_PIPELINE_VISUALIZATION env var and a manuscript's saved setting, so
+  // existing manuscripts keep working and it stays available for debugging.
   selectedFiles.value.forEach(file => formData.append('images', file))
 
   try {

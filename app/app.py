@@ -90,6 +90,15 @@ from ocr_active_learning_runtime import (
     summarize_page_active_learning,
     summarize_manuscript_active_learning,
 )
+from layout_active_learning_runtime import (
+    DEFAULT_LAYOUT_RECIPE_CONFIG,
+    active_layout_checkpoint,
+    configure_runtime as configure_layout_runtime,
+    defer_layout_training_for_interactive_work,
+    handle_post_layout_save,
+    queue_layout_backfill,
+    summarize_manuscript_layout_active_learning,
+)
 from ocr_model_manager import ManuscriptAwareOcrModelManager
 from layout_effort_logging import record_layout_effort_save, utc_now_iso as layout_effort_utc_now_iso
 from text_recovery import (
@@ -111,8 +120,13 @@ CORS(app)
 
 # Configuration
 UPLOAD_FOLDER = './input_manuscripts'
-MODEL_CHECKPOINT = "./pretrained_gnn/v2.pt"
-DATASET_CONFIG = "./pretrained_gnn/gnn_preprocessing_v2.yaml"
+# Absolute, so they resolve no matter what working directory the server was
+# started from. Layout active learning records the base checkpoint path into
+# manuscript-local registries, and a relative path there would strand the
+# checkpoint fallback ladder the moment the process ran from anywhere else.
+APP_DIR = Path(__file__).resolve().parent
+MODEL_CHECKPOINT = str(APP_DIR / "pretrained_gnn" / "v2.pt")
+DATASET_CONFIG = str(APP_DIR / "pretrained_gnn" / "gnn_preprocessing_v2.yaml")
 OCR_MODEL_MANAGER = ManuscriptAwareOcrModelManager()
 JOB_ORCHESTRATOR = JobOrchestrator()
 SUPPORTED_RECOGNITION_ENGINES = {"local", "gemini"}
@@ -287,6 +301,11 @@ def _recognition_reader_capabilities():
 
 def _configure_active_learning_runtime():
     configure_runtime(OCR_MODEL_PATH, JOB_ORCHESTRATOR)
+    configure_layout_runtime(
+        MODEL_CHECKPOINT,
+        JOB_ORCHESTRATOR,
+        recipe_config_path=DEFAULT_LAYOUT_RECIPE_CONFIG,
+    )
 
 
 def _get_manuscript_active_learning_state(manuscript):
@@ -297,6 +316,47 @@ def _get_manuscript_active_learning_state(manuscript):
         base_checkpoint_path=OCR_MODEL_PATH,
         orchestrator=JOB_ORCHESTRATOR,
     )
+
+
+def _get_manuscript_layout_active_learning_state(manuscript):
+    _configure_active_learning_runtime()
+    manuscript_root = Path(UPLOAD_FOLDER) / manuscript
+    return summarize_manuscript_layout_active_learning(
+        manuscript_root,
+        base_checkpoint_path=MODEL_CHECKPOINT,
+        orchestrator=JOB_ORCHESTRATOR,
+    )
+
+
+def _get_manuscript_layout_active_learning_state_or_none(manuscript):
+    """Layout status for page load, which must render even without it.
+
+    The dedicated status route reports errors; page load only needs the panel
+    to degrade, so an unreadable layout registry costs the status line rather
+    than the page.
+    """
+    try:
+        return _get_manuscript_layout_active_learning_state(manuscript)
+    except Exception:
+        traceback.print_exc()
+        return None
+
+
+def _get_manuscript_layout_checkpoint(manuscript):
+    """Resolve the GNN checkpoint page load should predict with.
+
+    Falls back to the pretrained checkpoint if manuscript-local layout state
+    cannot be read: an unreadable registry must degrade page load, not break it.
+    """
+    try:
+        _configure_active_learning_runtime()
+        return active_layout_checkpoint(
+            Path(UPLOAD_FOLDER) / manuscript,
+            base_checkpoint_path=MODEL_CHECKPOINT,
+        )
+    except Exception:
+        traceback.print_exc()
+        return str(Path(MODEL_CHECKPOINT).resolve()), "base"
 
 
 def _get_manuscript_local_checkpoint(manuscript):
@@ -897,7 +957,11 @@ def _run_local_recognition_internal(manuscript, page, checkpoint_path=None, chec
 
     # 2. Get Model Context
     if interactive:
+        # Reading this page comes first. Preempt any training already running,
+        # and push queued layout training back so it does not start underneath
+        # the inference we are about to run.
         prepare_for_interactive_ocr(base_path, orchestrator=JOB_ORCHESTRATOR)
+        defer_layout_training_for_interactive_work(orchestrator=JOB_ORCHESTRATOR)
 
     if checkpoint_path is None:
         checkpoint_path, checkpoint_id, _ = _get_manuscript_local_checkpoint(manuscript)
@@ -1053,6 +1117,44 @@ def get_manuscript_active_learning(name):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/manuscript/<name>/layout-active-learning', methods=['GET'])
+def get_manuscript_layout_active_learning(name):
+    manuscript_path = Path(UPLOAD_FOLDER) / name
+    if not manuscript_path.exists():
+        return jsonify({"error": "Manuscript not found"}), 404
+    try:
+        return jsonify(_get_manuscript_layout_active_learning_state(name))
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/manuscript/<name>/layout-active-learning/backfill', methods=['POST'])
+def start_manuscript_layout_backfill(name):
+    """Train one layout checkpoint from every page already corrected.
+
+    Pooled rather than a per-page ladder: with all pages in hand there is
+    nothing to approximate, so each page contributes all of its augmentations
+    to every epoch. Pages corrected before layout active learning existed are
+    adopted into the registry first.
+    """
+    manuscript_path = Path(UPLOAD_FOLDER) / name
+    if not manuscript_path.exists():
+        return jsonify({"error": "Manuscript not found"}), 404
+    try:
+        _configure_active_learning_runtime()
+        result = queue_layout_backfill(
+            manuscript=name,
+            manuscript_root=manuscript_path,
+            base_checkpoint_path=MODEL_CHECKPOINT,
+            orchestrator=JOB_ORCHESTRATOR,
+        )
+        return jsonify(result)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/recognition/readers', methods=['GET'])
 def get_recognition_readers():
     return jsonify(_recognition_reader_capabilities())
@@ -1061,13 +1163,22 @@ def get_recognition_readers():
 def get_page_prediction(manuscript, page):
     manuscript_path = Path(UPLOAD_FOLDER) / manuscript
     try:
+        # Predict with the newest *promoted* layout checkpoint. A fine-tune that
+        # is still queued or running is deliberately ignored, so opening a page
+        # never waits on training and training is never restarted by navigation.
+        layout_checkpoint_path, layout_checkpoint_id = _get_manuscript_layout_checkpoint(manuscript)
+        # "Replace With New Layout": re-run the GNN over this page's current
+        # nodes instead of returning the saved graph. Nothing is written; the
+        # user keeps the result by saving, or discards it by reloading.
+        force_regenerate_layout = str(request.args.get('relayout', '')).strip().lower() in {'1', 'true', 'yes'}
         graph_data = run_gnn_prediction_for_page(
-            str(manuscript_path), 
-            page, 
-            MODEL_CHECKPOINT, 
-            DATASET_CONFIG
+            str(manuscript_path),
+            page,
+            layout_checkpoint_path,
+            DATASET_CONFIG,
+            force_regenerate_edges=force_regenerate_layout,
         )
-        
+
         img_path = manuscript_path / "images_resized" / f"{page}.jpg"
         encoded_string = ""
         if img_path.exists():
@@ -1087,8 +1198,13 @@ def get_page_prediction(manuscript, page):
             line_image_previews = get_existing_line_image_previews(manuscript, page, xml_path)
 
         active_learning = _get_manuscript_active_learning_state(manuscript)
+        layout_active_learning = _get_manuscript_layout_active_learning_state_or_none(manuscript)
         response = {
             "image": encoded_string,
+            "layoutActiveLearning": layout_active_learning,
+            "layoutCheckpointId": layout_checkpoint_id,
+            "layoutRegenerated": force_regenerate_layout,
+            "layoutFromSavedGraph": bool(graph_data.get('from_saved_graph', False)),
             "dimensions": graph_data['dimensions'],
             "points": [[n['x'], n['y']] for n in graph_data['nodes']],
             "graph": graph_data,
@@ -1657,6 +1773,10 @@ def save_correction(manuscript, page):
     save_intent = data.get('saveIntent', 'commit')
     save_scope = str(data.get('saveScope') or 'layout')
     active_learning_enabled = bool(data.get('activeLearningEnabled', False))
+    # Layout (GNN) active learning is a separate opt-in from OCR active
+    # learning: it trains a different model from a different supervision
+    # boundary, so one toggle must not silently enable the other.
+    layout_active_learning_enabled = bool(data.get('layoutActiveLearningEnabled', False))
     layout_effort_payload = data.get('layoutEffort') or None
     layout_effort_logging_request_enabled = (
         data.get('layoutEffortLoggingEnabled')
@@ -1743,9 +1863,39 @@ def save_correction(manuscript, page):
             save_scope=save_scope,
             orchestrator=JOB_ORCHESTRATOR,
         )
+        # Layout active learning is a follow-up to the save, never a gate on it:
+        # the layout artifacts are already written by this point, so a failure
+        # here degrades learning rather than costing the user their save.
+        try:
+            layout_active_learning_result = handle_post_layout_save(
+                manuscript=manuscript,
+                page=page,
+                save_intent=save_intent,
+                save_scope=save_scope,
+                layout_active_learning_enabled=layout_active_learning_enabled,
+                graph_payload=graph_data,
+                manuscript_root=manuscript_path,
+                base_checkpoint_path=MODEL_CHECKPOINT,
+                textbox_labels=textbox_labels,
+                reading_direction_annotations=reading_direction_annotations,
+                layout_modification_count=len(modifications or []),
+                orchestrator=JOB_ORCHESTRATOR,
+            )
+        except Exception as layout_learning_error:
+            traceback.print_exc()
+            layout_active_learning_result = {
+                "supervision_present": False,
+                "entered_active_learning": False,
+                "queued_job_ids": [],
+                "error": str(layout_learning_error),
+                "layout_active_learning": None,
+            }
+
         result['activeLearning'] = active_learning_result['active_learning']
         result['activeLearningRevision'] = active_learning_result['revision']
         result['activeLearningQueuedJobIds'] = active_learning_result['queued_job_ids']
+        result['layoutActiveLearning'] = layout_active_learning_result['layout_active_learning']
+        result['layoutActiveLearningQueuedJobIds'] = layout_active_learning_result['queued_job_ids']
         result['pageWorkflow'] = _build_page_workflow(
             manuscript_path,
             page,

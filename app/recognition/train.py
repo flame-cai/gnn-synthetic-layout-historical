@@ -82,7 +82,14 @@ def _seed_everything(opt):
         print("------ Use multi-GPU setting ------")
         print("if you stuck too long time with multi-GPU setting, try to set --workers 0")
         opt.workers = opt.workers * opt.num_gpu
-        opt.batch_size = opt.batch_size * opt.num_gpu
+        # The configured batch size is honoured verbatim, on every machine.
+        # Upstream scaled it by the visible GPU count here, which made the
+        # effective batch size a property of the host rather than the recipe:
+        # the OCR active-learning recipe is calibrated at batch_size=1 and the
+        # research ablations ran that way under CUDA_VISIBLE_DEVICES=0, but the
+        # GUI server sees every GPU, so the same manuscript trained at batch 3
+        # on a 3-GPU box and batch 1 on a laptop. Scaling the batch also scales
+        # the effective step size, which is exactly what the recipe pins.
 
 
 def _build_scheduler(optimizer, opt):

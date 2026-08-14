@@ -59,6 +59,9 @@ Because the final output of this tool can be verified by an external verifier (u
     The dataset used in the paper is currently available in the  
     [`gram-submission`](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/gram-submission?tab=readme-ov-file) branch of this repository.
 
+*   **📚 [Dataset Release](./dataset_release/DATASET.md)**
+`dataset_release\`: 31 pages from three Sanskrit manuscripts spanning layout difficulty, with human ground truth for text-line structure, region grouping, reading direction and diplomatic transcription, plus the exact image inputs those labels are defined on. See [DATASET.md](./dataset_release/DATASET.md) for the label layers, coordinate spaces, evaluation folds, and how the release is built and verified.
+
 ## 🚀 **Getting Started**
 
 #### Recommended System Requirements
@@ -192,6 +195,8 @@ Access the UI at `http://localhost:5173`.
 
 #### Current OCR Active Learning Runtime
 The app includes a manuscript-local OCR active-learning runtime for the local EasyOCR checkpoint family. Commit saves can record page revisions and queue OCR fine-tune/rebase work; draft autosaves do not create OCR lineage. Runtime checkpoints, telemetry, and profiling live under `app/input_manuscripts/<manuscript>/active_learning/recognition/`. Gemini can still be used for prediction, but it is not the active-learning checkpoint lineage.
+
+The layout GNN is fine-tuned the same way, from Layout Mode commit saves instead of Read Mode ones, so the text-line predictions on later pages need less correction too; it is a separate opt-in ("Improve Future Layout"), keeps its state under `active_learning/layout/`, and never re-predicts a page you have already corrected. See [PRODUCTION.md](./PRODUCTION.md) for the full contract.
 
 Detailed recipe, checkpoint, telemetry, and gate behavior will live in `RESEARCH_HARNESS.md`.
 

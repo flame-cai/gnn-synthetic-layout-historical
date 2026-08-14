@@ -1,0 +1,45 @@
+schema_version: 2
+
+# GUI runtime recipe for manuscript-local layout (GNN) active learning.
+#
+# Hyperparameters are identical to the canonical experiment recipe
+# `experiments/downstream_ocr/configs/gnn_finetuning_no_deleted_nodes.yaml`,
+# which produced the monotonic fine-tuning curves in
+# `experiments/downstream_ocr/GNN_SUPERVISION_FINDINGS.md`. This file is a
+# separate production copy because `experiments/` is untracked and the GUI must
+# not depend on it; keep the two in step, and take any change back through the
+# research harness first.
+augmentation_config: src/configs/augment.yaml
+preprocessing_config: app/pretrained_gnn/gnn_preprocessing_v2.yaml
+
+expected_model_class: gnn_training.training.models.gnn_models.EdgeClassifier
+expected_backbone_class: gnn_training.training.models.gnn_models.SplineConvBackbone
+trainable_scope: full_model
+
+# Deliberately disabled, and more important here than in the experiment:
+# deleting spurious CRAFT nodes is a primary Layout Mode action, so GUI pages
+# routinely sit in the high-deletion regime where re-inserting deleted nodes as
+# all-negative edge supervision collapsed held-out layout quality
+# (circle_new fold_4: G-F1 0.577 -> 0.214). Keeping this off also means training
+# never needs the raw `gnn-dataset/` proposals, only the corrected graph.
+deleted_node_supervision:
+  enabled: false
+
+history_replay_ratio: 0.20
+
+device: auto
+random_seed: 43
+checkpoint_metric: val_textline_f1_score
+
+training_params:
+  epochs: 10
+  batch_size: 4
+  learning_rate: 0.001
+  lr_warmup_epochs: 5
+  optimizer: Adam
+  imbalance_handler: focal_loss
+  focal_loss_alpha: 0.90
+  focal_loss_gamma: 2.0
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.001
+  early_stopping_mode: max
