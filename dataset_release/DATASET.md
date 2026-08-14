@@ -1,40 +1,20 @@
 # Sanskrit Manuscript Layout Regimes
 
-A labels dataset for handwritten Devanagari manuscript page analysis: 31 folios from three
+This is a curated dataset for the task of performing OCR on complex historical Sanskrit Manuscripts. We have 31 pages from three
 Sanskrit manuscripts, with human ground truth for text-line structure, region grouping,
 reading direction and diplomatic transcription, plus the exact image inputs those labels are
 defined on.
 
 The three manuscripts span layout difficulty rather than sampling a population. One is a wide
 landscape folio with long straight lines; one is densely packed with heavy marginalia; one is
-dominated by yantra diagrams whose text lines curve and close into circles. Nine text lines in
-this corpus are topological cycles; 172 are single glyphs. That range is the point.
+dominated by yantra diagrams whose text lines curve and close into circles. 
 
-**The one thing not to get wrong:** transcriptions, region labels, reading directions and the
-layout graph's nodes and edges are human ground truth; the text-line groupings are connected
-components of that human edge set; the `Coords` polygons are generated deterministically from
-the human baselines plus a CRAFT heatmap. Evaluating polygon prediction against these `Coords`
-measures agreement with a documented generator, not with a person. Section 5 gives the
-provenance of every layer.
+This dataset can be used to improve any part of the pipeline using the RESEARCH_HARNESS.md, as the ground truth downstream OCR transcription provides verifiable rewards, thus enabling an LLM + External verifier research harness. The layout level Ground Truth annotations can also provide additional supervision.
 
-## At a glance
+The layout in this dataset is defined as follows:
+We treat each character (or Grapheme Cluster) as a node, with edges connecting nodes belonging to the same text-line together (each character connects to it's neighbour on the text-line). This also means that we have text-line level labels for the nodes, where each node belonging to the same text-line has the same label. Similarly, we also have text-region labels where each node belonging to the same text-region has the same label. We annotate text-regions using the criteria that the reading order of text-lines in a text-regions is unambiguous. If it is ambiguous, we annotate each text-line as a text-region. We also have annotations such as text-line orientation which annotates if circular text is supposed to be read counter-clock wise or clockwise. 
 
-| | |
-| --- | --- |
-| Manuscripts | 3 — `moderate_layout`, `dense_layout`, `circular_layout` |
-| Pages | 31 |
-| Text regions | 596 |
-| Text lines | 882 |
-| Transcribed characters (NFC) | 27,618, of which 26,202 in the Devanagari block |
-| Character vocabulary | 131 distinct code points |
-| Layout graph nodes / edges | 13,074 / 12,201 |
-| Cycle edges (closed circular lines) | 9 |
-| Reading-direction annotations | 25, all in `circular_layout` |
-| Rectified line crops | 566 |
-| Page rasters | shipped for 2 of 3 manuscripts; withheld and byte-reproducible for the third |
-| Files / verification checks | 915 / 842, all passing |
-| Size | ≈ 40 MB unpacked, ≈ 35 MB as a gzipped tar |
-| PAGE-XML schema | PRImA PAGE 2013-07-15 |
+**The one thing not to get wrong:** Unicode transcriptions, node locations, edges, text-line labels, region labels, reading directions, and in general the layout graph are human ground truth; The `Baseline` in the PAGE-XML file of each page is derived from this layout graph and is also thus ground truth. Here the `Baseline` is actually a _through line_ as they pass through the middle of the text. However the `Coords` polygons in the PAGE-XML are bounding polygons around the handwritten text are generated deterministically from the human baselines, plus a CRAFT heatmap. Due to this dependency, the `Coords` can sometimes be imprecise as the CRAFT heatmap can also sometimes make mistakes. Hence please treat `Baseline` and the layout graph as the main ground truth layout annotations, with `Coords` being a supplement. In this application we do use `Coords` to extract and unwrap the text-lines but that can be improved. The PAGE-XML `Unicode` contain the actual transcriptions for each text-line.
 
 ## Contents
 
@@ -57,49 +37,9 @@ provenance of every layer.
 Inputs, and ground truth defined on those inputs. For each page: the page raster, a CRAFT
 character-region heatmap computed from it, a graph over character-sized blobs whose edges say
 "these two blobs are consecutive on one text line", PAGE-XML carrying baselines, polygons and
-transcriptions, per-line geometry and reading directions, and rectified line crops.
+transcriptions, per-line geometry and text line orientation (reading directions).
 
 ### 1.1 The three manuscripts
-
-| Release id | Work | Genre | Holding institution | Pages | Page rasters |
-| --- | --- | --- | --- | ---: | --- |
-| `moderate_layout` | Yājñavalkyasmṛtiḥ (Ācārādhyāyaḥ) | dharmaśāstra | Lalchand Research Library, DAV College, Chandigarh, India | 15 | withheld, reconstructible |
-| `dense_layout` | Muhūrta Mārtaṇḍa | jyotiṣa | eGangotri Digital Preservation Trust (Dharmarth Trust J&K collection) | 7 | shipped |
-| `circular_layout` | Tantrarāja, with Yantra and Mantra Uddhāra | tantra | eGangotri Digital Preservation Trust (Dharmarth Trust J&K collection) | 9 | shipped |
-
-Full source records, rights bases and BibTeX keys: section 7,
-`manuscripts/<manuscript>/SOURCE.md`, and `SOURCES.bib`.
-
-### 1.2 The three regimes, in numbers
-
-| | `moderate_layout` | `dense_layout` | `circular_layout` |
-| --- | ---: | ---: | ---: |
-| Pages | 15 | 7 | 9 |
-| Page raster (px), landscape/portrait | 2500 × 912…967 | 3500 × 1511…1605 | 2504…2745 × 3500 |
-| Distinct raster sizes | 10 | 6 | 9 |
-| Text regions | 195 | 146 | 255 |
-| Text lines | 316 | 311 | 255 |
-| Maximum lines in one region | 8 | 16 | 1 |
-| `horizontal_straight` | 282 | 289 | 91 |
-| `vertical_straight` | 0 | 0 | 1 |
-| `curved_open` | 2 | 7 | 29 |
-| `closed_circular` | 0 | 0 | 9 |
-| `point` | 32 | 15 | 125 |
-| Reading-direction annotations | 0 | 0 | 25 |
-| Lines with empty transcription | 7 | 2 | 5 |
-| Transcribed chars (NFC) | 12,495 | 10,090 | 5,033 |
-| … in the Devanagari block | 12,264 | 9,471 | 4,467 |
-| Character vocabulary | 86 | 109 | 107 |
-| Median line length (NFC chars) | 15 | 15 | 4 |
-| Baseline points min / median / max | 1 / 7 / 59 | 1 / 7 / 61 | 1 / 2 / 66 |
-| Polygon points min / median / max | 12 / 96 / 389 | 14 / 135 / 410 | 6 / 36 / 450 |
-| Non-simple `Coords` polygons | 16 / 316 | 75 / 311 | 41 / 255 |
-| Lines with `fallback_used` | 10 | 8 | 57 |
-| Graph nodes / edges | 6,015 / 5,699 | 4,886 / 4,575 | 2,173 / 1,927 |
-| Isolated nodes (degree 0) | 32 | 15 | 125 |
-| Mean degree over non-isolated nodes | 1.905 | 1.878 | 1.882 |
-| Maximum degree | 2 | 3 | 2 |
-| Surplus edges beyond a spanning forest | 0 | 0 | 9 |
 
 `moderate_layout` is the regular case: long straight lines, even spacing, sparse marginalia,
 and 32 `point` lines that are folio numbers and short marginal marks.
@@ -116,43 +56,16 @@ them a rectified crop of a ring is ambiguous up to seam and direction. 125 of it
 single glyphs — the cells of a yantra. Every region holds exactly one line, an artefact of
 labelling rather than of the manuscript (section 10.5).
 
-Three identities hold on every page of all three manuscripts, and are the skeleton of the
-dataset:
 
-```text
-  #connected components of the edge set  ==  #PAGE TextLines            (check C6)
-  #edges - (#nodes - #components)        ==  #closed_circular lines     (check C7)
-  #isolated nodes  ==  #single-point baselines  ==  #point lines
-```
+| Release id | Work | Genre | Holding institution | Pages | Page rasters |
+| --- | --- | --- | --- | ---: | --- |
+| `moderate_layout` | Yājñavalkyasmṛtiḥ (Ācārādhyāyaḥ) | dharmaśāstra | Lalchand Research Library, DAV College, Chandigarh, India | 15 | withheld, reconstructible |
+| `dense_layout` | Muhūrta Mārtaṇḍa | jyotiṣa | eGangotri Digital Preservation Trust (Dharmarth Trust J&K collection) | 7 | shipped |
+| `circular_layout` | Tantrarāja, with Yantra and Mantra Uddhāra | tantra | eGangotri Digital Preservation Trust (Dharmarth Trust J&K collection) | 9 | shipped |
 
-The third is not separately checked but holds exactly: 32, 15 and 125. A `point` line is
-precisely a text line whose graph component is a single node.
+Full source records, rights bases and BibTeX keys: section 7,
+`manuscripts/<manuscript>/SOURCE.md`, and `SOURCES.bib`.
 
-### 1.3 What is not in this release
-
-No machine pre-correction state, no correction deltas, no annotation timing. Specifically
-absent and not recoverable from the shipped files: raw pre-correction CRAFT node proposals,
-per-page counts of nodes the annotator added or removed, and the annotation-effort log.
-
-One consequence, stated plainly: **this release is not drop-in for the reference experiment
-harness**, which hardcodes the authoring tree's directory names and expects the raw node
-proposals. That is the trade made for legibility. Section 3.2 maps the names back.
-
-### 1.4 Terminology
-
-| Term | Meaning |
-| --- | --- |
-| **page raster** | The image in `inputs/`. Every coordinate in the release is defined on this pixel grid. |
-| **heatmap space** | The CRAFT region-score grid, exactly half the page raster in each dimension. All graph node coordinates live here. |
-| **node** | One local maximum of the region-score heatmap: approximately one Devanagari akṣara-sized ink blob. |
-| **candidate edge** | An unordered node pair offered to a classifier as possibly same-line. Fixed heuristics, never learned. Not shipped; regenerable (section 4). |
-| **layout graph** | The shipped node and edge set, in `labels/graph/`. Human ground truth. |
-| **text line** | One connected component of the layout graph; one PAGE `TextLine`. |
-| **region** | A `TextRegion`: a column, block, marginal note or diagram cell grouping one or more text lines. |
-| **line kind** | One of `horizontal_straight`, `vertical_straight`, `curved_open`, `closed_circular`, `point`. Computed from baseline geometry. |
-| **annotator** | The person who produced the labels. Referred to as they/them. |
-
----
 
 ## 2. Quick start
 
@@ -345,7 +258,7 @@ character with no node cannot belong to a line.
     ▼
   node set ──► candidate edges: collinearity heuristic (k=10, cosine <= -0.8)
     │                         U angular k-NN (k=50, nearest per 20-degree sector), bidirectional
-    │  binary edge classification, then human review: add/delete nodes and edges,
+    │  binary edge classification using GNN, then human review: add/delete nodes and edges,
     │  assign region labels, draw reading-direction cross-cuts
     ▼
   L3 layout graph ──► connected components ──► text lines ──► ordered nodes ──► L4 baselines
@@ -870,10 +783,6 @@ to `<page>_labels_textline.txt`.
 
 ## 10. Known limitations
 
-**10.1 Thirty-one pages.** Three manuscripts, 31 pages, 882 text lines; per-manuscript
-conclusions rest on 7 to 15 pages. Differences of a few percent between systems on one
-manuscript are not resolvable at this size. This is a regime study, not a large-scale benchmark.
-
 **10.2 The folds overlap.** Training sets share pages, test sets share pages, and per-fold
 results are correlated. Any procedure treating the five folds as five independent trials is
 mis-specified (section 8).
@@ -886,8 +795,6 @@ because no heatmap component could be assigned; those are the weakest geometry i
 and are concentrated in `circular_layout` (57 of 75). Apply a repair policy for geometric
 metrics and report which; filter on `fallback_used` when polygon quality matters.
 
-**10.4 Fourteen lines have no transcription** (7 / 2 / 5), retained deliberately. Any text
-metric must decide explicitly what an empty reference means.
 
 **10.5 Region structure is a human label in only two of three manuscripts.**
 `circular_layout` received no region labelling: all 255 of its regions were assigned
