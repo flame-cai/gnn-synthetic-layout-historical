@@ -4,7 +4,7 @@
   "reason": "page rasters are under third-party copyright and are not redistributed",
   "target_longest_side": 3500,
   "derivation": "PIL open -> LANCZOS downscale only if max(w, h) > 3500 -> convert to RGB if mode in {RGBA, P, LA} -> save as JPEG at Pillow's default quality",
-  "reference_pillow_version": "11.3.0",
+  "reference_pillow_version": "12.3.0",
   "pages": [
     {
       "page_id": "233_0002",

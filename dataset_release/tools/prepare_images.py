@@ -2,7 +2,7 @@
 
 The page images of ``moderate_layout`` are under third-party copyright and are
 not part of this release. Acquire them yourself from the holding institution
-(see ``manuscripts/moderate_layout/inputs/SCRAPE.md``), then run this
+(see ``manuscripts/moderate_layout/inputs/DOWNLOAD.md``), then run this
 script to turn the downloaded scans into the exact raster that every coordinate
 in the release is defined on:
 

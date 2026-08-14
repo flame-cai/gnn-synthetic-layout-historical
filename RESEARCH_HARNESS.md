@@ -256,7 +256,7 @@ in checked-in source, with the promotion command, not silently.
 `app/tests/eval_dataset/images/` holds the original DAV scans of the
 `moderate_layout` manuscript byte-for-byte. Those images are licensed for
 research use but not for redistribution, which is why the release withholds
-them and ships `SCRAPE.md` plus a checksum manifest instead. Tracking them here
+them and ships `DOWNLOAD.md` plus a checksum manifest instead. Tracking them here
 contradicted that. `eval_dataset_v2` is untracked in the same change because it
 is 90 MB serving one gate.
 

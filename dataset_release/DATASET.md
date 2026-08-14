@@ -148,8 +148,8 @@ region_6_line_0 closed_circular [1.0, 0.0] 'हिंहींहुंहूं
 
 ### 2.3 Reconstruct the withheld rasters
 
-Acquire the 15 `moderate_layout` scans as specified in
-`manuscripts/moderate_layout/inputs/SCRAPE.md`, then:
+Acquire the 15 `moderate_layout` scans as described in
+`manuscripts/moderate_layout/inputs/DOWNLOAD.md`, then:
 
 ```bash
 python tools/prepare_images.py \
@@ -193,7 +193,7 @@ dataset_release/
 
 | Path | `moderate_layout` | `dense_layout` | `circular_layout` |
 | --- | ---: | ---: | ---: |
-| `inputs/` | 2 (`SCRAPE.md`, `RASTER_MANIFEST.json`) | 7 | 9 |
+| `inputs/` | 2 (`DOWNLOAD.md`, `RASTER_MANIFEST.json`) | 7 | 9 |
 | `heatmaps/` | 15 | 7 | 9 |
 | `labels/graph/` | 90 | 42 | 54 |
 | `labels/page_xml_baselines/` | 15 | 7 | 9 |
@@ -308,7 +308,7 @@ open; if `max(w, h) > 3500`, LANCZOS downscale so `max(w, h) == 3500`; if the mo
 
 **Every coordinate in the release is expressed in this pixel grid.** Raster sizes vary per page
 within a manuscript, so never assume a constant page size. For `moderate_layout` this directory
-holds only `SCRAPE.md` and `RASTER_MANIFEST.json` (section 7.2).
+holds only `DOWNLOAD.md` and `RASTER_MANIFEST.json` (section 7.2).
 
 ### 5.2 L2 — CRAFT region-score heatmap
 
@@ -652,10 +652,12 @@ regimes follow from the genres.
 research use but not redistribution, so `manuscripts/moderate_layout/inputs/` contains two
 files instead of images.
 
-`SCRAPE.md` gives the source URL, the 15 page filenames used (`233_0002.jpg` …
-`233_0016.jpg`), and a functional specification for a Playwright-based scraper — viewer
-interaction, page-count discovery, selectors, pacing, retry, resume, duplicate protection,
-error isolation, validation checklist. It specifies behaviour, not an implementation.
+`DOWNLOAD.md` covers four things: where the images are (source URL, holding institution,
+rights), which images are used (`233_0002.jpg` … `233_0016.jpg`), how to retrieve them from
+the site's JavaScript book viewer, and how to turn the downloaded scans into the release
+rasters. The retrieval section describes the viewer interaction, the selectors observed at
+the time of writing, and the pacing, duplicate-protection, resume and retry behaviour that
+particular viewer needs. It describes what to do, not an implementation.
 
 `RASTER_MANIFEST.json` records the derivation recipe, the reference Pillow version, and per
 page the dimensions and two SHA-256 digests:
@@ -666,7 +668,7 @@ page the dimensions and two SHA-256 digests:
   "manuscript_id": "moderate_layout",
   "target_longest_side": 3500,
   "derivation": "PIL open -> LANCZOS downscale only if max(w, h) > 3500 -> convert to RGB if mode in {RGBA, P, LA} -> save as JPEG at Pillow's default quality",
-  "reference_pillow_version": "11.3.0",
+  "reference_pillow_version": "12.3.0",
   "pages": [
     { "page_id": "233_0002", "filename": "233_0002.jpg", "width": 2500, "height": 940,
       "source_sha256": "495cc331e33c2a8f2be38210a69b15dca300c9a829071c5f3df091ca82a5c195",
@@ -680,8 +682,10 @@ page the dimensions and two SHA-256 digests:
 
 Two digests rather than one, so a failure is diagnosable: a mismatch on `source_sha256` means a
 different scan, a mismatch on `derived_sha256` alone means the right scan and a different
-encoder. All 15 pages reproduce byte-exactly under Pillow 11.3.0 and 12.3.0; no page exceeds
-3500 px, so the derivation reduces to a JPEG re-encode, which is why the result is that stable.
+encoder. `reference_pillow_version` is the Pillow the manifest was last built under, not a
+requirement: all 15 pages reproduce byte-exactly under both 11.3.0 and 12.3.0, and the digests
+above are unchanged across those two builds. No page exceeds 3500 px, so the derivation reduces
+to a JPEG re-encode, which is why the result is that stable.
 
 The `moderate_layout` heatmaps **are** shipped. A half-resolution 8-bit scalar
 character-likelihood field is not a reproduction of the page — the manuscript cannot be read

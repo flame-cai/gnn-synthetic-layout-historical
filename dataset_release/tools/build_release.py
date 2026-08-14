@@ -327,7 +327,7 @@ def write_source_card(dst: Path, release_id: str) -> None:
     rasters = (
         f"shipped in `{INPUTS_DIR}/`"
         if source["page_rasters_redistributed"]
-        else f"**withheld**; see `{INPUTS_DIR}/SCRAPE.md` and `DATASET.md` section 7"
+        else f"**withheld**; see `{INPUTS_DIR}/DOWNLOAD.md` and `DATASET.md` section 7"
     )
     lines = [
         f"# Source of `{release_id}`",
@@ -450,7 +450,7 @@ def build_manuscript(
         shutil.copytree(src / "images_resized", dst / INPUTS_DIR)
     else:
         (dst / INPUTS_DIR).mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src / "images" / "SCRAPE.md", dst / INPUTS_DIR / "SCRAPE.md")
+        shutil.copy2(src / "images" / "DOWNLOAD.md", dst / INPUTS_DIR / "DOWNLOAD.md")
         write_json(
             dst / INPUTS_DIR / "RASTER_MANIFEST.json",
             build_raster_manifest(src, release_id, page_ids),
