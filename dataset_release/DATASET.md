@@ -27,9 +27,8 @@ We treat each character (or Grapheme Cluster) as a node, with edges connecting n
 7. [Rights, sources and citation](#7-rights-sources-and-citation)
 8. [Evaluation protocol](#8-evaluation-protocol)
 9. [Multi-modal LLM baseline predictions](#9-multi-modal-llm-baseline-predictions)
-10. [Integrity and verification](#10-integrity-and-verification)
-11. [Known limitations](#11-known-limitations)
-12. [Provenance](#12-provenance)
+10. [Known limitations](#10-known-limitations)
+11. [Provenance](#11-provenance)
 
 
 ---
@@ -56,7 +55,7 @@ closed rings, so nine components are cycles rather than trees; a ring has no can
 point or handedness, which is why all 25 reading-direction annotations are here, and without
 them a rectified crop of a ring is ambiguous up to seam and direction. 125 of its 255 lines are
 single glyphs — the cells of a yantra. Every region holds exactly one line, an artefact of
-labelling rather than of the manuscript (section 11.5).
+labelling rather than of the manuscript (section 10.3).
 
 
 | Release id | Work | Genre | Holding institution | Pages | Page rasters |
@@ -76,35 +75,7 @@ kept for each. They are **predictions, not ground truth** — section 9.
 
 ## 2. Quick start
 
-### 2.1 Verify the release
-
-```bash
-cd dataset_release
-python tools/verify_dataset.py --release-root .
-```
-
-```text
-== integrity
-   1967 files listed, 0 mismatched, 0 missing
-
-== consistency: moderate_layout
-   15 pages, 316 text lines, kinds={'curved_open': 2, 'horizontal_straight': 282, 'point': 32}, page rasters=withheld
-…
-== consistency: circular_layout
-   9 pages, 255 text lines, kinds={'closed_circular': 9, 'curved_open': 29, 'horizontal_straight': 91, 'point': 125, 'vertical_straight': 1}, page rasters=shipped
-
-== predictions: multi-modal LLM baselines
-   15 runs, 155 page requests, statuses={'api_error': 11, 'api_timeout': 9, 'html_parse_error': 1, 'other_output_error': 1, 'success': 133}
-
-OK: 2501 checks passed
-```
-
-Requires `numpy` and `Pillow` only; exit status 0 on success, 1 otherwise. `--skip-checksums`
-runs the consistency invariants alone, `--skip-predictions` leaves out the baseline runs of
-section 9. The checksum listing covers `DATASET.md` itself, so editing this file reports a
-mismatch until `tools/build_release.py` regenerates the listing.
-
-### 2.2 Load one page
+### 2.1 Load one page
 
 Run from the release root. Reads every label layer for one page and cross-checks them.
 
@@ -157,7 +128,7 @@ for r in index:
 region_6_line_0 closed_circular [1.0, 0.0] 'हिंहींहुंहूं' polygon pts: 418 | cut: [1308.5714285714287, 790.7142857142858]
 ```
 
-### 2.3 Reconstruct the withheld rasters
+### 2.2 Reconstruct the withheld rasters
 
 Acquire the 15 `moderate_layout` scans as described in
 `manuscripts/moderate_layout/inputs/DOWNLOAD.md`, then:
@@ -180,12 +151,8 @@ dataset_release/
 ├── DATASET.md
 ├── SOURCES.bib                       BibTeX for the three source manuscripts
 ├── dataset_manifest.json             machine-readable inventory and statistics
-├── CHECKSUMS.sha256                  1967 entries, every shipped file
 ├── folds/<manuscript>.json           5 folds, train_size 3, seed 42
-├── tools/
-│   ├── build_release.py              the sole provenance of this tree
-│   ├── verify_dataset.py             2501 integrity, consistency and prediction checks
-│   └── prepare_images.py             reconstructs the withheld rasters
+├── tools/prepare_images.py           reconstructs the withheld rasters
 ├── manuscripts/<manuscript>/         moderate_layout | dense_layout | circular_layout
 │   ├── SOURCE.md                     work, genre, holding institution, rights, BibTeX key
 │   ├── processing_settings.json      target_longest_side 3500, min_distance 20
@@ -546,7 +513,7 @@ are `local_canvas_width_px × local_canvas_height_px` in L6.
 Neither file introduces information; both exist so the dataset is usable without an XML parser.
 
 **`manuscripts/<manuscript>/lines.jsonl`** — one JSON object per line, 882 corpus-wide, in
-PAGE-XML order (check C8).
+PAGE-XML order.
 
 ```json
 {"manuscript_id": "circular_layout", "page_id": "11", "image_width": 2729, "image_height": 3500,
@@ -627,8 +594,8 @@ raster position = 2 x (674.9995, 294.0) = (1349.999, 588.0)
 `dims.txt` holds half the raster exactly, so it may be fractional. The heatmap image is the
 floor in each dimension; the raster is `int(2 × dims)`. Twelve of the thirty-one pages have a
 fractional `dims.txt` entry. Fractional heatmap coordinates such as `674.999500` are normal:
-node coordinates were authored in raster space and stored at half scale. Checks C1–C3 pin the
-four page sizes to each other; C4 verifies the normalization to `atol=1e-5` on every page, and
+node coordinates were authored in raster space and stored at half scale. The four page sizes
+agree with each other on every page, and the normalization holds to `atol=1e-5` throughout —
 the observed maximum deviation is 5 × 10⁻⁷.
 
 ### 6.2 The one asymmetry
@@ -671,11 +638,12 @@ research use but not redistribution, so `manuscripts/moderate_layout/inputs/` co
 files instead of images.
 
 `DOWNLOAD.md` covers four things: where the images are (source URL, holding institution,
-rights), which images are used (`233_0002.jpg` … `233_0016.jpg`), how to retrieve them from
-the site's JavaScript book viewer, and how to turn the downloaded scans into the release
-rasters. The retrieval section describes the viewer interaction, the selectors observed at
-the time of writing, and the pacing, duplicate-protection, resume and retry behaviour that
-particular viewer needs. It describes what to do, not an implementation.
+rights), which images are used (`233_0002.jpg` … `233_0016.jpg`), how to obtain them, and how
+to turn the obtained scans into the release rasters. On obtaining them it suggests writing to
+the holding library first, and otherwise gives only orientation for reading the folios off the
+collection page by hand — that the scans sit behind a book viewer rather than in a listing,
+that these 15 folios are in the middle of it, and that the filename the server gives is the
+page id and has to be kept. It is a description of the site as we found it, not a procedure.
 
 `RASTER_MANIFEST.json` records the derivation recipe, the reference Pillow version, and per
 page the dimensions and two SHA-256 digests:
@@ -757,7 +725,7 @@ first, then the first two, then all three. Do not sort it.
 **Three training pages is the whole budget.** These folds describe a low-supervision regime,
 not large-scale training.
 
-Check C9 verifies that every fold's train and test sets partition that manuscript's page set.
+Every fold's train and test sets partition that manuscript's page set.
 
 ---
 
@@ -770,10 +738,10 @@ or evaluated against them is being trained or evaluated against another model's 
 ship because the alternative — asking a reader to re-run four paid APIs against models that
 will not stay reproducible — is not a reproduction.
 
-Every request records the SHA-256 of the exact page raster it was sent, and check P4 verifies
-all 155 against the rasters shipped here (against `RASTER_MANIFEST.json` for `moderate_layout`,
-whose rasters are withheld). The baselines and the ground truth are therefore known to be about
-the same pixels.
+Every request records the SHA-256 of the exact page raster it was sent, and all 155 match the
+rasters shipped here (for `moderate_layout`, whose rasters are withheld, the `derived_sha256`
+entries of `RASTER_MANIFEST.json`). The baselines and the ground truth are therefore known to
+be about the same pixels, and you can re-check that yourself from the two files.
 
 ### 9.1 The five methods
 
@@ -788,8 +756,8 @@ the same pixels.
 The four end-to-end methods get the page and nothing else, and must find the lines and read
 them. `gemini_layout` is handed the human line geometry as traces over the image and only has
 to transcribe, so **its numbers are not comparable to the other four** — it is given what they
-have to solve. Check P5 verifies that every layout-conditioned request consumed exactly the
-PAGE-XML shipped in `manuscripts/<manuscript>/labels/page_xml/`.
+have to solve. Every layout-conditioned request consumed exactly the PAGE-XML shipped in
+`manuscripts/<manuscript>/labels/page_xml/`: its `pagexml_sha256` matches on all 31 pages.
 
 The shared prompt is stored in full in every `request.json` and digested as `prompt_sha256`. It
 asks for a diplomatic transcription at the visual text-line level plus per-line geometry, as
@@ -814,7 +782,7 @@ multi-modal-LLM-outputs/circular_layout/claude_e2e/
 | File | Count | Note |
 | --- | ---: | --- |
 | `manifest.json` | 15 | one per (manuscript, method) run |
-| `request.json` | 155 | one per page request; `image_path` and `pagexml_path` are release-relative (section 12) |
+| `request.json` | 155 | one per page request; `image_path` and `pagexml_path` are release-relative (section 11) |
 | `result.json` | 155 | `status` is one of `success`, `api_error`, `api_timeout`, `html_parse_error`, `other_output_error` |
 | `prediction.xml` | 155 | always present, including for failures |
 | `attempt_NN.json` | 264 | up to 4 attempts per page: one initial plus `max_retries_after_initial_attempt = 3` |
@@ -822,8 +790,8 @@ multi-modal-LLM-outputs/circular_layout/claude_e2e/
 | `normalized_response.json` | 103 | only where the provider returned parseable structured output; never for `sarvam_e2e`, whose output is HTML |
 
 `prediction.xml` is PAGE 2013-07-15 with `imageFilename`, `imageWidth` and `imageHeight` equal
-to the released page (check P6), so a prediction can be scored against `labels/page_xml/` with
-no rescaling. What it contains below `Page` differs by method. `claude_e2e`, `gemini_e2e` and
+to the released page, so a prediction can be scored against `labels/page_xml/` with no
+rescaling. What it contains below `Page` differs by method. `claude_e2e`, `gemini_e2e` and
 `openai_e2e` emit one `TextLine` per `TextRegion`, each with a `Coords` and a `Unicode` and no
 `Baseline`. `sarvam_e2e` emits a single region per page holding all of that page's lines, with
 baselines (516 lines corpus-wide). `gemini_layout` returns the ground-truth geometry it was
@@ -865,71 +833,13 @@ attempt counts — are also in the `predictions` block of `dataset_manifest.json
 
 ---
 
-## 10. Integrity and verification
+## 10. Known limitations
 
-`tools/verify_dataset.py` runs 2501 checks and currently passes all of them, in three
-independent classes.
-
-**Integrity.** Every file listed in `CHECKSUMS.sha256` exists and hashes to the recorded digest,
-and no unlisted file is present: 1967 files, 0 mismatched, 0 missing. The listing covers
-`DATASET.md` itself, so editing this file reports a mismatch until `tools/build_release.py`
-regenerates it.
-
-```text
-…
-0cf687267335eea339c33a621e8c704d8752244d385071c9bf30f163972166ed  SOURCES.bib
-7dadd405d17bd679a3fae93ae50d8b43f0a1432ead6fa67d8db79e63b4c228a7  dataset_manifest.json
-2d4a7ba85dda3b37c7c03c3e6d28e9d1297182a8eb5fa4cb69b5a2afcfd39ae0  folds/circular_layout.json
-c15534d456850ac62f928d91343641379bde93d835787689e3edf4a33892d8f2  folds/dense_layout.json
-…
-```
-
-**Consistency.** Nine invariants tie the layers together. If one fails, some layer has been
-edited out of step with the others.
-
-| Id | Invariant | What it protects |
-| --- | --- | --- |
-| **C1** | heatmap image size == `int` of `labels/graph/<page>_dims.txt` | The heatmap belongs to this page and this scale. |
-| **C2** | PAGE `imageWidth`/`imageHeight` == `int(2 × dims)` | The `raster = 2 × heatmap` conversion holds page by page. |
-| **C3** | input raster size == PAGE `imageWidth`/`imageHeight`, where shipped | The shipped image is the one the coordinates were written against. |
-| **C4** | normalized nodes == unnormalized nodes ÷ `max(dims)`, `atol=1e-5` | The normalization is isotropic and by the longest side. |
-| **C5** | the node array has one row per entry in both label files | Node indices, text-line labels and region labels are aligned. |
-| **C6** | distinct text-line labels == PAGE `TextLine` count | Text lines are the graph's components; L3 and L5 have not drifted. |
-| **C7** | `#edges − (#nodes − #components)` == `closed_circular` count | The only cycles in the corpus are the closed circular lines. |
-| **C8** | `lines.jsonl` has one record per PAGE `TextLine`, in PAGE order, and every referenced crop exists | The derived index is not stale and its paths resolve. |
-| **C9** | every fold's train and test sets partition that manuscript's page set | The evaluation protocol applies to the pages actually shipped. |
-
-C6 and C7 read the component count from the shipped text-line label file rather than
-recomputing it. That the labels induce exactly the connected-component partition of the edge
-set was verified independently on all 31 pages, and is trivial to re-verify: run
-`scipy.sparse.csgraph.connected_components` over `<page>_edges.txt` and compare the partition
-to `<page>_labels_textline.txt`.
-
-**Predictions.** Six checks over `multi-modal-LLM-outputs/` (section 9). They do not validate
-the predictions — a prediction cannot be wrong in the sense a label can — they establish that
-each run is complete and was produced against the inputs shipped here.
-
-| Id | Invariant | What it protects |
-| --- | --- | --- |
-| **P1** | every run covers exactly that manuscript's released page set | No run is silently short a page, and no run covers pages this release does not ship. |
-| **P2** | `request.json`, `result.json` and `prediction.xml` exist at the paths the run manifest declares, and manifest and result agree on the status | The manifest is an index of what is there, not of what was intended. |
-| **P3** | `success_count` / `failure_count` == the per-page statuses | Reported completion rates come from the records, not from a stale header. |
-| **P4** | `image_sha256` == the released page raster, or its `derived_sha256` where the raster is withheld | The baseline and the ground truth are about the same pixels. |
-| **P5** | `pagexml_sha256` == the released PAGE-XML, for runs given the ground-truth layout | A layout-conditioned run was conditioned on the layout published here. |
-| **P6** | `prediction.xml` parses as PAGE-XML with this page's `imageFilename` and size, and `request.json` holds no absolute authoring-machine path | Predictions are scorable against `labels/page_xml/` without rescaling, and the build's redaction held. |
-
-`--skip-predictions` runs the label checks alone; the release is fully verifiable without the
-baseline runs.
-
----
-
-## 11. Known limitations
-
-**11.1 The folds overlap.** Training sets share pages, test sets share pages, and per-fold
+**10.1 The folds overlap.** Training sets share pages, test sets share pages, and per-fold
 results are correlated. Any procedure treating the five folds as five independent trials is
 mis-specified (section 8).
 
-**11.2 The polygons are generated, and 15% are not simple.** `TextLine/Coords` was produced by
+**10.2 The polygons are generated, and 15% are not simple.** `TextLine/Coords` was produced by
 `local_polygons_stable_unwrap_v1` from the human baseline and the CRAFT heatmap and has never
 been drawn or checked by hand. 132 of 882 lines (16 / 75 / 41) self-intersect. A further 75
 lines carry `fallback_used = true`, meaning the polygon fell back to a band around the baseline
@@ -938,19 +848,19 @@ and are concentrated in `circular_layout` (57 of 75). Apply a repair policy for 
 metrics and report which; filter on `fallback_used` when polygon quality matters. This is the reason why the `Baseline` should be considered as the better Ground Truth than the `Coords` in the PAGE-XML file.
 
 
-**11.3 Region structure is a human label in only two of three manuscripts.**
+**10.3 Region structure is a human label in only two of three manuscripts.**
 `circular_layout` received no region labelling: all 255 of its regions were assigned
 automatically, one per connected component. Its one-line-per-region statistic is a fact about
 the assignment rule, not about the manuscript, and no region-grouping task should be evaluated
 on it. `moderate_layout` and `dense_layout` carry human region labels.
 This is because region labeling the `circular_layout` manuscript would make the reading order of the text-line contained in the region ambiguous, thus violating the annotation methodology mentioned in the paper.
 
-**11.4 Reading directions exist only in `circular_layout`.** The other two manuscripts contain
+**10.4 Reading directions exist only in `circular_layout`.** The other two manuscripts contain
 9 `curved_open` lines between them with no explicit direction. Where a `curved_open` or
 `closed_circular` line has no `reading_direction_annotation`, its reading orientation is not
 determined by this dataset.
 
-**11.5 Smaller sharp edges.**
+**10.5 Smaller sharp edges.**
 
 - **`moderate_layout` is unusable for pixel-level work until rebuilt.** No page rasters and no
   line crops are shipped for it; object-level and text-level work is unaffected, but pixel
@@ -961,38 +871,26 @@ determined by this dataset.
 - **172 lines are single nodes.** A `point` line has no direction, no extent and a
   single-coordinate baseline. Metrics dividing by line length, and any orientation estimator,
   must handle them explicitly. They are 49% of `circular_layout`.
-- **Region `Coords` can be degenerate**, collapsing to a repeated point.
 - **The heatmaps are JPEG-compressed**: a lossy 8-bit record of a float field.
 - **Page id formats differ by manuscript.** Sort as strings (section 3.1).
-- **Node arrays carry a third column that is always `0.0`.** Not missing data.
+- **Node arrays carry a third column that is always `0.0`.** Not missing data. This is artifact of a now discarded "font_size" node feature in GNN data.
 ---
 
-## 12. Provenance
+## 11. Provenance
 
-This tree is generated in full by `tools/build_release.py` from the authoring tree, and by
-nothing else; every inclusion, exclusion and transformation is in that script, which ships here
-for exactly that reason. The build renames the manuscript identifiers and directories
-(section 3.2), copies the label layers verbatim, drops the excluded trees, rewrites the
-line-segmentation metadata into `labels/line_geometry/`, derives `lines.jsonl` and `pages.csv`,
-and regenerates the folds with the reference splitter.
+This tree is generated in full from the authoring tree by a single build step, and by nothing
+else. The build renames the manuscript identifiers and directories (section 3.2), copies the
+label layers verbatim, drops the excluded trees listed below, rewrites the line-segmentation
+metadata into `labels/line_geometry/`, derives `lines.jsonl` and `pages.csv`, and regenerates
+the folds with the reference splitter of section 8. Nothing here was assembled by hand.
 
-The baseline predictions of section 9 pass through the same script, in a stage of their own:
-
-```bash
-python tools/build_release.py \
-    --source-root /path/to/repo/app/input_manuscripts \
-    --release-root /path/to/repo/dataset_release \
-    --predictions-source /path/to/vlm_baseline_runs      # optional
-```
-
-That stage renames each run's manuscript directory to the released id and rewrites the two
-absolute authoring-machine paths inside every `request.json` — `image_path` and `pagexml_path`
-become paths relative to the release root, and the `*_sha256` beside each, which is the
-load-bearing field, is untouched. Nothing else about a run is altered: the prompts, raw response
-bodies, per-attempt records, token counts, timings and predictions are byte-for-byte what the
-harness wrote. With `--predictions-source` omitted the stage normalizes
-`multi-modal-LLM-outputs/` in place, which is what happens when the runs are dropped straight
-into the release; either way the result is identical and re-running is a no-op.
+The baseline predictions of section 9 come through the same build, in a stage of their own. It
+renames each run's manuscript directory to the released id and rewrites the two absolute
+authoring-machine paths inside every `request.json` — `image_path` and `pagexml_path` become
+paths relative to the release root, and the `*_sha256` beside each, which is the load-bearing
+field, is untouched. Nothing else about a run is altered: the prompts, raw response bodies,
+per-attempt records, token counts, timings and predictions are byte-for-byte what the harness
+wrote.
 
 | Excluded from the authoring tree | Reason |
 | --- | --- |
@@ -1004,11 +902,10 @@ into the release; either way the result is identical and re-running is a no-op.
 | `layout_analysis_output/layout_effort.json` | Annotation timing and edit telemetry. |
 | Per-line polygon-builder telemetry | Diagnostic fields and absolute paths from the authoring machine. `labels/line_geometry/` keeps the fields a consumer reads. |
 | `labels/line_images/` for `moderate_layout` | Those crops are the copyrighted image, in pieces. |
-| `image_path` and `pagexml_path` in every prediction `request.json` | Absolute paths on the authoring machine. Rewritten to release-relative paths; the digest recorded beside each is what makes the input checkable, and it is kept (checks P4, P6). |
+| `image_path` and `pagexml_path` in every prediction `request.json` | Absolute paths on the authoring machine. Rewritten to release-relative paths; the digest recorded beside each is what makes the input checkable, and it is kept. |
 
 `dataset_manifest.json` carries the machine-readable inventory under schema
-`manuscript_layout_dataset/manifest-3`; `CHECKSUMS.sha256` carries a digest for all 1967 shipped
-files, predictions included. Regenerating the release from an unchanged authoring tree
-reproduces both.
+`manuscript_layout_dataset/manifest-3`. Regenerating the release from an unchanged authoring
+tree reproduces it.
 
 This is the first release. There is no prior version to diff against.

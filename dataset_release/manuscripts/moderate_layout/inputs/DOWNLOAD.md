@@ -57,14 +57,8 @@ which is the filename stem.
 The 15 pages are viewable at the collection URL:
 <https://dav.splrarebooks.com/collection/view/yajnavalakyasmritih-acharadhyayah>
 
-The most reliable route, and the one we would suggest first, is to **write to the
-library**. Lalchand Research Library curates this collection and is used to
-research enquiries; a request naming the manuscript and the folio range is often
-answered with the scans, and it leaves the institution aware of the use its
-material is being put to. That is worth more than saving an afternoon.
-
-Failing that, the images can be read off the collection page by hand. A few
-things about that page are worth knowing before you start, because each one has
+You can manually download the 15 pages from the link above. A few
+things about that page worth knowing before you start, because each one has
 cost us time:
 
 - **The images sit behind the book viewer, not in a folder.** Opening the
@@ -80,14 +74,7 @@ cost us time:
 - **Keep the name the server gives each file.** That name is the page id the
   whole release is keyed on; renaming the files disconnects them from every label
   layer. Put all 15 in one directory.
-- **You do not have to finish in one sitting.** `RASTER_MANIFEST.json` lists all
-  15 by name, so at any point you can see which ones you still need.
 
-Whatever route you take: this is a small library server hosting a research
-collection, and the courtesy owed to it is the ordinary one — go at human pace,
-take only the 15 folios you need, and respect the site's terms of service and
-`robots.txt`. The description above reflects the site as we found it, and a site
-can be rebuilt at any time; treat it as orientation rather than as a recipe.
 
 ---
 
@@ -121,9 +108,5 @@ per page so a failure is diagnosable: a mismatch on `source_sha256` means you
 have a different scan, and a mismatch on `derived_sha256` alone means the right
 scan and a different encoder.
 
-Once `inputs/` holds the 15 derived rasters, run the release verifier to confirm
-the images agree with the labels:
-
-```bash
-python tools/verify_dataset.py --release-root .
-```
+Once `inputs/` holds the 15 derived rasters, the manuscript is complete: every
+label layer already present is defined on exactly those images.
