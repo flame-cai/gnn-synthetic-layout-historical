@@ -89,7 +89,6 @@ Read these before changing behavior:
 - `RESEARCH_HARNESS.md`: LLM-assisted verifier-driven evolution harness to improve various parts of the pipeline
 - `PRODUCTION.md`: production GUI runtime, OCR active-learning save contracts, manuscript-local OCR state, and production validation commands
 - `dataset_release/DATASET.md`: the released ground-truth dataset — label layers, coordinate spaces, evaluation folds, the multi-modal LLM baseline predictions, and how the release is built
-- `docs/exec-plans/tech-debt-tracker.md`: current high-priority debts
 
 
 ## Citations

@@ -8,8 +8,7 @@ In step 2, the text content of the segmented text-lines is OCR'ed (recognized) a
 
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
-The repo also hosts code for an in-development research experiment and a paper. More info in
-"paper/EXPERIMENT_PROMPT.md"
+The repo also hosts code for an in-development research experiment and a paper.
 
 
 # 😴 Lazy Installation Guide (using LLM Agent Harnesses)
@@ -41,15 +40,15 @@ Because the final output of this tool can be verified by an external verifier (u
 **Last Updated:** June 11, 2026
 
 ## ✅ **Project Components**
-*   **🚀 [Getting Started](https://github.com/flame-cai/gnn-synthetic-layout-historical#getting-started)** Clone repository and install conda environment
-*   **🧩 [Semi-Automatic Annotation Tool](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#semi-automatic-annotation-tool):** `app\`: This is the full semi-automatic application, which has the entire manuscript digitization pipeline, and  allows the human to make various types of post-corrections.
+*   **🚀 [Getting Started](#-getting-started)** Clone repository and install conda environment
+*   **🧩 [Semi-Automatic Annotation Tool](#-semi-automatic-annotation-tool-app):** `app\`: This is the full semi-automatic application, which has the entire manuscript digitization pipeline, and  allows the human to make various types of post-corrections.
 
 *   **🕸️ Graph Neural Network Based Text-line Segmentation**
 `src\`: This contains synthetic data generation, augmentation, data preparation, training, and inference code for GNN based text-lines segmentation.
-  * **💻 [Automatic Out-of-the-box Inference](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#automatic-out-of-the-box-inference):**  
+  * **💻 [Automatic Out-of-the-box Inference](#-run-inference-fully-automatic):**  
     Run fully automatic stand-alone inference using [CRAFT](https://github.com/clovaai/CRAFT-pytorch) + GNNs to perform text-line segmentation.
   
-  * **🧠 [GNN Training Recipe](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#gnn-training-recipe):**  
+  * **🧠 [GNN Training Recipe](#-gnn-training-recipe):**  
     Train custom GNN architectures using synthetic data, augmented real data.
   
   * **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):**  
@@ -81,8 +80,10 @@ CPU mode is intended only for inference and possibly OCR Fine-tuning using CPU, 
 Install [Git](https://git-scm.com/downloads) first if `git --version` does not already work, then run:
 
 ```bash
-git clone --depth 1 --branch circular-layout-attempt-2 --single-branch https://github.com/flame-cai/gnn-synthetic-layout-historical.git
-# always use `--depth 1` for a fast download of this repository.
+git clone --depth 1 https://github.com/flame-cai/gnn-synthetic-layout-historical.git
+# --depth 1 fetches only the latest commit, and implies --single-branch, so only
+# the default branch is downloaded. The other branches of this repo are large;
+# a full clone is considerably slower.
 ```
 
 #### Install Conda Environment
@@ -230,7 +231,7 @@ The checked-in `.githooks/pre-commit` currently exits immediately at the top. `s
 
 Future production saves generate PAGE `TextLine/Coords` through `production_strategy_name`; local OCR, line-image export, and active-learning training use strategy-aware crops when valid metadata exists and otherwise fall back to the historical masked PAGE `Coords` crop. In layout mode, hold `q` to add optional reading-direction annotations for ambiguous line orientation.
 
-For details, see [RESEARCH_HARNESS.md](./RESEARCH_HARNESS.md), [VISION.md](./VISION.md), the [strategy promotion workflow](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-workflow.md), and the checked-in [strategy promotion record](./docs/pipeline-improvement/text-line-segmentation/strategy-promotion-record.md).
+For details, see [RESEARCH_HARNESS.md](./RESEARCH_HARNESS.md) and [VISION.md](./VISION.md).
 
 ##  💻 **Graph Neural Network based Text-Line Segmentation Core ```src/```**
 Perform text-line segmentation in fully automatic GNN inference on sample manuscripts, to obtain text-line segmented images in PAGE-XML format, GNN format, and as individual line images. 

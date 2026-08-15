@@ -685,9 +685,6 @@ Cite the source manuscript whose pages you used, alongside the dataset itself, n
 it. `SOURCES.bib` holds one `@misc` entry per manuscript, keyed `Yajna`, `Muhurta` and
 `Tantra`.
 
-The licence for the annotation layer — layout graph, region labels, transcriptions and reading
-directions — is not yet fixed.
-
 ---
 
 ## 8. Evaluation protocol
