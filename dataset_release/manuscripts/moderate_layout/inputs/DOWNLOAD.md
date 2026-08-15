@@ -52,57 +52,42 @@ which is the filename stem.
 
 ---
 
-## 3. How to download them
+## 3. How to obtain them
 
-The 15 pages mentioned above can be manually downloaded from the link:
-https://dav.splrarebooks.com/collection/view/yajnavalakyasmritih-acharadhyayah
+The 15 pages are viewable at the collection URL:
+<https://dav.splrarebooks.com/collection/view/yajnavalakyasmritih-acharadhyayah>
 
+The most reliable route, and the one we would suggest first, is to **write to the
+library**. Lalchand Research Library curates this collection and is used to
+research enquiries; a request naming the manuscript and the folio range is often
+answered with the scans, and it leaves the institution aware of the use its
+material is being put to. That is worth more than saving an afternoon.
 
-The images are not reachable as a static directory listing; they are served
-through the viewer, so a page has to be opened before its image URL exists. A
-short Playwright script driving Chromium plus an ordinary HTTP client for the
-image bytes is enough. The sequence is:
+Failing that, the images can be read off the collection page by hand. A few
+things about that page are worth knowing before you start, because each one has
+cost us time:
 
-1. Open the collection URL and wait for the page to settle.
-2. Click the preview image to open the full-book viewer.
-3. Read the total page count from the viewer.
-4. For each page: read the `src` of the currently active image, download it if
-   that URL has not been seen before, then advance to the next page.
-5. Stop when the next control becomes disabled, keeping whatever was already
-   downloaded.
+- **The images sit behind the book viewer, not in a folder.** Opening the
+  collection page gets you a preview; the full-resolution scan of a folio only
+  becomes available once that folio is actually displayed in the viewer. There is
+  no listing to fetch and no predictable address to guess.
+- **The viewer is paged, and our 15 folios are in the middle.** You will pass
+  through the earlier folios to reach them. Take the full-size image rather than
+  the preview thumbnail.
+- **The viewer will sometimes show you the same folio twice**, particularly if a
+  page turn does not register. Check what you have saved against the list in
+  section 2 rather than counting clicks.
+- **Keep the name the server gives each file.** That name is the page id the
+  whole release is keyed on; renaming the files disconnects them from every label
+  layer. Put all 15 in one directory.
+- **You do not have to finish in one sitting.** `RASTER_MANIFEST.json` lists all
+  15 by name, so at any point you can see which ones you still need.
 
-The selectors the viewer used at the time of writing:
-
-| Purpose | CSS selector |
-| --- | --- |
-| Preview image that opens the viewer | `div.plates .preview .img-container` |
-| Active full-book viewer | `div.full-book.section.active` |
-| Total page count | `span.total` |
-| Active page image | `.owl-item.active .main-img` |
-| Next-page control | `li.next` |
-
-These are implementation details of the current site and may well have changed.
-Verify them in the browser's developer tools before relying on them, and if the
-markup has moved, look for the equivalent elements: the preview, the viewer, the
-page-count indicator, the active carousel image, and the next control.
-
-Worth building in, because each one is a real failure mode of this particular
-viewer:
-
-- **Pacing.** A random pause of a few seconds between page turns.
-- **Duplicate protection.** Track the image URLs already downloaded; the
-  carousel can repeat an image when a click does not advance.
-- **Waiting on change.** After clicking next, wait until the active image `src`
-  actually differs from the previous one rather than trusting a fixed sleep.
-- **Resume.** Skip a page whose file already exists at nonzero size, so an
-  interrupted run does not start over.
-- **Retries.** Two or three attempts with a growing delay on a failed download,
-  then give up on that page rather than the whole run.
-- **Original filenames.** Take the last path segment of the image URL, strip the
-  query string, and keep the extension the server gives.
-
-Only the 15 files listed above are needed, but the viewer is paged, so reaching
-them means stepping through the pages before them.
+Whatever route you take: this is a small library server hosting a research
+collection, and the courtesy owed to it is the ordinary one — go at human pace,
+take only the 15 folios you need, and respect the site's terms of service and
+`robots.txt`. The description above reflects the site as we found it, and a site
+can be rebuilt at any time; treat it as orientation rather than as a recipe.
 
 ---
 

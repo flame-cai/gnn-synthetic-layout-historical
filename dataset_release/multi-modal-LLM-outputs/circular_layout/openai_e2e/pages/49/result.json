@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "1c184fad0680d530178882ec7b08c3bc9a8aba6383a4b745cf8ce0d4d0ebea4a",
+  "manuscript_id": "circle_new",
+  "page_id": "49",
+  "provider_id": "openai",
+  "method_id": "openai_e2e",
+  "model_id": "gpt-5.6-terra",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "ac83e11b426863812f2a5383bdedf4ae35c7d977412c3b1e20bebba7a0fc5395",
+  "pagexml_sha256": "de74d99c30032f413ce4e7ff0e7fa4a5e3e0536eb9885325184a7e9ceba1df81",
+  "status": "success",
+  "error": null,
+  "attempt_count": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.25,
+      "error": "APITimeoutError: Request timed out."
+    },
+    {
+      "attempt": 2,
+      "status": "success",
+      "elapsed_seconds": 27.01599999999962,
+      "input_tokens": 10762,
+      "output_tokens": 1833,
+      "total_tokens": 12595,
+      "response_id": "resp_0fb46ad95e02ba91006a59eadb8108819eba76a81478b54989",
+      "finish_reason": "completed"
+    }
+  ],
+  "input_tokens": 10762,
+  "output_tokens": 1833,
+  "total_tokens": 12595,
+  "elapsed_seconds": 73.3130000000001,
+  "completed_at_utc": "2026-07-17T08:42:28.421123+00:00",
+  "prediction_path": "prediction.xml"
+}

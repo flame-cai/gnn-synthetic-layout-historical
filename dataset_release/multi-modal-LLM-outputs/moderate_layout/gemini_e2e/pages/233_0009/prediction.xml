@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0009.jpg" imageWidth="2500" imageHeight="928">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="808,99 2428,99 2428,45 808,45" />
+			<TextLine id="line_0">
+				<Coords points="808,99 2428,99 2428,45 808,45" />
+				<TextEquiv>
+					<Unicode>= १ मनुः स कुलान्मातृतः मातृतः सप्तमात् आरभ्य पंचमतः ऊर्ध्वं पितृतः पितृबन्धु आरभ्य सप्तमतः ऊर्ध्वं १२ =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="295,260 2190,260 2190,182 295,182" />
+			<TextLine id="line_1">
+				<Coords points="295,260 2190,260 2190,182 295,182" />
+				<TextEquiv>
+					<Unicode>अरोगां भ्रातृमतीमसमानार्षगोत्रजाम् ॥ पंचमात्सप्तमादूर्ध्वं मातृतः पितृतस्तथा ॥ १ ॥ दशपुरुषविख्यातात्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="305,342 2200,342 2200,258 305,258" />
+			<TextLine id="line_2">
+				<Coords points="305,342 2200,342 2200,258 305,258" />
+				<TextEquiv>
+					<Unicode>श्रोत्रियाणां महाकुलात्तादपिन संचारिरोगदोषसमन्वितात् ॥ एतैरेव गुणैर्युक्तः सवर्णः श्रो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="305,416 2195,416 2195,335 305,335" />
+			<TextLine id="line_3">
+				<Coords points="305,416 2195,416 2195,335 305,335" />
+				<TextEquiv>
+					<Unicode>त्रियो वरः ॥ यत्नात्परीक्षितः पुंस्त्वे युवा धीमान् जनप्रियः ॥ यदुच्यते द्विजातीनां शूद्राद्दारोपसंग्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="310,494 2195,494 2195,413 310,413" />
+			<TextLine id="line_4">
+				<Coords points="310,494 2195,494 2195,413 310,413" />
+				<TextEquiv>
+					<Unicode>हः ॥ नैतन्मम मतं यस्मात्तत्रात्मा जायते स्वयम् ॥ तिस्रो वर्णानुपूर्व्येण द्वे त्वेका यथाक्रमम् ॥ ब्राह्मण</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="310,564 2195,564 2195,483 310,483" />
+			<TextLine id="line_5">
+				<Coords points="310,564 2195,564 2195,483 310,483" />
+				<TextEquiv>
+					<Unicode>क्षत्रियविशां भार्या शूद्रजन्मनः ॥ ब्राह्मो विवाह आहूय दीयते शक्त्यलंकृता ॥ तज्जः पुनात्युभयतः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="310,631 2195,631 2195,552 310,552" />
+			<TextLine id="line_6">
+				<Coords points="310,631 2195,631 2195,552 310,552" />
+				<TextEquiv>
+					<Unicode>पुरुषानेकविंशतिम् ॥ यज्ञस्थस्यर्त्विजे दैवो दद्यात्कन्यां सालंकृताम् ॥ चतुर्दश प्रथमजः पुनात्युत्तरजश्च व</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="310,701 2205,701 2205,620 310,620" />
+			<TextLine id="line_7">
+				<Coords points="310,701 2205,701 2205,620 310,620" />
+				<TextEquiv>
+					<Unicode>ह ॥ इत्युक्ता चरतां धर्मं सह या दीयतेऽर्थिने ॥ सकायः पावयेत्तज्जः षट् षट् च वंश्यान्महात्मना ॥ आसु</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="295,770 2150,770 2150,691 295,691" />
+			<TextLine id="line_8">
+				<Coords points="295,770 2150,770 2150,691 295,691" />
+				<TextEquiv>
+					<Unicode>= परीक्ष्योपायनारदेनोपदर्शितः ॥ यस्याप् सुप्लवते वीर्यं ह्रादमूत्रश्च फेनलः ॥ पुमांस्त्वाल्लक्षणैरेतैर्विपरीतस्तु षण्डकः ॥ ५ ॥ =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="55,677 212,677 212,622 55,622" />
+			<TextLine id="line_9">
+				<Coords points="55,677 212,677 212,622 55,622" />
+				<TextEquiv>
+					<Unicode>त्रमासह</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1112,835 1212,835 1212,780 1112,780" />
+			<TextLine id="line_10">
+				<Coords points="1112,835 1212,835 1212,780 1112,780" />
+				<TextEquiv>
+					<Unicode>दार</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

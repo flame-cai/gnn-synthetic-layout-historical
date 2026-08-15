@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "fe5bcb7c4eda9a99e27a6e94c9f1af1383105f4726fe10e1cb5db4739ab907ca",
+  "manuscript_id": "circle_new",
+  "page_id": "35",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "11cc60f31003acc949fee862216bd3f002bb4df00c8c13c331cf45836b6e74b1",
+  "pagexml_sha256": "fe098e8f0cd3787c7bec37bd2954229876fa4877281983a3b38e5e826cb5d1b7",
+  "status": "api_timeout",
+  "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.70300000000134,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 2,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.73500000000058,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 31.54699999999866,
+      "error": "ValueError: vlm_json:35:line_1_outer_ring_bottom: invalid polygon geometry."
+    },
+    {
+      "attempt": 4,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.375,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    }
+  ],
+  "input_tokens": 5312,
+  "output_tokens": 2802,
+  "total_tokens": 8114,
+  "elapsed_seconds": 175.375,
+  "completed_at_utc": "2026-07-17T09:29:01.183812+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

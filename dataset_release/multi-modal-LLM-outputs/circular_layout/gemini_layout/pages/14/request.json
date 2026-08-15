@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "circle_new",
+  "page_id": "14",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "8adb5f9725fdf2acf1208dbb19e72ed8aadcbc268c792a763cf1d5c48c5acfbe",
+  "pagexml_sha256": "ba0e4ff8bf86d7c44817c0f25bc36d953fc22ced9ed83a03cf78217c54f66bef",
+  "request_contract_version": 2,
+  "request_fingerprint": "65e5e48fdb108f084660110a8da7e73fb0a2631abda95ada17f67e6331a0ca10",
+  "image_path": "manuscripts/circular_layout/inputs/14.jpg",
+  "pagexml_path": "manuscripts/circular_layout/labels/page_xml/14.xml",
+  "prompt": "You are an expert Indologist and Paleographer specializing in handwritten Sanskrit manuscripts.Your Task: Perform a diplomatic transcription (OCR) of the attached manuscript image.\nCRITICAL INSTRUCTIONS:\nTranscribe the Sanskrit text from the image at the text-line level, where locations of the handwritten text-lines are defined using 'Path Traces'. Each 'Path Trace' refers to one text-line.\nThe coordinates of the Path Traces are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) to precisely map the text line locations on the image.\nFor each path trace points, transcribe the text that sits along this curve.\nFocus strictly on the visual line indicated by the trace; ignore text from lines above or below.\nThe path trace can be curved and even circular. If a path trace is circular, transcribe the text that sits along the entire circle, starting from the top.\nTranscribe in Unicode Devanagari. Preserve original spelling (Sandhi).\nOutput a JSON array of objects with 'id' and 'text'.\n\nREGIONS:\nID: 0 | Trace: [195, 409, 194, 432, 195, 455, 198, 478]\nID: 1 | Trace: [221, 119, 219, 124, 218, 129, 217, 134]\nID: 2 | Trace: [254, 423, 244, 473, 246, 526, 262, 574]\nID: 4 | Trace: [263, 135, 262, 139, 261, 144, 261, 149]\nID: 3 | Trace: [272, 423, 259, 473, 262, 526, 280, 574]\nID: 5 | Trace: [272, 467, 399, 606, 426, 398, 272, 467]\nID: 24 | Trace: [294, 482, 294, 482, 294, 482, 294, 482]\nID: 6 | Trace: [330, 408, 330, 408, 330, 408, 330, 408]\nID: 7 | Trace: [336, 569, 336, 569, 336, 569, 336, 569]\nID: 29 | Trace: [336, 477, 336, 477, 336, 477, 336, 477]\nID: 28 | Trace: [350, 445, 350, 445, 350, 445, 350, 445]\nID: 8 | Trace: [355, 521, 355, 521, 355, 521, 355, 521]\nID: 9 | Trace: [374, 477, 374, 483, 374, 489, 375, 496]\nID: 27 | Trace: [383, 448, 383, 448, 383, 448, 383, 448]\nID: 26 | Trace: [387, 523, 387, 523, 387, 523, 387, 523]\nID: 10 | Trace: [395, 403, 395, 403, 395, 403, 395, 403]\nID: 11 | Trace: [405, 567, 405, 567, 405, 567, 405, 567]\nID: 25 | Trace: [433, 482, 433, 482, 433, 482, 433, 482]\nID: 12 | Trace: [534, 382, 601, 620, 788, 540, 720, 304]\nID: 13 | Trace: [548, 393, 537, 443, 539, 495, 552, 545]\nID: 14 | Trace: [563, 397, 552, 445, 554, 495, 569, 542]\nID: 15 | Trace: [567, 461, 704, 562, 706, 367, 567, 461]\nID: 16 | Trace: [588, 469, 588, 469, 588, 469, 588, 469]\nID: 17 | Trace: [618, 399, 618, 399, 618, 399, 618, 399]\nID: 32 | Trace: [620, 466, 620, 466, 620, 466, 620, 466]\nID: 18 | Trace: [622, 533, 622, 533, 622, 533, 622, 533]\nID: 31 | Trace: [636, 438, 636, 438, 636, 438, 636, 438]\nID: 33 | Trace: [638, 493, 638, 493, 638, 493, 638, 493]\nID: 19 | Trace: [667, 463, 667, 468, 667, 473, 667, 478]\nID: 30 | Trace: [675, 435, 675, 435, 675, 435, 675, 435]\nID: 34 | Trace: [684, 497, 684, 497, 684, 497, 684, 497]\nID: 20 | Trace: [695, 390, 695, 390, 695, 390, 695, 390]\nID: 21 | Trace: [695, 465, 695, 465, 695, 465, 695, 465]\nID: 22 | Trace: [705, 528, 705, 528, 705, 528, 705, 528]\nID: 23 | Trace: [969, 404, 969, 471, 969, 538, 968, 604]\n",
+  "rendered_prompt_sha256": "9f9be639d6215b26115ff8a4fcf0170019422434876ea3626c99acf54bfeff58",
+  "input_order": [
+    "page_image",
+    "ground_truth_layout_traces",
+    "prompt"
+  ],
+  "state": "started",
+  "started_at_utc": "2026-07-25T04:24:05.475451+00:00",
+  "timeout_seconds": 45.0,
+  "max_retries_after_initial_attempt": 3
+}

@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0002.jpg" imageWidth="2500" imageHeight="940">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="508,96 1578,96 1578,46 508,46" />
+			<TextLine id="line_0">
+				<Coords points="508,96 1578,96 1578,46 508,46" />
+				<TextEquiv>
+					<Unicode>शिक्षा कल्पो व्याकरणं निरुक्तं ज्योति छंदसी ॥४॥ स तस्माद् वेदमविहरत् ॥३॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="35,377 298,377 298,181 35,181" />
+			<TextLine id="line_1">
+				<Coords points="35,377 298,377 298,181 35,181" />
+				<TextEquiv>
+					<Unicode>योगिनां शमकर्त्ता नामीश्वरं २=</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="295,268 2240,268 2240,181 295,181" />
+			<TextLine id="line_2">
+				<Coords points="295,268 2240,268 2240,181 295,181" />
+				<TextEquiv>
+					<Unicode>याज्ञव० १ ॐ स्वस्ति श्रीगणेशाय नमः ॥ ॐ श्रीगुरवे नमः ॥ ॐ श्रीसरस्वत्यै नमः ॥ ॐ श्रीयोगपतये नमः ॥ रामाय नमः ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="295,346 2445,346 2445,252 295,252" />
+			<TextLine id="line_3">
+				<Coords points="295,346 2445,346 2445,252 295,252" />
+				<TextEquiv>
+					<Unicode>योगेश्वरं याज्ञवल्क्यं संपूज्य मुनयोऽब्रुवन् ॥ वर्णाश्रमेतराणां नो ब्रूहि धर्मानशेषतः ॥ मिथिलास्थः स योगीश्वरः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="295,415 2185,415 2185,329 295,329" />
+			<TextLine id="line_4">
+				<Coords points="295,415 2185,415 2185,329 295,329" />
+				<TextEquiv>
+					<Unicode>स योगींद्रः क्षणं ध्यात्वा ब्रवीन्मुनीन् यस्मिन् देशे मृगः कृष्णस्तस्मिन् धर्मान् विबोधत ॥ पुराणन्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,489 2185,489 2185,404 305,404" />
+			<TextLine id="line_5">
+				<Coords points="305,489 2185,489 2185,404 305,404" />
+				<TextEquiv>
+					<Unicode>यमीमांसाधर्मशास्त्रांगमिश्रिताः ॥ वेदाः स्थानानि विद्यानां धर्मस्य च चतुर्दश ॥ मन्वत्रिविष्णुहा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,559 2195,559 2195,470 305,470" />
+			<TextLine id="line_6">
+				<Coords points="305,559 2195,559 2195,470 305,470" />
+				<TextEquiv>
+					<Unicode>रीतयाज्ञवल्क्योशनोंगिराः ॥ यमापस्तंबसंवर्त्तकात्यायनबृहस्पती ॥ पराशरव्यासशंख</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,630 2180,630 2180,545 305,545" />
+			<TextLine id="line_7">
+				<Coords points="305,630 2180,630 2180,545 305,545" />
+				<TextEquiv>
+					<Unicode>लिखिता दक्षगौतमौ ॥ शातातपो वशिष्ठश्च धर्मशास्त्रप्रयोजकाः ॥ देशे काल उपायेन द्रव्यं श्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,700 2362,700 2362,611 305,611" />
+			<TextLine id="line_8">
+				<Coords points="305,700 2362,700 2362,611 305,611" />
+				<TextEquiv>
+					<Unicode>द्धासमन्वितं पात्रे प्रदीयतें यत्तत् सकलं धर्मलक्षणं ॥ श्रुतिः स्मृतिः सदाचारः स्वस्य च प्रियमात्मनः राम १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1638,747 2002,747 2002,691 1638,691" />
+			<TextLine id="line_9">
+				<Coords points="1638,747 2002,747 2002,691 1638,691" />
+				<TextEquiv>
+					<Unicode>सतामाचारः सदाचारः १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1638,851 2375,851 2375,785 1638,785" />
+			<TextLine id="line_10">
+				<Coords points="1638,851 2375,851 2375,785 1638,785" />
+				<TextEquiv>
+					<Unicode>॥ देशे उक्तलक्षणे ॥ काले संक्रांत्यादौ ॥ उपायेनोपार्जनं ॥२॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

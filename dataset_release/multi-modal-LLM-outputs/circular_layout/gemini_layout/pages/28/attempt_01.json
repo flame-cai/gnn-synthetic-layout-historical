@@ -1,0 +1,11 @@
+{
+  "attempt": 1,
+  "status": "other_output_error",
+  "elapsed_seconds": 46.54924220000976,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "response_id": null,
+  "finish_reason": null,
+  "error": "Gemini did not return a usable transcription."
+}

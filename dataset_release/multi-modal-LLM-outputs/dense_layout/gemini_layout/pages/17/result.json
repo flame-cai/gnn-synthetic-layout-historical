@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "553092517d8da1f92b244b32231aa698b053232015bc323bf460af0a86ed802e",
+  "manuscript_id": "dense",
+  "page_id": "17",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "2ba98885fbec38391a7877d15003bf69af01dd3bea1f498cd7d22baa2a34ba3c",
+  "pagexml_sha256": "f22baa6f3ce475fcd1410e17005a5a267b0123a8f5d958dc6ef6e97252311d07",
+  "status": "success",
+  "error": null,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "success",
+      "elapsed_seconds": 24.008863199996995,
+      "input_tokens": 3177,
+      "output_tokens": 1452,
+      "total_tokens": 8746,
+      "response_id": null,
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 3177,
+  "output_tokens": 1452,
+  "total_tokens": 8746,
+  "elapsed_seconds": 32.14378539999598,
+  "completed_at_utc": "2026-07-25T04:24:35.846273+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 1,
+  "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+  "grounding_layout": "ground_truth_pagexml_baselines"
+}

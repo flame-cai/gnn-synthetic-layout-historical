@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0008.jpg" imageWidth="2500" imageHeight="949">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="45,101 2370,94 2370,49 45,59" />
+			<TextLine id="line_0">
+				<Coords points="45,101 2370,94 2370,49 45,59" />
+				<TextEquiv>
+					<Unicode>अथोपदेशना = नागार्जुनीः कुट्टदेवकामनायाः = यज्ञायै दानधारायाः = श्रीरहस्यमतीनाराध्यविचारप्रकरणं ध्यायः =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="50,127 322,125 320,96 48,100" />
+			<TextLine id="line_1">
+				<Coords points="50,127 322,125 320,96 48,100" />
+				<TextEquiv>
+					<Unicode>द्वयमन्त्रप्रयोगः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1905,142 2400,140 2402,102 1905,107" />
+			<TextLine id="line_2">
+				<Coords points="1905,142 2400,140 2402,102 1905,107" />
+				<TextEquiv>
+					<Unicode>पञ्चतत्त्वप्रयोगविचारः पत्रे २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="348,170 512,168 512,117 348,120" />
+			<TextLine id="line_3">
+				<Coords points="348,170 512,168 512,117 348,120" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="2198,200 2252,200 2252,145 2198,145" />
+			<TextLine id="line_4">
+				<Coords points="2198,200 2252,200 2252,145 2198,145" />
+				<TextEquiv>
+					<Unicode>८</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="48,245 245,243 245,201 48,204" />
+			<TextLine id="line_5">
+				<Coords points="48,245 245,243 245,201 48,204" />
+				<TextEquiv>
+					<Unicode>कारणः ८</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="278,251 2255,244 2250,196 278,202" />
+			<TextLine id="line_6">
+				<Coords points="278,251 2255,244 2250,196 278,202" />
+				<TextEquiv>
+					<Unicode>श्रीचक्राराधनीश्रीरामभक्तिः श्रुतिहासंसपावचा। श्रीमायातत्त्वैक्यहामोऽस्ति श्रीरुद्रनारायणपर्यन्ता</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="270,325 2388,318 2382,264 270,269" />
+			<TextLine id="line_7">
+				<Coords points="270,325 2388,318 2382,264 270,269" />
+				<TextEquiv>
+					<Unicode>द्वीपकसागररोहितव्यूहिकान्तश्चित्ररूपाभ्युपपन्नसर्वपञ्चवर्गोऽस्तु फलतेऽभयोऽयं नरेशा-मन्तरः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="278,396 2232,389 2235,332 278,338" />
+			<TextLine id="line_8">
+				<Coords points="278,396 2232,389 2235,332 278,338" />
+				<TextEquiv>
+					<Unicode>कातुमयीति तत्त्वनरभीत्रुपारकर्णैः प्राकृतचरितमच्युताननस्य फले मेधोऽस्तु नपस्स्रावयेत्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="272,462 2228,456 2225,400 270,406" />
+			<TextLine id="line_9">
+				<Coords points="272,462 2228,456 2225,400 270,406" />
+				<TextEquiv>
+					<Unicode>द्वितीयस्वाध्यायेनार्हितः। सेकेन्द्रगृहचारीगुणश्रीनचारैर्विदितोऽस्तु। तद्वाक्ये स्वेत्तनये पञ्चमोऽयम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="270,531 2255,525 2252,468 270,474" />
+			<TextLine id="line_10">
+				<Coords points="270,531 2255,525 2252,468 270,474" />
+				<TextEquiv>
+					<Unicode>नरपिण्डाश्चैवपदीनरेन्द्रास्रायुपुरविधिनिर्दिष्टः। सकलीकृतवाक्यविनिच्छेदराजायते पुनः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="272,598 2240,591 2238,535 272,542" />
+			<TextLine id="line_11">
+				<Coords points="272,598 2240,591 2238,535 272,542" />
+				<TextEquiv>
+					<Unicode>४। शतिविष्ण्वाचार्यकरसाम। गुरुवर्यरत्नाभौ तेनतत्त्वज्ञायां वैद्योऽपि विधायां नानाधिगुणे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="272,668 2142,661 2138,602 272,608" />
+			<TextLine id="line_12">
+				<Coords points="272,668 2142,661 2138,602 272,608" />
+				<TextEquiv>
+					<Unicode>यत्रैवकाला त्रववृत्तिर्हैवश्चालित्रास्यैव कृत्ये देहः। श्रमणपर्वविर्कामनोऽस्ति कर्मयोगी॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="2270,647 2358,643 2358,604 2270,607" />
+			<TextLine id="line_13">
+				<Coords points="2270,647 2358,643 2358,604 2270,607" />
+				<TextEquiv>
+					<Unicode>राम४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="65.jpg" imageWidth="2587" imageHeight="3500">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दशमे पटलेश्लोक रए यंत्रविशेषोयम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दशमे पटले श्लोक खद यत्ररचनाप्रकारीयम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पूर्वोक्ताउग्रहवर्णापयोगीत्वेन</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>गलि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>© Dharmartha Trust J&amp;K. Digitized by eGangotri</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

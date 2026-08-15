@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "ad1caed4e927344f48d4da981a26524a357519517a8bdf66cdc3bd921ce58898",
+  "manuscript_id": "yajn",
+  "page_id": "233_0009",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "4bec1fba68928e5729ed89824b076d5b49b5e7c3a6a4d9fad71af89132e610a1",
+  "pagexml_sha256": "708503bf7631891494b0cfe6958da7d93f941c14e522efd9680bbe2638079d64",
+  "status": "api_timeout",
+  "error": "Gemini did not finish within 45 seconds. You can retry Gemini or use the built-in reader.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.611903799988795,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not finish within 45 seconds. You can retry Gemini or use the built-in reader."
+    },
+    {
+      "attempt": 2,
+      "status": "api_timeout",
+      "elapsed_seconds": 46.287531300011324,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not finish within 45 seconds. You can retry Gemini or use the built-in reader."
+    },
+    {
+      "attempt": 3,
+      "status": "other_output_error",
+      "elapsed_seconds": 45.87348730000667,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not return a usable transcription."
+    },
+    {
+      "attempt": 4,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.65358510002261,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not finish within 45 seconds. You can retry Gemini or use the built-in reader."
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "elapsed_seconds": 190.46303250000346,
+  "completed_at_utc": "2026-07-25T04:24:36.434252+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 1,
+  "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+  "grounding_layout": "ground_truth_pagexml_baselines"
+}

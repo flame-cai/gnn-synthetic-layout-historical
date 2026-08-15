@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0009.jpg" imageWidth="2500" imageHeight="928">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="832,92 2380,84 2375,37 835,42" />
+			<TextLine id="line_0">
+				<Coords points="832,92 2380,84 2375,37 835,42" />
+				<TextEquiv>
+					<Unicode>॥ नमोऽस्तु कुन्दकुसुमहारतवर्णाय ते नमः सर्वः प्रारम्भे पञ्चमतेऽहं पितरं चित्ते चक्रु प्रारम्भसम्पन्नं उद्धृतः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="320,155 538,150 538,103 322,109" />
+			<TextLine id="line_1">
+				<Coords points="320,155 538,150 538,103 322,109" />
+				<TextEquiv>
+					<Unicode>एम्-२३३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2170,147 2212,143 2208,94 2172,96" />
+			<TextLine id="line_2">
+				<Coords points="2170,147 2212,143 2208,94 2172,96" />
+				<TextEquiv>
+					<Unicode>९</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="940,182 985,181 985,153 940,157" />
+			<TextLine id="line_3">
+				<Coords points="940,182 985,181 985,153 940,157" />
+				<TextEquiv>
+					<Unicode>श्री</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2222,188 2268,187 2270,163 2225,165" />
+			<TextLine id="line_4">
+				<Coords points="2222,188 2268,187 2270,163 2225,165" />
+				<TextEquiv>
+					<Unicode>चार</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,244 2250,238 2248,186 265,192" />
+			<TextLine id="line_5">
+				<Coords points="270,244 2250,238 2248,186 265,192" />
+				<TextEquiv>
+					<Unicode>श्रोभिस्त्रिगुणमन्तीर्थसमोनेकोऽत्रेणोपचकासच्चात्रास्त्रोत्से पितरस्त्वयाऽहं रक्षतां चतुःककर्मसम्प्राप्ते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="272,312 2275,306 2270,253 272,260" />
+			<TextLine id="line_6">
+				<Coords points="272,312 2275,306 2270,253 272,260" />
+				<TextEquiv>
+					<Unicode>श्रोत्रपार्श्वं महाकुलार्णवकीर्तिनादविपिनसंचारि राजेन्द्रिककर्मकृत्यचातोऽपि सेवगुणयुक्ते स्ववर्गे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,384 2278,378 2275,322 270,330" />
+			<TextLine id="line_7">
+				<Coords points="270,384 2278,378 2275,322 270,330" />
+				<TextEquiv>
+					<Unicode>श्रीचोवरः ॥ पञ्चान्तश्रीभूतः कुन्देन्दुवर्णाभिनन्दनविध्यः ॥ विद्यच्छ्रवणे करणीं करस्य परोपरणं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="265,453 2248,445 2248,387 268,397" />
+			<TextLine id="line_8">
+				<Coords points="265,453 2248,445 2248,387 268,397" />
+				<TextEquiv>
+					<Unicode>कुंजलेतकर्ममणिभवसीतानत्रालोकपत्तिं स्वदीपविनाश्चरेण देवपावकव्रजैः श्वेतकायप्रभो ॥ वाच्यो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="265,522 2260,513 2258,456 268,466" />
+			<TextLine id="line_9">
+				<Coords points="265,522 2260,513 2258,456 268,466" />
+				<TextEquiv>
+					<Unicode>सर्वविद्यां ज्ञाति शत्रुरुजेन मनः ॥ श्रोत्रे द्विवाहे श्रोत्रस्य पचति रात्रमेतं ततः प्राणायुपयतः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="265,592 2270,584 2268,524 268,535" />
+			<TextLine id="line_10">
+				<Coords points="265,592 2270,584 2268,524 268,535" />
+				<TextEquiv>
+					<Unicode>कुरुहानेकविधाति ॥ चारे स्मितेऽपि जेवक्रीडापि चक्रतो गेदवं ॥ चतुर्दशेऽत्र धर्मं पुनातु तु नृपम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="68,663 2290,653 2290,592 70,602" />
+			<TextLine id="line_11">
+				<Coords points="68,663 2290,653 2290,592 70,602" />
+				<TextEquiv>
+					<Unicode>श्रीवाचार्यः ॥ इत्युक्त्वा चरतोऽर्थीन्द्रपाशी चक्रेऽपि मनोऽयंकाव्यपावपतेजो ध्रुवद्वैवेद्यमाराधना ॥ त्रयः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="275,727 2212,717 2208,664 278,675" />
+			<TextLine id="line_12">
+				<Coords points="275,727 2212,717 2208,664 278,675" />
+				<TextEquiv>
+					<Unicode>-चन्द्रिकोपनारदेवोऽपि फलितः तत्त्वपाकं कुर्वते देवैः केशवचन्द्रेण पञ्चमात्रेण विरचितं किमपि चण्डकं ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1168,789 1255,781 1250,732 1170,739" />
+			<TextLine id="line_13">
+				<Coords points="1168,789 1255,781 1250,732 1170,739" />
+				<TextEquiv>
+					<Unicode>चार</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

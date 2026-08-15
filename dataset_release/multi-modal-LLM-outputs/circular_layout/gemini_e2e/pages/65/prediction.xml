@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="65.jpg" imageWidth="2587" imageHeight="3500">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="285,840 1319,840 1319,718 285,718" />
+			<TextLine id="line_0">
+				<Coords points="285,840 1319,840 1319,718 285,718" />
+				<TextEquiv>
+					<Unicode>दशमे पटले श्लोक ३९ यंत्रविशेषोयम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="525,1897 1625,1897 1625,1768 525,1768" />
+			<TextLine id="line_1">
+				<Coords points="525,1897 1625,1897 1625,1768 525,1768" />
+				<TextEquiv>
+					<Unicode>दशमे पटले श्लोक ४५ यंत्ररचनाप्रकारोयम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="538,1988 1366,1988 1366,1872 538,1872" />
+			<TextLine id="line_2">
+				<Coords points="538,1988 1366,1988 1366,1872 538,1872" />
+				<TextEquiv>
+					<Unicode>पूर्वोक्तानुग्रहवर्त्तीपयोगात्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1190,2012 1301,2012 1301,1908 1190,1908" />
+			<TextLine id="line_3">
+				<Coords points="1190,2012 1301,2012 1301,1908 1190,1908" />
+				<TextEquiv>
+					<Unicode>इति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1087,2275 957,2345 893,2520 931,2730 1061,2870 1216,2922 1371,2870 1475,2730 1500,2555 1423,2415 1319,2310 1190,2275" />
+			<TextLine id="line_4">
+				<Coords points="1087,2275 957,2345 893,2520 931,2730 1061,2870 1216,2922 1371,2870 1475,2730 1500,2555 1423,2415 1319,2310 1190,2275" />
+				<TextEquiv>
+					<Unicode>अ आ इ ई उ ऊ ऋ ॠ ऌ ॡ ए ऐ ओ औ अं अः क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल व श ष स ह ळ क्ष</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

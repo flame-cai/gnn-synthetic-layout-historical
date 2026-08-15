@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "circle_new",
+  "provider": {
+    "provider_id": "sarvam",
+    "method_id": "sarvam_e2e",
+    "display_name": "Sarvam (End-to-End)",
+    "model_id": "sarvam-vision",
+    "api_key_env": "SARVAM_API_KEY",
+    "request_contract_version": 1,
+    "uses_shared_prompt": false,
+    "output_adapter_id": "sarvam_html_text_lines_v1",
+    "input_contract": "page_image_only",
+    "prompt_contract": "sarvam_document_digitization_html_sa_in_v1_no_prompt",
+    "provides_layout": false,
+    "language_code": "sa-IN",
+    "output_format": "html"
+  },
+  "prompt_sha256": null,
+  "page_ids": [
+    "11",
+    "14",
+    "15",
+    "28",
+    "35",
+    "49",
+    "56",
+    "64",
+    "65"
+  ],
+  "page_count": 9,
+  "success_count": 9,
+  "failure_count": 0,
+  "max_retries_after_initial_attempt": 3,
+  "pages": {
+    "11": {
+      "status": "success",
+      "result_path": "pages/11/result.json",
+      "prediction_path": "pages/11/prediction.xml"
+    },
+    "14": {
+      "status": "success",
+      "result_path": "pages/14/result.json",
+      "prediction_path": "pages/14/prediction.xml"
+    },
+    "15": {
+      "status": "success",
+      "result_path": "pages/15/result.json",
+      "prediction_path": "pages/15/prediction.xml"
+    },
+    "28": {
+      "status": "success",
+      "result_path": "pages/28/result.json",
+      "prediction_path": "pages/28/prediction.xml"
+    },
+    "35": {
+      "status": "success",
+      "result_path": "pages/35/result.json",
+      "prediction_path": "pages/35/prediction.xml"
+    },
+    "49": {
+      "status": "success",
+      "result_path": "pages/49/result.json",
+      "prediction_path": "pages/49/prediction.xml"
+    },
+    "56": {
+      "status": "success",
+      "result_path": "pages/56/result.json",
+      "prediction_path": "pages/56/prediction.xml"
+    },
+    "64": {
+      "status": "success",
+      "result_path": "pages/64/result.json",
+      "prediction_path": "pages/64/prediction.xml"
+    },
+    "65": {
+      "status": "success",
+      "result_path": "pages/65/result.json",
+      "prediction_path": "pages/65/prediction.xml"
+    }
+  },
+  "written_at_utc": "2026-07-20T08:27:36.877526+00:00",
+  "output_adapter_version": 2,
+  "readapted_at_utc": "2026-07-20T08:58:32.814885+00:00"
+}

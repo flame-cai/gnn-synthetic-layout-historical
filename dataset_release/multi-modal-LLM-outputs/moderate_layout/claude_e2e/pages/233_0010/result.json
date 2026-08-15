@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "89cacdc250bcefe0361226016a55892c598ab39ef882222708416699bcbab2f7",
+  "manuscript_id": "yajn",
+  "page_id": "233_0010",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "fe71ccd216c7fe44f511fe43c7be9f15bb7bca4610c2d4adb69181c76b42bcd5",
+  "pagexml_sha256": "d20b816b67713aad205f871ec108609d0336da9d3929c61a44b0b8a803d3d0ca",
+  "status": "success",
+  "error": null,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "success",
+      "elapsed_seconds": 29.39100000000144,
+      "input_tokens": 3593,
+      "output_tokens": 1989,
+      "total_tokens": 5582,
+      "response_id": "msg_011Cd7NbFk7a7LKoRP1M1wJm",
+      "finish_reason": "end_turn"
+    }
+  ],
+  "input_tokens": 3593,
+  "output_tokens": 1989,
+  "total_tokens": 5582,
+  "elapsed_seconds": 29.45300000000134,
+  "completed_at_utc": "2026-07-17T09:13:40.195707+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

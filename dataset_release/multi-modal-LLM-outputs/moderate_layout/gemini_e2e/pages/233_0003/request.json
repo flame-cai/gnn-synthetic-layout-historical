@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "yajn",
+  "page_id": "233_0003",
+  "provider_id": "gemini",
+  "method_id": "gemini_e2e",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "eded373357f786df927a540331e44dcfb0109f32e9cb876b1c31ae1c18e71c6c",
+  "pagexml_sha256": "78f97a4b6111a96e7c0d4ebb6efa06f11f58c395277811a5994d6d384928f930",
+  "request_fingerprint": "7874279a2319fb9eec81f42720ced33d164ca037b965dbac65e613500237f65a",
+  "image_path": "manuscripts/moderate_layout/inputs/233_0003.jpg",
+  "pagexml_path": "manuscripts/moderate_layout/labels/page_xml/233_0003.xml",
+  "prompt": "You are an expert Indologist and Paleographer specializing in handwritten Sanskrit manuscripts.\nYour Task: Perform a diplomatic transcription (OCR) of the manuscript image and provide text-line geometry.\nCRITICAL INSTRUCTIONS:\n1. Output Format: Output ONLY raw valid JSON. No Markdown.\n2. Coordinates: Coordinates are normalized from 0 to 1000, where [0,0] is top-left and [1000,1000] is bottom-right.\n3. Geometry: For every visual text line, output polygon_2d as [[y,x], ...]. Use a tight polygon following the visible line. If the line is straight and rectangular, box_2d [ymin,xmin,ymax,xmax] is also acceptable. For curved or circular lines, polygon_2d is mandatory.\n4. Granularity: Transcribe at the visual text-line level.\n5. Script: Unicode Devanagari.\nJSON SCHEMA:\n{\n  \"status\": \"success\",\n  \"regions\": [\n    {\n      \"id\": \"region_0\",\n      \"type\": \"main_text\",\n      \"polygon_2d\": [[y,x], [y,x], [y,x]],\n      \"box_2d\": [ymin, xmin, ymax, xmax],\n      \"lines\": [\n        {\n          \"id\": \"line_0\",\n          \"polygon_2d\": [[y,x], [y,x], [y,x]],\n          \"box_2d\": [ymin, xmin, ymax, xmax],\n          \"text\": \"Transcribed text here\"\n        }\n      ]\n    }\n  ]\n}",
+  "input_order": [
+    "page_image",
+    "prompt"
+  ],
+  "state": "started",
+  "started_at_utc": "2026-07-17T08:32:06.694346+00:00",
+  "timeout_seconds": 45.0,
+  "max_retries_after_initial_attempt": 3
+}

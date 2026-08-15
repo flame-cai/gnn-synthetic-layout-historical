@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "b711b196940a419580a9384e1c6deb78b678f1063845ff69fe78e0feaad53764",
+  "manuscript_id": "yajn",
+  "page_id": "233_0014",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "7ea93af30ebebef63fcb3c06b9f8f7cc97dae2199ab844ffd22d1e6b2c24d6fb",
+  "pagexml_sha256": "c114bf1530c5626fcf4439385300740dbc85fbce41d9abc40906d7a51ed8a2ac",
+  "status": "success",
+  "error": null,
+  "attempt_count": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "other_output_error",
+      "elapsed_seconds": 45.41294180002296,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not return a usable transcription."
+    },
+    {
+      "attempt": 2,
+      "status": "success",
+      "elapsed_seconds": 17.227905299980193,
+      "input_tokens": 2681,
+      "output_tokens": 1037,
+      "total_tokens": 7458,
+      "response_id": null,
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 2681,
+  "output_tokens": 1037,
+  "total_tokens": 7458,
+  "elapsed_seconds": 63.64383980000275,
+  "completed_at_utc": "2026-07-25T04:24:36.664697+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 1,
+  "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+  "grounding_layout": "ground_truth_pagexml_baselines"
+}

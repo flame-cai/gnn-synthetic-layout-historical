@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "42c142718168001e26c0440850f98e2981d2db83ce1beb6a8b6e7437b6821826",
+  "manuscript_id": "circle_new",
+  "page_id": "49",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "ac83e11b426863812f2a5383bdedf4ae35c7d977412c3b1e20bebba7a0fc5395",
+  "pagexml_sha256": "de74d99c30032f413ce4e7ff0e7fa4a5e3e0536eb9885325184a7e9ceba1df81",
+  "status": "api_error",
+  "error": "ValueError: vlm_json:49:line_0: TextLine/Coords must contain at least three distinct points.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 35.4380000000001,
+      "error": "ValueError: vlm_json:49:footer: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 2,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.32800000000134,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 24.188000000000102,
+      "error": "ValueError: vlm_json:49:line_0: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 4,
+      "status": "api_error",
+      "elapsed_seconds": 31.0,
+      "error": "ValueError: vlm_json:49:line_0: TextLine/Coords must contain at least three distinct points."
+    }
+  ],
+  "input_tokens": 15867,
+  "output_tokens": 9058,
+  "total_tokens": 24925,
+  "elapsed_seconds": 142.96900000000096,
+  "completed_at_utc": "2026-07-17T09:28:48.838804+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

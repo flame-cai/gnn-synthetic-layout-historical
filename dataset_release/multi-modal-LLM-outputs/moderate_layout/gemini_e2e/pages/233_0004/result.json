@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "3bc9acb799c838d72ef3a4e22a38931d7918852e641edf9d28def80485c71d40",
+  "manuscript_id": "yajn",
+  "page_id": "233_0004",
+  "provider_id": "gemini",
+  "method_id": "gemini_e2e",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "0c51574be0e1b7765e296c818925edd153250fd4701541b6f0d519174aa77110",
+  "pagexml_sha256": "359f577608c71a9e3603f3a6e6e6de37648dd178f224202925630a2a845499d0",
+  "status": "api_error",
+  "error": "ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 46.75,
+      "error": "ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}"
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 45.09400000000005,
+      "error": "ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}"
+    },
+    {
+      "attempt": 3,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.15599999999995,
+      "error": "ReadTimeout: The read operation timed out"
+    },
+    {
+      "attempt": 4,
+      "status": "api_error",
+      "elapsed_seconds": 45.10900000000038,
+      "error": "ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "elapsed_seconds": 189.125,
+  "completed_at_utc": "2026-07-17T08:35:15.902972+00:00",
+  "prediction_path": "prediction.xml"
+}

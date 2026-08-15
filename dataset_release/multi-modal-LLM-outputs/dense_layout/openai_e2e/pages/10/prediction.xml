@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="10.jpg" imageWidth="3500" imageHeight="1511">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="273,138 3332,109 2415,57 287,63" />
+			<TextLine id="line_0">
+				<Coords points="273,138 3332,109 2415,57 287,63" />
+				<TextEquiv>
+					<Unicode>विन्ध्याद्रिप्रति नो भोगमयी नाट्यरूपः सर्वविधो भवेन तद्वर्तिनोऽभ्यस्तेऽनुलोपेऽथ सदैनमभिदत्तप्रश्नेन । परम्परायां पद्यतत्त्वप्रवृत्तेऽप्यभिधातृभवतः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2650,207 3328,193 3342,133 2660,141" />
+			<TextLine id="line_1">
+				<Coords points="2650,207 3328,193 3342,133 2660,141" />
+				<TextEquiv>
+					<Unicode>नरः प्रवेक्ष्यतेऽथाकुङ्क्षधृतश्चूलोऽस्त्रयोगः ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="287,228 3322,237 3283,151 280,144" />
+			<TextLine id="line_2">
+				<Coords points="287,228 3322,237 3283,151 280,144" />
+				<TextEquiv>
+					<Unicode>मिनेन्द्रकृतौ प्रकरणमुक्तयः । २० शोकलोऽप्युद्देश्यहि ध्येयपदविधे कर्तव्योऽत्राकविधिभेदेऽभ्यस्त्रविधिरखिलहरेणोऽन्योऽभिधानेन</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="287,323 3325,322 3339,239 287,237" />
+			<TextLine id="line_3">
+				<Coords points="287,323 3325,322 3339,239 287,237" />
+				<TextEquiv>
+					<Unicode>चः सिद्धेर्महिका क्षमोऽस्त्वखल्वेकान्तलोकीर्णो भोग्यः प्रवर्तकोऽस्ति मेधारयोः सद्यजेते २० मे श्रोमणिप्रभृतीनां</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="280,408 3308,408 3318,322 280,322" />
+			<TextLine id="line_4">
+				<Coords points="280,408 3308,408 3318,322 280,322" />
+				<TextEquiv>
+					<Unicode>३. शान्तिः प्रियासख्यं रवेर्मित्राणां मेघजेदेव पल्लवितो रघुर्वेधोऽन्यरूपमिवेत्यभिधीयते स्त्रैणजीवोऽभि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="284,499 3314,497 3328,406 280,406" />
+			<TextLine id="line_5">
+				<Coords points="284,499 3314,497 3328,406 280,406" />
+				<TextEquiv>
+					<Unicode>नोऽत्रार्थोऽपि जिनो हितो विदेयं निःसरेः मित्रनो वेरी २१ मिन्नाप्येकैर्जेद्रव्यं तुर्मार्गेऽस्तीति मेदसीवर्त्तेऽपि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="280,589 3311,586 3322,496 284,499" />
+			<TextLine id="line_6">
+				<Coords points="280,589 3311,586 3322,496 284,499" />
+				<TextEquiv>
+					<Unicode>जेद्रव्योऽस्त्रासितो हितोऽखीनो नतं कोऽस्त्रास्तां रघुर्वेदोऽभिधीयते जानिलेऽर्थस्वविधिनिमित्तदृश्येऽपि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="287,681 3311,678 3328,586 287,586" />
+			<TextLine id="line_7">
+				<Coords points="287,681 3311,678 3328,586 287,586" />
+				<TextEquiv>
+					<Unicode>नरः स्याद्भोगुरयोः काले मे मर्यादिभयोः सौहृदलेखितेऽपि नरेच्यापदेऽप्यस्त्रभुविप्रवृत्तेऽभवकृत</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="290,774 3304,771 3318,675 287,678" />
+			<TextLine id="line_8">
+				<Coords points="290,774 3304,771 3318,675 287,678" />
+				<TextEquiv>
+					<Unicode>विष्णोर्विष्णुकरे लम्बितोऽस्त्रपके कलितो व्रणोर्मतचारोऽरवो नोदितोऽस्त्रेत्येव २४ ध्यायेद्दुर्ममेघवस्त्रैः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="290,867 3318,866 3325,771 287,769" />
+			<TextLine id="line_9">
+				<Coords points="290,867 3318,866 3325,771 287,769" />
+				<TextEquiv>
+					<Unicode>भवेद्देवो मन्दिरेदृशोऽरकेरिति प्रियतोऽस्ति स्थितिरिति नृत्तश्चोऽस्त्रविचारोऽयमेव सन्तोषकेनैव</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="287,959 3314,956 3325,864 290,866" />
+			<TextLine id="line_10">
+				<Coords points="287,959 3314,956 3325,864 290,866" />
+				<TextEquiv>
+					<Unicode>यौमि भोजमामित्रनामृत्तमली भावादिवेद्यमनः २५ येनैव तुर्दे कृतिनोऽभिवेगेण सोऽस्त्वभेदकेन तिनोऽभिविरतिः कार्ष्णात्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="294,1053 3314,1050 3325,955 290,955" />
+			<TextLine id="line_11">
+				<Coords points="294,1053 3314,1050 3325,955 290,955" />
+				<TextEquiv>
+					<Unicode>मृत्युपुत्रेणाभ्येक्षनारीरितो मेऽभिहितेऽभ्यनमयोऽप्यदेवभवेन तु मन्दिरं कौटिल्येन शकोऽस्त्रभृतः ध्वजः स्तोत्रेण शान्त्युपेतेऽपि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="290,1144 3314,1139 3325,1050 290,1050" />
+			<TextLine id="line_12">
+				<Coords points="290,1144 3314,1139 3325,1050 290,1050" />
+				<TextEquiv>
+					<Unicode>तस्माद्वैर्येण रुद्रः सतोऽनुमानेन वदुः परिवर्ततेऽप्येषां मनो निगृहीतं रघुर्वेधोऽभिधीयते भुवनं वरकृतोऽन्वितोऽभि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="290,1238 3311,1234 3322,1141 290,1141" />
+			<TextLine id="line_13">
+				<Coords points="290,1238 3311,1234 3322,1141 290,1141" />
+				<TextEquiv>
+					<Unicode>मुद्रायां शूरविरुद्धेनोऽभुममेव क्रियते कर्पटं मलेऽपि सौम्यके नाभि रघुर्जनितोऽस्त्रभोगो विदन्तोऽस्त्रेत् २७</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="287,1333 3311,1328 3325,1233 290,1233" />
+			<TextLine id="line_14">
+				<Coords points="287,1333 3311,1328 3325,1233 290,1233" />
+				<TextEquiv>
+					<Unicode>मन्देऽप्यथ मित्रयोः खेदे रात्रौ नैकेऽपि रघुर्विश्वकोऽभिव्यक्तोऽस्त्रविचारकः सन्ततसुखोऽभोगो नयति मिहिरोऽभ्यस्त्रवृत्तिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="294,1429 3314,1425 3325,1327 290,1328" />
+			<TextLine id="line_15">
+				<Coords points="294,1429 3314,1425 3325,1327 290,1328" />
+				<TextEquiv>
+					<Unicode>मोहितोऽभोग्युगलोऽस्त्रैरभ्यस्त्रतोऽस्त्र पङ्क्तयोऽभ्यस्त्रः २८ एकोऽभ्युमनस्त्रोऽस्त्रवेणो रत्नं तदेव परिपूर्यः पठितेऽस्त्रप्रदः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="287,1488 3328,1485 3336,1423 290,1422" />
+			<TextLine id="line_16">
+				<Coords points="287,1488 3328,1485 3336,1423 290,1422" />
+				<TextEquiv>
+					<Unicode>स्वरितोऽभ्यस्त्रसन्निविष्टो नरः समभ्यस्त्रगुणोऽस्ति ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="63,257 256,254 252,177 63,180" />
+			<TextLine id="line_0">
+				<Coords points="63,257 256,254 252,177 63,180" />
+				<TextEquiv>
+					<Unicode>सु-मा।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="63,656 252,653 252,470 63,471" />
+			<TextLine id="line_1">
+				<Coords points="63,656 252,653 252,470 63,471" />
+				<TextEquiv>
+					<Unicode>रघुवेणेन</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="63,1026 252,1023 252,858 63,861" />
+			<TextLine id="line_2">
+				<Coords points="63,1026 252,1023 252,858 63,861" />
+				<TextEquiv>
+					<Unicode>रेखाविकारे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="63,1266 256,1263 256,1064 63,1067" />
+			<TextLine id="line_3">
+				<Coords points="63,1266 256,1263 256,1064 63,1067" />
+				<TextEquiv>
+					<Unicode>भवतः करणम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="77,1301 262,1298 262,419 74,422" />
+			<TextLine id="line_0">
+				<Coords points="77,1301 262,1298 262,419 74,422" />
+				<TextEquiv>
+					<Unicode>विन्ध्याद्रिप्रति नो भोगमयी नाट्यरूपः सर्वविधो भवेन तद्वर्तिनोऽभ्यस्तेऽनुलोपेऽथ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

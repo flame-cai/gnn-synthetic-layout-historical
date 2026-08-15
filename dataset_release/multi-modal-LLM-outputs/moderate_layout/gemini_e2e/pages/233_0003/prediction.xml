@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0003.jpg" imageWidth="2500" imageHeight="932">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="778,106 1850,106 1850,57 778,57" />
+			<TextLine id="line_0">
+				<Coords points="778,106 1850,106 1850,57 778,57" />
+				<TextEquiv>
+					<Unicode>शास्त्रविरुद्धः १ ॥ प्रत्रैपाद्यं च बुद्धौ संस्थाप्य वक्ता = सव्यजुः समपाठकाः २ =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1042,150 1585,150 1585,103 1042,103" />
+			<TextLine id="line_1">
+				<Coords points="1042,150 1585,150 1585,103 1042,103" />
+				<TextEquiv>
+					<Unicode>रात्रौ यात्र देवकार्यं नातुदोषाय तं ३ =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2002,93 2330,93 2330,48 2002,48" />
+			<TextLine id="line_2">
+				<Coords points="2002,93 2330,93 2330,48 2002,48" />
+				<TextEquiv>
+					<Unicode>एतेषां कर्मणां मध्ये १ =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,211 522,211 522,150 335,150" />
+			<TextLine id="line_3">
+				<Coords points="335,211 522,211 522,150 335,150" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2060,211 2120,211 2120,159 2060,159" />
+			<TextLine id="line_4">
+				<Coords points="2060,211 2120,211 2120,159 2060,159" />
+				<TextEquiv>
+					<Unicode>३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="165,463 252,463 252,396 165,396" />
+			<TextLine id="line_5">
+				<Coords points="165,463 252,463 252,396 165,396" />
+				<TextEquiv>
+					<Unicode>घोर</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="60,569 298,569 298,496 60,496" />
+			<TextLine id="line_6">
+				<Coords points="60,569 298,569 298,496 60,496" />
+				<TextEquiv>
+					<Unicode>तरुकार्यः ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="355,299 2145,299 2145,222 355,222" />
+			<TextLine id="line_7">
+				<Coords points="355,299 2145,299 2145,222 355,222" />
+				<TextEquiv>
+					<Unicode>मनः ॥ संम्यक्संकल्पजः कामोधर्ममूलमिदं स्मृतम् ॥ इज्याचारदमाहिंसादानस्वाध्याय कर्मणाम् ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="350,368 2380,368 2380,287 350,287" />
+			<TextLine id="line_8">
+				<Coords points="350,368 2380,368 2380,287 350,287" />
+				<TextEquiv>
+					<Unicode>अयं तु परमो धर्मो यद्योगेनात्मदर्शनम् ॥ चत्वारो वेदा धर्मज्ञाः पर्ष त्रैविद्यमेव वा ॥ सा ब्रूते यं स धर्मः स्यात् २ =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="350,445 2035,445 2035,366 350,366" />
+			<TextLine id="line_9">
+				<Coords points="350,445 2035,445 2035,366 350,366" />
+				<TextEquiv>
+					<Unicode>स्यादेको वाध्यात्मवित्तमः ॥ इति उपोद्घातप्रकरणं ॥ ब्रह्मक्षत्रियविट्शूद्रा वर्णास्त्वाद्यास्त्रयो द्विजाः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="350,508 2455,508 2455,432 350,432" />
+			<TextLine id="line_10">
+				<Coords points="350,508 2455,508 2455,432 350,432" />
+				<TextEquiv>
+					<Unicode>निषेकाद्या श्मशानांतास्तेषां वै मंत्रतः क्रियाः ॥ गर्भाधानमृतौ पुंसः सवनं स्पंदनात्पुरा ॥ षष्ठे = दंतधावनं ॥ ४ =</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="355,577 2200,577 2200,501 355,501" />
+			<TextLine id="line_11">
+				<Coords points="355,577 2200,577 2200,501 355,501" />
+				<TextEquiv>
+					<Unicode>एमेच सीमंतोन्नास्येते जातकर्म च ॥ अह्न्येकादशे नाम चतुर्थे मासि निष्क्रमः ॥ षष्ठेन्नप्राशनं मा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="360,651 2205,651 2205,569 360,569" />
+			<TextLine id="line_12">
+				<Coords points="360,651 2205,651 2205,569 360,569" />
+				<TextEquiv>
+					<Unicode>सि चूडाकार्या यथाकुलं ॥ एवमेनः शमंयाति वीर्यगर्भसमुद्भवम् ॥ तूष्णीमेताः क्रियाः स्त्रीणां</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="370,728 2200,728 2200,638 370,638" />
+			<TextLine id="line_13">
+				<Coords points="370,728 2200,728 2200,638 370,638" />
+				<TextEquiv>
+					<Unicode>विवाहस्तु समंत्रकः ॥ गर्भाष्टमेष्टमे वाब्दे ब्राह्मणस्योपनायनं ॥ राज्ञामेकादशे सैके वि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="725,832 1092,832 1092,732 725,732" />
+			<TextLine id="line_14">
+				<Coords points="725,832 1092,832 1092,732 725,732" />
+				<TextEquiv>
+					<Unicode>जातकर्मप्रसंगेन कार्यः ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1152,773 1330,773 1330,721 1152,721" />
+			<TextLine id="line_15">
+				<Coords points="1152,773 1330,773 1330,721 1152,721" />
+				<TextEquiv>
+					<Unicode>नग्ननः १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1535,759 1820,759 1820,703 1535,703" />
+			<TextLine id="line_16">
+				<Coords points="1535,759 1820,759 1820,703 1535,703" />
+				<TextEquiv>
+					<Unicode>यज्ञोपवीतं कार्यं १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

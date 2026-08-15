@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="49.jpg" imageWidth="2504" imageHeight="3500">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नवमेपटले श्लोक २९ प्रभृति नानाप्रयोगविधानम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नवमेपटले ५८ श्लोक प्रभृति यंत्रविधानम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>यंत्राणिच पंचपंचाशत्संख्यानि तत्प्रकाशाश्च</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वशेषयंत्रे ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>© Dharmartha Trust J&amp;K. Digitized by eGangotri</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

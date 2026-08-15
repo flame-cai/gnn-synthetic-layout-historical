@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="35.jpg" imageWidth="2564" imageHeight="3500">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,1978 1533,1978 1533,1918 559,1918" />
+			<TextLine id="line_0">
+				<Coords points="559,1978 1533,1978 1533,1918 559,1918" />
+				<TextEquiv>
+					<Unicode>अष्टमे पटले श्लोक ४५ यंत्रान्तर रचनाप्रकारः तत्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2048 928,2048 928,1988 559,1988" />
+			<TextLine id="line_1">
+				<Coords points="559,2048 928,2048 928,1988 559,1988" />
+				<TextEquiv>
+					<Unicode>अमृताणीः १६-</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2118 1123,2118 1123,2054 559,2054" />
+			<TextLine id="line_2">
+				<Coords points="559,2118 1123,2118 1123,2054 559,2054" />
+				<TextEquiv>
+					<Unicode>भगमालिनीमंत्राणीः २५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2188 1133,2188 1133,2118 559,2118" />
+			<TextLine id="line_3">
+				<Coords points="559,2188 1133,2188 1133,2118 559,2118" />
+				<TextEquiv>
+					<Unicode>चतुर्दशनित्यामंत्राणीः १६१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2268 1641,2268 1641,2188 559,2188" />
+			<TextLine id="line_4">
+				<Coords points="559,2268 1641,2268 1641,2188 559,2188" />
+				<TextEquiv>
+					<Unicode>एतत्रितयसंयोजने ४ ५ ५ एतैरेवयंत्ररचनाप्रकारः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2345 1585,2345 1585,2268 559,2268" />
+			<TextLine id="line_5">
+				<Coords points="559,2345 1585,2345 1585,2268 559,2268" />
+				<TextEquiv>
+					<Unicode>तद्यथा पूर्वक संचये चतुर्दशभिर्भक्ते द्वात्रिंशल्लभ्यते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2422 1723,2422 1723,2338 559,2338" />
+			<TextLine id="line_6">
+				<Coords points="559,2422 1723,2422 1723,2338 559,2338" />
+				<TextEquiv>
+					<Unicode>त्रयस्त्रिंशन्मयंत्राक्षरणा अर्थसायास्तपंचकनितेपोत्रकार्यः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2502 1636,2502 1636,2422 559,2422" />
+			<TextLine id="line_7">
+				<Coords points="559,2502 1636,2502 1636,2422 559,2422" />
+				<TextEquiv>
+					<Unicode>तेन ४ ६२ मंत्राणीत्रयस्त्रिंशद्यंत्ररचनार्थजायंते इत्यर्थः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="559,2572 1585,2572 1585,2492 559,2492" />
+			<TextLine id="line_8">
+				<Coords points="559,2572 1585,2572 1585,2492 559,2492" />
+				<TextEquiv>
+					<Unicode>तेषुयंत्रेषुप्रत्येकंमायागर्भस्यसाध्यपुंतनामलेख्यम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

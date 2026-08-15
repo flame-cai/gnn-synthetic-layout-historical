@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0013.jpg" imageWidth="2500" imageHeight="926">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>द्वितीयाचैवयोर्नाथीदहेनैतानि कान्तिमः जीवत्याद्यमायांनुरापनसमहितर॥४॥ मतां तु द्वितीयानुयोगिहोत्रसमुत्सजेर व ह्यधुंतविजातो</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>बालऐनतत्रियायाउत्पादितःक्षत्रियःएकत्रियेणवैश्यायाउपादितःवैश्यःएववैश्वेनाथूद्रायो उत्पादतःयूऊएवा॥६=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>13</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शास्त्रीकृतविधिना</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विवाहतास्त्री १-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शास्रीकविवाह</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>तासुर</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>न्यौतिःपुत्राश्रवाईके॥अन्नावेज्ञातयसोपस्वातंअनकचितस्त्रियः॥पितृमात्सुतचाटस्व</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शूश्चसुरमातुलैः॥हीनाजस्पादिनानत्रीगईयान्पयानवेत॥प्रतिप्रियहितेयुक्तास्वाचा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>राविजतेऽद्या॥सेहकीर्तिमवाप्नोतिप्रेसचानुत्तमागतिं॥सत्यामन्पासवण्यांधर्मिकायें</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नकारयेत॥सवर्णिसुषधौधर्मेज्येष्टयानविनैतराः॥राहपिलाग्निहोत्रैस्त्रिंपंतिवत्तीपतिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>आहरेविधिवद्दारानग्नींवैवाविलवयन्॥इतिविवाहप्रकरणम्॥सवरेच्युःसवणिसुजायंते</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>हिसजातिपः।पुन्येचेषुविवाहेषुपुत्रासंतानवर्द्धनाः॥विप्रास्त्वदीवासितोहिक्षत्रियायांविशलि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_14">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पो॥अवष्टःशूद्रानेवानेजात:पारणावोपिवा॥वेश्याशूद्रोक्तराजन्यानाम्हिष्योऽसौतौसप्तौ</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_15">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>॥वैश्यान्नुकरणाशूद्राविन्नात्वेषाविधिःसरताः॥बालरायाज्ञशात्सूतोवैश्यादैहेहिकस्तथा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_16">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>राघ</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_17">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रमीतमापीप्रमाहपूर्वोक्तवज्रवतीश्रीमनादहिपिलातनदनविनस्मानेन॥४॥ शीघ्रमेवअग्रभूमिनीरेणुर्धिनमेकमपिष्ठितः ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

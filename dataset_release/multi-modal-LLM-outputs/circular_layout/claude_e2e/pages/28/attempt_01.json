@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "status": "api_error",
+  "elapsed_seconds": 40.57800000000134,
+  "error": "ValueError: vlm_json:28:line_circle_outer: invalid polygon geometry."
+}

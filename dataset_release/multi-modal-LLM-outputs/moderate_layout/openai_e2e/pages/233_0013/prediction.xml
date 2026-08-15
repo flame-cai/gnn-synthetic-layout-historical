@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0013.jpg" imageWidth="2500" imageHeight="926">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,272 2250,265 2235,192 305,195" />
+			<TextLine id="line_0">
+				<Coords points="305,272 2250,265 2235,192 305,195" />
+				<TextEquiv>
+					<Unicode>ॐ। पुत्रप्रभोऽसि कोऽत्र नो विचारतः प्रसङ्गसान्त्रतन्त्रकृतविरुद्धं चापि नृपसुखातुरेणात्र वलाद् धृतमेव</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="310,338 2208,332 2190,278 312,285" />
+			<TextLine id="line_1">
+				<Coords points="310,338 2208,332 2190,278 312,285" />
+				<TextEquiv>
+					<Unicode>पुत्रस्य मातुले।। हेमन्तस्मार्त्तनज्याये चान्यवाचनेऽत्र प्रीतिप्रहिणीतु तस्य च</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="302,399 2250,394 2240,339 302,346" />
+			<TextLine id="line_2">
+				<Coords points="302,399 2250,394 2240,339 302,346" />
+				<TextEquiv>
+					<Unicode>राधिकेऽत्र यासीत् केनिमच्चारभिः सकलुत्तमोऽपि।। सन्तापेनासवृत्तियाभ्यां काच</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,461 2278,455 2260,402 308,411" />
+			<TextLine id="line_3">
+				<Coords points="305,461 2278,455 2260,402 308,411" />
+				<TextEquiv>
+					<Unicode>नेकोरवीरास्ववत्ती तुवेधी यकञ्जले कान्यवेदेऽत्र। कोऽपि योऽस्मिन् तिष्ठेन्द्रियप्रवृत्तिन्तनोऽपि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="300,521 2215,516 2205,463 302,472" />
+			<TextLine id="line_4">
+				<Coords points="300,521 2215,516 2205,463 302,472" />
+				<TextEquiv>
+					<Unicode>आहेरे हृदयान्तरानुभूतिकावलीनचेतना।। इतिवादेऽकथयत्। सर्वधर्मस्ववृत्तिगोचरते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,582 2248,576 2238,524 308,532" />
+			<TextLine id="line_5">
+				<Coords points="305,582 2248,576 2238,524 308,532" />
+				<TextEquiv>
+					<Unicode>हस्माग्रीवः।। जुष्टोऽपि तुर्वारिपुत्रस्य तावद्वचनम्।। विचार्यतेऽपि हित्वा विद्वान् यद्विचारि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,644 2295,638 2285,585 305,594" />
+			<TextLine id="line_6">
+				<Coords points="305,644 2295,638 2285,585 305,594" />
+				<TextEquiv>
+					<Unicode>योऽत्रैव। पुत्रप्रभविरहितः पार्थिवो विचारिणेऽत्र तत्रोऽस्मि राजेन्द्रेऽन्यो हि योऽत्र तिष्ठति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,701 2260,694 2250,644 305,652" />
+			<TextLine id="line_7">
+				<Coords points="305,701 2260,694 2250,644 305,652" />
+				<TextEquiv>
+					<Unicode>मेघसाकुरराश्रयाभिवेगे भवति। इतोऽत्राहाररतेऽपि वासरेऽपि नरेन्द्रस्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="308,97 2388,92 2380,42 310,48" />
+			<TextLine id="line_0">
+				<Coords points="308,97 2388,92 2380,42 310,48" />
+				<TextEquiv>
+					<Unicode>देवीचेतोविचार्येऽपि देहेतोऽधिकरिणः। जीवतः प्राणघातस्योपपत्तिर्नास्ति तेऽपि॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="310,154 2155,147 2145,96 312,101" />
+			<TextLine id="line_1">
+				<Coords points="310,154 2155,147 2145,96 312,101" />
+				<TextEquiv>
+					<Unicode>आहारेणैव कार्यात् तत् नृप एतद्वदेत्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,204 275,202 272,138 45,140" />
+			<TextLine id="line_0">
+				<Coords points="42,204 275,202 272,138 45,140" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,275 285,272 285,220 42,222" />
+			<TextLine id="line_1">
+				<Coords points="42,275 285,272 285,220 42,222" />
+				<TextEquiv>
+					<Unicode>आदौ न विदितम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,304 272,301 270,257 45,258" />
+			<TextLine id="line_2">
+				<Coords points="42,304 272,301 270,257 45,258" />
+				<TextEquiv>
+					<Unicode>व्यास ता ३१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,443 282,440 280,387 45,389" />
+			<TextLine id="line_3">
+				<Coords points="42,443 282,440 280,387 45,389" />
+				<TextEquiv>
+					<Unicode>वेपकाः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,693 292,690 290,640 45,642" />
+			<TextLine id="line_4">
+				<Coords points="42,693 292,690 290,640 45,642" />
+				<TextEquiv>
+					<Unicode>आदौ न विदितम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,718 295,715 292,676 42,679" />
+			<TextLine id="line_5">
+				<Coords points="42,718 295,715 292,676 42,679" />
+				<TextEquiv>
+					<Unicode>ता ३२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="272,802 2225,795 2212,739 278,744" />
+			<TextLine id="line_0">
+				<Coords points="272,802 2225,795 2212,739 278,744" />
+				<TextEquiv>
+					<Unicode>अस्मिन्नर्थे प्रागुक्तं तु केनचिन्नैवाभ्यधीयत। यथाश्रुतं तु तद्वाक्यं प्रतिपद्येत॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

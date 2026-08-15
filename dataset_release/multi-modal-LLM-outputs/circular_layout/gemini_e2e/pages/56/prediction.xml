@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="56.jpg" imageWidth="2598" imageHeight="3500">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="299,756 372,756 372,686 299,686" />
+			<TextLine id="line_0">
+				<Coords points="299,756 372,756 372,686 299,686" />
+				<TextEquiv>
+					<Unicode>३५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="260,938 395,938 395,844 260,844" />
+			<TextLine id="line_1">
+				<Coords points="260,938 395,938 395,844 260,844" />
+				<TextEquiv>
+					<Unicode>३८</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="538,1208 1050,1208 1050,1138 538,1138" />
+			<TextLine id="line_2">
+				<Coords points="538,1208 1050,1208 1050,1138 538,1138" />
+				<TextEquiv>
+					<Unicode>नवम पटले श्लोक ७५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="538,1278 948,1278 948,1208 538,1208" />
+			<TextLine id="line_3">
+				<Coords points="538,1278 948,1278 948,1208 538,1208" />
+				<TextEquiv>
+					<Unicode>प्रमृति विनियोगः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1465,1218 1998,1218 1998,1148 1465,1148" />
+			<TextLine id="line_4">
+				<Coords points="1465,1218 1998,1218 1998,1148 1465,1148" />
+				<TextEquiv>
+					<Unicode>नवमे पटले श्लोक ७९</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1476,1292 1894,1292 1894,1214 1476,1214" />
+			<TextLine id="line_5">
+				<Coords points="1476,1292 1894,1292 1894,1214 1476,1214" />
+				<TextEquiv>
+					<Unicode>प्रमृति विनियोगः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="364,2208 808,2208 808,2135 364,2135" />
+			<TextLine id="line_6">
+				<Coords points="364,2208 808,2208 808,2135 364,2135" />
+				<TextEquiv>
+					<Unicode>नवमे पटले श्लोक ८२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="361,2272 714,2272 714,2198 361,2198" />
+			<TextLine id="line_7">
+				<Coords points="361,2272 714,2272 714,2198 361,2198" />
+				<TextEquiv>
+					<Unicode>प्रमृति विनियोगः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="1242,2174 1647,2174 1647,2082 1242,2082" />
+			<TextLine id="line_8">
+				<Coords points="1242,2174 1647,2174 1647,2082 1242,2082" />
+				<TextEquiv>
+					<Unicode>नवमे पटले श्लोक ८६</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="1229,2212 1580,2212 1580,2138 1229,2138" />
+			<TextLine id="line_9">
+				<Coords points="1229,2212 1580,2212 1580,2138 1229,2138" />
+				<TextEquiv>
+					<Unicode>प्रमृति विनियोगः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_6" custom="region_6">
+			<Coords points="598,1260 442,1400 390,1645 442,1890 572,2065 779,2135 987,2100 1143,1960 1221,1750 1221,1505 1143,1330 987,1260 727,1260" />
+			<TextLine id="line_10">
+				<Coords points="598,1260 442,1400 390,1645 442,1890 572,2065 779,2135 987,2100 1143,1960 1221,1750 1221,1505 1143,1330 987,1260 727,1260" />
+				<TextEquiv>
+					<Unicode>ह्रीं नित्यक्लिन्ने मदद्रवे स्वाहा ह्रीं नित्यक्लिन्ने मदद्रवे स्वाहा ह्रीं नित्यक्लिन्ने मदद्रवे स्वाहा ह्रीं नित्यक्लिन्ने मदद्रवे स्वाहा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="696,1816 863,1816 863,1638 696,1638" />
+			<TextLine id="line_11">
+				<Coords points="696,1816 863,1816 863,1638 696,1638" />
+				<TextEquiv>
+					<Unicode>साध्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_8" custom="region_8">
+			<Coords points="1533,1424 1964,1424 1964,1309 1533,1309" />
+			<TextLine id="line_12">
+				<Coords points="1533,1424 1964,1424 1964,1309 1533,1309" />
+				<TextEquiv>
+					<Unicode>ह्रीं नित्यक्लिन्ने मदद्रवे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_9" custom="region_9">
+			<Coords points="1626,1841 1798,1841 1798,1648 1626,1648" />
+			<TextLine id="line_13">
+				<Coords points="1626,1841 1798,1841 1798,1648 1626,1648" />
+				<TextEquiv>
+					<Unicode>साध्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="678,2412 1218,2412 1218,2191 678,2191" />
+			<TextLine id="line_14">
+				<Coords points="678,2412 1218,2412 1218,2191 678,2191" />
+				<TextEquiv>
+					<Unicode>ह्रीं नित्यक्लिन्ने मदद्रवे स्वाहा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_11" custom="region_11">
+			<Coords points="751,2702 909,2702 909,2558 751,2558" />
+			<TextLine id="line_15">
+				<Coords points="751,2702 909,2702 909,2558 751,2558" />
+				<TextEquiv>
+					<Unicode>साध्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_12" custom="region_12">
+			<Coords points="1582,2376 2115,2376 2115,2166 1582,2166" />
+			<TextLine id="line_16">
+				<Coords points="1582,2376 2115,2376 2115,2166 1582,2166" />
+				<TextEquiv>
+					<Unicode>ह्रीं नित्यक्लिन्ने मदद्रवे स्वाहा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_13" custom="region_13">
+			<Coords points="1637,2772 1821,2772 1821,2594 1637,2594" />
+			<TextLine id="line_17">
+				<Coords points="1637,2772 1821,2772 1821,2594 1637,2594" />
+				<TextEquiv>
+					<Unicode>साध्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

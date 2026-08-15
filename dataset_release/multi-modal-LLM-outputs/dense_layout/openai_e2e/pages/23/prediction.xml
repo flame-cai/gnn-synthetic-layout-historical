@@ -1,0 +1,320 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="23.jpg" imageWidth="3500" imageHeight="1586">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="528,144 3108,144 3108,56 528,56" />
+			<TextLine id="line_0">
+				<Coords points="528,144 3108,144 3108,56 528,56" />
+				<TextEquiv>
+					<Unicode>जन्मकाले चेहते तत्र तावद्रूपेण व्यवस्थानं भवति तत्रार्थः प्राणी बलवन्तः। पुनर्भवति—</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="952,227 3227,227 3227,149 952,149" />
+			<TextLine id="line_1">
+				<Coords points="952,227 3227,227 3227,149 952,149" />
+				<TextEquiv>
+					<Unicode>विशेषकारणम् = जन्मकाले स्थितिरोजो राशिविशेषात् गुणतोऽपि परिश्रमाद् इत्युपपत्तिः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="528,324 3255,324 3255,239 528,239" />
+			<TextLine id="line_2">
+				<Coords points="528,324 3255,324 3255,239 528,239" />
+				<TextEquiv>
+					<Unicode>नो वा कृतान्तः। तेषां हि चित्तगोचरैः कर्मभिः स्वभावव्यवस्थानम् उपपद्यते।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="532,412 3308,412 3308,330 532,330" />
+			<TextLine id="line_3">
+				<Coords points="532,412 3308,412 3308,330 532,330" />
+				<TextEquiv>
+					<Unicode>त्रिविधगुणादिभिः सप्तभिः। यद् वैको कारणं तद्विरोधिनोऽपि जन्मकर्मणि प्रवर्तन्ते।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="525,501 3248,501 3248,422 525,422" />
+			<TextLine id="line_4">
+				<Coords points="525,501 3248,501 3248,422 525,422" />
+				<TextEquiv>
+					<Unicode>विचित्रगुणेनैव लोकस्य धर्मिपर्यायः। केषांचिद् जन्मना हि स्मृतिः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="525,592 3227,592 3227,512 525,512" />
+			<TextLine id="line_5">
+				<Coords points="525,592 3227,592 3227,512 525,512" />
+				<TextEquiv>
+					<Unicode>वैचित्र्यम् एव कर्मणो विपाकहेतुत्वात्। दोषाणां च जन्मान्तरप्रवृत्तिः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="536,679 3252,679 3252,601 536,601" />
+			<TextLine id="line_6">
+				<Coords points="536,679 3252,679 3252,601 536,601" />
+				<TextEquiv>
+					<Unicode>यदेव कारणमिति ख्यायते तदेव भाविनो हेतुः। द्विविधोऽपि भावः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="525,766 3262,766 3262,690 525,690" />
+			<TextLine id="line_7">
+				<Coords points="525,766 3262,766 3262,690 525,690" />
+				<TextEquiv>
+					<Unicode>जन्मनोऽपि पञ्चधा व्यवस्था उपपत्तेः। स्वकर्मप्रवृत्तौ चापि विशेषः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="525,858 3206,858 3206,779 525,779" />
+			<TextLine id="line_8">
+				<Coords points="525,858 3206,858 3206,779 525,779" />
+				<TextEquiv>
+					<Unicode>यथैव हि स्वभावो नित्यः कर्मणोऽपि फलत्वमिति स्वभाववादिनः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="528,948 3262,948 3262,869 528,869" />
+			<TextLine id="line_9">
+				<Coords points="528,948 3262,948 3262,869 528,869" />
+				<TextEquiv>
+					<Unicode>गुणकर्मविभागेन तत्त्वतोऽभ्युपगमात्। न चैतद् विरुध्यते।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="518,1042 3216,1042 3216,961 518,961" />
+			<TextLine id="line_10">
+				<Coords points="518,1042 3216,1042 3216,961 518,961" />
+				<TextEquiv>
+					<Unicode>ननु कर्मणः फलमित्युक्ते कारणकार्यम् एवोपपद्यते।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="522,1131 3244,1131 3244,1055 522,1055" />
+			<TextLine id="line_11">
+				<Coords points="522,1131 3244,1131 3244,1055 522,1055" />
+				<TextEquiv>
+					<Unicode>कथं चान्यथा पूर्वकृतकर्मणो जन्मविशेषो भवेत्।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="528,1223 3258,1223 3258,1140 528,1140" />
+			<TextLine id="line_12">
+				<Coords points="528,1223 3258,1223 3258,1140 528,1140" />
+				<TextEquiv>
+					<Unicode>यदुक्तं स्वभावो हेतुरिति, तन्न; कर्मण एव हेतुत्वोपपत्तेः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="532,1308 3255,1308 3255,1234 532,1234" />
+			<TextLine id="line_13">
+				<Coords points="532,1308 3255,1308 3255,1234 532,1234" />
+				<TextEquiv>
+					<Unicode>भवति च जन्मादौ स्वभावविशेषः कर्मविशेषानुरोधेन।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="528,1394 3227,1394 3227,1321 528,1321" />
+			<TextLine id="line_14">
+				<Coords points="528,1394 3227,1394 3227,1321 528,1321" />
+				<TextEquiv>
+					<Unicode>न हि सर्वेषां समानं कर्म; तस्माद् वैचित्र्यम् अवश्यम्।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="525,1465 3188,1465 3188,1407 525,1407" />
+			<TextLine id="line_15">
+				<Coords points="525,1465 3188,1465 3188,1407 525,1407" />
+				<TextEquiv>
+					<Unicode>ततो जन्मभेदाद् गुणभेदः कर्मभेदश्चोपपद्यते।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="63,435 508,435 508,365 63,365" />
+			<TextLine id="line_16">
+				<Coords points="63,435 508,435 508,365 63,365" />
+				<TextEquiv>
+					<Unicode>जन्मकालिजननं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="70,514 508,514 508,439 70,439" />
+			<TextLine id="line_17">
+				<Coords points="70,514 508,514 508,439 70,439" />
+				<TextEquiv>
+					<Unicode>तत्रैव तु = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="60,611 504,611 504,531 60,531" />
+			<TextLine id="line_18">
+				<Coords points="60,611 504,611 504,531 60,531" />
+				<TextEquiv>
+					<Unicode>स्वभावविशेषतो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="63,696 511,696 511,617 63,617" />
+			<TextLine id="line_19">
+				<Coords points="63,696 511,696 511,617 63,617" />
+				<TextEquiv>
+					<Unicode>स्वभावविशेषतः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="66,783 518,783 518,707 66,707" />
+			<TextLine id="line_20">
+				<Coords points="66,783 518,783 518,707 66,707" />
+				<TextEquiv>
+					<Unicode>स्वभावेन कर्मणा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="63,871 511,871 511,796 63,796" />
+			<TextLine id="line_21">
+				<Coords points="63,871 511,871 511,796 63,796" />
+				<TextEquiv>
+					<Unicode>अस्यापि नास्ति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="70,963 504,963 504,882 70,882" />
+			<TextLine id="line_22">
+				<Coords points="70,963 504,963 504,882 70,882" />
+				<TextEquiv>
+					<Unicode>हेतुरित्येवं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3154,327 3444,327 3444,249 3154,249" />
+			<TextLine id="line_23">
+				<Coords points="3154,327 3444,327 3444,249 3154,249" />
+				<TextEquiv>
+					<Unicode>जन्मविशेषेण</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3150,417 3448,417 3448,339 3150,339" />
+			<TextLine id="line_24">
+				<Coords points="3150,417 3448,417 3448,339 3150,339" />
+				<TextEquiv>
+					<Unicode>कर्मविशेषेण</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3150,508 3458,508 3458,428 3150,428" />
+			<TextLine id="line_25">
+				<Coords points="3150,508 3458,508 3458,428 3150,428" />
+				<TextEquiv>
+					<Unicode>भवति जन्मतः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3150,604 3454,604 3454,520 3150,520" />
+			<TextLine id="line_26">
+				<Coords points="3150,604 3454,604 3454,520 3150,520" />
+				<TextEquiv>
+					<Unicode>जन्मनोऽपि हि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3154,699 3458,699 3458,617 3154,617" />
+			<TextLine id="line_27">
+				<Coords points="3154,699 3458,699 3458,617 3154,617" />
+				<TextEquiv>
+					<Unicode>भेदो दृश्यते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3150,798 3465,798 3465,711 3150,711" />
+			<TextLine id="line_28">
+				<Coords points="3150,798 3465,798 3465,711 3150,711" />
+				<TextEquiv>
+					<Unicode>कर्मणां फलम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3154,896 3451,896 3451,809 3154,809" />
+			<TextLine id="line_29">
+				<Coords points="3154,896 3451,896 3451,809 3154,809" />
+				<TextEquiv>
+					<Unicode>स्वभावविशेषः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3146,998 3468,998 3468,910 3146,910" />
+			<TextLine id="line_30">
+				<Coords points="3146,998 3468,998 3468,910 3146,910" />
+				<TextEquiv>
+					<Unicode>न भिन्नहेतुकः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3150,1098 3458,1098 3458,1010 3150,1010" />
+			<TextLine id="line_31">
+				<Coords points="3150,1098 3458,1098 3458,1010 3150,1010" />
+				<TextEquiv>
+					<Unicode>कर्मणो हि फलम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3150,1196 3462,1196 3462,1110 3150,1110" />
+			<TextLine id="line_32">
+				<Coords points="3150,1196 3462,1196 3462,1110 3150,1110" />
+				<TextEquiv>
+					<Unicode>स्वभावोऽपि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3146,1293 3462,1293 3462,1210 3146,1210" />
+			<TextLine id="line_33">
+				<Coords points="3146,1293 3462,1293 3462,1210 3146,1210" />
+				<TextEquiv>
+					<Unicode>विशेषः = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3150,1324 3454,1324 3454,1297 3150,1297" />
+			<TextLine id="line_34">
+				<Coords points="3150,1324 3454,1324 3454,1297 3150,1297" />
+				<TextEquiv>
+					<Unicode>॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

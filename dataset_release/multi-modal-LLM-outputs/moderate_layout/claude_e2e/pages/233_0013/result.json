@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "d27f0a5d7c300eadf1f2c4b8a50a8d4a70877c71477eefcfecfd922a89a10b7c",
+  "manuscript_id": "yajn",
+  "page_id": "233_0013",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "8768e396d2e6eb83329ae24d8e30da37e0064082203649be720b666cf65e4629",
+  "pagexml_sha256": "ce6e1f974c11e9a9a4a91ba2b5e51dd82aaf911dd662a7e4f54d7960ee523336",
+  "status": "success",
+  "error": null,
+  "attempt_count": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.25,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 2,
+      "status": "success",
+      "elapsed_seconds": 37.73400000000038,
+      "input_tokens": 3593,
+      "output_tokens": 2546,
+      "total_tokens": 6139,
+      "response_id": "msg_011Cd7NgrCgXYSfTPcWEdmiv",
+      "finish_reason": "end_turn"
+    }
+  ],
+  "input_tokens": 3593,
+  "output_tokens": 2546,
+  "total_tokens": 6139,
+  "elapsed_seconds": 84.0619999999999,
+  "completed_at_utc": "2026-07-17T09:15:04.285844+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

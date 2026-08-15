@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "e64fea1b533c2e73478c5ae408cddf12017ee7559f78649c593789efe1de6e7d",
+  "manuscript_id": "circle_new",
+  "page_id": "35",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "11cc60f31003acc949fee862216bd3f002bb4df00c8c13c331cf45836b6e74b1",
+  "pagexml_sha256": "fe098e8f0cd3787c7bec37bd2954229876fa4877281983a3b38e5e826cb5d1b7",
+  "status": "success",
+  "error": null,
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "other_output_error",
+      "elapsed_seconds": 45.64710760000162,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not return a usable transcription."
+    },
+    {
+      "attempt": 2,
+      "status": "other_output_error",
+      "elapsed_seconds": 46.510956599988276,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not return a usable transcription."
+    },
+    {
+      "attempt": 3,
+      "status": "other_output_error",
+      "elapsed_seconds": 17.253561999998055,
+      "input_tokens": 2015,
+      "output_tokens": 647,
+      "total_tokens": 5859,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not return a usable transcription."
+    },
+    {
+      "attempt": 4,
+      "status": "success",
+      "elapsed_seconds": 20.055521600006614,
+      "input_tokens": 2015,
+      "output_tokens": 622,
+      "total_tokens": 6613,
+      "response_id": null,
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 4030,
+  "output_tokens": 1269,
+  "total_tokens": 12472,
+  "elapsed_seconds": 136.47091080000973,
+  "completed_at_utc": "2026-07-25T04:24:35.567695+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 1,
+  "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+  "grounding_layout": "ground_truth_pagexml_baselines"
+}

@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0015.jpg" imageWidth="2500" imageHeight="921">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="315,251 2192,245 2188,201 318,206" />
+			<TextLine id="line_0">
+				<Coords points="315,251 2192,245 2188,201 318,206" />
+				<TextEquiv>
+					<Unicode>वैदिकर्मविधौमस्याध्यापनिध्याख्याः श्रोतव्यमेव सर्वकर्मप्रधाना धर्माः कार्या इत्येव</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="315,308 2192,300 2195,256 318,264" />
+			<TextLine id="line_1">
+				<Coords points="315,308 2192,300 2195,256 318,264" />
+				<TextEquiv>
+					<Unicode>त्रेपुद्दतादेकान्देधात्रुतवविचरेद् । शुद्धकर्मणोऽवचारणवापसेन विधिवत् प्रेत्यवित्क्रमे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="308,367 2195,360 2188,315 315,322" />
+			<TextLine id="line_2">
+				<Coords points="308,367 2195,360 2188,315 315,322" />
+				<TextEquiv>
+					<Unicode>चोदयेन्नमस्कृतं जेताऽसौ ह्रदायैवाम्बरे किं च वेदेन कर्मणे लालस्ख्यातिनोऽत्राग्निरपि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="310,430 2195,422 2192,375 310,385" />
+			<TextLine id="line_3">
+				<Coords points="310,430 2195,422 2192,375 310,385" />
+				<TextEquiv>
+					<Unicode>तुरेणेच्छका । निनोऽग्नाविधिः समग्रेण पत्रीरेखनो जनाः । प्राश्नाप्रलेखोऽवचिन्त्य जीतो नरः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="310,491 2185,483 2188,436 310,445" />
+			<TextLine id="line_4">
+				<Coords points="310,491 2185,483 2188,436 310,445" />
+				<TextEquiv>
+					<Unicode>आपेह । प्रीतो हि धृतिरिति न चैतत् प्रीणितेऽकं । आपोऽधानेनैवाऽर्यस्याद्यवतानया</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="302,552 2180,544 2188,498 305,506" />
+			<TextLine id="line_5">
+				<Coords points="302,552 2180,544 2188,498 305,506" />
+				<TextEquiv>
+					<Unicode>श्रवणेऽत्र तु वेदकर्मणे दिनं न । श्रुतिश्चेतनसूत्रेण गृह्यपात्रायुध्येऽपि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,611 2195,602 2192,557 308,566" />
+			<TextLine id="line_6">
+				<Coords points="305,611 2195,602 2192,557 308,566" />
+				<TextEquiv>
+					<Unicode>प्ररोचनेन हि रात्र्युपवासकृतोऽस्ते । अत्र कर्मविधिनोऽविनाशनार्थेऽत्रणां पञ्चभूताः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="302,682 2180,670 2185,617 310,627" />
+			<TextLine id="line_7">
+				<Coords points="302,682 2180,670 2185,617 310,627" />
+				<TextEquiv>
+					<Unicode>मार्गे पितृदेवाश्रयोऽत्रागतः करणीयः स्थितो विधिवदध्वानोऽसौ कर्मणि देवाः ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="65,81 1182,72 1180,39 65,47" />
+			<TextLine id="line_0">
+				<Coords points="65,81 1182,72 1180,39 65,47" />
+				<TextEquiv>
+					<Unicode>नमः श्रीगुरुभ्यो नमः । स्वामीवचनम् । होमविधयः प्रकीर्तिता इति कर्मणः प्रकारः ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1272,118 2152,110 2150,70 1275,79" />
+			<TextLine id="line_1">
+				<Coords points="1272,118 2152,110 2150,70 1275,79" />
+				<TextEquiv>
+					<Unicode>श्री नैष्कर्म्यसिद्धौ होमाधानविधिरूपेण ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="170,166 305,160 305,116 170,124" />
+			<TextLine id="line_2">
+				<Coords points="170,166 305,160 305,116 170,124" />
+				<TextEquiv>
+					<Unicode>म-२३३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="2238,201 2305,195 2305,136 2238,145" />
+			<TextLine id="line_3">
+				<Coords points="2238,201 2305,195 2305,136 2238,145" />
+				<TextEquiv>
+					<Unicode>१५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2185,356 2365,348 2365,310 2188,318" />
+			<TextLine id="line_0">
+				<Coords points="2185,356 2365,348 2365,310 2188,318" />
+				<TextEquiv>
+					<Unicode>श्रीगणेशाय नमः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2162,406 2368,398 2368,357 2162,366" />
+			<TextLine id="line_1">
+				<Coords points="2162,406 2368,398 2368,357 2162,366" />
+				<TextEquiv>
+					<Unicode>हस्तलेखः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="18,541 265,531 262,495 18,502" />
+			<TextLine id="line_2">
+				<Coords points="18,541 265,531 262,495 18,502" />
+				<TextEquiv>
+					<Unicode>ग्रन्थकारः ?</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="20,623 285,612 285,565 20,574" />
+			<TextLine id="line_3">
+				<Coords points="20,623 285,612 285,565 20,574" />
+				<TextEquiv>
+					<Unicode>मात्र पितृदेवाश्रयः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2172,358 2372,349 2370,313 2175,321" />
+			<TextLine id="line_4">
+				<Coords points="2172,358 2372,349 2370,313 2175,321" />
+				<TextEquiv>
+					<Unicode>श्रीगणेश</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2198,560 2378,552 2378,509 2198,518" />
+			<TextLine id="line_5">
+				<Coords points="2198,560 2378,552 2378,509 2198,518" />
+				<TextEquiv>
+					<Unicode>तर्किका</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2190,612 2372,603 2372,562 2190,569" />
+			<TextLine id="line_6">
+				<Coords points="2190,612 2372,603 2372,562 2190,569" />
+				<TextEquiv>
+					<Unicode>टीपः ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

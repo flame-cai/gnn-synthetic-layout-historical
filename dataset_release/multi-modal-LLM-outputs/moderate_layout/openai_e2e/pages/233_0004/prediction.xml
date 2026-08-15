@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0004.jpg" imageWidth="2500" imageHeight="932">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="55,262 288,262 288,225 55,225" />
+			<TextLine id="line_0">
+				<Coords points="55,262 288,262 288,225 55,225" />
+				<TextEquiv>
+					<Unicode>कासव·२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="325,285 2248,283 2248,233 325,236" />
+			<TextLine id="line_1">
+				<Coords points="325,285 2248,283 2248,233 325,236" />
+				<TextEquiv>
+					<Unicode>कालेकेच्यागुलिङ्गा। उपनीतगुरुशिष्येणैतद्वाचितपूर्वकं। वेदमध्यापयेत्तेन योऽचार्यः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="320,350 2242,348 2242,295 320,297" />
+			<TextLine id="line_2">
+				<Coords points="320,350 2242,348 2242,295 320,297" />
+				<TextEquiv>
+					<Unicode>त्रिताचर।। द्वादशभास्करीस्ववेदेऽत्रत्स्मुरदनरवः। प्रकृतितत्त्वनुशीक्षणो वेदविद्याम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="320,413 2258,412 2258,357 320,360" />
+			<TextLine id="line_3">
+				<Coords points="320,413 2258,412 2258,357 320,360" />
+				<TextEquiv>
+					<Unicode>ब्रूयात्॥ यस्तु तद्विद्योऽध्यापयन्नरः स एवाचार्य इति॥ ज्ञायते परार्थेन यो वेदज्ञोऽदीनदृतेः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="320,479 2245,477 2245,419 320,423" />
+			<TextLine id="line_4">
+				<Coords points="320,479 2245,477 2245,419 320,423" />
+				<TextEquiv>
+					<Unicode>श्रुतज्ञोऽभूद्वेदरथोऽपवित्र उरुश्चुरवः॥ त्राचाचार्येणैव तु वैदिकेन तस्योपसद्योत्॥ क</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="318,546 2262,544 2262,487 318,490" />
+			<TextLine id="line_5">
+				<Coords points="318,546 2262,544 2262,487 318,490" />
+				<TextEquiv>
+					<Unicode>ब्राह्मणेभ्यो गुरुः स्यात् ततोऽभ्येकरस्वपदा। ब्राह्मणत्ववद्विहितो वेदोऽपि कर्मणि।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="318,612 2250,610 2250,550 318,554" />
+			<TextLine id="line_6">
+				<Coords points="318,612 2250,610 2250,550 318,554" />
+				<TextEquiv>
+					<Unicode>कौशिकादिकमुद्रकाणां चपुः स्मृत्युपसद्योऽस्य हृत्स्वभावे सम्यग्विज्ञानेनार्हति केन वदेद्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="318,710 2222,709 2222,620 318,624" />
+			<TextLine id="line_7">
+				<Coords points="318,710 2222,709 2222,620 318,624" />
+				<TextEquiv>
+					<Unicode>कोऽहं तत्राग्निर्भवति स्मृत्याश्चैव विज्ञातव्यः॥ प्रजुञ्जरस्तोत्रेऽभ्युदितमन्तरस्यापदिशेत तत्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="365,137 708,137 708,104 365,104" />
+			<TextLine id="line_0">
+				<Coords points="365,137 708,137 708,104 365,104" />
+				<TextEquiv>
+					<Unicode>एकपञ्चाशीतमे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="325,203 515,203 515,148 325,148" />
+			<TextLine id="line_1">
+				<Coords points="325,203 515,203 515,148 325,148" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2040,229 2110,229 2110,166 2040,166" />
+			<TextLine id="line_0">
+				<Coords points="2040,229 2110,229 2110,166 2040,166" />
+				<TextEquiv>
+					<Unicode>४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "status": "api_error",
+  "elapsed_seconds": 31.485000000000582,
+  "error": "ValueError: vlm_json:64:label_3: TextLine/Coords must contain at least three distinct points."
+}

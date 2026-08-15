@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "30b5bddee112232939bc76ba5f2b99ea5f2b34e97751356f0a0fad73c2a34de5",
+  "manuscript_id": "dense",
+  "page_id": "17",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "2ba98885fbec38391a7877d15003bf69af01dd3bea1f498cd7d22baa2a34ba3c",
+  "pagexml_sha256": "f22baa6f3ce475fcd1410e17005a5a267b0123a8f5d958dc6ef6e97252311d07",
+  "status": "api_timeout",
+  "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 44.92200000000048,
+      "error": "ValueError: vlm_json:17:line_12: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 41.4380000000001,
+      "error": "ValueError: vlm_json:17:line_1: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 44.0,
+      "error": "ValueError: vlm_json:17:line_12: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 4,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.23499999999876,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    }
+  ],
+  "input_tokens": 12639,
+  "output_tokens": 9145,
+  "total_tokens": 21784,
+  "elapsed_seconds": 182.625,
+  "completed_at_utc": "2026-07-17T09:20:32.555368+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

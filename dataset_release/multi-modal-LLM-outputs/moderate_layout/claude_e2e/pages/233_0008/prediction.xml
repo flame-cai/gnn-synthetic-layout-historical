@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0008.jpg" imageWidth="2500" imageHeight="949">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="50,46 2475,43 2475,11 50,14" />
+			<TextLine id="line_top_1">
+				<Coords points="50,46 2475,43 2475,11 50,14" />
+				<TextEquiv>
+					<Unicode>वक्रादिमन्वा नारासंज्ञीः रु दैवत्यान्मन्त्रान्॥ यत्रगार्हे दुगायाद्या॥ इति हास्संल्लहानारतादीनि। विद्याश्ववास्तराद्यौ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="50,76 1250,74 1250,46 50,47" />
+			<TextLine id="line_top_2">
+				<Coords points="50,76 1250,74 1250,46 50,47" />
+				<TextEquiv>
+					<Unicode>दिघर्म्यादाश्रयदाः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1750,140 2462,138 2462,93 1750,95" />
+			<TextLine id="line_top_margin_right">
+				<Coords points="1750,140 2462,138 2462,93 1750,95" />
+				<TextEquiv>
+					<Unicode>पं पं पं पूर्तिपाच वेदत्वान्र पठति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="225,178 575,176 575,140 225,142" />
+			<TextLine id="line_catalog">
+				<Coords points="225,178 575,176 575,140 225,142" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2350,203 2412,201 2412,167 2350,169" />
+			<TextLine id="line_folio_num">
+				<Coords points="2350,203 2412,201 2412,167 2350,169" />
+				<TextEquiv>
+					<Unicode>8</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="75,237 238,235 238,197 75,199" />
+			<TextLine id="line_left_margin">
+				<Coords points="75,237 238,235 238,197 75,199" />
+				<TextEquiv>
+					<Unicode>पात्तवः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="325,237 2462,235 2462,199 325,201" />
+			<TextLine id="line_1">
+				<Coords points="325,237 2462,235 2462,199 325,201" />
+				<TextEquiv>
+					<Unicode>रांचनारौंशश्ची श्रीगापिकाः॥ इति हास्संस्तपाविद्याः शक्राधीतेति चोन्वहम्॥ मांसच्चीरोदनमधुतर्पणंस</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="75,279 2462,277 2462,239 75,241" />
+			<TextLine id="line_2">
+				<Coords points="75,279 2462,277 2462,239 75,241" />
+				<TextEquiv>
+					<Unicode>दिवैकसा॥ करोतितप्तिं कुर्यान्नपितॄं मध्वच्चयुसंविधा॥ तैत्रास्सर्पयंत्येनं सर्वकामफलैःशुभैः॥ यं यं ते देवाःपितरः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="75,319 2462,317 2462,279 75,281" />
+			<TextLine id="line_3">
+				<Coords points="75,319 2462,317 2462,279 75,281" />
+				<TextEquiv>
+					<Unicode>क्रतुमधीयीत तस्पतस्यानुयात्कलं॥ त्रिर्वापि पूर्णपृथिवीदानस्य फलमश्नुते॥ तपसाच्च परस्पेह</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="75,359 2462,357 2462,319 75,321" />
+			<TextLine id="line_4">
+				<Coords points="75,359 2462,357 2462,319 75,321" />
+				<TextEquiv>
+					<Unicode>नित्यंस्वाध्यायवाचरेद्विजः॥ नैष्ठिको ब्रह्मचारीतु वसेदाचार्यसन्निधौ॥ तदभावेऽस्पत्नयेपन्यावैद्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="75,399 2462,397 2462,359 75,361" />
+			<TextLine id="line_5">
+				<Coords points="75,399 2462,397 2462,359 75,361" />
+				<TextEquiv>
+					<Unicode>नरेऽपि वा॥ अनेनविधिना देवान्नसाधयन् विजितेन्द्रियः॥ ब्रह्मलोकमवाप्नोतिनचेहाजायते पुनः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="75,438 2462,437 2462,399 75,400" />
+			<TextLine id="line_6">
+				<Coords points="75,438 2462,437 2462,399 75,400" />
+				<TextEquiv>
+					<Unicode>इति ब्रह्मचारिप्रकरणम्॥ गुरुवैतुवरं दत्वास्नात्वेत्तदनुज्ञया॥ वेदव्रतानिवापारंनीत्वाभुज्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="75,478 1750,476 1750,438 75,440" />
+			<TextLine id="line_7">
+				<Coords points="75,478 1750,476 1750,438 75,440" />
+				<TextEquiv>
+					<Unicode>यमेवावा॥ अवभृत्ब्रह्मचैलंतत्संसृज्यच्छयत्तह्रदे॥ अनन्तपद्विकाकांतामसंपिंडान्वियच्छी॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2250,592 2462,590 2462,558 2250,560" />
+			<TextLine id="line_bottom_right">
+				<Coords points="2250,592 2462,590 2462,558 2250,560" />
+				<TextEquiv>
+					<Unicode>राम ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

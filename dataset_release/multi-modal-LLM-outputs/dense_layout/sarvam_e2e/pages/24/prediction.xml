@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="24.jpg" imageWidth="3500" imageHeight="1555">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>हित</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>=समानंतर</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्नेहानुवृत्ति‘त्यजन’तप्तः कार्यमनाःबुजेलिदिवसैरेका२व्वि४षहकोशकान् १५ को</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>धत्तौररतिभ्रमामिषगुउद्यूताश्रुदुग्धासवत्ताराम्यंगभयासितां वरबमीतैलेकेइङ्,</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>में‘सीरत्तौररतीःकमात्रिशेरसप्ताहं१५।७परैंतदिनरोगंरूपर्त्तविकंसितान्यतिलकं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रस्थानकेषांतिच‘२०वस्त्रालंकरलानिष्टएकलशस्तौर्यध्वनिपुत्रवानशंखादर्श</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>न्पाम्बदंतिसुरभिस्त्रीपुष्पधान्यादिच’दोलादीपविघूमवहिसुरभिद्रव्यालि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सुभ्रोवृषःवेश्पाछत्रवितानचामरकुमायेमिनगोरोचने२यद्यस्वांतनितातेत</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>तरी=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>हिंडोला=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>3</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>CC-0 Dharmartha Trust J&amp;K. An eGangotri-Vaidika Bharata Initiative</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

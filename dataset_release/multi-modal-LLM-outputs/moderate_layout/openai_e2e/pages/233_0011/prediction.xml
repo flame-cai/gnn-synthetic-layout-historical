@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0011.jpg" imageWidth="2500" imageHeight="928">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2285,264 2285,257 335,210 335,215" />
+			<TextLine id="line_0">
+				<Coords points="2285,264 2285,257 335,210 335,215" />
+				<TextEquiv>
+					<Unicode>प्रामसंजवाक् दे भवितस्त्वेषयाजेवेदौऽत्रेण कपिनानान्नेऽकोपिनवेकुना नर्तोऽधिकाराभेद परस्तुतं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2232,329 2232,322 332,264 332,271" />
+			<TextLine id="line_1">
+				<Coords points="2232,329 2232,322 332,264 332,271" />
+				<TextEquiv>
+					<Unicode>सौभिडमाजेवनीविणी। परस्तुतान्यधःकथाकास्येद्भ्यश्चारिणां तेषु कोऽवेददीक्षितोऽगुप्तवीर्यः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2210,391 2210,385 332,327 332,332" />
+			<TextLine id="line_2">
+				<Coords points="2210,391 2210,385 332,327 332,332" />
+				<TextEquiv>
+					<Unicode>सौभिदे॥ पावकः सर्वमेव भवेदेवमेव चोदितोऽस्ति॥ चन्द्रशाराहेऽपि शैनेवाजेऽभिप्रेतः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2248,453 2248,446 322,388 322,394" />
+			<TextLine id="line_3">
+				<Coords points="2248,453 2248,446 322,388 322,394" />
+				<TextEquiv>
+					<Unicode>सर्वधर्मो चत्वारोऽस्ति। तात्के॥ इरावतीप्रविष्टा रत्नोक्तवर्ण्यं च पूर्णवती॥ श्रीप्रसङ्गादितेनवा ताव्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2238,517 2238,510 330,449 330,456" />
+			<TextLine id="line_4">
+				<Coords points="2238,517 2238,510 330,449 330,456" />
+				<TextEquiv>
+					<Unicode>पुरुषे शिरोऽन्वया॥ प्रविष्टे नोऽपि नीरामहेर्निर्मयाजेवेर॥ प्रात्रकृत्येऽभे सिद्वर्गोऽ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2225,580 2225,574 335,513 335,520" />
+			<TextLine id="line_5">
+				<Coords points="2225,580 2225,574 335,513 335,520" />
+				<TextEquiv>
+					<Unicode>स्त्रवते॥ अत्रैव प्रतिवाच्यो पौनानुपूर्वकृति॥ सेहकोऽतिमधोऽत्रेते श्लोमप्यास</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2225,644 2225,638 330,575 330,582" />
+			<TextLine id="line_6">
+				<Coords points="2225,644 2225,638 330,575 330,582" />
+				<TextEquiv>
+					<Unicode>र॥ जातारेश्वादेनीकचोऽस्तूपधारिणी॥ सक्रद्रव्यमस्तनीवरामदेवानर इत्यर्थाभि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2195,711 2195,704 335,639 335,646" />
+			<TextLine id="line_7">
+				<Coords points="2195,711 2195,704 335,639 335,646" />
+				<TextEquiv>
+					<Unicode>दिव्यदिव्यकारिण्येवः कर्मैः परस्त्रिया॥ त्रायुदेऽस्ति ततोऽभवेद्। तात्कृतिः॥ तत्रकोऽत्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1190,95 1190,89 340,40 340,45" />
+			<TextLine id="line_0">
+				<Coords points="1190,95 1190,89 340,40 340,45" />
+				<TextEquiv>
+					<Unicode>नैषधीयचरिताख्ये वैदर्भानुग्रन्थव्याख्याने</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1822,99 1822,94 1268,51 1268,57" />
+			<TextLine id="line_1">
+				<Coords points="1822,99 1822,94 1268,51 1268,57" />
+				<TextEquiv>
+					<Unicode>श्रीमन्नरसिंहकृतायाम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="520,166 520,161 358,102 358,108" />
+			<TextLine id="line_2">
+				<Coords points="520,166 520,161 358,102 358,108" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1420,186 1420,180 1305,127 1305,133" />
+			<TextLine id="line_3">
+				<Coords points="1420,186 1420,180 1305,127 1305,133" />
+				<TextEquiv>
+					<Unicode>चित्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1712,140 1712,135 1632,94 1632,99" />
+			<TextLine id="line_4">
+				<Coords points="1712,140 1712,135 1632,94 1632,99" />
+				<TextEquiv>
+					<Unicode>न०</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="2155,203 2155,198 2112,141 2112,147" />
+			<TextLine id="line_5">
+				<Coords points="2155,203 2155,198 2112,141 2112,147" />
+				<TextEquiv>
+					<Unicode>॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="88,445 88,440 58,396 58,402" />
+			<TextLine id="line_0">
+				<Coords points="88,445 88,440 58,396 58,402" />
+				<TextEquiv>
+					<Unicode>ट</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="238,636 238,630 62,575 62,581" />
+			<TextLine id="line_1">
+				<Coords points="238,636 238,630 62,575 62,581" />
+				<TextEquiv>
+					<Unicode>पुत्रवीर</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

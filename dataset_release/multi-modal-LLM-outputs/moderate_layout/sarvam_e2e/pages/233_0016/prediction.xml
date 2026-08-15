@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0016.jpg" imageWidth="2500" imageHeight="935">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233 पृष्ठ</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>16</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वाज्ञ ट</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वरः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सनिहवे। यान्वासनस्वाभोजनं सूनंतंवचः॥ प्रतिसंवत्सरलपौष्पीः स्नातकाचार्यपार्थिवाः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>येविवात्यश्चतथा यज्ञां संततिः पुनः॥अधनीनोतिचिर्येयोःश्रोत्रियोवेदपारगः॥मान्यावैतैएग</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>हस्यस्पवत्मलोकमभीमतः॥परपाकरुचिर्नस्पादनेघामंत्रणाहते॥वाक्यादिपासाचापत्यंव</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>र्जयेच्छातिभोजनं॥प्रतिथिस्त्रोत्रियंतप्रमासीमताइन्द्रजेर॥अहंशेषंसहासीतधिदैवेहै</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>श्रवद्युक्तिः॥उपास्यपश्चिमासंध्याहुत्वाग्नीस्तानुयास्पच॥जलेपरमतोमुक्तानातिव्या-सं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विशेता॥बाह्मेमुहूर्तेचोत्यापचितपेदात्मनोहितं॥धमीर्थकामान्स्वेकालेपयामाशक्तिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नहापयेत॥विद्याकर्मवयोवंधुवितैर्मन्यायथाक्रमं॥एतैःप्रमूतैःयूडोपिवाईकेमानमह</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ति॥वद्धनारिनपस्नातस्त्रीरोगवरचक्रिणं॥पंथादेपोन्नपलेवामान्यास्तथ्यनूपतेः॥इज्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>युरोराजपावेदपू</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>एत्नातकःब्रह्म</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_14">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>चारी।२-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_15">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विटैतिहासपु</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_16">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>गणवेदनिः४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_17">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>इष्टैक्यकथा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_18">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रपंचनिः४=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_19">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>राम</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_20">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>२३३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

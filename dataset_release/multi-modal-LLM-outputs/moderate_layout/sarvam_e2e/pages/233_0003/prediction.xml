@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0003.jpg" imageWidth="2500" imageHeight="932">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शास्त्रविरुद्धः १=॥ त्रैपाद्यं अर्थबुद्धौ संस्थाप्य पका = समजुः सामपाठकाः २=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रातरेयातदेवकथनांत उपोधते ३=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मनः॥ संम्पर्कसंकल्पजः कामो धर्ममूलभंदसत्तमम्॥ इज्वाचारदमाहिंसादानस्वाध्यायकर्मरणां॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अयंनुपरमोघमीययोगेनातीदर्शनेन॥ वतारोवेधर्मज्ञाःपर्वत्रैवैद्यमेववा॥ साबूतेयंसधर्मा धर्म॥२=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्यादेकोवाध्यात्मवित्तमः॥ इतिउपोधातप्रकरणे॥ ब्रह्मक्षत्रयविच्छूद्रावरिस्लाघारयोद्विजाह</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>निषेकाघाप्रमशानातासेवांवैमंत्रतःक्रियाः॥ गनीधानमतौपुंसःसवनंस्पृशन्नात्युरा॥वष्टे=+दंतपावनं॥४-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>एमेचसीमंतोमास्येतेजातकर्मच॥अहन्त्येकादशेनामचतुर्थमासिजेक्रमः॥वष्टेनप्राशनंमा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सचूडाकापीथयाकुलं॥एवमेनःशमंयातिवीर्यगर्भसमृद्भवम्॥तूष्णीमेताःक्रियाःस्त्रीणां</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>धर्म्मा वाहस्तसमंत्रकः॥गनीष्टमैष्टमेवादेवालणस्योपनापनं॥राज्ञामेकादशेसैकेवि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जातकर्मप्रसक्त नमनः१ प्रहोपवीतंकार्यं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>कार्येः३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सक्तार्थः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

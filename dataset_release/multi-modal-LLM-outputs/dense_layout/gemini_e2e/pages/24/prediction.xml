@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="24.jpg" imageWidth="3500" imageHeight="1555">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="192,411 350,411 350,339 192,339" />
+			<TextLine id="margin_line_0">
+				<Coords points="192,411 350,411 350,339 192,339" />
+				<TextEquiv>
+					<Unicode>१२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="168,532 427,532 427,457 168,457" />
+			<TextLine id="margin_line_1">
+				<Coords points="168,532 427,532 427,457 168,457" />
+				<TextEquiv>
+					<Unicode>= सारन्तर</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="238,650 378,650 378,544 238,544" />
+			<TextLine id="margin_line_2">
+				<Coords points="238,650 378,650 378,544 238,544" />
+				<TextEquiv>
+					<Unicode>१२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="466,351 630,351 630,257 466,257" />
+			<TextLine id="margin_line_3">
+				<Coords points="466,351 630,351 630,257 466,257" />
+				<TextEquiv>
+					<Unicode>देव</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="3056,746 3283,746 3283,666 3056,666" />
+			<TextLine id="margin_line_4">
+				<Coords points="3056,746 3283,746 3283,666 3056,666" />
+				<TextEquiv>
+					<Unicode>तूरी = ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="3073,861 3367,861 3367,778 3073,778" />
+			<TextLine id="margin_line_5">
+				<Coords points="3073,861 3367,861 3367,778 3073,778" />
+				<TextEquiv>
+					<Unicode>हिंडोला = ५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="3185,1169 3367,1169 3367,1048 3185,1048" />
+			<TextLine id="margin_line_6">
+				<Coords points="3185,1169 3367,1169 3367,1048 3185,1048" />
+				<TextEquiv>
+					<Unicode>१२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="462,535 3017,535 3017,386 462,386" />
+			<TextLine id="line_0">
+				<Coords points="462,535 3017,535 3017,386 462,386" />
+				<TextEquiv>
+					<Unicode>स्नेहानुवृत्तिंत्यजनंतप्तः कार्यमनाः व्रजैत्रिदिवसैरेकाद्वि४षट्कोशकान् १९ को</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="462,638 3017,638 3017,494 462,494" />
+			<TextLine id="line_1">
+				<Coords points="462,638 3017,638 3017,494 462,494" />
+				<TextEquiv>
+					<Unicode>धत्तौररतिश्चमामिषगुडघृताश्रुदुग्धासवसारंभंगभयासितांवरवमी तैलंकेहूऊऊ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="462,734 3017,734 3017,591 462,591" />
+			<TextLine id="line_2">
+				<Coords points="462,734 3017,734 3017,591 462,591" />
+				<TextEquiv>
+					<Unicode>मे क्षीरस्तोररतीः क्रमात्रिंशरसप्तांहे १५।१७ परंतदिने रोगंरूपत्तविकसितान्यातिलकं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="462,833 3017,833 3017,684 462,684" />
+			<TextLine id="line_3">
+				<Coords points="462,833 3017,833 3017,684 462,684" />
+				<TextEquiv>
+					<Unicode>प्रस्थानकेपीतिच २० वस्त्रालंकरणानि ९ एकतशस्तोर्यध्वनिपुत्रवान् शंखादर्श</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="462,921 3017,921 3017,778 462,778" />
+			<TextLine id="line_4">
+				<Coords points="462,921 3017,921 3017,778 462,778" />
+				<TextEquiv>
+					<Unicode>नृपाश्चदंतिसुरभिस्त्रीपुष्पधान्यादिच' दोलादी पवि धूम वह्नि सुरभि द्रव्याणि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="462,1017 3052,1017 3052,871 462,871" />
+			<TextLine id="line_5">
+				<Coords points="462,1017 3052,1017 3052,871 462,871" />
+				<TextEquiv>
+					<Unicode>शुभ्रोवृषः वेरुपाछत्रवितानचामरकुमायेमीनेगोरोचने २१ यद्यत्स्वंतनितांततो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

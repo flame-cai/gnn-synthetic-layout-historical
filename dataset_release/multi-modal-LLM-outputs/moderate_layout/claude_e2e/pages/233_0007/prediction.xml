@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0007.jpg" imageWidth="2500" imageHeight="950">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="275,220 2362,220 2362,195 275,195" />
+			<TextLine id="line_1">
+				<Coords points="275,220 2362,220 2362,195 275,195" />
+				<TextEquiv>
+					<Unicode>रात्रौ ब्रह्मत्रियविशां कालज्ञैपनायज्ञिकः परः॥छतः उर्ध्वयत्नस्तेत्संवैधर्मंवहिष्ठता॥साद्वि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,268 2250,268 2250,241 270,241" />
+			<TextLine id="line_2">
+				<Coords points="270,268 2250,268 2250,241 270,241" />
+				<TextEquiv>
+					<Unicode>पतितावात्पव्याप्तेभ्राह्तेकीतो मानुर्ष्ट्रेजाय द्वितीयंमैत्रिवंचनात्॥व्राह्राणत्रियविश</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,314 2250,314 2250,287 270,287" />
+			<TextLine id="line_3">
+				<Coords points="270,314 2250,314 2250,287 270,287" />
+				<TextEquiv>
+					<Unicode>स्समादेते द्विजाःस्रता॥ पद्यानातपसाचैवज्ञानाचैवकर्मणा॥वेदद्वैएवद्विजातीनांस्त्रे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,361 2225,361 2225,334 270,334" />
+			<TextLine id="line_4">
+				<Coords points="270,361 2225,361 2225,334 270,334" />
+				<TextEquiv>
+					<Unicode>यसकरः परः॥ मधुनापयसाचैवसदेवाःसर्पिचेद्दिजः॥पिट्टदधिघृतान्नाच्यचोधीतेनुयोन्व</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,408 2225,408 2225,382 270,382" />
+			<TextLine id="line_5">
+				<Coords points="270,408 2225,408 2225,382 270,382" />
+				<TextEquiv>
+					<Unicode>ग्रूःहं॥पघुविशक्रतोधीतेयोन्वहंसघतामैः॥घीसण्तिदेवानांनयेनमधुनाचादित्ससत्या॥स</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,456 2225,456 2225,429 270,429" />
+			<TextLine id="line_6">
+				<Coords points="270,456 2225,456 2225,429 270,429" />
+				<TextEquiv>
+					<Unicode>तुसोमघतैदेवांस्तवेचोन्वहंपठेत्॥साम्मानित पिंकुर्यीव्रपिट्टणमधुसर्पिषा॥मेदसार्घ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="270,508 2225,508 2225,477 270,477" />
+			<TextLine id="line_7">
+				<Coords points="270,508 2225,508 2225,477 270,477" />
+				<TextEquiv>
+					<Unicode>चेदेवानांपर्वाणिरसःपठन॥पिटं यमधुसर्पिष्यामन्वहंयातितो द्विजः॥वाक्येवांचपुरा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1600,841 2250,841 2250,817 1600,817" />
+			<TextLine id="line_colophon_1">
+				<Coords points="1600,841 2250,841 2250,817 1600,817" />
+				<TextEquiv>
+					<Unicode>इति प्रश्नोत्तररूपंवेदव्याख्यानं ब्रह्मपुरा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1750,869 2000,869 2000,846 1750,846" />
+			<TextLine id="line_colophon_2">
+				<Coords points="1750,869 2000,869 2000,846 1750,846" />
+				<TextEquiv>
+					<Unicode>णादि१५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2238,266 2425,266 2425,242 2238,242" />
+			<TextLine id="line_margin_1">
+				<Coords points="2238,266 2425,266 2425,242 2238,242" />
+				<TextEquiv>
+					<Unicode>छन्दस्ताल्दुरः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

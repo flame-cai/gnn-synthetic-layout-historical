@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="23.jpg" imageWidth="3500" imageHeight="1586">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जन्मकाले चंद्रतोतग्नाच्चउपचयस्थानस्थिताराशयः यात्रांबलग्नगताः सुभाभवंति=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विद्वाकमेलाह = जन्मकालेस्वराशिउचराशिमिंत्रशशिगताःपापोऽपि तनुगताशुभाभवति=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मित्रगृहस्पवासरेतग्नेयापोविशुभः=६</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जन्मराशिजन्मल</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ग्नेशशत्रुः=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रूयादिग्रहजन्मर्त्ता</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सूर्यादितःक्रमेण=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अस्पजन्मभंत्रिवि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>धोत्यातहतंअसो</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ग्रहोलग्नगोहानि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>कद्रवति=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्वजन्मराशिस्वज</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>न्मलग्नेशशत्रुवास</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रे=६ = त्याज्यं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_14">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अस्तः=८</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_15">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जौवाशक्रजः ऐरयोद्विजिगतोगुरुर्ज्वल नदि एयायव्ययेस्योभृगुर्वीचौषरुसुतगोविधुर्मित्ति</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_16">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>- लग्ननवांशादि=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_17">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जन्मनिसूर्यस्था</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_18">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नाद्वितीयस्थानवे</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_19">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शिः = ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_20">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जन्मनि = ५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_21">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जन्मराशिजन्म</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_22">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>लग्नेश्वरोंकें स्गौ</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_23">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>भवतः = ५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_24">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विश्वआयश्चम</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_25">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रिश्वातेभ्यःअन्यः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_26">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>भ्वादिगोत्रा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_27">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>भग्वादिगोत्रा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_28">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>एां=३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

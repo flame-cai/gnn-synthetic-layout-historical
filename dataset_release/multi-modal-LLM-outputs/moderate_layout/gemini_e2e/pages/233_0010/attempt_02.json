@@ -1,0 +1,6 @@
+{
+  "attempt": 2,
+  "status": "json_parse_error",
+  "elapsed_seconds": 17.32799999999952,
+  "error": "AdapterError: json_parse_error"
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "4eb9d1615b23ec93b5d29a63bfd4a60c024805e403d4d7cab74792aa3bff9ab8",
+  "manuscript_id": "dense",
+  "page_id": "10",
+  "provider_id": "gemini",
+  "method_id": "gemini_e2e",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "4da8c5b98e07d718001e6433fd538dabbf6c275a794cf6f8951845f8fd42828f",
+  "pagexml_sha256": "5eb5f01e50f6ac3c28fb79bd8423c086bc212a784a5ff325c51f05d12cb7eb67",
+  "status": "success",
+  "error": null,
+  "attempt_count": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.26500000000033,
+      "error": "ReadTimeout: The read operation timed out"
+    },
+    {
+      "attempt": 2,
+      "status": "success",
+      "elapsed_seconds": 23.28099999999995,
+      "input_tokens": 1425,
+      "output_tokens": 3583,
+      "total_tokens": 7900,
+      "response_id": "gelZavPHJcfF4-EP38vaqAg",
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 1425,
+  "output_tokens": 3583,
+  "total_tokens": 7900,
+  "elapsed_seconds": 69.57800000000043,
+  "completed_at_utc": "2026-07-17T08:36:39.713182+00:00",
+  "prediction_path": "prediction.xml"
+}

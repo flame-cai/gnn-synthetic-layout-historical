@@ -1,0 +1,11 @@
+{
+  "attempt": 1,
+  "status": "api_timeout",
+  "elapsed_seconds": 45.611903799988795,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "response_id": null,
+  "finish_reason": null,
+  "error": "Gemini did not finish within 45 seconds. You can retry Gemini or use the built-in reader."
+}

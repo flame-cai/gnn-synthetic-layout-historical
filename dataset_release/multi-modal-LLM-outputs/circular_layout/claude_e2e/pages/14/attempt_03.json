@@ -1,0 +1,6 @@
+{
+  "attempt": 3,
+  "status": "api_error",
+  "elapsed_seconds": 34.48500000000058,
+  "error": "ValueError: vlm_json:14:bottom_yantra_top_line1: invalid polygon geometry."
+}

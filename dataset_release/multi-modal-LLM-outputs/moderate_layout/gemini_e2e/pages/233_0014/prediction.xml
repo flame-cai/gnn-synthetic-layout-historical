@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0014.jpg" imageWidth="2500" imageHeight="912">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="582,93 1218,93 1218,33 582,33" />
+			<TextLine id="line_0">
+				<Coords points="582,93 1218,93 1218,33 582,33" />
+				<TextEquiv>
+					<Unicode>शूद्रो वसन्नाद्याः तासां तासु क्रमेणालतादि जाद्रिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="220,147 400,147 400,88 220,88" />
+			<TextLine id="line_1">
+				<Coords points="220,147 400,147 400,88 220,88" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="58,281 212,281 212,221 58,221" />
+			<TextLine id="line_2">
+				<Coords points="58,281 212,281 212,221 58,221" />
+				<TextEquiv>
+					<Unicode>याज्ञ १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="52,377 285,377 285,335 52,335" />
+			<TextLine id="line_3">
+				<Coords points="52,377 285,377 285,335 52,335" />
+				<TextEquiv>
+					<Unicode>वाणाद्यास्तैः ३८</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="52,438 270,438 270,389 52,389" />
+			<TextLine id="line_4">
+				<Coords points="52,438 270,438 270,389 52,389" />
+				<TextEquiv>
+					<Unicode>वैश्वदेवकर्म ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="52,529 300,529 300,451 52,451" />
+			<TextLine id="line_5">
+				<Coords points="52,529 300,529 300,451 52,451" />
+				<TextEquiv>
+					<Unicode>श्रोतअग्निहोत्रादि कं ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_6" custom="region_6">
+			<Coords points="52,582 370,582 370,523 52,523" />
+			<TextLine id="line_6">
+				<Coords points="52,582 370,582 370,523 52,523" />
+				<TextEquiv>
+					<Unicode>गार्हपत्याग्नी वि कां १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="52,629 320,629 320,582 52,582" />
+			<TextLine id="line_7">
+				<Coords points="52,629 320,629 320,582 52,582" />
+				<TextEquiv>
+					<Unicode>यदर्कीरादिषु ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_8" custom="region_8">
+			<Coords points="2125,212 2185,212 2185,147 2125,147" />
+			<TextLine id="line_8">
+				<Coords points="2125,212 2185,212 2185,147 2125,147" />
+				<TextEquiv>
+					<Unicode>14</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_9" custom="region_9">
+			<Coords points="2212,461 2442,461 2442,344 2212,344" />
+			<TextLine id="line_9">
+				<Coords points="2212,461 2442,461 2442,344 2212,344" />
+				<TextEquiv>
+					<Unicode>अधरोत्तरं प्रतिलोमानुलोमादि ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,290 2212,290 2212,208 310,208" />
+			<TextLine id="line_10">
+				<Coords points="310,290 2212,290 2212,208 310,208" />
+				<TextEquiv>
+					<Unicode>शूद्राज्जातस्तु चांडालः सर्वधर्मबहिष्कृतः ॥ क्षत्रिया मागधं वैश्याच्छूद्रात्क्षत्तारमेव च ॥ शूद्रादायोगवं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,347 2212,347 2212,263 310,263" />
+			<TextLine id="line_11">
+				<Coords points="310,347 2212,347 2212,263 310,263" />
+				<TextEquiv>
+					<Unicode>वैश्या जनयामास वै सुतं ॥ माहिष्येण करण्यां तु रथकारः प्रजायते ॥ असत्संतस्तु विज्ञेयाः प्रतिलोमा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,402 2212,402 2212,317 310,317" />
+			<TextLine id="line_12">
+				<Coords points="310,402 2212,402 2212,317 310,317" />
+				<TextEquiv>
+					<Unicode>नुलोमजाः ॥ जात्युत्कर्षो युगे ज्ञेयः सप्तमे पंचमेऽपि वा ॥ व्यत्यये कर्मणां साम्यं पूर्ववच्चाधरोत्तरं ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,468 2212,468 2212,389 310,389" />
+			<TextLine id="line_13">
+				<Coords points="310,468 2212,468 2212,389 310,389" />
+				<TextEquiv>
+					<Unicode>इति वर्णजातिप्रकरणं ॥ कर्म स्मार्त्तं विवाहाग्नौ कुर्वीत प्रत्यहं गृही ॥ दायकालाहृते वापि श्रौ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,529 2212,529 2212,444 310,444" />
+			<TextLine id="line_14">
+				<Coords points="310,529 2212,529 2212,444 310,444" />
+				<TextEquiv>
+					<Unicode>तं वैतानिकाग्निषु ॥ शारीरचिंतां निर्वर्त्य कृतशौचविधिर्द्विजः ॥ प्रातःसंध्यामुपासीत दंतधावनपू</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,602 2212,602 2212,517 310,517" />
+			<TextLine id="line_15">
+				<Coords points="310,602 2212,602 2212,517 310,517" />
+				<TextEquiv>
+					<Unicode>र्वकं ॥ हुत्वाग्नीन्सूर्यदैवत्यान्जपेन्मंत्रान्समाहितः ॥ वेदार्थानधिगच्छेच्च शास्त्राणि विवि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,667 2212,667 2212,582 310,582" />
+			<TextLine id="line_16">
+				<Coords points="310,667 2212,667 2212,582 310,582" />
+				<TextEquiv>
+					<Unicode>धानि च ॥ उपेयादीश्वरं चैव योगक्षेमार्थसिद्धये ॥ स्नात्वा देवान्पितॄंश्चैव तर्पयेदर्च्चयेत्तथा ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="310,740 2378,740 2378,648 310,648" />
+			<TextLine id="line_17">
+				<Coords points="310,740 2378,740 2378,648 310,648" />
+				<TextEquiv>
+					<Unicode>वेदाथर्वपुराणानि सेतिहासानि शक्तितः ॥ जपयज्ञप्रसिद्ध्यर्थं विद्यां चाध्यात्मिकीं जपेत् ॥ राम १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_11" custom="region_11">
+			<Coords points="342,831 1052,831 1052,771 342,771" />
+			<TextLine id="line_18">
+				<Coords points="342,831 1052,831 1052,771 342,771" />
+				<TextEquiv>
+					<Unicode>अतश्च स्वप्राप्तिः योगः लब्धस्य प्रतिपालनं क्षेमः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

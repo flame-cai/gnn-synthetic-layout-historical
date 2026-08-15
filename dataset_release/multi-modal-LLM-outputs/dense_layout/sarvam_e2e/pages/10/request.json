@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "dense",
+  "page_id": "10",
+  "provider_id": "sarvam",
+  "method_id": "sarvam_e2e",
+  "model_id": "sarvam-vision",
+  "prompt_sha256": null,
+  "image_sha256": "4da8c5b98e07d718001e6433fd538dabbf6c275a794cf6f8951845f8fd42828f",
+  "pagexml_sha256": "5eb5f01e50f6ac3c28fb79bd8423c086bc212a784a5ff325c51f05d12cb7eb67",
+  "request_parameters": {
+    "language": "sa-IN",
+    "output_format": "html"
+  },
+  "output_adapter_id": "sarvam_html_text_lines_v1",
+  "request_fingerprint": "8b5a8ee89a1a98c9d2bf72ba132127cda2bd55d1ace4be16529d4ee53b56a01a",
+  "image_path": "manuscripts/dense_layout/inputs/10.jpg",
+  "pagexml_path": "manuscripts/dense_layout/labels/page_xml/10.xml",
+  "input_order": [
+    "page_image"
+  ],
+  "state": "started",
+  "started_at_utc": "2026-07-20T08:25:18.328395+00:00",
+  "timeout_seconds": 600.0,
+  "max_retries_after_initial_attempt": 3
+}

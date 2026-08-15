@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="24.jpg" imageWidth="3500" imageHeight="1555">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="472,358 612,358 612,303 472,303" />
+			<TextLine id="line_header">
+				<Coords points="472,358 612,358 612,303 472,303" />
+				<TextEquiv>
+					<Unicode>स्तोत्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="192,420 332,420 332,373 192,373" />
+			<TextLine id="line_margin_left_1">
+				<Coords points="192,420 332,420 332,373 192,373" />
+				<TextEquiv>
+					<Unicode>१२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="158,552 402,552 402,521 158,521" />
+			<TextLine id="line_margin_left_2">
+				<Coords points="158,552 402,552 402,521 158,521" />
+				<TextEquiv>
+					<Unicode>स्वारांतरं२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="455,529 3448,529 3448,466 455,459" />
+			<TextLine id="line_1">
+				<Coords points="455,529 3448,529 3448,466 455,459" />
+				<TextEquiv>
+					<Unicode>स्नेहाजुहनिं त्यजनं तप्रः कायमिनाः वुजैलि दिवसैरे काव्धिः षड्कीशकान् २४ को</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="455,638 3448,638 3448,583 455,583" />
+			<TextLine id="line_2">
+				<Coords points="455,638 3448,638 3448,583 455,583" />
+				<TextEquiv>
+					<Unicode>धस्तोरर तिश्रमामि षगुड घूताश्रुद्धासवँसाराभंगभयासित्तां वरवमी तेलंकडूठ अ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="315,715 3448,715 3448,661 315,661" />
+			<TextLine id="line_3">
+				<Coords points="315,715 3448,715 3448,661 315,661" />
+				<TextEquiv>
+					<Unicode>में स्त्री स्तोररतीः कमात्रिशारसप्राह २।५।२ परं तदिनैरेगंस्यपर्त्विकंसितान्यातितके</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="350,793 3448,793 3448,743 350,743" />
+			<TextLine id="line_4">
+				<Coords points="350,793 3448,793 3448,743 350,743" />
+				<TextEquiv>
+					<Unicode>युष्यानकेधीतिच २० वस्त्रालंकरणनिह एैकतरासोयिध्वनितुत्रवानं वादर्यं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="192,871 3448,871 3448,816 192,816" />
+			<TextLine id="line_5">
+				<Coords points="192,871 3448,871 3448,816 192,816" />
+				<TextEquiv>
+					<Unicode>न्पाध्वदति सुरभिस्त्रीपुष्यधान्यादिवँ रोलाढी पविधूमवह्नितुरभिद्यातौ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="315,956 3448,956 3448,899 315,899" />
+			<TextLine id="line_6">
+				<Coords points="315,956 3448,956 3448,899 315,899" />
+				<TextEquiv>
+					<Unicode>मुभ्रो हृवः वेरपा षत्रवितानचामरुकमायोमीनगोरोवने २१ यद्घ्स्वातनितोहतो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="3213,894 3378,894 3378,863 3213,863" />
+			<TextLine id="line_margin_right_1">
+				<Coords points="3213,894 3378,894 3378,863 3213,863" />
+				<TextEquiv>
+					<Unicode>तरी=१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="3213,949 3395,949 3395,917 3213,917" />
+			<TextLine id="line_margin_right_2">
+				<Coords points="3213,949 3395,949 3395,917 3213,917" />
+				<TextEquiv>
+					<Unicode>हिंडोला=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="3220,1228 3378,1228 3378,1174 3220,1174" />
+			<TextLine id="line_margin_right_3">
+				<Coords points="3220,1228 3378,1228 3378,1174 3220,1174" />
+				<TextEquiv>
+					<Unicode>१२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

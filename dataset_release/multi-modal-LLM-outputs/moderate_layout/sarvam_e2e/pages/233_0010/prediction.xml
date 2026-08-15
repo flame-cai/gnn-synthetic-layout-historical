@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0010.jpg" imageWidth="2500" imageHeight="928">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>द्रव्यमात्रा २।२ हस्तिदंतस्योर्ध्वभागस्तत्रगाधः=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233 10</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>याज्ञव०५= रोऽवशासनातरगांधर्वःसमयानीचः॥ शत्तमोपुदहरणपैशाचःकन्यकाछतात॥पाएयाहः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मवरणिसुगद्भीयातक्षत्रियाशरं॥वैश्याश्चतोदमादघादैनेत्यजन्मनः॥पितापितामहोच्छाता</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सकुलोजननीतथा॥कन्याप्रसःपूर्वनाशेप्रकृतिस्पःपरःपरः।अथयन्समानीतिलुणहत्याउत्ता</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वतो॥गम्पतज्ञाविदार्यंकन्याकुर्यात्स्वयंवरं॥सत्प्रहीयतैकन्याहरंताचौर्दउजाऊ॥इन्ना</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पूर्वांगिराः मपिहरेल्यूर्वीक्षेयाश्लेदरआव्रजेत॥प्रनास्यायददौषंउद्धृत्तमसाहसं॥अदुःखानल्पजनदं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पुनःसंस्कारइक्षताओदूवयंस्तूमवाशता॥अन्नताचक्षताचैवपुनर्नूसंस्कृतापुनः॥मैरिणीयापतिहिवासवर्णाकाम</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नरजाई२ ताःश्रवेन्द॥अपुत्रागुर्व्वनुज्ञातोदेवरःपुत्रकाम्पया॥सपंडोवामगोत्रोवाघतात्मकृतताब्यात</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>राम ५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>संस्काराज्ञानेव दूषयन् संवधदूषितार</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

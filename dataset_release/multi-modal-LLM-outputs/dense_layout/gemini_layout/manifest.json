@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "dense",
+  "provider": {
+    "provider_id": "gemini",
+    "method_id": "gemini_layout",
+    "display_name": "Gemini (Ground-Truth Layout)",
+    "model_id": "gemini-3.5-flash",
+    "api_key_env": "GEMINI_API_KEY",
+    "request_contract_version": 2,
+    "uses_shared_prompt": false,
+    "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+    "input_contract": "page_image_plus_ground_truth_layout_traces",
+    "prompt_contract": "app._run_gemini_recognition_internal:gt_pagexml_baseline_traces:N=1:num_trace_points=4:temperature=0.2:v1",
+    "provides_layout": true,
+    "page_cer_uses_output_order": false,
+    "language_code": null,
+    "output_format": null
+  },
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "page_ids": [
+    "10",
+    "17",
+    "22",
+    "23",
+    "24",
+    "25",
+    "28"
+  ],
+  "page_count": 7,
+  "success_count": 7,
+  "failure_count": 0,
+  "max_retries_after_initial_attempt": 3,
+  "pages": {
+    "10": {
+      "status": "success",
+      "result_path": "pages/10/result.json",
+      "prediction_path": "pages/10/prediction.xml"
+    },
+    "17": {
+      "status": "success",
+      "result_path": "pages/17/result.json",
+      "prediction_path": "pages/17/prediction.xml"
+    },
+    "22": {
+      "status": "success",
+      "result_path": "pages/22/result.json",
+      "prediction_path": "pages/22/prediction.xml"
+    },
+    "23": {
+      "status": "success",
+      "result_path": "pages/23/result.json",
+      "prediction_path": "pages/23/prediction.xml"
+    },
+    "24": {
+      "status": "success",
+      "result_path": "pages/24/result.json",
+      "prediction_path": "pages/24/prediction.xml"
+    },
+    "25": {
+      "status": "success",
+      "result_path": "pages/25/result.json",
+      "prediction_path": "pages/25/prediction.xml"
+    },
+    "28": {
+      "status": "success",
+      "result_path": "pages/28/result.json",
+      "prediction_path": "pages/28/prediction.xml"
+    }
+  },
+  "written_at_utc": "2026-07-25T04:24:36.094881+00:00"
+}

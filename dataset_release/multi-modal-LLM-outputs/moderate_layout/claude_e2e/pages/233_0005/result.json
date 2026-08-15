@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "fcbcf1a566773cfccc7b5a0218934aec768913bba9ba999677537ccc3c9d0911",
+  "manuscript_id": "yajn",
+  "page_id": "233_0005",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "52110ff8f74923a702e53a9094eed52906ff57b2a5f8451a8b9b511a4a340dd6",
+  "pagexml_sha256": "efe9d033483f350b4f57345f0234a5aebfddc565b551e84da8800dd89a927060",
+  "status": "success",
+  "error": null,
+  "attempt_count": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 33.5630000000001,
+      "error": "ValueError: vlm_json:233_0005:marg_2: invalid polygon geometry."
+    },
+    {
+      "attempt": 2,
+      "status": "success",
+      "elapsed_seconds": 34.40600000000086,
+      "input_tokens": 3683,
+      "output_tokens": 2598,
+      "total_tokens": 6281,
+      "response_id": "msg_011Cd7NU6uMTueDwGaBV2uq4",
+      "finish_reason": "end_turn"
+    }
+  ],
+  "input_tokens": 7366,
+  "output_tokens": 5268,
+  "total_tokens": 12634,
+  "elapsed_seconds": 69.20399999999972,
+  "completed_at_utc": "2026-07-17T09:12:07.857650+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

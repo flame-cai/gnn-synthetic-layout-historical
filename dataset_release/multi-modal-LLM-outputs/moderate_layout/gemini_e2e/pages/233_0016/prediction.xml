@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0016.jpg" imageWidth="2500" imageHeight="935">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,262 2182,262 2182,192 312,192" />
+			<TextLine id="line_0">
+				<Coords points="312,262 2182,262 2182,192 312,192" />
+				<TextEquiv>
+					<Unicode>॥विजिज्ञासायान्वासनं स्वादु भोजनं सूनृतं वचः॥ प्रतिसंवत्सरं पूज्याः स्नातक आचार्यपार्थिवाः॥ प्रिय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,323 2182,323 2182,248 312,248" />
+			<TextLine id="line_1">
+				<Coords points="312,323 2182,323 2182,248 312,248" />
+				<TextEquiv>
+					<Unicode>प्रियो विवाह्यश्च तथा यष्टव्यः सर्तितः पुनः॥ अधनी नो तिथिर्ज्ञेयो श्रोत्रियो वेदपारगः॥ मान्या वै तौ गृह</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,383 2182,383 2182,309 312,309" />
+			<TextLine id="line_2">
+				<Coords points="312,383 2182,383 2182,309 312,309" />
+				<TextEquiv>
+					<Unicode>हस्थस्य ब्रह्मलोक महीयतः॥ परपाकरुचिर्न स्यादनिंद्या मंत्रणाहते॥ वाक्यदिपोराचापत्वं व</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,449 2182,449 2182,369 312,369" />
+			<TextLine id="line_3">
+				<Coords points="312,449 2182,449 2182,369 312,369" />
+				<TextEquiv>
+					<Unicode>र्जयेज्ज्ञातिभोजनं॥ अतिथिं श्रोत्रियं त्प्रमासीमंतादनुव्रजेत्॥ अहं को वंसहासी तद्विधैरेव है</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,510 2182,510 2182,435 312,435" />
+			<TextLine id="line_4">
+				<Coords points="312,510 2182,510 2182,435 312,435" />
+				<TextEquiv>
+					<Unicode>सह भुजिः॥ उपास्य पश्चिमां संध्यां हुत्वाग्नींस्तान्युपास्य च॥ न तैः परिभवेज्जुक्तानातिवृत्तान् सं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,575 2182,575 2182,500 312,500" />
+			<TextLine id="line_5">
+				<Coords points="312,575 2182,575 2182,500 312,500" />
+				<TextEquiv>
+					<Unicode>विशेत॥ ब्राह्मे मुहूर्त्ते चोत्थाय चिंतयेदात्मनो हितं॥ धर्मार्थकामान्स्वे काले यथाशक्ति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,640 2182,640 2182,566 312,566" />
+			<TextLine id="line_6">
+				<Coords points="312,640 2182,640 2182,566 312,566" />
+				<TextEquiv>
+					<Unicode>र्न हापयेत्॥ विद्याकर्मवयोबंधुवित्तैर्मान्या यथाक्रमं॥ एतैः प्रनूतैः शूद्रोपि वार्द्धके मानमर्ह</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="312,706 2182,706 2182,631 312,631" />
+			<TextLine id="line_7">
+				<Coords points="312,706 2182,706 2182,631 312,631" />
+				<TextEquiv>
+					<Unicode>ति॥ वरं मार्गं न पश्नात्स्त्रीरोग वरचक्रिणां॥ पंथा देयो नृपस्यैषा मान्या स्नातकभूपतेः॥ इज्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="62,276 220,276 220,215 62,215" />
+			<TextLine id="line_8">
+				<Coords points="62,276 220,276 220,215 62,215" />
+				<TextEquiv>
+					<Unicode>वाग्भट</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="188,309 288,309 288,262 188,262" />
+			<TextLine id="line_9">
+				<Coords points="188,309 288,309 288,262 188,262" />
+				<TextEquiv>
+					<Unicode>वरः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="38,673 250,673 250,626 38,626" />
+			<TextLine id="line_10">
+				<Coords points="38,673 250,673 250,626 38,626" />
+				<TextEquiv>
+					<Unicode>नारादकां११</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="2200,257 2450,257 2450,206 2200,206" />
+			<TextLine id="line_11">
+				<Coords points="2200,257 2450,257 2450,206 2200,206" />
+				<TextEquiv>
+					<Unicode>गुरोः सत्तया वेदपू</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="2200,290 2438,290 2438,243 2200,243" />
+			<TextLine id="line_12">
+				<Coords points="2200,290 2438,290 2438,243 2200,243" />
+				<TextEquiv>
+					<Unicode>स्नातकः ब्रह्म</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="2200,323 2350,323 2350,276 2200,276" />
+			<TextLine id="line_13">
+				<Coords points="2200,323 2350,323 2350,276 2200,276" />
+				<TextEquiv>
+					<Unicode>चारी १२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="2188,458 2400,458 2400,402 2188,402" />
+			<TextLine id="line_14">
+				<Coords points="2188,458 2400,458 2400,402 2188,402" />
+				<TextEquiv>
+					<Unicode>ऋग्वेदादिः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="2188,505 2425,505 2425,458 2188,458" />
+			<TextLine id="line_15">
+				<Coords points="2188,505 2425,505 2425,458 2188,458" />
+				<TextEquiv>
+					<Unicode>इत्याकाङ्क्षया</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="2188,542 2400,542 2400,496 2188,496" />
+			<TextLine id="line_16">
+				<Coords points="2188,542 2400,542 2400,496 2188,496" />
+				<TextEquiv>
+					<Unicode>प्रपंचतिः ४८</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="2220,729 2350,729 2350,673 2220,673" />
+			<TextLine id="line_17">
+				<Coords points="2220,729 2350,729 2350,673 2220,673" />
+				<TextEquiv>
+					<Unicode>रामच</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "18904644635e13be56354bb15af7a79d8f029c5a3ce7b38a538257ab6e6bf82c",
+  "manuscript_id": "dense",
+  "page_id": "25",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "a2df41b12aee560aca792165dd7e3e3287b456f6776e7bfed1a69d77e26347bb",
+  "pagexml_sha256": "ca953f48f0294582b113989d8b166287a05a407f6f482bcc9d553edd6366b078",
+  "status": "api_timeout",
+  "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.95299999999952,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 37.23400000000038,
+      "error": "ValueError: vlm_json:25:line_19: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 42.125,
+      "error": "ValueError: vlm_json:25:line_1: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 4,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.25,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    }
+  ],
+  "input_tokens": 8978,
+  "output_tokens": 5511,
+  "total_tokens": 14489,
+  "elapsed_seconds": 177.57799999999952,
+  "completed_at_utc": "2026-07-17T09:23:30.307252+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

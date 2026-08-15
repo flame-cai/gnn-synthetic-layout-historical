@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "dense",
+  "page_id": "28",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "5cbaed5d893e669b934461574a0c97a427fb542cd9c0a5f0360de594a85ee8f8",
+  "pagexml_sha256": "a549876f03986f7a72893d01956273fa9dc0c76968760e8ed8b5fd1684dbceb1",
+  "request_contract_version": 2,
+  "request_fingerprint": "80b854202969dda1db6d25cb5661db8227dc44daebde82a5301a60fa08bdb8c7",
+  "image_path": "manuscripts/dense_layout/inputs/28.jpg",
+  "pagexml_path": "manuscripts/dense_layout/labels/page_xml/28.xml",
+  "prompt": "You are an expert Indologist and Paleographer specializing in handwritten Sanskrit manuscripts.Your Task: Perform a diplomatic transcription (OCR) of the attached manuscript image.\nCRITICAL INSTRUCTIONS:\nTranscribe the Sanskrit text from the image at the text-line level, where locations of the handwritten text-lines are defined using 'Path Traces'. Each 'Path Trace' refers to one text-line.\nThe coordinates of the Path Traces are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) to precisely map the text line locations on the image.\nFor each path trace points, transcribe the text that sits along this curve.\nFocus strictly on the visual line indicated by the trace; ignore text from lines above or below.\nThe path trace can be curved and even circular. If a path trace is circular, transcribe the text that sits along the entire circle, starting from the top.\nTranscribe in Unicode Devanagari. Preserve original spelling (Sandhi).\nOutput a JSON array of objects with 'id' and 'text'.\n\nREGIONS:\nID: 0 | Trace: [77, 100, 77, 103, 78, 107, 79, 111]\nID: 1 | Trace: [90, 63, 88, 67, 87, 72, 85, 76]\nID: 2 | Trace: [113, 230, 111, 257, 109, 284, 105, 312]\nID: 3 | Trace: [144, 136, 150, 198, 160, 261, 151, 324]\nID: 4 | Trace: [148, 26, 153, 56, 145, 85, 148, 115]\nID: 6 | Trace: [194, 25, 194, 55, 200, 85, 203, 116]\nID: 5 | Trace: [201, 142, 198, 382, 203, 620, 161, 860]\nID: 8 | Trace: [229, 896, 231, 924, 227, 952, 227, 981]\nID: 9 | Trace: [242, 31, 244, 62, 246, 92, 249, 123]\nID: 7 | Trace: [249, 141, 262, 382, 267, 624, 221, 865]\nID: 10 | Trace: [269, 890, 277, 907, 278, 924, 284, 941]\nID: 11 | Trace: [282, 26, 287, 57, 290, 88, 299, 118]\nID: 12 | Trace: [327, 156, 332, 394, 333, 633, 319, 872]\nID: 13 | Trace: [331, 30, 334, 58, 341, 86, 345, 115]\nID: 14 | Trace: [365, 899, 363, 912, 365, 926, 369, 940]\nID: 15 | Trace: [371, 26, 380, 55, 386, 84, 386, 114]\nID: 16 | Trace: [386, 139, 397, 379, 398, 619, 393, 860]\nID: 17 | Trace: [418, 30, 429, 60, 435, 90, 439, 120]\nID: 18 | Trace: [462, 143, 460, 386, 472, 628, 473, 871]\nID: 19 | Trace: [465, 26, 472, 54, 476, 83, 478, 112]\nID: 20 | Trace: [474, 895, 471, 912, 471, 929, 471, 946]\nID: 21 | Trace: [511, 26, 515, 56, 523, 86, 528, 117]\nID: 22 | Trace: [532, 158, 532, 396, 532, 634, 543, 873]\nID: 23 | Trace: [541, 903, 538, 927, 536, 951, 543, 975]\nID: 24 | Trace: [558, 27, 566, 58, 571, 89, 590, 120]\nID: 25 | Trace: [574, 371, 573, 374, 572, 376, 571, 379]\nID: 26 | Trace: [585, 144, 608, 385, 618, 627, 610, 869]\nID: 27 | Trace: [586, 895, 588, 925, 591, 956, 598, 986]\nID: 28 | Trace: [624, 34, 624, 52, 628, 70, 631, 88]\nID: 29 | Trace: [648, 142, 667, 388, 680, 634, 671, 880]\nID: 30 | Trace: [687, 30, 694, 60, 698, 90, 703, 121]\nID: 31 | Trace: [715, 146, 732, 385, 739, 624, 735, 865]\nID: 32 | Trace: [725, 921, 723, 925, 721, 929, 720, 933]\nID: 33 | Trace: [732, 32, 734, 40, 736, 48, 738, 56]\nID: 34 | Trace: [770, 145, 790, 385, 795, 623, 796, 863]\nID: 35 | Trace: [772, 35, 778, 60, 781, 85, 779, 110]\nID: 36 | Trace: [816, 33, 819, 62, 825, 91, 831, 121]\nID: 37 | Trace: [833, 142, 834, 234, 838, 327, 859, 419]\nID: 38 | Trace: [848, 439, 852, 483, 856, 528, 866, 572]\nID: 39 | Trace: [851, 603, 867, 679, 876, 755, 864, 832]\nID: 40 | Trace: [864, 32, 863, 48, 872, 64, 880, 80]\nID: 41 | Trace: [894, 253, 894, 292, 899, 330, 907, 369]\nID: 42 | Trace: [902, 388, 908, 419, 916, 450, 921, 482]\nID: 43 | Trace: [915, 141, 930, 213, 938, 285, 949, 358]\nID: 44 | Trace: [925, 746, 924, 809, 917, 872, 927, 936]\nID: 45 | Trace: [925, 370, 923, 455, 925, 540, 925, 625]\nID: 46 | Trace: [955, 374, 958, 426, 963, 478, 959, 530]\n",
+  "rendered_prompt_sha256": "347d7bcaf177af866a45d9e36a742f589d66bf5422dd63d49d4276d4968f2bfd",
+  "input_order": [
+    "page_image",
+    "ground_truth_layout_traces",
+    "prompt"
+  ],
+  "state": "started",
+  "started_at_utc": "2026-07-25T04:24:09.703213+00:00",
+  "timeout_seconds": 45.0,
+  "max_retries_after_initial_attempt": 3
+}

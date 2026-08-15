@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0010.jpg" imageWidth="2500" imageHeight="928">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="800,70 2475,70 2475,32 800,32" />
+			<TextLine id="line_0">
+				<Coords points="800,70 2475,70 2475,32 800,32" />
+				<TextEquiv>
+					<Unicode>द्व्यहनात्रे। रह सिदंतपोसंयोगस्नातर्गंधर्वः१=</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,223 2475,223 2475,181 38,181" />
+			<TextLine id="line_1">
+				<Coords points="38,223 2475,223 2475,181 38,181" />
+				<TextEquiv>
+					<Unicode>यात्रावः ५= रोऽविशासनात्रगांधर्वः समयानिच॥ राक्षसोपुद्रहरणपैशाचःकन्याहतार।प्याह्याद्यः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,269 2475,269 2475,223 38,223" />
+			<TextLine id="line_2">
+				<Coords points="38,269 2475,269 2475,223 38,223" />
+				<TextEquiv>
+					<Unicode>सवर्णिस्तुऋहीयात्रक्षत्रियाशरं॥ वैश्याश्रुतोदमादघाद्दैत्यनेह्यजनन्तनः॥ पिताअपिता महोत्राता</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,316 2475,316 2475,269 38,269" />
+			<TextLine id="line_3">
+				<Coords points="38,316 2475,316 2475,269 38,269" />
+				<TextEquiv>
+					<Unicode>सकृत्योजननीतथा॥ कन्यापदः पूर्वनापोपुहद्ति स्वःपरःपरः॥ छपपिहनूसमाप्तोतित्राणहत्यक्तता</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,362 2475,362 2475,316 38,316" />
+			<TextLine id="line_4">
+				<Coords points="38,362 2475,362 2475,316 38,316" />
+				<TextEquiv>
+					<Unicode>तृतौ॥गम्पत्ताविदातरंगकन्याकुर्यात्खयंवरं॥सहप्रतीयतैकन्याहरंस्तौरदंडउत्तम॥दत्ता</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,408 2475,408 2475,362 38,362" />
+			<TextLine id="line_5">
+				<Coords points="38,408 2475,408 2475,362 38,362" />
+				<TextEquiv>
+					<Unicode>मपिहरेत्यौद्धेयाश्रेदुरआव्जेत॥पुनराख्यायदददोवंद्युउत्तमसाहसं॥छदुष्णांचस्पजन्यंदं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,455 2475,455 2475,408 38,408" />
+			<TextLine id="line_6">
+				<Coords points="38,455 2475,455 2475,408 38,408" />
+				<TextEquiv>
+					<Unicode>पुनःसंस्कारदत्तताज्नोदुचयंस्रज्ञ्या राता॥ अज्ञताचन्नेताचैवपुनर्नूसंस्रुतापुनः॥ स्त्रैयरणीयापतिहलासवर्धिकाम</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,501 2475,501 2475,455 38,455" />
+			<TextLine id="line_7">
+				<Coords points="38,501 2475,501 2475,455 38,455" />
+				<TextEquiv>
+					<Unicode>तां श्वेद॥ अपुत्रांगुर्वन्ुत्तातो देवरः पुत्रकाम्यया॥ सत्पिंडोवा समौत्रोवाध्यताऽप्तस्तताश्वियात राऽप५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="850,608 1800,608 1800,580 850,580" />
+			<TextLine id="line_8">
+				<Coords points="850,608 1800,608 1800,580 850,580" />
+				<TextEquiv>
+					<Unicode>संस्कारा राजीव द्धुपुत्र संवचद्वितार</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

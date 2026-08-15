@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "circle_new",
+  "provider": {
+    "provider_id": "claude",
+    "method_id": "claude_e2e",
+    "display_name": "Claude (End-to-End)",
+    "model_id": "claude-sonnet-5",
+    "api_key_env": "CLAUDE_API_KEY",
+    "request_contract_version": 2
+  },
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "page_ids": [
+    "11",
+    "14",
+    "15",
+    "28",
+    "35",
+    "49",
+    "56",
+    "64",
+    "65"
+  ],
+  "page_count": 9,
+  "success_count": 1,
+  "failure_count": 8,
+  "max_retries_after_initial_attempt": 3,
+  "pages": {
+    "11": {
+      "status": "api_timeout",
+      "result_path": "pages/11/result.json",
+      "prediction_path": "pages/11/prediction.xml"
+    },
+    "14": {
+      "status": "api_error",
+      "result_path": "pages/14/result.json",
+      "prediction_path": "pages/14/prediction.xml"
+    },
+    "15": {
+      "status": "api_timeout",
+      "result_path": "pages/15/result.json",
+      "prediction_path": "pages/15/prediction.xml"
+    },
+    "28": {
+      "status": "api_error",
+      "result_path": "pages/28/result.json",
+      "prediction_path": "pages/28/prediction.xml"
+    },
+    "35": {
+      "status": "api_timeout",
+      "result_path": "pages/35/result.json",
+      "prediction_path": "pages/35/prediction.xml"
+    },
+    "49": {
+      "status": "api_error",
+      "result_path": "pages/49/result.json",
+      "prediction_path": "pages/49/prediction.xml"
+    },
+    "56": {
+      "status": "api_timeout",
+      "result_path": "pages/56/result.json",
+      "prediction_path": "pages/56/prediction.xml"
+    },
+    "64": {
+      "status": "success",
+      "result_path": "pages/64/result.json",
+      "prediction_path": "pages/64/prediction.xml"
+    },
+    "65": {
+      "status": "api_error",
+      "result_path": "pages/65/result.json",
+      "prediction_path": "pages/65/prediction.xml"
+    }
+  },
+  "written_at_utc": "2026-07-17T09:31:19.735742+00:00"
+}

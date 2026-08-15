@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0003.jpg" imageWidth="2500" imageHeight="932">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="772,105 1885,97 1878,48 772,57" />
+			<TextLine id="line_0">
+				<Coords points="772,105 1885,97 1878,48 772,57" />
+				<TextEquiv>
+					<Unicode>ग्रन्थविषयः। तैवाग्निमन्त्रपदैर्वीक्षापपका। न्यमुनिःकथनः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1000,146 1672,141 1675,100 1000,105" />
+			<TextLine id="line_1">
+				<Coords points="1000,146 1672,141 1675,100 1000,105" />
+				<TextEquiv>
+					<Unicode>शान्तेर्नाम। सकलदेवोपासनेः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2050,85 2312,81 2308,45 2048,53" />
+			<TextLine id="line_2">
+				<Coords points="2050,85 2312,81 2308,45 2048,53" />
+				<TextEquiv>
+					<Unicode>लेखकप्रशस्तिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="338,207 520,205 522,150 338,158" />
+			<TextLine id="line_3">
+				<Coords points="338,207 520,205 522,150 338,158" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2072,205 2118,204 2115,155 2072,161" />
+			<TextLine id="line_4">
+				<Coords points="2072,205 2118,204 2115,155 2072,161" />
+				<TextEquiv>
+					<Unicode>३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="355,287 2215,281 2218,227 358,237" />
+			<TextLine id="line_5">
+				<Coords points="355,287 2215,281 2218,227 358,237" />
+				<TextEquiv>
+					<Unicode>हनः॥संज्ञकुलेकलेश्वरी। कोनोऽधमिल्लाभिदेहसीतत्व। उद्धाचारदेशोऽहंसोधनस्वाध्यापकर्मणा॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="305,361 2335,352 2335,289 308,300" />
+			<TextLine id="line_6">
+				<Coords points="305,361 2335,352 2335,289 308,300" />
+				<TextEquiv>
+					<Unicode>प्रयत्नपरतीर्थाधर्मी यथोऽग्नोऽसौ त्रैधामना। चतुरो वेदधर्मज्ञाः पञ्चैव चमेव वा॥ सिद्धतेजसमयी यमाः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="170,446 268,442 258,367 168,374" />
+			<TextLine id="line_7">
+				<Coords points="170,446 268,442 258,367 168,374" />
+				<TextEquiv>
+					<Unicode>श्रुतिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="362,440 2272,431 2270,366 362,376" />
+			<TextLine id="line_8">
+				<Coords points="362,440 2272,431 2270,366 362,376" />
+				<TextEquiv>
+					<Unicode>स्वादेशो वाचस्पतिरिति मन्त्रः। स्फुटितोऽयं कृत्वा॥ वेदनाध्ययनविद्युदेवस्य काव्यस्याध्यात्मयोगेन्द्रः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="382,500 2365,489 2368,421 382,430" />
+			<TextLine id="line_9">
+				<Coords points="382,500 2365,489 2368,421 382,430" />
+				<TextEquiv>
+					<Unicode>विवेकाचारसन्नाहेन तस्यैव मन्त्रतेजस्क्या॥ जननीनामयी बुद्धिः सदानन्दप्रदायिनी॥ तत्रानयोऽपि—</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,565 325,559 315,493 55,501" />
+			<TextLine id="line_10">
+				<Coords points="52,565 325,559 315,493 55,501" />
+				<TextEquiv>
+					<Unicode>शब्दार्थः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="372,572 2212,564 2215,491 372,503" />
+			<TextLine id="line_11">
+				<Coords points="372,572 2212,564 2215,491 372,503" />
+				<TextEquiv>
+					<Unicode>एतेन श्रीमतामाचार्येण ज्ञातनकैर्व्या। श्रुतदेवका योगानां चतुर्विधकारसिद्धिरत्र॥ ध्येयस्वरूपवर्णनम्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="358,645 2295,637 2295,569 358,578" />
+			<TextLine id="line_12">
+				<Coords points="358,645 2295,637 2295,569 358,578" />
+				<TextEquiv>
+					<Unicode>सिद्धूनां कौर्वाणकुले॥ एवमेव धामेयानां विग्रहसिद्धप्रकारः। कृत्यैः कृताः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="355,715 2042,706 2045,637 355,646" />
+			<TextLine id="line_13">
+				<Coords points="355,715 2042,706 2045,637 355,646" />
+				<TextEquiv>
+					<Unicode>क्षेमो वाचस्पतिमन्त्रकः॥ ज्ञानदेवेषु मेवाद्वालसुस्वपनेन कैरवकर्मणि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="725,796 1568,788 1565,716 725,725" />
+			<TextLine id="line_14">
+				<Coords points="725,796 1568,788 1565,716 725,725" />
+				<TextEquiv>
+					<Unicode>शान्तकर्मप्रकरणे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1448,722 1670,714 1668,665 1448,673" />
+			<TextLine id="line_15">
+				<Coords points="1448,722 1670,714 1668,665 1448,673" />
+				<TextEquiv>
+					<Unicode>ग्रन्थः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="945,737 1175,730 1172,665 945,675" />
+			<TextLine id="line_16">
+				<Coords points="945,737 1175,730 1172,665 945,675" />
+				<TextEquiv>
+					<Unicode>मानकर्मप्रकरण</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="715,790 865,783 862,730 715,739" />
+			<TextLine id="line_17">
+				<Coords points="715,790 865,783 862,730 715,739" />
+				<TextEquiv>
+					<Unicode>प्रकरणः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1868,772 2052,718 2050,668 1868,676" />
+			<TextLine id="line_18">
+				<Coords points="1868,772 2052,718 2050,668 1868,676" />
+				<TextEquiv>
+					<Unicode>कारः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

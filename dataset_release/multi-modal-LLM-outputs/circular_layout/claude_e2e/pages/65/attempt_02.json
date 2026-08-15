@@ -1,0 +1,6 @@
+{
+  "attempt": 2,
+  "status": "api_error",
+  "elapsed_seconds": 22.65600000000086,
+  "error": "ValueError: vlm_json:65:line_5: invalid polygon geometry."
+}

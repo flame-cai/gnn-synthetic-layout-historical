@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0002.jpg" imageWidth="2500" imageHeight="940">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="450,19 445,24 2500,45 2500,42" />
+			<TextLine id="line_0">
+				<Coords points="450,19 445,24 2500,45 2500,42" />
+				<TextEquiv>
+					<Unicode>शिष्टाचारेणव्याकरणहानितर्कज्योतिष्कादिसौ॥४॰कल्पशास्त्रइतिदृष्ट्यापितत्॥३॰</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,132 238,132 238,103 38,103" />
+			<TextLine id="line_1">
+				<Coords points="38,132 238,132 238,103 38,103" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2350,150 2425,150 2425,113 2350,113" />
+			<TextLine id="line_2">
+				<Coords points="2350,150 2425,150 2425,113 2350,113" />
+				<TextEquiv>
+					<Unicode>२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,226 2462,226 2462,183 38,183" />
+			<TextLine id="line_3">
+				<Coords points="38,226 2462,226 2462,183 38,183" />
+				<TextEquiv>
+					<Unicode>यात्रव॰१ ॐ स्वस्ति श्रीगणेशायचनमः॥ॐ श्रीगुरवेनमः॥ॐ श्रीसरस्वत्यैनमः॥ॐ श्रीयोगपतयेनमः॥ रामायनमः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,282 2475,282 2475,235 38,235" />
+			<TextLine id="line_4">
+				<Coords points="38,282 2475,282 2475,235 38,235" />
+				<TextEquiv>
+					<Unicode>वाग्नंयानकायोगीश्वरंयास्तिलंचसंपूज्यमुनयोऽवुवन॥वरगिप्यमेतरागानोवृतिचर्मानशोचतः।अभिचानास्थः रघुवोदेवास्थः२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="25,338 2475,338 2475,282 25,282" />
+			<TextLine id="line_5">
+				<Coords points="25,338 2475,338 2475,282 25,282" />
+				<TextEquiv>
+					<Unicode>तीनाभीयरं२॰ संयोगीदःचरागांद्यावर्वीमुनीन् कस्तिदेपेरमगः दलास्तस्मिन्धर्मीविगोधत॥ पुराणान्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,395 2462,395 2462,338 38,338" />
+			<TextLine id="line_6">
+				<Coords points="38,395 2462,395 2462,338 38,338" />
+				<TextEquiv>
+					<Unicode>पमीमांसाधर्मशास्त्रागभिश्रुताः॥वेदाःस्थानानिविद्यानांधर्मस्यचचतुर्दधा।मन्त्रिविमहु</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="38,461 2475,461 2475,395 38,395" />
+			<TextLine id="line_7">
+				<Coords points="38,461 2475,461 2475,395 38,395" />
+				<TextEquiv>
+					<Unicode>श्तयात्रवल्कोशनेंगिराः॥यमापस्तंवसंवर्तिःकात्यायनवृहस्पती।पराशरव्यासशंख</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="25,526 2475,526 2475,461 25,461" />
+			<TextLine id="line_8">
+				<Coords points="25,526 2475,526 2475,461 25,461" />
+				<TextEquiv>
+					<Unicode>लिखितांदक्षगौतमैः॥शतातपोवशिष्ठश्चधर्मशास्त्रप्रयोजकाः।देशकालउपादेनंद्रव्यंश्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="25,592 2475,592 2475,526 25,526" />
+			<TextLine id="line_9">
+				<Coords points="25,592 2475,592 2475,526 25,526" />
+				<TextEquiv>
+					<Unicode>द्धासमन्वितं पात्रंवृत्तिपत्तंतस्कालंधर्मिलक्षणं।प्रतिःस्मृतिःसदाचारःस्वस्यचप्रियमा॑ राम१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1250,630 1950,630 1950,602 1250,602" />
+			<TextLine id="line_10">
+				<Coords points="1250,630 1950,630 1950,602 1250,602" />
+				<TextEquiv>
+					<Unicode>सतांआचारःसदाचारः१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1250,677 2475,677 2475,639 1250,639" />
+			<TextLine id="line_11">
+				<Coords points="1250,677 2475,677 2475,639 1250,639" />
+				<TextEquiv>
+					<Unicode>देवोत्रलक्षणे॥कालेसंज्ञातादिौ।३वादेतुपार्जनं२॰</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

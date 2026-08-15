@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0010.jpg" imageWidth="2500" imageHeight="928">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="322,72 1020,65 1012,44 322,45" />
+			<TextLine id="line_0">
+				<Coords points="322,72 1020,65 1012,44 322,45" />
+				<TextEquiv>
+					<Unicode>ईश्वरनाथेः रत्नमञ्जरीसङ्ग्रहो नाम ग्रन्थः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="260,135 452,135 452,99 258,100" />
+			<TextLine id="line_1">
+				<Coords points="260,135 452,135 452,99 258,100" />
+				<TextEquiv>
+					<Unicode>म-२३३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2145,131 2195,129 2198,93 2150,95" />
+			<TextLine id="line_2">
+				<Coords points="2145,131 2195,129 2198,93 2150,95" />
+				<TextEquiv>
+					<Unicode>१०</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="45,227 2235,224 2235,176 45,176" />
+			<TextLine id="line_3">
+				<Coords points="45,227 2235,224 2235,176 45,176" />
+				<TextEquiv>
+					<Unicode>काण्डो ४= रोद्रविष्णुनारायणायैव समर्पितोऽयम् ॥ इन्दुकेशुदत्तस्य काले काव्यकृत्यं काश्यते।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="260,291 2218,288 2218,239 260,239" />
+			<TextLine id="line_4">
+				<Coords points="260,291 2218,288 2218,239 260,239" />
+				<TextEquiv>
+					<Unicode>निवृत्तिं गुरुरेकोऽपि रत्नत्रयाभासेऽस्त्येकयामितकर्मार्चोऽद्वैतेन प्रजापतेः ॥ वितपितमसे चैता</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="252,357 2230,353 2230,303 252,303" />
+			<TextLine id="line_5">
+				<Coords points="252,357 2230,353 2230,303 252,303" />
+				<TextEquiv>
+					<Unicode>समुत्तेजननीत्याभां कन्यापुत्रः पूर्वेणोऽप्यत्र तस्मात्परः परः ॥ इन्द्रियं दुरसामेति तुर्यरूपसमता</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="260,423 2045,419 2045,370 260,370" />
+			<TextLine id="line_6">
+				<Coords points="260,423 2045,419 2045,370 260,370" />
+				<TextEquiv>
+					<Unicode>वते ॥ जगन्मंगलोऽपि नारदः शृणुकार्यं विरचितवान् ॥ सद्भिः प्रीतिकरः सख्यै रुद्रोऽस्माकमस्तु</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="45,486 2228,481 2228,430 45,430" />
+			<TextLine id="line_7">
+				<Coords points="45,486 2228,481 2228,430 45,430" />
+				<TextEquiv>
+					<Unicode>पूर्वश्लोकेः समिद्धेरहृदीशो योऽत्र हृदयरस्रावशीतः ॥ पुनराख्याप्यरककोऽपि हृद्योत्तमस्तरस्तोऽमुच्स्तीरज्यते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="45,552 2102,546 2102,492 45,492" />
+			<TextLine id="line_8">
+				<Coords points="45,552 2102,546 2102,492 45,492" />
+				<TextEquiv>
+					<Unicode>पुनः संस्कार इति श्रीदुर्वर्णसन्ततिर्याता ॥ श्रीमता चैततो देव पुनरेव संस्कृतावचनः ॥ शैरेषोऽपि निहतोऽस्मत्काम</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="50,615 2298,609 2298,555 50,555" />
+			<TextLine id="line_9">
+				<Coords points="50,615 2298,609 2298,555 50,555" />
+				<TextEquiv>
+					<Unicode>श्लोकाङ्क २ तत्रैवेतर ॥ शृणु मे गुर्वेकान्तो देवः पुत्रकाम्यया ॥ नापितोऽका महीशेन पितुर्नाशयते तावदेतत् रूप ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="895,735 1448,729 1448,694 895,694" />
+			<TextLine id="line_10">
+				<Coords points="895,735 1448,729 1448,694 895,694" />
+				<TextEquiv>
+					<Unicode>संकलनात्रजोऽयं पूर्वर् संवत्सरवितार</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

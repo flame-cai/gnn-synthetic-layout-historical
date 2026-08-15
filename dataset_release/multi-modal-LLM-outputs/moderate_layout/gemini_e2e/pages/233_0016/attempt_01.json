@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "status": "api_timeout",
+  "elapsed_seconds": 45.10999999999967,
+  "error": "ReadTimeout: The read operation timed out"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "93175040907ae1c1e413a3e3ef4c574f14f05a40e9c556a321ab3b0cf178bb4f",
+  "manuscript_id": "yajn",
+  "page_id": "233_0012",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "947b0a51bb593822885e7502a36fc3096aec9637beaaeab4cc2387a9f6aead87",
+  "pagexml_sha256": "6337221f608a19fb6062f71386597a012741903eec11cf6df2a7b26b26903f25",
+  "status": "api_error",
+  "error": "ValueError: vlm_json:233_0012:line_folio_right: TextLine/Coords must contain at least three distinct points.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 43.625,
+      "error": "ValueError: vlm_json:233_0012:line_header: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 33.39099999999962,
+      "error": "ValueError: vlm_json:233_0012:line_marg3: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 41.23400000000038,
+      "error": "ValueError: vlm_json:233_0012:line_label_2: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 4,
+      "status": "api_error",
+      "elapsed_seconds": 40.46899999999914,
+      "error": "ValueError: vlm_json:233_0012:line_folio_right: TextLine/Coords must contain at least three distinct points."
+    }
+  ],
+  "input_tokens": 14372,
+  "output_tokens": 13221,
+  "total_tokens": 27593,
+  "elapsed_seconds": 165.73399999999856,
+  "completed_at_utc": "2026-07-17T09:16:21.120769+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

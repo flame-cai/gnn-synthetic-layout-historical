@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "394c1e7be9f8751c46d6238f164cafe05ce92fed3151cefc350fd99bd5102f32",
+  "manuscript_id": "circle_new",
+  "page_id": "14",
+  "provider_id": "openai",
+  "method_id": "openai_e2e",
+  "model_id": "gpt-5.6-terra",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "8adb5f9725fdf2acf1208dbb19e72ed8aadcbc268c792a763cf1d5c48c5acfbe",
+  "pagexml_sha256": "ba0e4ff8bf86d7c44817c0f25bc36d953fc22ced9ed83a03cf78217c54f66bef",
+  "status": "success",
+  "error": null,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "success",
+      "elapsed_seconds": 20.60899999999947,
+      "input_tokens": 11686,
+      "output_tokens": 1900,
+      "total_tokens": 13586,
+      "response_id": "resp_02786fc4f3d99866006a59ea8f3d9c81a192cf3acfe7673927",
+      "finish_reason": "completed"
+    }
+  ],
+  "input_tokens": 11686,
+  "output_tokens": 1900,
+  "total_tokens": 13586,
+  "elapsed_seconds": 21.29700000000048,
+  "completed_at_utc": "2026-07-17T08:41:06.434840+00:00",
+  "prediction_path": "prediction.xml"
+}

@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0011.jpg" imageWidth="2500" imageHeight="928">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नमोपरिश्रान्तविधनाप्रमाक्तत्वाद्जननाम्ना= उरुणं तरसं योगकल्पते१३-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233 निर ना१-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>भुवंतीर</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>आगर्नसंनवा रुहे त्यति तस्न्यप्यानवेर॥ अनेनवधिनाजातक्षेत्रजेस्पिनवेलुतः ॥ हताधिकारामलि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नापिंडमाचोपजीविनी॥ परिनूनामयःपाप्यावासये द्वात्रिंचारिणी॥ सोमःशौचंददौस्त्रीणांगूअवीप्रथ्यु</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नागिरं॥ पावकःसर्वमेध्यलंमेध्यावैयोचितोत्यतः॥ व्यक्तिचाराहतोशुद्धिर्जनेत्यागोविचीयते॥गर्भग</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मैवयादौचतथामहतिपातके॥ सुरापीव्याधितायत्तीवंर्धयईप्रियवदा॥ स्त्रीप्रसूंश्चाधिवेत्तव्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पुरुषदेविणीतथा॥ अधिविनायिकर्त्तव्यामहेनेन्यथानवेर॥ यत्रानुकुल्यंदं चलोश्ववर्गी।</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सत्रवर्द्धते॥ प्रतेजीवतिवापत्यौयानान्यमुपगच्छति॥सेहकीतिमवाप्नोतिमोदतेचोमयास</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>हाऽज्ञासत्तादिनीदक्षातीरसूनियवादिनी॥सजृहुदाप्सु-तीयांरामइव्योनरंस्त्रियां।स्त्री</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>निर्भर्तवचःकार्यमेषःधर्मःपरस्त्रियाः॥आयुडेःसंप्रतीत्स्योहिमहापातकदूषितः॥लोकैनं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ता४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

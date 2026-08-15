@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "6843cc5085a6f5a8819e077100288e8ccacfeb963b052a43f7d8f6ed27efade2",
+  "manuscript_id": "circle_new",
+  "page_id": "14",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "8adb5f9725fdf2acf1208dbb19e72ed8aadcbc268c792a763cf1d5c48c5acfbe",
+  "pagexml_sha256": "ba0e4ff8bf86d7c44817c0f25bc36d953fc22ced9ed83a03cf78217c54f66bef",
+  "status": "api_error",
+  "error": "ValueError: vlm_json:14:yantra2_top_ring1: TextLine/Coords must contain at least three distinct points.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 40.25,
+      "error": "ValueError: vlm_json:14:line_2_top_extra: invalid polygon geometry."
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 31.625,
+      "error": "ValueError: vlm_json:14:upper_star_bottom: invalid polygon geometry."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 34.48500000000058,
+      "error": "ValueError: vlm_json:14:bottom_yantra_top_line1: invalid polygon geometry."
+    },
+    {
+      "attempt": 4,
+      "status": "api_error",
+      "elapsed_seconds": 28.343000000000757,
+      "error": "ValueError: vlm_json:14:yantra2_top_ring1: TextLine/Coords must contain at least three distinct points."
+    }
+  ],
+  "input_tokens": 21164,
+  "output_tokens": 15162,
+  "total_tokens": 36326,
+  "elapsed_seconds": 142.42200000000048,
+  "completed_at_utc": "2026-07-17T09:26:05.704028+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

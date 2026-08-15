@@ -1,0 +1,302 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="15.jpg" imageWidth="2684" imageHeight="3500">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="268,707 1919,707 1919,560 268,560" />
+			<TextLine id="line_0">
+				<Coords points="268,707 1919,707 1919,560 268,560" />
+				<TextEquiv>
+					<Unicode>कामेश्वरी मूलविद्याया अत्रा ह्यत्रा ह्यत्रा ह्यमी असकलहरनतय मदव ९</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="268,788 1745,788 1745,665 268,665" />
+			<TextLine id="line_1">
+				<Coords points="268,788 1745,788 1745,665 268,665" />
+				<TextEquiv>
+					<Unicode>यभिरेव द्वादशभिषोडशस्वरसंयोजने दिनवत्सुत रेशांत सेवाका</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="268,858 1758,858 1758,735 268,735" />
+			<TextLine id="line_2">
+				<Coords points="268,858 1758,858 1758,735 268,735" />
+				<TextEquiv>
+					<Unicode>मंत्रवर्णा जायते तेषु षड्भि मन्त्रै बुढा विंलभन्ते तत्र प्रति षट्कोणे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="268,910 1919,910 1919,805 268,805" />
+			<TextLine id="line_3">
+				<Coords points="268,910 1919,910 1919,805 268,805" />
+				<TextEquiv>
+					<Unicode>षएमंत्रमा से संति द्वात्रिंशद्यंत्राणि द्वात्रिंशत्फलभेदभिन्ना निजायन्ते तद्यथा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="416,1032 550,1032 550,945 416,945" />
+			<TextLine id="line_4">
+				<Coords points="416,1032 550,1032 550,945 416,945" />
+				<TextEquiv>
+					<Unicode>यंत्र १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="631,928 523,1068 523,1260 631,1418 778,1488 980,1488 1114,1365 1114,1172 1020,998 899,892 738,858" />
+			<TextLine id="line_5">
+				<Coords points="631,928 523,1068 523,1260 631,1418 778,1488 980,1488 1114,1365 1114,1172 1020,998 899,892 738,858" />
+				<TextEquiv>
+					<Unicode>अं आं इं ईं उं ऊं ऋं ॠं ऌं ॡं एं ऐं ओं औं अं अः क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल व श ष स ह ळ क्ष</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1396,945 1530,945 1530,875 1396,875" />
+			<TextLine id="line_6">
+				<Coords points="1396,945 1530,945 1530,875 1396,875" />
+				<TextEquiv>
+					<Unicode>यंत्र २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1490,980 1745,980 1745,892 1490,892" />
+			<TextLine id="line_7">
+				<Coords points="1490,980 1745,980 1745,892 1490,892" />
+				<TextEquiv>
+					<Unicode>अं आं इं ईं उं ऊं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1503,1278 1745,1278 1745,1138 1503,1138" />
+			<TextLine id="line_8">
+				<Coords points="1503,1278 1745,1278 1745,1138 1503,1138" />
+				<TextEquiv>
+					<Unicode>भूषणासिद्धिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1570,1068 1651,1068 1651,980 1570,980" />
+			<TextLine id="line_9">
+				<Coords points="1570,1068 1651,1068 1651,980 1570,980" />
+				<TextEquiv>
+					<Unicode>लं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1718,1138 1798,1138 1798,1068 1718,1068" />
+			<TextLine id="line_10">
+				<Coords points="1718,1138 1798,1138 1798,1068 1718,1068" />
+				<TextEquiv>
+					<Unicode>रं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1718,1330 1812,1330 1812,1242 1718,1242" />
+			<TextLine id="line_11">
+				<Coords points="1718,1330 1812,1330 1812,1242 1718,1242" />
+				<TextEquiv>
+					<Unicode>मं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1570,1418 1651,1418 1651,1330 1570,1330" />
+			<TextLine id="line_12">
+				<Coords points="1570,1418 1651,1418 1651,1330 1570,1330" />
+				<TextEquiv>
+					<Unicode>रं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1409,1330 1490,1330 1490,1242 1409,1242" />
+			<TextLine id="line_13">
+				<Coords points="1409,1330 1490,1330 1490,1242 1409,1242" />
+				<TextEquiv>
+					<Unicode>मं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1409,1155 1490,1155 1490,1068 1409,1068" />
+			<TextLine id="line_14">
+				<Coords points="1409,1155 1490,1155 1490,1068 1409,1068" />
+				<TextEquiv>
+					<Unicode>यं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="483,2170 604,2170 604,2082 483,2082" />
+			<TextLine id="line_15">
+				<Coords points="483,2170 604,2170 604,2082 483,2082" />
+				<TextEquiv>
+					<Unicode>यंत्र ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="604,2170 953,2170 953,2048 604,2048" />
+			<TextLine id="line_16">
+				<Coords points="604,2170 953,2170 953,2048 604,2048" />
+				<TextEquiv>
+					<Unicode>अं आं इं ईं उं ऊं ऋं ॠं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="711,2450 913,2450 913,2310 711,2310" />
+			<TextLine id="line_17">
+				<Coords points="711,2450 913,2450 913,2310 711,2310" />
+				<TextEquiv>
+					<Unicode>कंसासिद्धिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="752,2240 845,2240 845,2170 752,2170" />
+			<TextLine id="line_18">
+				<Coords points="752,2240 845,2240 845,2170 752,2170" />
+				<TextEquiv>
+					<Unicode>श्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="899,2310 966,2310 966,2240 899,2240" />
+			<TextLine id="line_19">
+				<Coords points="899,2310 966,2310 966,2240 899,2240" />
+				<TextEquiv>
+					<Unicode>यं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="926,2485 993,2485 993,2398 926,2398" />
+			<TextLine id="line_20">
+				<Coords points="926,2485 993,2485 993,2398 926,2398" />
+				<TextEquiv>
+					<Unicode>ओं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="778,2572 872,2572 872,2485 778,2485" />
+			<TextLine id="line_21">
+				<Coords points="778,2572 872,2572 872,2485 778,2485" />
+				<TextEquiv>
+					<Unicode>ओं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="644,2520 725,2520 725,2432 644,2432" />
+			<TextLine id="line_22">
+				<Coords points="644,2520 725,2520 725,2432 644,2432" />
+				<TextEquiv>
+					<Unicode>सां</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="617,2338 692,2338 692,2258 617,2258" />
+			<TextLine id="line_23">
+				<Coords points="617,2338 692,2338 692,2258 617,2258" />
+				<TextEquiv>
+					<Unicode>सं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1382,2100 1503,2100 1503,2012 1382,2012" />
+			<TextLine id="line_24">
+				<Coords points="1382,2100 1503,2100 1503,2012 1382,2012" />
+				<TextEquiv>
+					<Unicode>यंत्र ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1423,2188 1865,2188 1865,2030 1423,2030" />
+			<TextLine id="line_25">
+				<Coords points="1423,2188 1865,2188 1865,2030 1423,2030" />
+				<TextEquiv>
+					<Unicode>अं आं इं ईं उं ऊं ऋं ॠं ऌं ॡं एं ऐं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1530,2398 1691,2398 1691,2258 1530,2258" />
+			<TextLine id="line_26">
+				<Coords points="1530,2398 1691,2398 1691,2258 1530,2258" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1557,2222 1651,2222 1651,2135 1557,2135" />
+			<TextLine id="line_27">
+				<Coords points="1557,2222 1651,2222 1651,2135 1557,2135" />
+				<TextEquiv>
+					<Unicode>सं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1691,2282 1771,2282 1771,2205 1691,2205" />
+			<TextLine id="line_28">
+				<Coords points="1691,2282 1771,2282 1771,2205 1691,2205" />
+				<TextEquiv>
+					<Unicode>रं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1704,2468 1785,2468 1785,2380 1704,2380" />
+			<TextLine id="line_29">
+				<Coords points="1704,2468 1785,2468 1785,2380 1704,2380" />
+				<TextEquiv>
+					<Unicode>सीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1543,2555 1624,2555 1624,2468 1543,2468" />
+			<TextLine id="line_30">
+				<Coords points="1543,2555 1624,2555 1624,2468 1543,2468" />
+				<TextEquiv>
+					<Unicode>सिं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1409,2485 1498,2485 1498,2398 1409,2398" />
+			<TextLine id="line_31">
+				<Coords points="1409,2485 1498,2485 1498,2398 1409,2398" />
+				<TextEquiv>
+					<Unicode>स्टं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1423,2310 1498,2310 1498,2222 1423,2222" />
+			<TextLine id="line_32">
+				<Coords points="1423,2310 1498,2310 1498,2222 1423,2222" />
+				<TextEquiv>
+					<Unicode>सं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

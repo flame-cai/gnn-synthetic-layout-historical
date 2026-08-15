@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "circle_new",
+  "provider": {
+    "provider_id": "gemini",
+    "method_id": "gemini_e2e",
+    "display_name": "Gemini (End-to-End)",
+    "model_id": "gemini-3.5-flash",
+    "api_key_env": "GEMINI_API_KEY"
+  },
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "page_ids": [
+    "11",
+    "14",
+    "15",
+    "28",
+    "35",
+    "49",
+    "56",
+    "64",
+    "65"
+  ],
+  "page_count": 9,
+  "success_count": 9,
+  "failure_count": 0,
+  "max_retries_after_initial_attempt": 3,
+  "pages": {
+    "11": {
+      "status": "success",
+      "result_path": "pages/11/result.json",
+      "prediction_path": "pages/11/prediction.xml"
+    },
+    "14": {
+      "status": "success",
+      "result_path": "pages/14/result.json",
+      "prediction_path": "pages/14/prediction.xml"
+    },
+    "15": {
+      "status": "success",
+      "result_path": "pages/15/result.json",
+      "prediction_path": "pages/15/prediction.xml"
+    },
+    "28": {
+      "status": "success",
+      "result_path": "pages/28/result.json",
+      "prediction_path": "pages/28/prediction.xml"
+    },
+    "35": {
+      "status": "success",
+      "result_path": "pages/35/result.json",
+      "prediction_path": "pages/35/prediction.xml"
+    },
+    "49": {
+      "status": "success",
+      "result_path": "pages/49/result.json",
+      "prediction_path": "pages/49/prediction.xml"
+    },
+    "56": {
+      "status": "success",
+      "result_path": "pages/56/result.json",
+      "prediction_path": "pages/56/prediction.xml"
+    },
+    "64": {
+      "status": "success",
+      "result_path": "pages/64/result.json",
+      "prediction_path": "pages/64/prediction.xml"
+    },
+    "65": {
+      "status": "success",
+      "result_path": "pages/65/result.json",
+      "prediction_path": "pages/65/prediction.xml"
+    }
+  },
+  "written_at_utc": "2026-07-17T08:37:34.560698+00:00"
+}

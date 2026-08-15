@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "89f32f6f226acb06a570db26e894bfaec45c3a0e8abc4c0c67ad2b0a68052136",
+  "manuscript_id": "yajn",
+  "page_id": "233_0015",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "ba99c31dcfe993be49854eecae515d5e1088c37fa343d238d07dedcd1440aa34",
+  "pagexml_sha256": "fdcf472ccaecec2aa69cb5b7e09d2653f8ffd117c897a914c5da7dc73338d5c8",
+  "status": "api_error",
+  "error": "ValueError: vlm_json:233_0015:line_top_right: invalid polygon geometry.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 42.21899999999914,
+      "error": "ValueError: vlm_json:233_0015:line_top_2: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 39.0,
+      "error": "ValueError: vlm_json:233_0015:line_margin_top: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 30.32800000000134,
+      "error": "ValueError: vlm_json:233_0015:line_margin_top_right: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 4,
+      "status": "api_error",
+      "elapsed_seconds": 33.21899999999914,
+      "error": "ValueError: vlm_json:233_0015:line_top_right: invalid polygon geometry."
+    }
+  ],
+  "input_tokens": 14012,
+  "output_tokens": 11508,
+  "total_tokens": 25520,
+  "elapsed_seconds": 151.98500000000058,
+  "completed_at_utc": "2026-07-17T09:17:29.501498+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0015.jpg" imageWidth="2500" imageHeight="921">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="45,84 1102,84 1102,33 45,33" />
+			<TextLine id="line_0">
+				<Coords points="45,84 1102,84 1102,33 45,33" />
+				<TextEquiv>
+					<Unicode>वैदिककर्मभूतयज्ञः स्वधा पितृयज्ञः होमो देवयज्ञः अतिथिल नृयज्ञमनुष्ययज्ञः १=</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1255,138 2150,138 2150,47 1255,47" />
+			<TextLine id="line_1">
+				<Coords points="1255,138 2150,138 2150,47 1255,47" />
+				<TextEquiv>
+					<Unicode>प्रस्तौतोपस्तरि मसि ज... तोपधानमसि इत्यनेन ५=</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2148,204 2222,204 2222,136 2148,136" />
+			<TextLine id="line_2">
+				<Coords points="2148,204 2222,204 2222,136 2148,136" />
+				<TextEquiv>
+					<Unicode>15</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="178,174 350,174 350,113 178,113" />
+			<TextLine id="line_3">
+				<Coords points="178,174 350,174 350,113 178,113" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="315,280 2185,280 2185,196 315,196" />
+			<TextLine id="line_4">
+				<Coords points="315,280 2185,280 2185,196 315,196" />
+				<TextEquiv>
+					<Unicode>वैदिककर्मस्वधा होमस्वाध्यायातिथिसक्रियाः ॥ भूतयज्ञो मनुष्ययज्ञां महामखाः ॥ देवै</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="315,344 2190,344 2190,265 315,265" />
+			<TextLine id="line_5">
+				<Coords points="315,344 2190,344 2190,265 315,265" />
+				<TextEquiv>
+					<Unicode>भ्यश्च हुतादन्नाच्छेषाद्भूतवलिं हरेत् ॥ अन्नं भूमौ श्वचांडालवायसेभ्यश्च क्षिपेत् ॥ अन्नं पितृमनुष्ये</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="315,405 2190,405 2190,328 315,328" />
+			<TextLine id="line_6">
+				<Coords points="315,405 2190,405 2190,328 315,328" />
+				<TextEquiv>
+					<Unicode>भ्यो देयमप्यन्वहं जलं ॥ स्वाध्यायं चान्वहं कुर्यान्नैवेद्यन्नमात्मने ॥ बालखवासिनीवृद्धागर्भिण्यातुर</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="315,470 2190,470 2190,391 315,391" />
+			<TextLine id="line_7">
+				<Coords points="315,470 2190,470 2190,391 315,391" />
+				<TextEquiv>
+					<Unicode>कन्यकाः ॥ संभोज्यातिथिभिः सार्द्धं दंपत्योः शेषभोजनं ॥ प्राणान्नहोत्रविधिना भुंजीत अन्नम</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="315,533 2190,533 2190,458 315,458" />
+			<TextLine id="line_8">
+				<Coords points="315,533 2190,533 2190,458 315,458" />
+				<TextEquiv>
+					<Unicode>घापहं ॥ स्नातो विमुक्तकचश्चित्तमक्षतप्रीतिपूर्वकं ॥ आपोशानेनोपरिष्टाद्दद्यादम्मृतातप्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="315,599 2190,599 2190,524 315,524" />
+			<TextLine id="line_9">
+				<Coords points="315,599 2190,599 2190,524 315,524" />
+				<TextEquiv>
+					<Unicode>अन्नग्नममतं चैव कार्यमन्ने द्विजन्मना ॥ अतिथित्वेन वरीयान्प्रादेयश्चानुपूर्वशः ॥ प्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="308,665 2175,665 2175,589 308,589" />
+			<TextLine id="line_10">
+				<Coords points="308,665 2175,665 2175,589 308,589" />
+				<TextEquiv>
+					<Unicode>प्रणोद्योतिथिः सायमपि वाग्नूत् सृष्टोदकैः ॥ सकृत् सन्निहितेन स्यादातव्या सुव्रता पञ्चाग्नी</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="308,731 2195,731 2195,655 308,655" />
+			<TextLine id="line_11">
+				<Coords points="308,731 2195,731 2195,655 308,655" />
+				<TextEquiv>
+					<Unicode>जयेद्वागतान्काले सखिसंबंधिबांधवान् ॥ प्ररोचनं महाजवाद्यो श्रिया चोपकल्पयेत् ॥ सकृ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="45,630 278,630 278,587 45,587" />
+			<TextLine id="line_12">
+				<Coords points="45,630 278,630 278,587 45,587" />
+				<TextEquiv>
+					<Unicode>प्रप्रत्याख्येयः २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_6" custom="region_6">
+			<Coords points="45,702 302,702 302,655 45,655" />
+			<TextLine id="line_13">
+				<Coords points="45,702 302,702 302,655 45,655" />
+				<TextEquiv>
+					<Unicode>मातृपितृसंबंध्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="2292,321 2365,321 2365,269 2292,269" />
+			<TextLine id="line_14">
+				<Coords points="2292,321 2365,321 2365,269 2292,269" />
+				<TextEquiv>
+					<Unicode>श्र २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_8" custom="region_8">
+			<Coords points="2208,420 2458,420 2458,339 2208,339" />
+			<TextLine id="line_15">
+				<Coords points="2208,420 2458,420 2458,339 2208,339" />
+				<TextEquiv>
+					<Unicode>प्रणीता पितृका हेत्विता ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_9" custom="region_9">
+			<Coords points="2238,644 2400,644 2400,535 2238,535" />
+			<TextLine id="line_16">
+				<Coords points="2238,644 2400,644 2400,535 2238,535" />
+				<TextEquiv>
+					<Unicode>निवारणीयः ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

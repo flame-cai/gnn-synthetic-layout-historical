@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="sa-IN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+body {
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: white !important;
+    width: 100% !important;
+    font-family: serif;
+}
+
+.page-body-container {
+    background-color: white;
+    width: 210mm;
+    margin: 0 auto;
+    padding: 20mm 15mm;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+
+p.paragraph, .paragraph, .block, .quote, .ordered-list, .unordered-list,
+.advertisement, .answer, .contact-info, .index, .options,
+.reference, .unknown, .sidebar, .footnote {
+    text-align: justify !important;
+    text-align-last: left !important;
+    text-justify: inter-word !important;
+    font-size: inherit !important;
+    line-height: 1.3 !important;
+    margin: 0 0 12pt 0 !important;
+    text-indent: 18pt !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+
+.quote, .ordered-list, .unordered-list, .sidebar, .footnote {
+    text-indent: 0 !important;
+}
+
+.multi-column-row { font-size: 12pt; }
+.multi-column-row.cols-1 { font-size: 12pt; }
+.multi-column-row.cols-2 { font-size: 11pt; gap: 18pt; }
+.multi-column-row.cols-3 { font-size: 10pt; gap: 16pt; }
+.multi-column-row.cols-4 { font-size: 9pt; gap: 12pt; }
+
+.page-body-container > p.paragraph,
+.page-body-container > .paragraph {
+    font-size: 12pt !important;
+}
+
+h1.chapter-title {
+    font-size: 30pt !important;
+    line-height: 1.1 !important;
+    margin: 0 0 12pt 0 !important;
+    text-align: center !important;
+    font-weight: bold;
+}
+
+h2.section-title, h2.headline {
+    font-size: 18pt !important;
+    line-height: 1.1 !important;
+    margin: 12pt 0 8pt 0 !important;
+    text-align: center !important;
+    font-weight: bold;
+}
+
+h3.sub-section-title, h3.sub-headline,
+h4.subsub-section-title, h4.subsub-headline {
+    font-size: 13pt !important;
+    line-height: 1.25 !important;
+    margin: 12pt 0 4pt 0 !important;
+    text-align: center !important;
+    font-weight: bold;
+}
+
+.multi-column-row {
+    width: 100% !important;
+    margin: 12pt 0 !important;
+    display: grid;
+}
+
+.column-block {
+    text-align: left !important;
+    text-align-last: left !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-width: 0;
+    overflow-wrap: break-word;
+    width: 100%;
+}
+
+.column-block p {
+    text-indent: 0 !important;
+    margin-bottom: 8pt !important;
+    font-size: inherit !important;
+}
+
+.column-block p br {
+    display: none;
+}
+
+.centered-block {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 12pt 0;
+}
+
+.centered-block > * {
+    text-align: center !important;
+    font-size: 13pt !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    text-indent: 0 !important;
+}
+
+.table {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 18pt 0;
+}
+
+.table table {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-collapse: collapse;
+    border: 1.5pt solid #333;
+    table-layout: auto;
+    font-size: 11pt;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+}
+
+.table table td,
+.table table th {
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: manual;
+    white-space: normal;
+    vertical-align: top;
+    padding: 6pt 8pt;
+    font-size: inherit;
+    border: 0.5pt solid #333;
+    text-align: left;
+}
+
+.table table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1pt solid #333;
+}
+
+.table table td.numeric,
+.table table th.numeric {
+    text-align: right;
+}
+
+.table table td.nowrap,
+.table table th.nowrap {
+    white-space: nowrap;
+}
+
+/* Subtle zebra striping improves scannability on multi-row receipts. */
+.table table tbody tr:nth-child(even) td {
+    background-color: #fafafa;
+}
+
+/* Emphasise totals rows. A ``tfoot`` is the semantic ideal, but most OCR
+   outputs use a bold-labelled final ``tr``, so we cover both forms. */
+.table table tfoot td,
+.table table tfoot th,
+.table table tr:last-child td:has(b),
+.table table tr:last-child td:has(strong) {
+    border-top: 1pt solid #333;
+    font-weight: bold;
+    background-color: #f2f2f2;
+}
+
+.column-block .table {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 12pt 0;
+}
+
+.column-block .table table {
+    width: 100% !important;
+    table-layout: auto;
+    margin: 0;
+    border-collapse: collapse;
+    border: 1.5pt solid #333;
+    font-variant-numeric: tabular-nums;
+}
+
+.column-block .table table td,
+.column-block .table table th {
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: manual;
+    white-space: normal;
+    vertical-align: top;
+    padding: 6pt;
+    font-size: 10pt;
+    border: 0.5pt solid #333;
+    text-align: left;
+}
+
+.column-block .table table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1pt solid #333;
+}
+
+.column-block .table table td.numeric,
+.column-block .table table th.numeric {
+    text-align: right;
+}
+
+.column-block .table table td.nowrap,
+.column-block .table table th.nowrap {
+    white-space: nowrap;
+}
+
+.column-block .table table tbody tr:nth-child(even) td {
+    background-color: #fafafa;
+}
+
+.column-block .table table tfoot td,
+.column-block .table table tfoot th,
+.column-block .table table tr:last-child td:has(b),
+.column-block .table table tr:last-child td:has(strong) {
+    border-top: 1pt solid #333;
+    font-weight: bold;
+    background-color: #f2f2f2;
+}
+
+.quote {
+    font-size: 13pt !important;
+    margin: 0 0 0 0 !important;
+    padding: 0 20px !important;
+    font-style: italic;
+    border-left: 3px solid #ccc;
+    text-align: justify !important;
+    text-indent: 0 !important;
+}
+
+.ordered-list, .unordered-list {
+    font-size: inherit !important;
+    margin: 0 0 0 0 !important;
+    padding-left: 40px !important;
+    text-align: justify !important;
+    text-indent: 0 !important;
+}
+
+.sub-ordered-list, .sub-unordered-list {
+    font-size: inherit !important;
+    margin: 0 0 0 0 !important;
+    padding-left: 60px !important;
+    text-align: justify !important;
+    text-indent: 0 !important;
+}
+
+.subsub-ordered-list, .subsub-unordered-list {
+    font-size: inherit !important;
+    margin: 0 0 0 0 !important;
+    padding-left: 80px !important;
+    text-align: justify !important;
+    text-indent: 0 !important;
+}
+
+.image, .chart, .diagram, .photograph {
+    margin: 16px auto;
+    text-align: center;
+    max-width: 100% !important;
+}
+
+.image img, .chart img, .diagram img, .photograph img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+}
+
+.chart {
+    border: 2px solid #4a90d9;
+    padding: 8px;
+    background-color: #f8fafc;
+}
+
+.diagram {
+    border: 2px solid #6b7280;
+    padding: 8px;
+    background-color: #f9fafb;
+}
+
+.photograph {
+    border: 2px solid #059669;
+    padding: 4px;
+    background-color: #f0fdf4;
+}
+
+.image-caption {
+    font-style: italic;
+    margin: 8px auto;
+    text-align: center;
+    max-width: 100% !important;
+}
+
+.header, .footer {
+    font-size: 13pt !important;
+    margin: 12px auto;
+    text-align: center;
+    max-width: 100% !important;
+}
+
+.sidebar {
+    font-size: inherit !important;
+    margin: 12px auto;
+    padding: 10px;
+    background-color: #f5f5f5;
+    text-align: justify !important;
+    text-indent: 0 !important;
+}
+
+.footnote {
+    font-size: inherit !important;
+    margin: 8px auto;
+    padding-left: 20px;
+    text-align: justify !important;
+    text-indent: 0 !important;
+}
+
+hr.footnote-separator {
+    border: none;
+    border-top: 1px solid #999;
+    width: 40%;
+    margin: 16px 0 8px 0;
+}
+
+a.footnote-ref {
+    color: inherit;
+    text-decoration: none;
+}
+
+a.footnote-ref:hover {
+    text-decoration: underline;
+}
+
+.advertisement, .answer, .contact-info, .index, .options,
+.reference, .unknown {
+    font-size: inherit !important;
+    margin: 0 0 12pt 0 !important;
+    text-align: justify !important;
+}
+
+.author, .dateline, .flag, .formula, .jumpline,
+.page-number, .folio, .website-link,
+.first-level-question, .second-level-question, .third-level-question {
+    font-size: inherit !important;
+    margin: 12px auto;
+    text-align: center;
+    max-width: 100% !important;
+    text-indent: 0 !important;
+}
+    </style>
+</head>
+<body>
+<div class="page-body-container">
+<div class="multi-column-row cols-2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));">
+<div class="column-block" style="grid-column: 1;">
+<p class="page-number">२४</p>
+</div>
+<div class="column-block" style="grid-column: 2;">
+<h2 class="section-title">ग्रंथकर्तृभिः</h2>
+</div>
+</div>
+<p class="paragraph">उक्तचतार्षपां तिथि२प्राश्चिष्ठुक्लदशम्पा=३<br/>
+धनेलेचियत्तैलं साभिजिच्छस्तापौत्समानदुक्तममुखैः कार्यापरेमिबुधैः ३६ भद्रासंक्रमपातवैधृतिसितेज्या<br/>
+प्रभवासितंद्रयां कीरबस्थादिषुश्राहे‘प्रतिपद्यये७।न।९।१।११।१२।१३।१४।३।१५।१२परिहरेद्वेतुंविनाभ्यंजनें<br/>
+तरयुतं चापि नटु मांगला विजयोन्सवोऽवरनंदीपावलीहितवौम्पंगस्पकैथितादितैलमंनसन्निद्यैर्हि‘नित्यै<br/>
+खविलं ३७ दिग्विश्र-प्रा१३दि०९६२गंक९दर्शी३तिथिमूस्नानैनधात्रीफलैःश्रीकामोर्थ<br/>
+वीभौमवारेचम बुधावुपर्धीपि तथाभ्यंगात्यनि ‘गना’ पुत्रीसोमहिनेप्रसर्यमथितत्वाकेन्द्रमिश्त्रावुप<br/>
+कव्यादेश्वरमेकुपुत्रहारजेस्वायानिशास्तेपिच’ ३८ मदारान्नदिनैमडुध्रुवचरचिप्रैर्वलेनदोसुधायो<br/>
+स्वानसुखात्महं=३ जैमेयजमाचरैस्तमुत्तिकेंद्रारिवयोगैमिअकू’ तद्दद्यादिहविद्भवेदुतनयप्रद्योतनैरोजिणोऽसकृाव<br/>
+व्रणकर्मसूर्यकुनपौःरहीहैकेन्द्रेस्थयोः * वाम्याहित्रयवामूलजलपोपानेंद्रहस्तावुमैशगत्यार्जद्विपयोः<br/>
+नृपै१हूर्नवर्दिनैरन्यरुग्णाविरुकू’ प्रादियाघनिलघ्वंत्यपितरमेंक्रेंदुवारैगदत्यक्तस्नानर्मिष्टे<br/>
+मिष्टमश्रमेभादौरवलास्तस्थिरे ४० द्रव्यंसमवहातो लघुचरैर्योग्येचरागेवुधैधर्माष्टा ०मजगर्थेत<br/>
+कुत्सितं पुत्रस्थानं यस्मिनेतदृशेलग्नेविच=५ पुनर्वसुः=२२प्रोमधं=४ हवींकेफ्रवद्विधिरविचाररहिते=४<br/>
+पेखुजोक्तकाले=३ ५६कजयोः=४ मेखत्यारोगमुक्ति=२ देवेग्राहादिविषहर=१<br/>
+* शांत्यारोगमुक्तिस्प</p>
+<p class="paragraph">नित्तल्यमेसर्वं<br/>
+तेशुभं=२</p>
+<p class="paragraph">प्रसतिश्री</p>
+<p class="paragraph">ਸੁਮ=੩</p>
+<p class="paragraph">भुक्तपत्ते=५<br/>
+अप्रतयोगे=५</p>
+<p class="paragraph">शान्त्या रोगमुक्तिस्पातू = ३</p>
+</div>
+</body>
+</html>

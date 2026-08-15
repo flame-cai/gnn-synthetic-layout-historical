@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0015.jpg" imageWidth="2500" imageHeight="921">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नकर्मभूतयतःस्वधापित्रयज्ञःहोमोदेवयज्ञःप्रतिष्ठितकृपानमन्ययज्ञः१=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रम तोपसभ्रमेसिज* तोपधानमसीइत्पनेन ५=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वत्नकर्मस्वधाहोमस्वाध्यायातिथिसक्रियाः॥भूतपत्रमरखलमन्नूपाणाममहामखाः॥देवे</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>न्यग्रहतादन्नाच्छेषाद्भूतवलंहरेर॥अन्नभूमौश्चचांडालवापसेत्यनक्षिपेत॥अन्नं पित्तमनुषे</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ज्योदेयमप्यन्वहंजलं॥स्वाध्यायंचान्वहंकुर्यान्नपचेन्नमात्मने॥वालस्ववासिनीवद्भागभिराया</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>तुरकम्पकाः॥संनोसातिथिन्याश्रंदंपलोरोषनेजनं॥प्राणाग्निहोत्रविधिनालंजीतन्नम</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>घापहं॥अतविष्णुकंचहितंनक्षत्रतीतिपूर्वकं॥आपोष्णानेनोपरिष्टादधस्थादश्नतातथा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रनग्नममंतचैवकार्यमन्नंदिजन्मना॥अतिथिलेनबर्हिणीयेयंश्राननुपूर्वशः॥प्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रणोद्योतिथिःसायमपिवाग्भूत्तरोदकैः॥सकलसन्निवेशैज्ञादातनकालवतापच॥जो</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जपेद्रागताकाशलेमखिसंवंधिवांघवान्॥प्रहोत्रंवामहाजवाश्नीयायोपकल्पयेत्॥सत्क</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>আর</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रणीता पितृ-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>हस्तिनाः ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_14">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नमिबार</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_15">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रणीपः३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "status": "json_schema_error",
+  "elapsed_seconds": 31.25,
+  "error": "AdapterError: json_schema_error"
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "dba41a8444a2cee1473bff7df16db619e2829d1aaecef155c2bef6585b38f7d0",
+  "manuscript_id": "yajn",
+  "page_id": "233_0009",
+  "provider_id": "gemini",
+  "method_id": "gemini_e2e",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "4bec1fba68928e5729ed89824b076d5b49b5e7c3a6a4d9fad71af89132e610a1",
+  "pagexml_sha256": "7bd7175fb6718e49910b4b51479c4afdfb0c4cbd3cb4c0e661929323bd9019f2",
+  "status": "success",
+  "error": null,
+  "attempt_count": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "json_parse_error",
+      "elapsed_seconds": 11.155999999999949,
+      "error": "AdapterError: json_parse_error"
+    },
+    {
+      "attempt": 2,
+      "status": "success",
+      "elapsed_seconds": 13.82799999999952,
+      "input_tokens": 1455,
+      "output_tokens": 1207,
+      "total_tokens": 5331,
+      "response_id": "uehZatLSE7S1juMPy7nM2AM",
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 2910,
+  "output_tokens": 2168,
+  "total_tokens": 9628,
+  "elapsed_seconds": 26.01600000000053,
+  "completed_at_utc": "2026-07-17T08:33:10.299561+00:00",
+  "prediction_path": "prediction.xml"
+}

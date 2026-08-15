@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "953c070557e5c43be57859a0624b1dfad3eb6e832ef8190b1456d4bee18b1936",
+  "manuscript_id": "circle_new",
+  "page_id": "28",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "ce8d1536deecfbde44a85b5fab2ac8124f5ab6755ecbf55473a936ba8358eeaf",
+  "pagexml_sha256": "53040dc1e765ff8f44ed130a91bce54af08a9e4f331712624b9c3a93798755a2",
+  "status": "api_error",
+  "error": "ValueError: vlm_json:28:line_11: invalid polygon geometry.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 40.57800000000134,
+      "error": "ValueError: vlm_json:28:line_circle_outer: invalid polygon geometry."
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 29.21900000000096,
+      "error": "ValueError: vlm_json:28:line_circular_outer: invalid polygon geometry."
+    },
+    {
+      "attempt": 3,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.20299999999952,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 4,
+      "status": "api_error",
+      "elapsed_seconds": 42.82800000000134,
+      "error": "ValueError: vlm_json:28:line_11: invalid polygon geometry."
+    }
+  ],
+  "input_tokens": 15819,
+  "output_tokens": 10851,
+  "total_tokens": 26670,
+  "elapsed_seconds": 165.5,
+  "completed_at_utc": "2026-07-17T09:26:28.766138+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

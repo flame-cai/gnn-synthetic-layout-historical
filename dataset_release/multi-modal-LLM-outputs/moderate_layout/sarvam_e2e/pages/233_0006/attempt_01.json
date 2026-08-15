@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "status": "html_parse_error",
+  "elapsed_seconds": 8.71899999998277,
+  "error": "AdapterError: html_parse_error"
+}

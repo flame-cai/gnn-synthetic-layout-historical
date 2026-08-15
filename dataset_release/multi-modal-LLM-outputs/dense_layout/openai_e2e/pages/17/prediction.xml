@@ -1,0 +1,284 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="17.jpg" imageWidth="3500" imageHeight="1511">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="518,329 3420,329 3420,243 518,243" />
+			<TextLine id="line_0">
+				<Coords points="518,329 3420,329 3420,243 518,243" />
+				<TextEquiv>
+					<Unicode>त्रयोदशमे कोटि उपगे सोमदेवमध्यमे चैव स्तोत्रे के कुचोऽभयोऽऽस्त्रयोऽभि।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="518,426 3409,426 3409,338 518,338" />
+			<TextLine id="line_1">
+				<Coords points="518,426 3409,426 3409,338 518,338" />
+				<TextEquiv>
+					<Unicode>हिनः तद् ऋषयोऽभ्युद्युक्ताः स्वेधर्मपतये हि यः स्वप्नेऽप्युपेत्य तद् कथितं किं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="511,529 3437,529 3437,437 511,437" />
+			<TextLine id="line_2">
+				<Coords points="511,529 3437,529 3437,437 511,437" />
+				<TextEquiv>
+					<Unicode>श्रेयं विप्रस्य मध्यस्माधिकस्याध्येऽपि चेतोऽस्ते के पतिहस्तस्य च दुःखस्य च केऽपि।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="508,627 3440,627 3440,535 508,535" />
+			<TextLine id="line_3">
+				<Coords points="508,627 3440,627 3440,535 508,535" />
+				<TextEquiv>
+					<Unicode>काम्या हेतवोऽभवन्निति केन चिरं यथा सुमुखाः प्रीताः तु सोम्यादिव्यधनस्तलेखितेऽभ्ये</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="518,722 3437,722 3437,635 518,635" />
+			<TextLine id="line_4">
+				<Coords points="518,722 3437,722 3437,635 518,635" />
+				<TextEquiv>
+					<Unicode>दुःखो हि काम्योऽस्ति नान्यधनानि यथैव प्रीतानि। कयाचित् तत्र सिद्धस्य स्वदेशभिन्नां</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="522,822 3430,822 3430,731 522,731" />
+			<TextLine id="line_5">
+				<Coords points="522,822 3430,822 3430,731 522,731" />
+				<TextEquiv>
+					<Unicode>नो मुखा दुर्विधातनोऽप्याहृतोऽपि मम प्रीतेः कोऽप्येष कथंऽभ्यधीत। तद् लोकस्यापि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="508,919 3434,919 3434,827 508,827" />
+			<TextLine id="line_6">
+				<Coords points="508,919 3434,919 3434,827 508,827" />
+				<TextEquiv>
+					<Unicode>स्वप्ने तस्मिन्निद्रायां प्रविष्टे रात्रौ तत्रैव च तस्याः सत्त्वोऽभवदिति।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="518,1017 3437,1017 3437,923 518,923" />
+			<TextLine id="line_7">
+				<Coords points="518,1017 3437,1017 3437,923 518,923" />
+				<TextEquiv>
+					<Unicode>रक्तोदितेऽपि शुक्लवर्णेऽभवद् आकर्ण्य कृतकर्मणोऽपि पण्डिताः श्रोतुमागताः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1169,141 1572,141 1572,101 1169,101" />
+			<TextLine id="line_0">
+				<Coords points="1169,141 1572,141 1572,101 1169,101" />
+				<TextEquiv>
+					<Unicode>स्वरूपं च पद्धति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1645,168 2569,168 2569,128 1645,128" />
+			<TextLine id="line_1">
+				<Coords points="1645,168 2569,168 2569,128 1645,128" />
+				<TextEquiv>
+					<Unicode>कन्द्याशुद्धश्च निवृत्तवर्णीयः २।१२।५१८—</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1536,218 2026,218 2026,178 1536,178" />
+			<TextLine id="line_2">
+				<Coords points="1536,218 2026,218 2026,178 1536,178" />
+				<TextEquiv>
+					<Unicode>उपधा—१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="2286,218 2670,218 2670,180 2286,180" />
+			<TextLine id="line_3">
+				<Coords points="2286,218 2670,218 2670,180 2286,180" />
+				<TextEquiv>
+					<Unicode>अन्यधातुकः=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="2902,228 3290,228 3290,190 2902,190" />
+			<TextLine id="line_4">
+				<Coords points="2902,228 3290,228 3290,190 2902,190" />
+				<TextEquiv>
+					<Unicode>वैशेषिकवृत्तिः=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1211,586 1589,586 1589,542 1211,542" />
+			<TextLine id="line_0">
+				<Coords points="1211,586 1589,586 1589,542 1211,542" />
+				<TextEquiv>
+					<Unicode>शब्दः=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1200,629 1642,629 1642,585 1200,585" />
+			<TextLine id="line_1">
+				<Coords points="1200,629 1642,629 1642,585 1200,585" />
+				<TextEquiv>
+					<Unicode>विप्रश्च=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1197,688 1785,688 1785,647 1197,647" />
+			<TextLine id="line_2">
+				<Coords points="1197,688 1785,688 1785,647 1197,647" />
+				<TextEquiv>
+					<Unicode>सुप्रकाशप्रभेद=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1225,737 1904,737 1904,697 1225,697" />
+			<TextLine id="line_3">
+				<Coords points="1225,737 1904,737 1904,697 1225,697" />
+				<TextEquiv>
+					<Unicode>दर्शनेनरहिताः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1197,848 2320,848 2320,799 1197,799" />
+			<TextLine id="line_4">
+				<Coords points="1197,848 2320,848 2320,799 1197,799" />
+				<TextEquiv>
+					<Unicode>इन्द्रियविषयवती रतिः प्रत्यक्षम्=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1288,943 2670,943 2670,893 1288,893" />
+			<TextLine id="line_5">
+				<Coords points="1288,943 2670,943 2670,893 1288,893" />
+				<TextEquiv>
+					<Unicode>विद्यावतेः क्रमात्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2674,1000 3202,1000 3202,955 2674,955" />
+			<TextLine id="line_6">
+				<Coords points="2674,1000 3202,1000 3202,955 2674,955" />
+				<TextEquiv>
+					<Unicode>विवेकिनेऽपि=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2786,1049 3174,1049 3174,1002 2786,1002" />
+			<TextLine id="line_7">
+				<Coords points="2786,1049 3174,1049 3174,1002 2786,1002" />
+				<TextEquiv>
+					<Unicode>लोकान्तरवृत्तिः=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2898,1112 3332,1112 3332,1067 2898,1067" />
+			<TextLine id="line_8">
+				<Coords points="2898,1112 3332,1112 3332,1067 2898,1067" />
+				<TextEquiv>
+					<Unicode>परस्परनिरपेक्षः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2891,1170 3216,1170 3216,1127 2891,1127" />
+			<TextLine id="line_9">
+				<Coords points="2891,1170 3216,1170 3216,1127 2891,1127" />
+				<TextEquiv>
+					<Unicode>दशत्वाद्भवति।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2968,1219 3314,1219 3314,1171 2968,1171" />
+			<TextLine id="line_10">
+				<Coords points="2968,1219 3314,1219 3314,1171 2968,1171" />
+				<TextEquiv>
+					<Unicode>विसंयोगः=८</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1200,160 1642,160 1642,121 1200,121" />
+			<TextLine id="line_0">
+				<Coords points="1200,160 1642,160 1642,121 1200,121" />
+				<TextEquiv>
+					<Unicode>प्रमेयः=१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1186,204 1687,204 1687,162 1186,162" />
+			<TextLine id="line_1">
+				<Coords points="1186,204 1687,204 1687,162 1186,162" />
+				<TextEquiv>
+					<Unicode>प्रयोजनमिति=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1281,246 1830,246 1830,207 1281,207" />
+			<TextLine id="line_2">
+				<Coords points="1281,246 1830,246 1830,207 1281,207" />
+				<TextEquiv>
+					<Unicode>स्वभावविशेषे=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1200,296 1928,296 1928,254 1200,254" />
+			<TextLine id="line_3">
+				<Coords points="1200,296 1928,296 1928,254 1200,254" />
+				<TextEquiv>
+					<Unicode>दर्शनरहितेऽभ्यः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="2538,553 2538,592 3003,592 3003,553" />
+			<TextLine id="line_0">
+				<Coords points="2538,553 2538,592 3003,592 3003,553" />
+				<TextEquiv>
+					<Unicode>इन्द्रियविषयसंसर्गे</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="2272,642 2835,642 2835,603 2272,603" />
+			<TextLine id="line_1">
+				<Coords points="2272,642 2835,642 2835,603 2272,603" />
+				<TextEquiv>
+					<Unicode>उपलभ्यतेऽभूत्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="2292,692 3017,692 3017,653 2292,653" />
+			<TextLine id="line_2">
+				<Coords points="2292,692 3017,692 3017,653 2292,653" />
+				<TextEquiv>
+					<Unicode>केवलानुभवः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

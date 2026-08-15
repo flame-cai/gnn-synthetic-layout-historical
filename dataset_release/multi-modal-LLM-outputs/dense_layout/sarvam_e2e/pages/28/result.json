@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "81e0d3aed05bdc4b89c36f2f6f8ef78135aacf6eb057a1143d249cc9e22f7d2c",
+  "manuscript_id": "dense",
+  "page_id": "28",
+  "provider_id": "sarvam",
+  "method_id": "sarvam_e2e",
+  "model_id": "sarvam-vision",
+  "prompt_sha256": null,
+  "image_sha256": "5cbaed5d893e669b934461574a0c97a427fb542cd9c0a5f0360de594a85ee8f8",
+  "pagexml_sha256": "a549876f03986f7a72893d01956273fa9dc0c76968760e8ed8b5fd1684dbceb1",
+  "status": "success",
+  "error": null,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "success",
+      "elapsed_seconds": 8.73399999999674,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": "20260720_e684aa4d-5a05-422e-acf0-55707d6e8321",
+      "finish_reason": "Completed"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "elapsed_seconds": 44.35899999999674,
+  "completed_at_utc": "2026-07-20T08:26:03.359494+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2,
+  "output_adapter_id": "sarvam_html_text_lines_v1",
+  "readaptation": {
+    "completed_at_utc": "2026-07-20T08:58:32.814885+00:00",
+    "source_response_path": "attempt_01_response.txt",
+    "previous_status": "success",
+    "status": "success",
+    "text_line_count": 23,
+    "api_request_performed": false
+  }
+}

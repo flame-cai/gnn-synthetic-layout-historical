@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "12a6e2ba905868be17d36968390b23878be9934887cd7f9b40436ed0e61c6722",
+  "manuscript_id": "yajn",
+  "page_id": "233_0007",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "8e0fd8f749660290137a727423c82ed8deb94178a231a0e9c9fbcc636f78fdfe",
+  "pagexml_sha256": "43159ca7f22285003996af470cb54f86bc50e9b3a8454b1fac4140d3c41047c6",
+  "status": "success",
+  "error": null,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "success",
+      "elapsed_seconds": 14.093562199996086,
+      "input_tokens": 2150,
+      "output_tokens": 703,
+      "total_tokens": 5407,
+      "response_id": null,
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 2150,
+  "output_tokens": 703,
+  "total_tokens": 5407,
+  "elapsed_seconds": 14.098265299980994,
+  "completed_at_utc": "2026-07-25T04:24:36.343275+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 1,
+  "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+  "grounding_layout": "ground_truth_pagexml_baselines"
+}

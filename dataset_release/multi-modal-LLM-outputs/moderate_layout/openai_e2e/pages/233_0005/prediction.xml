@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0005.jpg" imageWidth="2500" imageHeight="967">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="342,276 362,292 2235,277 2248,253 2215,234 365,227 348,232" />
+			<TextLine id="line_0">
+				<Coords points="342,276 362,292 2235,277 2248,253 2215,234 365,227 348,232" />
+				<TextEquiv>
+					<Unicode>क्लेशेवैवमिदं श्रीः श्रीरघुनाथश्च काश्चिद्योगिच्छाप्रवृत्त्यैव जीवितप्राणाः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="330,351 342,369 2355,349 2365,321 2315,300 352,295 335,302" />
+			<TextLine id="line_1">
+				<Coords points="330,351 342,369 2355,349 2365,321 2315,300 352,295 335,302" />
+				<TextEquiv>
+					<Unicode>शार्ङ्गादीनां व्याधिनपूर्वकं॥ अभिषेचनसुखकोऽपि रव्युपास्यते॥ प्राणोऽप्यक्रमेणैव</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="58,439 372,454 2360,425 2375,392 2328,377 365,373 62,385" />
+			<TextLine id="line_2">
+				<Coords points="58,439 372,454 2360,425 2375,392 2328,377 365,373 62,385" />
+				<TextEquiv>
+					<Unicode>वक्राश्रितेषु वेदनादेवताज्ञातकोऽसौ नासावेदनी प्रलेपान्तरकौ दानिनास्यश्चास्य प्रातरेव हिन्तेऽत्रार्थदृश्यं स्वविषमुद्रः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="350,509 362,525 2200,510 2218,474 2152,459 378,455 355,466" />
+			<TextLine id="line_3">
+				<Coords points="350,509 362,525 2200,510 2218,474 2152,459 378,455 355,466" />
+				<TextEquiv>
+					<Unicode>कासास्रशेषकाष्ठिनतः कृमिदोषैर्विरुद्धी रुधिरेषु चापि॥ नतो हि स्वोऽथ चेद्दोषजान् तिलिप्त्यत्र॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="342,585 362,604 2245,574 2265,543 2208,529 378,526 350,535" />
+			<TextLine id="line_4">
+				<Coords points="342,585 362,604 2245,574 2265,543 2208,529 378,526 350,535" />
+				<TextEquiv>
+					<Unicode>कृच्छ्रेणाप्युपासीताध्यायार्धकसनाथेः॥ अत्रेन्द्रप्राणवृत्तिः पीतश्चास्य रक्षोऽपि चैतन्ये॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="345,656 370,673 2278,655 2302,623 2252,605 382,600 355,611" />
+			<TextLine id="line_5">
+				<Coords points="345,656 370,673 2278,655 2302,623 2252,605 382,600 355,611" />
+				<TextEquiv>
+					<Unicode>द्वेन्द्रियैर्विमुक्तोऽतो काचकर्मणः॥ इन्द्रगोद्वैवधर्मेण कृतकस्योपकारः॥ अत्राध्यायश्री</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="348,727 368,747 2248,726 2275,692 2212,675 382,669 355,678" />
+			<TextLine id="line_6">
+				<Coords points="348,727 368,747 2248,726 2275,692 2212,675 382,669 355,678" />
+				<TextEquiv>
+					<Unicode>तदनुष्ठानकृतोऽवेदनेन च॥ इदानीं पञ्चिनिर्मलतेनैव चारेऽधरोऽत्रेदं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="370,201 570,198 568,140 368,143" />
+			<TextLine id="line_0">
+				<Coords points="370,201 570,198 568,140 368,143" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2068,191 2088,200 2130,194 2125,145 2080,149" />
+			<TextLine id="line_0">
+				<Coords points="2068,191 2088,200 2130,194 2125,145 2080,149" />
+				<TextEquiv>
+					<Unicode>५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

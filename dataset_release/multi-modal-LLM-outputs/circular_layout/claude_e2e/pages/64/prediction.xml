@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="64.jpg" imageWidth="2540" imageHeight="3500">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="589,2642 630,2642 630,822 589,822" />
+			<TextLine id="line_0">
+				<Coords points="589,2642 630,2642 630,822 589,822" />
+				<TextEquiv>
+					<Unicode>दशमे पटले श्लोक २४ निग्रहानुग्रह वीजोद्धारः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="589,2450 706,2450 706,910 589,910" />
+			<TextLine id="line_1">
+				<Coords points="589,2450 706,2450 706,910 589,910" />
+				<TextEquiv>
+					<Unicode>तत्र क्रों श्रीं क्रों ब्लूं इत्येते निग्रहः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="589,2380 777,2380 777,1008 589,1008" />
+			<TextLine id="line_2">
+				<Coords points="589,2380 777,2380 777,1008 589,1008" />
+				<TextEquiv>
+					<Unicode>अं ह्रीं ह्रीं स्वाहा इत्येतेरनुग्रहः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="589,2520 848,2520 848,1099 589,1099" />
+			<TextLine id="line_3">
+				<Coords points="589,2520 848,2520 848,1099 589,1099" />
+				<TextEquiv>
+					<Unicode>दशमे पटले श्लोक २५ यंत्र विशेष रचनियम</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="241,1155 381,1155 381,1008 241,1008" />
+			<TextLine id="line_4">
+				<Coords points="241,1155 381,1155 381,1008 241,1008" />
+				<TextEquiv>
+					<Unicode>४२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="254,1225 381,1225 381,1113 254,1113" />
+			<TextLine id="line_5">
+				<Coords points="254,1225 381,1225 381,1113 254,1113" />
+				<TextEquiv>
+					<Unicode>42</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1168,1820 1219,1890 1270,1785 1194,1715" />
+			<TextLine id="line_6">
+				<Coords points="1168,1820 1219,1890 1270,1785 1194,1715" />
+				<TextEquiv>
+					<Unicode>साध्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1270,1855 1346,1908 1372,1802 1295,1750" />
+			<TextLine id="line_7">
+				<Coords points="1270,1855 1346,1908 1372,1802 1295,1750" />
+				<TextEquiv>
+					<Unicode>लाभ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1359,1890 1435,1960 1460,1855 1384,1785" />
+			<TextLine id="line_8">
+				<Coords points="1359,1890 1435,1960 1460,1855 1384,1785" />
+				<TextEquiv>
+					<Unicode>व्यय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1448,1995 1524,2065 1549,1960 1473,1890" />
+			<TextLine id="line_9">
+				<Coords points="1448,1995 1524,2065 1549,1960 1473,1890" />
+				<TextEquiv>
+					<Unicode>आय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1511,2100 1588,2152 1600,2048 1524,1995" />
+			<TextLine id="line_10">
+				<Coords points="1511,2100 1588,2152 1600,2048 1524,1995" />
+				<TextEquiv>
+					<Unicode>क्षय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="1549,2205 1626,2258 1638,2152 1562,2100" />
+			<TextLine id="line_11">
+				<Coords points="1549,2205 1626,2258 1638,2152 1562,2100" />
+				<TextEquiv>
+					<Unicode>राज</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="589,3080 648,3080 648,2653 589,2653" />
+			<TextLine id="line_12">
+				<Coords points="589,3080 648,3080 648,2653 589,2653" />
+				<TextEquiv>
+					<Unicode>दशमे पटले श्लोक १६ यंत्र प्रकारोयम</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1168,3010 1219,3080 1270,2975 1194,2905" />
+			<TextLine id="line_13">
+				<Coords points="1168,3010 1219,3080 1270,2975 1194,2905" />
+				<TextEquiv>
+					<Unicode>साध्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1283,3062 1359,3115 1384,3010 1308,2958" />
+			<TextLine id="line_14">
+				<Coords points="1283,3062 1359,3115 1384,3010 1308,2958" />
+				<TextEquiv>
+					<Unicode>लाभ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1372,3132 1448,3202 1473,3098 1397,3028" />
+			<TextLine id="line_15">
+				<Coords points="1372,3132 1448,3202 1473,3098 1397,3028" />
+				<TextEquiv>
+					<Unicode>व्यय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1473,3220 1549,3272 1575,3168 1499,3115" />
+			<TextLine id="line_16">
+				<Coords points="1473,3220 1549,3272 1575,3168 1499,3115" />
+				<TextEquiv>
+					<Unicode>आय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1549,3290 1626,3342 1638,3238 1562,3185" />
+			<TextLine id="line_17">
+				<Coords points="1549,3290 1626,3342 1638,3238 1562,3185" />
+				<TextEquiv>
+					<Unicode>क्षय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="1613,3378 1689,3430 1702,3325 1626,3272" />
+			<TextLine id="line_18">
+				<Coords points="1613,3378 1689,3430 1702,3325 1626,3272" />
+				<TextEquiv>
+					<Unicode>राज</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="25.jpg" imageWidth="3500" imageHeight="1601">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="98,355 399,355 399,267 98,267" />
+			<TextLine id="line_0">
+				<Coords points="98,355 399,355 399,267 98,267" />
+				<TextEquiv>
+					<Unicode>ब्रह्मचारी = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="280,858 469,858 469,759 280,759" />
+			<TextLine id="line_1">
+				<Coords points="280,858 469,858 469,759 280,759" />
+				<TextEquiv>
+					<Unicode>हिंस्रः = ५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="242,1010 546,1010 546,916 242,916" />
+			<TextLine id="line_2">
+				<Coords points="242,1010 546,1010 546,916 242,916" />
+				<TextEquiv>
+					<Unicode>जातिभ्रष्टः = ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="28,1230 490,1230 490,1018 28,1018" />
+			<TextLine id="line_3">
+				<Coords points="28,1230 490,1230 490,1018 28,1018" />
+				<TextEquiv>
+					<Unicode>पक्षि विशेषो विडालश्च कुत्सितवचस्तद्गृहं च = ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="42,1390 469,1390 469,1247 42,1247" />
+			<TextLine id="line_4">
+				<Coords points="42,1390 469,1390 469,1247 42,1247" />
+				<TextEquiv>
+					<Unicode>कार्यप्रतिबंधकाः = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="3056,1137 3398,1137 3398,1033 3056,1033" />
+			<TextLine id="line_5">
+				<Coords points="3056,1137 3398,1137 3398,1033 3056,1033" />
+				<TextEquiv>
+					<Unicode>मार्ग रोधनं = ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_6" custom="region_6">
+			<Coords points="672,142 1106,142 1106,69 672,69" />
+			<TextLine id="line_6">
+				<Coords points="672,142 1106,142 1106,69 672,69" />
+				<TextEquiv>
+					<Unicode>शूद्रिगाः उद्धृतं = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="1228,107 2510,107 2510,16 1228,16" />
+			<TextLine id="line_7">
+				<Coords points="1228,107 2510,107 2510,16 1228,16" />
+				<TextEquiv>
+					<Unicode>जलाधिरिक्तकुंभस्तपस्वि केन सह व्रजेत् = १ रजकः = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_8" custom="region_8">
+			<Coords points="525,210 1270,210 1270,122 525,122" />
+			<TextLine id="line_8">
+				<Coords points="525,210 1270,210 1270,122 525,122" />
+				<TextEquiv>
+					<Unicode>दौवहवस्त्र शुभाः एकमुक् शुभाः = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_9" custom="region_9">
+			<Coords points="1326,194 1624,194 1624,122 1326,122" />
+			<TextLine id="line_9">
+				<Coords points="1326,194 1624,194 1624,122 1326,122" />
+				<TextEquiv>
+					<Unicode>इष्टः मृगः = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="522,306 3042,306 3042,186 522,186" />
+			<TextLine id="line_10">
+				<Coords points="522,306 3042,306 3042,186 522,186" />
+				<TextEquiv>
+					<Unicode>वक्रुरं कोरुहं तैलमयं मुंडं मोघं घटान्वितं सह चरै धोतो चरो मेचकः दूर्वी दभरि पाः प लास्त्रमदिरा वै</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="522,410 3042,410 3042,283 522,283" />
+			<TextLine id="line_11">
+				<Coords points="522,410 3042,410 3042,283 522,283" />
+				<TextEquiv>
+					<Unicode>क्री गुरु वस्त्र वारी देव विप्र मित्र मँगो वरो दन शना सिद्धा थि दुग्धानि च २२ कुर्वन्दि दिक्षतः स</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="2370,442 2678,442 2678,365 2370,365" />
+			<TextLine id="line_12">
+				<Coords points="2370,442 2678,442 2678,365 2370,365" />
+				<TextEquiv>
+					<Unicode>लौहकारः = ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="518,551 3028,551 3028,410 518,410" />
+			<TextLine id="line_13">
+				<Coords points="518,551 3028,551 3028,410 518,410" />
+				<TextEquiv>
+					<Unicode>दैन्यै दितरदामे प्रकु वंने प्रजेदूर्ध्वा स्त्री धन विट् तु बाष्म लवणो पान तरणाऽस्कराः पिण्याकौषध कृक्ष</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="518,703 3028,703 3028,568 518,568" />
+			<TextLine id="line_14">
+				<Coords points="518,703 3028,703 3028,568 518,568" />
+				<TextEquiv>
+					<Unicode>धान्य रुद मंत क्रं सधूम नलः कार्पास रुण पुष्प चर्मा च गुडं तैलायसी कद्दमः २३ मत्तो वात</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="2594,775 2894,775 2894,687 2594,687" />
+			<TextLine id="line_15">
+				<Coords points="2594,775 2894,775 2894,687 2594,687" />
+				<TextEquiv>
+					<Unicode>मुक्तकेशः = ५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="469,884 3014,884 3014,754 469,754" />
+			<TextLine id="line_16">
+				<Coords points="469,884 3014,884 3014,754 469,754" />
+				<TextEquiv>
+					<Unicode>उग्रै हितांत कख लापुं डी चंडी व्याधितः खंग व्यगदिगं राय ति रँ रिः कारवा यिमुक्ता नको चौ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="742,935 990,935 990,850 742,850" />
+			<TextLine id="line_17">
+				<Coords points="742,935 990,935 990,850 742,850" />
+				<TextEquiv>
+					<Unicode>मुलिनः = ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="518,1028 3020,1028 3020,885 518,885" />
+			<TextLine id="line_18">
+				<Coords points="518,1028 3020,1028 3020,885 518,885" />
+				<TextEquiv>
+					<Unicode>राभ्य कत मेला विला प्र पतितः पाशर्प ली गुर्विणी वंध्या कृसक काहि मेक सर ठाः गो धाव राहः सै</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="518,1156 3042,1156 3042,1018 518,1018" />
+			<TextLine id="line_19">
+				<Coords points="518,1156 3042,1156 3042,1018 518,1018" />
+				<TextEquiv>
+					<Unicode>शः २४ जाहौति महि षः वरो श्व महिषारु ढा श्रोरक्तो धटा म्लेच्छ कार्पाणि रोगं कं पदवी बंधाः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="518,1271 3042,1271 3042,1121 518,1121" />
+			<TextLine id="line_20">
+				<Coords points="518,1271 3042,1271 3042,1121 518,1121" />
+				<TextEquiv>
+					<Unicode>कुंवा गोर्ह वौ पातो धान पलायनं सकल हः बंडं चुतै गौर्ज ल द्वेश्मेति प्रतिबंधकाः कुशकुना</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="508,1412 3042,1412 3042,1252 508,1252" />
+			<TextLine id="line_21">
+				<Coords points="508,1412 3042,1412 3042,1252 508,1252" />
+				<TextEquiv>
+					<Unicode>मृधै को दिका मः। युदाः २५ भंगा त्सुत्र पटा च्छु को श्रनै खिनः स्त्री संज्ञा को वामनः को</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="508,1460 1054,1460 1054,1359 508,1359" />
+			<TextLine id="line_22">
+				<Coords points="508,1460 1054,1460 1054,1359 508,1359" />
+				<TextEquiv>
+					<Unicode>वस्त्रा दीनां स्खलनं = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="508,1529 794,1529 794,1446 508,1446" />
+			<TextLine id="line_23">
+				<Coords points="508,1529 794,1529 794,1446 508,1446" />
+				<TextEquiv>
+					<Unicode>त्रयोदश = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="1082,1479 1732,1479 1732,1385 1082,1385" />
+			<TextLine id="line_24">
+				<Coords points="1082,1479 1732,1479 1732,1385 1082,1385" />
+				<TextEquiv>
+					<Unicode>यान मष्या दित स्प पलायनं = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="2096,1507 2580,1507 2580,1412 2096,1412" />
+			<TextLine id="line_25">
+				<Coords points="2096,1507 2580,1507 2580,1412 2096,1412" />
+				<TextEquiv>
+					<Unicode>पक्षिणः य प मेला = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_10" custom="region_10">
+			<Coords points="2874,1519 3122,1519 3122,1412 2874,1412" />
+			<TextLine id="line_26">
+				<Coords points="2874,1519 3122,1519 3122,1412 2874,1412" />
+				<TextEquiv>
+					<Unicode>महिषी = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

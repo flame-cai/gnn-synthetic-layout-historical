@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0014.jpg" imageWidth="2500" imageHeight="912">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="610,74 1250,71 1225,44 595,39" />
+			<TextLine id="line_0">
+				<Coords points="610,74 1250,71 1225,44 595,39" />
+				<TextEquiv>
+					<Unicode>श्रीविष्णुनाथनारायणसुरेन्द्रकृतं प्रबन्धः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="318,272 2208,267 2135,208 315,203" />
+			<TextLine id="line_1">
+				<Coords points="318,272 2208,267 2135,208 315,203" />
+				<TextEquiv>
+					<Unicode>श्रीगणेशाय नमः॥ अथ प्रतीयमानार्थेऽत्र श्रीगोविन्दरायविरचितं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="320,336 2228,331 2225,277 315,273" />
+			<TextLine id="line_2">
+				<Coords points="320,336 2228,331 2225,277 315,273" />
+				<TextEquiv>
+					<Unicode>वैद्यजनपारङ्गतसेवकता॥ ब्रह्महितकारकं ग्रन्थं प्रसङ्गविभागेन प्रतिनिर्मितम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="315,394 2200,389 2210,342 312,337" />
+			<TextLine id="line_3">
+				<Coords points="315,394 2200,389 2210,342 312,337" />
+				<TextEquiv>
+					<Unicode>भेषजयोगान् ज्ञात्वा कथयेत् प्रयोगसमये पचनविधिं च॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="320,455 2235,450 2228,401 320,397" />
+			<TextLine id="line_4">
+				<Coords points="320,455 2235,450 2228,401 320,397" />
+				<TextEquiv>
+					<Unicode>इति वैद्यनानेप्रकरणम्॥ कर्मणां निबन्धविधौ कुशलतया प्रयोजयेत्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="315,520 2228,514 2220,464 315,459" />
+			<TextLine id="line_5">
+				<Coords points="315,520 2228,514 2220,464 315,459" />
+				<TextEquiv>
+					<Unicode>नैवेतद्विकल्पनिबन्धोऽरिष्टो निहितदृष्टिसौख्यविहितः॥ प्रातःसन्ध्याप्रणीतोऽयं ग्रन्थः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="318,584 2265,578 2262,529 318,523" />
+			<TextLine id="line_6">
+				<Coords points="318,584 2265,578 2262,529 318,523" />
+				<TextEquiv>
+					<Unicode>श्रीविष्णुभक्तिः॥ अहं योगीन्द्रसुतो देवकार्यनिरतः सदा हि तेनोपदेशेन समाहितः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="325,651 2258,646 2262,590 322,585" />
+			<TextLine id="line_7">
+				<Coords points="325,651 2258,646 2262,590 322,585" />
+				<TextEquiv>
+					<Unicode>योगिनां चोपकाराय सर्वरोगनिवारणार्थं विविधानि कर्माणि विन्यस्य लिखितवान्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="328,714 2268,710 2230,658 325,653" />
+			<TextLine id="line_8">
+				<Coords points="328,714 2268,710 2230,658 325,653" />
+				<TextEquiv>
+					<Unicode>वेदपरिपूर्णं विसितिजन्मवाचितं॥ श्रीपरमेश्वरेणैव चास्माभिः कृतमिति ज्ञेयम्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="342,810 1182,804 1185,776 338,772" />
+			<TextLine id="line_9">
+				<Coords points="342,810 1182,804 1185,776 338,772" />
+				<TextEquiv>
+					<Unicode>ग्रन्थसमाप्तिः योगनन्दसम्प्रदाननेत्रेभ्यः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="222,143 382,143 382,80 222,80" />
+			<TextLine id="line_0">
+				<Coords points="222,143 382,143 382,80 222,80" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2125,202 2182,202 2182,145 2125,145" />
+			<TextLine id="line_0">
+				<Coords points="2125,202 2182,202 2182,145 2125,145" />
+				<TextEquiv>
+					<Unicode>१४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="55,274 298,274 298,221 55,221" />
+			<TextLine id="line_0">
+				<Coords points="55,274 298,274 298,221 55,221" />
+				<TextEquiv>
+					<Unicode>काशी</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="50,378 292,378 292,328 50,328" />
+			<TextLine id="line_1">
+				<Coords points="50,378 292,378 292,328 50,328" />
+				<TextEquiv>
+					<Unicode>आचार्यकृतिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="50,451 300,451 300,390 50,390" />
+			<TextLine id="line_2">
+				<Coords points="50,451 300,451 300,390 50,390" />
+				<TextEquiv>
+					<Unicode>वैद्यककरणम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="50,523 298,523 298,455 50,455" />
+			<TextLine id="line_3">
+				<Coords points="50,523 298,523 298,455 50,455" />
+				<TextEquiv>
+					<Unicode>श्रीगोविन्दकृतम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="50,639 295,639 295,525 50,525" />
+			<TextLine id="line_4">
+				<Coords points="50,639 295,639 295,525 50,525" />
+				<TextEquiv>
+					<Unicode>श्रीविष्णुभक्तिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

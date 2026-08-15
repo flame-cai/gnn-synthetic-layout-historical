@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0008.jpg" imageWidth="2500" imageHeight="949">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वकादिमन्वा = नारासंगीः रुद्रदेवत्यामंत्रान्॥१=यज्ञगाथें उणायाद्या१=इति हासामहानारतादीनविद्याश्चकारणाद्यै।१=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दिधर्मशास्त्रार्थ</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पंचपंतप्रणीतवेदान्तपरिशिष्ट २=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>8</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पाज्ञवः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>संचनारांशशीघ्रगाथिकाः॥ इति हाँसास्तथाविचाःशत्रुयाधीतेनीपोन्वहं॥मांसक्षीरोदनमधुतर्यंस</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दिवौकसी।।करोतितत्प्रिंकुर्याच्चपितृणांमधुसपिषा।।तैतत्प्रासर्षयंत्येनैसर्वकामफलैःशुभेः॥यथेऽद्यदेवाःपितर</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>क्रतुमधीपीततस्पतस्यान्नुयात्फलं॥त्रिर्वित्तपूर्णापथिवीदानस्यफलमश्नुते॥तर्पसंभपरस्पृह</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नित्यस्वाध्यायेवानन्दिजः॥नैष्टिकोब्रह्मचारीतुवसेदाचार्यसन्निधौ॥तदन्नावेस्पतजयेपन्पावैश्चा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नरेपिवा॥अनेनविधनादेवान्माघयनुविजितेंद्रियः॥ब्रह्मलोकमवाप्नोतिनचेहाजापतेपुनः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>५०॥इतिब्रह्मचारिप्रकरणम्॥गुरुवेतुवरैरस्नायीततदनुज्ञातया॥वेदव्रतानिवापारंनीत्वात्सुखेन</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>यमेववा॥अवनृतवह्नवयोल्लक्षएंग्लियमद्वहेत॥अनन्यपूर्विकांतामसपिंडाजवीयसी॥राम४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

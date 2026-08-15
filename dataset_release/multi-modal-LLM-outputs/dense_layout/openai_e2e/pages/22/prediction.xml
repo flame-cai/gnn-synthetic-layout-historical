@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="22.jpg" imageWidth="3500" imageHeight="1578">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="518,104 3258,96 3248,35 514,39" />
+			<TextLine id="line_0">
+				<Coords points="518,104 3258,96 3248,35 514,39" />
+				<TextEquiv>
+					<Unicode>द्रोणमेकं ततोऽनेके द्रोणोऽभवन् भूरिभेदाः सिध्यन्ते सन्ध्येऽप्येवं नान्यत्र चेद्वस्तुनिहिते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="511,172 3255,164 3266,106 514,110" />
+			<TextLine id="line_1">
+				<Coords points="511,172 3255,164 3266,106 514,110" />
+				<TextEquiv>
+					<Unicode>धर्ममने द्रोणे स्यात् प्रायश्चित्तविधानिर्दिष्टेऽपि मनसि प्रवर्तते तद्वद्विवेकाः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="511,234 2737,226 2726,172 511,175" />
+			<TextLine id="line_2">
+				<Coords points="511,234 2737,226 2726,172 511,175" />
+				<TextEquiv>
+					<Unicode>न कर्तृजनो केचिदभेदेनैवेत्यत्रावयवेऽप्यर्थे कैर्योग्यमाचार्यते चेन ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="511,338 3157,327 3157,259 514,267" />
+			<TextLine id="line_3">
+				<Coords points="511,338 3157,327 3157,259 514,267" />
+				<TextEquiv>
+					<Unicode>स्यादिति यद्युक्तमुपपत्तेः किं त्वभिप्रेतार्थकृत्यविधिनियोगविधौ नियमोऽभ्युपगम्यतेऽत्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="514,417 3238,406 3230,336 511,344" />
+			<TextLine id="line_4">
+				<Coords points="514,417 3238,406 3230,336 511,344" />
+				<TextEquiv>
+					<Unicode>व्यवहारमेवेदमभिधीयते योऽयं विहितोऽपि स कर्मणि न प्रवर्तते यत्प्रकारेण विधिमात्रार्थकत्वम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="514,499 3248,486 3252,413 518,424" />
+			<TextLine id="line_5">
+				<Coords points="514,499 3248,486 3252,413 518,424" />
+				<TextEquiv>
+					<Unicode>तत्र च प्रयोजनमत्रैव यन्न विधिमात्रेणैवोपपद्यते तस्मात् कर्मणोऽर्थोऽपि विध्यपेक्षया</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="514,574 3276,563 3269,495 514,505" />
+			<TextLine id="line_6">
+				<Coords points="514,574 3276,563 3269,495 514,505" />
+				<TextEquiv>
+					<Unicode>विनियोगेऽस्त्यत्र । एकोऽप्युद्देशोऽनेकेषु विधिषु प्रयुज्यते ततोऽर्थवद्विधिनियमः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="511,655 3234,642 3234,573 511,584" />
+			<TextLine id="line_7">
+				<Coords points="511,655 3234,642 3234,573 511,584" />
+				<TextEquiv>
+					<Unicode>तस्मादर्थप्रयुक्तो विधिरेव । तत्र कर्मणोऽभिप्रायोऽपि करणीय इति चेद् यथाश्रुति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="511,739 3206,724 3202,649 514,660" />
+			<TextLine id="line_8">
+				<Coords points="511,739 3206,724 3202,649 514,660" />
+				<TextEquiv>
+					<Unicode>विध्यनुसन्धानमात्रेण प्रवर्तते, कर्मणः फलसम्बन्धो नोपपद्यते; यतो हि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="514,817 3199,805 3202,731 514,742" />
+			<TextLine id="line_9">
+				<Coords points="514,817 3199,805 3202,731 514,742" />
+				<TextEquiv>
+					<Unicode>प्रवृत्तिमात्रमेव कारणं, ततः फलमिति चेत् कर्मणो नित्यत्वात् फलाभावः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="518,879 2888,866 2891,806 522,819" />
+			<TextLine id="line_10">
+				<Coords points="518,879 2888,866 2891,806 522,819" />
+				<TextEquiv>
+					<Unicode>ननु तद्भाव एव हि कर्मणां फलहेतुत्वमित्युक्ते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="56,156 424,148 420,90 60,98" />
+			<TextLine id="line_0">
+				<Coords points="56,156 424,148 420,90 60,98" />
+				<TextEquiv>
+					<Unicode>गतचेष्टितेन</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="60,218 444,208 441,150 60,156" />
+			<TextLine id="line_1">
+				<Coords points="60,218 444,208 441,150 60,156" />
+				<TextEquiv>
+					<Unicode>कृतिमते = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="60,289 462,279 462,213 60,219" />
+			<TextLine id="line_2">
+				<Coords points="60,289 462,279 462,213 60,219" />
+				<TextEquiv>
+					<Unicode>विध्यर्थसम्प्रेत</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="60,360 462,349 455,282 60,290" />
+			<TextLine id="line_3">
+				<Coords points="60,360 462,349 455,282 60,290" />
+				<TextEquiv>
+					<Unicode>योगार्थः करणीयो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="56,432 469,421 466,355 56,363" />
+			<TextLine id="line_4">
+				<Coords points="56,432 469,421 466,355 56,363" />
+				<TextEquiv>
+					<Unicode>द्रष्टव्यविधिमाहुः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="56,513 469,502 472,426 56,436" />
+			<TextLine id="line_5">
+				<Coords points="56,513 469,502 472,426 56,436" />
+				<TextEquiv>
+					<Unicode>अनेन विध्यर्थः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="56,595 476,584 476,507 56,516" />
+			<TextLine id="line_6">
+				<Coords points="56,595 476,584 476,507 56,516" />
+				<TextEquiv>
+					<Unicode>इवमत्रोपपत्तिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="56,674 486,663 486,589 56,600" />
+			<TextLine id="line_7">
+				<Coords points="56,674 486,663 486,589 56,600" />
+				<TextEquiv>
+					<Unicode>करणादिविशेषः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="56,757 486,746 486,669 56,680" />
+			<TextLine id="line_8">
+				<Coords points="56,757 486,746 486,669 56,680" />
+				<TextEquiv>
+					<Unicode>न फलप्राप्तिकेवल</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="56,836 497,825 497,751 56,761" />
+			<TextLine id="line_9">
+				<Coords points="56,836 497,825 497,751 56,761" />
+				<TextEquiv>
+					<Unicode>स्वरूपेण प्रयुज्यते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,319 3482,311 3479,252 3248,260" />
+			<TextLine id="line_0">
+				<Coords points="3248,319 3482,311 3479,252 3248,260" />
+				<TextEquiv>
+					<Unicode>विध्यर्थः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,383 3479,376 3476,312 3248,320" />
+			<TextLine id="line_1">
+				<Coords points="3248,383 3479,376 3476,312 3248,320" />
+				<TextEquiv>
+					<Unicode>अर्थवदिति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,451 3486,443 3482,377 3248,385" />
+			<TextLine id="line_2">
+				<Coords points="3248,451 3486,443 3482,377 3248,385" />
+				<TextEquiv>
+					<Unicode>प्रयोजनम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,521 3482,513 3479,445 3248,453" />
+			<TextLine id="line_3">
+				<Coords points="3248,521 3482,513 3479,445 3248,453" />
+				<TextEquiv>
+					<Unicode>कार्यम् = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,590 3482,582 3479,514 3248,522" />
+			<TextLine id="line_4">
+				<Coords points="3248,590 3482,582 3479,514 3248,522" />
+				<TextEquiv>
+					<Unicode>यदेव = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,661 3482,653 3479,584 3248,592" />
+			<TextLine id="line_5">
+				<Coords points="3248,661 3482,653 3479,584 3248,592" />
+				<TextEquiv>
+					<Unicode>उद्देश्यत्वम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,734 3482,726 3482,655 3248,663" />
+			<TextLine id="line_6">
+				<Coords points="3248,734 3482,726 3482,655 3248,663" />
+				<TextEquiv>
+					<Unicode>कर्मस्वरूपम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3248,805 3482,797 3479,727 3248,735" />
+			<TextLine id="line_7">
+				<Coords points="3248,805 3482,797 3479,727 3248,735" />
+				<TextEquiv>
+					<Unicode>अस्तीत्यर्थः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

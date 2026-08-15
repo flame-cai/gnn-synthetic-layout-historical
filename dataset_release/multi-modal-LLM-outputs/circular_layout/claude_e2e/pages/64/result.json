@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "267450dd745fc1a52dcd6300f0f03de3409b62993f146d4027278d56521d0608",
+  "manuscript_id": "circle_new",
+  "page_id": "64",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "1f74da8e920be84e4425e10871d72d742b6e41023c3aaa7dbe194ebeacdd64c1",
+  "pagexml_sha256": "00eeff8cece5f224d5bfd62da26c9ac23292d61c409991ca0316c29bcdfa0897",
+  "status": "success",
+  "error": null,
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 31.485000000000582,
+      "error": "ValueError: vlm_json:64:label_3: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 32.54600000000028,
+      "error": "ValueError: vlm_json:64:label_right_upper: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 3,
+      "status": "api_error",
+      "elapsed_seconds": 25.375,
+      "error": "ValueError: vlm_json:64:line_10: invalid polygon geometry."
+    },
+    {
+      "attempt": 4,
+      "status": "success",
+      "elapsed_seconds": 28.39099999999962,
+      "input_tokens": 5312,
+      "output_tokens": 2871,
+      "total_tokens": 8183,
+      "response_id": "msg_011Cd7PkPgiVrTAWadMRsgoY",
+      "finish_reason": "end_turn"
+    }
+  ],
+  "input_tokens": 21248,
+  "output_tokens": 13462,
+  "total_tokens": 34710,
+  "elapsed_seconds": 124.875,
+  "completed_at_utc": "2026-07-17T09:28:49.496193+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

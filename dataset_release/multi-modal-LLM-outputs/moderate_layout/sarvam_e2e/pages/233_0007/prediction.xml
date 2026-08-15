@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0007.jpg" imageWidth="2500" imageHeight="950">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233 7</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रात॥ ब्रह्मक्षत्रियविशां कालजौपनायनकः परः॥ यतः ऊर्ध्वपतयेनेसर्वधर्मवहेच्छता॥सावी</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पतितावात्यावात्यलोमाहतेक्रतोःमानुर्यस्येजायाद्वितीयमै।जीवचनात॥ब्राह्मणक्षत्रियविश</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सस्मादेतेदिजास्तताः॥पज्ञानातपसाचैवमुन्नानाचैवकर्मरणा॥वेदवैएबहिजातीनानिभ्रे</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>यसकरःपरः॥मधुनापयसाचैवसदेवांसर्पिचेदिनः॥पितृन्धिघतान्यांचलचोधीतेनुयोच</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नूं३हं॥यद्यैषिकात्नोधीतेयोन्वहंपघतामतैः॥प्रीणतिदेवानांऽपेनमधुनाचार्पित्दस्थ॥स</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>तुसेमघतैर्देवोंसचेद्योन्वहंपडेर॥सामानितत्रिकुयीच्चपित्तराणामधुसर्पिषा॥मेदसातर्ष</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>चेदेवानचर्वीगिरसःपठन्॥पितृश्चमधुसर्पिन्द्यामन्यहुंशक्तितोद्विजः॥वाकोवांकंपुरा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सुघंटकार र=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>=प्रश्नोत्तररूपवेद्वाक्य१=बृहत्पुरा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>एकादशः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

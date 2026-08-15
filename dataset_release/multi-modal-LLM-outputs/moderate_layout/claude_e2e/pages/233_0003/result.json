@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "ed4fcdd97cf63a9b942f6a167e863a64a1e84d5a5e313a2f8e9b9b50d53a6ca3",
+  "manuscript_id": "yajn",
+  "page_id": "233_0003",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "eded373357f786df927a540331e44dcfb0109f32e9cb876b1c31ae1c18e71c6c",
+  "pagexml_sha256": "78f97a4b6111a96e7c0d4ebb6efa06f11f58c395277811a5994d6d384928f930",
+  "status": "success",
+  "error": null,
+  "attempt_count": 2,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_error",
+      "elapsed_seconds": 33.98500000000058,
+      "error": "ValueError: vlm_json:233_0003:header_line_2: TextLine/Coords must contain at least three distinct points."
+    },
+    {
+      "attempt": 2,
+      "status": "success",
+      "elapsed_seconds": 33.20300000000134,
+      "input_tokens": 3593,
+      "output_tokens": 2502,
+      "total_tokens": 6095,
+      "response_id": "msg_011Cd7NU9EFc38GUe4roExL2",
+      "finish_reason": "end_turn"
+    }
+  ],
+  "input_tokens": 7186,
+  "output_tokens": 5208,
+  "total_tokens": 12394,
+  "elapsed_seconds": 68.90699999999924,
+  "completed_at_utc": "2026-07-17T09:12:07.595454+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

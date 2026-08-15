@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "yajn",
+  "page_id": "233_0012",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "947b0a51bb593822885e7502a36fc3096aec9637beaaeab4cc2387a9f6aead87",
+  "pagexml_sha256": "fc195f4de53685507215459286503b78a874c6da1af1f848cc57b0cef25b52ed",
+  "request_contract_version": 2,
+  "request_fingerprint": "c15f49a1ccc0ee882495a230990703fc5248de35d1cc323bfea3cc80a76193e0",
+  "image_path": "manuscripts/moderate_layout/inputs/233_0012.jpg",
+  "pagexml_path": "manuscripts/moderate_layout/labels/page_xml/233_0012.xml",
+  "prompt": "You are an expert Indologist and Paleographer specializing in handwritten Sanskrit manuscripts.Your Task: Perform a diplomatic transcription (OCR) of the attached manuscript image.\nCRITICAL INSTRUCTIONS:\nTranscribe the Sanskrit text from the image at the text-line level, where locations of the handwritten text-lines are defined using 'Path Traces'. Each 'Path Trace' refers to one text-line.\nThe coordinates of the Path Traces are normalized on a 0-1000 scale (where [0,0] is top-left and [1000,1000] is bottom-right) to precisely map the text line locations on the image.\nFor each path trace points, transcribe the text that sits along this curve.\nFocus strictly on the visual line indicated by the trace; ignore text from lines above or below.\nThe path trace can be curved and even circular. If a path trace is circular, transcribe the text that sits along the entire circle, starting from the top.\nTranscribe in Unicode Devanagari. Preserve original spelling (Sandhi).\nOutput a JSON array of objects with 'id' and 'text'.\n\nREGIONS:\nID: 0 | Trace: [79, 531, 71, 666, 64, 800, 64, 936]\nID: 1 | Trace: [144, 875, 144, 878, 144, 881, 144, 884]\nID: 2 | Trace: [153, 145, 158, 163, 157, 182, 157, 200]\nID: 3 | Trace: [252, 146, 252, 394, 242, 641, 233, 889]\nID: 4 | Trace: [265, 40, 268, 58, 266, 76, 265, 94]\nID: 23 | Trace: [290, 200, 288, 204, 287, 209, 286, 214]\nID: 5 | Trace: [317, 149, 327, 393, 315, 637, 300, 881]\nID: 6 | Trace: [373, 30, 370, 60, 365, 91, 363, 122]\nID: 7 | Trace: [395, 148, 398, 394, 379, 641, 367, 888]\nID: 8 | Trace: [410, 28, 410, 50, 407, 73, 403, 96]\nID: 9 | Trace: [466, 148, 465, 393, 449, 638, 447, 884]\nID: 10 | Trace: [546, 152, 535, 394, 517, 637, 507, 880]\nID: 11 | Trace: [574, 909, 574, 930, 572, 951, 570, 972]\nID: 13 | Trace: [609, 913, 609, 924, 610, 936, 613, 948]\nID: 12 | Trace: [619, 151, 615, 396, 600, 640, 583, 885]\nID: 14 | Trace: [647, 268, 650, 287, 646, 306, 645, 326]\nID: 16 | Trace: [688, 24, 682, 58, 682, 92, 682, 127]\nID: 15 | Trace: [692, 152, 690, 398, 673, 644, 656, 890]\nID: 17 | Trace: [723, 26, 721, 60, 721, 94, 721, 128]\nID: 19 | Trace: [745, 917, 746, 929, 747, 940, 751, 952]\nID: 20 | Trace: [762, 22, 760, 54, 757, 87, 762, 119]\nID: 18 | Trace: [765, 152, 767, 394, 748, 635, 736, 876]\nID: 21 | Trace: [814, 576, 809, 581, 806, 586, 803, 591]\nID: 22 | Trace: [839, 276, 838, 281, 836, 286, 835, 292]\n",
+  "rendered_prompt_sha256": "84f6d34bda7d2711a2121f3569d8fe546db185303194dd49c10116283aef5ec6",
+  "input_order": [
+    "page_image",
+    "ground_truth_layout_traces",
+    "prompt"
+  ],
+  "state": "started",
+  "started_at_utc": "2026-07-25T04:24:21.084364+00:00",
+  "timeout_seconds": 45.0,
+  "max_retries_after_initial_attempt": 3
+}

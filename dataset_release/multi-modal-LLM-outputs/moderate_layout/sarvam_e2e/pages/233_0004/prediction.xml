@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0004.jpg" imageWidth="2500" imageHeight="932">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>एकेपञ्चाशदंति-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233 4</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पानव०२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शानेकैयथाकुलम् ॥ उपनीयगुरुशिष्यमहाव्याहृतिपूर्वकं ॥ वेदमध्यापयेदेनंशौचाचारांश्चा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शिक्षयेत॥ देवासंभ्यासुकरीस्पवल्लसूत्रउरउखवः ॥ युकुर्यान्मूत्रपुरीषेचरात्रौचेदृक्षिण</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मुखः ॥ ग्टहीतशिष्योद्यामङ्गिरसन्पुद्धतैर्जलैः ॥ गंघलेपक्षयकरंशौचंकुर्यादंतर्दितः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अंतर्जान्ध्र्यचौदेशेउपविष्टउरउखवः ॥ प्राग्वाचालोरातीर्थेनविजेनत्यमुपस्पृशेत् ॥क</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>निष्टादेशिन्यगुष्टमूलान्यग्रंकरस्पच ॥ प्रजापतिर्वृहदेवतीर्थीन्पलक्रमाद ॥ त्रिःप्रा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>र्णोपोदिर्नुन्नयखान्यङ्गिःसमुपस्पृशेत् ॥ प्रकृतस्यानिहीनाभिःफेनवदुद्वैः ॥ ह</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>कंठतालुज्ञानिरूपयासंख्यद्विजातयः ॥ मुद्धेरुस्त्रीचयूढाश्रसक्तस्पृशेत्ततः ॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

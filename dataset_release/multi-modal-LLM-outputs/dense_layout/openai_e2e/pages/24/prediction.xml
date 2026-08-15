@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="24.jpg" imageWidth="3500" imageHeight="1555">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="500,470 3227,465 3202,351 508,358" />
+			<TextLine id="line_0">
+				<Coords points="500,470 3227,465 3202,351 508,358" />
+				<TextEquiv>
+					<Unicode>लिङ्गानुहसितयजन्तः कौषुमनृपेन्द्रत्रिभुवनेश्वरः कोऽप्यभूद्रत्नप्रकारः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="494,572 3272,569 3258,457 500,457" />
+			<TextLine id="line_1">
+				<Coords points="494,572 3272,569 3258,457 500,457" />
+				<TextEquiv>
+					<Unicode>धत्तेऽत्र गृहीतप्रमितमुदधूतापूरमुद्रासवैरिव भुवनेश्वरेण वा हेतुवशादेव</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="504,673 3258,669 3252,555 500,557" />
+			<TextLine id="line_2">
+				<Coords points="504,673 3258,669 3252,555 500,557" />
+				<TextEquiv>
+					<Unicode>मे श्रीमद्देवरत्नोऽभवत् श्रीरुद्ररूपः परन्तु नरेन्द्रस्य कृतविष्णुविदेके</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="504,768 3252,764 3248,650 497,650" />
+			<TextLine id="line_3">
+				<Coords points="504,768 3252,764 3248,650 497,650" />
+				<TextEquiv>
+					<Unicode>ध्रुव्यानेकवर्त्तिनः । तस्यैव करुणानिधेर्लीलया कृतं तु मृद्धिसुखं तिर्यग्भुवि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="508,866 3202,860 3206,743 500,743" />
+			<TextLine id="line_4">
+				<Coords points="508,866 3202,860 3206,743 500,743" />
+				<TextEquiv>
+					<Unicode>नृपकृतिरिति सुमित्रोऽभवद्भूमिकाविरहेण लीलायां पार्थिवधर्मेण चापि विनीतः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="508,289 662,288 658,225 508,225" />
+			<TextLine id="line_0">
+				<Coords points="508,289 662,288 658,225 508,225" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="186,457 448,457 441,404 186,404" />
+			<TextLine id="line_1">
+				<Coords points="186,457 448,457 441,404 186,404" />
+				<TextEquiv>
+					<Unicode>इति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="172,547 480,546 472,470 175,470" />
+			<TextLine id="line_2">
+				<Coords points="172,547 480,546 472,470 175,470" />
+				<TextEquiv>
+					<Unicode>इन्द्रियः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3118,585 3434,583 3430,533 3122,533" />
+			<TextLine id="line_0">
+				<Coords points="3118,585 3434,583 3430,533 3122,533" />
+				<TextEquiv>
+					<Unicode>लटी=६</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="3115,658 3444,656 3440,610 3118,610" />
+			<TextLine id="line_1">
+				<Coords points="3115,658 3444,656 3440,610 3118,610" />
+				<TextEquiv>
+					<Unicode>द्वितीया=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

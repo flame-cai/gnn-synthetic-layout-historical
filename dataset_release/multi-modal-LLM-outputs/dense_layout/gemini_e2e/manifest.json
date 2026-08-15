@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "dense",
+  "provider": {
+    "provider_id": "gemini",
+    "method_id": "gemini_e2e",
+    "display_name": "Gemini (End-to-End)",
+    "model_id": "gemini-3.5-flash",
+    "api_key_env": "GEMINI_API_KEY"
+  },
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "page_ids": [
+    "10",
+    "17",
+    "22",
+    "23",
+    "24",
+    "25",
+    "28"
+  ],
+  "page_count": 7,
+  "success_count": 7,
+  "failure_count": 0,
+  "max_retries_after_initial_attempt": 3,
+  "pages": {
+    "10": {
+      "status": "success",
+      "result_path": "pages/10/result.json",
+      "prediction_path": "pages/10/prediction.xml"
+    },
+    "17": {
+      "status": "success",
+      "result_path": "pages/17/result.json",
+      "prediction_path": "pages/17/prediction.xml"
+    },
+    "22": {
+      "status": "success",
+      "result_path": "pages/22/result.json",
+      "prediction_path": "pages/22/prediction.xml"
+    },
+    "23": {
+      "status": "success",
+      "result_path": "pages/23/result.json",
+      "prediction_path": "pages/23/prediction.xml"
+    },
+    "24": {
+      "status": "success",
+      "result_path": "pages/24/result.json",
+      "prediction_path": "pages/24/prediction.xml"
+    },
+    "25": {
+      "status": "success",
+      "result_path": "pages/25/result.json",
+      "prediction_path": "pages/25/prediction.xml"
+    },
+    "28": {
+      "status": "success",
+      "result_path": "pages/28/result.json",
+      "prediction_path": "pages/28/prediction.xml"
+    }
+  },
+  "written_at_utc": "2026-07-17T08:36:39.716210+00:00"
+}

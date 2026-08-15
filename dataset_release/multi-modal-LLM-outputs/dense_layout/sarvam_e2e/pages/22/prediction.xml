@@ -1,0 +1,330 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="22.jpg" imageWidth="3500" imageHeight="1578">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>द्वयोरयनैक्येतक्षारात्रोदिवावागछेतभेदेसति दिनेस्तूथनिकूलेनरात्रौ चंशनुकूलेनदोचेदुत्तरायणेतदाहनिंश</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>उदग्गमनेहोचेतदक्षिणायणेतदाहनिंशोदचिलगमनंत्राचीफलमुत्तरवत्प्रतीचीदक्षिणवतरलकोशेदि</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नकेररजनीकरयोर्मकरादावुत्तरांचेरवांश्चयायाच्चकर्कटादोयाम्यामाशाप्रतीचीचे=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>गंतव्याशालग्न</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>बुद्धिश्रेत=१</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दिवसस्परात्रेश्रुत</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>योर्भागाः कल्पनी</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>याः = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>त्रिभागादिनियमः=३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अभिजितक्षणः=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दिननक्षत्रेपर्यंतं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्वर्यादिदिनेषु=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्वर्गादिदिग्गताक्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मेलाज्यादिभनये</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_14">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मत्त्रवाह नथोः = ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_15">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सर्वस्पराशिस्वल</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_16">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ग्नेश रिपुंलग्ने</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_17">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>त्यजेत = ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_18">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्वरिवोराशितः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_19">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>बछलग्नं = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_20">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रगैर्यायाईर्धावश्यपके’ हित्वामू लर्मनिष्टमैर्यदिनिजाऽशे बांगलन्धिर्जेत् ९ मिश्ना</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_21">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रव्यक्रवभैर्दिनादिमलवे तोरूऐ। इतीयेति में क्षत्रैनक मशों मृहू गचरभैरा त्रि विभागेधिया</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_22">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>त’ श्रुत्यकैज्यमगेष्वयंन नियमेमौवैश्वोत्यपादःश्रवस्ति यं शं ५ स्वभिजिह मेसफलदोयामी</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_23">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विनोविच्छणः ७ एकौ कैइय नानुकूलमनिंभे देदि वारा त्रयोंभीमेप्रा क’शनिचेंद्रयोर्ग</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_24">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>त’मपौकृपश्चादज्ञगुवेहि तं’ ८ग्वका ह्यदेगकीभाद्युभमगेस्तकं हि सेप्प्लउलरूमगाभ्या ३।</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_25">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>६ विडलस्तयोर्नगमनं श्रीदेवलोत्पाहितं ११ आज्जंडुग्धगुडौतिलानदैधियवानमाषा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_26">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नि‘ना प्राश्यनोम्लेयानमनिष्टमिंद्रककुभोद्या ज्योतिलान्नेंतिमीन दुन्धप्राएपंचहस्त्यनोह</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_27">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>यनरैयनिंसुयानं तयोर्ध्यानाभवतिवुवेथहरिजतिथ्यादि लक्षाधिकं १२ स्वक्षनिर्द्धिघ</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_28">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>टोस्तभानजुगहान्यळरिवाभर्दिनुस्वंगिशाइउंरवलंजनिवलत्यक्ते तथासाप्रतं’ यात्राल</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_29">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ग्नगतंस्पजैईर्थ दिशामीको कीमुक्रो कुजोराहुमेंदेशशांकसोम्पगुरवः केंड्रेदिगीरोबुजेतु(१२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_30">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दिक्पेनप्रविशेल्ललाटगइनः प्राच्यांतनौभालेंगः स्यात्यभ्रान्मदनै केजो बुगबुधः सौम्याखे</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_31">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पापजजन्म का लेवलत्यक्तं इदानीचवलराहतलग्नगतत्यजेत् -३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_32">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>उत्तराषाढायाः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_33">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ग्रंथ = ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_34">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>श्रवणस्पतिं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_35">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शंभुहिकाचतु</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_36">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ष्टयं = २</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_37">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्वराशिस्वलाग्ना</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_38">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>भ्यांअनुपचय</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_39">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>स्थानं कुंभल</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_40">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>गं = ०</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_41">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अस्तग्रहस्पल</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_42">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>- ग्नंवकीग्रहल</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_43">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>गं = ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_44">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>२१</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_45">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>CC-0 Dharmartha Trust J&amp;K. An eGangotri-Vaidika Bharata Initiative</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

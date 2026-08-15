@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0005.jpg" imageWidth="2500" imageHeight="967">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,314 2188,314 2188,222 335,222" />
+			<TextLine id="line_0">
+				<Coords points="335,314 2188,314 2188,222 335,222" />
+				<TextEquiv>
+					<Unicode>स्नानमब्दैवतैर्मन्त्रैर्मार्जनं प्राणसंयमः ॥ सूर्यस्याचाप्युपस्थानं गायत्र्या प्रत्यहं जपः ॥ गायत्री</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,377 2188,377 2188,285 335,285" />
+			<TextLine id="line_1">
+				<Coords points="335,377 2188,377 2188,285 335,285" />
+				<TextEquiv>
+					<Unicode>शिरसार्द्धं जपेद्व्याहृतिपूर्विकां ॥ प्रतिप्रणवसंयुक्तां त्रिरयं प्राणसंयमः ॥ प्राणायामप्रसंयोगे व्यस्य</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,459 2212,459 2212,353 335,353" />
+			<TextLine id="line_2">
+				<Coords points="335,459 2212,459 2212,353 335,353" />
+				<TextEquiv>
+					<Unicode>चेनावदैवतेन तु ॥ जपन्नासीत सावित्रीं प्रसंगातारकोदयात् ॥ संध्यां प्राक् प्रातरेवं हि तिष्ठेदासूर्यदर्श</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,537 2212,537 2212,430 335,430" />
+			<TextLine id="line_3">
+				<Coords points="335,537 2212,537 2212,430 335,430" />
+				<TextEquiv>
+					<Unicode>नात् ॥ अङ्किकां चैततः कुर्यात्संध्योरुभयोरपि ॥ ततोभिवादयेद्वृद्धानसावहमिति ब्रुवन् ॥ गु</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,614 2212,614 2212,508 335,508" />
+			<TextLine id="line_4">
+				<Coords points="335,614 2212,614 2212,508 335,508" />
+				<TextEquiv>
+					<Unicode>रुं चैवाप्युपासीत संध्यायाश्च समाहितः ॥ आहूतश्चाप्यधीयीत लब्धं चास्मै निवेदयेत् ॥ हितं चास्या</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,687 2212,687 2212,575 335,575" />
+			<TextLine id="line_5">
+				<Coords points="335,687 2212,687 2212,575 335,575" />
+				<TextEquiv>
+					<Unicode>चरेन्नित्यं मनोवाक्कायकर्मभिः ॥ कृतज्ञो द्रोहि मेधावि शुचिकल्याणासूयकाः ॥ अध्याप्या धर्म्मि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="335,759 2212,759 2212,653 335,653" />
+			<TextLine id="line_6">
+				<Coords points="335,759 2212,759 2212,653 335,653" />
+				<TextEquiv>
+					<Unicode>तः साधुशक्ताः प्रज्ञानवित्तदाः ॥ दंडं जिनोपवीतानि मेखलां चैव धारयेत् ॥ ब्राह्मणेषु चरेद्भैक्षं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="362,208 562,208 562,135 362,135" />
+			<TextLine id="line_m0">
+				<Coords points="362,208 562,208 562,135 362,135" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="2062,208 2138,208 2138,145 2062,145" />
+			<TextLine id="line_m1">
+				<Coords points="2062,208 2138,208 2138,145 2062,145" />
+				<TextEquiv>
+					<Unicode>5</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="62,450 345,450 345,382 62,382" />
+			<TextLine id="line_m2">
+				<Coords points="62,450 345,450 345,382 62,382" />
+				<TextEquiv>
+					<Unicode>पश्चिमाभिमुखः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="2200,324 2445,324 2445,266 2200,266" />
+			<TextLine id="line_m3">
+				<Coords points="2200,324 2445,324 2445,266 2200,266" />
+				<TextEquiv>
+					<Unicode>मार्तनेकवार</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="2200,411 2462,411 2462,353 2200,353" />
+			<TextLine id="line_m4">
+				<Coords points="2200,411 2462,411 2462,353 2200,353" />
+				<TextEquiv>
+					<Unicode>पूर्वाभिमुखः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

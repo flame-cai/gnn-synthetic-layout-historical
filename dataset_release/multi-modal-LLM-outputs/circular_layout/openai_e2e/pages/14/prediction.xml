@@ -1,0 +1,329 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="14.jpg" imageWidth="2745" imageHeight="3500">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1348,728 1282,707 1191,696 1125,707" />
+			<TextLine id="line_0">
+				<Coords points="1348,728 1282,707 1191,696 1125,707" />
+				<TextEquiv>
+					<Unicode>रक्षायन्त्रम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1444,861 1370,826 1285,812 1202,822 1131,854 1090,900" />
+			<TextLine id="line_1">
+				<Coords points="1444,861 1370,826 1285,812 1202,822 1131,854 1090,900" />
+				<TextEquiv>
+					<Unicode>ॐ नमो भगवते वासुदेवाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1416,917 1356,878 1285,864 1213,875 1150,910 1106,970" />
+			<TextLine id="line_2">
+				<Coords points="1416,917 1356,878 1285,864 1213,875 1150,910 1106,970" />
+				<TextEquiv>
+					<Unicode>ॐ नमो नारायणाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1521,1180 1504,1088 1469,1008 1422,952" />
+			<TextLine id="line_3">
+				<Coords points="1521,1180 1504,1088 1469,1008 1422,952" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1386,1176 1378,1110 1351,1046 1312,1004" />
+			<TextLine id="line_4">
+				<Coords points="1386,1176 1378,1110 1351,1046 1312,1004" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1252,1281 1260,1222 1252,1166 1227,1113" />
+			<TextLine id="line_5">
+				<Coords points="1252,1281 1260,1222 1252,1166 1227,1113" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1241,1340 1282,1379 1326,1400 1208,1295" />
+			<TextLine id="line_6">
+				<Coords points="1241,1340 1282,1379 1326,1400 1208,1295" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1260,1480 1301,1505 1348,1516 1227,1446" />
+			<TextLine id="line_7">
+				<Coords points="1260,1480 1301,1505 1348,1516 1227,1446" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,1568 1359,1578 1403,1575 1265,1536" />
+			<TextLine id="line_8">
+				<Coords points="1312,1568 1359,1578 1403,1575 1265,1536" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1383,1592 1430,1589 1471,1568 1337,1582" />
+			<TextLine id="line_9">
+				<Coords points="1383,1592 1430,1589 1471,1568 1337,1582" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1474,1516 1521,1530 1567,1526 1427,1480" />
+			<TextLine id="line_10">
+				<Coords points="1474,1516 1521,1530 1567,1526 1427,1480" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1529,1512 1523,1460 1504,1410 1471,1368" />
+			<TextLine id="line_11">
+				<Coords points="1529,1512 1523,1460 1504,1410 1471,1368" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1504,1393 1507,1340 1496,1288 1469,1239" />
+			<TextLine id="line_12">
+				<Coords points="1504,1393 1507,1340 1496,1288 1469,1239" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1436,1292 1438,1242 1425,1190 1400,1141" />
+			<TextLine id="line_13">
+				<Coords points="1436,1292 1438,1242 1425,1190 1400,1141" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1334,1278 1381,1295 1425,1295 1298,1242" />
+			<TextLine id="line_14">
+				<Coords points="1334,1278 1381,1295 1425,1295 1298,1242" />
+				<TextEquiv>
+					<Unicode>ॐ नमः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="384,1890 376,1858 340,1838 285,1824" />
+			<TextLine id="line_15">
+				<Coords points="384,1890 376,1858 340,1838 285,1824" />
+				<TextEquiv>
+					<Unicode>१३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1573,1834 1493,1799 1408,1785 1326,1785 1241,1799 1169,1830" />
+			<TextLine id="line_0">
+				<Coords points="1573,1834 1493,1799 1408,1785 1326,1785 1241,1799 1169,1830" />
+				<TextEquiv>
+					<Unicode>ॐ नमो भगवते वासुदेवाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1589,1876 1523,1838 1449,1820 1370,1820 1296,1838 1227,1880" />
+			<TextLine id="line_1">
+				<Coords points="1589,1876 1523,1838 1449,1820 1370,1820 1296,1838 1227,1880" />
+				<TextEquiv>
+					<Unicode>ॐ नमो नारायणाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1112,2065 1051,2030 985,2012 917,2012 845,2026 777,2054" />
+			<TextLine id="line_2">
+				<Coords points="1112,2065 1051,2030 985,2012 917,2012 845,2026 777,2054" />
+				<TextEquiv>
+					<Unicode>ॐ नमः शिवाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1142,2104 1090,2072 1029,2054 963,2054 898,2068 834,2100" />
+			<TextLine id="line_3">
+				<Coords points="1142,2104 1090,2072 1029,2054 963,2054 898,2068 834,2100" />
+				<TextEquiv>
+					<Unicode>ॐ नमः शिवाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1161,2156 1112,2121 1057,2104 999,2104 939,2118 876,2156" />
+			<TextLine id="line_4">
+				<Coords points="1161,2156 1112,2121 1057,2104 999,2104 939,2118 876,2156" />
+				<TextEquiv>
+					<Unicode>ॐ नमः शिवाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1139,2216 1098,2188 1051,2177 1002,2188 950,2208 898,2247" />
+			<TextLine id="line_5">
+				<Coords points="1139,2216 1098,2188 1051,2177 1002,2188 950,2208 898,2247" />
+				<TextEquiv>
+					<Unicode>ॐ नमः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1134,2268 1095,2240 1051,2230 1005,2240 958,2264 909,2300" />
+			<TextLine id="line_6">
+				<Coords points="1134,2268 1095,2240 1051,2230 1005,2240 958,2264 909,2300" />
+				<TextEquiv>
+					<Unicode>ॐ नमः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1120,2334 1084,2306 1043,2296 1002,2303 961,2328 920,2359" />
+			<TextLine id="line_7">
+				<Coords points="1120,2334 1084,2306 1043,2296 1002,2303 961,2328 920,2359" />
+				<TextEquiv>
+					<Unicode>ॐ नमः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="958,2468 999,2496 1043,2506 925,2426" />
+			<TextLine id="line_8">
+				<Coords points="958,2468 999,2496 1043,2506 925,2426" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="996,2583 1038,2611 1084,2622 961,2541" />
+			<TextLine id="line_9">
+				<Coords points="996,2583 1038,2611 1084,2622 961,2541" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1090,2653 1136,2667 1183,2670 1043,2622" />
+			<TextLine id="line_10">
+				<Coords points="1090,2653 1136,2667 1183,2670 1043,2622" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1183,2667 1233,2678 1285,2674 1136,2642" />
+			<TextLine id="line_11">
+				<Coords points="1183,2667 1233,2678 1285,2674 1136,2642" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1287,2646 1337,2650 1381,2639 1238,2628" />
+			<TextLine id="line_12">
+				<Coords points="1287,2646 1337,2650 1381,2639 1238,2628" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1372,2604 1419,2618 1466,2614 1326,2572" />
+			<TextLine id="line_13">
+				<Coords points="1372,2604 1419,2618 1466,2614 1326,2572" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1460,2632 1455,2583 1436,2530 1400,2488" />
+			<TextLine id="line_14">
+				<Coords points="1460,2632 1455,2583 1436,2530 1400,2488" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1471,2541 1474,2485 1463,2432 1436,2384" />
+			<TextLine id="line_15">
+				<Coords points="1471,2541 1474,2485 1463,2432 1436,2384" />
+				<TextEquiv>
+					<Unicode>ह्रीं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1447,2426 1449,2373 1438,2324 1411,2278" />
+			<TextLine id="line_16">
+				<Coords points="1447,2426 1449,2373 1438,2324 1411,2278" />
+				<TextEquiv>
+					<Unicode>ॐ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1285,2356 1326,2373 1364,2373 1252,2317" />
+			<TextLine id="line_17">
+				<Coords points="1285,2356 1326,2373 1364,2373 1252,2317" />
+				<TextEquiv>
+					<Unicode>ॐ नमः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1103,2712 1172,2737 1241,2748 1309,2744 1375,2723 1436,2684 1049,2670" />
+			<TextLine id="line_18">
+				<Coords points="1103,2712 1172,2737 1241,2748 1309,2744 1375,2723 1436,2684 1049,2670" />
+				<TextEquiv>
+					<Unicode>ॐ नमो भगवते वासुदेवाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="1062,2776 1134,2804 1211,2818 1287,2814 1362,2793 1430,2754 999,2726" />
+			<TextLine id="line_19">
+				<Coords points="1062,2776 1134,2804 1211,2818 1287,2814 1362,2793 1430,2754 999,2726" />
+				<TextEquiv>
+					<Unicode>ॐ नमो नारायणाय</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

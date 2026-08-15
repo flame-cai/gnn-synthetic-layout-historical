@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="25.jpg" imageWidth="3500" imageHeight="1601">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>शधिमाःउद्दतं=१</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जलाथिरिक्तकुंभसुपधिकेन सह व्रजेत् = १ रजकः = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>धोवत्प्रभृभाःएकशुखभुमः=२ ष्टुःमृगः=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ब्रह्त चारी=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>बकरं कीरुहु तेगामयेमुच्चोमाथ्यघटौन्चितःसहचरोधोनाचरौमेधकः इवीदभरयाःपलास्त्रमदिराव</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>श्रीगुरुव्रतचारीदेववित्विप्रमित्रगर्वोरदनशनसिद्धाथीदुग्धानिच २२ कुर्वन्दक्षिणतःस</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>लौहकारः=३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दैनैदित्तरहामेप्रकुर्वन्प्रजेद्रस्थास्थीधनविट्तुषाश्मलवणेणपानतरणाऽस्कराः पिण्याकौषधकृत्स्न</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>धान्यरुदनेनंतक्रंसधूमानलःकार्पीसारुणपुष्पचमीचेगुडस्तैलायसीकईमः २३ मत्तोवात</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मुक्तकेशः=५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>हिंस्रः=५ उभेक्षितातकखलामुंडीजडीयाधितःखंगव्यगदिगंवरायतिरैरिःकाखायिमुक्तालकोवौ</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मुलिनः=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>जातिभ्रष्टः=४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>राभ्यक्तमलाविलाप्रपतितःपाश्र्पर्गेलीगुर्विणीवंध्याक्लसवकाहिमेकसरठा:गोधावराहसे</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_14">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पक्षिविशेषोविडल शः २४ जाहोति‘महि यः वरोष्ट्रमहिषासुढोश्ररिक्तोद्यःश्लेष्मकप्राणिरोगकेपदवीबंधाः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_15">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>च=३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_16">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>कार्यप्रतिबंधकाः कुबागाहवोपातोधानपलायनश्चकलहःबंडतुतैगौर्ज्वलइश्मैतिप्रतिबंधको:कुशकुनां</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_17">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_18">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_19">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अर्चिंकादिकाम्ट।युदाः २५ भृंगाल्युष्टपटाशुकाश्रनैखिनःस्त्रीसंज्ञकाःवामनःका</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_20">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वस्त्रादीनास्कलनं=२ यानमश्वादितस्पपलायनं=२</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_21">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>त्रयोदश=१</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_22">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पक्षिणःपथमैणा=१</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_23">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>महिबीः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_24">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>महिषी = १</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_25">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मार्गरोधनं=३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

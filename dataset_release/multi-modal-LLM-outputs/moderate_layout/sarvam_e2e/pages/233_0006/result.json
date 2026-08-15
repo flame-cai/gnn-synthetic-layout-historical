@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "b38985abc0d3adea763a8a048fef6f79d193cd37abecd2b9cf16f5c8fd5fa7eb",
+  "manuscript_id": "yajn",
+  "page_id": "233_0006",
+  "provider_id": "sarvam",
+  "method_id": "sarvam_e2e",
+  "model_id": "sarvam-vision",
+  "prompt_sha256": null,
+  "image_sha256": "826c4df02e126b6f84f2ee58f2e6fe895bf00924cf3ce475353d416144b6b005",
+  "pagexml_sha256": "9bc7cd5df55c5f11342c7c2ee1bae753899ec0d3ccaea251fd1255c290ce457f",
+  "status": "success",
+  "error": null,
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "html_parse_error",
+      "elapsed_seconds": 8.71899999998277,
+      "error": "AdapterError: html_parse_error"
+    },
+    {
+      "attempt": 2,
+      "status": "html_parse_error",
+      "elapsed_seconds": 8.75,
+      "error": "AdapterError: html_parse_error"
+    },
+    {
+      "attempt": 3,
+      "status": "html_parse_error",
+      "elapsed_seconds": 6.687999999965541,
+      "error": "AdapterError: html_parse_error"
+    },
+    {
+      "attempt": 4,
+      "status": "html_parse_error",
+      "elapsed_seconds": 6.592999999993481,
+      "error": "AdapterError: html_parse_error"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "elapsed_seconds": 113.10899999999674,
+  "completed_at_utc": "2026-07-20T08:25:18.291640+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2,
+  "output_adapter_id": "sarvam_html_text_lines_v1",
+  "readaptation": {
+    "completed_at_utc": "2026-07-20T08:58:32.814885+00:00",
+    "source_response_path": "attempt_04_response.txt",
+    "previous_status": "html_parse_error",
+    "status": "success",
+    "text_line_count": 13,
+    "api_request_performed": false
+  }
+}

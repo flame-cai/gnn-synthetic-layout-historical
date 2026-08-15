@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0014.jpg" imageWidth="2500" imageHeight="912">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>14</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सूऽजातरूचागतः सर्वधर्मवह्मतः॥ नत्रियामागधं वैश्याम्नूजानन्नतारमेवच॥श्रूद्रासयोगवं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वैश्याजनयामासवैस्तं॥माहिष्येराकरएयोतुरथकारःप्रजामते॥अमन्संततसविजेपाःप्रतिलोमा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>नृलोमगीजाः॥जात्युक्तषौयुगेज्ञेयःसप्तमेपंचमेपिवा॥व्यतायेकम्मरणासाम्पपूर्ववज्राघरोत्तरं॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>इतिवर्णजातिप्रकरणं॥क्रमस्मात्तेजिवाहाग्नौक्रवीतपत्यहंगही॥दायकालाहतेवापिश्यै</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>तंवैतानिकाग्निषु॥शरीरचिंतानिर्वर्त्तकृतसौचविधिर्द्विजः॥प्रातसंध्यामुपासीतदंतथावनपू</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विकं॥हलाग्नीन्सूर्यदैवत्यानजपेन्मंत्रान्समाहितः॥वेदायीनधिगदेश्चशास्त्राणव</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>धानिच॥उपेयादीश्वरैर्वैयोगक्षेमार्चसिदये॥स्त्रात्रादेवान्पितॄंश्चैवतपयेदर्चयेत्तथा॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>वैदान्यर्वपुराणानिसेतहासानिशक्तितः॥जपयज्ञप्रसिद्धयर्थंचोद्याध्यालिकीजयेत्॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>अधरोतरं प्रति</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>लेमानकैतो</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>माहिर-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_13">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>प्रतच्छ्रयाप्तिः योगलखस्पत्नपाननक्षेमः २=</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

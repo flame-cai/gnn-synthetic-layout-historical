@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "f04de057563d8c97c84cec2fe022d60411d041ff8b13bc8428c1ac75e8e36b1a",
+  "manuscript_id": "yajn",
+  "page_id": "233_0016",
+  "provider_id": "gemini",
+  "method_id": "gemini_e2e",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "f76fa3fe6445cd8978b6edd9359aac620a412d0f16a9b474b8eec29bc802a359",
+  "pagexml_sha256": "4f41e2597f303f0e26e99dc77329cc7a9efb931b9d6caf24fa811537dd212f00",
+  "status": "success",
+  "error": null,
+  "attempt_count": 3,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.10999999999967,
+      "error": "ReadTimeout: The read operation timed out"
+    },
+    {
+      "attempt": 2,
+      "status": "api_error",
+      "elapsed_seconds": 45.14000000000033,
+      "error": "ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}"
+    },
+    {
+      "attempt": 3,
+      "status": "success",
+      "elapsed_seconds": 19.29700000000048,
+      "input_tokens": 1455,
+      "output_tokens": 1663,
+      "total_tokens": 7052,
+      "response_id": "P-lZavOLJaTPpgeh-Lz4CA",
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 1455,
+  "output_tokens": 1663,
+  "total_tokens": 7052,
+  "elapsed_seconds": 112.57799999999952,
+  "completed_at_utc": "2026-07-17T08:35:29.819478+00:00",
+  "prediction_path": "prediction.xml"
+}

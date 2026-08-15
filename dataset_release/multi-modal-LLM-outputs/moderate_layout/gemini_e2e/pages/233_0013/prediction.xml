@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0013.jpg" imageWidth="2500" imageHeight="926">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="320,102 2445,102 2445,39 320,39" />
+			<TextLine id="line_0">
+				<Coords points="320,102 2445,102 2445,39 320,39" />
+				<TextEquiv>
+					<Unicode>द्वितीयां चैव यो भार्या दहेदग्निकाउनिभिः जीवंत्या प्रथमयानुसुरापन समं स्मृतं ॥४॥ मृतायां तु द्वितीयांतु योऽग्निहोत्र समुत्सृजेत् ब्रह्मघ्नं तं विजानी</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="302,144 2045,144 2045,69 302,69" />
+			<TextLine id="line_1">
+				<Coords points="302,144 2045,144 2045,69 302,69" />
+				<TextEquiv>
+					<Unicode>ब्राह्मणेन क्षत्रियायां उत्पादितः क्षत्रियः एव क्षत्रियेण वैश्यायां उत्पादितः वैश्यः एव वैश्येन शूद्रायां उत्पादितः शूद्रः एव ॥६॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="138,208 325,208 325,139 138,139" />
+			<TextLine id="line_2">
+				<Coords points="138,208 325,208 325,139 138,139" />
+				<TextEquiv>
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="38,296 288,296 288,218 38,218" />
+			<TextLine id="line_3">
+				<Coords points="38,296 288,296 288,218 38,218" />
+				<TextEquiv>
+					<Unicode>शास्त्रोक्तविधिना विवाहतास्त्री १२</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_4" custom="region_4">
+			<Coords points="38,454 225,454 225,380 38,380" />
+			<TextLine id="line_4">
+				<Coords points="38,454 225,454 225,380 38,380" />
+				<TextEquiv>
+					<Unicode>द्वेयोक्तव्याः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_5" custom="region_5">
+			<Coords points="38,745 288,745 288,662 38,662" />
+			<TextLine id="line_5">
+				<Coords points="38,745 288,745 288,662 38,662" />
+				<TextEquiv>
+					<Unicode>शास्त्रोक्तविवाह तास्तुर</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_6" custom="region_6">
+			<Coords points="2125,190 2225,190 2225,125 2125,125" />
+			<TextLine id="line_6">
+				<Coords points="2125,190 2225,190 2225,125 2125,125" />
+				<TextEquiv>
+					<Unicode>13</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="308,287 2238,287 2238,204 308,204" />
+			<TextLine id="line_7">
+				<Coords points="308,287 2238,287 2238,204 308,204" />
+				<TextEquiv>
+					<Unicode>नोतिः पुत्राश्च वार्द्धके ॥ मृजावेतातयस्तेषां स्वातंत्र्यं न क्वचित् स्त्रियाः ॥ पितृमातृसुतभ्रातृश्व</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="312,352 2238,352 2238,278 312,278" />
+			<TextLine id="line_8">
+				<Coords points="312,352 2238,352 2238,278 312,278" />
+				<TextEquiv>
+					<Unicode>शूश्वशुरमातुलैः ॥ हीना न स्याद्विना भर्त्रा गर्हणीयान्यथा भवेत् ॥ पतिप्रियहिते युक्ता स्वाचा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="312,417 2238,417 2238,338 312,338" />
+			<TextLine id="line_9">
+				<Coords points="312,417 2238,417 2238,338 312,338" />
+				<TextEquiv>
+					<Unicode>रा विजितेन्द्रिया ॥ सेह कीर्त्तिमवाप्नोति प्रेत्य चानुत्तमां गतिं ॥ स व्यामन्द्या सवर्णीयां धर्म्मकार्यं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="312,482 2238,482 2238,403 312,403" />
+			<TextLine id="line_10">
+				<Coords points="312,482 2238,482 2238,403 312,403" />
+				<TextEquiv>
+					<Unicode>न कारयेत् ॥ सवर्णासु विधौ धर्म्मे ज्येष्ठयान विनेतराः ॥ दाहयित्वाग्निहोत्रेण स्त्रियं वृत्तवतीं पतिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="312,546 2238,546 2238,472 312,472" />
+			<TextLine id="line_11">
+				<Coords points="312,546 2238,546 2238,472 312,472" />
+				<TextEquiv>
+					<Unicode>आहरेद्विधिवद्दारानग्नींश्चाविलंबयन् ॥ इति विवाहप्रकरणं ॥ सवर्णेभ्यः सवर्णासु जायन्ते</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="312,607 2238,607 2238,528 312,528" />
+			<TextLine id="line_12">
+				<Coords points="312,607 2238,607 2238,528 312,528" />
+				<TextEquiv>
+					<Unicode>हिसजातियः ॥ अप्रशस्तेषु विवाहेषु पुत्राः संतानवर्द्धनाः ॥ विप्रात्त्रिमूर्द्धावसितो हि क्षत्रियायां विशस्तु</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="312,671 2238,671 2238,588 312,588" />
+			<TextLine id="line_13">
+				<Coords points="312,671 2238,671 2238,588 312,588" />
+				<TextEquiv>
+					<Unicode>यां ॥ अंबष्ठः शूद्र्यां निषादो जातः पारशवोऽपि वा ॥ वैश्या शूद्रोस्तु राजन्यान्माहिष्योग्रौ सुतौ स्मृतौ</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_7" custom="region_7">
+			<Coords points="312,736 2238,736 2238,657 312,657" />
+			<TextLine id="line_14">
+				<Coords points="312,736 2238,736 2238,657 312,657" />
+				<TextEquiv>
+					<Unicode>॥ वैश्यात्तु करणाच्छूद्र्यां विन्नास्वेष विधिः स्मृतः ॥ ब्राह्मण्यां क्षत्रियात्सूतो वैश्याद्वैदेहिकस्तथा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_8" custom="region_8">
+			<Coords points="300,857 1588,857 1588,773 300,773" />
+			<TextLine id="line_15">
+				<Coords points="300,857 1588,857 1588,773 300,773" />
+				<TextEquiv>
+					<Unicode>प्रमीतायामपि पुत्राः पूर्वैः कृता वृतवती गुरुवती श्रोत्रियविना रहित्या तदभावेन स्नातेन ॥४॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_9" custom="region_9">
+			<Coords points="1588,833 2350,833 2350,773 1588,773" />
+			<TextLine id="line_16">
+				<Coords points="1588,833 2350,833 2350,773 1588,773" />
+				<TextEquiv>
+					<Unicode>शीघ्रमेव मृतायाम्यमीनतीरेनुद्दनमेकमपि द्विजः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

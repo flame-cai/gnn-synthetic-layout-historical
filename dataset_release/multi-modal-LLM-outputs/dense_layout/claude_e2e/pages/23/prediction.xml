@@ -1,0 +1,253 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="23.jpg" imageWidth="3500" imageHeight="1586">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1302,143 3482,143 3482,87 1302,87" />
+			<TextLine id="line_1">
+				<Coords points="1302,143 3482,143 3482,87 1302,87" />
+				<TextEquiv>
+					<Unicode>जन्मकाले चंद्रो लग्नाच्चउपचयस्थानस्थितारा शुभा या नां बलं लग्नगता: शुभा भवंति ।५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2205,206 3482,206 3482,151 2205,151" />
+			<TextLine id="line_2">
+				<Coords points="2205,206 3482,206 3482,151 2205,151" />
+				<TextEquiv>
+					<Unicode>जन्मकाले स्वराशिउत्रा शिमित्वराशिगता: पापाश्रपि तनुगताश्च शुभाभवंति ।५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1302,262 2205,262 2205,206 1302,206" />
+			<TextLine id="line_3">
+				<Coords points="1302,262 2205,262 2205,206 1302,206" />
+				<TextEquiv>
+					<Unicode>विदुला केमेला हे ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="2205,301 3482,301 3482,246 2205,246" />
+			<TextLine id="line_4">
+				<Coords points="2205,301 3482,301 3482,246 2205,246" />
+				<TextEquiv>
+					<Unicode>मित्रगृहस्पवा सूर्यलग्ने पापो पिशुभ: ।६</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,373 1295,373 1295,293 52,293" />
+			<TextLine id="line_5">
+				<Coords points="52,373 1295,373 1295,293 52,293" />
+				<TextEquiv>
+					<Unicode>जन्मराशिजन्मल
+निशारात्रु: ।३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,381 3482,381 3482,317 1312,317" />
+			<TextLine id="line_6">
+				<Coords points="1312,381 3482,381 3482,317 1312,317" />
+				<TextEquiv>
+					<Unicode>योर्वा कुज: ए हृद्यो हि विग तोगुरुर्जेल नदि व्या यु व्ययस्थो भृगुर्वा दोषहसुतेगोविधुभिन्नू</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,436 3482,436 3482,381 1312,381" />
+			<TextLine id="line_7">
+				<Coords points="1312,436 3482,436 3482,381 1312,381" />
+				<TextEquiv>
+					<Unicode>ति दिव्यष्ठां के संस्थं तम: ।४ वकीकेंद्रगतस्तरीय दिवसोलग्नेस्वंगोभवेधातुनाशकर:शुभो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,460 1295,460 1295,373 52,373" />
+			<TextLine id="line_8">
+				<Coords points="52,460 1295,460 1295,373 52,373" />
+				<TextEquiv>
+					<Unicode>सर्वादिग्रहजन्मसौ
+रि ।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,500 3482,500 3482,444 1312,444" />
+			<TextLine id="line_9">
+				<Coords points="1312,500 3482,500 3482,444 1312,444" />
+				<TextEquiv>
+					<Unicode>पितनुगोजन्मेर्लग्नेत्रिपु: दीशाग्न्यं बजभागृपभानिगुरुभंपोहनातकेसार्वभंजन्मसौ ति</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,555 1295,555 1295,468 52,468" />
+			<TextLine id="line_10">
+				<Coords points="52,555 1295,555 1295,468 52,468" />
+				<TextEquiv>
+					<Unicode>सूर्यहिता केमेल: यं
+वैकुपलवगत:</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,563 3482,563 3482,508 1312,508" />
+			<TextLine id="line_11">
+				<Coords points="1312,563 3482,563 3482,508 1312,508" />
+				<TextEquiv>
+					<Unicode>वेरुपल्वगत: स्वेटस्तनोहात्रिहत ।५५ वेश: सौम्ययुतस्तनौ जनुबिये सडिष्ठुतागश्यो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,619 3482,619 3482,563 1312,563" />
+			<TextLine id="line_12">
+				<Coords points="1312,619 3482,619 3482,563 1312,563" />
+				<TextEquiv>
+					<Unicode>जन्मोश्रीपच्चयास्थिताश्रपितनो:स्वदेशिविनवेर्गा: पापाश्रपतिरोभनातनुगताजोनेश्च</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,626 1295,626 1295,555 52,555" />
+			<TextLine id="line_13">
+				<Coords points="52,626 1295,626 1295,555 52,555" />
+				<TextEquiv>
+					<Unicode>स्पजनाभनिविवि
+धोऽगृहतंत्रसो</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,682 3482,682 3482,619 1312,619" />
+			<TextLine id="line_14">
+				<Coords points="1312,682 3482,682 3482,619 1312,619" />
+				<TextEquiv>
+					<Unicode>रोकेंद्रगोंत्स्वारोत्सदिन्नौशुभोनफलरोभिनोहिपापोर्थद। ।६। ग्रथार्थन्य१।२।४।५।७।८।९१०</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,698 1295,698 1295,634 52,634" />
+			<TextLine id="line_15">
+				<Coords points="52,698 1295,698 1295,634 52,634" />
+				<TextEquiv>
+					<Unicode>ग्रहोलग्नगोहानि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,745 3482,745 3482,682 1312,682" />
+			<TextLine id="line_16">
+				<Coords points="1312,745 3482,745 3482,682 1312,682" />
+				<TextEquiv>
+					<Unicode>१२गता:व१ता:व१०नेजो१वांस्याघवष्ठाब।२१।६।८गोन्रय:सोप्वचितोस्त३र्खाब्९चु४सुतप</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,753 1295,753 1295,698 52,698" />
+			<TextLine id="line_17">
+				<Coords points="52,753 1295,753 1295,698 52,698" />
+				<TextEquiv>
+					<Unicode>छर्देवति ।७</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,809 1295,809 1295,753 52,753" />
+			<TextLine id="line_18">
+				<Coords points="52,809 1295,809 1295,753 52,753" />
+				<TextEquiv>
+					<Unicode>स्वजनसुतास्वधन</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,809 3482,809 3482,745 1312,745" />
+			<TextLine id="line_19">
+				<Coords points="1312,809 3482,809 3482,745 1312,745" />
+				<TextEquiv>
+					<Unicode>ग:शुक्रौस्तर्जोर्तो नत्रौव्य१२गोग्हानित पार्शीयातुर्महाविधदा: ऽन्यस्थानगृहा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,864 3482,864 3482,809 1312,809" />
+			<TextLine id="line_20">
+				<Coords points="1312,864 3482,864 3482,809 1312,809" />
+				<TextEquiv>
+					<Unicode>जयार्थसुखसौंदुबंपुरो केनचेत ।७ स्वगामैकपुरामसंयत्तुतुर्वक्रेचतुःशालकेत्रहा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,856 1295,856 1295,801 52,801" />
+			<TextLine id="line_21">
+				<Coords points="52,856 1295,856 1295,801 52,801" />
+				<TextEquiv>
+					<Unicode>मलग्नेशत्रुवासी
+दे।=६</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="52,904 1295,904 1295,856 52,856" />
+			<TextLine id="line_22">
+				<Coords points="52,904 1295,904 1295,856 52,856" />
+				<TextEquiv>
+					<Unicode>स्तः।=८</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,920 3482,920 3482,864 1312,864" />
+			<TextLine id="line_23">
+				<Coords points="1312,920 3482,920 3482,864 1312,864" />
+				<TextEquiv>
+					<Unicode>है च वधर्धवेशश्रपभौतुभिस्तपीडुसुच तीर्थस्वामिनिदेराथोर्भृगुवशिष्ठाश्रगिर: काश्यप</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,975 3482,975 3482,920 1312,920" />
+			<TextLine id="line_24">
+				<Coords points="1312,975 3482,975 3482,920 1312,920" />
+				<TextEquiv>
+					<Unicode>भारद्वाजजवात्सयोहितकंर्यानंसितसोनुखं ।९ चंद्रेरषभमेषगोसाति सितोंधः:सा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,1031 3482,1031 3482,975 1312,975" />
+			<TextLine id="line_25">
+				<Coords points="1312,1031 3482,1031 3482,975 1312,975" />
+				<TextEquiv>
+					<Unicode>तदान्समुखंयानंसंसरसर्वयोःसितविवैयासाल्सदावृप के राजातपितिवरिभस्रुरहुहत</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1312,1118 3482,1118 3482,1063 1312,1063" />
+			<TextLine id="line_26">
+				<Coords points="1312,1118 3482,1118 3482,1063 1312,1063" />
+				<TextEquiv>
+					<Unicode>गमनगत्येमितश्रेसर्वदिशितदापश्चिमयात्रापश्चिमेत्तरसर्वदियात्रा</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1610,1182 3150,1182 3150,1126 1610,1126" />
+			<TextLine id="line_27">
+				<Coords points="1610,1182 3150,1182 3150,1126 1610,1126" />
+				<TextEquiv>
+					<Unicode>कर्ता गोलभ्रमरीत्वेवंसमुखश्रकपरिहार: ।१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

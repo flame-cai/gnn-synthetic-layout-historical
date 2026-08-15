@@ -1,0 +1,10 @@
+{
+  "attempt": 1,
+  "status": "success",
+  "elapsed_seconds": 6.7810000000172295,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "response_id": "20260720_d774c93e-0900-4011-87a4-1e2d01b1243f",
+  "finish_reason": "Completed"
+}

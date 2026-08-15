@@ -1,0 +1,6 @@
+{
+  "attempt": 1,
+  "status": "api_timeout",
+  "elapsed_seconds": 45.32799999999952,
+  "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+}

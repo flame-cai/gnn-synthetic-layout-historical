@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "5d364ce610e0e1c12c7ca26b4261fb27b7aee491ac6f9f39c2fc822966121001",
+  "manuscript_id": "circle_new",
+  "page_id": "56",
+  "provider_id": "claude",
+  "method_id": "claude_e2e",
+  "model_id": "claude-sonnet-5",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "cac2b28c05dfd679ab9414b6adcf716f096e09c948b36842650a51869357dca5",
+  "pagexml_sha256": "e9f0c8a306d9fd67fa146e5ec03a93f463f4dc142851ca3d449a4a1fdfd12928",
+  "status": "api_timeout",
+  "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.",
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.61000000000058,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 2,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.23400000000038,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 3,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.375,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    },
+    {
+      "attempt": 4,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.25,
+      "error": "APITimeoutError: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details."
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "total_tokens": 0,
+  "elapsed_seconds": 188.53100000000086,
+  "completed_at_utc": "2026-07-17T09:29:37.404149+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 2
+}

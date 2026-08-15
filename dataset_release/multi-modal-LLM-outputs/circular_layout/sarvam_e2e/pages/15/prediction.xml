@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="15.jpg" imageWidth="2684" imageHeight="3500">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>कामेश्वरी मूलविद्यायाश्चनाहताअक्षरात्रमी असकलहरनतयमदव ११</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>एभिरेव द्वादशभिषोउशस्वरसंयोजने दिनवत्सत्तरंशतसत्याका</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मंत्रवर्णाजायते तेषुषडिभक्तेषुहात्रिलभ्यन्ते तत्रप्रतिषट्कोएं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सएमंत्रन्यासे सति हात्रिंशद्यैत्राणिहात्रिंशत्फलभेदभिन्नानिजायन्ने नयथा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>यत्र १ श्रंआईईउंउंसे</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>© Dharmartha Trust J&amp;K. Digitized by eGangotri</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

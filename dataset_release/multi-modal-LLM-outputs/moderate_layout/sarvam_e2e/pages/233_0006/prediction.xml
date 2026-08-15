@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0006.jpg" imageWidth="2500" imageHeight="950">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>किया चूअकमे ५</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ब्रह्मचारीइतिकेषः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>ब्रह्मचारीइतिकेषः ४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>याज्ञव०३</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>मनं घेवारलॄतये॥आदिमर्ध्यवसानेपुनबैच्छन्दोपलक्षिता॥ब्राह्मणप्रियविशे।जैत्रचर्यायथा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>क्रम॥कृताभिनकाकैन्जुजीतवाग्यतोगुर्चनुतया॥आपोशानकिंयापूर्वसल्लसानुमकुदाप</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>न॥ब्रह्मणवेसिथतोएकमन्नमघारनापदि॥ब्राह्मणकाममश्रीयात्यादेव्रतमपीडयुत्तम</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>धुमासांजनोदित्यसक्तस्त्रीप्राणिहंसने॥नास्करालेखनाप्रीलापरवादादिवर्जयेत्सःगुरुर्वःअरुन्धनाषरा॥४</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>गायत्रीव्यतिरिक्तः</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>क्रियारूलावैदमस्सौत्रइति॥उपनीयदददेद्माचार्यःसगुदाहृतः॥एकेदेशमुध्यायज्ञविद्युत</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_11">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रुदुच्यते॥एतेमान्यायथापूर्वमेन्यामातागरीयसी॥प्रतिवेदंब्रहत्कार्येद्वान्शाब्दानपंच</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_12">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पाणग्रहणपर्यन्तवा॥ग्रहणांतिकामत्यन्येकेषांत्तश्चैवषोडशो॥आषोउशाद्रादविशाश्वतुर्विशाञ्चवस राम ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="10.jpg" imageWidth="3500" imageHeight="1511">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+		</TextRegion>
+	</Page>
+</PcGts>

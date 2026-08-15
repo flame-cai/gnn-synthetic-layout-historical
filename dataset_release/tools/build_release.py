@@ -25,10 +25,22 @@ Layout produced:
             labels/page_xml_baselines/  PAGE-XML: Baseline only
             labels/line_geometry/   per-line kind, topology, reading direction
             labels/line_images/     rectified line crops
+        multi-modal-LLM-outputs/<manuscript>/<method>/
+            manifest.json           the run: provider, model, prompt digest, per-page status
+            pages/<page>/           request, per-attempt records, prediction.xml
 
 The release is a *labels* dataset. It contains ground truth and the inputs the
 ground truth is defined on. It deliberately does not contain machine
 pre-correction state, correction deltas, or annotation timing.
+
+``multi-modal-LLM-outputs/`` is the one exception to "ground truth only", and is
+marked as such everywhere it appears: it holds the baseline multi-modal LLM runs
+reported in the paper. They are *predictions*, not labels. They are shipped so
+that the reported baseline numbers can be recomputed without re-running paid
+APIs against models that will not stay reproducible. This stage renames the
+manuscript directories to the released ids and rewrites the two absolute
+authoring-machine paths in each ``request.json``; everything else is copied
+byte-for-byte, including every recorded digest.
 
 EXCLUDED from the authoring tree, and why:
 
@@ -47,6 +59,9 @@ EXCLUDED from the authoring tree, and why:
                                     annotation timing and edit telemetry.
   * per-line polygon-builder telemetry inside the line-segmentation metadata,
     including absolute paths from the authoring machine.
+  * ``image_path`` and ``pagexml_path`` inside every prediction ``request.json``:
+    absolute paths on the authoring machine, rewritten to release-relative paths.
+    The ``*_sha256`` field beside each one is the load-bearing record and is kept.
 """
 
 from __future__ import annotations
@@ -78,6 +93,15 @@ PAGEXML_DIR = "page_xml"                    # page-xml-format
 BASELINES_DIR = "page_xml_baselines"        # _baseline_page_xml
 GEOMETRY_DIR = "line_geometry"              # *_line_segmentation_metadata.json
 LINE_IMAGES_DIR = "line_images"             # image-format
+PREDICTIONS_DIR = "multi-modal-LLM-outputs"  # baseline VLM runs; predictions, not labels
+
+# The two absolute authoring-machine paths in each prediction request, and what
+# they are rewritten to. The digest recorded beside each is left untouched, so
+# what the model was actually shown stays checkable (verify_dataset.py, P4/P5).
+REQUEST_PATH_FIELDS = {
+    "image_path": f"{MANUSCRIPTS_DIR}/{{release_id}}/{INPUTS_DIR}/{{page_id}}.jpg",
+    "pagexml_path": f"{MANUSCRIPTS_DIR}/{{release_id}}/{LABELS_DIR}/{PAGEXML_DIR}/{{page_id}}.xml",
+}
 
 # authoring id -> (released id, redistribute page rasters?)
 MANUSCRIPTS = [
@@ -653,6 +677,103 @@ def build_indexes(
 
 
 # --------------------------------------------------------------------------
+# multi-modal LLM baseline predictions
+# --------------------------------------------------------------------------
+
+
+def normalize_prediction_request(path: Path, release_id: str, page_id: str) -> dict:
+    """Rewrite the authoring-machine paths in one request record, in place."""
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    for field, template in REQUEST_PATH_FIELDS.items():
+        if field in payload:
+            payload[field] = template.format(release_id=release_id, page_id=page_id)
+    write_json(path, payload)
+    return payload
+
+
+def build_prediction_run(run_dir: Path, release_id: str) -> dict:
+    """Normalize one <manuscript>/<method> run and summarize it for the manifest."""
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    provider = manifest.get("provider") or {}
+    page_ids = list(manifest.get("page_ids") or sorted(manifest.get("pages") or {}))
+
+    statuses = Counter()
+    conditioning = None
+    attempt_total = 0
+    for page_id in page_ids:
+        page_dir = run_dir / "pages" / page_id
+        request_path = page_dir / "request.json"
+        if request_path.exists():
+            request = normalize_prediction_request(request_path, release_id, page_id)
+            if conditioning is None:
+                conditioning = request.get("input_order")
+        result = json.loads((page_dir / "result.json").read_text(encoding="utf-8"))
+        statuses[result["status"]] += 1
+        attempt_total += int(result.get("attempt_count") or 0)
+
+    success = statuses.get("success", 0)
+    return {
+        "manuscript_id": release_id,
+        "method_id": provider.get("method_id", run_dir.name),
+        "provider_id": provider.get("provider_id"),
+        "display_name": provider.get("display_name"),
+        "model_id": provider.get("model_id"),
+        "conditioning": conditioning,
+        "output_adapter_id": provider.get("output_adapter_id"),
+        "prompt_sha256": manifest.get("prompt_sha256"),
+        "request_contract_version": provider.get("request_contract_version"),
+        "max_retries_after_initial_attempt": manifest.get("max_retries_after_initial_attempt"),
+        "page_count": len(page_ids),
+        "page_ids": page_ids,
+        "success_count": success,
+        "failure_count": len(page_ids) - success,
+        "status_counts": dict(sorted(statuses.items())),
+        "attempt_count": attempt_total,
+        "written_at_utc": manifest.get("written_at_utc"),
+    }
+
+
+def build_predictions(release_root: Path, source_root: Path | None) -> list[dict]:
+    """Ingest the baseline VLM runs. Returns one summary per <manuscript>/<method>.
+
+    ``source_root`` is a tree of ``<authoring manuscript id>/<method>/``. When it
+    is omitted the release's own directory is normalized in place, which is what
+    happens when the runs were dropped straight into the release; either way the
+    result is identical and re-running is a no-op. A run tree still carrying an
+    authoring id wins over an already-released one of the same manuscript: it is
+    the tree that was just dropped in.
+    """
+    dst = release_root / PREDICTIONS_DIR
+
+    if source_root is not None and source_root.resolve() != dst.resolve():
+        if dst.exists():
+            shutil.rmtree(dst)
+        dst.mkdir(parents=True)
+        for source_id, release_id, _ in MANUSCRIPTS:
+            if (source_root / source_id).is_dir():
+                shutil.copytree(source_root / source_id, dst / release_id)
+    elif dst.is_dir():
+        for source_id, release_id, _ in MANUSCRIPTS:
+            if (dst / source_id).is_dir():
+                if (dst / release_id).exists():
+                    shutil.rmtree(dst / release_id)
+                (dst / source_id).rename(dst / release_id)
+
+    if not dst.is_dir():
+        return []
+
+    runs = []
+    for _, release_id, _ in MANUSCRIPTS:
+        manuscript_dir = dst / release_id
+        if not manuscript_dir.is_dir():
+            continue
+        for run_dir in sorted(p for p in manuscript_dir.iterdir() if p.is_dir()):
+            print(f"[build] predictions {release_id}/{run_dir.name}", flush=True)
+            runs.append(build_prediction_run(run_dir, release_id))
+    return runs
+
+
+# --------------------------------------------------------------------------
 # release-level artifacts
 # --------------------------------------------------------------------------
 
@@ -677,6 +798,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-root", required=True, type=Path)
     parser.add_argument("--release-root", required=True, type=Path)
+    parser.add_argument(
+        "--predictions-source",
+        type=Path,
+        default=None,
+        help=(
+            "tree of <authoring manuscript id>/<method>/ baseline VLM runs. "
+            f"Defaults to normalizing <release-root>/{PREDICTIONS_DIR} in place."
+        ),
+    )
     args = parser.parse_args()
 
     release_root: Path = args.release_root
@@ -689,8 +819,10 @@ def main() -> int:
             build_manuscript(args.source_root, release_root, source_id, release_id, include_rasters)
         )
 
+    predictions = build_predictions(release_root, args.predictions_source)
+
     manifest = {
-        "schema": "manuscript_layout_dataset/manifest-2",
+        "schema": "manuscript_layout_dataset/manifest-3",
         "dataset_name": "Sanskrit Manuscript Layout Regimes",
         "manuscripts": stats,
         "totals": {
@@ -715,12 +847,35 @@ def main() -> int:
             "note": "Folds are resampled draws, not a partition: training sets overlap and pages recur across test sets.",
         },
     }
+    if predictions:
+        status_counts = Counter()
+        for run in predictions:
+            status_counts.update(run["status_counts"])
+        manifest["predictions"] = {
+            "schema": "vlm_predictions-1",
+            "directory": PREDICTIONS_DIR,
+            "note": (
+                "Baseline multi-modal LLM outputs reported in the paper. Predictions, not "
+                "ground truth: do not train on them and do not score anything against them."
+            ),
+            "totals": {
+                "run_count": len(predictions),
+                "method_count": len({run["method_id"] for run in predictions}),
+                "page_request_count": sum(run["page_count"] for run in predictions),
+                "success_count": sum(run["success_count"] for run in predictions),
+                "failure_count": sum(run["failure_count"] for run in predictions),
+                "status_counts": dict(sorted(status_counts.items())),
+            },
+            "runs": predictions,
+        }
     write_json(release_root / "dataset_manifest.json", manifest)
     (release_root / "SOURCES.bib").write_text(SOURCES_BIB, encoding="utf-8")
 
     count = write_checksums(release_root)
     print(f"[build] wrote CHECKSUMS.sha256 with {count} entries", flush=True)
     print(json.dumps(manifest["totals"], indent=2))
+    if predictions:
+        print(json.dumps(manifest["predictions"]["totals"], indent=2))
     return 0
 
 

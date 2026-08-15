@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "771a45dcdb010d95a1f855f10eeef0ef7acedd04abd015ff4c20e206fc3a64c9",
+  "manuscript_id": "circle_new",
+  "page_id": "49",
+  "provider_id": "gemini",
+  "method_id": "gemini_e2e",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "image_sha256": "ac83e11b426863812f2a5383bdedf4ae35c7d977412c3b1e20bebba7a0fc5395",
+  "pagexml_sha256": "de74d99c30032f413ce4e7ff0e7fa4a5e3e0536eb9885325184a7e9ceba1df81",
+  "status": "success",
+  "error": null,
+  "attempt_count": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "success",
+      "elapsed_seconds": 16.48399999999947,
+      "input_tokens": 1467,
+      "output_tokens": 1932,
+      "total_tokens": 5944,
+      "response_id": "qulZauXlM9ufjuMP5-7x4QM",
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 1467,
+  "output_tokens": 1932,
+  "total_tokens": 5944,
+  "elapsed_seconds": 16.5,
+  "completed_at_utc": "2026-07-17T08:37:14.086935+00:00",
+  "prediction_path": "prediction.xml"
+}

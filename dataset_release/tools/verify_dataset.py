@@ -3,9 +3,11 @@
     python tools/verify_dataset.py --release-root .
     python tools/verify_dataset.py --release-root . --skip-checksums
 
+    python tools/verify_dataset.py --release-root . --skip-predictions
+
 Requires numpy and Pillow only. Exit status is 0 when every check passes, 1 otherwise.
 
-Two independent classes of check are run.
+Three independent classes of check are run.
 
 1. Integrity. Every file listed in ``CHECKSUMS.sha256`` exists and hashes to the
    recorded digest, and no unlisted file is present.
@@ -25,8 +27,25 @@ Two independent classes of check are run.
          every referenced line-crop file exists
      C9  every fold in ``folds/`` partitions that manuscript's page set
 
+3. Predictions. ``multi-modal-LLM-outputs/`` holds baseline multi-modal LLM runs.
+   They are predictions, never labels, so nothing about the ground truth depends
+   on them; what must hold is that each run is complete and was produced against
+   the inputs actually shipped here.
+
+     P1  every run covers exactly that manuscript's released page set
+     P2  every page has request.json, result.json and prediction.xml, at the
+         paths the run manifest declares, and the two agree on the status
+     P3  the manifest's success/failure counts match the per-page statuses
+     P4  ``image_sha256`` == the released page raster (its ``derived_sha256``
+         in ``inputs/RASTER_MANIFEST.json`` where the raster is withheld)
+     P5  ``pagexml_sha256`` == the released PAGE-XML, for runs that were given
+         the ground-truth layout as an input
+     P6  prediction.xml parses as PAGE-XML and its imageFilename, imageWidth and
+         imageHeight match the released page; request.json carries no absolute
+         path from the authoring machine
+
 Manuscript trees are read from ``<release-root>/manuscripts/<manuscript>/``;
-``folds/`` is read from the release root.
+``folds/`` and ``multi-modal-LLM-outputs/`` are read from the release root.
 """
 
 from __future__ import annotations
@@ -47,6 +66,11 @@ NS = {"p": PAGE_NS}
 
 MANUSCRIPTS_DIR = "manuscripts"
 MANUSCRIPTS = ("moderate_layout", "dense_layout", "circular_layout")
+PREDICTIONS_DIR = "multi-modal-LLM-outputs"
+
+# The input that makes a run layout-conditioned rather than end-to-end. Only for
+# these is the released PAGE-XML part of what the model was shown (P5).
+LAYOUT_INPUT = "ground_truth_layout_traces"
 
 
 class Report:
@@ -238,10 +262,159 @@ def verify_manuscript(root: Path, manuscript: str, report: Report) -> None:
             )
 
 
+def released_image_digest(base: Path, page_id: str) -> str | None:
+    """SHA-256 of the released page raster, from the withheld-raster manifest when
+    the raster itself is not shipped. Both name the same bytes."""
+    raster = base / "inputs" / f"{page_id}.jpg"
+    if raster.exists():
+        return sha256_file(raster)
+    raster_manifest = base / "inputs" / "RASTER_MANIFEST.json"
+    if raster_manifest.exists():
+        for entry in json.loads(raster_manifest.read_text(encoding="utf-8"))["pages"]:
+            if entry["page_id"] == page_id:
+                return entry["derived_sha256"]
+    return None
+
+
+def is_release_relative(value: str) -> bool:
+    """A path that stayed inside the release: no drive letter, no root, no UNC."""
+    return bool(value) and "\\" not in value and ":" not in value and not value.startswith("/")
+
+
+def verify_predictions(root: Path, report: Report) -> None:
+    report.section("predictions: multi-modal LLM baselines")
+    predictions_root = root / PREDICTIONS_DIR
+    if not predictions_root.is_dir():
+        report.check(False, f"P1: {PREDICTIONS_DIR}/ is missing")
+        return
+
+    statuses: Counter = Counter()
+    run_total = 0
+    request_total = 0
+
+    for manuscript in MANUSCRIPTS:
+        base = root / MANUSCRIPTS_DIR / manuscript
+        manuscript_dir = predictions_root / manuscript
+        report.check(manuscript_dir.is_dir(), f"P1 {manuscript}: no prediction runs shipped")
+        if not manuscript_dir.is_dir():
+            continue
+
+        pagexml_dir = base / "labels" / "page_xml"
+        released_pages = sorted(p.stem for p in pagexml_dir.glob("*.xml"))
+        page_size = {}
+        for page_id in released_pages:
+            released = read_page_xml(pagexml_dir / f"{page_id}.xml")
+            page_size[page_id] = (released["width"], released["height"])
+        image_digest = {page_id: released_image_digest(base, page_id) for page_id in released_pages}
+        pagexml_digest = {
+            page_id: sha256_file(pagexml_dir / f"{page_id}.xml") for page_id in released_pages
+        }
+
+        for run_dir in sorted(d for d in manuscript_dir.iterdir() if d.is_dir()):
+            run = f"{manuscript}/{run_dir.name}"
+            run_total += 1
+            manifest_path = run_dir / "manifest.json"
+            report.check(manifest_path.exists(), f"P1 {run}: manifest.json missing")
+            if not manifest_path.exists():
+                continue
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+            # P1 -- the run covers exactly the pages this release ships
+            report.check(
+                sorted(manifest.get("page_ids") or []) == released_pages,
+                f"P1 {run}: manifest page_ids != the manuscript's released pages",
+            )
+            report.check(
+                sorted(manifest.get("pages") or {}) == released_pages,
+                f"P1 {run}: per-page records do not cover the released pages",
+            )
+
+            run_statuses: Counter = Counter()
+            for page_id in released_pages:
+                prefix = f"{run}/{page_id}"
+                declared = (manifest.get("pages") or {}).get(page_id) or {}
+                page_dir = run_dir / "pages" / page_id
+                request_path = page_dir / "request.json"
+                result_path = run_dir / declared.get("result_path", f"pages/{page_id}/result.json")
+                prediction_path = run_dir / declared.get(
+                    "prediction_path", f"pages/{page_id}/prediction.xml"
+                )
+
+                # P2 -- the three per-page records exist where the manifest says
+                report.check(request_path.exists(), f"P2 {prefix}: request.json missing")
+                report.check(result_path.exists(), f"P2 {prefix}: {result_path.name} missing")
+                report.check(prediction_path.exists(), f"P2 {prefix}: prediction.xml missing")
+                if not (request_path.exists() and result_path.exists() and prediction_path.exists()):
+                    continue
+
+                request = json.loads(request_path.read_text(encoding="utf-8"))
+                result = json.loads(result_path.read_text(encoding="utf-8"))
+                request_total += 1
+                run_statuses[result["status"]] += 1
+                report.check(
+                    declared.get("status") == result["status"],
+                    f"P2 {prefix}: manifest status {declared.get('status')!r} != result {result['status']!r}",
+                )
+
+                # P4 -- the model was shown the raster this release ships
+                report.check(
+                    result.get("image_sha256") == image_digest.get(page_id),
+                    f"P4 {prefix}: image_sha256 != the released page raster",
+                )
+
+                # P5 -- layout-conditioned runs consumed the released PAGE-XML
+                if LAYOUT_INPUT in (request.get("input_order") or []):
+                    report.check(
+                        result.get("pagexml_sha256") == pagexml_digest.get(page_id),
+                        f"P5 {prefix}: pagexml_sha256 != the released PAGE-XML",
+                    )
+
+                # P6 -- the prediction is PAGE-XML on this page's pixel grid
+                try:
+                    page = ET.parse(prediction_path).getroot().find("p:Page", NS)
+                except ET.ParseError as error:
+                    report.check(False, f"P6 {prefix}: prediction.xml does not parse ({error})")
+                    continue
+                report.check(page is not None, f"P6 {prefix}: prediction.xml has no Page element")
+                if page is None:
+                    continue
+                report.check(
+                    page.get("imageFilename") == f"{page_id}.jpg",
+                    f"P6 {prefix}: prediction imageFilename {page.get('imageFilename')!r}",
+                )
+                report.check(
+                    (int(page.get("imageWidth")), int(page.get("imageHeight"))) == page_size[page_id],
+                    f"P6 {prefix}: prediction page size != the released page size",
+                )
+                for field in ("image_path", "pagexml_path"):
+                    if field in request:
+                        report.check(
+                            is_release_relative(request[field]),
+                            f"P6 {prefix}: {field} is not release-relative ({request[field]!r})",
+                        )
+
+            # P3 -- the run manifest's tally is the tally of its own pages
+            report.check(
+                manifest.get("success_count") == run_statuses.get("success", 0),
+                f"P3 {run}: success_count != successful pages",
+            )
+            report.check(
+                manifest.get("failure_count") == sum(run_statuses.values()) - run_statuses.get("success", 0),
+                f"P3 {run}: failure_count != failed pages",
+            )
+            statuses.update(run_statuses)
+
+    report.line(
+        f"{run_total} runs, {request_total} page requests, "
+        f"statuses={dict(sorted(statuses.items()))}"
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--release-root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--skip-checksums", action="store_true")
+    parser.add_argument("--skip-predictions", action="store_true")
     args = parser.parse_args()
 
     report = Report()
@@ -249,6 +422,8 @@ def main() -> int:
         verify_checksums(args.release_root, report)
     for manuscript in MANUSCRIPTS:
         verify_manuscript(args.release_root, manuscript, report)
+    if not args.skip_predictions:
+        verify_predictions(args.release_root, report)
 
     print()
     if report.failures:

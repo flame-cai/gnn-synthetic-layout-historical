@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "request_fingerprint": "b1446b4a8c1e1a43da9436e1a43855aa95430dc924bb6a4e1698e9b30feb16b2",
+  "manuscript_id": "yajn",
+  "page_id": "233_0005",
+  "provider_id": "gemini",
+  "method_id": "gemini_layout",
+  "model_id": "gemini-3.5-flash",
+  "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+  "image_sha256": "52110ff8f74923a702e53a9094eed52906ff57b2a5f8451a8b9b511a4a340dd6",
+  "pagexml_sha256": "969e0ffb8e225076a365b7491d53770662c24503d780d1c0d010ab695888feaf",
+  "status": "success",
+  "error": null,
+  "attempt_count": 4,
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "other_output_error",
+      "elapsed_seconds": 46.36226709999028,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not return a usable transcription."
+    },
+    {
+      "attempt": 2,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.72034420000273,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not finish within 45 seconds. You can retry Gemini or use the built-in reader."
+    },
+    {
+      "attempt": 3,
+      "status": "api_timeout",
+      "elapsed_seconds": 45.36293260002276,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0,
+      "response_id": null,
+      "finish_reason": null,
+      "error": "Gemini did not finish within 45 seconds. You can retry Gemini or use the built-in reader."
+    },
+    {
+      "attempt": 4,
+      "status": "success",
+      "elapsed_seconds": 13.216286200011382,
+      "input_tokens": 2029,
+      "output_tokens": 620,
+      "total_tokens": 5137,
+      "response_id": null,
+      "finish_reason": null
+    }
+  ],
+  "input_tokens": 2029,
+  "output_tokens": 620,
+  "total_tokens": 5137,
+  "elapsed_seconds": 165.65496610000264,
+  "completed_at_utc": "2026-07-25T04:24:36.240317+00:00",
+  "prediction_path": "prediction.xml",
+  "output_adapter_version": 1,
+  "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+  "grounding_layout": "ground_truth_pagexml_baselines"
+}

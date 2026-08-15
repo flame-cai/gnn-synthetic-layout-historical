@@ -1,5 +1,5 @@
 {
-  "schema": "manuscript_layout_dataset/manifest-2",
+  "schema": "manuscript_layout_dataset/manifest-3",
   "dataset_name": "Sanskrit Manuscript Layout Regimes",
   "manuscripts": [
     {
@@ -161,5 +161,565 @@
     "fold_count": 5,
     "sampling": "random.Random(42).sample over sorted page ids, five draws from one stream",
     "note": "Folds are resampled draws, not a partition: training sets overlap and pages recur across test sets."
+  },
+  "predictions": {
+    "schema": "vlm_predictions-1",
+    "directory": "multi-modal-LLM-outputs",
+    "note": "Baseline multi-modal LLM outputs reported in the paper. Predictions, not ground truth: do not train on them and do not score anything against them.",
+    "totals": {
+      "run_count": 15,
+      "method_count": 5,
+      "page_request_count": 155,
+      "success_count": 133,
+      "failure_count": 22,
+      "status_counts": {
+        "api_error": 11,
+        "api_timeout": 9,
+        "html_parse_error": 1,
+        "other_output_error": 1,
+        "success": 133
+      }
+    },
+    "runs": [
+      {
+        "manuscript_id": "moderate_layout",
+        "method_id": "claude_e2e",
+        "provider_id": "claude",
+        "display_name": "Claude (End-to-End)",
+        "model_id": "claude-sonnet-5",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": 2,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 15,
+        "page_ids": [
+          "233_0002",
+          "233_0003",
+          "233_0004",
+          "233_0005",
+          "233_0006",
+          "233_0007",
+          "233_0008",
+          "233_0009",
+          "233_0010",
+          "233_0011",
+          "233_0012",
+          "233_0013",
+          "233_0014",
+          "233_0015",
+          "233_0016"
+        ],
+        "success_count": 10,
+        "failure_count": 5,
+        "status_counts": {
+          "api_error": 5,
+          "success": 10
+        },
+        "attempt_count": 38,
+        "written_at_utc": "2026-07-17T09:17:29.506667+00:00"
+      },
+      {
+        "manuscript_id": "moderate_layout",
+        "method_id": "gemini_e2e",
+        "provider_id": "gemini",
+        "display_name": "Gemini (End-to-End)",
+        "model_id": "gemini-3.5-flash",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": null,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 15,
+        "page_ids": [
+          "233_0002",
+          "233_0003",
+          "233_0004",
+          "233_0005",
+          "233_0006",
+          "233_0007",
+          "233_0008",
+          "233_0009",
+          "233_0010",
+          "233_0011",
+          "233_0012",
+          "233_0013",
+          "233_0014",
+          "233_0015",
+          "233_0016"
+        ],
+        "success_count": 14,
+        "failure_count": 1,
+        "status_counts": {
+          "api_error": 1,
+          "success": 14
+        },
+        "attempt_count": 26,
+        "written_at_utc": "2026-07-17T08:35:29.823606+00:00"
+      },
+      {
+        "manuscript_id": "moderate_layout",
+        "method_id": "gemini_layout",
+        "provider_id": "gemini",
+        "display_name": "Gemini (Ground-Truth Layout)",
+        "model_id": "gemini-3.5-flash",
+        "conditioning": [
+          "page_image",
+          "ground_truth_layout_traces",
+          "prompt"
+        ],
+        "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+        "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+        "request_contract_version": 2,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 15,
+        "page_ids": [
+          "233_0002",
+          "233_0003",
+          "233_0004",
+          "233_0005",
+          "233_0006",
+          "233_0007",
+          "233_0008",
+          "233_0009",
+          "233_0010",
+          "233_0011",
+          "233_0012",
+          "233_0013",
+          "233_0014",
+          "233_0015",
+          "233_0016"
+        ],
+        "success_count": 13,
+        "failure_count": 2,
+        "status_counts": {
+          "api_timeout": 1,
+          "other_output_error": 1,
+          "success": 13
+        },
+        "attempt_count": 27,
+        "written_at_utc": "2026-07-25T04:24:36.754577+00:00"
+      },
+      {
+        "manuscript_id": "moderate_layout",
+        "method_id": "openai_e2e",
+        "provider_id": "openai",
+        "display_name": "OpenAI (End-to-End)",
+        "model_id": "gpt-5.6-terra",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": null,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 15,
+        "page_ids": [
+          "233_0002",
+          "233_0003",
+          "233_0004",
+          "233_0005",
+          "233_0006",
+          "233_0007",
+          "233_0008",
+          "233_0009",
+          "233_0010",
+          "233_0011",
+          "233_0012",
+          "233_0013",
+          "233_0014",
+          "233_0015",
+          "233_0016"
+        ],
+        "success_count": 15,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 15
+        },
+        "attempt_count": 15,
+        "written_at_utc": "2026-07-17T08:39:35.644207+00:00"
+      },
+      {
+        "manuscript_id": "moderate_layout",
+        "method_id": "sarvam_e2e",
+        "provider_id": "sarvam",
+        "display_name": "Sarvam (End-to-End)",
+        "model_id": "sarvam-vision",
+        "conditioning": [
+          "page_image"
+        ],
+        "output_adapter_id": "sarvam_html_text_lines_v1",
+        "prompt_sha256": null,
+        "request_contract_version": 1,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 15,
+        "page_ids": [
+          "233_0002",
+          "233_0003",
+          "233_0004",
+          "233_0005",
+          "233_0006",
+          "233_0007",
+          "233_0008",
+          "233_0009",
+          "233_0010",
+          "233_0011",
+          "233_0012",
+          "233_0013",
+          "233_0014",
+          "233_0015",
+          "233_0016"
+        ],
+        "success_count": 15,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 15
+        },
+        "attempt_count": 18,
+        "written_at_utc": "2026-07-20T08:25:18.294676+00:00"
+      },
+      {
+        "manuscript_id": "dense_layout",
+        "method_id": "claude_e2e",
+        "provider_id": "claude",
+        "display_name": "Claude (End-to-End)",
+        "model_id": "claude-sonnet-5",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": 2,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 7,
+        "page_ids": [
+          "10",
+          "17",
+          "22",
+          "23",
+          "24",
+          "25",
+          "28"
+        ],
+        "success_count": 2,
+        "failure_count": 5,
+        "status_counts": {
+          "api_error": 1,
+          "api_timeout": 4,
+          "success": 2
+        },
+        "attempt_count": 26,
+        "written_at_utc": "2026-07-17T09:23:43.034003+00:00"
+      },
+      {
+        "manuscript_id": "dense_layout",
+        "method_id": "gemini_e2e",
+        "provider_id": "gemini",
+        "display_name": "Gemini (End-to-End)",
+        "model_id": "gemini-3.5-flash",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": null,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 7,
+        "page_ids": [
+          "10",
+          "17",
+          "22",
+          "23",
+          "24",
+          "25",
+          "28"
+        ],
+        "success_count": 7,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 7
+        },
+        "attempt_count": 9,
+        "written_at_utc": "2026-07-17T08:36:39.716210+00:00"
+      },
+      {
+        "manuscript_id": "dense_layout",
+        "method_id": "gemini_layout",
+        "provider_id": "gemini",
+        "display_name": "Gemini (Ground-Truth Layout)",
+        "model_id": "gemini-3.5-flash",
+        "conditioning": [
+          "page_image",
+          "ground_truth_layout_traces",
+          "prompt"
+        ],
+        "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+        "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+        "request_contract_version": 2,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 7,
+        "page_ids": [
+          "10",
+          "17",
+          "22",
+          "23",
+          "24",
+          "25",
+          "28"
+        ],
+        "success_count": 7,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 7
+        },
+        "attempt_count": 7,
+        "written_at_utc": "2026-07-25T04:24:36.094881+00:00"
+      },
+      {
+        "manuscript_id": "dense_layout",
+        "method_id": "openai_e2e",
+        "provider_id": "openai",
+        "display_name": "OpenAI (End-to-End)",
+        "model_id": "gpt-5.6-terra",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": null,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 7,
+        "page_ids": [
+          "10",
+          "17",
+          "22",
+          "23",
+          "24",
+          "25",
+          "28"
+        ],
+        "success_count": 7,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 7
+        },
+        "attempt_count": 7,
+        "written_at_utc": "2026-07-17T08:40:44.861264+00:00"
+      },
+      {
+        "manuscript_id": "dense_layout",
+        "method_id": "sarvam_e2e",
+        "provider_id": "sarvam",
+        "display_name": "Sarvam (End-to-End)",
+        "model_id": "sarvam-vision",
+        "conditioning": [
+          "page_image"
+        ],
+        "output_adapter_id": "sarvam_html_text_lines_v1",
+        "prompt_sha256": null,
+        "request_contract_version": 1,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 7,
+        "page_ids": [
+          "10",
+          "17",
+          "22",
+          "23",
+          "24",
+          "25",
+          "28"
+        ],
+        "success_count": 6,
+        "failure_count": 1,
+        "status_counts": {
+          "html_parse_error": 1,
+          "success": 6
+        },
+        "attempt_count": 10,
+        "written_at_utc": "2026-07-20T08:26:41.816121+00:00"
+      },
+      {
+        "manuscript_id": "circular_layout",
+        "method_id": "claude_e2e",
+        "provider_id": "claude",
+        "display_name": "Claude (End-to-End)",
+        "model_id": "claude-sonnet-5",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": 2,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 9,
+        "page_ids": [
+          "11",
+          "14",
+          "15",
+          "28",
+          "35",
+          "49",
+          "56",
+          "64",
+          "65"
+        ],
+        "success_count": 1,
+        "failure_count": 8,
+        "status_counts": {
+          "api_error": 4,
+          "api_timeout": 4,
+          "success": 1
+        },
+        "attempt_count": 36,
+        "written_at_utc": "2026-07-17T09:31:19.735742+00:00"
+      },
+      {
+        "manuscript_id": "circular_layout",
+        "method_id": "gemini_e2e",
+        "provider_id": "gemini",
+        "display_name": "Gemini (End-to-End)",
+        "model_id": "gemini-3.5-flash",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": null,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 9,
+        "page_ids": [
+          "11",
+          "14",
+          "15",
+          "28",
+          "35",
+          "49",
+          "56",
+          "64",
+          "65"
+        ],
+        "success_count": 9,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 9
+        },
+        "attempt_count": 12,
+        "written_at_utc": "2026-07-17T08:37:34.560698+00:00"
+      },
+      {
+        "manuscript_id": "circular_layout",
+        "method_id": "gemini_layout",
+        "provider_id": "gemini",
+        "display_name": "Gemini (Ground-Truth Layout)",
+        "model_id": "gemini-3.5-flash",
+        "conditioning": [
+          "page_image",
+          "ground_truth_layout_traces",
+          "prompt"
+        ],
+        "output_adapter_id": "gemini_layout_grounded_app_internal_v1",
+        "prompt_sha256": "65362401f99d733b7b32cbe9b0ef5adf36fd810f636bdcc2d1ba0ac4d1ef56af",
+        "request_contract_version": 2,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 9,
+        "page_ids": [
+          "11",
+          "14",
+          "15",
+          "28",
+          "35",
+          "49",
+          "56",
+          "64",
+          "65"
+        ],
+        "success_count": 9,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 9
+        },
+        "attempt_count": 13,
+        "written_at_utc": "2026-07-25T04:24:35.755524+00:00"
+      },
+      {
+        "manuscript_id": "circular_layout",
+        "method_id": "openai_e2e",
+        "provider_id": "openai",
+        "display_name": "OpenAI (End-to-End)",
+        "model_id": "gpt-5.6-terra",
+        "conditioning": [
+          "page_image",
+          "prompt"
+        ],
+        "output_adapter_id": null,
+        "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+        "request_contract_version": null,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 9,
+        "page_ids": [
+          "11",
+          "14",
+          "15",
+          "28",
+          "35",
+          "49",
+          "56",
+          "64",
+          "65"
+        ],
+        "success_count": 9,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 9
+        },
+        "attempt_count": 11,
+        "written_at_utc": "2026-07-17T08:42:31.805461+00:00"
+      },
+      {
+        "manuscript_id": "circular_layout",
+        "method_id": "sarvam_e2e",
+        "provider_id": "sarvam",
+        "display_name": "Sarvam (End-to-End)",
+        "model_id": "sarvam-vision",
+        "conditioning": [
+          "page_image"
+        ],
+        "output_adapter_id": "sarvam_html_text_lines_v1",
+        "prompt_sha256": null,
+        "request_contract_version": 1,
+        "max_retries_after_initial_attempt": 3,
+        "page_count": 9,
+        "page_ids": [
+          "11",
+          "14",
+          "15",
+          "28",
+          "35",
+          "49",
+          "56",
+          "64",
+          "65"
+        ],
+        "success_count": 9,
+        "failure_count": 0,
+        "status_counts": {
+          "success": 9
+        },
+        "attempt_count": 9,
+        "written_at_utc": "2026-07-20T08:27:36.877526+00:00"
+      }
+    ]
   }
 }

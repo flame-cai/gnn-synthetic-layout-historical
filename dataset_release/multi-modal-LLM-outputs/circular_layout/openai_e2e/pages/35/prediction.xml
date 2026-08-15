@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="35.jpg" imageWidth="2564" imageHeight="3500">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1005,623 1028,623 1038,606 1026,588 985,609" />
+			<TextLine id="line_0">
+				<Coords points="1005,623 1028,623 1038,606 1026,588 985,609" />
+				<TextEquiv>
+					<Unicode>(५)</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1587,1488 1656,1404 1685,1239 1667,1036 1602,854 1485,718 1318,648 1136,644 1028,682" />
+			<TextLine id="line_1">
+				<Coords points="1587,1488 1656,1404 1685,1239 1667,1036 1602,854 1485,718 1318,648 1136,644 1028,682" />
+				<TextEquiv>
+					<Unicode>अस्पष्ट</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1390,1421 1472,1351 1523,1228 1538,1064 1500,900 1423,770 1308,696 1156,679 1023,710 926,808" />
+			<TextLine id="line_2">
+				<Coords points="1390,1421 1472,1351 1523,1228 1538,1064 1500,900 1423,770 1308,696 1156,679 1023,710 926,808" />
+				<TextEquiv>
+					<Unicode>अस्पष्ट</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1197,1379 1292,1316 1354,1214 1372,1071 1336,928 1259,816 1154,756 1031,752 931,794 885,875" />
+			<TextLine id="line_3">
+				<Coords points="1197,1379 1292,1316 1354,1214 1372,1071 1336,928 1259,816 1154,756 1031,752 931,794 885,875" />
+				<TextEquiv>
+					<Unicode>अस्पष्ट</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="508,2146 1574,2146 1574,2086 508,2086" />
+			<TextLine id="line_0">
+				<Coords points="508,2146 1574,2146 1574,2086 508,2086" />
+				<TextEquiv>
+					<Unicode>प्रथमपटले श्रीक ध धेनान्तर रत्नत्रयकारः तत्र</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="510,2219 923,2219 923,2163 510,2163" />
+			<TextLine id="line_1">
+				<Coords points="510,2219 923,2219 923,2163 510,2163" />
+				<TextEquiv>
+					<Unicode>शतमन्त्राणि: १६-</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="510,2286 1000,2286 1000,2226 510,2226" />
+			<TextLine id="line_2">
+				<Coords points="510,2286 1000,2286 1000,2226 510,2226" />
+				<TextEquiv>
+					<Unicode>भगमालिनीमन्त्राणि: १२५</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="508,2348 1010,2348 1010,2289 508,2289" />
+			<TextLine id="line_3">
+				<Coords points="508,2348 1010,2348 1010,2289 508,2289" />
+				<TextEquiv>
+					<Unicode>चन्द्रेश्वरीमन्त्राणि: १६१</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="508,2422 1590,2422 1590,2359 508,2359" />
+			<TextLine id="line_4">
+				<Coords points="508,2422 1590,2422 1590,2359 508,2359" />
+				<TextEquiv>
+					<Unicode>पञ्चत्रिंशदोजवे ५६ योनिवेधत्रबन्धाकारः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="508,2499 1592,2499 1592,2436 508,2436" />
+			<TextLine id="line_5">
+				<Coords points="508,2499 1592,2499 1592,2436 508,2436" />
+				<TextEquiv>
+					<Unicode>तत्रेषु पूर्वोक्तमिच्छे चन्द्रेशमिभजे दक्षिणेनपथि</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="505,2572 1600,2572 1600,2510 505,2510" />
+			<TextLine id="line_6">
+				<Coords points="505,2572 1600,2572 1600,2510 505,2510" />
+				<TextEquiv>
+					<Unicode>अथवित्रिमेधरेचूर्णाधर्माचारतवचकनित्यमन्त्रकोयं</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="510,2639 1582,2639 1582,2580 510,2580" />
+			<TextLine id="line_7">
+				<Coords points="510,2639 1582,2639 1582,2580 510,2580" />
+				<TextEquiv>
+					<Unicode>तेन च ६२ मन्त्राण्यथास्त्रचन्त्रवचनार्थिनोयते हृदये</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0002.jpg" imageWidth="2500" imageHeight="940">
+		<TextRegion id="region_0" custom="text_only_no_geometry">
+			<Coords points="" />
+			<TextLine id="line_0">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>विशालकल्यागाकरहिनक्रजेनिछंदसि॥४=सत्त्वमसाधोच्छेदेक्याविरति॥३=</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_1">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>M-233 2</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_2">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>याज्ञव०१ औस्वस्तिश्रीगणेष्शायनमः॥औंश्रीगुरवेनमः॥औंश्रीसरस्वत्यैनमः॥औंश्रीयोगपतयेनमः॥रामाय नमः॥</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_3">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>योऽग्निनापानका योगीश्वरंयाज्ञलंबसंपूज्यमनयोऽब्रुवन्॥वरिष्यमेतराणानो वूहि धर्मनिष्ठतः॥मिथिलास्थः २५ पोथ्यास्पृ-</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_4">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>दीनामीश्वरं२=सपोगीङःक्षणाध्यात्विववीन्मुनीन् कस्तनदेरोभंगःरुहस्तस्मिन्धर्मीन्नवोचत॥पुराहान्पा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_5">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>पमीमासाधर्मशास्त्रामिश्रिताः॥वेदाःस्थाननिविद्यानाधर्म्मस्पचचतुर्दश॥मन्वत्रिचित्तमुहा</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_6">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>रीतयातवल्कुतोष्णनेगिरः॥यमापस्तंवसंवत्तीकात्यापनरहस्यती॥पराशरव्याप्तशंख</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_7">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>लेखितादक्षगौतमौ॥शातानपोवशिष्टश्चधर्मशास्त्रप्रयोजकाः॥देशेकालउपापेनंद्वयं</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_8">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>द्वासमन्वतेपात्रैर्ब्रवीपतेर्यत्तत्सकलेधर्मलक्षणाः॥अतिःस्मृतिःसदाचारःस्वस्पचप्रियमाम्। राम१</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_9">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>सताजावारःसदावारः१</Unicode>
+				</TextEquiv>
+			</TextLine>
+			<TextLine id="line_10">
+				<Coords points="" />
+				<Baseline points="" />
+				<TextEquiv index="0">
+					<Unicode>=देवेउक्तललए॥कालेसंक्राताद्वै॥३पाचेनउपार्जनं॥२=</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,6 @@
+{
+  "attempt": 2,
+  "status": "api_error",
+  "elapsed_seconds": 45.09400000000005,
+  "error": "ServerError: 504 DEADLINE_EXCEEDED. {'error': {'code': 504, 'message': 'Deadline expired before operation could complete.', 'status': 'DEADLINE_EXCEEDED'}}"
+}

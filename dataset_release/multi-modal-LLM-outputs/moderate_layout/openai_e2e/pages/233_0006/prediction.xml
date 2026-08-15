@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+	<Page imageFilename="233_0006.jpg" imageWidth="2500" imageHeight="950">
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="258,86 485,86 485,40 258,40" />
+			<TextLine id="line_0">
+				<Coords points="258,86 485,86 485,40 258,40" />
+				<TextEquiv>
+					<Unicode>श्रीगुरुचरणकमले</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="290,164 470,164 470,102 290,102" />
+			<TextLine id="line_1">
+				<Coords points="290,164 470,164 470,102 290,102" />
+				<TextEquiv>
+					<Unicode>एम-२३३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="1725,140 2272,140 2272,90 1725,90" />
+			<TextLine id="line_2">
+				<Coords points="1725,140 2272,140 2272,90 1725,90" />
+				<TextEquiv>
+					<Unicode>ग्रन्थनामः अस्पष्टः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_0" custom="region_0">
+			<Coords points="45,220 270,220 270,166 45,166" />
+			<TextLine id="line_3">
+				<Coords points="45,220 270,220 270,166 45,166" />
+				<TextEquiv>
+					<Unicode>पत्राङ्कः ३</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="330,256 2268,247 2248,194 330,197" />
+			<TextLine id="line_0">
+				<Coords points="330,256 2268,247 2248,194 330,197" />
+				<TextEquiv>
+					<Unicode>श्रीनिवासभट्टेन प्राग् महर्षिसन्निधौ निबद्धोऽयं ग्रन्थः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="332,321 2245,315 2235,262 332,265" />
+			<TextLine id="line_1">
+				<Coords points="332,321 2245,315 2235,262 332,265" />
+				<TextEquiv>
+					<Unicode>सर्वेऽपि दन्ताः सकलेन्द्रिययुक्ता व्यतोऽत्र शूद्राचारप्रवृत्तानां चापि हेतवः।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="332,391 2292,383 2285,325 332,330" />
+			<TextLine id="line_2">
+				<Coords points="332,391 2292,383 2285,325 332,330" />
+				<TextEquiv>
+					<Unicode>तेषां ब्रह्मचर्यव्रतेनैव कर्मणां मेधाविनां परिः। बालस्य कामप्रवृत्तिवात्सल्याद्रुतमुक्तिरुच्यते।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="322,462 2368,455 2360,393 322,396" />
+			<TextLine id="line_3">
+				<Coords points="322,462 2368,455 2360,393 322,396" />
+				<TextEquiv>
+					<Unicode>धर्मोऽसौ जनो देवेषु शास्त्री प्राहुः सदा। नास्तिकार्तेन कर्माणि यो विधत्ते परित्यजेत् पापं।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="315,529 2350,523 2342,466 315,468" />
+			<TextLine id="line_4">
+				<Coords points="315,529 2350,523 2342,466 315,468" />
+				<TextEquiv>
+					<Unicode>मात्र्यैव विप्रैश्च प्राणिनां च विकारो वेदितव्यः। तत्र प्रमाणं परमेव महर्षिसम्मतम्।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="342,587 2278,580 2268,532 342,537" />
+			<TextLine id="line_5">
+				<Coords points="342,587 2278,580 2268,532 342,537" />
+				<TextEquiv>
+					<Unicode>कृतकर्मणस्ते मर्त्याः परमार्थिनोऽपि मताः। इति विद्वद्वचनेन सर्वं समाचरेत्।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_1" custom="region_1">
+			<Coords points="345,680 2298,673 2285,604 345,611" />
+			<TextLine id="line_6">
+				<Coords points="345,680 2298,673 2285,604 345,611" />
+				<TextEquiv>
+					<Unicode>न तु रुष्टमनसा। गुरुभक्तो विनीतश्च शान्तश्च भवेत्। आचारो हि द्विजानां परमं धर्मसाधनम्।</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="40,441 275,437 275,384 40,388" />
+			<TextLine id="line_0">
+				<Coords points="40,441 275,437 275,384 40,388" />
+				<TextEquiv>
+					<Unicode>वेदान्तः अस्पष्टः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,528 288,522 288,462 42,466" />
+			<TextLine id="line_1">
+				<Coords points="42,528 288,522 288,462 42,466" />
+				<TextEquiv>
+					<Unicode>माधवीयटीका</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_2" custom="region_2">
+			<Coords points="42,670 292,665 292,612 42,616" />
+			<TextLine id="line_2">
+				<Coords points="42,670 292,665 292,612 42,616" />
+				<TextEquiv>
+					<Unicode>नास्ति गुरुवचनम्</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1155,787 1375,782 1375,737 1155,742" />
+			<TextLine id="line_0">
+				<Coords points="1155,787 1375,782 1375,737 1155,742" />
+				<TextEquiv>
+					<Unicode>समाप्तिः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1590,826 2320,819 2320,766 1590,771" />
+			<TextLine id="line_1">
+				<Coords points="1590,826 2320,819 2320,766 1590,771" />
+				<TextEquiv>
+					<Unicode>इति गुरुपादोपदेशतो ग्रन्थः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+		<TextRegion id="region_3" custom="region_3">
+			<Coords points="1595,876 2325,869 2325,808 1595,812" />
+			<TextLine id="line_2">
+				<Coords points="1595,876 2325,869 2325,808 1595,812" />
+				<TextEquiv>
+					<Unicode>श्रीमद्भट्टाचार्यविरचितः समाप्तः</Unicode>
+				</TextEquiv>
+			</TextLine>
+		</TextRegion>
+	</Page>
+</PcGts>

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "manuscript_id": "yajn",
+  "provider": {
+    "provider_id": "claude",
+    "method_id": "claude_e2e",
+    "display_name": "Claude (End-to-End)",
+    "model_id": "claude-sonnet-5",
+    "api_key_env": "CLAUDE_API_KEY",
+    "request_contract_version": 2
+  },
+  "prompt_sha256": "2f5e8e8911207cd9947ef075719f52109cc9e07ad1cfe74062d10e506e12be2a",
+  "page_ids": [
+    "233_0002",
+    "233_0003",
+    "233_0004",
+    "233_0005",
+    "233_0006",
+    "233_0007",
+    "233_0008",
+    "233_0009",
+    "233_0010",
+    "233_0011",
+    "233_0012",
+    "233_0013",
+    "233_0014",
+    "233_0015",
+    "233_0016"
+  ],
+  "page_count": 15,
+  "success_count": 10,
+  "failure_count": 5,
+  "max_retries_after_initial_attempt": 3,
+  "pages": {
+    "233_0002": {
+      "status": "success",
+      "result_path": "pages/233_0002/result.json",
+      "prediction_path": "pages/233_0002/prediction.xml"
+    },
+    "233_0003": {
+      "status": "success",
+      "result_path": "pages/233_0003/result.json",
+      "prediction_path": "pages/233_0003/prediction.xml"
+    },
+    "233_0004": {
+      "status": "success",
+      "result_path": "pages/233_0004/result.json",
+      "prediction_path": "pages/233_0004/prediction.xml"
+    },
+    "233_0005": {
+      "status": "success",
+      "result_path": "pages/233_0005/result.json",
+      "prediction_path": "pages/233_0005/prediction.xml"
+    },
+    "233_0006": {
+      "status": "api_error",
+      "result_path": "pages/233_0006/result.json",
+      "prediction_path": "pages/233_0006/prediction.xml"
+    },
+    "233_0007": {
+      "status": "success",
+      "result_path": "pages/233_0007/result.json",
+      "prediction_path": "pages/233_0007/prediction.xml"
+    },
+    "233_0008": {
+      "status": "success",
+      "result_path": "pages/233_0008/result.json",
+      "prediction_path": "pages/233_0008/prediction.xml"
+    },
+    "233_0009": {
+      "status": "success",
+      "result_path": "pages/233_0009/result.json",
+      "prediction_path": "pages/233_0009/prediction.xml"
+    },
+    "233_0010": {
+      "status": "success",
+      "result_path": "pages/233_0010/result.json",
+      "prediction_path": "pages/233_0010/prediction.xml"
+    },
+    "233_0011": {
+      "status": "api_error",
+      "result_path": "pages/233_0011/result.json",
+      "prediction_path": "pages/233_0011/prediction.xml"
+    },
+    "233_0012": {
+      "status": "api_error",
+      "result_path": "pages/233_0012/result.json",
+      "prediction_path": "pages/233_0012/prediction.xml"
+    },
+    "233_0013": {
+      "status": "success",
+      "result_path": "pages/233_0013/result.json",
+      "prediction_path": "pages/233_0013/prediction.xml"
+    },
+    "233_0014": {
+      "status": "success",
+      "result_path": "pages/233_0014/result.json",
+      "prediction_path": "pages/233_0014/prediction.xml"
+    },
+    "233_0015": {
+      "status": "api_error",
+      "result_path": "pages/233_0015/result.json",
+      "prediction_path": "pages/233_0015/prediction.xml"
+    },
+    "233_0016": {
+      "status": "api_error",
+      "result_path": "pages/233_0016/result.json",
+      "prediction_path": "pages/233_0016/prediction.xml"
+    }
+  },
+  "written_at_utc": "2026-07-17T09:17:29.506667+00:00"
+}
