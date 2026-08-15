@@ -54,8 +54,8 @@ Because the final output of this tool can be verified by an external verifier (u
   * **⚙️ [Synthetic Data Generator](https://github.com/flame-cai/gnn-synthetic-layout-historical?tab=readme-ov-file#-generate-synthetic-data):**  
     Generate synthetic layout data simulating complex layouts in the graph-based format
 
-    * **📚 [Manuscript Dataset Release](./dataset_release/DATASET.md):**  
-    `dataset_release/`: the dataset used in the paper *"Impact of Iterative Fine-Tuning on Transcription Accuracy in Complex Historical Sanskrit Manuscripts"* — 31 pages from three Sanskrit manuscripts chosen to span layout difficulty, such as dense marginalia and circular text.
+  * **📚 [Manuscript Dataset Release](./dataset_release/DATASET.md):**  
+  `dataset_release/`: the dataset used in the paper *"Impact of Iterative Fine-Tuning on Transcription Accuracy in Complex Historical Sanskrit Manuscripts"* — 31 pages from three Sanskrit manuscripts chosen to span layout difficulty, such as dense marginalia and circular text.
   
   * **📂 Layout Dataset Release:**  
     The dataset used in the paper *"Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks"* is available in the [`gram-submission`](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/gram-submission?tab=readme-ov-file) branch of this repository.
