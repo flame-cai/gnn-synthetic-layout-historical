@@ -57,20 +57,13 @@ which is the filename stem.
 The 15 pages are viewable at the collection URL:
 <https://dav.splrarebooks.com/collection/view/yajnavalakyasmritih-acharadhyayah>
 
-You can manually download the 15 pages from the link above. A few
-things about that page worth knowing before you start, because each one has
-cost us time:
+For research purposes, you can manually download the 15 pages from the link above. A few
+things about that page worth knowing:
 
 - **The images sit behind the book viewer, not in a folder.** Opening the
   collection page gets you a preview; the full-resolution scan of a folio only
-  becomes available once that folio is actually displayed in the viewer. There is
-  no listing to fetch and no predictable address to guess.
-- **The viewer is paged, and our 15 folios are in the middle.** You will pass
-  through the earlier folios to reach them. Take the full-size image rather than
+  becomes available once that folio is actually displayed in the book viewer. Take the full-size image rather than
   the preview thumbnail.
-- **The viewer will sometimes show you the same folio twice**, particularly if a
-  page turn does not register. Check what you have saved against the list in
-  section 2 rather than counting clicks.
 - **Keep the name the server gives each file.** That name is the page id the
   whole release is keyed on; renaming the files disconnects them from every label
   layer. Put all 15 in one directory.
@@ -108,5 +101,9 @@ per page so a failure is diagnosable: a mismatch on `source_sha256` means you
 have a different scan, and a mismatch on `derived_sha256` alone means the right
 scan and a different encoder.
 
-Once `inputs/` holds the 15 derived rasters, the manuscript is complete: every
-label layer already present is defined on exactly those images.
+Once `inputs/` holds the 15 derived rasters, run the release verifier to confirm
+the images agree with the labels:
+
+```bash
+python tools/verify_dataset.py --release-root .
+```
