@@ -142,6 +142,69 @@ python tools/prepare_images.py \
 Each result is checked against `manuscripts/moderate_layout/inputs/RASTER_MANIFEST.json`. All
 15 pages reproduce byte-exactly under Pillow 11.3.0 and 12.3.0. Details in section 7.2.
 
+### 2.3 Open a manuscript in the annotation tool
+The dataset is in a tool agnostic format right now, however one might want to "load" the dataset manuscripts using the Historical OCR tool which this repository contains. To do this, a simple conversion script needs to be run which converts the dataset into the format expected by the Historical OCR tool.
+
+The labels here were made in the semi-automatic annotation tool in `app/`, and can be loaded
+back into it — to inspect a page against its image, to correct a line, or to use a released
+manuscript as the starting point for further annotation. The tool does not read this directory
+directly: it expects the authoring layout of section 3.2, so one script rebuilds it.
+
+```bash
+python tools/load_in_annotation_tool.py                          # all manuscripts
+python tools/load_in_annotation_tool.py --manuscript circular_layout
+python tools/load_in_annotation_tool.py --check                  # convert, then load every page
+```
+
+This writes `app/input_manuscripts/<manuscript>/`, which is where the backend looks. Start the
+backend and the frontend and the manuscript appears in the picker. **Nothing is recomputed and
+no model runs** — the script copies files, renames directories, and rebuilds two sidecars that
+the release stores elsewhere:
+
+| The tool needs | The release has it as | Note |
+| --- | --- | --- |
+| `images_resized/<page>.jpg` | `inputs/<page>.jpg` | renamed |
+| `heatmaps/`, `processing_settings.json` | same | copied |
+| `layout_analysis_output/gnn-format/` | `labels/graph/` | renamed |
+| `layout_analysis_output/page-xml-format/` | `labels/page_xml/` | renamed |
+| `layout_analysis_output/_baseline_page_xml/` | `labels/page_xml_baselines/` | renamed |
+| `layout_analysis_output/image-format/` | `labels/line_images/` | renamed |
+| `<page>_line_segmentation_metadata.json` | `labels/line_geometry/<page>.json` | renamed; the loader accepts either the `lines` key used here or the `line_metadata` key the tool writes |
+| `<page>_reading_direction_metadata.json` | `reading_direction_annotation` inside `labels/line_geometry/` | **rebuilt.** Every field the tool reads survives in the release; `annotation_id` and `frontend_line_id` are restored as the line's own numeric id, which is what they are in all 25 released annotations |
+| `gnn-dataset/<page>_dims.txt` | `labels/graph/<page>_dims.txt` | **restored.** The tool lists a manuscript's pages from `gnn-dataset/`, so without it the manuscript never appears. Section 11 records these two copies as byte-identical, and only the dims files are needed: the node arrays beside them are the corrected set, which the tool already prefers |
+
+Not restored, and not needed: `images/` (pre-resize scans — every released coordinate is on
+`inputs/`), `layout_analysis_output/images_resized/` (a duplicate of `inputs/`),
+`node_corrections/` and `text_recovery_backups/` (both recreated on the first save).
+
+**`moderate_layout` requires an extra step first: you must download its page images
+yourself.** Its 15 rasters are withheld from this release for copyright (section 7.2), and the
+annotation tool cannot render a page — or re-save one, since the polygon step reads the image —
+without them. Running the script on it before the images exist fails with a message pointing
+back here.
+
+1. Obtain the scans as described in `manuscripts/moderate_layout/inputs/DOWNLOAD.md`, which
+   names the holding institution, the collection URL and the 15 files to fetch.
+2. Run `tools/prepare_images.py` (section 2.2) to turn them into the exact rasters every
+   released coordinate is defined on, checked against `inputs/RASTER_MANIFEST.json`.
+3. Then run `tools/load_in_annotation_tool.py --manuscript moderate_layout`.
+
+The other two manuscripts ship their rasters and need none of this.
+`--allow-missing-rasters` will build a `moderate_layout` tree without the images, but only the
+graph loads: the page renders blank and saving fails. It is for layout-only inspection, not for
+annotation.
+
+**Round trip.** The rebuilt tree was checked against `circle_new`, the authoring tree
+`circular_layout` was released from: the rasters, heatmaps, graph files, both PAGE-XML layers
+and all 255 line crops come back byte-identical, and all 25 reading-direction annotations match
+field for field. Saving a page in the tool re-derives its polygons and crops with the current
+production strategy — on page 11, a save with no edits reproduced all 24 polygons and all 24
+transcriptions byte-for-byte and moved one baseline point by one pixel. That pixel is the
+tool's own round trip rather than the conversion: node positions reload from
+`<page>_inputs_normalized.txt`, whose six decimal places return `710.0` as `1419.999`, which
+truncates to `1419`. **This directory is never written to** — edits land only under
+`app/input_manuscripts/`.
+
 ---
 
 ## 3. Directory layout
@@ -153,6 +216,7 @@ dataset_release/
 ├── dataset_manifest.json             machine-readable inventory and statistics
 ├── folds/<manuscript>.json           5 folds, train_size 3, seed 42
 ├── tools/prepare_images.py           reconstructs the withheld rasters
+├── tools/load_in_annotation_tool.py  rebuilds a manuscript for the annotation tool (section 2.3)
 ├── manuscripts/<manuscript>/         moderate_layout | dense_layout | circular_layout
 │   ├── SOURCE.md                     work, genre, holding institution, rights, BibTeX key
 │   ├── processing_settings.json      target_longest_side 3500, min_distance 20
@@ -209,6 +273,9 @@ left as the pipeline writes them. The paper and the authoring repository use the
 
 Manuscript identifiers map as `yajn` → `moderate_layout`, `dense` → `dense_layout`,
 `circle_new` → `circular_layout`.
+
+`tools/load_in_annotation_tool.py` reverses this table, so a released manuscript can be opened
+in the annotation tool that produced it (section 2.3).
 
 The rename reaches directory names only. Inside the baseline prediction records of section 9,
 `manuscript_id` is the authoring id the run was executed under — `multi-modal-LLM-outputs/`

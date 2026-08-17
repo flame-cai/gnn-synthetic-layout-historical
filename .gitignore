@@ -16,7 +16,6 @@ app/frontend/.vite/
 # all folders inside app/
 app/input_manuscripts/*/
 app/input_manuscripts_original_backup/*/
-app/manuscript_recognition.log
 
 .claude
 paper/
@@ -35,7 +34,10 @@ PAPER.md
 # Logs
 app/frontend/npm-debug.log*
 app/tests/ci_eval_*/
-app/tests/manuscript_recognition.log
+# The recognition logger writes beside whatever directory it was started from,
+# so this appears at the repo root, in app/, in app/recognition/ and in
+# app/tests/. One pattern replaces the four separate rules that used to be here.
+**/manuscript_recognition.log
 
 # Legacy verifier-gate datasets. Retained locally so the existing pre-commit
 # gates keep running, but no longer distributed: eval_dataset carries the
@@ -55,3 +57,12 @@ TODO.md
 # Use the /* form, not experiments/: only /* permits re-including a subpath
 # later with a negation such as !experiments/downstream_ocr
 experiments/*
+
+# Legacy text-only manuscript annotations, and the conversion of them into the
+# annotation tool's format. The source corpus carries DAV scans on the same
+# rights footing as the withheld moderate_layout rasters, and the review
+# checklist is a working note against a machine-predicted layout rather than a
+# record of the dataset.
+old_manuscripts_ignore/
+LEGACY_CONVERSION_REVIEW.md
+scripts/convert_old_manuscript_annotations.py
