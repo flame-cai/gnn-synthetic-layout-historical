@@ -266,13 +266,18 @@ def generate_xml_and_images_for_page(
             np.savetxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt", points_unnormalized, fmt='%f')
             np.savetxt(gnn_format_dir / f"{page_id}_inputs_normalized.txt", points_normalized, fmt='%f')
             if raw_dims_path.exists():
-                shutil.copy(raw_dims_path, gnn_format_dir / f"{page_id}_dims.txt")
+                # copyfile, not copy: copy() also chmods the destination, and chmod
+                # is EPERM when an existing artifact is owned by another user -- a
+                # manuscript staged by one account and edited from another. The mode
+                # bits are irrelevant here (the tree carries a default ACL), and
+                # these are derived files, so contents-only is the correct copy.
+                shutil.copyfile(raw_dims_path, gnn_format_dir / f"{page_id}_dims.txt")
         else:
             if not (gnn_format_dir / f"{page_id}_inputs_unnormalized.txt").exists():
                 for suffix in ["_inputs_normalized.txt", "_inputs_unnormalized.txt", "_dims.txt"]:
                     src = raw_input_dir / f"{page_id}{suffix}"
                     dst = gnn_format_dir / f"{page_id}{suffix}"
-                    if src.exists(): shutil.copy(src, dst)
+                    if src.exists(): shutil.copyfile(src, dst)
             points_unnormalized = np.loadtxt(gnn_format_dir / f"{page_id}_inputs_unnormalized.txt")
             if points_unnormalized.size == 0:
                 points_unnormalized = np.empty((0, 3))
@@ -401,7 +406,7 @@ def generate_xml_and_images_for_page(
         resized_images_dst_dir.mkdir(exist_ok=True)
         src_img = base_path / "images_resized" / f"{page_id}.jpg"
         if src_img.exists():
-            shutil.copy(src_img, resized_images_dst_dir / f"{page_id}.jpg")
+            shutil.copyfile(src_img, resized_images_dst_dir / f"{page_id}.jpg")
 
     line_count = strategy_result.prepared_line_count
     import gc
