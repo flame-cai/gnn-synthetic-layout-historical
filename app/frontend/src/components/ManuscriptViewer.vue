@@ -200,7 +200,7 @@
         {{ recognitionInFlight ? recognitionBusyLabel : textRecoveryInFlight ? 'Recovering text from the previous layout. Please wait.' : 'Saving your changes. Please wait.' }}
       </div>
 
-      <div v-if="error && !recognitionRecoveryPrompt" class="error-message">
+      <div v-if="error && !recognitionRecoveryPrompt && !textRecoveryPrompt" class="error-message">
         {{ error }}
       </div>
 
@@ -232,6 +232,42 @@
             </button>
             <button class="action-btn secondary-action" @click="dismissRecognitionRecovery">
               Dismiss
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="textRecoveryPrompt"
+        class="recognition-recovery-backdrop"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="text-recovery-prompt-title"
+      >
+        <div class="recognition-recovery-card">
+          <span class="recognition-recovery-badge">Layout Changed</span>
+          <h3 id="text-recovery-prompt-title">Recover previously annotated text?</h3>
+          <p>
+            The layout of this page changed after it was last reviewed, so the text you see now is a
+            fresh reading. The text you corrected earlier is kept in a backup and can be matched back
+            onto the current lines.
+          </p>
+          <p class="text-recovery-prompt-meta">
+            Backup from the previous layout has
+            {{ pageWorkflow.text_recovery.backup_text_line_count }}
+            annotated line{{ pageWorkflow.text_recovery.backup_text_line_count === 1 ? '' : 's' }}.
+            Lines that cannot be matched stay as they are and are highlighted for review.
+          </p>
+          <div class="recognition-recovery-actions">
+            <button
+              class="action-btn"
+              @click="confirmTextRecoveryFromPrompt"
+              :disabled="recoverTextDisabled"
+            >
+              Recover Previous Text
+            </button>
+            <button class="action-btn secondary-action" @click="dismissTextRecoveryPrompt">
+              Continue Without Recovering
             </button>
           </div>
         </div>
@@ -358,7 +394,7 @@
                 :stroke-width="isTextRecoveryUnrecovered(lineId) ? 2 : 1"
                 class="polygon-inactive"
                 :class="{ 'polygon-unrecovered': isTextRecoveryUnrecovered(lineId) }"
-                @click="activateInput(lineId)"
+                @click="requestActivateInput(lineId)"
               />
 
               <polygon
@@ -412,6 +448,7 @@
                     class="line-input active"
                     :class="{ 'is-unrecovered': isTextRecoveryUnrecovered(focusedLineId) }"
                     @keydown="handleRecognitionInput"
+                    @beforeinput="handleTextEditAttempt"
                     @blur="handleInputBlur"
                     @keydown.tab.prevent="focusNextLine(false)"
                     @keydown.shift.tab.prevent="focusNextLine(true)"
@@ -950,6 +987,9 @@ const pendingPageEntryPreference = ref(null)
 const readerSwitchNotice = ref('')
 const recognitionRecoveryPrompt = ref(null)
 const textRecoveryInFlight = ref(false)
+const textRecoveryPrompt = ref(null)
+const textRecoveryAcknowledged = ref(false)
+const textRecoveryPromptBackupId = ref(null)
 const textRecoveryResult = ref(null)
 const textRecoveryUnrecoveredLineIds = ref(new Set())
 const readerCapabilities = reactive({
@@ -1017,6 +1057,7 @@ const pageWorkflow = reactive({
     backed_up_at: null,
     backup_text_line_count: 0,
     current_text_line_count: 0,
+    had_read_mode_annotations: null,
   },
 })
 
@@ -1590,6 +1631,11 @@ const hasUnsavedLayoutChanges = computed(() =>
 const currentPageHasTextContent = computed(() =>
   Object.values(localTextContent).some((value) => String(value || '').trim().length > 0)
 )
+// Review statuses that mean a human edited this page's text and it was persisted
+// as a draft without being committed as ground truth. The other statuses in
+// `reviewStatusRequiresGroundTruthCommit` describe text nobody edited here — a
+// raw OCR prediction, or a transcription imported with the manuscript.
+const UNCOMMITTED_TEXT_DRAFT_STATUSES = ['draft_saved', 'ground_truth_with_draft_changes']
 const reviewStatusRequiresGroundTruthCommit = (status) =>
   [
     'ocr_prediction_unreviewed',
@@ -2084,6 +2130,97 @@ const replaceLocalRecognitionData = (textPayload = {}, confidencePayload = {}) =
   })
 }
 
+// --- LAYOUT-CHANGE TEXT RECOVERY WARNING ---
+// A layout save regenerates the page's lines, so the text shown afterwards is a
+// fresh reading and the user's earlier corrections live only in the backup that
+// Recover Text restores. Editing before recovering silently strands that work,
+// so the first edit attempt raises a prompt. The acknowledgement is remembered
+// per backup, so the user is asked once per layout change and not once per page
+// visit.
+const textRecoveryAckStorageKey = (backupId) => {
+  if (!localManuscriptName.value || !localCurrentPage.value || !backupId) return null
+  return `text_recovery_ack:${localManuscriptName.value}:${localCurrentPage.value}:${backupId}`
+}
+
+const readTextRecoveryAcknowledgement = (backupId) => {
+  const key = textRecoveryAckStorageKey(backupId)
+  if (!key) return false
+  try {
+    return localStorage.getItem(key) === '1'
+  } catch (err) {
+    return false
+  }
+}
+
+const syncTextRecoveryAcknowledgement = () => {
+  const backupId = pageWorkflow.text_recovery.backup_id
+  if (textRecoveryPromptBackupId.value !== backupId) {
+    textRecoveryPrompt.value = null
+  }
+  textRecoveryPromptBackupId.value = backupId
+  textRecoveryAcknowledged.value = readTextRecoveryAcknowledgement(backupId)
+}
+
+const acknowledgeTextRecovery = () => {
+  textRecoveryAcknowledged.value = true
+  const key = textRecoveryAckStorageKey(pageWorkflow.text_recovery.backup_id)
+  if (!key) return
+  try {
+    localStorage.setItem(key, '1')
+  } catch (err) {
+    // A full or unavailable localStorage only costs a repeated prompt.
+  }
+}
+
+const textRecoveryWarningPending = computed(() =>
+  recognitionModeActive.value &&
+  Boolean(effectivePageWorkflow.value.can_edit_text) &&
+  pageWorkflow.text_recovery.available &&
+  // false means the backup provably held an unedited OCR prediction and nothing else.
+  pageWorkflow.text_recovery.had_read_mode_annotations !== false &&
+  !textRecoveryAcknowledged.value &&
+  !textRecoveryInFlight.value
+)
+
+const guardTextEditWithRecoveryPrompt = (lineId = null) => {
+  if (!textRecoveryWarningPending.value) return false
+  const pendingLineId = lineId ?? focusedLineId.value
+  textRecoveryPrompt.value = { pendingLineId: pendingLineId ? String(pendingLineId) : null }
+  return true
+}
+
+const requestActivateInput = (lineId) => {
+  if (guardTextEditWithRecoveryPrompt(lineId)) return
+  activateInput(lineId)
+}
+
+// Catches typing and pasting when the input was focused before the guard could
+// run, e.g. the auto-focus after a fresh reading.
+const handleTextEditAttempt = (event) => {
+  if (!guardTextEditWithRecoveryPrompt(focusedLineId.value)) return
+  event.preventDefault()
+}
+
+const resumePendingTextEdit = (pendingLineId) => {
+  const lineId = pendingLineId || focusedLineId.value
+  if (lineId) activateInput(lineId)
+}
+
+const dismissTextRecoveryPrompt = () => {
+  const pendingLineId = textRecoveryPrompt.value?.pendingLineId || null
+  acknowledgeTextRecovery()
+  textRecoveryPrompt.value = null
+  resumePendingTextEdit(pendingLineId)
+}
+
+const confirmTextRecoveryFromPrompt = async () => {
+  const pendingLineId = textRecoveryPrompt.value?.pendingLineId || null
+  acknowledgeTextRecovery()
+  textRecoveryPrompt.value = null
+  await recoverTextFromBackup()
+  resumePendingTextEdit(pendingLineId)
+}
+
 const clearTextRecoveryHighlights = () => {
   textRecoveryResult.value = null
   textRecoveryUnrecoveredLineIds.value = new Set()
@@ -2362,7 +2499,10 @@ const applyPageWorkflow = (payload = {}) => {
     backed_up_at: payload?.text_recovery?.backed_up_at || null,
     backup_text_line_count: Number(payload?.text_recovery?.backup_text_line_count || 0),
     current_text_line_count: Number(payload?.text_recovery?.current_text_line_count || 0),
+    // null means the backup predates this flag: treat unknown as "may hold annotations".
+    had_read_mode_annotations: payload?.text_recovery?.had_read_mode_annotations ?? null,
   }
+  syncTextRecoveryAcknowledgement()
 }
 
 const goToLayoutMode = () => {
@@ -2776,7 +2916,7 @@ const focusNextLine = (reverse = false) => {
              if(nextIdx >= sortedLineIds.value.length) nextIdx = 0; 
         }
     }
-    activateInput(sortedLineIds.value[nextIdx]);
+    requestActivateInput(sortedLineIds.value[nextIdx]);
 }
 
 
@@ -3062,6 +3202,7 @@ const recoverTextFromBackup = async () => {
 
     replaceLocalRecognitionData(data.text || {}, data.confidences || {})
     applyTextRecoveryResult(data.textRecovery || {})
+    acknowledgeTextRecovery()
     if ((data.textRecovery?.matched_line_count || 0) > 0) {
       recognitionDraftDirty.value = true
     }
@@ -4143,11 +4284,16 @@ const navigationSavePrompt = () => {
   if (recognitionModeActive.value && recognitionDraftDirty.value) {
     return 'Save this page as ground truth before leaving?'
   }
-  if (recognitionModeActive.value && groundTruthCommitPending.value) {
-    if (pageWorkflow.review_status === 'draft_saved' || pageWorkflow.review_status === 'ground_truth_with_draft_changes') {
-      return 'This page has draft text that is not saved as ground truth. Save as ground truth before leaving?'
-    }
-    return 'Save this page as ground truth before leaving?'
+  // Text edited here and autosaved as a draft is still uncommitted work, so it
+  // prompts even though the autosave cleared the dirty flag. Text nobody edited
+  // in this tool is not a pending change and must not prompt: leaving it alone
+  // loses nothing, and every page of an imported manuscript would ask forever.
+  if (
+    recognitionModeActive.value &&
+    groundTruthCommitPending.value &&
+    UNCOMMITTED_TEXT_DRAFT_STATUSES.includes(String(pageWorkflow.review_status || ''))
+  ) {
+    return 'This page has draft text that is not saved as ground truth. Save as ground truth before leaving?'
   }
   return ''
 }
@@ -4187,8 +4333,14 @@ const navigateToPageWithPolicy = async (targetPage, { exitAction = 'prompt' } = 
     return
   }
 
-  if (!recognitionModeActive.value && groundTruthCommitPending.value) {
-    if (confirm('This page has text that is not saved as ground truth. Leave without saving it as ground truth?')) {
+  // Page Layout counterpart of the Text Review prompts above: text typed in Text
+  // Review stays dirty across a mode switch, and a Page Layout save would not
+  // commit it as ground truth, so leaving from here is the last chance to keep
+  // it. Gate on this session's dirty draft, not on `groundTruthCommitPending`:
+  // that one is true for any page whose saved text is not yet ground truth,
+  // which fires on every page of an imported manuscript with nothing to lose.
+  if (!recognitionModeActive.value && recognitionDraftDirty.value) {
+    if (confirm('This page has unsaved text changes. Leave without saving them as ground truth?')) {
       navigateToPage(targetPage)
     }
     return
@@ -5062,6 +5214,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.text-recovery-prompt-meta {
+  font-size: 0.82rem;
+  color: #a9b7b1 !important;
 }
 
 .recognition-guard-card {

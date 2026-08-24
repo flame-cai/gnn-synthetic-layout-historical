@@ -868,6 +868,60 @@ back to the resized page image, and writes:
 overlay_exports/<page>_overlay.jpg
 ```
 
+## Text Recovery After A Layout Change
+
+A Layout Mode save regenerates `TextLine/Coords` and line ids and is sent with an
+empty text payload, so any text the user had already corrected in Read Mode does
+not survive the save. Before regenerating, the save route copies the current PAGE
+XML to:
+
+```text
+layout_analysis_output/text_recovery_backups/<page>/<backup_id>.xml
+```
+
+`POST /recover-text/<manuscript>/<page>` matches backup lines onto the current
+lines with `0.75 * text_similarity + 0.25 * bbox_IoU` over whitespace- and
+joiner-stripped text, rejects a best match within `0.04` of the runner-up as
+ambiguous, and never reuses a backup line twice. Unmatched lines are returned in
+`unrecovered_line_ids` and drawn in red in Text Review.
+
+Recovery is opt-in, so the risk is a user who edits the fresh reading without
+pressing `Recover Text` and strands the earlier work. Each backup therefore also
+records `had_read_mode_annotations`, classified at backup time by
+`ManuscriptOcrRegistry.has_read_mode_annotations(...)`. Page text counts as
+annotated when either:
+
+- the OCR registry has a Text Review revision for the page — a supervised
+  commit, or a draft autosave, which only fires on a dirty text draft (Layout
+  Mode saves are non-supervised commits and do not qualify); or
+- the page carries Unicode text that is not identical to the last prediction
+  this app recorded for it.
+
+The second condition exists because in-tool history is not the only source of
+annotated text. Manuscripts transcribed elsewhere and imported as PAGE XML —
+`dense_layout`, `moderate_layout`, `circular_layout`, and the legacy conversions
+described in each manuscript's `CONVERSION.md` — carry human transcription on
+every page with no registry revisions and no predictions, and a
+revision-only test called them unannotated. Across the manuscripts currently in
+`app/input_manuscripts/`, the revision-only test protected 97 of 134 transcribed
+pages; the current test protects all 134. Text that still matches the recorded
+prediction verbatim is not an annotation and does not warn.
+
+The flag is surfaced in `pageWorkflow.text_recovery` and is `null` on backups
+written before it existed; consumers must treat `null` as "may hold
+annotations".
+
+Read Mode raises a modal on the first edit attempt — clicking a line, tabbing to
+one, or typing into a focused one — when recovery is available and
+`had_read_mode_annotations` is not `false`. The choice ("Recover Previous Text"
+or "Continue Without Recovering") is remembered per backup id in `localStorage`,
+so the user is asked once per layout change rather than once per page visit, and
+pressing `Recover Text` directly settles it the same way.
+
+This classification is read-only with respect to active learning. It adds one
+registry load to a layout save, reads revisions and the recorded prediction, and
+changes no supervision boundary, job, or checkpoint lineage.
+
 ## Known Production Limitations
 
 - Restart, interruption, and rebuild hardening for the live OCR runtime is still

@@ -18,6 +18,14 @@ def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _non_empty_text_lines(text_payload: dict | None) -> dict:
+    return {
+        str(line_id): str(value)
+        for line_id, value in dict(text_payload or {}).items()
+        if str(value or "").strip()
+    }
+
+
 def _page_sort_key(page_id: str) -> tuple:
     parts = []
     chunk = ""
@@ -291,6 +299,43 @@ class ManuscriptOcrRegistry:
             if int(revision["revision_number"]) == int(revision_number):
                 return revision
         return None
+
+    def has_read_mode_annotations(self, page_id: str, page_text_payload: dict | None = None) -> bool:
+        """True if the page's Read Mode text is human work rather than a raw prediction.
+
+        Text qualifies when the page has a Text Review revision, or when it
+        carries Unicode text that is not identical to the last prediction this
+        app recorded for it. The second case is what covers manuscripts
+        transcribed outside the tool and imported as PAGE XML: they have human
+        text on every page and no registry history at all, so a revision-only
+        test would wrongly call them unannotated. It also covers a prediction
+        the user has partly corrected. Text that still matches the recorded
+        prediction verbatim is not an annotation.
+        """
+        text_lines = _non_empty_text_lines(page_text_payload)
+        if not text_lines:
+            return False
+        if self.has_text_review_revision(page_id):
+            return True
+        predicted_lines = _non_empty_text_lines((self.get_last_prediction(page_id) or {}).get("predicted_lines"))
+        return text_lines != predicted_lines
+
+    def has_text_review_revision(self, page_id: str) -> bool:
+        """True if this page ever carried Text Review work.
+
+        Two persisted signals qualify: a supervised commit (reviewed ground
+        truth) and a draft revision (Text Review autosave, which only fires on
+        a dirty text draft). Layout Mode saves are always non-supervised
+        commits, so they never qualify. `save_scope` is telemetry only and is
+        not stored on the revision record, so it cannot be used here.
+        """
+        revisions = self.data.setdefault("page_revisions", {}).get(str(page_id), [])
+        for revision in revisions:
+            if bool(revision.get("supervision_present")):
+                return True
+            if str(revision.get("save_intent", "commit")) == "draft":
+                return True
+        return False
 
     def latest_supervised_commit_revision(self, page_id: str) -> dict | None:
         revisions = self.data.setdefault("page_revisions", {}).get(str(page_id), [])

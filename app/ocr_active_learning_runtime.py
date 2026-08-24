@@ -543,6 +543,30 @@ def _numeric_or_none(value):
     return float(value) if isinstance(value, (int, float)) else None
 
 
+def page_has_read_mode_annotations(
+    manuscript_root: str | Path,
+    page_id: str,
+    base_checkpoint_path: str | Path | None = None,
+    page_text_payload: dict | None = None,
+) -> bool:
+    """True if the page's Read Mode text is human work rather than a raw prediction.
+
+    Used to decide whether a layout change is about to discard annotated text, so
+    the GUI can warn before the user edits the fresh reading. The classification
+    itself lives in the registry, which owns both revisions and predictions; this
+    resolves the manuscript's registry and keeps a failure non-fatal.
+    """
+    if not page_text_payload:
+        return False
+    try:
+        registry = _load_registry_for_manuscript(manuscript_root, base_checkpoint_path=base_checkpoint_path)
+        return bool(registry.has_read_mode_annotations(page_id, page_text_payload))
+    except Exception as exc:
+        # Unknown provenance for text that exists: warn rather than stay silent.
+        print(f"[{page_id}] Warning: could not classify read mode text: {exc}")
+        return True
+
+
 def summarize_page_active_learning(
     manuscript_root: str | Path,
     page_id: str,

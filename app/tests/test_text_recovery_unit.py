@@ -76,6 +76,42 @@ class TextRecoveryUnitTest(unittest.TestCase):
         self.assertEqual(state["backup_text_line_count"], 1)
         self.assertEqual(state["current_text_line_count"], 1)
 
+    def test_backup_records_whether_page_had_read_mode_annotations(self):
+        current_xml = self.xml_dir / "233_0001.xml"
+        self._write_xml(
+            current_xml,
+            [{"id": "0", "text": "rama", "coords": [(0, 0), (100, 0), (100, 20), (0, 20)]}],
+        )
+
+        backup_page_xml_for_text_recovery(
+            self.tmp_root, "233_0001", xml_path=current_xml, had_read_mode_annotations=True
+        )
+        annotated_state = build_text_recovery_state(
+            self.tmp_root, "233_0001", current_xml_path=current_xml
+        )
+        self.assertTrue(annotated_state["had_read_mode_annotations"])
+
+        backup_page_xml_for_text_recovery(
+            self.tmp_root, "233_0001", xml_path=current_xml, had_read_mode_annotations=False
+        )
+        prediction_only_state = build_text_recovery_state(
+            self.tmp_root, "233_0001", current_xml_path=current_xml
+        )
+        self.assertFalse(prediction_only_state["had_read_mode_annotations"])
+
+    def test_backup_without_recorded_annotation_flag_reports_unknown(self):
+        current_xml = self.xml_dir / "233_0001.xml"
+        self._write_xml(
+            current_xml,
+            [{"id": "0", "text": "rama", "coords": [(0, 0), (100, 0), (100, 20), (0, 20)]}],
+        )
+
+        backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+        state = build_text_recovery_state(self.tmp_root, "233_0001", current_xml_path=current_xml)
+
+        # Unknown, not False: the GUI must still warn for legacy backups.
+        self.assertIsNone(state["had_read_mode_annotations"])
+
     def test_recovery_plan_matches_by_text_similarity_and_coords_overlap(self):
         backup_xml = self.xml_dir / "backup.xml"
         current_xml = self.xml_dir / "current.xml"

@@ -140,6 +140,7 @@ def backup_page_xml_for_text_recovery(
     *,
     xml_path: str | Path | None = None,
     layout_fingerprint: str | None = None,
+    had_read_mode_annotations: bool | None = None,
 ) -> dict | None:
     manuscript_root = Path(manuscript_root)
     xml_path = Path(xml_path or manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page}.xml")
@@ -164,6 +165,11 @@ def backup_page_xml_for_text_recovery(
         "layout_fingerprint": layout_fingerprint,
         "text_line_count": len(lines),
         "non_empty_text_line_count": non_empty_count,
+        # None means "unknown" (legacy backup written before this was recorded).
+        # Consumers must treat unknown as "may contain annotated text".
+        "had_read_mode_annotations": (
+            None if had_read_mode_annotations is None else bool(had_read_mode_annotations)
+        ),
     }
     metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
     return metadata
@@ -233,6 +239,7 @@ def build_text_recovery_state(
         "backed_up_at": backup.get("backed_up_at"),
         "backup_text_line_count": int(backup_non_empty),
         "current_text_line_count": int(current_non_empty),
+        "had_read_mode_annotations": backup.get("had_read_mode_annotations"),
     }
 
 

@@ -85,6 +85,7 @@ from job_orchestrator import JobOrchestrator
 from ocr_active_learning_runtime import (
     configure_runtime,
     handle_post_save,
+    page_has_read_mode_annotations,
     prepare_for_interactive_ocr,
     record_prediction,
     summarize_page_active_learning,
@@ -1812,11 +1813,21 @@ def save_correction(manuscript, page):
         else:
             if save_scope == 'layout' and xml_path.exists():
                 try:
+                    # Classified before the layout save regenerates the page, so
+                    # the GUI can tell "this backup holds annotated text" from
+                    # "this backup only holds an OCR prediction".
+                    backup_text_payload = get_existing_text_content(str(xml_path)).get("text", {})
                     backup_page_xml_for_text_recovery(
                         manuscript_path,
                         page,
                         xml_path=xml_path,
                         layout_fingerprint=compute_page_layout_fingerprint(str(xml_path)),
+                        had_read_mode_annotations=page_has_read_mode_annotations(
+                            manuscript_path,
+                            page,
+                            base_checkpoint_path=OCR_MODEL_PATH,
+                            page_text_payload=backup_text_payload,
+                        ),
                     )
                 except Exception as backup_error:
                     print(f"[{page}] Error backing up PAGE XML for text recovery: {backup_error}")

@@ -60,6 +60,115 @@ class ManuscriptOcrRegistryUnitTest(unittest.TestCase):
         self.assertTrue(second.is_duplicate)
         self.assertEqual(len(registry.data["page_revisions"]["233_0001"]), 1)
 
+    def _registry_for(self, name):
+        root = TESTS_ROOT / "_tmp_registry_unit" / name
+        root.mkdir(parents=True, exist_ok=True)
+        base_checkpoint = root / "base.pth"
+        base_checkpoint.write_text("base", encoding="utf-8")
+        return load_registry(root / "manuscript", base_checkpoint)
+
+    def test_imported_transcription_without_registry_history_counts_as_annotated(self):
+        # dense_layout / moderate_layout / circular_layout: human transcription in
+        # PAGE XML, never reviewed in the tool, so no revisions and no predictions.
+        registry = self._registry_for("imported_transcription")
+        self.assertTrue(
+            registry.has_read_mode_annotations("233_0001", {"0": "rama", "1": "sita"})
+        )
+
+    def test_unedited_prediction_does_not_count_as_annotated(self):
+        registry = self._registry_for("prediction_only")
+        registry.remember_prediction(
+            "233_0001",
+            {"recognition_engine": "local", "predicted_lines": {"0": "rama", "1": "sita"}},
+        )
+
+        self.assertFalse(
+            registry.has_read_mode_annotations("233_0001", {"0": "rama", "1": "sita"})
+        )
+        # Empty lines on either side must not create a spurious difference.
+        self.assertFalse(
+            registry.has_read_mode_annotations("233_0001", {"0": "rama", "1": "sita", "2": "  "})
+        )
+        # One corrected line is enough to protect the page.
+        self.assertTrue(
+            registry.has_read_mode_annotations("233_0001", {"0": "rAma", "1": "sita"})
+        )
+
+    def test_reviewed_page_counts_even_when_text_matches_the_prediction(self):
+        registry = self._registry_for("reviewed_unchanged")
+        registry.remember_prediction(
+            "233_0001",
+            {"recognition_engine": "local", "predicted_lines": {"0": "rama"}},
+        )
+        registry.record_page_revision(
+            "233_0001",
+            {
+                "content_hash": "gt-1",
+                "save_intent": "commit",
+                "supervision_present": True,
+                "recognition_engine": "local",
+                "text_line_count": 1,
+                "text_non_empty_line_count": 1,
+            },
+        )
+
+        self.assertTrue(registry.has_read_mode_annotations("233_0001", {"0": "rama"}))
+
+    def test_page_without_text_is_never_annotated(self):
+        registry = self._registry_for("no_text")
+        self.assertFalse(registry.has_read_mode_annotations("233_0001", {}))
+        self.assertFalse(registry.has_read_mode_annotations("233_0001", {"0": "", "1": "   "}))
+
+    def test_has_text_review_revision_distinguishes_layout_saves_from_text_work(self):
+        root = TESTS_ROOT / "_tmp_registry_unit" / "text_review_history"
+        root.mkdir(parents=True, exist_ok=True)
+        base_checkpoint = root / "base.pth"
+        base_checkpoint.write_text("base", encoding="utf-8")
+        registry = load_registry(root / "manuscript", base_checkpoint)
+
+        # A Layout Mode save: a commit that carries no OCR supervision.
+        registry.record_page_revision(
+            "233_0001",
+            {
+                "content_hash": "layout-1",
+                "save_intent": "commit",
+                "supervision_present": False,
+                "recognition_engine": "local",
+                "text_line_count": 0,
+                "text_non_empty_line_count": 0,
+            },
+        )
+        self.assertFalse(registry.has_text_review_revision("233_0001"))
+
+        # A Text Review autosave is enough to count as human text work.
+        registry.record_page_revision(
+            "233_0001",
+            {
+                "content_hash": "draft-1",
+                "save_intent": "draft",
+                "supervision_present": False,
+                "recognition_engine": "local",
+                "text_line_count": 2,
+                "text_non_empty_line_count": 1,
+            },
+        )
+        self.assertTrue(registry.has_text_review_revision("233_0001"))
+
+        # A reviewed commit on a different page counts too.
+        registry.record_page_revision(
+            "233_0002",
+            {
+                "content_hash": "gt-1",
+                "save_intent": "commit",
+                "supervision_present": True,
+                "recognition_engine": "local",
+                "text_line_count": 2,
+                "text_non_empty_line_count": 2,
+            },
+        )
+        self.assertTrue(registry.has_text_review_revision("233_0002"))
+        self.assertFalse(registry.has_text_review_revision("233_0003"))
+
     def test_commit_after_same_hash_draft_creates_new_revision(self):
         root = TESTS_ROOT / "_tmp_registry_unit" / "draft_then_commit"
         root.mkdir(parents=True, exist_ok=True)
