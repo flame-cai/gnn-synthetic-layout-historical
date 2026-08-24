@@ -389,20 +389,23 @@
                 v-for="(points, lineId) in pagePolygons"
                 :key="`poly-bg-${lineId}`"
                 :points="pointsToSvgString(points)"
-                :fill="isTextRecoveryUnrecovered(lineId) ? 'rgba(255, 82, 82, 0.24)' : 'transparent'"
-                :stroke="isTextRecoveryUnrecovered(lineId) ? '#ff5252' : 'rgba(255, 255, 255, 0.2)'"
-                :stroke-width="isTextRecoveryUnrecovered(lineId) ? 2 : 1"
+                :fill="textRecoveryLineStyle(lineId).fill"
+                :stroke="textRecoveryLineStyle(lineId).stroke"
+                :stroke-width="textRecoveryLineStyle(lineId).width"
                 class="polygon-inactive"
-                :class="{ 'polygon-unrecovered': isTextRecoveryUnrecovered(lineId) }"
+                :class="{
+                  'polygon-unrecovered': isTextRecoveryUnrecovered(lineId),
+                  'polygon-geometry-recovered': isTextRecoveryGeometryMatched(lineId),
+                }"
                 @click="requestActivateInput(lineId)"
               />
 
               <polygon
                 v-if="focusedLineId && pagePolygons[focusedLineId]"
                 :points="pointsToSvgString(pagePolygons[focusedLineId])"
-                :fill="isTextRecoveryUnrecovered(focusedLineId) ? 'rgba(255, 82, 82, 0.28)' : 'rgba(0, 255, 255, 0.1)'"
-                :stroke="isTextRecoveryUnrecovered(focusedLineId) ? '#ff5252' : '#00e5ff'"
-                :stroke-width="isTextRecoveryUnrecovered(focusedLineId) ? 2 : 0"
+                :fill="textRecoveryLineStyle(focusedLineId).focusFill"
+                :stroke="textRecoveryLineStyle(focusedLineId).focusStroke"
+                :stroke-width="textRecoveryLineStyle(focusedLineId).focusWidth"
                 class="polygon-active"
               />
             </svg>
@@ -446,7 +449,10 @@
                     ref="activeInput"
                     v-model="localTextContent[focusedLineId]" 
                     class="line-input active"
-                    :class="{ 'is-unrecovered': isTextRecoveryUnrecovered(focusedLineId) }"
+                    :class="{
+                      'is-unrecovered': isTextRecoveryUnrecovered(focusedLineId),
+                      'is-geometry-recovered': isTextRecoveryGeometryMatched(focusedLineId),
+                    }"
                     @keydown="handleRecognitionInput"
                     @beforeinput="handleTextEditAttempt"
                     @blur="handleInputBlur"
@@ -672,7 +678,13 @@
              <p>{{ effectivePageWorkflow.hint }}</p>
              <p v-if="textRecoveryResult" class="text-recovery-summary">
                Recovered {{ textRecoveryResult.matched_line_count || 0 }} line{{ (textRecoveryResult.matched_line_count || 0) === 1 ? '' : 's' }}.
-               {{ (textRecoveryResult.unrecovered_line_ids || []).length }} line{{ (textRecoveryResult.unrecovered_line_ids || []).length === 1 ? '' : 's' }} need manual review.
+               <template v-if="textRecoveryResult.geometry_matched_line_count">
+                 <span class="text-recovery-geometry-note">
+                   {{ textRecoveryResult.geometry_matched_line_count }} of them (amber) matched by position only, because the new reading was too
+                   different to compare &mdash; check that the text belongs to the line.
+                 </span>
+               </template>
+               {{ (textRecoveryResult.unrecovered_line_ids || []).length }} line{{ (textRecoveryResult.unrecovered_line_ids || []).length === 1 ? '' : 's' }} (red) need manual review.
              </p>
              <ul>
                <!-- <li><strong>Read Text:</strong> Press <code>R</code> to read the page or read it again.</li> -->
@@ -996,6 +1008,7 @@ const textRecoveryAcknowledged = ref(false)
 const textRecoveryPromptBackupId = ref(null)
 const textRecoveryResult = ref(null)
 const textRecoveryUnrecoveredLineIds = ref(new Set())
+const textRecoveryGeometryLineIds = ref(new Set())
 const readerCapabilities = reactive({
   local: {
     available: true,
@@ -2228,15 +2241,46 @@ const confirmTextRecoveryFromPrompt = async () => {
 const clearTextRecoveryHighlights = () => {
   textRecoveryResult.value = null
   textRecoveryUnrecoveredLineIds.value = new Set()
+  textRecoveryGeometryLineIds.value = new Set()
 }
 
 const isTextRecoveryUnrecovered = (lineId) =>
   textRecoveryUnrecoveredLineIds.value.has(String(lineId))
 
+// Recovered from the previous layout by baseline position alone, with no
+// agreement between the old and new text. The text is the human's, but nothing
+// verified the pairing, so it is shown apart from text-verified recoveries.
+const isTextRecoveryGeometryMatched = (lineId) =>
+  textRecoveryGeometryLineIds.value.has(String(lineId))
+
+const TEXT_RECOVERY_LINE_STYLES = {
+  unrecovered: {
+    fill: 'rgba(255, 82, 82, 0.24)', stroke: '#ff5252', width: 2,
+    focusFill: 'rgba(255, 82, 82, 0.28)', focusStroke: '#ff5252', focusWidth: 2,
+  },
+  geometry: {
+    fill: 'rgba(255, 179, 0, 0.18)', stroke: '#ffb300', width: 2,
+    focusFill: 'rgba(255, 179, 0, 0.26)', focusStroke: '#ffb300', focusWidth: 2,
+  },
+  plain: {
+    fill: 'transparent', stroke: 'rgba(255, 255, 255, 0.2)', width: 1,
+    focusFill: 'rgba(0, 255, 255, 0.1)', focusStroke: '#00e5ff', focusWidth: 0,
+  },
+}
+
+const textRecoveryLineStyle = (lineId) => {
+  if (isTextRecoveryUnrecovered(lineId)) return TEXT_RECOVERY_LINE_STYLES.unrecovered
+  if (isTextRecoveryGeometryMatched(lineId)) return TEXT_RECOVERY_LINE_STYLES.geometry
+  return TEXT_RECOVERY_LINE_STYLES.plain
+}
+
 const applyTextRecoveryResult = (payload = {}) => {
   textRecoveryResult.value = payload || null
   textRecoveryUnrecoveredLineIds.value = new Set(
     (payload?.unrecovered_line_ids || []).map((lineId) => String(lineId))
+  )
+  textRecoveryGeometryLineIds.value = new Set(
+    (payload?.geometry_matched_line_ids || []).map((lineId) => String(lineId))
   )
 }
 
@@ -5145,6 +5189,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     box-shadow: 0 0 0 2px rgba(255, 82, 82, 0.22), 0 4px 12px rgba(0,0,0,0.5);
 }
 
+.line-input.is-geometry-recovered {
+    border-color: #ffb300;
+    box-shadow: 0 0 0 2px rgba(255, 179, 0, 0.22), 0 4px 12px rgba(0,0,0,0.5);
+}
+
 .input-floater.has-line-preview .line-input {
     box-sizing: border-box;
 }
@@ -5186,6 +5235,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 .polygon-inactive.polygon-unrecovered:hover {
     stroke: #ff867f;
+    stroke-width: 2;
+}
+.polygon-inactive.polygon-geometry-recovered {
+    stroke-width: 2;
+}
+.polygon-inactive.polygon-geometry-recovered:hover {
+    stroke: #ffcc55;
     stroke-width: 2;
 }
 .polygon-active {
@@ -5451,6 +5507,10 @@ code { background: #424242; color: #ffb74d; padding: 2px 4px; border-radius: 3px
   color: #ffd6d6;
   font-size: 0.86rem;
   line-height: 1.35;
+}
+
+.text-recovery-geometry-note {
+  color: #ffd89f;
 }
 
 /* Sidebar Log */

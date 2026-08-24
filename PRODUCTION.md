@@ -879,11 +879,63 @@ XML to:
 layout_analysis_output/text_recovery_backups/<page>/<backup_id>.xml
 ```
 
-`POST /recover-text/<manuscript>/<page>` matches backup lines onto the current
-lines with `0.75 * text_similarity + 0.25 * bbox_IoU` over whitespace- and
-joiner-stripped text, rejects a best match within `0.04` of the runner-up as
-ambiguous, and never reuses a backup line twice. Unmatched lines are returned in
-`unrecovered_line_ids` and drawn in red in Text Review.
+`POST /recover-text/<manuscript>/<page>` recovers in two passes.
+
+The **text pass** matches backup lines onto the current lines with
+`0.75 * text_similarity + 0.25 * bbox_IoU` over whitespace- and joiner-stripped
+text, rejects a best match within `0.04` of the runner-up as ambiguous, and never
+reuses a backup line twice. Text similarity is a hard gate there, so a line whose
+fresh reading is wrong recovers nothing, and a line the reader left empty is
+filtered out before matching even starts.
+
+The **geometry pass** then matches what is left using `Baseline` position alone.
+A layout save only changes the lines the human edited; every other line keeps a
+pixel-identical baseline and merely gets a new `structure_line_id`, so geometry
+is the stable identity. Distance is the symmetric mean-nearest-point distance
+between baselines resampled to 64 arclength-equidistant points, normalised by the
+page's median smaller-Coords-dimension. A pair is accepted at `<= 0.08` of that
+unit when the runner-up is at least `max(0.20, 4 x best)` away. Measured over 766
+text-verified pairs, true pairs sit at p90 `0.000` and max `0.09` while the
+nearest wrong candidate is 3+ units away, so the accept threshold sits in a wide
+empty gap; sweeping it from `0.02` to `0.30` changes nothing.
+
+The runner-up rule is scaled by the best distance rather than flat, because an
+exact match at distance `0` is decisive however close the next line happens to
+sit. A flat `0.5` floor declined perfect matches on tight layouts purely for
+having a neighbour at `0.4982`. Replayed adversarially over the 766 text-verified
+pairs, geometry-only matching contradicts the text pass on **0** of them.
+
+Verified across all three released layout regimes by replaying each page against
+itself with the text replaced by garbage and then by nothing: `circular_layout`
+250/250 lines, `moderate_layout` 309/309, `dense_layout` 309/309. Closed circular
+lines do inflate the page unit, but the median is dominated by ordinary lines, so
+the unit stays in the 50-124 px range on real circular pages.
+
+Three properties keep the geometry pass from causing harm:
+
+- it sees only what the text pass did not consume, so it cannot take a match away
+  from text evidence;
+- its candidates are restricted to backup lines that carry text, so it can never
+  blank a line (an early prototype without this restriction "recovered" 131 lines
+  by erasing good OCR text);
+- its targets include current lines whose fresh text is **empty** — invisible to
+  the text pass and the safest lines to restore, since nothing is overwritten.
+
+Matches carry `match_method` (`"text"` or `"baseline_geometry"`), and the plan
+reports `text_matched_line_count`, `geometry_matched_line_count`, and
+`geometry_matched_line_ids`. Text Review draws text-verified recoveries normally,
+geometry recoveries in **amber** ("matched by position only — check that the text
+belongs to the line"), and unmatched lines in **red**. `unrecovered_line_ids`
+still lists only lines that carry text: an empty line geometry could not place is
+not a failed recovery, and reddening every such line after a re-read would drown
+the signal.
+
+Measured over 65 pages of real backups, replaying each page's recorded OCR
+prediction as the post-re-read text and its reviewed text as the backup: the text
+pass alone recovers **77.9%** of human-corrected lines. Adding the geometry pass,
+and counting only lines whose baseline actually survives a real layout save,
+takes that to **94.3%** — about one corrected line in five lost today, versus one
+in eighteen. Pass-1 output is unchanged on all 65 pages.
 
 Recovery is opt-in, so the risk is a user who edits the fresh reading without
 pressing `Recover Text` and strands the earlier work. Each backup therefore also
