@@ -200,10 +200,13 @@ onBeforeUnmount(() => {
 /* Popover Panel */
 .palette-popover {
   position: absolute;
-  top: calc(100% + 12px);
+  /* Opens upward. This button lives in the bottom bar, so downward is either
+     over the help content or, when the bar is collapsed, past the bottom of the
+     viewport where `.manuscript-viewer { overflow: hidden }` clips it away. */
+  bottom: calc(100% + 12px);
   right: 0;
   width: 340px; /* Wider to comfortably fit characters */
-  max-height: 400px; /* Prevents long lists from going off-screen */
+  max-height: min(400px, 50vh); /* Stays on screen in short windows too */
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -221,14 +224,14 @@ onBeforeUnmount(() => {
 .palette-popover::before {
   content: '';
   position: absolute;
-  top: -6px;
+  bottom: -6px;
   right: 20px;
   transform: rotate(45deg);
   width: 10px;
   height: 10px;
   background: rgba(20, 20, 20, 0.95);
-  border-top: 1px solid #3d3d3d;
-  border-left: 1px solid #3d3d3d;
+  border-bottom: 1px solid #3d3d3d;
+  border-right: 1px solid #3d3d3d;
 }
 
 .palette-header {
@@ -321,6 +324,6 @@ onBeforeUnmount(() => {
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(10px);
 }
 </style>

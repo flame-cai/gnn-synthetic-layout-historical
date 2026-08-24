@@ -560,14 +560,17 @@
            <div class="mode-tools-section">
              <div class="mode-tools-label">Typing Tools</div>
              <div class="mode-tools-controls">
-               <div class="workflow-toggle-group compact bottom-tools-toggle">
+               <div
+                 class="workflow-toggle-group compact bottom-tools-toggle"
+                 title="Switch between the Devanagari and English keyboard. Shortcut: Ctrl+K, which keeps your place in the line you are typing."
+               >
                  <label class="toggle-switch">
                    <input type="checkbox" v-model="devanagariModeEnabled">
                    <span class="slider"></span>
                  </label>
                  <div class="workflow-toggle-copy">
                    <span class="workflow-toggle-label">Keyboard</span>
-                   <span class="workflow-toggle-subcopy">Devanagari</span>
+                   <span class="workflow-toggle-subcopy">Devanagari (Ctrl+K)</span>
                  </div>
                </div>
 
@@ -675,6 +678,7 @@
                <!-- <li><strong>Read Text:</strong> Press <code>R</code> to read the page or read it again.</li> -->
                <!-- <li><strong>Save:</strong> Press <code>S</code> to save, or <code>Shift+S</code>/<code>Ctrl+Enter</code> to save and open the next page.</li> -->
                <li><strong>Navigate:</strong> Press <code>Tab</code> for the next line, <code>Shift+Tab</code> for the previous line.</li>
+               <li><strong>Keyboard:</strong> Press <code>Ctrl+K</code> to switch between the Devanagari and English keyboard without leaving the line you are typing.</li>
                <li v-if="devanagariModeEnabled"><strong>Keys:</strong> Type phonetically (for example, <code>k</code> gives <code>क</code>). Use <code>q</code> for halant.</li>
              </ul>
              <div class="recognition-status-grid">
@@ -2761,6 +2765,32 @@ const handleRecognitionInput = (event) => {
     handleDevanagariInput(event, textRef);
 }
 
+// Ctrl+K switches the typing keyboard without interrupting typing: the caret
+// stays where it was, so a correction can continue mid-word. The keydown itself
+// does not move focus, but the restore covers the input being re-rendered when
+// the palette and the input's font swap.
+const toggleDevanagariKeyboard = () => {
+    const lineInput = activeInput.value;
+    const editingLine = Boolean(lineInput) && document.activeElement === lineInput;
+    const selectionStart = editingLine ? lineInput.selectionStart : null;
+    const selectionEnd = editingLine ? lineInput.selectionEnd : null;
+
+    devanagariModeEnabled.value = !devanagariModeEnabled.value;
+
+    if (!editingLine) return;
+    nextTick(() => {
+        const input = activeInput.value;
+        if (!input) return;
+        if (document.activeElement !== input) input.focus();
+        if (selectionStart === null) return;
+        try {
+            input.setSelectionRange(selectionStart, selectionEnd);
+        } catch (err) {
+            // Selection APIs can reject on a detached input; focus is enough.
+        }
+    });
+}
+
 const pointsToSvgString = (pts) => {
     if(!pts) return "";
     return pts.map(p => `${scaleX(p[0])},${scaleY(p[1])}`).join(" ");
@@ -3838,6 +3868,22 @@ const handleGlobalKeyDown = (e) => {
     (key === '+' || key === '-' || key === '=' || key === '0' || e.code === 'NumpadAdd' || e.code === 'NumpadSubtract')
   if (isZoomShortcut) {
     schedulePostZoomShortcutUpdate()
+  }
+
+  // Deliberately runs while `isInput` is true: this is a typing aid, so it has
+  // to work from inside the line input. Text Review only, which is where the
+  // toggle it mirrors is visible.
+  if (
+    (e.ctrlKey || e.metaKey) &&
+    !e.shiftKey &&
+    !e.altKey &&
+    key === 'k' &&
+    !e.repeat &&
+    recognitionModeActive.value
+  ) {
+    e.preventDefault()
+    toggleDevanagariKeyboard()
+    return
   }
 
   if (
@@ -5265,6 +5311,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .bottom-panel {
   background-color: #2c2c2c; border-top: 1px solid #3d3d3d; flex-shrink: 0; display: flex; flex-direction: column;
   height: 280px; transition: height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* Positioned so the character palette's upward popover paints over the
+     visualization area. `fixed-ui-compensated` applies zoom/transform here, and
+     either one makes this a stacking context, which would otherwise trap the
+     popover behind `.visualization-container` (positioned, so it paints later).
+     Every absolute descendant in this panel already has its own positioned
+     ancestor, so this re-anchors nothing. Page modals sit at 10000+. */
+  position: relative;
+  z-index: 20;
 }
 .bottom-panel.is-collapsed { height: 45px; }
 .mode-tabs { display: flex; background: #212121; height: 45px; flex-shrink: 0; }
