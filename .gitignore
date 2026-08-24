@@ -64,5 +64,6 @@ experiments/*
 # checklist is a working note against a machine-predicted layout rather than a
 # record of the dataset.
 old_manuscripts_ignore/
+app/old_manuscripts_ignore/
 LEGACY_CONVERSION_REVIEW.md
 scripts/convert_old_manuscript_annotations.py
