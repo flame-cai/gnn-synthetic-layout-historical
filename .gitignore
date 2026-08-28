@@ -54,6 +54,8 @@ app/tests/eval_dataset_v2/
 docs/
 
 TODO.md
+PAPER_TODO.md
+TOOL_TODO.md
 # Use the /* form, not experiments/: only /* permits re-including a subpath
 # later with a negation such as !experiments/downstream_ocr
 experiments/*
