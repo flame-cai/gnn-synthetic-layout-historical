@@ -59,6 +59,7 @@ TOOL_TODO.md
 # Use the /* form, not experiments/: only /* permits re-including a subpath
 # later with a negation such as !experiments/downstream_ocr
 experiments/*
+newar_sanskrit_dataset/*
 
 # Legacy text-only manuscript annotations, and the conversion of them into the
 # annotation tool's format. The source corpus carries DAV scans on the same
@@ -69,3 +70,6 @@ old_manuscripts_ignore/
 app/old_manuscripts_ignore/
 LEGACY_CONVERSION_REVIEW.md
 scripts/convert_old_manuscript_annotations.py
+
+
+MultimodalOCR
