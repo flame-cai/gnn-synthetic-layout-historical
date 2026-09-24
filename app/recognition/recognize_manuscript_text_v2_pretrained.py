@@ -15,6 +15,7 @@ from lxml import etree as ET
 from PIL import Image
 
 try:
+    from .active_learning_recipe import DEFAULT_OCR_ACTIVE_LEARNING_RECIPE
     from .auto_orientation import (
         IDENTITY_TRANSFORM,
         ROTATE_180_TRANSFORM,
@@ -31,6 +32,7 @@ try:
     from .ocr_defaults import build_label_converter, build_ocr_config, create_model, load_state_dict_compat
     from .pagexml_line_dataset import _encode_like_app_jpg, _load_processing_image, load_pagexml_lines
 except ImportError:  # pragma: no cover - script execution fallback
+    from active_learning_recipe import DEFAULT_OCR_ACTIVE_LEARNING_RECIPE
     from auto_orientation import (
         IDENTITY_TRANSFORM,
         ROTATE_180_TRANSFORM,
@@ -71,7 +73,14 @@ class InMemoryDataset(torch.utils.data.Dataset):
 
 
 def get_model_config(saved_model_path):
-    return build_ocr_config(saved_model_path=saved_model_path)
+    # Read lines at the width the active-learning recipe trains on. Batch size 1
+    # keeps each line's text independent of the other lines on the page, since
+    # batch_max_pad pads a batch to its widest line.
+    return build_ocr_config(
+        saved_model_path=saved_model_path,
+        width_policy=DEFAULT_OCR_ACTIVE_LEARNING_RECIPE.width_policy,
+        batch_size=1,
+    )
 
 
 def load_ocr_model(config, device):
@@ -268,7 +277,12 @@ def process_page_xml(
                 )
 
         dataset = InMemoryDataset(candidate_batch_data, config)
-        align_collate = AlignCollate(imgH=config.imgH, imgW=config.imgW, keep_ratio_with_pad=config.PAD)
+        align_collate = AlignCollate(
+            imgH=config.imgH,
+            imgW=config.imgW,
+            keep_ratio_with_pad=config.PAD,
+            width_policy=getattr(config, "width_policy", "global_2000_pad"),
+        )
         data_loader = torch.utils.data.DataLoader(
             dataset,
             batch_size=config.batch_size,
@@ -288,7 +302,8 @@ def process_page_xml(
 
                 preds_size = torch.IntTensor([preds.size(1)] * batch_size)
                 _, preds_index = preds.max(2)
-                preds_str = converter.decode(preds_index, preds_size)
+                # decode reads indices one at a time; on a GPU tensor each read waits for the GPU.
+                preds_str = converter.decode(preds_index.cpu(), preds_size)
 
                 for index, pred_text in enumerate(preds_str):
                     group_id, transform = metadata_list[index]
