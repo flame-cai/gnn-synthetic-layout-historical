@@ -196,6 +196,9 @@ def _extract_ocr_line_crops_with_tree(
         logger.error(f"Failed to parse PAGE XML lines from {xml_path}: {exc}")
         return tree, root, ns_url, []
 
+    # The page median fills pixels outside each line; computing it per line dominated crop time.
+    crop_config = dict(crop_config or {})
+    crop_config.setdefault("page_median_color", int(np.median(processing_image)))
     contexts_by_line_id, contexts_by_line_custom = _line_contexts_by_id_and_custom(page_elem, find_all)
     batch_data = []
     for record in records:
@@ -209,7 +212,7 @@ def _extract_ocr_line_crops_with_tree(
                 record,
                 strategy_name=effective_strategy_name,
                 strategy_line_metadata=metadata_by_numeric_id.get(int(record.line_numeric_id)),
-                crop_config=crop_config or {},
+                crop_config=crop_config,
             )
             _, decoded_jpg = _encode_like_app_jpg(crop_result.image)
             line_elem, region_id, line_id = context

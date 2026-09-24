@@ -20,6 +20,8 @@ app/input_manuscripts_original_backup/*/
 .claude
 paper/
 
+app/data_precorrection_backup.zip
+
 # Env files
 app/frontend/.env
 app/frontend/.env.*

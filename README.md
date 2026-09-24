@@ -164,7 +164,7 @@ conda activate gnn_layout
 python app.py
 ```
 
-The server runs on `http://localhost:5000`.
+The server runs on `http://localhost:5001`.
 
 #### 🔵 Start Frontend
 First verify Node.js and npm:
@@ -176,13 +176,24 @@ npm --version
 
 If either command is missing, install the current Node.js LTS release from the [Node.js official website](https://nodejs.org/en/download/). npm is included with Node.js. The frontend requires Node `^20.19.0 || >=22.12.0`; upgrade Node.js if the installed version is older.
 
-Create a .env file in `app/frontend/` with the following content, replacing the backend URL if different from `http://localhost:5000`:
+Create a .env file in `app/frontend/` with the following content, replacing the backend URL if different from `http://localhost:5001`:
 
 ```env
-VITE_BACKEND_URL="http://localhost:5000"
+VITE_BACKEND_URL="http://localhost:5001"
+```
+5001 can be another number too. Use whatever the PORT_NUMBER is in the below line in `app/app.py`
+```
+app.run(host='0.0.0.0', port=PORT_NUMBER, debug=True)
 ```
 
-Then run:
+Right now we use 5001 in the .env file because the currently is  is:
+
+```
+app.run(host='0.0.0.0', port=5001, debug=True)
+```
+
+
+To setup frontend, run:
 
 ```bash
 cd app/frontend

@@ -495,6 +495,8 @@ def prepare_page_line_dataset(
 
     gt_lines = []
     prepared_records = []
+    page_crop_config = dict(crop_config or segmentation_args or {})
+    page_crop_config.setdefault("page_median_color", int(np.median(processing_image)))
 
     for index, record in enumerate(ordered_records, start=1):
         strategy_line_metadata = strategy_line_metadata_by_numeric_id.get(int(record.line_numeric_id))
@@ -503,7 +505,7 @@ def prepare_page_line_dataset(
             record,
             strategy_name=effective_strategy_name,
             strategy_line_metadata=strategy_line_metadata,
-            crop_config=crop_config or segmentation_args or {},
+            crop_config=page_crop_config,
         )
         raw_crop = crop_result.image
         crop_metadata = dict(crop_result.metadata)

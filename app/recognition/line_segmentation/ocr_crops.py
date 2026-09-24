@@ -38,11 +38,11 @@ class OcrCropResult:
     metadata: dict
 
 
-def masked_line_crop(processing_image: np.ndarray, polygon_points) -> np.ndarray:
+def masked_line_crop(processing_image: np.ndarray, polygon_points, page_median_color: int | None = None) -> np.ndarray:
     polygon = np.array(polygon_points, dtype=np.int32)
     x_val, y_val, width, height = cv2.boundingRect(polygon)
     cropped_line_image = processing_image[y_val : y_val + height, x_val : x_val + width]
-    page_median_color = int(np.median(processing_image))
+    page_median_color = int(np.median(processing_image) if page_median_color is None else page_median_color)
     new_img = np.ones(cropped_line_image.shape, dtype=np.uint8) * page_median_color
     mask_polygon = np.zeros(cropped_line_image.shape[:2], dtype=np.uint8)
     polygon_shifted = polygon - [x_val, y_val]
@@ -233,7 +233,11 @@ def crop_line_record_for_ocr(
         fallback_reason = None
 
     return OcrCropResult(
-        image=masked_line_crop(processing_image, _record_value(record, "polygon_points") or []),
+        image=masked_line_crop(
+            processing_image,
+            _record_value(record, "polygon_points") or [],
+            page_median_color=(crop_config or {}).get("page_median_color"),
+        ),
         metadata=_fallback_crop_metadata(
             record=record,
             strategy_name=effective_strategy_name,

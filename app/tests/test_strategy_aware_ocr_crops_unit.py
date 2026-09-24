@@ -4,6 +4,7 @@ import json
 import shutil
 import sys
 import unittest
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from types import SimpleNamespace
@@ -213,6 +214,42 @@ class StrategyAwareOcrCropsUnitTest(unittest.TestCase):
         self.assertTrue(result.metadata["stable_unwrap"]["used_stable_path"])
         self.assertTrue(result.metadata["stable_unwrap"]["vectorized_map"])
         self.assertTrue(result.metadata["stable_unwrap"]["vectorized_station_sampling"])
+
+    def test_crop_config_page_median_color_is_reused_without_recomputing(self):
+        image, record = self._image_and_record()
+        record.polygon_points = [[42, 16], [54, 16], [48, 80]]
+        real_median = np.median
+        page_sized_median_calls = []
+
+        def tracking_median(values, *args, **kwargs):
+            if np.size(values) == image.size:
+                page_sized_median_calls.append(np.shape(values))
+            return real_median(values, *args, **kwargs)
+
+        with patch("numpy.median", side_effect=tracking_median):
+            masked = crop_line_record_for_ocr(image, record, crop_config={"page_median_color": 7})
+            stable = crop_line_record_for_ocr(
+                image,
+                record,
+                strategy_name="local_polygons_stable_unwrap_v1",
+                strategy_line_metadata={
+                    "line_numeric_id": 7,
+                    "crop_model": "local_polygon_stable_unwrap",
+                    "local_s_min": 0.0,
+                    "local_s_max": 60.0,
+                    "local_n_min": -8.0,
+                    "local_n_max": 8.0,
+                },
+                crop_config={"page_median_color": 7},
+            )
+
+        self.assertEqual(page_sized_median_calls, [])
+        np.testing.assert_array_equal(
+            masked.image,
+            masked_line_crop(image, record.polygon_points, page_median_color=7),
+        )
+        self.assertIn(7, masked.image)
+        self.assertTrue(stable.metadata["used_unwrap"])
 
     def test_stable_point_baseline_uses_reading_direction_as_crop_axis(self):
         image = np.full((96, 96), 240, dtype=np.uint8)
