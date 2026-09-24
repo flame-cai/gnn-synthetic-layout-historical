@@ -1,3 +1,30 @@
+# new
+how does text recovery of the annotation tool working? as our OCR model will do bad, if I manually correct a small correction to a layout (adding a node to a text-line), will the tool be able to recover the text based on the text-line location? 
+If I add a new text-line manually (because it was not transcribed in the new dataset labels), and then go to the read mode to annotate the unicode of that line, will we be able to recover the text of all other existing lines? Again, note that our OCR model will make bad predictions on the newar text, so we need to be able to rely on the text-line location to recover text
+
+regarding Hitopadesa and Vetala, if 4 of 1,425 lines lose characters (vetala_0008/0009), then i guess ×3 upscaling works betterm because I want to minimize me manually annotatating (adding) missed characters..
+
+and yes, fix the 34 in app/input_manuscripts (backed up first)
+
+
+
+# Doubts
+3. **CRAFT misses only marginal glyphs.** 24 lines had no node at all, every one a folio number or marginal mark; when you say they are rebuilt from the source baseline, is the respective conversion is the graph based format (with nodes and edges)? what do you mean by: 160 "characters missed at line ends are recovered from heatmap evidence"
+
+
+on the sample subset, please check if min_distance 15 instead of 20 works better. For the two manuscript which are low resolution, instead of upscaling them (which can cause artifacts), can we instead use min_distance of 8 for such manuscripts? CRAFT also processes low resolution images faster so that is good. So try this approach on the subset first.
+
+51 of 154 folio numbers
+and marginal marks need a human look? mostly because of how the tool crops one- and two-node lines? what do you mean by this? I know that the fallback cropping (and thus the bounding polygons) might go wrong, but we care more about the gnn based format labels, and the unicode annotation than the bounding polygons. Please check what you mean by these "51" need manual annotation. 
+
+
+# Answers to questions:
+A1. Let's go with keeping the annotations in devanagari script, but also keeps a backup page xml files in a seperate unused folder which have everything else the same, but with the unicode labels in newa script.
+
+A2. If the OCR model's character set does not have `॥`, i think we should replace precisely the 34 `॥` in the project's dataset with `।।`. For the new dataset too, write  `॥` as `।।`. Thus for all datasets we want to follow `।।` convention. Does this make sense?
+
+A3. Please list which pages to look at which are examples of ink source being untranscribed. (**Untranscribed ink** exists on many leaves: later-hand marginal notes (`p006`), an interlinear insertion (`p004`), left-margin marks (Hitopadesa, Vetala), decorative end-of-text marks.) I'm planning to manually annotate the unicode of such line from the annotation tool by loading the pages. However, do we get the layouts annotations of such lines? or would i need to annotate the layout also manually?
+
 # newar dataset
 can you please study the below mentioned dataset, and check if the dataset can be converted to the format of our dataset in "app/input_manuscripts" which our annotation tool "app" produces (so please study how our annotation tool works too):
 

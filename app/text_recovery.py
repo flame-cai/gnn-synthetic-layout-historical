@@ -24,6 +24,8 @@ AMBIGUITY_MARGIN = 0.04
 # empty. Measured on 766 text-verified pairs: true pairs sit at p90 = 0.000 and
 # max 0.09 median-line-heights, while the nearest wrong candidate is 3+ away, so
 # these thresholds sit in a wide empty gap rather than on a tuned boundary.
+# (Measured with sample-to-sample distances; distances are now sample-to-polyline,
+# which is never larger, so true pairs sit at or below those figures.)
 GEOMETRY_MAX_DISTANCE = 0.08
 # The runner-up must be clearly worse than the best, scaled by how good the best
 # is. A flat "runner-up must be far away" rule ignores that an exact match at
@@ -364,15 +366,37 @@ def _sample_polyline(points: tuple[tuple[float, float], ...], count: int = GEOME
     return tuple(samples)
 
 
+def _point_segment_distance(px, py, start, end) -> float:
+    (ax, ay), (bx, by) = start, end
+    dx, dy = bx - ax, by - ay
+    length_sq = dx * dx + dy * dy
+    if length_sq <= 0:
+        return math.hypot(px - ax, py - ay)
+    t = min(1.0, max(0.0, ((px - ax) * dx + (py - ay) * dy) / length_sq))
+    return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
+
 def _mean_nearest_distance(source, target) -> float:
+    """Mean distance from each source sample to the target polyline.
+
+    Measured to the target's segments, not to its samples: two resamplings of
+    nearly the same baseline put their samples at slightly different stations,
+    and on a long line (samples ~37 px apart on a 2,360 px line) a point-to-point
+    distance then reads up to half the sample spacing for a line that has not
+    moved -- enough to lose a line whose only change was one added character.
+    """
+    if len(target) == 1:
+        tx, ty = target[0]
+        return sum(math.hypot(sx - tx, sy - ty) for sx, sy in source) / len(source)
+    segments = list(zip(target, target[1:]))
     total = 0.0
     for sx, sy in source:
-        total += min(math.hypot(sx - tx, sy - ty) for tx, ty in target)
+        total += min(_point_segment_distance(sx, sy, start, end) for start, end in segments)
     return total / len(source)
 
 
 def _baseline_distance(source, target) -> float | None:
-    """Symmetric mean-nearest-point distance between two sampled baselines."""
+    """Symmetric mean distance between two sampled baselines, each to the other's polyline."""
     if not source or not target:
         return None
     return 0.5 * (_mean_nearest_distance(source, target) + _mean_nearest_distance(target, source))

@@ -891,13 +891,26 @@ filtered out before matching even starts.
 The **geometry pass** then matches what is left using `Baseline` position alone.
 A layout save only changes the lines the human edited; every other line keeps a
 pixel-identical baseline and merely gets a new `structure_line_id`, so geometry
-is the stable identity. Distance is the symmetric mean-nearest-point distance
-between baselines resampled to 64 arclength-equidistant points, normalised by the
-page's median smaller-Coords-dimension. A pair is accepted at `<= 0.08` of that
-unit when the runner-up is at least `max(0.20, 4 x best)` away. Measured over 766
-text-verified pairs, true pairs sit at p90 `0.000` and max `0.09` while the
-nearest wrong candidate is 3+ units away, so the accept threshold sits in a wide
-empty gap; sweeping it from `0.02` to `0.30` changes nothing.
+is the stable identity. Each baseline is resampled to 64 arclength-equidistant
+points, and distance is the symmetric mean distance from each sample to the other
+baseline's polyline, normalised by the page's median smaller-Coords-dimension. A
+pair is accepted at `<= 0.08` of that unit when the runner-up is at least
+`max(0.20, 4 x best)` away. Measured over 766 text-verified pairs, true pairs sit
+at p90 `0.000` and max `0.09` while the nearest wrong candidate is 3+ units away,
+so the accept threshold sits in a wide empty gap; sweeping it from `0.02` to
+`0.30` changes nothing. (Those figures were measured with sample-to-sample
+distances; sample-to-polyline is never larger.)
+
+The distance is measured to the other *polyline*, not to its samples, because the
+edited line itself must survive a small edit. Two resamplings of nearly the same
+baseline put their samples at slightly different stations, and on a long line the
+samples are far apart (~37 px on a 2,360 px line), so a sample-to-sample distance
+read up to half that spacing for a line that had barely changed. One character
+added to or removed from such a line pushed it past `0.08` and its text was lost;
+replayed through the routes with a fresh (and unreadable) OCR reading in between,
+sample-to-polyline restores every line, the edited one included
+(`newar_sanskrit_dataset/analysis/text_recovery_scenarios.py`,
+`test_geometry_pass_recovers_a_long_line_after_a_one_character_edit`).
 
 The runner-up rule is scaled by the best distance rather than flat, because an
 exact match at distance `0` is decisive however close the next line happens to

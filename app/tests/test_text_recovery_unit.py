@@ -258,6 +258,34 @@ class TextRecoveryUnitTest(unittest.TestCase):
         self.assertEqual(plan["geometry_matched_line_count"], 0)
         self.assertTrue(all(m["match_method"] == "text" for m in plan["matches"]))
 
+    @staticmethod
+    def _long_line(line_id, text, base_y, *, x1=2360, step=40, height=100):
+        """A long line with a node every ``step`` px, as a converted leaf has."""
+        points = [(x, base_y) for x in range(0, x1 + 1, step)]
+        if points[-1][0] != x1:
+            points.append((x1, base_y))
+        return {
+            "id": line_id,
+            "text": text,
+            "coords": [(0, base_y - height), (x1, base_y - height), (x1, base_y), (0, base_y)],
+            "baseline": points,
+        }
+
+    def test_geometry_pass_recovers_a_long_line_after_a_one_character_edit(self):
+        # Appending one character (32 px) to a 2,360 px line shifts every
+        # arclength sample of its baseline slightly.  Comparing samples with
+        # samples then measured about half the sample spacing (~9 px against a
+        # 100 px line) -- past the threshold -- and the edited line lost its
+        # text.  Samples are compared with the other baseline itself.
+        plan = self._plan_for(
+            [self._long_line("0", "rama", 500), self._long_line("1", "sita", 575)],
+            [self._long_line("7", "", 500, x1=2392), self._long_line("8", "", 575)],
+        )
+        by_current = {m["current_line_id"]: m for m in plan["matches"]}
+        self.assertEqual(by_current["7"]["recovered_text"], "rama")
+        self.assertEqual(by_current["8"]["recovered_text"], "sita")
+        self.assertEqual(plan["geometry_matched_line_count"], 2)
+
     def test_geometry_pass_is_skipped_when_lines_have_no_baseline(self):
         backup = [{"id": "0", "text": "rama", "coords": [(0, 0), (200, 0), (200, 20), (0, 20)]}]
         current = [{"id": "7", "text": "xq", "coords": [(0, 0), (200, 0), (200, 20), (0, 20)]}]
