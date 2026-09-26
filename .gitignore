@@ -76,3 +76,5 @@ scripts/convert_old_manuscript_annotations.py
 
 
 MultimodalOCR
+# Backups written by app/scripts/*.py (copies of manuscript data; never commit)
+app/scripts/work/
