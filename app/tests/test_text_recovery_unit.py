@@ -18,6 +18,8 @@ from text_recovery import (  # noqa: E402
     build_text_recovery_plan,
     build_text_recovery_state,
     latest_text_recovery_backup,
+    record_text_recovery_answer,
+    snapshot_page_xml_before_recovery,
 )
 
 
@@ -118,6 +120,67 @@ class TextRecoveryUnitTest(unittest.TestCase):
 
         # Unknown, not False: the GUI must still warn for legacy backups.
         self.assertIsNone(state["had_read_mode_annotations"])
+
+    def _page_with_text(self, text="rama"):
+        current_xml = self.xml_dir / "233_0001.xml"
+        self._write_xml(
+            current_xml,
+            [{"id": "0", "text": text, "coords": [(0, 0), (100, 0), (100, 20), (0, 20)]}],
+        )
+        return current_xml
+
+    def test_backup_of_a_page_without_text_is_not_written(self):
+        current_xml = self._page_with_text()
+        first = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+        # A second layout save before any recovery: the page has no text any more.
+        self._write_xml(current_xml, [{"id": "0", "coords": [(0, 0), (100, 0), (100, 20), (0, 20)]}])
+
+        second = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+
+        self.assertIsNone(second)
+        self.assertEqual(latest_text_recovery_backup(self.tmp_root, "233_0001")["backup_id"], first["backup_id"])
+
+    def test_answer_is_reported_with_the_backup_and_does_not_reorder_backups(self):
+        current_xml = self._page_with_text()
+        older = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+        newer = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+        self.assertIsNone(build_text_recovery_state(self.tmp_root, "233_0001", current_xml_path=current_xml)["answer"])
+
+        record_text_recovery_answer(self.tmp_root, "233_0001", newer["backup_id"], "declined")
+        state = build_text_recovery_state(self.tmp_root, "233_0001", current_xml_path=current_xml)
+
+        self.assertEqual(state["backup_id"], newer["backup_id"])
+        self.assertEqual(state["answer"]["answer"], "declined")
+        self.assertNotEqual(older["backup_id"], newer["backup_id"])
+
+    def test_only_the_latest_backup_can_be_answered(self):
+        current_xml = self._page_with_text()
+        older = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+        newer = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+
+        with self.assertRaises(LookupError):
+            record_text_recovery_answer(self.tmp_root, "233_0001", older["backup_id"], "declined")
+        with self.assertRaises(ValueError):
+            record_text_recovery_answer(self.tmp_root, "233_0001", newer["backup_id"], "whatever")
+
+    def test_a_new_layout_backup_asks_again(self):
+        current_xml = self._page_with_text()
+        first = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+        record_text_recovery_answer(self.tmp_root, "233_0001", first["backup_id"], "recovered")
+
+        backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+
+        state = build_text_recovery_state(self.tmp_root, "233_0001", current_xml_path=current_xml)
+        self.assertIsNone(state["answer"])
+
+    def test_pre_recovery_snapshot_keeps_the_page_and_is_not_a_backup(self):
+        current_xml = self._page_with_text("newer text")
+        backup = backup_page_xml_for_text_recovery(self.tmp_root, "233_0001", xml_path=current_xml)
+
+        snapshot = snapshot_page_xml_before_recovery(self.tmp_root, "233_0001", current_xml)
+
+        self.assertEqual(snapshot.read_bytes(), current_xml.read_bytes())
+        self.assertEqual(latest_text_recovery_backup(self.tmp_root, "233_0001")["backup_id"], backup["backup_id"])
 
     def test_recovery_plan_matches_by_text_similarity_and_coords_overlap(self):
         backup_xml = self.xml_dir / "backup.xml"

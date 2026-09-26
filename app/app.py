@@ -106,6 +106,8 @@ from text_recovery import (
     backup_page_xml_for_text_recovery,
     build_latest_text_recovery_plan,
     build_text_recovery_state,
+    record_text_recovery_answer,
+    snapshot_page_xml_before_recovery,
 )
 from pipeline_visualization import (
     default_enabled as pipeline_visualization_default_enabled,
@@ -2089,11 +2091,27 @@ def recover_text_from_layout_backup(manuscript, page):
     if not xml_path.exists():
         return jsonify({"error": "Current PAGE XML not found"}), 404
 
+    request_data = request.get_json(silent=True) or {}
+    requested_backup_id = request_data.get("backupId")
     try:
+        state = build_text_recovery_state(manuscript_root, page, current_xml_path=xml_path)
+        # The GUI names the backup it showed the user. A different latest backup
+        # means the layout was saved again meanwhile: recovering from it would
+        # not be what the user agreed to.
+        if requested_backup_id and state.get("backup_id") != requested_backup_id:
+            return jsonify({"error": "The page has a newer layout backup. Reload the page and try again.",
+                            "code": "backup_changed"}), 409
+        # Once the prompt for this backup was answered, the page's text may be
+        # newer than the backup; recovering again needs an explicit confirmation.
+        if state.get("answer") and not request_data.get("confirmAnswered"):
+            return jsonify({"error": "Text was already recovered or kept for this layout change.",
+                            "code": "already_answered", "answer": state.get("answer")}), 409
+
         plan = build_latest_text_recovery_plan(manuscript_root, page, xml_path)
         if not plan.get("available"):
             return jsonify({"error": "No text recovery backup is available", "textRecovery": plan}), 404
 
+        snapshot_path = snapshot_page_xml_before_recovery(manuscript_root, page, xml_path)
         existing_data = get_existing_text_content(str(xml_path))
         recovered_text = dict(existing_data.get("text", {}))
         recovered_confidences = dict(existing_data.get("confidences", {}))
@@ -2107,6 +2125,14 @@ def recover_text_from_layout_backup(manuscript, page):
             xml_path,
             text_content=recovered_text,
             confidences=recovered_confidences,
+        )
+        record_text_recovery_answer(
+            manuscript_root,
+            page,
+            plan["backup_id"],
+            "recovered",
+            matched_line_count=len(plan.get("matches", [])),
+            before_recovery_snapshot=str(snapshot_path.relative_to(manuscript_root)),
         )
         updated_data = get_existing_text_content(str(xml_path))
         active_learning = _get_manuscript_active_learning_state(manuscript)
@@ -2130,6 +2156,29 @@ def recover_text_from_layout_backup(manuscript, page):
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
     
+@app.route('/text-recovery-answer/<manuscript>/<page>', methods=['POST'])
+def answer_text_recovery_prompt(manuscript, page):
+    """Record "Continue Without Recovering" for the page's latest backup."""
+    manuscript_root = _safe_manuscript_root(manuscript)
+    if manuscript_root is None or not manuscript_root.exists():
+        return jsonify({"error": "Manuscript not found"}), 404
+    request_data = request.get_json(silent=True) or {}
+    backup_id = request_data.get("backupId")
+    if not backup_id:
+        return jsonify({"error": "backupId is required"}), 400
+    try:
+        answer = record_text_recovery_answer(manuscript_root, page, backup_id, "declined")
+    except LookupError:
+        return jsonify({"error": "The page has a newer layout backup. Reload the page and try again.",
+                        "code": "backup_changed"}), 409
+    xml_path = manuscript_root / "layout_analysis_output" / "page-xml-format" / f"{page}.xml"
+    return jsonify({
+        "status": "success",
+        "answer": answer,
+        "textRecovery": build_text_recovery_state(manuscript_root, page, current_xml_path=xml_path),
+    })
+
+
 @app.route('/save-graph/<manuscript>/<page>', methods=['POST'])
 def save_generated_graph(manuscript, page):
     return jsonify({"status": "ok"})

@@ -994,11 +994,50 @@ written before it existed; consumers must treat `null` as "may hold
 annotations".
 
 Read Mode raises a modal on the first edit attempt — clicking a line, tabbing to
-one, or typing into a focused one — when recovery is available and
-`had_read_mode_annotations` is not `false`. The choice ("Recover Previous Text"
-or "Continue Without Recovering") is remembered per backup id in `localStorage`,
-so the user is asked once per layout change rather than once per page visit, and
-pressing `Recover Text` directly settles it the same way.
+one, or typing into a focused one — and on a Text Review commit (`S`,
+`Shift+S`, save-on-leave), when recovery is available, the backup is
+unanswered, and `had_read_mode_annotations` is not `false`. The commit check
+exists because committing a fresh reading without ever editing it would
+otherwise bury the backed-up text with no prompt at all; the commit is not sent,
+and the user saves again after answering.
+
+The answer is stored with the backup, on the server, as an `answer` object in
+the backup's metadata JSON (`recovered`, `declined`, or `migrated`), and
+surfaced as `pageWorkflow.text_recovery.answer`. So the user is asked once per
+layout change in any browser, and a new layout save, which writes a new
+backup, asks again. `POST /recover-text` records `recovered`;
+`POST /text-recovery-answer/<manuscript>/<page>` (`{"backupId"}`) records
+`declined`. Only the latest backup can be answered, and writing an answer keeps
+the metadata file's mtime, since the latest backup is chosen by mtime.
+
+Recovering writes into the page XML at once, so it is guarded against putting
+old text over newer text by mistake:
+
+- the GUI sends the `backupId` it showed; a different latest backup returns
+  `409 backup_changed`;
+- once the backup is answered, the page's text may be newer than the backup, so
+  recovery returns `409 already_answered` unless the request carries
+  `confirmAnswered: true`, which the GUI sends only after a confirmation dialog;
+- every recovery first copies the page XML to
+  `text_recovery_backups/<page>/before_recovery/<utc>.xml`, recorded in the
+  answer as `before_recovery_snapshot`.
+
+A layout save of a page with no text writes no backup. Before this, a second
+layout save before any recovery wrote an empty backup that became the latest one
+and hid the backup that still held the text.
+
+The recorded `backup_xml` path is relative to the server's working directory, so
+the loader reads the backup's XML from next to its metadata file. (It used to
+resolve the recorded path against the backup folder, never found it, and fell
+back to a listing that ignored the metadata: `had_read_mode_annotations`,
+`backed_up_at`, and answers were silently dropped.)
+
+`app/scripts/mark_old_text_recovery_backups.py` marks the latest backup of a
+page `migrated` only when recovering could not restore anything the page lacks:
+Recover would change no line, or every line it would change was edited after the
+layout change (it differs from the OCR reading the registry recorded after the
+backup). A page with a changed line still equal to that reading keeps its prompt
+and is listed. Dry run unless `--apply`; it never modifies page text.
 
 This classification is read-only with respect to active learning. It adds one
 registry load to a layout save, reads revisions and the recorded prediction, and

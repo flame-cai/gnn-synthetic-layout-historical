@@ -258,6 +258,9 @@
             annotated line{{ pageWorkflow.text_recovery.backup_text_line_count === 1 ? '' : 's' }}.
             Lines that cannot be matched stay as they are and are highlighted for review.
           </p>
+          <p v-if="textRecoveryPrompt.fromSave" class="text-recovery-prompt-meta">
+            The page was not saved. Answer this first, then save again.
+          </p>
           <div class="recognition-recovery-actions">
             <button
               class="action-btn"
@@ -389,14 +392,11 @@
                 v-for="(points, lineId) in pagePolygons"
                 :key="`poly-bg-${lineId}`"
                 :points="pointsToSvgString(points)"
-                :fill="textRecoveryLineStyle(lineId).fill"
-                :stroke="textRecoveryLineStyle(lineId).stroke"
-                :stroke-width="textRecoveryLineStyle(lineId).width"
+                :fill="textRecoveryInactiveLineStyle(lineId).fill"
+                :stroke="textRecoveryInactiveLineStyle(lineId).stroke"
+                :stroke-width="textRecoveryInactiveLineStyle(lineId).width"
                 class="polygon-inactive"
-                :class="{
-                  'polygon-unrecovered': isTextRecoveryUnrecovered(lineId),
-                  'polygon-geometry-recovered': isTextRecoveryGeometryMatched(lineId),
-                }"
+                :class="{ 'polygon-unrecovered': isTextRecoveryUnrecovered(lineId) }"
                 @click="requestActivateInput(lineId)"
               />
 
@@ -680,8 +680,8 @@
                Recovered {{ textRecoveryResult.matched_line_count || 0 }} line{{ (textRecoveryResult.matched_line_count || 0) === 1 ? '' : 's' }}.
                <template v-if="textRecoveryResult.geometry_matched_line_count">
                  <span class="text-recovery-geometry-note">
-                   {{ textRecoveryResult.geometry_matched_line_count }} of them (amber) matched by position only, because the new reading was too
-                   different to compare &mdash; check that the text belongs to the line.
+                   {{ textRecoveryResult.geometry_matched_line_count }} of them matched by position only (outlined amber when selected), because the
+                   new reading was too different to compare &mdash; check that the text belongs to the line.
                  </span>
                </template>
                {{ (textRecoveryResult.unrecovered_line_ids || []).length }} line{{ (textRecoveryResult.unrecovered_line_ids || []).length === 1 ? '' : 's' }} (red) need manual review.
@@ -2056,6 +2056,9 @@ const recoverTextButtonTitle = computed(() => {
   if (busyReason) return busyReason
   if (textRecoveryInFlight.value) return 'Recovering text from the latest saved layout backup.'
   if (!pageWorkflow.text_recovery.available) return 'Recover Text is available after a layout backup and a fresh page reading exist.'
+  if (pageWorkflow.text_recovery.answer) {
+    return 'Text was already recovered or kept after the last layout change. Recovering again replaces matched lines with the older backed-up text (asks first).'
+  }
   return 'Recover matching corrected text from the previous layout backup. Unmatched lines will be highlighted.'
 })
 
@@ -2150,42 +2153,46 @@ const replaceLocalRecognitionData = (textPayload = {}, confidencePayload = {}) =
 // --- LAYOUT-CHANGE TEXT RECOVERY WARNING ---
 // A layout save regenerates the page's lines, so the text shown afterwards is a
 // fresh reading and the user's earlier corrections live only in the backup that
-// Recover Text restores. Editing before recovering silently strands that work,
-// so the first edit attempt raises a prompt. The acknowledgement is remembered
-// per backup, so the user is asked once per layout change and not once per page
-// visit.
-const textRecoveryAckStorageKey = (backupId) => {
-  if (!localManuscriptName.value || !localCurrentPage.value || !backupId) return null
-  return `text_recovery_ack:${localManuscriptName.value}:${localCurrentPage.value}:${backupId}`
-}
-
-const readTextRecoveryAcknowledgement = (backupId) => {
-  const key = textRecoveryAckStorageKey(backupId)
-  if (!key) return false
-  try {
-    return localStorage.getItem(key) === '1'
-  } catch (err) {
-    return false
-  }
-}
-
+// Recover Text restores. Editing or committing before recovering silently
+// strands that work, so the first edit or commit attempt raises a prompt. The
+// answer is stored with the backup on the server, so the user is asked once per
+// layout change, in any browser, and not once per page visit.
 const syncTextRecoveryAcknowledgement = () => {
   const backupId = pageWorkflow.text_recovery.backup_id
   if (textRecoveryPromptBackupId.value !== backupId) {
     textRecoveryPrompt.value = null
   }
   textRecoveryPromptBackupId.value = backupId
-  textRecoveryAcknowledged.value = readTextRecoveryAcknowledgement(backupId)
+  textRecoveryAcknowledged.value = Boolean(pageWorkflow.text_recovery.answer)
 }
 
+// Stops the prompt for the rest of this visit even if recording the answer on
+// the server fails; the server copy is what keeps it answered next time.
 const acknowledgeTextRecovery = () => {
   textRecoveryAcknowledged.value = true
-  const key = textRecoveryAckStorageKey(pageWorkflow.text_recovery.backup_id)
-  if (!key) return
+}
+
+const recordTextRecoveryDeclined = async () => {
+  const backupId = pageWorkflow.text_recovery.backup_id
+  if (!backupId || !localManuscriptName.value || !localCurrentPage.value) return
   try {
-    localStorage.setItem(key, '1')
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/text-recovery-answer/${localManuscriptName.value}/${localCurrentPage.value}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ backupId }),
+      }
+    )
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(data.error || 'Could not record the answer')
+    if (data.textRecovery) pageWorkflow.text_recovery.answer = data.textRecovery.answer || data.answer || null
   } catch (err) {
-    // A full or unavailable localStorage only costs a repeated prompt.
+    console.warn('[text-recovery] could not record the answer; the prompt will return next visit', {
+      manuscript: localManuscriptName.value,
+      page: localCurrentPage.value,
+      error: err.message,
+    })
   }
 }
 
@@ -2199,10 +2206,10 @@ const textRecoveryWarningPending = computed(() =>
   !textRecoveryInFlight.value
 )
 
-const guardTextEditWithRecoveryPrompt = (lineId = null) => {
+const guardTextEditWithRecoveryPrompt = (lineId = null, { fromSave = false } = {}) => {
   if (!textRecoveryWarningPending.value) return false
   const pendingLineId = lineId ?? focusedLineId.value
-  textRecoveryPrompt.value = { pendingLineId: pendingLineId ? String(pendingLineId) : null }
+  textRecoveryPrompt.value = { pendingLineId: pendingLineId ? String(pendingLineId) : null, fromSave }
   return true
 }
 
@@ -2227,6 +2234,7 @@ const dismissTextRecoveryPrompt = () => {
   const pendingLineId = textRecoveryPrompt.value?.pendingLineId || null
   acknowledgeTextRecovery()
   textRecoveryPrompt.value = null
+  recordTextRecoveryDeclined()
   resumePendingTextEdit(pendingLineId)
 }
 
@@ -2255,8 +2263,8 @@ const isTextRecoveryGeometryMatched = (lineId) =>
 
 const TEXT_RECOVERY_LINE_STYLES = {
   unrecovered: {
-    fill: 'rgba(255, 82, 82, 0.24)', stroke: '#ff5252', width: 2,
-    focusFill: 'rgba(255, 82, 82, 0.28)', focusStroke: '#ff5252', focusWidth: 2,
+    fill: 'rgba(255, 82, 82, 0.14)', stroke: 'none', width: 0,
+    focusFill: 'rgba(255, 82, 82, 0.24)', focusStroke: 'none', focusWidth: 0,
   },
   geometry: {
     fill: 'rgba(255, 179, 0, 0.18)', stroke: '#ffb300', width: 2,
@@ -2273,6 +2281,12 @@ const textRecoveryLineStyle = (lineId) => {
   if (isTextRecoveryGeometryMatched(lineId)) return TEXT_RECOVERY_LINE_STYLES.geometry
   return TEXT_RECOVERY_LINE_STYLES.plain
 }
+
+// Only unrecovered lines stay marked across the page: they need action. A line
+// matched by position is shown amber only while focused, so a recovered page
+// is not covered in outlines.
+const textRecoveryInactiveLineStyle = (lineId) =>
+  isTextRecoveryUnrecovered(lineId) ? TEXT_RECOVERY_LINE_STYLES.unrecovered : TEXT_RECOVERY_LINE_STYLES.plain
 
 const applyTextRecoveryResult = (payload = {}) => {
   textRecoveryResult.value = payload || null
@@ -2549,6 +2563,7 @@ const applyPageWorkflow = (payload = {}) => {
     current_text_line_count: Number(payload?.text_recovery?.current_text_line_count || 0),
     // null means the backup predates this flag: treat unknown as "may hold annotations".
     had_read_mode_annotations: payload?.text_recovery?.had_read_mode_annotations ?? null,
+    answer: payload?.text_recovery?.answer || null,
   }
   syncTextRecoveryAcknowledgement()
 }
@@ -3262,14 +3277,37 @@ const recognizeCurrentPage = async ({ focusAfter = false, suppressErrors = false
   }
 }
 
+// Recovering from a backup whose prompt was already answered would put text from
+// before that layout change over whatever was saved since, so it takes an
+// explicit confirmation. The server keeps a copy of the page before any recovery.
+const confirmRecoveryFromAnsweredBackup = () => {
+  const answer = pageWorkflow.text_recovery.answer
+  if (!answer) return true
+  const backedUpAt = pageWorkflow.text_recovery.backed_up_at
+  const when = backedUpAt ? new Date(backedUpAt).toLocaleString() : 'the last layout change'
+  const done = answer.answer === 'recovered' ? 'was already recovered' : 'was already kept as it is'
+  return confirm(
+    `The text of this page ${done} after the layout change of ${when}. ` +
+    'Recovering again replaces the text of every matched line with the text from before that change, ' +
+    'and corrections made since would be lost from those lines. A copy of the page as it is now is kept on the server.\n\n' +
+    'Recover anyway?'
+  )
+}
+
 const recoverTextFromBackup = async () => {
   if (recoverTextDisabled.value || !localManuscriptName.value || !localCurrentPage.value) return
+  const confirmAnswered = Boolean(pageWorkflow.text_recovery.answer)
+  if (confirmAnswered && !confirmRecoveryFromAnsweredBackup()) return
   textRecoveryInFlight.value = true
   error.value = null
   try {
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/recover-text/${localManuscriptName.value}/${localCurrentPage.value}`,
-      { method: 'POST' }
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ backupId: pageWorkflow.text_recovery.backup_id, confirmAnswered }),
+      }
     )
     const data = await response.json().catch(() => ({}))
     if (!response.ok) throw new Error(data.error || 'Could not recover text')
@@ -4310,6 +4348,11 @@ const saveCurrentPageForCurrentMode = async ({ background = false, forceLayoutSa
     })
     return false
   }
+  // Committing a fresh reading without answering the recovery prompt would bury
+  // the backed-up text under it, so a commit asks first, as an edit does.
+  if (saveScope === 'text_only' && !background && guardTextEditWithRecoveryPrompt(null, { fromSave: true })) {
+    return false
+  }
   await saveModifications(background, { forceLayoutSave, saveScope })
   return true
 }
@@ -4474,8 +4517,8 @@ const saveAndGoNext = async () => {
   } else {
     isProcessingSave.value = true
     try {
-      await saveCurrentPageForCurrentMode()
-      alert('Last page saved!')
+      const saved = await saveCurrentPageForCurrentMode()
+      if (saved) alert('Last page saved!')
     } catch (err) { alert(`Save failed: ${err.message}`) }
     finally { isProcessingSave.value = false }
   }
@@ -5230,19 +5273,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     stroke: rgba(255,255,255,0.6);
     stroke-width: 0;
 }
-.polygon-inactive.polygon-unrecovered {
-    stroke-width: 2;
-}
 .polygon-inactive.polygon-unrecovered:hover {
-    stroke: #ff867f;
-    stroke-width: 2;
-}
-.polygon-inactive.polygon-geometry-recovered {
-    stroke-width: 2;
-}
-.polygon-inactive.polygon-geometry-recovered:hover {
-    stroke: #ffcc55;
-    stroke-width: 2;
+    fill: rgba(255, 82, 82, 0.22);
 }
 .polygon-active {
     pointer-events: none; 

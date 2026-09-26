@@ -1,5 +1,6 @@
 import json
 import math
+import os
 import re
 import shutil
 from dataclasses import dataclass
@@ -10,6 +11,12 @@ import xml.etree.ElementTree as ET
 
 
 TEXT_RECOVERY_BACKUP_DIR = "text_recovery_backups"
+# Copies of the page taken right before a recovery overwrites its text. A
+# subfolder, so the backup listing (top-level *.json / *.xml) never sees them.
+PRE_RECOVERY_SNAPSHOT_DIR = "before_recovery"
+# How a backup's prompt was answered: recovered from it, kept the page's text
+# instead, or marked answered by a maintenance pass over old backups.
+TEXT_RECOVERY_ANSWERS = ("recovered", "declined", "migrated")
 PAGE_XML_NAMESPACE = "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
 MIN_TEXT_SIMILARITY_WITH_COORDS = 0.70
 MIN_COMBINED_SCORE_WITH_COORDS = 0.78
@@ -180,6 +187,11 @@ def backup_page_xml_for_text_recovery(
 
     lines = extract_page_xml_lines(xml_path)
     non_empty_count = len(_non_empty_text_lines(lines))
+    if non_empty_count == 0:
+        # Nothing to recover. Writing it anyway would make an empty backup the
+        # newest one and hide the previous backup, which may still hold the
+        # text of a layout save that was never followed by a recovery.
+        return None
     backup_dir = text_recovery_page_backup_dir(manuscript_root, page)
     backup_dir.mkdir(parents=True, exist_ok=True)
     backup_id = _utc_backup_id()
@@ -216,9 +228,12 @@ def latest_text_recovery_backup(manuscript_root: str | Path, page: str) -> dict 
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
         except Exception:
             continue
-        backup_xml = Path(metadata.get("backup_xml") or metadata_path.with_suffix(".xml"))
-        if not backup_xml.is_absolute():
-            backup_xml = metadata_path.parent / backup_xml
+        # The recorded path is relative to wherever the server ran, so it is
+        # only a hint; the backup's own XML sits next to its metadata.
+        backup_xml = metadata_path.with_suffix(".xml")
+        recorded = metadata.get("backup_xml")
+        if not backup_xml.exists() and recorded and Path(recorded).is_absolute():
+            backup_xml = Path(recorded)
         if backup_xml.exists():
             metadata["backup_xml"] = str(backup_xml)
             metadata["metadata_path"] = str(metadata_path)
@@ -233,6 +248,51 @@ def latest_text_recovery_backup(manuscript_root: str | Path, page: str) -> dict 
         "backup_xml": str(backup_xml),
         "metadata_path": None,
     }
+
+
+def record_text_recovery_answer(manuscript_root: str | Path, page: str, backup_id: str, answer: str, **details) -> dict:
+    """Record in a backup's metadata how its recovery prompt was answered.
+
+    Only the latest backup can be answered: a newer one means the layout changed
+    again and the question is a new one. The metadata file keeps its mtime, since
+    the newest backup is chosen by mtime and an answer must not reorder backups.
+    """
+    if answer not in TEXT_RECOVERY_ANSWERS:
+        raise ValueError(f"unknown text recovery answer: {answer}")
+    latest = latest_text_recovery_backup(manuscript_root, page)
+    if not latest or latest.get("backup_id") != backup_id:
+        raise LookupError("not_latest_backup")
+
+    backup_xml = Path(latest["backup_xml"])
+    metadata_path = Path(latest["metadata_path"]) if latest.get("metadata_path") else backup_xml.with_suffix(".json")
+    if metadata_path.exists():
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        stat = metadata_path.stat()
+        times = (stat.st_atime, stat.st_mtime)
+    else:
+        metadata = {"backup_id": backup_id, "page": str(page), "backup_xml": str(backup_xml)}
+        stat = backup_xml.stat()
+        times = (stat.st_atime, stat.st_mtime)
+
+    metadata["answer"] = {
+        "answer": answer,
+        "answered_at": datetime.now(timezone.utc).isoformat(),
+        **details,
+    }
+    tmp_path = metadata_path.with_name(metadata_path.name + ".tmp")
+    tmp_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp_path.replace(metadata_path)
+    os.utime(metadata_path, times)
+    return metadata["answer"]
+
+
+def snapshot_page_xml_before_recovery(manuscript_root: str | Path, page: str, xml_path: str | Path) -> Path:
+    """Keep a copy of the page as it is right before a recovery rewrites its text."""
+    snapshot_dir = text_recovery_page_backup_dir(manuscript_root, page) / PRE_RECOVERY_SNAPSHOT_DIR
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    snapshot_path = snapshot_dir / f"{_utc_backup_id()}.xml"
+    shutil.copy2(xml_path, snapshot_path)
+    return snapshot_path
 
 
 def build_text_recovery_state(
@@ -271,6 +331,10 @@ def build_text_recovery_state(
         "backup_text_line_count": int(backup_non_empty),
         "current_text_line_count": int(current_non_empty),
         "had_read_mode_annotations": backup.get("had_read_mode_annotations"),
+        # Set once the prompt for this backup was answered, in any browser.
+        # Recovering again after that would put the backup's older text over
+        # whatever was saved since, so the GUI asks before doing it.
+        "answer": backup.get("answer"),
     }
 
 
