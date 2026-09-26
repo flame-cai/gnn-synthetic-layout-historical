@@ -21,6 +21,7 @@ app/input_manuscripts_original_backup/*/
 paper/
 
 app/data_precorrection_backup.zip
+app/input_manuscripts_backup_2026-09-26.zip
 
 # Env files
 app/frontend/.env
