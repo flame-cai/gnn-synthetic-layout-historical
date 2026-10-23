@@ -472,8 +472,8 @@ metric.
 
 **132 of 882 polygons (15.0%) are self-intersecting** (16 / 75 / 41), a property of the densely
 sampled contour the generator emits. Apply a repair policy for geometric metrics and report
-which; the reference evaluator rasterizes `Coords` as a filled contour in page-raster space and
-re-extracts valid foreground contours. Text metrics are unaffected: they read only
+which; the reference evaluator ([`METRICS.md`](../METRICS.md) in this repository) rasterizes
+`Coords` as a filled contour in page-raster space and re-extracts valid foreground contours. Text metrics are unaffected: they read only
 `TextLine/TextEquiv/Unicode`.
 
 ### 5.6 L6 — line geometry and reading direction

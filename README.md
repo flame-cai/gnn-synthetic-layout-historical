@@ -47,6 +47,7 @@ Thus all 4 of the below performance metrics can be external verfied and interati
 
 For example, we can quantify (and externally verify) the transcription accuracy using standard metrics TextEdit and Page-CER. The TextEdit metric ignores line order and geometry, as it pairs each ground-truth line with at most one predicted line and counts unmatched lines as missing or extra text. To calculate TextEdit we use the exact same OmniDocBench simple_match score (Code (v1.5): https://github.com/opendatalab/OmniDocBench/tree/v1_5, pinned at commit 59b103c.) Each non-empty PAGE-XML TextLine is parsed as an atomic item using its direct TextEquiv/Unicode transcription and supplied as an individual text block to the matcher. TextRegion membership is ignored. To calculate Page-CER we sort the ground-truth and
 predicted lines from top to bottom and left to right, join the text strings in that order, and then calculate the Character Edit Distance(CER).
+Because the upstream TextEdit normalization strips Devanagari vowel signs, virama and danda, we also report a Devanagari-relaxed TextEdit that keeps them. The layout itself is scored with object precision/recall/G-F1 at IoU 0.50 and 0.75 and pixel precision/recall/F1 over the `TextLine` polygons. The code that compares a predicted PAGE-XML file against a ground-truth one lives in `experiments/downstream_ocr/` (the only committed part of `experiments/`), and `METRICS.md` gives the exact definitions and usage.
 
 To quantify 'Inference Speed' and 'Inference Speed' we can time the relevent measurements, and do GPU profiling (GPU high bandwidth memory, SRAM, is it memory bandwidth bound or compute bound? etc). This will need to be fleshed out more so please ask the user for details and focus on this only when confirmed by the user.
 
@@ -82,6 +83,9 @@ But we can use this combo to modify any part of the pipeline to imporve the rele
   * **📚 [Manuscript Dataset Release](./dataset_release/DATASET.md):**  
   `dataset_release/`: the dataset used in the paper *"Impact of Iterative Fine-Tuning on Transcription Accuracy in Complex Historical Sanskrit Manuscripts"* — 31 pages from three Sanskrit manuscripts chosen to span layout difficulty, such as dense marginalia and circular text.
   
+  * **📏 [Evaluation Metrics](./METRICS.md):**  
+  `experiments/downstream_ocr/`: compares a predicted PAGE-XML file against a ground-truth one and computes TextEdit (OmniDocBench v1.5), Devanagari-relaxed TextEdit, Page CER, and object/pixel layout metrics.
+
   * **📂 Layout Dataset Release:**  
     The dataset used in the paper *"Towards Text-Line Segmentation of Historical Documents Using Graph Neural Networks"* is available in the [`gram-submission`](https://github.com/flame-cai/gnn-synthetic-layout-historical/tree/gram-submission?tab=readme-ov-file) branch of this repository.
 

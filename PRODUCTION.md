@@ -656,7 +656,8 @@ layout quality (`circle_new` fold_4: G-F1 0.577 -> 0.214). Keeping it off also
 means training never needs the raw `gnn-dataset/` proposals. Evidence:
 `experiments/downstream_ocr/GNN_SUPERVISION_FINDINGS.md`.
 
-The production copy exists because `experiments/` is untracked and production
+The production copy exists because `experiments/` is untracked (only its
+PAGE-XML evaluation metrics are committed; see `METRICS.md`) and production
 must not import untracked code. Keep the two in step, and take any change back
 through the research harness first.
 

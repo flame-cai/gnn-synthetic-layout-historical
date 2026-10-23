@@ -62,7 +62,8 @@ the mirror of OCR fine-tuning from Read Mode commit saves, and each is a
 separate GUI opt-in. The shared implementation lives in
 `src/gnn_training/gnn_finetuning.py`, which the app imports directly and
 `experiments/downstream_ocr/gnn_finetuning.py` re-exports unchanged; production
-must import it from `src/`, because `experiments/` is untracked. The runtime
+must import it from `src/`, because `experiments/` is untracked apart from the
+PAGE-XML evaluation metrics (see `METRICS.md`). The runtime
 recipe `app/pretrained_gnn/gnn_active_learning.yaml` copies the canonical
 experiment hyperparameters and keeps deleted-node supervision off. A per-save
 step continues the active checkpoint incrementally, while a backfill or rebase
@@ -88,6 +89,7 @@ Read these before changing behavior:
 - `VISION.md`: long-term product direction of iteratively fine-tuning to keep reducing burden of human annotation with each new fine-tuned page
 - `RESEARCH_HARNESS.md`: LLM-assisted verifier-driven evolution harness to improve various parts of the pipeline
 - `PRODUCTION.md`: production GUI runtime, OCR active-learning save contracts, manuscript-local OCR state, and production validation commands
+- `METRICS.md`: the committed PAGE-XML vs PAGE-XML evaluation code in `experiments/downstream_ocr/` — TextEdit, Devanagari-relaxed TextEdit, Page CER and object/pixel layout metrics; the only part of `experiments/` under version control (the `.gitignore` whitelist is its import closure, so extend both together)
 - `dataset_release/DATASET.md`: the released ground-truth dataset — label layers, coordinate spaces, evaluation folds, the multi-modal LLM baseline predictions, and how the release is built
 
 

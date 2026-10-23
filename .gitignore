@@ -63,6 +63,29 @@ TOOL_TODO.md
 # Use the /* form, not experiments/: only /* permits re-including a subpath
 # later with a negation such as !experiments/downstream_ocr
 experiments/*
+# Exception: the PAGE-XML vs PAGE-XML evaluation metrics (TextEdit,
+# Devanagari-relaxed TextEdit, Page CER, object and pixel layout metrics) and
+# the vendored OmniDocBench v1.5 code they depend on. This is the import
+# closure of experiments/downstream_ocr/metrics.py; the rest of the harness
+# (runners, CLI, VLM acquisition, reporting, GNN fine-tuning) stays local.
+# See METRICS.md. Each directory is re-included before its own contents are
+# filtered, because git cannot re-include a file whose parent is excluded.
+!experiments/downstream_ocr/
+experiments/downstream_ocr/*
+!experiments/downstream_ocr/__init__.py
+!experiments/downstream_ocr/metrics.py
+!experiments/downstream_ocr/pagexml.py
+!experiments/downstream_ocr/text.py
+!experiments/downstream_ocr/devanagari_textedit.py
+!experiments/downstream_ocr/dataset/
+!experiments/downstream_ocr/omnidocbench_v1_5/
+!experiments/downstream_ocr/configs/
+experiments/downstream_ocr/configs/*
+!experiments/downstream_ocr/configs/pagexml_textedit.yaml
+!experiments/downstream_ocr/tests/
+experiments/downstream_ocr/tests/*
+!experiments/downstream_ocr/tests/__init__.py
+!experiments/downstream_ocr/tests/test_pagexml_textedit.py
 newar_sanskrit_dataset/*
 
 # Legacy text-only manuscript annotations, and the conversion of them into the
