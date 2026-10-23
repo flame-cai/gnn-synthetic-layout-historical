@@ -8,6 +8,8 @@ In step 2, the text content of the segmented text-lines is OCR'ed (recognized) a
 
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
+**⬇ CLICK IMAGE BELOW TO WATCH DEMO ⬇**
+
 [![Watch Demo Video](https://i.ytimg.com/vi/k0AdL5W2j2E/hqdefault.jpg)](https://youtu.be/k0AdL5W2j2E)
 
 
