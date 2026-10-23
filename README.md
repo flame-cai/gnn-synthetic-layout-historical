@@ -3,12 +3,19 @@
 
 This tool digitizes text from historical manuscripts in two steps:  
 
-In step 1, text-lines of the page are segmented automatically (or semi-automatically for dense, complex layouts).  
-In step 2, the text content of the segmented text-lines is OCR'ed (recognized) and converted to unicode text, which can then be manually post-corrected by the human.
+In step 1, text-lines of the page are segmented automatically (or semi-automatically for dense, complex layouts with human in the loop).  
+In step 2, the text content of the segmented text-lines is OCR'ed (recognized) and converted to unicode text, which can then be manually post-corrected by the human in the loop.
 
 Once digitized, the manuscripts can be exported in the standard [PAGE-XML](https://en.wikipedia.org/wiki/Page_Analysis_and_Ground_Truth_Elements) format.
 
 The repo also hosts code for an in-development research experiment and a paper.
+[![Watch Demo Video](https://youtu.be/k0AdL5W2j2E?si=btrCREl9IDcNAZzD)](https://youtu.be/k0AdL5W2j2E?si=btrCREl9IDcNAZzD)
+
+
+## Active Learning
+Corrections made by the human in step 1 (layout corrections) and step 2 (unicode corrections) can be used to interatively fine-tune the respective models, and adapt them to the target manuscript: Graph Neural Network (step 1), and CNN-BiLSTM-CTC (step 2). The Character detector CRAFT used in step 1 is not currently fine-tuned (but can be in the future using: https://github.com/SakuraRiven/CRAFT)
+
+
 
 
 # 😴 Lazy Installation Guide (using LLM Agent Harnesses)
@@ -29,9 +36,28 @@ LLM Agent, before cloning the repo, please do this compact bootstrap:
 5. Treat `gnn_layout` as a project-local Conda environment name. If it already exists and the user cannot confirm it belongs to this repo, create a different name such as `gnn_layout_historical` and use that name everywhere this README says `gnn_layout`.
 
 # LLM + Verifier Combo:
-When we digitize a manuscript, we mean that we take an image as input and output the corresponding unicode text. The pipelines we use in this OCR tool does exactly this, it takes images as inputs and outputs the corresponding PAGE-XML files (containing the written text in unicode format, and the layout information of the manuscript page), while also allowing the Human Sanskrit Expert to remain in the loop and make corrections where required at various stages of the pipeline. The VISION of this tool is to build an historical manuscript digitization workflow, where previously corrected pages (annotated data) is used to train AI models which make better predictions on subsequent pages, reducing the burden of annotation continuously in a loop.
+When we digitize a manuscript, we mean that we take an image as input and output the corresponding unicode text. The pipelines we use in this OCR tool does exactly this, it takes images as inputs and outputs the corresponding PAGE-XML files (containing the written text in unicode format, and the layout information of the manuscript page), while also allowing the Human Sanskrit Expert to remain in the loop and make corrections where required at various stages of the pipeline. 
 
-Because the final output of this tool can be verified by an external verifier (using the page level Character Error Rate metric for example), we can use Agentic Harnesses to make progressive improvements to any part of the pipeline (similar to FunSearch and AlphaEvolve by Google DeepMind). See `RESEARCH_HARNESS.md`.
+The VISION (`VISION.md`). of this tool is to build an historical manuscript digitization workflow, where previously corrected pages (annotated data) is used to train AI models which make better predictions on subsequent pages, reducing the burden of annotation continuously in a loop. In other words, we want the tool to be as data efficient as possible, such that it learns quickly in low resource settings. In addition to 'data efficiency', we want to improve the 'inference speed', 'low compute requirements' (the tool can currently run on GPU with 6GB VRAM), 'accuracy'.
+
+Thus all 4 of the below performance metrics can be external verfied and interatively imporved (similar to AlphaEvolve, and FunSearch by Google Deepmind). See `RESEARCH_HARNESS.md`.
+- 'Data Efficiency'
+- 'Inference Speed'
+- 'Inference Speed'
+- 'accuracy'
+
+For example, we can quantify (and externally verify) the transcription accuracy using standard metrics TextEdit and Page-CER. The TextEdit metric ignores line order and geometry, as it pairs each ground-truth line with at most one predicted line and counts unmatched lines as missing or extra text. To calculate TextEdit we use the exact same OmniDocBench simple_match score (Code (v1.5): https://github.com/opendatalab/OmniDocBench/tree/v1_5, pinned at commit 59b103c.) Each non-empty PAGE-XML TextLine is parsed as an atomic item using its direct TextEquiv/Unicode transcription and supplied as an individual text block to the matcher. TextRegion membership is ignored. To calculate Page-CER we sort the ground-truth and
+predicted lines from top to bottom and left to right, join the text strings in that order, and then calculate the Character Edit Distance(CER).
+
+To quantify 'Inference Speed' and 'Inference Speed' we can time the relevent measurements, and do GPU profiling (GPU high bandwidth memory, SRAM, is it memory bandwidth bound or compute bound? etc). This will need to be fleshed out more so please ask the user for details and focus on this only when confirmed by the user.
+
+As of now, we have used this LLM+External Verifier Combo to optimize:
+- the text-line unwrapping algorithm
+- the CNN-BiLSTM-CTC active learning hyper parameters.
+But we can use this combo to modify any part of the pipeline to imporve the relevant metric which needs to be improved. For example:
+- to train a better GNN than the current pre-trained one. (for imporved accuracy, data efficiency)
+- Kernel Optimization: Change how the GPU executes the mathematical operations, without necessarily changing the model's parameters. (For improved inference and fine-tuning speed)
+
 
 
 
